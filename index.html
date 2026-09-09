@@ -1,95 +1,87 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090d19">
-<title>Business AI</title>
-<style>
-:root{--bg:#f5f6fa;--card:#fff;--ink:#111522;--muted:#747c8e;--line:#e8eaf0;--blue:#5967ff;--dark:#090d19;--green:#18a873;--orange:#e6a13b}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--ink)}body{padding-bottom:88px}
-.app{max-width:480px;margin:auto;min-height:100vh}.top{background:var(--dark);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 22px;border-radius:0 0 26px 26px}.topline{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:750;font-size:17px}.status{font-size:11px;color:#77e0bb;display:flex;align-items:center;gap:6px}.dot{width:7px;height:7px;border-radius:50%;background:#35d7a0}.greeting{margin-top:28px}.greeting small{color:#929ab0;font-size:11px}.greeting h1{font-size:25px;margin:5px 0}.hero{margin-top:20px;background:linear-gradient(135deg,#202b5a,#3d4fd0);border-radius:20px;padding:18px}.hero small{color:#c8cef1}.hero strong{display:block;font-size:31px;margin:3px 0}.hero span{font-size:11px;color:#72e3ba}.content{padding:18px 16px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 11px}.section-title h2{font-size:18px;margin:0}.section-title button{border:0;background:none;color:var(--blue);font-weight:700}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px}.stat small{color:var(--muted);font-size:11px}.stat b{display:block;font-size:25px;margin:4px 0}.attention{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:11px;align-items:center;margin-bottom:9px}.warn{width:35px;height:35px;background:#fff2dc;border-radius:10px;display:grid;place-items:center;color:#b8791d;font-weight:800}.attention div:nth-child(2){flex:1}.attention b,.attention span{display:block}.attention b{font-size:13px}.attention span{font-size:11px;color:var(--muted);margin-top:3px}.review{border:0;background:#111827;color:#fff;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}.job{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:9px}.jobrow{display:flex;justify-content:space-between;gap:10px}.job b{font-size:13px}.job small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.badge{font-size:9px;border-radius:20px;padding:5px 8px;background:#e9edff;color:#5360e9;white-space:nowrap}.badge.orange{background:#fff1dc;color:#a66a13}.screen{display:none}.screen.active{display:block}.back{border:0;background:none;font-size:14px;padding:0;color:var(--blue);font-weight:700}.search{width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px;margin:8px 0 12px;outline:0}.enquiry{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:10px}.enquiry-top{display:flex;justify-content:space-between}.enquiry h3{font-size:14px;margin:0}.enquiry p{font-size:11px;color:var(--muted);line-height:1.45}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{font-size:9px;background:#f0f2f6;border-radius:20px;padding:6px 8px}.primary{width:100%;border:0;background:var(--blue);color:#fff;border-radius:13px;padding:14px;font-weight:750;margin-top:8px}.calendar{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden}.days{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line)}.days div{text-align:center;padding:13px 3px;font-size:10px;color:var(--muted)}.days b{display:block;color:var(--ink);font-size:16px;margin-top:4px}.days .sel{background:#eef0ff;color:var(--blue)}.caljob{padding:15px;border-bottom:1px solid var(--line);display:flex;gap:13px}.caljob time{width:47px;font-size:11px;color:var(--muted)}.event{border-left:3px solid var(--blue);padding-left:10px;font-size:12px}.event small{display:block;color:var(--muted);margin-top:3px}.customer{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:9px;display:flex;gap:11px}.face{width:39px;height:39px;border-radius:12px;background:#e9edff;color:var(--blue);display:grid;place-items:center;font-size:11px;font-weight:800}.customer b,.customer span{display:block}.customer span{font-size:11px;color:var(--muted);margin-top:3px}.rules{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px}.rule{padding:13px 0;border-bottom:1px solid var(--line)}.rule:last-child{border:0}.rule b{font-size:12px}.rule span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.switch{float:right;width:42px;height:24px;background:#d9dce5;border-radius:20px;padding:3px}.switch i{display:block;width:18px;height:18px;background:#fff;border-radius:50%}.switch.on{background:var(--green)}.switch.on i{margin-left:18px}.tabbar{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:9px 8px calc(9px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr)}.tab{border:0;background:none;color:#858b9b;font-size:9px}.tab strong{display:block;font-size:18px;margin-bottom:3px}.tab.active{color:var(--blue)}.toast{position:fixed;z-index:20;bottom:95px;left:50%;transform:translateX(-50%) translateY(15px);background:#111827;color:#fff;padding:11px 15px;border-radius:12px;font-size:11px;opacity:0;transition:.25s}.toast.show{opacity:1;transform:translateX(-50%)} 
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d10">
+  <title>Business AI</title>
+  <style>
+    :root{--bg:#07090c;--card:#11151b;--card2:#171c24;--text:#f5f7fa;--muted:#9aa4b2;--line:#252c36;--accent:#7c5cff;--green:#36d399}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,Arial,sans-serif}
+    button,input,textarea{font:inherit}button{cursor:pointer}
+    .app{max-width:540px;margin:auto;min-height:100vh;padding-bottom:88px}
+    header{padding:22px 20px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(7,9,12,.92);backdrop-filter:blur(16px);z-index:4}
+    .brand{font-weight:800;font-size:22px;letter-spacing:-.5px}.pill{font-size:12px;color:#bfeedd;background:rgba(54,211,153,.12);border:1px solid rgba(54,211,153,.25);padding:6px 9px;border-radius:999px}
+    main{padding:0 16px}.hero{padding:18px 4px 8px}.eyebrow{color:var(--muted);font-size:13px}.hero h1{font-size:34px;line-height:1.05;margin:7px 0 8px;letter-spacing:-1.2px}.hero p{color:var(--muted);margin:0;line-height:1.5}
+    .card{background:linear-gradient(180deg,var(--card),#0e1217);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:14px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+    .card h2{font-size:16px;margin:0 0 12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:var(--card2);border-radius:15px;padding:15px}.stat b{font-size:26px}.stat span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+    .primary{width:100%;border:0;background:var(--accent);color:white;padding:15px;border-radius:15px;font-weight:750;margin-top:12px}.secondary{border:1px solid var(--line);background:var(--card2);color:var(--text);padding:12px 14px;border-radius:13px}
+    .chat{height:calc(100vh - 205px);min-height:500px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:4px 2px 12px}.msg{max-width:88%;padding:12px 14px;border-radius:17px;margin:8px 0;line-height:1.42;font-size:15px;white-space:pre-wrap}.ai{background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:5px}.user{background:var(--accent);margin-left:auto;border-bottom-right-radius:5px}
+    .composer{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:10px}.composer textarea{flex:1;resize:none;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:15px;padding:12px;min-height:46px;max-height:120px;outline:none}.send{width:48px;border:0;border-radius:15px;background:var(--accent);color:white;font-size:19px}
+    .lead{font-size:13px;color:var(--muted);padding:10px 0 0}.lead strong{color:var(--text)}.hidden{display:none}
+    nav{position:fixed;bottom:0;left:0;right:0;z-index:5;max-width:540px;margin:auto;background:rgba(12,15,20,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:9px 12px calc(9px + env(safe-area-inset-bottom))}
+    nav button{background:none;border:0;color:var(--muted);padding:8px;font-size:12px}nav button.active{color:white}nav span{display:block;font-size:19px;margin-bottom:3px}
+    .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px}
+  </style>
 </head>
 <body>
 <div class="app">
-<header class="top">
- <div class="topline"><div class="brand">✦ Business AI</div><div class="status"><i class="dot"></i> AI LIVE</div></div>
- <div class="greeting"><small>WEDNESDAY · 9 SEPTEMBER</small><h1>Good evening, James</h1></div>
- <div class="hero"><small>Potential work today</small><strong>£1,240</strong><span>↑ 18% this week</span></div>
-</header>
+  <header><div class="brand">Business AI</div><div class="pill"><span class="dot"></span>AI online</div></header>
 
-<main class="content">
-<section id="home" class="screen active">
- <div class="section-title"><h2>Today</h2><button onclick="go('enquiries')">See all</button></div>
- <div class="stats"><div class="stat"><small>New enquiries</small><b id="new">2</b><small>+1 this hour</small></div><div class="stat"><small>Booked jobs</small><b>4</b><small>£860 confirmed</small></div><div class="stat"><small>AI handled</small><b>7</b><small>87% automated</small></div><div class="stat"><small>Needs you</small><b id="needs">1</b><small>Decision required</small></div></div>
- <div class="section-title" style="margin-top:24px"><h2>Needs your attention</h2></div>
- <div class="attention"><div class="warn">!</div><div><b>Tom Harrison</b><span>Faulty socket · possible power issue</span></div><button class="review" onclick="review()">Review</button></div>
- <div class="section-title" style="margin-top:24px"><h2>Next jobs</h2><button onclick="go('calendar')">Calendar</button></div>
- <div class="job"><div class="jobrow"><b>10:30 · Consumer unit inspection</b><span class="badge">BOOKED</span></div><small>Sarah Mitchell · Hartlepool</small></div>
- <div class="job"><div class="jobrow"><b>13:00 · Fault finding</b><span class="badge">BOOKED</span></div><small>David Wilson · Billingham</small></div>
- <div class="job"><div class="jobrow"><b>16:30 · Socket installation</b><span class="badge orange">PENDING</span></div><small>Awaiting customer confirmation</small></div>
-</section>
+  <main>
+    <section id="home">
+      <div class="hero"><div class="eyebrow">Your virtual front desk</div><h1>Less admin.<br>More business.</h1><p>Let AI handle first contact, qualify enquiries and prepare jobs for you.</p></div>
+      <div class="card"><h2>Today</h2><div class="stats"><div class="stat"><b id="enquiries">0</b><span>AI enquiries</span></div><div class="stat"><b id="qualified">0</b><span>Qualified leads</span></div></div><button class="primary" onclick="show('ai')">Test your AI receptionist</button></div>
+      <div class="card"><h2>How the MVP works</h2><p style="color:var(--muted);line-height:1.55;margin:0">Customer message → AI understands the job → asks the right questions → captures details → gives you a ready-to-action lead.</p></div>
+    </section>
 
-<section id="enquiries" class="screen">
- <div class="section-title"><div><h2>Enquiries</h2><small style="color:var(--muted)">AI is working through these automatically.</small></div></div>
- <input class="search" placeholder="Search enquiries…" oninput="filterEnquiries(this.value)">
- <div id="list"></div>
-</section>
+    <section id="ai" class="hidden">
+      <div class="hero"><div class="eyebrow">Live AI enquiry assistant</div><h1 style="font-size:30px">Test a customer enquiry</h1><p>The AI is connected to a secure server. Your API key is never placed in this webpage.</p></div>
+      <div class="card chat">
+        <div id="messages" class="messages">
+          <div class="msg ai">Hi, thanks for contacting North East Electrical. What can we help you with today?</div>
+        </div>
+        <div id="lead" class="lead"></div>
+        <div class="composer"><textarea id="input" placeholder="Type a customer message..." rows="1"></textarea><button class="send" onclick="send()">➤</button></div>
+      </div>
+    </section>
+  </main>
 
-<section id="calendar" class="screen">
- <div class="section-title"><div><h2>Calendar</h2><small style="color:var(--muted)">AI books within your rules.</small></div></div>
- <div class="calendar"><div class="days"><div>MON<b>7</b></div><div>TUE<b>8</b></div><div class="sel">WED<b>9</b></div><div>THU<b>10</b></div><div>FRI<b>11</b></div></div>
- <div class="caljob"><time>10:30</time><div class="event"><b>Consumer unit inspection</b><small>Sarah Mitchell · Hartlepool</small></div></div>
- <div class="caljob"><time>13:00</time><div class="event"><b>Fault finding</b><small>David Wilson · Billingham</small></div></div>
- <div class="caljob"><time>16:30</time><div class="event" style="border-color:var(--orange)"><b>Socket installation</b><small>Awaiting confirmation</small></div></div></div>
- <button class="primary" onclick="toast('Appointment creator opened')">＋ Add appointment</button>
-</section>
-
-<section id="customers" class="screen">
- <div class="section-title"><div><h2>Customers</h2><small style="color:var(--muted)">Every customer and job in one place.</small></div></div>
- <div class="customer"><div class="face">SM</div><div><b>Sarah Mitchell</b><span>Hartlepool · 3 jobs</span></div></div>
- <div class="customer"><div class="face">DW</div><div><b>David Wilson</b><span>Billingham · 1 job</span></div></div>
- <div class="customer"><div class="face">ER</div><div><b>Emma Roberts</b><span>Billingham · new enquiry</span></div></div>
- <button class="primary" onclick="toast('Customer creator opened')">＋ Add customer</button>
-</section>
-
-<section id="settings" class="screen">
- <div class="section-title"><div><h2>Business rules</h2><small style="color:var(--muted)">Control what your AI is allowed to do.</small></div></div>
- <div class="rules">
-  <div class="rule"><span class="switch on"><i></i></span><b>Answer enquiries automatically</b><span>AI responds to calls/messages when you are busy.</span></div>
-  <div class="rule"><span class="switch on"><i></i></span><b>Collect customer details</b><span>Name, phone, address, job description and photos.</span></div>
-  <div class="rule"><span class="switch on"><i></i></span><b>Book within availability</b><span>Only use your approved working hours and service area.</span></div>
-  <div class="rule"><span class="switch"><i></i></span><b>Approve unusual jobs</b><span>AI pauses anything outside your rules.</span></div>
- </div>
- <button class="primary" onclick="toast('Business rules saved')">Save rules</button>
-</section>
-</main>
+  <nav>
+    <button id="navhome" class="active" onclick="show('home')"><span>⌂</span>Home</button>
+    <button id="navai" onclick="show('ai')"><span>✦</span>AI Enquiries</button>
+    <button onclick="alert('Business rules are the next module: service area, opening hours, job types and approval rules.')"><span>⚙</span>Rules</button>
+  </nav>
 </div>
-
-<nav class="tabbar">
- <button class="tab active" data-id="home"><strong>⌂</strong>Home</button>
- <button class="tab" data-id="enquiries"><strong>◉</strong>Enquiries</button>
- <button class="tab" data-id="calendar"><strong>▣</strong>Calendar</button>
- <button class="tab" data-id="customers"><strong>♙</strong>Customers</button>
- <button class="tab" data-id="settings"><strong>⚙</strong>Rules</button>
-</nav>
-<div class="toast" id="toast"></div>
 <script>
-const data=[
-{name:"Tom Harrison",job:"Faulty socket / possible power issue",place:"Hartlepool",status:"Needs you",value:"£180–£320",desc:"Customer reports a socket issue. AI paused the booking because the enquiry needs your decision."},
-{name:"Emma Roberts",job:"New outdoor lighting",place:"Billingham",status:"AI handled",value:"£450–£700",desc:"AI collected photos, address and preferred dates. Ready for quote approval."},
-{name:"Sarah Mitchell",job:"Consumer unit inspection",place:"Hartlepool",status:"Booked",value:"£220",desc:"Booked automatically for tomorrow at 10:30."},
-{name:"David Wilson",job:"Intermittent power fault",place:"Billingham",status:"Booked",value:"£320–£550",desc:"Booked for tomorrow at 13:00. Confirmation sent."}
-];
-function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.id===id));scrollTo(0,0);if(id==='enquiries')render(data)}
-document.querySelectorAll('.tab').forEach(x=>x.onclick=()=>go(x.dataset.id));
-function render(a){document.getElementById('list').innerHTML=a.map((x,i)=>`<article class="enquiry"><div class="enquiry-top"><h3>${x.name}</h3><span class="badge ${x.status==='Needs you'?'orange':''}">${x.status.toUpperCase()}</span></div><p>${x.job}<br>${x.desc}</p><div class="chips"><span class="chip">${x.place}</span><span class="chip">${x.value}</span><span class="chip">AI ${x.status==='Booked'?'booked':'handled'}</span></div>${x.status==='Needs you'?'<button class="primary" onclick="approve(this)">Review & approve</button>':''}</article>`).join('')}
-function filterEnquiries(q){q=q.toLowerCase();render(data.filter(x=>(x.name+x.job+x.place).toLowerCase().includes(q)))}
-function approve(btn){btn.textContent='Approved ✓';btn.disabled=true;document.getElementById('needs').textContent='0';toast('Enquiry approved — ready to book')}
-function review(){go('enquiries');toast('Showing the enquiry that needs you')}
-function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
-render(data)
+let history=[];
+let count=0, qualified=0;
+const $=id=>document.getElementById(id);
+function show(id){
+  ['home','ai'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
+  $('navhome').classList.toggle('active',id==='home'); $('navai').classList.toggle('active',id==='ai');
+}
+function add(text,who){
+  const d=document.createElement('div'); d.className='msg '+who; d.textContent=text; $('messages').appendChild(d); $('messages').scrollTop=$('messages').scrollHeight;
+}
+async function send(){
+  const input=$('input'); const message=input.value.trim(); if(!message)return;
+  input.value=''; add(message,'user'); count++; $('enquiries').textContent=count;
+  const thinking=document.createElement('div'); thinking.className='msg ai'; thinking.textContent='Thinking…'; $('messages').appendChild(thinking);
+  try{
+    const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});
+    const data=await res.json();
+    thinking.remove();
+    if(!res.ok) throw new Error(data.error||'Request failed');
+    add(data.reply,'ai');
+    history.push({role:'user',content:message},{role:'assistant',content:data.reply});
+    if(data.lead){
+      $('lead').innerHTML='<strong>Lead captured</strong> · '+[data.lead.name,data.lead.phone,data.lead.job_type,data.lead.location].filter(Boolean).join(' · ');
+      if(data.lead.qualified){qualified++;$('qualified').textContent=qualified;}
+    }
+  }catch(e){thinking.remove();add('Sorry, I could not connect to the AI service. Check that the server is deployed and the API key is configured.','ai');console.error(e)}
+}
+$('input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 </script>
 </body>
 </html>
