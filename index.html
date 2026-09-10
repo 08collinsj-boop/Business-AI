@@ -75,7 +75,7 @@ async function send(){
     if(!res.ok) throw new Error(data.error||'Request failed');
     add(data.reply,'ai');
     history.push({role:'user',content:message},{role:'assistant',content:data.reply});
-    if(data.lead){
+    if(data.lead && data.lead.name && (data.lead.phone || data.lead.email)){
       $('lead').innerHTML='<strong>Lead captured</strong> · '+[data.lead.name,data.lead.phone,data.lead.job_type,data.lead.location].filter(Boolean).join(' · ');
       if(data.lead.qualified){qualified++;$('qualified').textContent=qualified;}
     }
