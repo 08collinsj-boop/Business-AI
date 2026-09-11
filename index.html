@@ -5,83 +5,966 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0d10">
   <title>Business AI</title>
+
   <style>
-    :root{--bg:#07090c;--card:#11151b;--card2:#171c24;--text:#f5f7fa;--muted:#9aa4b2;--line:#252c36;--accent:#7c5cff;--green:#36d399}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,Arial,sans-serif}
-    button,input,textarea{font:inherit}button{cursor:pointer}
-    .app{max-width:540px;margin:auto;min-height:100vh;padding-bottom:88px}
-    header{padding:22px 20px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(7,9,12,.92);backdrop-filter:blur(16px);z-index:4}
-    .brand{font-weight:800;font-size:22px;letter-spacing:-.5px}.pill{font-size:12px;color:#bfeedd;background:rgba(54,211,153,.12);border:1px solid rgba(54,211,153,.25);padding:6px 9px;border-radius:999px}
-    main{padding:0 16px}.hero{padding:18px 4px 8px}.eyebrow{color:var(--muted);font-size:13px}.hero h1{font-size:34px;line-height:1.05;margin:7px 0 8px;letter-spacing:-1.2px}.hero p{color:var(--muted);margin:0;line-height:1.5}
-    .card{background:linear-gradient(180deg,var(--card),#0e1217);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:14px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
-    .card h2{font-size:16px;margin:0 0 12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:var(--card2);border-radius:15px;padding:15px}.stat b{font-size:26px}.stat span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
-    .primary{width:100%;border:0;background:var(--accent);color:white;padding:15px;border-radius:15px;font-weight:750;margin-top:12px}.secondary{border:1px solid var(--line);background:var(--card2);color:var(--text);padding:12px 14px;border-radius:13px}
-    .chat{height:calc(100vh - 205px);min-height:500px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:4px 2px 12px}.msg{max-width:88%;padding:12px 14px;border-radius:17px;margin:8px 0;line-height:1.42;font-size:15px;white-space:pre-wrap}.ai{background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:5px}.user{background:var(--accent);margin-left:auto;border-bottom-right-radius:5px}
-    .composer{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:10px}.composer textarea{flex:1;resize:none;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:15px;padding:12px;min-height:46px;max-height:120px;outline:none}.send{width:48px;border:0;border-radius:15px;background:var(--accent);color:white;font-size:19px}
-    .lead{font-size:13px;color:var(--muted);padding:10px 0 0}.lead strong{color:var(--text)}.hidden{display:none}
-    nav{position:fixed;bottom:0;left:0;right:0;z-index:5;max-width:540px;margin:auto;background:rgba(12,15,20,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:9px 12px calc(9px + env(safe-area-inset-bottom))}
-    nav button{background:none;border:0;color:var(--muted);padding:8px;font-size:12px}nav button.active{color:white}nav span{display:block;font-size:19px;margin-bottom:3px}
-    .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px}
+    :root{
+      --bg:#07090c;
+      --card:#11161c;
+      --card2:#0d1218;
+      --line:#202832;
+      --text:#f4f7fa;
+      --muted:#8d98a5;
+      --accent:#2878ff;
+      --green:#36d399;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,Arial,sans-serif
+    }
+
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+
+    .app{
+      max-width:540px;
+      margin:auto;
+      min-height:100vh;
+      padding-bottom:88px
+    }
+
+    header{
+      padding:22px 20px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      background:rgba(7,9,12,.92);
+      backdrop-filter:blur(16px);
+      z-index:4
+    }
+
+    .brand{
+      font-weight:800;
+      font-size:22px;
+      letter-spacing:-.5px
+    }
+
+    .pill{
+      font-size:12px;
+      color:#bfeedd;
+      background:rgba(54,211,153,.12);
+      border:1px solid rgba(54,211,153,.25);
+      padding:6px 9px;
+      border-radius:999px
+    }
+
+    main{padding:0 16px}
+
+    .hero{
+      padding:18px 4px 8px
+    }
+
+    .eyebrow{
+      color:var(--muted);
+      font-size:13px
+    }
+
+    .hero h1{
+      font-size:34px;
+      line-height:1.05;
+      margin:7px 0 8px;
+      letter-spacing:-1.2px
+    }
+
+    .hero p{
+      color:var(--muted);
+      margin:0;
+      line-height:1.5
+    }
+
+    .card{
+      background:linear-gradient(180deg,var(--card),#0e1217);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+      margin-top:14px;
+      box-shadow:0 8px 30px rgba(0,0,0,.18)
+    }
+
+    .card h2{
+      font-size:16px;
+      margin:0 0 12px
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+    }
+
+    .stat{
+      background:var(--card2);
+      border-radius:15px;
+      padding:15px
+    }
+
+    .stat b{font-size:26px}
+
+    .stat span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px
+    }
+
+    .primary{
+      width:100%;
+      border:0;
+      background:var(--accent);
+      color:white;
+      padding:15px;
+      border-radius:15px;
+      font-weight:750;
+      margin-top:12px
+    }
+
+    .secondary{
+      border:1px solid var(--line);
+      background:var(--card2);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:13px
+    }
+
+    .chat{
+      height:calc(100vh - 205px);
+      min-height:500px;
+      display:flex;
+      flex-direction:column
+    }
+
+    .messages{
+      flex:1;
+      overflow:auto;
+      padding:4px 2px 12px
+    }
+
+    .msg{
+      max-width:88%;
+      padding:12px 14px;
+      border-radius:17px;
+      margin:8px 0;
+      line-height:1.42;
+      font-size:15px;
+      white-space:pre-wrap
+    }
+
+    .ai{
+      background:var(--card2);
+      border:1px solid var(--line);
+      border-bottom-left-radius:5px
+    }
+
+    .user{
+      background:var(--accent);
+      margin-left:auto;
+      border-bottom-right-radius:5px
+    }
+
+    .composer{
+      display:flex;
+      gap:8px;
+      border-top:1px solid var(--line);
+      padding-top:10px
+    }
+
+    .composer textarea{
+      flex:1;
+      resize:none;
+      background:var(--card2);
+      border:1px solid var(--line);
+      color:var(--text);
+      border-radius:15px;
+      padding:12px;
+      min-height:46px;
+      max-height:120px;
+      outline:none
+    }
+
+    .send{
+      width:48px;
+      border:0;
+      border-radius:15px;
+      background:var(--accent);
+      color:white;
+      font-size:19px
+    }
+
+    .lead{
+      font-size:13px;
+      color:var(--muted);
+      padding:10px 0 0
+    }
+
+    .lead strong{color:var(--text)}
+
+    .hidden{display:none}
+
+    nav{
+      position:fixed;
+      bottom:0;
+      left:0;
+      right:0;
+      z-index:5;
+      max-width:540px;
+      margin:auto;
+      background:rgba(12,15,20,.94);
+      backdrop-filter:blur(18px);
+      border-top:1px solid var(--line);
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      padding:9px 8px calc(9px + env(safe-area-inset-bottom))
+    }
+
+    nav button{
+      background:none;
+      border:0;
+      color:var(--muted);
+      padding:8px 3px;
+      font-size:11px
+    }
+
+    nav button.active{color:white}
+
+    nav span{
+      display:block;
+      font-size:19px;
+      margin-bottom:3px
+    }
+
+    .dot{
+      display:inline-block;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--green);
+      margin-right:6px
+    }
+
+    .lead-card{
+      background:linear-gradient(180deg,var(--card),#0e1217);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:15px;
+      margin-top:12px
+    }
+
+    .lead-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px
+    }
+
+    .lead-name{
+      font-weight:750;
+      font-size:17px
+    }
+
+    .badge{
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:999px;
+      background:rgba(54,211,153,.12);
+      color:#bfeedd;
+      border:1px solid rgba(54,211,153,.22)
+    }
+
+    .lead-meta{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      margin-top:9px
+    }
+
+    .empty{
+      color:var(--muted);
+      text-align:center;
+      padding:28px 12px
+    }
+
+    .leads-actions{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:14px
+    }
+
+    .danger{
+      border:1px solid rgba(255,90,90,.25);
+      background:rgba(255,90,90,.08);
+      color:#ffaaaa;
+      padding:9px 11px;
+      border-radius:11px;
+      font-size:12px
+    }
   </style>
 </head>
+
 <body>
+
 <div class="app">
-  <header><div class="brand">Business AI</div><div class="pill"><span class="dot"></span>AI online</div></header>
+
+  <header>
+    <div class="brand">Business AI</div>
+    <div class="pill">
+      <span class="dot"></span>AI online
+    </div>
+  </header>
 
   <main>
+
+    <!-- HOME -->
+
     <section id="home">
-      <div class="hero"><div class="eyebrow">Your virtual front desk</div><h1>Less admin.<br>More business.</h1><p>Let AI handle first contact, qualify enquiries and prepare jobs for you.</p></div>
-      <div class="card"><h2>Today</h2><div class="stats"><div class="stat"><b id="enquiries">0</b><span>AI enquiries</span></div><div class="stat"><b id="qualified">0</b><span>Qualified leads</span></div></div><button class="primary" onclick="show('ai')">Test your AI receptionist</button></div>
-      <div class="card"><h2>How the MVP works</h2><p style="color:var(--muted);line-height:1.55;margin:0">Customer message → AI understands the job → asks the right questions → captures details → gives you a ready-to-action lead.</p></div>
+
+      <div class="hero">
+        <div class="eyebrow">Your virtual front desk</div>
+
+        <h1>
+          Less admin.<br>
+          More business.
+        </h1>
+
+        <p>
+          Let AI handle first contact, qualify enquiries and prepare jobs for you.
+        </p>
+      </div>
+
+      <div class="card">
+
+        <h2>Today</h2>
+
+        <div class="stats">
+
+          <div class="stat">
+            <b id="enquiries">0</b>
+            <span>AI enquiries</span>
+          </div>
+
+          <div class="stat">
+            <b id="qualified">0</b>
+            <span>Qualified leads</span>
+          </div>
+
+        </div>
+
+        <button class="primary" onclick="show('ai')">
+          Test your AI receptionist
+        </button>
+
+      </div>
+
+      <div class="card">
+
+        <h2>How the MVP works</h2>
+
+        <p style="color:var(--muted);line-height:1.55;margin:0">
+          Customer message → AI understands the job → asks the right questions
+          → captures details → gives you a ready-to-action lead.
+        </p>
+
+      </div>
+
     </section>
+
+
+    <!-- AI ENQUIRIES -->
 
     <section id="ai" class="hidden">
-      <div class="hero"><div class="eyebrow">Live AI enquiry assistant</div><h1 style="font-size:30px">Test a customer enquiry</h1><p>The AI is connected to a secure server. Your API key is never placed in this webpage.</p></div>
-      <div class="card chat">
-        <div id="messages" class="messages">
-          <div class="msg ai">Hi, thanks for contacting North East Electrical. What can we help you with today?</div>
+
+      <div class="hero">
+
+        <div class="eyebrow">
+          Live AI enquiry assistant
         </div>
-        <div id="lead" class="lead"></div>
-        <div class="composer"><textarea id="input" placeholder="Type a customer message..." rows="1"></textarea><button class="send" onclick="send()">➤</button></div>
+
+        <h1 style="font-size:30px">
+          Test a customer enquiry
+        </h1>
+
+        <p>
+          The AI is connected to a secure server.
+          Your API key is never placed in this webpage.
+        </p>
+
       </div>
+
+      <div class="card chat">
+
+        <div id="messages" class="messages">
+
+          <div class="msg ai">
+            Hi, thanks for contacting North East Electrical.
+            What can we help you with today?
+          </div>
+
+        </div>
+
+        <div id="lead" class="lead"></div>
+
+        <div class="composer">
+
+          <textarea
+            id="input"
+            placeholder="Type a customer message..."
+            rows="1">
+          </textarea>
+
+          <button class="send" onclick="send()">
+            ➤
+          </button>
+
+        </div>
+
+      </div>
+
     </section>
+
+
+    <!-- LEADS -->
+
+    <section id="leads" class="hidden">
+
+      <div class="hero">
+
+        <div class="eyebrow">
+          Customer pipeline
+        </div>
+
+        <h1 style="font-size:30px">
+          Leads
+        </h1>
+
+        <p>
+          Every lead captured by your AI receptionist appears here.
+        </p>
+
+      </div>
+
+      <div class="leads-actions">
+
+        <span id="leadSummary" class="eyebrow">
+          0 leads
+        </span>
+
+        <button class="danger" onclick="clearLeads()">
+          Clear leads
+        </button>
+
+      </div>
+
+      <div id="leadsList"></div>
+
+    </section>
+
   </main>
 
+
+  <!-- NAVIGATION -->
+
   <nav>
-    <button id="navhome" class="active" onclick="show('home')"><span>⌂</span>Home</button>
-    <button id="navai" onclick="show('ai')"><span>✦</span>AI Enquiries</button>
-    <button onclick="alert('Business rules are the next module: service area, opening hours, job types and approval rules.')"><span>⚙</span>Rules</button>
+
+    <button
+      id="navhome"
+      class="active"
+      onclick="show('home')">
+
+      <span>⌂</span>
+      Home
+
+    </button>
+
+
+    <button
+      id="navai"
+      onclick="show('ai')">
+
+      <span>✦</span>
+      AI Enquiries
+
+    </button>
+
+
+    <button
+      id="navleads"
+      onclick="show('leads')">
+
+      <span>◉</span>
+      Leads
+
+    </button>
+
+
+    <button
+      id="navrules"
+      onclick="alert('Business rules are the next module: service area, opening hours, job types and approval rules.')">
+
+      <span>⚙</span>
+      Rules
+
+    </button>
+
   </nav>
+
 </div>
+
+
 <script>
-let history=[];
-let count=0, qualified=0;
-const $=id=>document.getElementById(id);
+
+let history = [];
+
+let count =
+  Number(localStorage.getItem('businessai_enquiries') || 0);
+
+let qualified =
+  Number(localStorage.getItem('businessai_qualified') || 0);
+
+let leads =
+  JSON.parse(localStorage.getItem('businessai_leads') || '[]');
+
+
+const $ = id => document.getElementById(id);
+
+
+function updateStats(){
+
+  $('enquiries').textContent = count;
+
+  $('qualified').textContent = qualified;
+
+  renderLeads();
+
+}
+
+
 function show(id){
-  ['home','ai'].forEach(x=>$(x).classList.toggle('hidden',x!==id));
-  $('navhome').classList.toggle('active',id==='home'); $('navai').classList.toggle('active',id==='ai');
+
+  ['home','ai','leads'].forEach(x => {
+
+    $(x).classList.toggle(
+      'hidden',
+      x !== id
+    );
+
+  });
+
+
+  $('navhome').classList.toggle(
+    'active',
+    id === 'home'
+  );
+
+
+  $('navai').classList.toggle(
+    'active',
+    id === 'ai'
+  );
+
+
+  $('navleads').classList.toggle(
+    'active',
+    id === 'leads'
+  );
+
 }
+
+
 function add(text,who){
-  const d=document.createElement('div'); d.className='msg '+who; d.textContent=text; $('messages').appendChild(d); $('messages').scrollTop=$('messages').scrollHeight;
+
+  const d =
+    document.createElement('div');
+
+  d.className =
+    'msg ' + who;
+
+  d.textContent =
+    text;
+
+  $('messages').appendChild(d);
+
+  $('messages').scrollTop =
+    $('messages').scrollHeight;
+
 }
+
+
+function saveLeads(){
+
+  localStorage.setItem(
+    'businessai_leads',
+    JSON.stringify(leads)
+  );
+
+}
+
+
+function renderLeads(){
+
+  const list =
+    $('leadsList');
+
+
+  $('leadSummary').textContent =
+    leads.length === 1
+      ? '1 lead'
+      : `${leads.length} leads`;
+
+
+  if(!leads.length){
+
+    list.innerHTML = `
+      <div class="card empty">
+        No leads yet.<br>
+        Run a test enquiry and capture a customer
+        to see it here.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    leads.map(lead => `
+
+      <div class="lead-card">
+
+        <div class="lead-top">
+
+          <div class="lead-name">
+            ${escapeHtml(lead.name || 'Unnamed lead')}
+          </div>
+
+          ${
+            lead.qualified
+              ? '<div class="badge">Qualified</div>'
+              : ''
+          }
+
+        </div>
+
+        <div class="lead-meta">
+
+          ${
+            lead.phone
+              ? '<strong>Phone:</strong> ' +
+                escapeHtml(lead.phone) +
+                '<br>'
+              : ''
+          }
+
+          ${
+            lead.email
+              ? '<strong>Email:</strong> ' +
+                escapeHtml(lead.email) +
+                '<br>'
+              : ''
+          }
+
+          ${
+            lead.job_type
+              ? '<strong>Job:</strong> ' +
+                escapeHtml(lead.job_type) +
+                '<br>'
+              : ''
+          }
+
+          ${
+            lead.location
+              ? '<strong>Location:</strong> ' +
+                escapeHtml(lead.location) +
+                '<br>'
+              : ''
+          }
+
+          ${
+            lead.createdAt
+              ? '<strong>Captured:</strong> ' +
+                escapeHtml(lead.createdAt)
+              : ''
+          }
+
+        </div>
+
+      </div>
+
+    `).join('');
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value).replace(
+    /[&<>"']/g,
+    c => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    }[c])
+  );
+
+}
+
+
+function clearLeads(){
+
+  if(!leads.length)
+    return;
+
+
+  if(confirm('Clear all saved leads?')){
+
+    leads = [];
+
+    qualified = 0;
+
+    localStorage.removeItem(
+      'businessai_leads'
+    );
+
+    localStorage.setItem(
+      'businessai_qualified',
+      '0'
+    );
+
+    updateStats();
+
+  }
+
+}
+
+
 async function send(){
-  const input=$('input'); const message=input.value.trim(); if(!message)return;
-  input.value=''; add(message,'user'); count++; $('enquiries').textContent=count;
-  const thinking=document.createElement('div'); thinking.className='msg ai'; thinking.textContent='Thinking…'; $('messages').appendChild(thinking);
+
+  const input =
+    $('input');
+
+  const message =
+    input.value.trim();
+
+
+  if(!message)
+    return;
+
+
+  input.value = '';
+
+  add(
+    message,
+    'user'
+  );
+
+
+  count++;
+
+  localStorage.setItem(
+    'businessai_enquiries',
+    String(count)
+  );
+
+
+  $('enquiries').textContent =
+    count;
+
+
+  const thinking =
+    document.createElement('div');
+
+  thinking.className =
+    'msg ai';
+
+  thinking.textContent =
+    'Thinking…';
+
+
+  $('messages')
+    .appendChild(thinking);
+
+
   try{
-    const res=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});
-    const data=await res.json();
+
+    const res =
+      await fetch(
+        '/api/enquiry',
+        {
+          method:'POST',
+
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
+
+          body:JSON.stringify({
+            message,
+            history
+          })
+        }
+      );
+
+
+    const data =
+      await res.json();
+
+
     thinking.remove();
-    if(!res.ok) throw new Error(data.error||'Request failed');
-    add(data.reply,'ai');
-    history.push({role:'user',content:message},{role:'assistant',content:data.reply});
-    if(data.lead && data.lead.name && (data.lead.phone || data.lead.email)){
-      $('lead').innerHTML='<strong>Lead captured</strong> · '+[data.lead.name,data.lead.phone,data.lead.job_type,data.lead.location].filter(Boolean).join(' · ');
-      if(data.lead.qualified){qualified++;$('qualified').textContent=qualified;}
+
+
+    if(!res.ok)
+      throw new Error(
+        data.error ||
+        'Request failed'
+      );
+
+
+    add(
+      data.reply,
+      'ai'
+    );
+
+
+    history.push(
+      {
+        role:'user',
+        content:message
+      },
+      {
+        role:'assistant',
+        content:data.reply
+      }
+    );
+
+
+    if(
+      data.lead &&
+      data.lead.name &&
+      (
+        data.lead.phone ||
+        data.lead.email
+      )
+    ){
+
+      $('lead').innerHTML =
+        '<strong>Lead captured</strong> · ' +
+        [
+          data.lead.name,
+          data.lead.phone,
+          data.lead.job_type,
+          data.lead.location
+        ]
+        .filter(Boolean)
+        .join(' · ');
+
+
+      const newLead = {
+
+        name:
+          data.lead.name,
+
+        phone:
+          data.lead.phone || '',
+
+        email:
+          data.lead.email || '',
+
+        job_type:
+          data.lead.job_type || '',
+
+        location:
+          data.lead.location || '',
+
+        qualified:
+          Boolean(data.lead.qualified),
+
+        createdAt:
+          new Date().toLocaleString('en-GB')
+
+      };
+
+
+      leads.unshift(
+        newLead
+      );
+
+
+      saveLeads();
+
+
+      if(data.lead.qualified){
+
+        qualified++;
+
+        localStorage.setItem(
+          'businessai_qualified',
+          String(qualified)
+        );
+
+      }
+
+
+      renderLeads();
+
     }
-  }catch(e){thinking.remove();add('Sorry, I could not connect to the AI service. Check that the server is deployed and the API key is configured.','ai');console.error(e)}
+
+
+  }catch(e){
+
+    thinking.remove();
+
+    add(
+      'Sorry, I could not connect to the AI service. Check that the server is deployed and the API key is configured.',
+      'ai'
+    );
+
+    console.error(e);
+
+  }
+
 }
-$('input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+
+
+$('input').addEventListener(
+  'keydown',
+  e => {
+
+    if(
+      e.key === 'Enter' &&
+      !e.shiftKey
+    ){
+
+      e.preventDefault();
+
+      send();
+
+    }
+
+  }
+);
+
+
+updateStats();
+
 </script>
+
 </body>
 </html>
