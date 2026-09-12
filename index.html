@@ -16,6 +16,7 @@
       --muted:#8d98a5;
       --accent:#2878ff;
       --green:#36d399;
+      --yellow:#f5c542;
     }
 
     *{box-sizing:border-box}
@@ -27,7 +28,7 @@
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,Arial,sans-serif
     }
 
-    button,input,textarea{font:inherit}
+    button,input,textarea,select{font:inherit}
     button{cursor:pointer}
 
     .app{
@@ -138,8 +139,8 @@
       border:1px solid var(--line);
       background:var(--card2);
       color:var(--text);
-      padding:12px 14px;
-      border-radius:13px
+      padding:11px 13px;
+      border-radius:12px
     }
 
     .chat{
@@ -286,11 +287,29 @@
       border:1px solid rgba(54,211,153,.22)
     }
 
+    .status{
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--card2);
+      color:var(--muted)
+    }
+
     .lead-meta{
       color:var(--muted);
       font-size:13px;
       line-height:1.55;
       margin-top:9px
+    }
+
+    .lead-description{
+      color:#c5ccd4;
+      font-size:13px;
+      line-height:1.5;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid var(--line)
     }
 
     .empty{
@@ -299,20 +318,74 @@
       padding:28px 12px
     }
 
-    .leads-actions{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
+    .lead-controls{
+      display:grid;
+      gap:9px;
       margin-top:14px
     }
 
-    .danger{
-      border:1px solid rgba(255,90,90,.25);
-      background:rgba(255,90,90,.08);
-      color:#ffaaaa;
-      padding:9px 11px;
+    .search{
+      width:100%;
+      background:var(--card2);
+      border:1px solid var(--line);
+      color:var(--text);
+      border-radius:13px;
+      padding:12px;
+      outline:none
+    }
+
+    .filter-row{
+      display:flex;
+      gap:8px
+    }
+
+    .filter{
+      flex:1;
+      background:var(--card2);
+      border:1px solid var(--line);
+      color:var(--muted);
+      padding:10px 5px;
       border-radius:11px;
       font-size:12px
+    }
+
+    .filter.active{
+      color:white;
+      border-color:var(--accent);
+      background:rgba(40,120,255,.12)
+    }
+
+    .lead-status{
+      margin-top:12px;
+      width:100%;
+      background:var(--card2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:11px;
+      padding:9px
+    }
+
+    .refresh-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:13px
+    }
+
+    .loading{
+      color:var(--muted);
+      text-align:center;
+      padding:30px 10px
+    }
+
+    .error{
+      color:#ffaaaa;
+      background:rgba(255,90,90,.08);
+      border:1px solid rgba(255,90,90,.2);
+      border-radius:14px;
+      padding:13px;
+      margin-top:12px;
+      font-size:13px
     }
   </style>
 </head>
@@ -323,6 +396,7 @@
 
   <header>
     <div class="brand">Business AI</div>
+
     <div class="pill">
       <span class="dot"></span>AI online
     </div>
@@ -458,19 +532,72 @@
 
       </div>
 
-      <div class="leads-actions">
+
+      <div class="refresh-row">
 
         <span id="leadSummary" class="eyebrow">
-          0 leads
+          Loading leads...
         </span>
 
-        <button class="danger" onclick="clearLeads()">
-          Clear leads
+        <button class="secondary" onclick="loadLeads()">
+          Refresh
         </button>
 
       </div>
 
-      <div id="leadsList"></div>
+
+      <div class="lead-controls">
+
+        <input
+          id="leadSearch"
+          class="search"
+          type="search"
+          placeholder="Search leads..."
+          oninput="renderLeads()"
+        >
+
+        <div class="filter-row">
+
+          <button
+            class="filter active"
+            data-filter="All"
+            onclick="setFilter('All')">
+            All
+          </button>
+
+          <button
+            class="filter"
+            data-filter="New"
+            onclick="setFilter('New')">
+            New
+          </button>
+
+          <button
+            class="filter"
+            data-filter="Contacted"
+            onclick="setFilter('Contacted')">
+            Contacted
+          </button>
+
+          <button
+            class="filter"
+            data-filter="Converted"
+            onclick="setFilter('Converted')">
+            Converted
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div id="leadsList">
+
+        <div class="loading">
+          Loading leads...
+        </div>
+
+      </div>
 
     </section>
 
@@ -533,11 +660,9 @@ let history = [];
 let count =
   Number(localStorage.getItem('businessai_enquiries') || 0);
 
-let qualified =
-  Number(localStorage.getItem('businessai_qualified') || 0);
+let leads = [];
 
-let leads =
-  JSON.parse(localStorage.getItem('businessai_leads') || '[]');
+let currentFilter = 'All';
 
 
 const $ = id => document.getElementById(id);
@@ -547,9 +672,8 @@ function updateStats(){
 
   $('enquiries').textContent = count;
 
-  $('qualified').textContent = qualified;
-
-  renderLeads();
+  $('qualified').textContent =
+    leads.filter(lead => lead.qualified).length;
 
 }
 
@@ -583,6 +707,11 @@ function show(id){
     id === 'leads'
   );
 
+
+  if(id === 'leads'){
+    loadLeads();
+  }
+
 }
 
 
@@ -605,12 +734,74 @@ function add(text,who){
 }
 
 
-function saveLeads(){
+function setFilter(filter){
 
-  localStorage.setItem(
-    'businessai_leads',
-    JSON.stringify(leads)
-  );
+  currentFilter = filter;
+
+  document.querySelectorAll('.filter').forEach(button => {
+
+    button.classList.toggle(
+      'active',
+      button.dataset.filter === filter
+    );
+
+  });
+
+  renderLeads();
+
+}
+
+
+async function loadLeads(){
+
+  const list = $('leadsList');
+
+  list.innerHTML = `
+    <div class="loading">
+      Loading leads...
+    </div>
+  `;
+
+  try{
+
+    const res =
+      await fetch('/api/leads');
+
+    const data =
+      await res.json();
+
+    if(!res.ok){
+
+      throw new Error(
+        data.error || 'Could not load leads'
+      );
+
+    }
+
+    leads =
+      Array.isArray(data)
+        ? data
+        : [];
+
+    updateStats();
+
+    renderLeads();
+
+  }catch(error){
+
+    console.error(error);
+
+    list.innerHTML = `
+      <div class="error">
+        Could not load leads.<br><br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
+
+    $('leadSummary').textContent =
+      'Unable to load leads';
+
+  }
 
 }
 
@@ -620,20 +811,58 @@ function renderLeads(){
   const list =
     $('leadsList');
 
+  const search =
+    ($('leadSearch')?.value || '')
+      .trim()
+      .toLowerCase();
+
+
+  let filtered =
+    leads.filter(lead => {
+
+      const matchesStatus =
+        currentFilter === 'All' ||
+        (lead.status || 'New') === currentFilter;
+
+
+      const searchable = [
+        lead.name,
+        lead.phone,
+        lead.email,
+        lead.job_type,
+        lead.location,
+        lead.description
+      ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+
+      const matchesSearch =
+        !search ||
+        searchable.includes(search);
+
+
+      return matchesStatus && matchesSearch;
+
+    });
+
 
   $('leadSummary').textContent =
-    leads.length === 1
+    filtered.length === 1
       ? '1 lead'
-      : `${leads.length} leads`;
+      : `${filtered.length} leads`;
 
 
-  if(!leads.length){
+  if(!filtered.length){
 
     list.innerHTML = `
       <div class="card empty">
-        No leads yet.<br>
-        Run a test enquiry and capture a customer
-        to see it here.
+        ${
+          leads.length
+            ? 'No leads match your search or filter.'
+            : 'No leads have been captured yet.'
+        }
       </div>
     `;
 
@@ -643,70 +872,204 @@ function renderLeads(){
 
 
   list.innerHTML =
-    leads.map(lead => `
+    filtered.map(lead => {
 
-      <div class="lead-card">
+      const status =
+        lead.status || 'New';
 
-        <div class="lead-top">
 
-          <div class="lead-name">
-            ${escapeHtml(lead.name || 'Unnamed lead')}
+      const date =
+        lead.created_at
+          ? new Date(lead.created_at).toLocaleString('en-GB')
+          : '';
+
+
+      return `
+
+        <div class="lead-card">
+
+          <div class="lead-top">
+
+            <div class="lead-name">
+              ${escapeHtml(lead.name || 'Unnamed lead')}
+            </div>
+
+            <div>
+
+              ${
+                lead.qualified
+                  ? '<span class="badge">Qualified</span>'
+                  : ''
+              }
+
+              <span class="status">
+                ${escapeHtml(status)}
+              </span>
+
+            </div>
+
           </div>
 
+
+          <div class="lead-meta">
+
+            ${
+              lead.phone
+                ? '<strong>Phone:</strong> ' +
+                  escapeHtml(lead.phone) +
+                  '<br>'
+                : ''
+            }
+
+            ${
+              lead.email
+                ? '<strong>Email:</strong> ' +
+                  escapeHtml(lead.email) +
+                  '<br>'
+                : ''
+            }
+
+            ${
+              lead.job_type
+                ? '<strong>Job:</strong> ' +
+                  escapeHtml(lead.job_type) +
+                  '<br>'
+                : ''
+            }
+
+            ${
+              lead.location
+                ? '<strong>Location:</strong> ' +
+                  escapeHtml(lead.location) +
+                  '<br>'
+                : ''
+            }
+
+            ${
+              lead.urgency
+                ? '<strong>Urgency:</strong> ' +
+                  escapeHtml(lead.urgency) +
+                  '<br>'
+                : ''
+            }
+
+            ${
+              date
+                ? '<strong>Captured:</strong> ' +
+                  escapeHtml(date)
+                : ''
+            }
+
+          </div>
+
+
           ${
-            lead.qualified
-              ? '<div class="badge">Qualified</div>'
+            lead.description
+              ? `
+                <div class="lead-description">
+                  ${escapeHtml(lead.description)}
+                </div>
+              `
               : ''
           }
+
+
+          <select
+            class="lead-status"
+            onchange="updateLeadStatus(${Number(lead.id)}, this.value)">
+
+            <option
+              value="New"
+              ${status === 'New' ? 'selected' : ''}>
+              New
+            </option>
+
+            <option
+              value="Contacted"
+              ${status === 'Contacted' ? 'selected' : ''}>
+              Contacted
+            </option>
+
+            <option
+              value="Converted"
+              ${status === 'Converted' ? 'selected' : ''}>
+              Converted
+            </option>
+
+          </select>
 
         </div>
 
-        <div class="lead-meta">
+      `;
 
-          ${
-            lead.phone
-              ? '<strong>Phone:</strong> ' +
-                escapeHtml(lead.phone) +
-                '<br>'
-              : ''
-          }
+    }).join('');
 
-          ${
-            lead.email
-              ? '<strong>Email:</strong> ' +
-                escapeHtml(lead.email) +
-                '<br>'
-              : ''
-          }
+}
 
-          ${
-            lead.job_type
-              ? '<strong>Job:</strong> ' +
-                escapeHtml(lead.job_type) +
-                '<br>'
-              : ''
-          }
 
-          ${
-            lead.location
-              ? '<strong>Location:</strong> ' +
-                escapeHtml(lead.location) +
-                '<br>'
-              : ''
-          }
+async function updateLeadStatus(id,status){
 
-          ${
-            lead.createdAt
-              ? '<strong>Captured:</strong> ' +
-                escapeHtml(lead.createdAt)
-              : ''
-          }
+  try{
 
-        </div>
+    const res =
+      await fetch(
+        '/api/leads',
+        {
+          method:'PATCH',
 
-      </div>
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
 
-    `).join('');
+          body:JSON.stringify({
+            id,
+            status
+          })
+        }
+      );
+
+
+    const data =
+      await res.json();
+
+
+    if(!res.ok){
+
+      throw new Error(
+        data.error ||
+        'Could not update lead'
+      );
+
+    }
+
+
+    const index =
+      leads.findIndex(
+        lead => Number(lead.id) === Number(id)
+      );
+
+
+    if(index !== -1){
+
+      leads[index] = data;
+
+    }
+
+
+    renderLeads();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      'Could not update the lead status.'
+    );
+
+    loadLeads();
+
+  }
 
 }
 
@@ -723,34 +1086,6 @@ function escapeHtml(value){
       "'":'&#039;'
     }[c])
   );
-
-}
-
-
-function clearLeads(){
-
-  if(!leads.length)
-    return;
-
-
-  if(confirm('Clear all saved leads?')){
-
-    leads = [];
-
-    qualified = 0;
-
-    localStorage.removeItem(
-      'businessai_leads'
-    );
-
-    localStorage.setItem(
-      'businessai_qualified',
-      '0'
-    );
-
-    updateStats();
-
-  }
 
 }
 
@@ -876,53 +1211,13 @@ async function send(){
         .join(' · ');
 
 
-      const newLead = {
+      // Give Supabase a moment to finish the insert,
+      // then reload the real database leads.
 
-        name:
-          data.lead.name,
-
-        phone:
-          data.lead.phone || '',
-
-        email:
-          data.lead.email || '',
-
-        job_type:
-          data.lead.job_type || '',
-
-        location:
-          data.lead.location || '',
-
-        qualified:
-          Boolean(data.lead.qualified),
-
-        createdAt:
-          new Date().toLocaleString('en-GB')
-
-      };
-
-
-      leads.unshift(
-        newLead
+      setTimeout(
+        loadLeads,
+        500
       );
-
-
-      saveLeads();
-
-
-      if(data.lead.qualified){
-
-        qualified++;
-
-        localStorage.setItem(
-          'businessai_qualified',
-          String(qualified)
-        );
-
-      }
-
-
-      renderLeads();
 
     }
 
@@ -968,3 +1263,5 @@ updateStats();
 
 </body>
 </html>
+
+  
