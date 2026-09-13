@@ -3,438 +3,478 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0b0d10">
+  <meta name="theme-color" content="#07090c">
   <title>Business AI</title>
 
   <style>
     :root{
       --bg:#07090c;
       --card:#11161c;
-      --card2:#0d1218;
-      --line:#202832;
-      --text:#f4f7fa;
-      --muted:#8d98a5;
-      --accent:#2878ff;
-      --green:#36d399;
-      --yellow:#f5c542;
+      --card2:#151b22;
+      --border:#202832;
+      --text:#f5f7fa;
+      --muted:#8e9aa8;
+      --green:#54d18a;
+      --yellow:#e8bd57;
+      --blue:#65a9ff;
+      --red:#ff6b6b;
     }
 
-    *{box-sizing:border-box}
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
 
     body{
       margin:0;
       background:var(--bg);
       color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,Arial,sans-serif
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
 
-    button,input,textarea,select{font:inherit}
-    button{cursor:pointer}
+    button,input,select{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
 
     .app{
-      max-width:540px;
-      margin:auto;
       min-height:100vh;
-      padding-bottom:88px
+      padding-bottom:90px;
     }
 
     header{
-      padding:22px 20px 12px;
+      padding:24px 20px 12px;
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      position:sticky;
-      top:0;
-      background:rgba(7,9,12,.92);
-      backdrop-filter:blur(16px);
-      z-index:4
+      align-items:center;
     }
 
     .brand{
+      font-size:24px;
       font-weight:800;
-      font-size:22px;
-      letter-spacing:-.5px
+      letter-spacing:-.5px;
     }
 
-    .pill{
-      font-size:12px;
-      color:#bfeedd;
-      background:rgba(54,211,153,.12);
-      border:1px solid rgba(54,211,153,.25);
-      padding:6px 9px;
-      border-radius:999px
-    }
-
-    main{padding:0 16px}
-
-    .hero{
-      padding:18px 4px 8px
-    }
-
-    .eyebrow{
+    .online{
       color:var(--muted);
-      font-size:13px
+      font-size:13px;
     }
 
-    .hero h1{
-      font-size:34px;
-      line-height:1.05;
-      margin:7px 0 8px;
-      letter-spacing:-1.2px
+    .status-dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:var(--green);
+      display:inline-block;
+      margin-right:7px;
     }
 
-    .hero p{
+    main{
+      padding:0 16px;
+      max-width:1000px;
+      margin:auto;
+    }
+
+    section{
+      display:none;
+    }
+
+    section.active{
+      display:block;
+    }
+
+    h1{
+      font-size:29px;
+      margin:12px 0 6px;
+      letter-spacing:-.6px;
+    }
+
+    h2{
+      font-size:19px;
+      margin:0 0 14px;
+    }
+
+    .subtitle{
       color:var(--muted);
-      margin:0;
-      line-height:1.5
+      font-size:14px;
+      line-height:1.5;
+      margin-bottom:20px;
     }
 
-    .card{
-      background:linear-gradient(180deg,var(--card),#0e1217);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:16px;
-      margin-top:14px;
-      box-shadow:0 8px 30px rgba(0,0,0,.18)
-    }
+    /* DASHBOARD */
 
-    .card h2{
-      font-size:16px;
-      margin:0 0 12px
+    .welcome{
+      margin-bottom:20px;
     }
 
     .stats{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:10px
+      gap:12px;
+      margin-bottom:16px;
     }
 
     .stat{
-      background:var(--card2);
-      border-radius:15px;
-      padding:15px
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:17px;
     }
 
-    .stat b{font-size:26px}
+    .stat-label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:8px;
+    }
 
-    .stat span{
-      display:block;
+    .stat-value{
+      font-size:29px;
+      font-weight:800;
+      letter-spacing:-1px;
+    }
+
+    .stat-sub{
       color:var(--muted);
       font-size:12px;
-      margin-top:4px
+      margin-top:5px;
     }
 
-    .primary{
+    .wide-stat{
+      grid-column:span 2;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:14px;
+    }
+
+    .button{
       width:100%;
       border:0;
-      background:var(--accent);
-      color:white;
-      padding:15px;
-      border-radius:15px;
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
+      color:#080a0d;
       font-weight:750;
-      margin-top:12px
     }
 
-    .secondary{
-      border:1px solid var(--line);
+    .button.secondary{
       background:var(--card2);
       color:var(--text);
-      padding:11px 13px;
-      border-radius:12px
+      border:1px solid var(--border);
     }
+
+    .quick-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    /* AI */
 
     .chat{
-      height:calc(100vh - 205px);
-      min-height:500px;
       display:flex;
-      flex-direction:column
-    }
-
-    .messages{
-      flex:1;
+      flex-direction:column;
+      gap:10px;
+      margin-bottom:12px;
+      max-height:55vh;
       overflow:auto;
-      padding:4px 2px 12px
     }
 
-    .msg{
-      max-width:88%;
+    .message{
       padding:12px 14px;
-      border-radius:17px;
-      margin:8px 0;
-      line-height:1.42;
-      font-size:15px;
-      white-space:pre-wrap
+      border-radius:14px;
+      max-width:88%;
+      line-height:1.45;
+      font-size:14px;
+      white-space:pre-wrap;
     }
 
-    .ai{
+    .message.user{
+      background:#242b34;
+      align-self:flex-end;
+    }
+
+    .message.ai{
       background:var(--card2);
-      border:1px solid var(--line);
-      border-bottom-left-radius:5px
+      border:1px solid var(--border);
+      align-self:flex-start;
     }
 
-    .user{
-      background:var(--accent);
-      margin-left:auto;
-      border-bottom-right-radius:5px
-    }
-
-    .composer{
+    .input-row{
       display:flex;
       gap:8px;
-      border-top:1px solid var(--line);
-      padding-top:10px
     }
 
-    .composer textarea{
+    .input-row input{
       flex:1;
-      resize:none;
+      min-width:0;
       background:var(--card2);
-      border:1px solid var(--line);
       color:var(--text);
-      border-radius:15px;
-      padding:12px;
-      min-height:46px;
-      max-height:120px;
-      outline:none
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:13px;
+      outline:none;
     }
 
-    .send{
-      width:48px;
+    .send-btn{
       border:0;
-      border-radius:15px;
-      background:var(--accent);
-      color:white;
-      font-size:19px
+      border-radius:14px;
+      padding:0 17px;
+      background:white;
+      color:#080a0d;
+      font-weight:750;
     }
 
-    .lead{
-      font-size:13px;
+    /* LEADS */
+
+    .search{
+      width:100%;
+      background:var(--card);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:13px 14px;
+      outline:none;
+      margin-bottom:10px;
+    }
+
+    .filters{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding-bottom:6px;
+      margin-bottom:12px;
+    }
+
+    .filter{
+      flex:none;
+      border:1px solid var(--border);
+      background:var(--card);
       color:var(--muted);
-      padding:10px 0 0
+      border-radius:999px;
+      padding:9px 13px;
     }
 
-    .lead strong{color:var(--text)}
+    .filter.active{
+      background:white;
+      color:#080a0d;
+      border-color:white;
+    }
 
-    .hidden{display:none}
+    .lead-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      margin-bottom:12px;
+    }
+
+    .lead-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .lead-name{
+      font-size:17px;
+      font-weight:750;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      margin-top:5px;
+    }
+
+    .badge.new{
+      background:#1d2d42;
+      color:var(--blue);
+    }
+
+    .badge.contacted{
+      background:#352d19;
+      color:var(--yellow);
+    }
+
+    .badge.converted{
+      background:#173326;
+      color:var(--green);
+    }
+
+    .lead-meta{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+      margin-top:12px;
+    }
+
+    .lead-description{
+      margin-top:12px;
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .lead-actions{
+      display:flex;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .action-btn{
+      flex:1;
+      text-align:center;
+      text-decoration:none;
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .primary-action{
+      background:white;
+      color:#080a0d;
+    }
+
+    .details-toggle{
+      width:100%;
+      margin-top:10px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--muted);
+      border-radius:12px;
+      padding:10px;
+      font-size:13px;
+    }
+
+    .details-content{
+      margin-top:12px;
+      padding:14px;
+      background:var(--card2);
+      border-radius:14px;
+      border:1px solid var(--border);
+    }
+
+    .detail-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:7px 0;
+      border-bottom:1px solid var(--border);
+      font-size:13px;
+    }
+
+    .detail-row:last-child{
+      border-bottom:0;
+    }
+
+    .detail-label{
+      color:var(--muted);
+    }
+
+    .detail-value{
+      text-align:right;
+      max-width:65%;
+      word-break:break-word;
+    }
+
+    .status-select{
+      background:var(--card2);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:9px;
+      margin-top:12px;
+      width:100%;
+    }
+
+    .hidden{
+      display:none;
+    }
+
+    .empty{
+      text-align:center;
+      color:var(--muted);
+      padding:35px 10px;
+    }
+
+    .loading{
+      text-align:center;
+      color:var(--muted);
+      padding:25px;
+    }
+
+    .error{
+      color:var(--red);
+      font-size:13px;
+      margin:10px 0;
+    }
+
+    /* RULES */
+
+    .rules-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .rule{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:15px;
+    }
+
+    /* NAV */
 
     nav{
       position:fixed;
       bottom:0;
       left:0;
       right:0;
-      z-index:5;
-      max-width:540px;
-      margin:auto;
-      background:rgba(12,15,20,.94);
-      backdrop-filter:blur(18px);
-      border-top:1px solid var(--line);
+      background:rgba(7,9,12,.96);
+      backdrop-filter:blur(16px);
+      border-top:1px solid var(--border);
       display:grid;
       grid-template-columns:repeat(4,1fr);
-      padding:9px 8px calc(9px + env(safe-area-inset-bottom))
+      padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+      z-index:20;
     }
 
     nav button{
-      background:none;
       border:0;
+      background:transparent;
       color:var(--muted);
-      padding:8px 3px;
-      font-size:11px
-    }
-
-    nav button.active{color:white}
-
-    nav span{
-      display:block;
-      font-size:19px;
-      margin-bottom:3px
-    }
-
-    .dot{
-      display:inline-block;
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--green);
-      margin-right:6px
-    }
-
-    .lead-card{
-      background:linear-gradient(180deg,var(--card),#0e1217);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:15px;
-      margin-top:12px
-    }
-
-    .lead-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px
-    }
-
-    .lead-name{
-      font-weight:750;
-      font-size:17px
-    }
-
-    .badge{
+      padding:8px 4px;
       font-size:11px;
-      padding:5px 8px;
-      border-radius:999px;
-      background:rgba(54,211,153,.12);
-      color:#bfeedd;
-      border:1px solid rgba(54,211,153,.22)
     }
 
-    .status{
-      font-size:11px;
-      padding:5px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:var(--card2);
-      color:var(--muted)
-    }
-
-    .lead-meta{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.55;
-      margin-top:9px
-    }
-
-    .lead-description{
-      color:#c5ccd4;
-      font-size:13px;
-      line-height:1.5;
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px solid var(--line)
-    }
-
-    .empty{
-      color:var(--muted);
-      text-align:center;
-      padding:28px 12px
-    }
-
-    .lead-controls{
-      display:grid;
-      gap:9px;
-      margin-top:14px
-    }
-
-    .search{
-      width:100%;
-      background:var(--card2);
-      border:1px solid var(--line);
-      color:var(--text);
-      border-radius:13px;
-      padding:12px;
-      outline:none
-    }
-
-    .filter-row{
-      display:flex;
-      gap:8px
-    }
-
-    .filter{
-      flex:1;
-      background:var(--card2);
-      border:1px solid var(--line);
-      color:var(--muted);
-      padding:10px 5px;
-      border-radius:11px;
-      font-size:12px
-    }
-
-    .filter.active{
+    nav button.active{
       color:white;
-      border-color:var(--accent);
-      background:rgba(40,120,255,.12)
+      font-weight:700;
     }
 
-    .lead-status{
-      margin-top:12px;
-      width:100%;
-      background:var(--card2);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:11px;
-      padding:9px
-    }
+    @media(min-width:700px){
+      .stats{
+        grid-template-columns:repeat(4,1fr);
+      }
 
-    .refresh-row{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-top:13px
-    }
-
-    .loading{
-      color:var(--muted);
-      text-align:center;
-      padding:30px 10px
-    }
-
-    .error{
-      color:#ffaaaa;
-      background:rgba(255,90,90,.08);
-      border:1px solid rgba(255,90,90,.2);
-      border-radius:14px;
-      padding:13px;
-      margin-top:12px;
-      font-size:13px
-    }
-
-    /* LEAD DETAILS */
-
-    .lead-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:10px
-    }
-
-    .action-btn{
-      border:1px solid var(--line);
-      background:var(--card2);
-      color:var(--text);
-      padding:10px;
-      border-radius:11px;
-      font-size:12px;
-      text-align:center;
-      text-decoration:none
-    }
-
-    .action-btn.primary-action{
-      background:var(--accent);
-      border-color:var(--accent)
-    }
-
-    .lead-details{
-      margin-top:10px
-    }
-
-    .details-toggle{
-      width:100%;
-      border:1px solid var(--line);
-      background:var(--card2);
-      color:var(--muted);
-      padding:10px;
-      border-radius:11px;
-      font-size:12px
-    }
-
-    .details-content{
-      margin-top:10px;
-      padding:12px;
-      background:var(--card2);
-      border-radius:12px;
-      border:1px solid var(--line);
-      font-size:13px;
-      line-height:1.6
+      .wide-stat{
+        grid-column:span 4;
+      }
     }
   </style>
 </head>
@@ -446,62 +486,104 @@
   <header>
     <div class="brand">Business AI</div>
 
-    <div class="pill">
-      <span class="dot"></span>AI online
+    <div class="online">
+      <span class="status-dot"></span>Online
     </div>
   </header>
+
 
   <main>
 
     <!-- HOME -->
 
-    <section id="home">
+    <section id="home" class="active">
 
-      <div class="hero">
-        <div class="eyebrow">Your virtual front desk</div>
-
-        <h1>
-          Less admin.<br>
-          More business.
-        </h1>
-
-        <p>
-          Let AI handle first contact, qualify enquiries and prepare jobs for you.
-        </p>
+      <div class="welcome">
+        <h1>Dashboard</h1>
+        <div class="subtitle">
+          Your business at a glance.
+        </div>
       </div>
+
+
+      <div class="stats">
+
+        <div class="stat">
+          <div class="stat-label">Total Leads</div>
+          <div class="stat-value" id="totalLeads">0</div>
+          <div class="stat-sub">All captured leads</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">New</div>
+          <div class="stat-value" id="newLeads">0</div>
+          <div class="stat-sub">Need attention</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Contacted</div>
+          <div class="stat-value" id="contactedLeads">0</div>
+          <div class="stat-sub">Follow-ups made</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">Converted</div>
+          <div class="stat-value" id="convertedLeads">0</div>
+          <div class="stat-sub">Won leads</div>
+        </div>
+
+        <div class="stat wide-stat">
+          <div class="stat-label">Conversion Rate</div>
+          <div class="stat-value" id="conversionRate">0%</div>
+          <div class="stat-sub">
+            Converted leads ÷ total leads
+          </div>
+        </div>
+
+      </div>
+
 
       <div class="card">
 
-        <h2>Today</h2>
+        <h2>Quick actions</h2>
 
-        <div class="stats">
+        <div class="quick-grid">
 
-          <div class="stat">
-            <b id="enquiries">0</b>
-            <span>AI enquiries</span>
-          </div>
+          <button
+            class="button"
+            onclick="showSection('leads')"
+          >
+            View Leads
+          </button>
 
-          <div class="stat">
-            <b id="qualified">0</b>
-            <span>Qualified leads</span>
-          </div>
+          <button
+            class="button secondary"
+            onclick="showSection('ai')"
+          >
+            Test AI
+          </button>
 
         </div>
 
-        <button class="primary" onclick="show('ai')">
-          Test your AI receptionist
-        </button>
-
       </div>
+
 
       <div class="card">
 
-        <h2>How the MVP works</h2>
+        <h2>AI Receptionist</h2>
 
-        <p style="color:var(--muted);line-height:1.55;margin:0">
-          Customer message → AI understands the job → asks the right questions
-          → captures details → gives you a ready-to-action lead.
-        </p>
+        <div class="subtitle">
+          Business AI handles customer enquiries,
+          collects important information and captures
+          qualified leads automatically.
+        </div>
+
+        <button
+          class="button secondary"
+          onclick="showSection('ai')"
+        >
+          Open AI Enquiries
+        </button>
 
       </div>
 
@@ -510,48 +592,39 @@
 
     <!-- AI ENQUIRIES -->
 
-    <section id="ai" class="hidden">
+    <section id="ai">
 
-      <div class="hero">
+      <h1>AI Enquiries</h1>
 
-        <div class="eyebrow">
-          Live AI enquiry assistant
-        </div>
-
-        <h1 style="font-size:30px">
-          Test a customer enquiry
-        </h1>
-
-        <p>
-          The AI is connected to a secure server.
-          Your API key is never placed in this webpage.
-        </p>
-
+      <div class="subtitle">
+        Test the AI receptionist and see how it handles
+        customer enquiries.
       </div>
 
-      <div class="card chat">
+      <div class="card">
 
-        <div id="messages" class="messages">
+        <div id="chat" class="chat">
 
-          <div class="msg ai">
-            Hi, thanks for contacting North East Electrical.
-            What can we help you with today?
+          <div class="message ai">
+            Hi, how can I help you today?
           </div>
 
         </div>
 
-        <div id="lead" class="lead"></div>
 
-        <div class="composer">
+        <div class="input-row">
 
-          <textarea
-            id="input"
-            placeholder="Type a customer message..."
-            rows="1">
-          </textarea>
+          <input
+            id="messageInput"
+            placeholder="Type a customer enquiry..."
+            autocomplete="off"
+          >
 
-          <button class="send" onclick="send()">
-            ➤
+          <button
+            class="send-btn"
+            onclick="send()"
+          >
+            Send
           </button>
 
         </div>
@@ -563,87 +636,120 @@
 
     <!-- LEADS -->
 
-    <section id="leads" class="hidden">
+    <section id="leads">
 
-      <div class="hero">
+      <h1>Leads</h1>
 
-        <div class="eyebrow">
-          Customer pipeline
-        </div>
-
-        <h1 style="font-size:30px">
-          Leads
-        </h1>
-
-        <p>
-          Every lead captured by your AI receptionist appears here.
-        </p>
-
+      <div class="subtitle">
+        Manage enquiries captured by Business AI.
       </div>
 
 
-      <div class="refresh-row">
+      <input
+        id="leadSearch"
+        class="search"
+        placeholder="Search leads..."
+        oninput="renderLeads()"
+      >
 
-        <span id="leadSummary" class="eyebrow">
-          Loading leads...
-        </span>
 
-        <button class="secondary" onclick="loadLeads()">
-          Refresh
+      <div class="filters">
+
+        <button
+          class="filter active"
+          onclick="setFilter('All',this)"
+        >
+          All
+        </button>
+
+        <button
+          class="filter"
+          onclick="setFilter('New',this)"
+        >
+          New
+        </button>
+
+        <button
+          class="filter"
+          onclick="setFilter('Contacted',this)"
+        >
+          Contacted
+        </button>
+
+        <button
+          class="filter"
+          onclick="setFilter('Converted',this)"
+        >
+          Converted
         </button>
 
       </div>
 
 
-      <div class="lead-controls">
+      <div style="margin-bottom:12px;">
 
-        <input
-          id="leadSearch"
-          class="search"
-          type="search"
-          placeholder="Search leads..."
-          oninput="renderLeads()"
+        <button
+          class="button secondary"
+          onclick="loadLeads()"
         >
-
-        <div class="filter-row">
-
-          <button
-            class="filter active"
-            data-filter="All"
-            onclick="setFilter('All')">
-            All
-          </button>
-
-          <button
-            class="filter"
-            data-filter="New"
-            onclick="setFilter('New')">
-            New
-          </button>
-
-          <button
-            class="filter"
-            data-filter="Contacted"
-            onclick="setFilter('Contacted')">
-            Contacted
-          </button>
-
-          <button
-            class="filter"
-            data-filter="Converted"
-            onclick="setFilter('Converted')">
-            Converted
-          </button>
-
-        </div>
+          Refresh Leads
+        </button>
 
       </div>
 
 
-      <div id="leadsList">
+      <div id="leadsError" class="error"></div>
 
+      <div id="leadsList">
         <div class="loading">
           Loading leads...
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- RULES -->
+
+    <section id="rules">
+
+      <h1>Rules</h1>
+
+      <div class="subtitle">
+        Configure how your AI receptionist behaves.
+      </div>
+
+
+      <div class="rules-list">
+
+        <div class="rule">
+          <strong>Lead qualification</strong>
+
+          <div class="lead-meta">
+            Business AI captures enquiries when enough
+            customer information is provided.
+          </div>
+        </div>
+
+
+        <div class="rule">
+          <strong>Lead storage</strong>
+
+          <div class="lead-meta">
+            Qualified leads are stored securely in
+            your Supabase database.
+          </div>
+        </div>
+
+
+        <div class="rule">
+          <strong>Customer communication</strong>
+
+          <div class="lead-meta">
+            The AI collects contact details and job
+            information before passing the lead to
+            the business.
+          </div>
         </div>
 
       </div>
@@ -658,43 +764,36 @@
   <nav>
 
     <button
-      id="navhome"
+      id="navHome"
       class="active"
-      onclick="show('home')">
-
-      <span>⌂</span>
+      onclick="showSection('home')"
+    >
+      🏠<br>
       Home
-
     </button>
 
-
     <button
-      id="navai"
-      onclick="show('ai')">
-
-      <span>✦</span>
-      AI Enquiries
-
+      id="navAi"
+      onclick="showSection('ai')"
+    >
+      🤖<br>
+      AI
     </button>
 
-
     <button
-      id="navleads"
-      onclick="show('leads')">
-
-      <span>◉</span>
+      id="navLeads"
+      onclick="showSection('leads')"
+    >
+      👥<br>
       Leads
-
     </button>
 
-
     <button
-      id="navrules"
-      onclick="alert('Business rules are the next module: service area, opening hours, job types and approval rules.')">
-
-      <span>⚙</span>
+      id="navRules"
+      onclick="showSection('rules')"
+    >
+      ⚙️<br>
       Rules
-
     </button>
 
   </nav>
@@ -704,699 +803,779 @@
 
 <script>
 
-let history = [];
-
-let count =
-  Number(localStorage.getItem('businessai_enquiries') || 0);
-
-let leads = [];
-
-let currentFilter = 'All';
+  let allLeads = [];
+  let currentFilter = 'All';
 
 
-const $ = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
 
-function updateStats(){
+  /* -------------------------
+     NAVIGATION
+  ------------------------- */
 
-  $('enquiries').textContent = count;
+  function showSection(section){
 
-  $('qualified').textContent =
-    leads.filter(lead => lead.qualified).length;
+    document
+      .querySelectorAll('section')
+      .forEach(s => s.classList.remove('active'));
 
-}
+    const target = $(section);
 
-
-function show(id){
-
-  ['home','ai','leads'].forEach(x => {
-
-    $(x).classList.toggle(
-      'hidden',
-      x !== id
-    );
-
-  });
+    if(target){
+      target.classList.add('active');
+    }
 
 
-  $('navhome').classList.toggle(
-    'active',
-    id === 'home'
-  );
+    document
+      .querySelectorAll('nav button')
+      .forEach(b => b.classList.remove('active'));
 
 
-  $('navai').classList.toggle(
-    'active',
-    id === 'ai'
-  );
+    const navMap = {
+      home:'navHome',
+      ai:'navAi',
+      leads:'navLeads',
+      rules:'navRules'
+    };
 
 
-  $('navleads').classList.toggle(
-    'active',
-    id === 'leads'
-  );
+    if(navMap[section]){
+      $(navMap[section]).classList.add('active');
+    }
 
 
-  if(id === 'leads'){
-    loadLeads();
+    if(section === 'leads'){
+      loadLeads();
+    }
+
+
+    if(section === 'home'){
+      updateDashboardStats();
+    }
+
   }
 
-}
+
+  /* -------------------------
+     AI CHAT
+  ------------------------- */
+
+  async function send(){
+
+    const input = $('messageInput');
+    const chat = $('chat');
+
+    const message = input.value.trim();
+
+    if(!message) return;
 
 
-function add(text,who){
+    const userMessage =
+      document.createElement('div');
 
-  const d =
-    document.createElement('div');
+    userMessage.className = 'message user';
+    userMessage.textContent = message;
 
-  d.className =
-    'msg ' + who;
+    chat.appendChild(userMessage);
 
-  d.textContent =
-    text;
-
-  $('messages').appendChild(d);
-
-  $('messages').scrollTop =
-    $('messages').scrollHeight;
-
-}
+    input.value = '';
 
 
-function setFilter(filter){
+    const loading =
+      document.createElement('div');
 
-  currentFilter = filter;
+    loading.className = 'message ai';
+    loading.textContent = 'Thinking...';
 
-  document.querySelectorAll('.filter').forEach(button => {
+    chat.appendChild(loading);
 
-    button.classList.toggle(
-      'active',
-      button.dataset.filter === filter
-    );
-
-  });
-
-  renderLeads();
-
-}
+    chat.scrollTop = chat.scrollHeight;
 
 
-async function loadLeads(){
+    try{
 
-  const list = $('leadsList');
-
-  list.innerHTML = `
-    <div class="loading">
-      Loading leads...
-    </div>
-  `;
-
-  try{
-
-    const res =
-      await fetch('/api/leads');
-
-    const data =
-      await res.json();
-
-    if(!res.ok){
-
-      throw new Error(
-        data.error || 'Could not load leads'
+      const response = await fetch(
+        '/api/enquiry',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({
+            message
+          })
+        }
       );
+
+
+      const data = await response.json();
+
+
+      loading.remove();
+
+
+      const aiMessage =
+        document.createElement('div');
+
+      aiMessage.className = 'message ai';
+
+
+      if(data.reply){
+
+        aiMessage.textContent = data.reply;
+
+      }else if(data.message){
+
+        aiMessage.textContent = data.message;
+
+      }else{
+
+        aiMessage.textContent =
+          'I could not process that enquiry.';
+
+      }
+
+
+      chat.appendChild(aiMessage);
+
+      chat.scrollTop = chat.scrollHeight;
+
+
+      await loadLeads();
+
+
+    }catch(error){
+
+      console.error(error);
+
+      loading.textContent =
+        'Could not connect to the AI.';
 
     }
 
-    leads =
-      Array.isArray(data)
-        ? data
-        : [];
-
-    updateStats();
-
-    renderLeads();
-
-  }catch(error){
-
-    console.error(error);
-
-    list.innerHTML = `
-      <div class="error">
-        Could not load leads.<br><br>
-        ${escapeHtml(error.message)}
-      </div>
-    `;
-
-    $('leadSummary').textContent =
-      'Unable to load leads';
-
   }
 
-}
 
+  $('messageInput')
+    .addEventListener('keydown', function(event){
 
-function renderLeads(){
-
-  const list =
-    $('leadsList');
-
-  const search =
-    ($('leadSearch')?.value || '')
-      .trim()
-      .toLowerCase();
-
-
-  let filtered =
-    leads.filter(lead => {
-
-      const matchesStatus =
-        currentFilter === 'All' ||
-        (lead.status || 'New') === currentFilter;
-
-
-      const searchable = [
-        lead.name,
-        lead.phone,
-        lead.email,
-        lead.job_type,
-        lead.location,
-        lead.description
-      ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
-
-
-      const matchesSearch =
-        !search ||
-        searchable.includes(search);
-
-
-      return matchesStatus && matchesSearch;
+      if(event.key === 'Enter'){
+        send();
+      }
 
     });
 
 
-  $('leadSummary').textContent =
-    filtered.length === 1
-      ? '1 lead'
-      : `${filtered.length} leads`;
+  /* -------------------------
+     LEAD FILTERS
+  ------------------------- */
+
+  function setFilter(filter, button){
+
+    currentFilter = filter;
 
 
-  if(!filtered.length){
+    document
+      .querySelectorAll('.filter')
+      .forEach(b => b.classList.remove('active'));
 
-    list.innerHTML = `
-      <div class="card empty">
-        ${
-          leads.length
-            ? 'No leads match your search or filter.'
-            : 'No leads have been captured yet.'
-        }
-      </div>
-    `;
 
-    return;
+    button.classList.add('active');
+
+
+    renderLeads();
 
   }
 
 
-  list.innerHTML =
-    filtered.map(lead => {
+  /* -------------------------
+     LOAD LEADS
+  ------------------------- */
 
-      const status =
-        lead.status || 'New';
+  async function loadLeads(){
 
-
-      const date =
-        lead.created_at
-          ? new Date(lead.created_at).toLocaleString('en-GB')
-          : '';
+    const list = $('leadsList');
+    const errorBox = $('leadsError');
 
 
-      const phone =
-        lead.phone
-          ? String(lead.phone)
-          : '';
+    errorBox.textContent = '';
+
+    list.innerHTML =
+      '<div class="loading">Loading leads...</div>';
 
 
-      const email =
-        lead.email
-          ? String(lead.email)
-          : '';
+    try{
+
+      const response =
+        await fetch('/api/leads');
 
 
-      return `
-
-        <div class="lead-card">
-
-          <div class="lead-top">
-
-            <div class="lead-name">
-              ${escapeHtml(lead.name || 'Unnamed lead')}
-            </div>
-
-            <div>
-
-              ${
-                lead.qualified
-                  ? '<span class="badge">Qualified</span>'
-                  : ''
-              }
-
-              <span class="status">
-                ${escapeHtml(status)}
-              </span>
-
-            </div>
-
-          </div>
+      const data =
+        await response.json();
 
 
-          <div class="lead-meta">
+      if(!response.ok){
 
-            ${
-              phone
-                ? '<strong>Phone:</strong> ' +
-                  escapeHtml(phone) +
-                  '<br>'
-                : ''
-            }
+        throw new Error(
+          data.error || 'Could not load leads'
+        );
 
-            ${
-              email
-                ? '<strong>Email:</strong> ' +
-                  escapeHtml(email) +
-                  '<br>'
-                : ''
-            }
-
-            ${
-              lead.job_type
-                ? '<strong>Job:</strong> ' +
-                  escapeHtml(lead.job_type) +
-                  '<br>'
-                : ''
-            }
-
-            ${
-              lead.location
-                ? '<strong>Location:</strong> ' +
-                  escapeHtml(lead.location) +
-                  '<br>'
-                : ''
-            }
-
-            ${
-              lead.urgency
-                ? '<strong>Urgency:</strong> ' +
-                  escapeHtml(lead.urgency) +
-                  '<br>'
-                : ''
-            }
-
-            ${
-              date
-                ? '<strong>Captured:</strong> ' +
-                  escapeHtml(date)
-                : ''
-            }
-
-          </div>
+      }
 
 
-          ${
-            lead.description
-              ? `
-                <div class="lead-description">
-                  ${escapeHtml(lead.description)}
+      allLeads =
+        Array.isArray(data) ? data : [];
+
+
+      renderLeads();
+      updateDashboardStats();
+
+
+    }catch(error){
+
+      console.error(error);
+
+      errorBox.textContent =
+        error.message || 'Could not load leads';
+
+
+      list.innerHTML =
+        '<div class="empty">Could not load leads.</div>';
+
+    }
+
+  }
+
+
+  /* -------------------------
+     DASHBOARD STATISTICS
+  ------------------------- */
+
+  function updateDashboardStats(){
+
+    const total =
+      allLeads.length;
+
+
+    const newCount =
+      allLeads.filter(
+        lead => String(lead.status || 'New') === 'New'
+      ).length;
+
+
+    const contacted =
+      allLeads.filter(
+        lead => String(lead.status || '') === 'Contacted'
+      ).length;
+
+
+    const converted =
+      allLeads.filter(
+        lead => String(lead.status || '') === 'Converted'
+      ).length;
+
+
+    const rate =
+      total > 0
+        ? Math.round((converted / total) * 100)
+        : 0;
+
+
+    $('totalLeads').textContent =
+      total;
+
+    $('newLeads').textContent =
+      newCount;
+
+    $('contactedLeads').textContent =
+      contacted;
+
+    $('convertedLeads').textContent =
+      converted;
+
+    $('conversionRate').textContent =
+      rate + '%';
+
+  }
+
+
+  /* -------------------------
+     RENDER LEADS
+  ------------------------- */
+
+  function renderLeads(){
+
+    const list =
+      $('leadsList');
+
+
+    const search =
+      String(
+        $('leadSearch').value || ''
+      )
+      .toLowerCase()
+      .trim();
+
+
+    let leads =
+      [...allLeads];
+
+
+    if(currentFilter !== 'All'){
+
+      leads =
+        leads.filter(
+          lead =>
+            String(lead.status || 'New')
+            === currentFilter
+        );
+
+    }
+
+
+    if(search){
+
+      leads =
+        leads.filter(lead => {
+
+          const searchable = [
+
+            lead.name,
+            lead.phone,
+            lead.email,
+            lead.location,
+            lead.job_type,
+            lead.description,
+            lead.urgency,
+            lead.status
+
+          ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+
+          return searchable.includes(search);
+
+        });
+
+    }
+
+
+    if(!leads.length){
+
+      list.innerHTML =
+        '<div class="empty">No leads found.</div>';
+
+      return;
+
+    }
+
+
+    list.innerHTML =
+      leads.map(lead => {
+
+        const id =
+          String(lead.id);
+
+
+        const name =
+          escapeHtml(
+            lead.name || 'Unnamed customer'
+          );
+
+
+        const phone =
+          escapeHtml(
+            lead.phone || ''
+          );
+
+
+        const email =
+          escapeHtml(
+            lead.email || ''
+          );
+
+
+        const job =
+          escapeHtml(
+            lead.job_type || 'Not specified'
+          );
+
+
+        const location =
+          escapeHtml(
+            lead.location || 'Not specified'
+          );
+
+
+        const urgency =
+          escapeHtml(
+            lead.urgency || 'Not specified'
+          );
+
+
+        const description =
+          escapeHtml(
+            lead.description ||
+            'No description provided.'
+          );
+
+
+        const status =
+          String(
+            lead.status || 'New'
+          );
+
+
+        const statusClass =
+          status.toLowerCase();
+
+
+        const created =
+          lead.created_at
+            ? new Date(
+                lead.created_at
+              ).toLocaleString('en-GB')
+            : 'Unknown';
+
+
+        const callButton =
+          lead.phone
+            ? `
+              <a
+                class="action-btn primary-action"
+                href="tel:${escapeAttribute(lead.phone)}"
+              >
+                📞 Call
+              </a>
+            `
+            : '';
+
+
+        const emailButton =
+          lead.email
+            ? `
+              <a
+                class="action-btn"
+                href="mailto:${escapeAttribute(lead.email)}"
+              >
+                ✉️ Email
+              </a>
+            `
+            : '';
+
+
+        return `
+
+          <div class="lead-card">
+
+            <div class="lead-top">
+
+              <div>
+
+                <div class="lead-name">
+                  ${name}
                 </div>
-              `
-              : ''
-          }
+
+                <div class="badge ${statusClass}">
+                  ${escapeHtml(status)}
+                </div>
+
+              </div>
+
+            </div>
 
 
-          <div class="lead-actions">
+            <div class="lead-meta">
 
-            ${
-              phone
-                ? `
-                  <a
-                    class="action-btn primary-action"
-                    href="tel:${escapeHtml(phone)}">
-                    📞 Call
-                  </a>
-                `
-                : ''
-            }
+              📞 ${phone || 'No phone'}<br>
 
-            ${
-              email
-                ? `
-                  <a
-                    class="action-btn"
-                    href="mailto:${escapeHtml(email)}">
-                    ✉️ Email
-                  </a>
-                `
-                : ''
-            }
+              ✉️ ${email || 'No email'}<br>
 
-          </div>
+              🔧 ${job}<br>
+
+              📍 ${location}<br>
+
+              ⚠️ ${urgency}<br>
+
+              🕒 ${created}
+
+            </div>
 
 
-          <div class="lead-details">
+            <div class="lead-description">
+              ${description}
+            </div>
+
+
+            <div class="lead-actions">
+
+              ${callButton}
+
+              ${emailButton}
+
+            </div>
+
 
             <button
               class="details-toggle"
-              onclick="toggleLeadDetails(${Number(lead.id)})">
+              onclick="toggleLeadDetails('${escapeAttribute(id)}')"
+            >
               View lead details
             </button>
 
 
             <div
-              id="details-${Number(lead.id)}"
-              class="details-content hidden">
+              id="details-${escapeAttribute(id)}"
+              class="details-content hidden"
+            >
 
-              <strong>Customer</strong><br>
-              ${escapeHtml(lead.name || 'Not provided')}<br><br>
+              <div class="detail-row">
+                <span class="detail-label">
+                  Customer
+                </span>
 
-              <strong>Phone</strong><br>
-              ${escapeHtml(phone || 'Not provided')}<br><br>
+                <span class="detail-value">
+                  ${name}
+                </span>
+              </div>
 
-              <strong>Email</strong><br>
-              ${escapeHtml(email || 'Not provided')}<br><br>
 
-              <strong>Job type</strong><br>
-              ${escapeHtml(lead.job_type || 'Not provided')}<br><br>
+              <div class="detail-row">
+                <span class="detail-label">
+                  Phone
+                </span>
 
-              <strong>Location</strong><br>
-              ${escapeHtml(lead.location || 'Not provided')}<br><br>
+                <span class="detail-value">
+                  ${phone || 'Not provided'}
+                </span>
+              </div>
 
-              <strong>Urgency</strong><br>
-              ${escapeHtml(lead.urgency || 'Not provided')}<br><br>
 
-              <strong>Description</strong><br>
-              ${escapeHtml(lead.description || 'Not provided')}
+              <div class="detail-row">
+                <span class="detail-label">
+                  Email
+                </span>
+
+                <span class="detail-value">
+                  ${email || 'Not provided'}
+                </span>
+              </div>
+
+
+              <div class="detail-row">
+                <span class="detail-label">
+                  Job type
+                </span>
+
+                <span class="detail-value">
+                  ${job}
+                </span>
+              </div>
+
+
+              <div class="detail-row">
+                <span class="detail-label">
+                  Location
+                </span>
+
+                <span class="detail-value">
+                  ${location}
+                </span>
+              </div>
+
+
+              <div class="detail-row">
+                <span class="detail-label">
+                  Urgency
+                </span>
+
+                <span class="detail-value">
+                  ${urgency}
+                </span>
+              </div>
+
+
+              <div class="detail-row">
+                <span class="detail-label">
+                  Description
+                </span>
+
+                <span class="detail-value">
+                  ${description}
+                </span>
+              </div>
 
             </div>
 
+
+            <select
+              class="status-select"
+              onchange="updateLeadStatus(
+                '${escapeAttribute(id)}',
+                this.value
+              )"
+            >
+
+              <option
+                value="New"
+                ${status === 'New' ? 'selected' : ''}
+              >
+                New
+              </option>
+
+              <option
+                value="Contacted"
+                ${status === 'Contacted' ? 'selected' : ''}
+              >
+                Contacted
+              </option>
+
+              <option
+                value="Converted"
+                ${status === 'Converted' ? 'selected' : ''}
+              >
+                Converted
+              </option>
+
+            </select>
+
           </div>
 
+        `;
 
-          <select
-            class="lead-status"
-            onchange="updateLeadStatus(${Number(lead.id)}, this.value)">
+      })
+      .join('');
 
-            <option
-              value="New"
-              ${status === 'New' ? 'selected' : ''}>
-              New
-            </option>
-
-            <option
-              value="Contacted"
-              ${status === 'Contacted' ? 'selected' : ''}>
-              Contacted
-            </option>
-
-            <option
-              value="Converted"
-              ${status === 'Converted' ? 'selected' : ''}>
-              Converted
-            </option>
-
-          </select>
-
-        </div>
-
-      `;
-
-    }).join('');
-
-}
+  }
 
 
-function toggleLeadDetails(id){
+  /* -------------------------
+     LEAD DETAILS
+  ------------------------- */
 
-  const box =
-    $(`details-${id}`);
+  function toggleLeadDetails(id){
 
-  if(!box)
-    return;
-
-  box.classList.toggle('hidden');
-
-}
+    const box =
+      $('details-' + id);
 
 
-async function updateLeadStatus(id,status){
-
-  try{
-
-    const res =
-      await fetch(
-        '/api/leads',
-        {
-          method:'PATCH',
-
-          headers:{
-            'Content-Type':
-              'application/json'
-          },
-
-          body:JSON.stringify({
-            id,
-            status
-          })
-        }
-      );
+    if(!box) return;
 
 
-    const data =
-      await res.json();
+    box.classList.toggle('hidden');
+
+  }
 
 
-    if(!res.ok){
+  /* -------------------------
+     UPDATE LEAD STATUS
+  ------------------------- */
 
-      throw new Error(
-        data.error ||
+  async function updateLeadStatus(id, status){
+
+    try{
+
+      const response =
+        await fetch(
+          '/api/leads',
+          {
+            method:'PATCH',
+            headers:{
+              'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+              id,
+              status
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if(!response.ok){
+
+        throw new Error(
+          data.error || 'Could not update lead'
+        );
+
+      }
+
+
+      const index =
+        allLeads.findIndex(
+          lead =>
+            String(lead.id) === String(id)
+        );
+
+
+      if(index !== -1){
+
+        allLeads[index].status =
+          status;
+
+      }
+
+
+      renderLeads();
+      updateDashboardStats();
+
+
+    }catch(error){
+
+      console.error(error);
+
+      alert(
+        error.message ||
         'Could not update lead'
       );
 
-    }
 
-
-    const index =
-      leads.findIndex(
-        lead => Number(lead.id) === Number(id)
-      );
-
-
-    if(index !== -1){
-
-      leads[index] = data;
-
-    }
-
-
-    renderLeads();
-
-  }catch(error){
-
-    console.error(error);
-
-    alert(
-      'Could not update the lead status.'
-    );
-
-    loadLeads();
-
-  }
-
-}
-
-
-function escapeHtml(value){
-
-  return String(value).replace(
-    /[&<>"']/g,
-    c => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#039;'
-    }[c])
-  );
-
-}
-
-
-async function send(){
-
-  const input =
-    $('input');
-
-  const message =
-    input.value.trim();
-
-
-  if(!message)
-    return;
-
-
-  input.value = '';
-
-  add(
-    message,
-    'user'
-  );
-
-
-  count++;
-
-  localStorage.setItem(
-    'businessai_enquiries',
-    String(count)
-  );
-
-
-  $('enquiries').textContent =
-    count;
-
-
-  const thinking =
-    document.createElement('div');
-
-  thinking.className =
-    'msg ai';
-
-  thinking.textContent =
-    'Thinking…';
-
-
-  $('messages')
-    .appendChild(thinking);
-
-
-  try{
-
-    const res =
-      await fetch(
-        '/api/enquiry',
-        {
-          method:'POST',
-
-          headers:{
-            'Content-Type':
-              'application/json'
-          },
-
-          body:JSON.stringify({
-            message,
-            history
-          })
-        }
-      );
-
-
-    const data =
-      await res.json();
-
-
-    thinking.remove();
-
-
-    if(!res.ok)
-      throw new Error(
-        data.error ||
-        'Request failed'
-      );
-
-
-    add(
-      data.reply,
-      'ai'
-    );
-
-
-    history.push(
-      {
-        role:'user',
-        content:message
-      },
-      {
-        role:'assistant',
-        content:data.reply
-      }
-    );
-
-
-    if(
-      data.lead &&
-      data.lead.name &&
-      (
-        data.lead.phone ||
-        data.lead.email
-      )
-    ){
-
-      $('lead').innerHTML =
-        '<strong>Lead captured</strong> · ' +
-        [
-          data.lead.name,
-          data.lead.phone,
-          data.lead.job_type,
-          data.lead.location
-        ]
-        .filter(Boolean)
-        .join(' · ');
-
-
-      setTimeout(
-        loadLeads,
-        500
-      );
-
-    }
-
-
-  }catch(e){
-
-    thinking.remove();
-
-    add(
-      'Sorry, I could not connect to the AI service. Check that the server is deployed and the API key is configured.',
-      'ai'
-    );
-
-    console.error(e);
-
-  }
-
-}
-
-
-$('input').addEventListener(
-  'keydown',
-  e => {
-
-    if(
-      e.key === 'Enter' &&
-      !e.shiftKey
-    ){
-
-      e.preventDefault();
-
-      send();
+      loadLeads();
 
     }
 
   }
-);
 
 
-updateStats();
+  /* -------------------------
+     SECURITY / HTML ESCAPING
+  ------------------------- */
+
+  function escapeHtml(value){
+
+    return String(value)
+
+      .replace(/&/g,'&amp;')
+
+      .replace(/</g,'&lt;')
+
+      .replace(/>/g,'&gt;')
+
+      .replace(/"/g,'&quot;')
+
+      .replace(/'/g,'&#039;');
+
+  }
+
+
+  function escapeAttribute(value){
+
+    return escapeHtml(value);
+
+  }
+
+
+  /* -------------------------
+     INITIAL LOAD
+  ------------------------- */
+
+  loadLeads();
 
 </script>
 
