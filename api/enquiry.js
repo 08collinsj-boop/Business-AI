@@ -4,7 +4,9 @@ const SUPABASE_SERVICE_ROLE_KEY =
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
+
 function supabaseUrl(path) {
+
   if (!SUPABASE_URL) {
     throw new Error("SUPABASE_URL is not configured");
   }
@@ -18,94 +20,184 @@ function supabaseUrl(path) {
   return `${SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/${path}`;
 }
 
+
 async function getBusinessSettings() {
-  const response = await fetch(
-    supabaseUrl(
-      "business_settings?select=*&order=id.asc&limit=1"
-    ),
-    {
-      headers: {
-        apikey: SUPABASE_SERVICE_ROLE_KEY,
-        Authorization:
-          `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
-      }
+
+  const defaultSettings = {
+    business_name: "My Business",
+    business_type: "business",
+    phone: "",
+    email: "",
+    address: "",
+    opening_hours: "",
+    services: "",
+    ai_instructions: "",
+    urgent_jobs_enabled: true
+  };
+
+
+  try {
+
+    const controller =
+      new AbortController();
+
+    const timeout =
+      setTimeout(
+        () => controller.abort(),
+        4000
+      );
+
+
+    const response =
+      await fetch(
+        supabaseUrl(
+          "business_settings?select=*&order=id.asc&limit=1"
+        ),
+        {
+          headers: {
+            apikey:
+              SUPABASE_SERVICE_ROLE_KEY,
+
+            Authorization:
+              `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+          },
+
+          signal:
+            controller.signal
+        }
+      );
+
+
+    clearTimeout(timeout);
+
+
+    if (!response.ok) {
+
+      console.error(
+        "Business settings request failed:",
+        response.status
+      );
+
+      return defaultSettings;
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(
-      `Could not load business settings: ${response.status}`
+
+    const settings =
+      await response.json();
+
+
+    if (
+      Array.isArray(settings) &&
+      settings.length > 0
+    ) {
+
+      return {
+        ...defaultSettings,
+        ...settings[0]
+      };
+
+    }
+
+
+    return defaultSettings;
+
+  } catch (error) {
+
+    console.error(
+      "Could not load business settings. Using defaults:",
+      error.message
     );
+
+    return defaultSettings;
   }
-
-  const settings = await response.json();
-
-  if (!Array.isArray(settings) || settings.length === 0) {
-    return {
-      business_name: "My Business",
-      business_type: "",
-      phone: "",
-      email: "",
-      address: "",
-      opening_hours: "",
-      services: "",
-      ai_instructions: "",
-      urgent_jobs_enabled: true
-    };
-  }
-
-  return settings[0];
 }
+
 
 
 async function saveLead(lead) {
 
-  const response = await fetch(
-    supabaseUrl("leads"),
-    {
-      method: "POST",
+  const response =
+    await fetch(
+      supabaseUrl("leads"),
+      {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_SERVICE_ROLE_KEY,
-        Authorization:
-          `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        Prefer: "return=representation"
-      },
+        headers: {
+          "Content-Type":
+            "application/json",
 
-      body: JSON.stringify({
-        name: lead.name || "",
-        phone: lead.phone || "",
-        email: lead.email || "",
-        location: lead.location || "",
-        job_type: lead.job_type || "",
-        description: lead.description || "",
-        urgency: lead.urgency || "",
-        qualified: lead.qualified ?? true
-      })
-    }
-  );
+          apikey:
+            SUPABASE_SERVICE_ROLE_KEY,
 
-  const text = await response.text();
+          Authorization:
+            `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+
+          Prefer:
+            "return=representation"
+        },
+
+        body:
+          JSON.stringify({
+            name:
+              lead.name || "",
+
+            phone:
+              lead.phone || "",
+
+            email:
+              lead.email || "",
+
+            location:
+              lead.location || "",
+
+            job_type:
+              lead.job_type || "",
+
+            description:
+              lead.description || "",
+
+            urgency:
+              lead.urgency || "",
+
+            qualified:
+              lead.qualified ?? true
+          })
+      }
+    );
+
+
+  const text =
+    await response.text();
+
 
   if (!response.ok) {
+
     throw new Error(
       `Could not save lead: ${text}`
     );
+
   }
+
 
   let saved;
 
   try {
-    saved = JSON.parse(text);
+
+    saved =
+      JSON.parse(text);
+
   } catch {
+
     return null;
+
   }
+
 
   const createdLead =
     Array.isArray(saved)
       ? saved[0]
       : saved;
+
 
   if (
     createdLead &&
@@ -115,25 +207,40 @@ async function saveLead(lead) {
     try {
 
       await fetch(
-        supabaseUrl("lead_history"),
+        supabaseUrl(
+          "lead_history"
+        ),
         {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
-            apikey: SUPABASE_SERVICE_ROLE_KEY,
+            "Content-Type":
+              "application/json",
+
+            apikey:
+              SUPABASE_SERVICE_ROLE_KEY,
+
             Authorization:
               `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-            Prefer: "return=minimal"
+
+            Prefer:
+              "return=minimal"
           },
 
-          body: JSON.stringify({
-            lead_id: createdLead.id,
-            action: "Lead created",
-            old_value: "",
-            new_value:
-              "New lead captured by AI receptionist"
-          })
+          body:
+            JSON.stringify({
+              lead_id:
+                createdLead.id,
+
+              action:
+                "Lead created",
+
+              old_value:
+                "",
+
+              new_value:
+                "New lead captured by AI receptionist"
+            })
         }
       );
 
@@ -145,28 +252,40 @@ async function saveLead(lead) {
       );
 
     }
+
   }
 
+
   return saved;
+
 }
 
 
-export default async function handler(req, res) {
+
+export default async function handler(
+  req,
+  res
+) {
 
   try {
 
     if (req.method !== "POST") {
+
       return res.status(405).json({
-        error: "Method not allowed"
+        error:
+          "Method not allowed"
       });
+
     }
 
 
     if (!OPENAI_API_KEY) {
+
       return res.status(500).json({
         error:
           "OPENAI_API_KEY is not configured"
       });
+
     }
 
 
@@ -177,15 +296,26 @@ export default async function handler(req, res) {
 
 
     const message =
-      String(body.message || "").trim();
+      String(
+        body.message || ""
+      ).trim();
 
 
     if (!message) {
+
       return res.status(400).json({
-        error: "Message is required"
+        error:
+          "Message is required"
       });
+
     }
 
+
+    /*
+      IMPORTANT:
+      If Supabase settings are unavailable,
+      the AI will continue using safe defaults.
+    */
 
     const settings =
       await getBusinessSettings();
@@ -195,33 +325,43 @@ export default async function handler(req, res) {
       settings.business_name ||
       "My Business";
 
+
     const businessType =
       settings.business_type ||
       "business";
 
+
     const phone =
       settings.phone || "";
+
 
     const email =
       settings.email || "";
 
+
     const address =
       settings.address || "";
+
 
     const openingHours =
       settings.opening_hours || "";
 
+
     const services =
       settings.services || "";
 
+
     const aiInstructions =
       settings.ai_instructions || "";
+
 
     const urgentJobsEnabled =
       settings.urgent_jobs_enabled !== false;
 
 
+
     const systemPrompt = `
+
 You are the AI receptionist for ${businessName}.
 
 BUSINESS INFORMATION
@@ -291,11 +431,13 @@ URGENT JOBS
 
 ${
   urgentJobsEnabled
+
     ? `
 Urgent jobs are accepted by the business.
 
 If a customer describes an urgent problem, identify the urgency clearly and encourage them to provide their contact details so the business can respond.
 `
+
     : `
 The business has not enabled urgent-job handling.
 
@@ -335,190 +477,16 @@ If the customer is a qualified lead, set:
 and include all information that has been collected.
 
 Do not include markdown outside the JSON.
+
 `;
+
 
 
     const openaiResponse =
       await fetch(
         "https://api.openai.com/v1/responses",
         {
-          method: "POST",
+          method:
+            "POST",
 
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              `Bearer ${OPENAI_API_KEY}`
-          },
-
-          body: JSON.stringify({
-            model: "gpt-5.6-luna",
-
-            input: [
-              {
-                role: "system",
-                content: systemPrompt
-              },
-              {
-                role: "user",
-                content: message
-              }
-            ]
-          })
-        }
-      );
-
-
-    const openaiText =
-      await openaiResponse.text();
-
-
-    if (!openaiResponse.ok) {
-      throw new Error(
-        `OpenAI error: ${openaiText}`
-      );
-    }
-
-
-    let openaiData;
-
-    try {
-      openaiData =
-        JSON.parse(openaiText);
-    } catch {
-      throw new Error(
-        "OpenAI returned invalid JSON"
-      );
-    }
-
-
-    let outputText = "";
-
-
-    if (
-      Array.isArray(openaiData.output)
-    ) {
-
-      for (
-        const item of openaiData.output
-      ) {
-
-        if (
-          item.type === "message" &&
-          Array.isArray(item.content)
-        ) {
-
-          for (
-            const content of item.content
-          ) {
-
-            if (
-              content.type === "output_text"
-            ) {
-              outputText +=
-                content.text || "";
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-
-
-    if (!outputText) {
-      throw new Error(
-        "No response returned by AI"
-      );
-    }
-
-
-    let result;
-
-    try {
-
-      result =
-        JSON.parse(outputText);
-
-    } catch {
-
-      const cleaned =
-        outputText
-          .replace(/^```json\s*/i, "")
-          .replace(/^```\s*/i, "")
-          .replace(/\s*```$/i, "")
-          .trim();
-
-      try {
-        result = JSON.parse(cleaned);
-      } catch {
-        throw new Error(
-          "AI returned invalid response format"
-        );
-      }
-
-    }
-
-
-    const lead =
-      result.lead || {};
-
-    let savedLead = null;
-
-
-    if (
-      result.qualified === true
-    ) {
-
-      savedLead =
-        await saveLead({
-          name: lead.name,
-          phone: lead.phone,
-          email: lead.email,
-          location: lead.location,
-          job_type: lead.job_type,
-          description: lead.description,
-          urgency: lead.urgency,
-          qualified: true
-        });
-
-    }
-
-
-    return res.status(200).json({
-
-      reply:
-        result.reply ||
-        "Thanks for your message. We'll get back to you shortly.",
-
-      qualified:
-        result.qualified === true,
-
-      lead:
-        result.lead || null,
-
-      saved:
-        Boolean(savedLead)
-
-    });
-
-
-  } catch (error) {
-
-    console.error(
-      "Enquiry API error:",
-      error
-    );
-
-    return res.status(500).json({
-
-      error:
-        error.message ||
-        "Could not process enquiry"
-
-    });
-
-  }
-
-}
+         
