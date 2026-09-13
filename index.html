@@ -14,11 +14,11 @@
       --border:#202831;
       --text:#f5f7fa;
       --muted:#8d98a5;
-      --accent:#ffffff;
       --green:#38d39f;
       --yellow:#f0c75e;
       --blue:#6ea8fe;
       --red:#ff6b6b;
+      --orange:#ff9f43;
       --radius:18px;
     }
 
@@ -54,8 +54,6 @@
       margin:auto;
       padding:18px;
     }
-
-    /* HEADER */
 
     .topbar{
       display:flex;
@@ -103,8 +101,6 @@
       box-shadow:0 0 12px rgba(56,211,159,.5);
     }
 
-    /* VIEWS */
-
     .view{
       display:none;
     }
@@ -129,8 +125,6 @@
       font-size:14px;
     }
 
-    /* STATS */
-
     .stats{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -152,7 +146,7 @@
     }
 
     .stat-value{
-      font-size:28px;
+      font-size:25px;
       font-weight:750;
       letter-spacing:-.8px;
     }
@@ -162,8 +156,6 @@
       font-size:11px;
       color:var(--muted);
     }
-
-    /* CARDS */
 
     .card{
       background:var(--panel);
@@ -191,8 +183,6 @@
       font-size:12px;
     }
 
-    /* ACTIONS */
-
     .actions{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -218,12 +208,6 @@
       color:#000;
       border-color:#fff;
     }
-
-    .btn.full{
-      width:100%;
-    }
-
-    /* RECEPTIONIST */
 
     .receptionist{
       position:relative;
@@ -269,8 +253,6 @@
       max-width:650px;
       margin:0 0 16px;
     }
-
-    /* RECENT LEADS */
 
     .lead-mini{
       border-top:1px solid var(--border);
@@ -327,7 +309,9 @@
       color:var(--blue);
     }
 
-    /* ACTIVITY */
+    .priority-high{
+      color:var(--orange);
+    }
 
     .activity{
       display:flex;
@@ -365,8 +349,6 @@
       margin-top:3px;
     }
 
-    /* LEADS */
-
     .toolbar{
       display:flex;
       gap:9px;
@@ -382,10 +364,6 @@
       border-radius:13px;
       padding:12px 13px;
       outline:none;
-    }
-
-    .search:focus{
-      border-color:#46515d;
     }
 
     .refresh{
@@ -429,6 +407,10 @@
       margin-bottom:10px;
     }
 
+    .lead-card.high{
+      border-color:#5b4526;
+    }
+
     .lead-top{
       display:flex;
       justify-content:space-between;
@@ -440,11 +422,39 @@
       font-size:16px;
     }
 
-    .lead-card .description{
+    .description{
       margin:9px 0;
       color:#c0c8d1;
       font-size:13px;
       line-height:1.45;
+    }
+
+    .lead-tags{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:9px;
+    }
+
+    .tag{
+      background:#1a2129;
+      color:#aeb8c3;
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:10px;
+      font-weight:650;
+    }
+
+    .tag.money{
+      color:var(--green);
+    }
+
+    .tag.follow{
+      color:var(--yellow);
+    }
+
+    .tag.high{
+      color:var(--orange);
     }
 
     .lead-actions{
@@ -477,7 +487,7 @@
     }
 
     .detail{
-      margin-bottom:10px;
+      margin-bottom:12px;
     }
 
     .detail:last-child{
@@ -489,12 +499,59 @@
       font-size:10px;
       text-transform:uppercase;
       letter-spacing:.5px;
-      margin-bottom:3px;
+      margin-bottom:5px;
     }
 
     .detail-value{
       font-size:13px;
       line-height:1.4;
+    }
+
+    .edit-grid{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+    }
+
+    .field label{
+      color:var(--muted);
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea{
+      width:100%;
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+      outline:none;
+    }
+
+    .field textarea{
+      min-height:80px;
+      resize:vertical;
+    }
+
+    .save-btn{
+      width:100%;
+      margin-top:10px;
+      border:0;
+      background:#fff;
+      color:#000;
+      border-radius:11px;
+      padding:11px;
+      font-weight:750;
     }
 
     .status-select{
@@ -523,8 +580,6 @@
       border:1px solid rgba(255,107,107,.2);
       border-radius:13px;
     }
-
-    /* AI CHAT */
 
     .chat{
       min-height:430px;
@@ -593,8 +648,6 @@
       font-weight:800;
     }
 
-    /* RULES */
-
     .rule{
       padding:13px 0;
       border-top:1px solid var(--border);
@@ -616,8 +669,6 @@
       font-size:12px;
       line-height:1.4;
     }
-
-    /* NAV */
 
     .bottom-nav{
       position:fixed;
@@ -658,12 +709,13 @@
     }
 
     @media(min-width:700px){
+
       .app{
         padding:30px;
       }
 
       .stats{
-        grid-template-columns:repeat(5,1fr);
+        grid-template-columns:repeat(7,1fr);
       }
 
       .actions{
@@ -680,6 +732,7 @@
       .home-grid .card{
         margin-bottom:0;
       }
+
     }
   </style>
 </head>
@@ -689,15 +742,27 @@
 <div class="app">
 
   <header class="topbar">
+
     <div class="brand">
-      <div class="brand-icon">AI</div>
+
+      <div class="brand-icon">
+        AI
+      </div>
+
       <div class="brand-text">
         <h1>Business AI</h1>
         <p>AI front desk</p>
       </div>
+
     </div>
-    <div class="status-dot" title="System online"></div>
+
+    <div
+      class="status-dot"
+      title="System online">
+    </div>
+
   </header>
+
 
   <!-- HOME -->
 
@@ -708,12 +773,13 @@
       <p>Here's what's happening with your business.</p>
     </div>
 
+
     <div class="stats">
 
       <div class="stat">
         <div class="stat-label">Total Leads</div>
         <div class="stat-value" id="totalLeads">0</div>
-        <div class="stat-sub">All captured leads</div>
+        <div class="stat-sub">All captured</div>
       </div>
 
       <div class="stat">
@@ -740,7 +806,20 @@
         <div class="stat-sub">Lead → customer</div>
       </div>
 
+      <div class="stat">
+        <div class="stat-label">Potential</div>
+        <div class="stat-value" id="potentialRevenue">£0</div>
+        <div class="stat-sub">Estimated value</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Revenue Won</div>
+        <div class="stat-value" id="revenueWon">£0</div>
+        <div class="stat-sub">Converted value</div>
+      </div>
+
     </div>
+
 
     <div class="home-grid">
 
@@ -756,26 +835,35 @@
           <h3>Your AI front desk is working.</h3>
 
           <p>
-            Business AI can handle incoming enquiries, collect important
-            customer information and automatically turn qualified enquiries
+            Business AI handles incoming enquiries, collects important
+            customer information and automatically turns qualified enquiries
             into leads.
           </p>
 
           <div class="actions">
-            <button class="btn primary" onclick="showView('leadsView')">
+
+            <button
+              class="btn primary"
+              onclick="showView('leadsView')">
               View Leads
             </button>
 
-            <button class="btn" onclick="showView('aiView')">
+            <button
+              class="btn"
+              onclick="showView('aiView')">
               Test AI
             </button>
 
-            <button class="btn" onclick="loadLeads()">
+            <button
+              class="btn"
+              onclick="loadLeads()">
               Refresh Data
             </button>
+
           </div>
 
         </div>
+
 
         <div class="card">
 
@@ -788,7 +876,20 @@
 
         </div>
 
+
+        <div class="card">
+
+          <div class="card-head">
+            <h3>Follow-ups</h3>
+            <span id="followUpCount">0 due</span>
+          </div>
+
+          <div id="followUps"></div>
+
+        </div>
+
       </div>
+
 
       <div>
 
@@ -802,6 +903,7 @@
           <div id="activityFeed"></div>
 
         </div>
+
 
         <div class="card">
 
@@ -842,7 +944,9 @@
       <p>Manage your customer enquiries.</p>
     </div>
 
+
     <div class="toolbar">
+
       <input
         id="searchInput"
         class="search"
@@ -851,28 +955,43 @@
         oninput="renderLeads()"
       >
 
-      <button class="refresh" onclick="loadLeads()">↻</button>
+      <button
+        class="refresh"
+        onclick="loadLeads()">
+        ↻
+      </button>
+
     </div>
+
 
     <div class="filters">
 
-      <button class="filter active" data-filter="All" onclick="setFilter('All',this)">
+      <button
+        class="filter active"
+        onclick="setFilter('All',this)">
         All
       </button>
 
-      <button class="filter" data-filter="New" onclick="setFilter('New',this)">
+      <button
+        class="filter"
+        onclick="setFilter('New',this)">
         New
       </button>
 
-      <button class="filter" data-filter="Contacted" onclick="setFilter('Contacted',this)">
+      <button
+        class="filter"
+        onclick="setFilter('Contacted',this)">
         Contacted
       </button>
 
-      <button class="filter" data-filter="Converted" onclick="setFilter('Converted',this)">
+      <button
+        class="filter"
+        onclick="setFilter('Converted',this)">
         Converted
       </button>
 
     </div>
+
 
     <div id="leadsList"></div>
 
@@ -888,26 +1007,39 @@
       <p>Test how your AI receptionist handles customers.</p>
     </div>
 
+
     <div class="card chat">
 
       <div class="messages" id="messages">
 
         <div class="message ai">
+
           <div class="bubble">
-            Hi! I'm your AI receptionist. Send me a test customer enquiry and I'll handle it.
+            Hi! I'm your AI receptionist. Send me a customer enquiry and I'll handle it.
           </div>
+
         </div>
 
       </div>
 
-      <form class="chat-form" onsubmit="send(event)">
+
+      <form
+        class="chat-form"
+        onsubmit="send(event)">
+
         <input
           id="chatInput"
           class="chat-input"
           placeholder="Type a customer enquiry..."
           autocomplete="off"
         >
-        <button class="send" type="submit">↑</button>
+
+        <button
+          class="send"
+          type="submit">
+          ↑
+        </button>
+
       </form>
 
     </div>
@@ -923,6 +1055,7 @@
       <h2>Rules</h2>
       <p>How Business AI should handle enquiries.</p>
     </div>
+
 
     <div class="card">
 
@@ -953,28 +1086,36 @@
 </div>
 
 
-<!-- BOTTOM NAV -->
+<!-- NAV -->
 
 <nav class="bottom-nav">
 
   <div class="nav-inner">
 
-    <button class="nav-btn active" onclick="showView('homeView',this)">
+    <button
+      class="nav-btn active"
+      onclick="showView('homeView',this)">
       <span class="nav-icon">⌂</span>
       Home
     </button>
 
-    <button class="nav-btn" onclick="showView('leadsView',this)">
+    <button
+      class="nav-btn"
+      onclick="showView('leadsView',this)">
       <span class="nav-icon">◉</span>
       Leads
     </button>
 
-    <button class="nav-btn" onclick="showView('aiView',this)">
+    <button
+      class="nav-btn"
+      onclick="showView('aiView',this)">
       <span class="nav-icon">✦</span>
       AI
     </button>
 
-    <button class="nav-btn" onclick="showView('rulesView',this)">
+    <button
+      class="nav-btn"
+      onclick="showView('rulesView',this)">
       <span class="nav-icon">☷</span>
       Rules
     </button>
@@ -986,296 +1127,639 @@
 
 <script>
 
-  let allLeads = [];
-  let currentFilter = "All";
+let allLeads = [];
+let currentFilter = "All";
 
 
-  function showView(id, button){
+function showView(id,button){
 
-    document.querySelectorAll(".view").forEach(v => {
-      v.classList.remove("active");
-    });
+  document.querySelectorAll(".view")
+    .forEach(v => v.classList.remove("active"));
 
-    const view = document.getElementById(id);
+  const view = document.getElementById(id);
 
-    if(view){
-      view.classList.add("active");
-    }
-
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.classList.remove("active");
-    });
-
-    if(button){
-      button.classList.add("active");
-    }else{
-
-      const mapping = {
-        homeView:0,
-        leadsView:1,
-        aiView:2,
-        rulesView:3
-      };
-
-      const navButtons = document.querySelectorAll(".nav-btn");
-
-      if(navButtons[mapping[id]]){
-        navButtons[mapping[id]].classList.add("active");
-      }
-
-    }
-
-    window.scrollTo({
-      top:0,
-      behavior:"smooth"
-    });
+  if(view){
+    view.classList.add("active");
   }
 
+  document.querySelectorAll(".nav-btn")
+    .forEach(btn => btn.classList.remove("active"));
 
-  async function loadLeads(){
+  const mapping = {
+    homeView:0,
+    leadsView:1,
+    aiView:2,
+    rulesView:3
+  };
 
-    try{
+  const navButtons =
+    document.querySelectorAll(".nav-btn");
 
-      const response = await fetch("/api/leads");
-
-      const data = await response.json();
-
-      if(!response.ok){
-        throw new Error(data.error || "Could not load leads");
-      }
-
-      allLeads = Array.isArray(data) ? data : [];
-
-      updateDashboardStats();
-      renderLeads();
-      renderRecentLeads();
-      renderActivity();
-
-    }catch(error){
-
-      document.getElementById("leadsList").innerHTML =
-        `<div class="error">Could not load leads. ${escapeHtml(error.message)}</div>`;
-
-    }
-
+  if(button){
+    button.classList.add("active");
+  }else if(navButtons[mapping[id]]){
+    navButtons[mapping[id]].classList.add("active");
   }
 
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
-  function updateDashboardStats(){
-
-    const total = allLeads.length;
-
-    const newCount = allLeads.filter(
-      lead => lead.status === "New"
-    ).length;
-
-    const contacted = allLeads.filter(
-      lead => lead.status === "Contacted"
-    ).length;
-
-    const converted = allLeads.filter(
-      lead => lead.status === "Converted"
-    ).length;
-
-    const rate = total
-      ? Math.round((converted / total) * 100)
-      : 0;
-
-    document.getElementById("totalLeads").textContent = total;
-    document.getElementById("newLeads").textContent = newCount;
-    document.getElementById("contactedLeads").textContent = contacted;
-    document.getElementById("convertedLeads").textContent = converted;
-    document.getElementById("conversionRate").textContent = rate + "%";
-
-    document.getElementById("recentCount").textContent =
-      total + (total === 1 ? " total" : " total");
-  }
+}
 
 
-  function setFilter(filter, button){
+async function loadLeads(){
 
-    currentFilter = filter;
+  try{
 
-    document.querySelectorAll(".filter").forEach(btn => {
-      btn.classList.remove("active");
-    });
+    const response =
+      await fetch("/api/leads");
 
-    if(button){
-      button.classList.add("active");
-    }
+    const data =
+      await response.json();
 
-    renderLeads();
-  }
-
-
-  function renderLeads(){
-
-    const container = document.getElementById("leadsList");
-
-    const search = (
-      document.getElementById("searchInput")?.value || ""
-    ).toLowerCase().trim();
-
-    let leads = [...allLeads];
-
-    if(currentFilter !== "All"){
-      leads = leads.filter(
-        lead => lead.status === currentFilter
+    if(!response.ok){
+      throw new Error(
+        data.error || "Could not load leads"
       );
     }
 
-    if(search){
+    allLeads =
+      Array.isArray(data) ? data : [];
 
-      leads = leads.filter(lead => {
+    updateDashboardStats();
+    renderLeads();
+    renderRecentLeads();
+    renderActivity();
+    renderFollowUps();
 
-        const text = [
-          lead.name,
-          lead.phone,
-          lead.email,
-          lead.location,
-          lead.job_type,
-          lead.description,
-          lead.urgency
-        ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+  }catch(error){
+
+    document.getElementById("leadsList").innerHTML =
+      `<div class="error">
+        Could not load leads.
+        ${escapeHtml(error.message)}
+      </div>`;
+
+  }
+
+}
+
+
+function money(value){
+
+  const number =
+    Number(value || 0);
+
+  return "£" +
+    number.toLocaleString(
+      "en-GB",
+      {
+        minimumFractionDigits:0,
+        maximumFractionDigits:0
+      }
+    );
+
+}
+
+
+function updateDashboardStats(){
+
+  const total =
+    allLeads.length;
+
+  const newCount =
+    allLeads.filter(
+      lead => lead.status === "New"
+    ).length;
+
+  const contacted =
+    allLeads.filter(
+      lead => lead.status === "Contacted"
+    ).length;
+
+  const converted =
+    allLeads.filter(
+      lead => lead.status === "Converted"
+    ).length;
+
+  const potential =
+    allLeads.reduce(
+      (sum,lead) =>
+        sum + Number(lead.estimated_value || 0),
+      0
+    );
+
+  const won =
+    allLeads
+      .filter(
+        lead => lead.status === "Converted"
+      )
+      .reduce(
+        (sum,lead) =>
+          sum + Number(lead.estimated_value || 0),
+        0
+      );
+
+  const rate =
+    total
+      ? Math.round((converted / total) * 100)
+      : 0;
+
+  document.getElementById("totalLeads").textContent =
+    total;
+
+  document.getElementById("newLeads").textContent =
+    newCount;
+
+  document.getElementById("contactedLeads").textContent =
+    contacted;
+
+  document.getElementById("convertedLeads").textContent =
+    converted;
+
+  document.getElementById("conversionRate").textContent =
+    rate + "%";
+
+  document.getElementById("potentialRevenue").textContent =
+    money(potential);
+
+  document.getElementById("revenueWon").textContent =
+    money(won);
+
+  document.getElementById("recentCount").textContent =
+    total + (total === 1 ? " total" : " total");
+
+}
+
+
+function setFilter(filter,button){
+
+  currentFilter =
+    filter;
+
+  document.querySelectorAll(".filter")
+    .forEach(btn =>
+      btn.classList.remove("active")
+    );
+
+  if(button){
+    button.classList.add("active");
+  }
+
+  renderLeads();
+
+}
+
+
+function renderLeads(){
+
+  const container =
+    document.getElementById("leadsList");
+
+  const search =
+    (
+      document.getElementById("searchInput")?.value || ""
+    ).toLowerCase().trim();
+
+  let leads =
+    [...allLeads];
+
+  if(currentFilter !== "All"){
+
+    leads =
+      leads.filter(
+        lead => lead.status === currentFilter
+      );
+
+  }
+
+  if(search){
+
+    leads =
+      leads.filter(lead => {
+
+        const text =
+          [
+            lead.name,
+            lead.phone,
+            lead.email,
+            lead.location,
+            lead.job_type,
+            lead.description,
+            lead.urgency,
+            lead.notes,
+            lead.priority
+          ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
         return text.includes(search);
 
       });
 
-    }
+  }
 
-    if(!leads.length){
+  if(!leads.length){
 
-      container.innerHTML = `
-        <div class="empty">
-          No leads found.
-        </div>
-      `;
+    container.innerHTML = `
+      <div class="empty">
+        No leads found.
+      </div>
+    `;
 
-      return;
-    }
+    return;
+  }
 
-    container.innerHTML = leads.map((lead,index) => {
 
-      const status = lead.status || "New";
+  container.innerHTML =
+    leads.map((lead,index) => {
 
-      const statusClass =
-        status.toLowerCase();
+      const status =
+        lead.status || "New";
+
+      const priority =
+        lead.priority || "Normal";
 
       const id =
         lead.id || index;
 
+      const high =
+        priority === "High";
+
       return `
 
-        <article class="lead-card">
+        <article
+          class="lead-card ${high ? "high" : ""}">
 
           <div class="lead-top">
 
             <div>
-              <h3>${escapeHtml(lead.name || "Unnamed customer")}</h3>
+
+              <h3>
+                ${escapeHtml(
+                  lead.name ||
+                  "Unnamed customer"
+                )}
+              </h3>
 
               <div class="lead-meta">
-                ${escapeHtml(lead.job_type || "General enquiry")}
-                ${lead.location ? " · " + escapeHtml(lead.location) : ""}
+
+                ${escapeHtml(
+                  lead.job_type ||
+                  "General enquiry"
+                )}
+
+                ${
+                  lead.location
+                    ? " · " +
+                      escapeHtml(lead.location)
+                    : ""
+                }
+
               </div>
+
             </div>
 
-            <span class="pill ${statusClass}">
+            <span
+              class="pill ${status.toLowerCase()}">
+
               ${escapeHtml(status)}
+
             </span>
 
           </div>
 
+
           ${
             lead.description
-              ? `<div class="description">${escapeHtml(lead.description)}</div>`
+              ? `
+                <div class="description">
+                  ${escapeHtml(
+                    lead.description
+                  )}
+                </div>
+              `
               : ""
           }
+
+
+          <div class="lead-tags">
+
+            ${
+              high
+                ? `
+                  <span class="tag high">
+                    ★ High priority
+                  </span>
+                `
+                : ""
+            }
+
+            ${
+              Number(lead.estimated_value || 0) > 0
+                ? `
+                  <span class="tag money">
+                    ${money(
+                      lead.estimated_value
+                    )}
+                  </span>
+                `
+                : ""
+            }
+
+            ${
+              lead.follow_up_date
+                ? `
+                  <span class="tag follow">
+                    Follow-up:
+                    ${formatDateOnly(
+                      lead.follow_up_date
+                    )}
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
 
           <div class="lead-actions">
 
             ${
               lead.phone
-                ? `<a class="small-btn" href="tel:${escapeAttr(lead.phone)}">Call</a>`
+                ? `
+                  <a
+                    class="small-btn"
+                    href="tel:${escapeAttr(
+                      lead.phone
+                    )}">
+                    Call
+                  </a>
+                `
                 : ""
             }
 
             ${
               lead.email
-                ? `<a class="small-btn" href="mailto:${escapeAttr(lead.email)}">Email</a>`
+                ? `
+                  <a
+                    class="small-btn"
+                    href="mailto:${escapeAttr(
+                      lead.email
+                    )}">
+                    Email
+                  </a>
+                `
                 : ""
             }
 
             <button
               class="small-btn"
-              onclick="toggleDetails('${escapeAttr(String(id))}')"
-            >
+              onclick="toggleDetails('${escapeAttr(
+                String(id)
+              )}')">
+
               View details
+
             </button>
+
 
             <select
               class="status-select"
-              onchange="updateStatus('${escapeAttr(String(id))}',this.value)"
-            >
-              <option ${status==="New" ? "selected" : ""}>New</option>
-              <option ${status==="Contacted" ? "selected" : ""}>Contacted</option>
-              <option ${status==="Converted" ? "selected" : ""}>Converted</option>
+              onchange="updateStatus(
+                '${escapeAttr(String(id))}',
+                this.value
+              )">
+
+              <option
+                ${status === "New" ? "selected" : ""}>
+                New
+              </option>
+
+              <option
+                ${status === "Contacted" ? "selected" : ""}>
+                Contacted
+              </option>
+
+              <option
+                ${status === "Converted" ? "selected" : ""}>
+                Converted
+              </option>
+
             </select>
 
           </div>
 
-          <div class="details" id="details-${escapeAttr(String(id))}">
+
+          <div
+            class="details"
+            id="details-${escapeAttr(
+              String(id)
+            )}">
+
 
             <div class="detail">
-              <div class="detail-label">Customer</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.name || "Not provided")}
+
+              <div class="detail-label">
+                Customer
               </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  lead.name ||
+                  "Not provided"
+                )}
+              </div>
+
             </div>
 
-            <div class="detail">
-              <div class="detail-label">Phone</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.phone || "Not provided")}
-              </div>
-            </div>
 
             <div class="detail">
-              <div class="detail-label">Email</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.email || "Not provided")}
+
+              <div class="detail-label">
+                Phone
               </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  lead.phone ||
+                  "Not provided"
+                )}
+              </div>
+
             </div>
 
-            <div class="detail">
-              <div class="detail-label">Job</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.job_type || "Not provided")}
-              </div>
-            </div>
 
             <div class="detail">
-              <div class="detail-label">Location</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.location || "Not provided")}
+
+              <div class="detail-label">
+                Email
               </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  lead.email ||
+                  "Not provided"
+                )}
+              </div>
+
             </div>
 
-            <div class="detail">
-              <div class="detail-label">Urgency</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.urgency || "Not provided")}
-              </div>
-            </div>
 
             <div class="detail">
-              <div class="detail-label">Description</div>
-              <div class="detail-value">
-                ${escapeHtml(lead.description || "Not provided")}
+
+              <div class="detail-label">
+                Job
               </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  lead.job_type ||
+                  "Not provided"
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="detail">
+
+              <div class="detail-label">
+                Location
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  lead.location ||
+                  "Not provided"
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="detail">
+
+              <div class="detail-label">
+                Urgency
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  lead.urgency ||
+                  "Not provided"
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="edit-grid">
+
+              <div class="field">
+
+                <label>
+                  Estimated job value (£)
+                </label>
+
+                <input
+                  id="value-${escapeAttr(
+                    String(id)
+                  )}"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="${escapeAttr(
+                    lead.estimated_value || 0
+                  )}"
+                >
+
+              </div>
+
+
+              <div class="field">
+
+                <label>
+                  Priority
+                </label>
+
+                <select
+                  id="priority-${escapeAttr(
+                    String(id)
+                  )}">
+
+                  <option
+                    ${
+                      priority === "Normal"
+                        ? "selected"
+                        : ""
+                    }>
+                    Normal
+                  </option>
+
+                  <option
+                    ${
+                      priority === "High"
+                        ? "selected"
+                        : ""
+                    }>
+                    High
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="field">
+
+                <label>
+                  Follow-up date
+                </label>
+
+                <input
+                  id="follow-${escapeAttr(
+                    String(id)
+                  )}"
+                  type="date"
+                  value="${escapeAttr(
+                    lead.follow_up_date || ""
+                  )}"
+                >
+
+              </div>
+
+
+              <div class="field">
+
+                <label>
+                  Private notes
+                </label>
+
+                <textarea
+                  id="notes-${escapeAttr(
+                    String(id)
+                  )}"
+                  placeholder="Add internal notes...">${escapeHtml(
+                    lead.notes || ""
+                  )}</textarea>
+
+              </div>
+
+
+              <button
+                class="save-btn"
+                onclick="saveLead(
+                  '${escapeAttr(String(id))}'
+                )">
+
+                Save lead changes
+
+              </button>
+
             </div>
 
           </div>
@@ -1286,373 +1770,664 @@
 
     }).join("");
 
+}
+
+
+function renderRecentLeads(){
+
+  const container =
+    document.getElementById("recentLeads");
+
+  const leads =
+    [...allLeads].slice(0,5);
+
+  if(!leads.length){
+
+    container.innerHTML = `
+      <div class="empty">
+        No leads yet.
+      </div>
+    `;
+
+    return;
   }
 
 
-  function renderRecentLeads(){
+  container.innerHTML =
+    leads.map(lead => {
 
-    const container =
-      document.getElementById("recentLeads");
+      const status =
+        lead.status || "New";
 
-    const leads =
-      [...allLeads].slice(0,5);
+      return `
 
-    if(!leads.length){
+        <div class="lead-mini">
 
-      container.innerHTML = `
-        <div class="empty">
-          No leads yet.
-        </div>
-      `;
-
-      return;
-    }
-
-    container.innerHTML =
-      leads.map(lead => {
-
-        const status =
-          lead.status || "New";
-
-        return `
-
-          <div class="lead-mini">
-
-            <div class="lead-row">
-
-              <div>
-                <div class="lead-name">
-                  ${escapeHtml(lead.name || "Unnamed customer")}
-                </div>
-
-                <div class="lead-meta">
-                  ${escapeHtml(
-                    lead.job_type || "General enquiry"
-                  )}
-                  ${lead.location
-                    ? " · " + escapeHtml(lead.location)
-                    : ""}
-                </div>
-              </div>
-
-              <span class="pill ${status.toLowerCase()}">
-                ${escapeHtml(status)}
-              </span>
-
-            </div>
-
-          </div>
-
-        `;
-
-      }).join("");
-
-  }
-
-
-  function renderActivity(){
-
-    const container =
-      document.getElementById("activityFeed");
-
-    const leads =
-      [...allLeads].slice(0,5);
-
-    if(!leads.length){
-
-      container.innerHTML = `
-        <div class="empty">
-          No activity yet.
-        </div>
-      `;
-
-      return;
-    }
-
-    container.innerHTML =
-      leads.map(lead => {
-
-        const status =
-          lead.status || "New";
-
-        let icon = "＋";
-        let text = "New lead received";
-
-        if(status === "Contacted"){
-          icon = "↗";
-          text = "Lead contacted";
-        }
-
-        if(status === "Converted"){
-          icon = "✓";
-          text = "Lead converted";
-        }
-
-        return `
-
-          <div class="activity">
-
-            <div class="activity-icon">
-              ${icon}
-            </div>
+          <div class="lead-row">
 
             <div>
 
-              <div class="activity-text">
-                ${text}
-                <strong>
-                  ${escapeHtml(lead.name || "customer")}
-                </strong>
+              <div class="lead-name">
+                ${escapeHtml(
+                  lead.name ||
+                  "Unnamed customer"
+                )}
               </div>
 
-              <div class="activity-time">
-                ${formatDate(lead.created_at)}
+              <div class="lead-meta">
+
+                ${escapeHtml(
+                  lead.job_type ||
+                  "General enquiry"
+                )}
+
+                ${
+                  lead.location
+                    ? " · " +
+                      escapeHtml(lead.location)
+                    : ""
+                }
+
               </div>
 
             </div>
 
+            <span
+              class="pill ${status.toLowerCase()}">
+
+              ${escapeHtml(status)}
+
+            </span>
+
           </div>
 
-        `;
+        </div>
 
-      }).join("");
+      `;
 
+    }).join("");
+
+}
+
+
+function renderFollowUps(){
+
+  const container =
+    document.getElementById("followUps");
+
+  const today =
+    new Date();
+
+  today.setHours(0,0,0,0);
+
+  const due =
+    allLeads.filter(lead => {
+
+      if(!lead.follow_up_date){
+        return false;
+      }
+
+      const date =
+        new Date(
+          lead.follow_up_date +
+          "T00:00:00"
+        );
+
+      return date <= today &&
+        lead.status !== "Converted";
+
+    });
+
+
+  document.getElementById("followUpCount")
+    .textContent =
+      due.length +
+      (due.length === 1 ? " due" : " due");
+
+
+  if(!due.length){
+
+    container.innerHTML = `
+      <div class="empty">
+        No follow-ups due.
+      </div>
+    `;
+
+    return;
   }
 
 
-  function toggleDetails(id){
+  container.innerHTML =
+    due.map(lead => `
 
-    const element =
-      document.getElementById("details-" + id);
+      <div class="lead-mini">
 
-    if(element){
-      element.classList.toggle("open");
-    }
+        <div class="lead-row">
 
+          <div>
+
+            <div class="lead-name">
+              ${escapeHtml(
+                lead.name ||
+                "Unnamed customer"
+              )}
+            </div>
+
+            <div class="lead-meta">
+              Follow-up due
+              ·
+              ${formatDateOnly(
+                lead.follow_up_date
+              )}
+            </div>
+
+          </div>
+
+          <span class="pill contacted">
+            Due
+          </span>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+function renderActivity(){
+
+  const container =
+    document.getElementById("activityFeed");
+
+  const leads =
+    [...allLeads].slice(0,5);
+
+  if(!leads.length){
+
+    container.innerHTML = `
+      <div class="empty">
+        No activity yet.
+      </div>
+    `;
+
+    return;
   }
 
 
-  async function updateStatus(id,status){
+  container.innerHTML =
+    leads.map(lead => {
 
-    try{
+      const status =
+        lead.status || "New";
 
-      const response =
-        await fetch("/api/leads",{
+      let icon = "＋";
+      let text = "New lead received";
 
+      if(status === "Contacted"){
+        icon = "↗";
+        text = "Lead contacted";
+      }
+
+      if(status === "Converted"){
+        icon = "✓";
+        text = "Lead converted";
+      }
+
+      return `
+
+        <div class="activity">
+
+          <div class="activity-icon">
+            ${icon}
+          </div>
+
+          <div>
+
+            <div class="activity-text">
+
+              ${text}
+
+              <strong>
+                ${escapeHtml(
+                  lead.name ||
+                  "customer"
+                )}
+              </strong>
+
+            </div>
+
+            <div class="activity-time">
+              ${formatDate(
+                lead.created_at
+              )}
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+function toggleDetails(id){
+
+  const element =
+    document.getElementById(
+      "details-" + id
+    );
+
+  if(element){
+    element.classList.toggle("open");
+  }
+
+}
+
+
+async function updateStatus(id,status){
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/leads",
+        {
           method:"PATCH",
-
           headers:{
             "Content-Type":"application/json"
           },
-
           body:JSON.stringify({
             id,
             status
           })
-
-        });
-
-      const data =
-        await response.json();
-
-      if(!response.ok){
-        throw new Error(
-          data.error || "Could not update lead"
-        );
-      }
-
-      const index =
-        allLeads.findIndex(
-          lead => String(lead.id) === String(id)
-        );
-
-      if(index !== -1){
-        allLeads[index].status = status;
-      }
-
-      updateDashboardStats();
-      renderLeads();
-      renderRecentLeads();
-      renderActivity();
-
-    }catch(error){
-
-      alert(
-        "Could not update lead: " +
-        error.message
+        }
       );
 
-      renderLeads();
+    const data =
+      await response.json();
 
+    if(!response.ok){
+      throw new Error(
+        data.error ||
+        "Could not update lead"
+      );
     }
+
+    const lead =
+      allLeads.find(
+        lead =>
+          String(lead.id) ===
+          String(id)
+      );
+
+    if(lead){
+      lead.status = status;
+    }
+
+    updateDashboardStats();
+    renderLeads();
+    renderRecentLeads();
+    renderActivity();
+    renderFollowUps();
+
+  }catch(error){
+
+    alert(
+      "Could not update lead: " +
+      error.message
+    );
+
+    renderLeads();
 
   }
 
+}
 
-  async function send(event){
 
-    event.preventDefault();
+async function saveLead(id){
 
-    const input =
-      document.getElementById("chatInput");
+  const value =
+    document.getElementById(
+      "value-" + id
+    )?.value;
 
-    const text =
-      input.value.trim();
+  const priority =
+    document.getElementById(
+      "priority-" + id
+    )?.value;
 
-    if(!text){
-      return;
-    }
+  const follow =
+    document.getElementById(
+      "follow-" + id
+    )?.value;
 
-    addMessage("user",text);
+  const notes =
+    document.getElementById(
+      "notes-" + id
+    )?.value;
 
-    input.value = "";
 
-    addMessage("ai","Thinking...");
+  try{
 
-    try{
-
-      const response =
-        await fetch("/api/enquiry",{
-
-          method:"POST",
-
+    const response =
+      await fetch(
+        "/api/leads",
+        {
+          method:"PATCH",
           headers:{
             "Content-Type":"application/json"
           },
-
           body:JSON.stringify({
-            message:text
+
+            id,
+
+            estimated_value:
+              Number(value || 0),
+
+            priority:
+              priority || "Normal",
+
+            follow_up_date:
+              follow || null,
+
+            notes:
+              notes || ""
+
           })
+        }
+      );
 
-        });
 
-      const data =
-        await response.json();
+    const data =
+      await response.json();
 
-      const messages =
-        document.getElementById("messages");
 
-      const thinking =
-        messages.lastElementChild;
+    if(!response.ok){
 
-      if(thinking){
-        thinking.remove();
-      }
-
-      if(!response.ok){
-        throw new Error(
-          data.error || "AI request failed"
-        );
-      }
-
-      const reply =
-        data.reply ||
-        data.message ||
-        data.response ||
-        "Thanks. I've received your enquiry.";
-
-      addMessage("ai",reply);
-
-      await loadLeads();
-
-    }catch(error){
-
-      const messages =
-        document.getElementById("messages");
-
-      const thinking =
-        messages.lastElementChild;
-
-      if(thinking){
-        thinking.remove();
-      }
-
-      addMessage(
-        "ai",
-        "Sorry, something went wrong. " +
-        error.message
+      throw new Error(
+        data.error ||
+        "Could not save lead"
       );
 
     }
 
-  }
+
+    const index =
+      allLeads.findIndex(
+        lead =>
+          String(lead.id) ===
+          String(id)
+      );
 
 
-  function addMessage(type,text){
+    if(index !== -1){
 
-    const container =
-      document.getElementById("messages");
+      allLeads[index] = {
+        ...allLeads[index],
+        ...data
+      };
 
-    const wrapper =
-      document.createElement("div");
-
-    wrapper.className =
-      "message " + type;
-
-    const bubble =
-      document.createElement("div");
-
-    bubble.className = "bubble";
-
-    bubble.textContent = text;
-
-    wrapper.appendChild(bubble);
-
-    container.appendChild(wrapper);
-
-    container.scrollTop =
-      container.scrollHeight;
-
-  }
-
-
-  function formatDate(value){
-
-    if(!value){
-      return "Recently";
     }
 
-    const date =
-      new Date(value);
 
-    if(Number.isNaN(date.getTime())){
-      return "Recently";
-    }
+    updateDashboardStats();
+    renderLeads();
+    renderRecentLeads();
+    renderFollowUps();
 
-    return date.toLocaleString(
-      "en-GB",
-      {
-        day:"numeric",
-        month:"short",
-        hour:"2-digit",
-        minute:"2-digit"
-      }
+    alert("Lead updated successfully.");
+
+  }catch(error){
+
+    alert(
+      "Could not save lead: " +
+      error.message
     );
 
   }
 
+}
 
-  function escapeHtml(value){
 
-    return String(value ?? "")
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
-      .replace(/'/g,"&#039;");
+async function send(event){
+
+  event.preventDefault();
+
+  const input =
+    document.getElementById(
+      "chatInput"
+    );
+
+  const text =
+    input.value.trim();
+
+  if(!text){
+    return;
+  }
+
+  addMessage(
+    "user",
+    text
+  );
+
+  input.value = "";
+
+  addMessage(
+    "ai",
+    "Thinking..."
+  );
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/enquiry",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            message:text
+          })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    const messages =
+      document.getElementById(
+        "messages"
+      );
+
+    const thinking =
+      messages.lastElementChild;
+
+    if(thinking){
+      thinking.remove();
+    }
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "AI request failed"
+      );
+
+    }
+
+
+    const reply =
+      data.reply ||
+      data.message ||
+      data.response ||
+      "Thanks. I've received your enquiry.";
+
+
+    addMessage(
+      "ai",
+      reply
+    );
+
+
+    await loadLeads();
+
+
+  }catch(error){
+
+    const messages =
+      document.getElementById(
+        "messages"
+      );
+
+    const thinking =
+      messages.lastElementChild;
+
+    if(thinking){
+      thinking.remove();
+    }
+
+
+    addMessage(
+      "ai",
+      "Sorry, something went wrong. " +
+      error.message
+    );
 
   }
 
+}
 
-  function escapeAttr(value){
 
-    return String(value ?? "")
-      .replace(/\\/g,"\\\\")
-      .replace(/'/g,"\\'");
+function addMessage(type,text){
+
+  const container =
+    document.getElementById(
+      "messages"
+    );
+
+  const wrapper =
+    document.createElement(
+      "div"
+    );
+
+  wrapper.className =
+    "message " + type;
+
+  const bubble =
+    document.createElement(
+      "div"
+    );
+
+  bubble.className =
+    "bubble";
+
+  bubble.textContent =
+    text;
+
+  wrapper.appendChild(
+    bubble
+  );
+
+  container.appendChild(
+    wrapper
+  );
+
+  container.scrollTop =
+    container.scrollHeight;
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return "Recently";
   }
 
+  const date =
+    new Date(value);
 
-  loadLeads();
+  if(Number.isNaN(
+    date.getTime()
+  )){
+    return "Recently";
+  }
+
+  return date.toLocaleString(
+    "en-GB",
+    {
+      day:"numeric",
+      month:"short",
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
+
+}
+
+
+function formatDateOnly(value){
+
+  if(!value){
+    return "";
+  }
+
+  const date =
+    new Date(
+      value + "T00:00:00"
+    );
+
+  if(Number.isNaN(
+    date.getTime()
+  )){
+    return value;
+  }
+
+  return date.toLocaleDateString(
+    "en-GB",
+    {
+      day:"numeric",
+      month:"short",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+
+  return String(value ?? "")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'");
+
+}
+
+
+loadLeads();
 
 </script>
 
