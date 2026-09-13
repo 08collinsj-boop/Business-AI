@@ -94,11 +94,60 @@ async function saveLead(lead) {
     );
   }
 
+  let saved;
+
   try {
-    return JSON.parse(text);
+    saved = JSON.parse(text);
   } catch {
     return null;
   }
+
+  const createdLead =
+    Array.isArray(saved)
+      ? saved[0]
+      : saved;
+
+  if (
+    createdLead &&
+    createdLead.id
+  ) {
+
+    try {
+
+      await fetch(
+        supabaseUrl("lead_history"),
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_SERVICE_ROLE_KEY,
+            Authorization:
+              `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            Prefer: "return=minimal"
+          },
+
+          body: JSON.stringify({
+            lead_id: createdLead.id,
+            action: "Lead created",
+            old_value: "",
+            new_value:
+              "New lead captured by AI receptionist"
+          })
+        }
+      );
+
+    } catch (historyError) {
+
+      console.error(
+        "Could not create lead history:",
+        historyError
+      );
+
+    }
+  }
+
+  return saved;
 }
 
 
@@ -115,7 +164,8 @@ export default async function handler(req, res) {
 
     if (!OPENAI_API_KEY) {
       return res.status(500).json({
-        error: "OPENAI_API_KEY is not configured"
+        error:
+          "OPENAI_API_KEY is not configured"
       });
     }
 
@@ -137,7 +187,6 @@ export default async function handler(req, res) {
     }
 
 
-    // Load the business's settings
     const settings =
       await getBusinessSettings();
 
