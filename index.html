@@ -387,6 +387,55 @@
       margin-top:12px;
       font-size:13px
     }
+
+    /* LEAD DETAILS */
+
+    .lead-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px
+    }
+
+    .action-btn{
+      border:1px solid var(--line);
+      background:var(--card2);
+      color:var(--text);
+      padding:10px;
+      border-radius:11px;
+      font-size:12px;
+      text-align:center;
+      text-decoration:none
+    }
+
+    .action-btn.primary-action{
+      background:var(--accent);
+      border-color:var(--accent)
+    }
+
+    .lead-details{
+      margin-top:10px
+    }
+
+    .details-toggle{
+      width:100%;
+      border:1px solid var(--line);
+      background:var(--card2);
+      color:var(--muted);
+      padding:10px;
+      border-radius:11px;
+      font-size:12px
+    }
+
+    .details-content{
+      margin-top:10px;
+      padding:12px;
+      background:var(--card2);
+      border-radius:12px;
+      border:1px solid var(--line);
+      font-size:13px;
+      line-height:1.6
+    }
   </style>
 </head>
 
@@ -884,6 +933,18 @@ function renderLeads(){
           : '';
 
 
+      const phone =
+        lead.phone
+          ? String(lead.phone)
+          : '';
+
+
+      const email =
+        lead.email
+          ? String(lead.email)
+          : '';
+
+
       return `
 
         <div class="lead-card">
@@ -914,17 +975,17 @@ function renderLeads(){
           <div class="lead-meta">
 
             ${
-              lead.phone
+              phone
                 ? '<strong>Phone:</strong> ' +
-                  escapeHtml(lead.phone) +
+                  escapeHtml(phone) +
                   '<br>'
                 : ''
             }
 
             ${
-              lead.email
+              email
                 ? '<strong>Email:</strong> ' +
-                  escapeHtml(lead.email) +
+                  escapeHtml(email) +
                   '<br>'
                 : ''
             }
@@ -974,6 +1035,74 @@ function renderLeads(){
           }
 
 
+          <div class="lead-actions">
+
+            ${
+              phone
+                ? `
+                  <a
+                    class="action-btn primary-action"
+                    href="tel:${escapeHtml(phone)}">
+                    📞 Call
+                  </a>
+                `
+                : ''
+            }
+
+            ${
+              email
+                ? `
+                  <a
+                    class="action-btn"
+                    href="mailto:${escapeHtml(email)}">
+                    ✉️ Email
+                  </a>
+                `
+                : ''
+            }
+
+          </div>
+
+
+          <div class="lead-details">
+
+            <button
+              class="details-toggle"
+              onclick="toggleLeadDetails(${Number(lead.id)})">
+              View lead details
+            </button>
+
+
+            <div
+              id="details-${Number(lead.id)}"
+              class="details-content hidden">
+
+              <strong>Customer</strong><br>
+              ${escapeHtml(lead.name || 'Not provided')}<br><br>
+
+              <strong>Phone</strong><br>
+              ${escapeHtml(phone || 'Not provided')}<br><br>
+
+              <strong>Email</strong><br>
+              ${escapeHtml(email || 'Not provided')}<br><br>
+
+              <strong>Job type</strong><br>
+              ${escapeHtml(lead.job_type || 'Not provided')}<br><br>
+
+              <strong>Location</strong><br>
+              ${escapeHtml(lead.location || 'Not provided')}<br><br>
+
+              <strong>Urgency</strong><br>
+              ${escapeHtml(lead.urgency || 'Not provided')}<br><br>
+
+              <strong>Description</strong><br>
+              ${escapeHtml(lead.description || 'Not provided')}
+
+            </div>
+
+          </div>
+
+
           <select
             class="lead-status"
             onchange="updateLeadStatus(${Number(lead.id)}, this.value)">
@@ -1003,6 +1132,19 @@ function renderLeads(){
       `;
 
     }).join('');
+
+}
+
+
+function toggleLeadDetails(id){
+
+  const box =
+    $(`details-${id}`);
+
+  if(!box)
+    return;
+
+  box.classList.toggle('hidden');
 
 }
 
@@ -1211,9 +1353,6 @@ async function send(){
         .join(' · ');
 
 
-      // Give Supabase a moment to finish the insert,
-      // then reload the real database leads.
-
       setTimeout(
         loadLeads,
         500
@@ -1263,5 +1402,3 @@ updateStats();
 
 </body>
 </html>
-
-  
