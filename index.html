@@ -157,6 +157,14 @@
       color:var(--muted);
     }
 
+    .follow-stat .stat-value{
+      color:var(--yellow);
+    }
+
+    .overdue-stat .stat-value{
+      color:var(--red);
+    }
+
     .card{
       background:var(--panel);
       border:1px solid var(--border);
@@ -295,6 +303,7 @@
       white-space:nowrap;
       background:#1a2129;
       color:#cbd3dc;
+      height:max-content;
     }
 
     .pill.new{
@@ -306,6 +315,18 @@
     }
 
     .pill.converted{
+      color:var(--blue);
+    }
+
+    .pill.overdue{
+      color:var(--red);
+    }
+
+    .pill.today{
+      color:var(--yellow);
+    }
+
+    .pill.upcoming{
       color:var(--blue);
     }
 
@@ -411,6 +432,14 @@
       border-color:#5b4526;
     }
 
+    .lead-card.overdue-card{
+      border-color:#5b2929;
+    }
+
+    .lead-card.today-card{
+      border-color:#554c27;
+    }
+
     .lead-top{
       display:flex;
       justify-content:space-between;
@@ -457,6 +486,18 @@
       color:var(--orange);
     }
 
+    .tag.overdue{
+      color:var(--red);
+    }
+
+    .tag.today{
+      color:var(--yellow);
+    }
+
+    .tag.upcoming{
+      color:var(--blue);
+    }
+
     .lead-actions{
       display:flex;
       gap:7px;
@@ -473,6 +514,12 @@
       font-size:11px;
       font-weight:650;
       text-decoration:none;
+    }
+
+    .small-btn.primary-action{
+      background:#fff;
+      color:#000;
+      border-color:#fff;
     }
 
     .details{
@@ -579,6 +626,93 @@
       background:rgba(255,107,107,.07);
       border:1px solid rgba(255,107,107,.2);
       border-radius:13px;
+    }
+
+    .follow-section{
+      margin-bottom:16px;
+    }
+
+    .follow-section:last-child{
+      margin-bottom:0;
+    }
+
+    .follow-section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:7px;
+    }
+
+    .follow-section-title strong{
+      font-size:12px;
+    }
+
+    .follow-section-title span{
+      color:var(--muted);
+      font-size:10px;
+    }
+
+    .follow-up-item{
+      border:1px solid var(--border);
+      background:var(--panel2);
+      border-radius:13px;
+      padding:12px;
+      margin-bottom:7px;
+    }
+
+    .follow-up-item.overdue{
+      border-color:#5b2929;
+    }
+
+    .follow-up-item.today{
+      border-color:#554c27;
+    }
+
+    .follow-up-item.high{
+      border-color:#5b4526;
+    }
+
+    .follow-up-main{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .follow-up-name{
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .follow-up-job{
+      color:var(--muted);
+      font-size:10px;
+      margin-top:3px;
+    }
+
+    .follow-up-date{
+      font-size:10px;
+      margin-top:6px;
+      color:#cbd3dc;
+    }
+
+    .follow-up-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:9px;
+    }
+
+    .follow-up-actions button,
+    .follow-up-actions a{
+      border:1px solid var(--border);
+      background:#1a2129;
+      color:var(--text);
+      border-radius:9px;
+      padding:7px 9px;
+      font-size:10px;
+      font-weight:650;
+      text-decoration:none;
     }
 
     .chat{
@@ -715,7 +849,7 @@
       }
 
       .stats{
-        grid-template-columns:repeat(7,1fr);
+        grid-template-columns:repeat(9,1fr);
       }
 
       .actions{
@@ -816,6 +950,18 @@
         <div class="stat-label">Revenue Won</div>
         <div class="stat-value" id="revenueWon">£0</div>
         <div class="stat-sub">Converted value</div>
+      </div>
+
+      <div class="stat follow-stat">
+        <div class="stat-label">Due Today</div>
+        <div class="stat-value" id="todayFollowUps">0</div>
+        <div class="stat-sub">Follow-ups</div>
+      </div>
+
+      <div class="stat overdue-stat">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value" id="overdueFollowUps">0</div>
+        <div class="stat-sub">Need attention</div>
       </div>
 
     </div>
@@ -1136,7 +1282,8 @@ function showView(id,button){
   document.querySelectorAll(".view")
     .forEach(v => v.classList.remove("active"));
 
-  const view = document.getElementById(id);
+  const view =
+    document.getElementById(id);
 
   if(view){
     view.classList.add("active");
@@ -1224,6 +1371,72 @@ function money(value){
 }
 
 
+/* -----------------------------------
+   FOLLOW-UP DATE HELPERS
+----------------------------------- */
+
+function getLocalDateKey(date = new Date()){
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(date.getMonth() + 1)
+      .padStart(2,"0");
+
+  const day =
+    String(date.getDate())
+      .padStart(2,"0");
+
+  return `${year}-${month}-${day}`;
+
+}
+
+
+function getFollowUpState(value){
+
+  if(!value){
+    return "none";
+  }
+
+  const today =
+    getLocalDateKey();
+
+  if(value < today){
+    return "overdue";
+  }
+
+  if(value === today){
+    return "today";
+  }
+
+  return "upcoming";
+
+}
+
+
+function getFollowUpLabel(value){
+
+  const state =
+    getFollowUpState(value);
+
+  if(state === "overdue"){
+    return "Overdue";
+  }
+
+  if(state === "today"){
+    return "Due today";
+  }
+
+  if(state === "upcoming"){
+    return "Upcoming";
+  }
+
+  return "";
+
+}
+
+
 function updateDashboardStats(){
 
   const total =
@@ -1262,6 +1475,29 @@ function updateDashboardStats(){
         0
       );
 
+  const followUps =
+    allLeads.filter(
+      lead =>
+        lead.follow_up_date &&
+        lead.status !== "Converted"
+    );
+
+  const today =
+    followUps.filter(
+      lead =>
+        getFollowUpState(
+          lead.follow_up_date
+        ) === "today"
+    ).length;
+
+  const overdue =
+    followUps.filter(
+      lead =>
+        getFollowUpState(
+          lead.follow_up_date
+        ) === "overdue"
+    ).length;
+
   const rate =
     total
       ? Math.round((converted / total) * 100)
@@ -1288,8 +1524,14 @@ function updateDashboardStats(){
   document.getElementById("revenueWon").textContent =
     money(won);
 
+  document.getElementById("todayFollowUps").textContent =
+    today;
+
+  document.getElementById("overdueFollowUps").textContent =
+    overdue;
+
   document.getElementById("recentCount").textContent =
-    total + (total === 1 ? " total" : " total");
+    total + " total";
 
 }
 
@@ -1389,10 +1631,28 @@ function renderLeads(){
       const high =
         priority === "High";
 
+      const followState =
+        getFollowUpState(
+          lead.follow_up_date
+        );
+
+      const overdue =
+        followState === "overdue" &&
+        status !== "Converted";
+
+      const today =
+        followState === "today" &&
+        status !== "Converted";
+
       return `
 
         <article
-          class="lead-card ${high ? "high" : ""}">
+          class="
+            lead-card
+            ${high ? "high" : ""}
+            ${overdue ? "overdue-card" : ""}
+            ${today ? "today-card" : ""}
+          ">
 
           <div class="lead-top">
 
@@ -1471,9 +1731,32 @@ function renderLeads(){
             }
 
             ${
-              lead.follow_up_date
+              overdue
                 ? `
-                  <span class="tag follow">
+                  <span class="tag overdue">
+                    ⚠ Overdue:
+                    ${formatDateOnly(
+                      lead.follow_up_date
+                    )}
+                  </span>
+                `
+                : ""
+            }
+
+            ${
+              today
+                ? `
+                  <span class="tag today">
+                    Follow-up today
+                  </span>
+                `
+                : ""
+            }
+
+            ${
+              followState === "upcoming"
+                ? `
+                  <span class="tag upcoming">
                     Follow-up:
                     ${formatDateOnly(
                       lead.follow_up_date
@@ -1655,6 +1938,33 @@ function renderLeads(){
               </div>
 
             </div>
+
+
+            ${
+              lead.follow_up_date
+                ? `
+                  <div class="detail">
+
+                    <div class="detail-label">
+                      Follow-up
+                    </div>
+
+                    <div class="detail-value">
+                      ${escapeHtml(
+                        getFollowUpLabel(
+                          lead.follow_up_date
+                        )
+                      )}
+                      ·
+                      ${formatDateOnly(
+                        lead.follow_up_date
+                      )}
+                    </div>
+
+                  </div>
+                `
+                : ""
+            }
 
 
             <div class="edit-grid">
@@ -1850,46 +2160,82 @@ function renderRecentLeads(){
 }
 
 
+/* -----------------------------------
+   FOLLOW-UP DASHBOARD
+----------------------------------- */
+
 function renderFollowUps(){
 
   const container =
     document.getElementById("followUps");
 
+  const active =
+    allLeads.filter(
+      lead =>
+        lead.follow_up_date &&
+        lead.status !== "Converted"
+    );
+
+  const overdue =
+    active
+      .filter(
+        lead =>
+          getFollowUpState(
+            lead.follow_up_date
+          ) === "overdue"
+      )
+      .sort(
+        (a,b) =>
+          String(a.follow_up_date)
+            .localeCompare(
+              String(b.follow_up_date)
+            )
+      );
+
   const today =
-    new Date();
+    active
+      .filter(
+        lead =>
+          getFollowUpState(
+            lead.follow_up_date
+          ) === "today"
+      );
 
-  today.setHours(0,0,0,0);
+  const upcoming =
+    active
+      .filter(
+        lead =>
+          getFollowUpState(
+            lead.follow_up_date
+          ) === "upcoming"
+      )
+      .sort(
+        (a,b) =>
+          String(a.follow_up_date)
+            .localeCompare(
+              String(b.follow_up_date)
+            )
+      );
 
-  const due =
-    allLeads.filter(lead => {
 
-      if(!lead.follow_up_date){
-        return false;
-      }
-
-      const date =
-        new Date(
-          lead.follow_up_date +
-          "T00:00:00"
-        );
-
-      return date <= today &&
-        lead.status !== "Converted";
-
-    });
+  const attentionCount =
+    overdue.length +
+    today.length;
 
 
   document.getElementById("followUpCount")
     .textContent =
-      due.length +
-      (due.length === 1 ? " due" : " due");
+      attentionCount +
+      (attentionCount === 1
+        ? " needs attention"
+        : " need attention");
 
 
-  if(!due.length){
+  if(!active.length){
 
     container.innerHTML = `
       <div class="empty">
-        No follow-ups due.
+        No follow-ups scheduled.
       </div>
     `;
 
@@ -1897,41 +2243,276 @@ function renderFollowUps(){
   }
 
 
+  let html = "";
+
+
+  if(overdue.length){
+
+    html += `
+      <div class="follow-section">
+
+        <div class="follow-section-title">
+          <strong style="color:var(--red)">
+            ⚠ Overdue
+          </strong>
+
+          <span>
+            ${overdue.length}
+          </span>
+        </div>
+
+        ${overdue.map(
+          lead =>
+            renderFollowUpItem(
+              lead,
+              "overdue"
+            )
+        ).join("")}
+
+      </div>
+    `;
+
+  }
+
+
+  if(today.length){
+
+    html += `
+      <div class="follow-section">
+
+        <div class="follow-section-title">
+          <strong style="color:var(--yellow)">
+            Due today
+          </strong>
+
+          <span>
+            ${today.length}
+          </span>
+        </div>
+
+        ${today.map(
+          lead =>
+            renderFollowUpItem(
+              lead,
+              "today"
+            )
+        ).join("")}
+
+      </div>
+    `;
+
+  }
+
+
+  if(upcoming.length){
+
+    html += `
+      <div class="follow-section">
+
+        <div class="follow-section-title">
+          <strong style="color:var(--blue)">
+            Upcoming
+          </strong>
+
+          <span>
+            ${upcoming.length}
+          </span>
+        </div>
+
+        ${upcoming.slice(0,5).map(
+          lead =>
+            renderFollowUpItem(
+              lead,
+              "upcoming"
+            )
+        ).join("")}
+
+      </div>
+    `;
+
+  }
+
+
   container.innerHTML =
-    due.map(lead => `
+    html || `
+      <div class="empty">
+        No follow-ups need attention.
+      </div>
+    `;
 
-      <div class="lead-mini">
+}
 
-        <div class="lead-row">
 
-          <div>
+function renderFollowUpItem(lead,state){
 
-            <div class="lead-name">
-              ${escapeHtml(
-                lead.name ||
-                "Unnamed customer"
-              )}
-            </div>
+  const id =
+    String(lead.id);
 
-            <div class="lead-meta">
-              Follow-up due
-              ·
-              ${formatDateOnly(
-                lead.follow_up_date
-              )}
-            </div>
+  const high =
+    lead.priority === "High";
+
+  return `
+
+    <div
+      class="
+        follow-up-item
+        ${state}
+        ${high ? "high" : ""}
+      ">
+
+      <div class="follow-up-main">
+
+        <div>
+
+          <div class="follow-up-name">
+            ${escapeHtml(
+              lead.name ||
+              "Unnamed customer"
+            )}
+          </div>
+
+          <div class="follow-up-job">
+            ${escapeHtml(
+              lead.job_type ||
+              "General enquiry"
+            )}
+          </div>
+
+          <div class="follow-up-date">
+
+            ${
+              state === "overdue"
+                ? "⚠ Overdue · "
+                : state === "today"
+                  ? "Today · "
+                  : ""
+            }
+
+            ${formatDateOnly(
+              lead.follow_up_date
+            )}
+
+            ${
+              high
+                ? " · ★ High priority"
+                : ""
+            }
 
           </div>
 
-          <span class="pill contacted">
-            Due
-          </span>
-
         </div>
+
+        <span
+          class="pill ${state}">
+
+          ${
+            state === "overdue"
+              ? "Overdue"
+              : state === "today"
+                ? "Today"
+                : "Upcoming"
+          }
+
+        </span>
 
       </div>
 
-    `).join("");
+
+      <div class="follow-up-actions">
+
+        ${
+          lead.phone
+            ? `
+              <a
+                href="tel:${escapeAttr(
+                  lead.phone
+                )}">
+                📞 Call
+              </a>
+            `
+            : ""
+        }
+
+        ${
+          lead.email
+            ? `
+              <a
+                href="mailto:${escapeAttr(
+                  lead.email
+                )}">
+                ✉ Email
+              </a>
+            `
+            : ""
+        }
+
+        <button
+          onclick="openLeadFromFollowUp('${escapeAttr(
+            id
+          )}')">
+
+          View lead
+
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+function openLeadFromFollowUp(id){
+
+  showView("leadsView");
+
+  const search =
+    document.getElementById(
+      "searchInput"
+    );
+
+  if(search){
+    search.value = "";
+  }
+
+  currentFilter =
+    "All";
+
+  document.querySelectorAll(".filter")
+    .forEach(btn =>
+      btn.classList.remove("active")
+    );
+
+  const firstFilter =
+    document.querySelector(".filter");
+
+  if(firstFilter){
+    firstFilter.classList.add("active");
+  }
+
+  renderLeads();
+
+  setTimeout(() => {
+
+    const details =
+      document.getElementById(
+        "details-" + id
+      );
+
+    if(details){
+
+      details.classList.add("open");
+
+      details.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+      });
+
+    }
+
+  },100);
 
 }
 
@@ -2383,25 +2964,45 @@ function formatDateOnly(value){
     return "";
   }
 
-  const date =
-    new Date(
-      value + "T00:00:00"
-    );
+  const parts =
+    String(value).split("-");
 
-  if(Number.isNaN(
-    date.getTime()
-  )){
-    return value;
+  if(parts.length === 3){
+
+    const year =
+      Number(parts[0]);
+
+    const month =
+      Number(parts[1]);
+
+    const day =
+      Number(parts[2]);
+
+    const date =
+      new Date(
+        year,
+        month - 1,
+        day
+      );
+
+    if(!Number.isNaN(
+      date.getTime()
+    )){
+
+      return date.toLocaleDateString(
+        "en-GB",
+        {
+          day:"numeric",
+          month:"short",
+          year:"numeric"
+        }
+      );
+
+    }
+
   }
 
-  return date.toLocaleDateString(
-    "en-GB",
-    {
-      day:"numeric",
-      month:"short",
-      year:"numeric"
-    }
-  );
+  return value;
 
 }
 
