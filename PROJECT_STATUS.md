@@ -12,6 +12,7 @@ Last audited: 2026-09-14
   - the receptionist retained an early job detail after later location and phone messages;
   - a lead was captured/updated and the dashboard refreshed.
 - Production deployment currently reports GitHub commit `6b7a5cf` as deployed by Vercel.
+- Live Supabase audit confirmed `public.leads`, `public.lead_history`, and `public.business_settings` exist. RLS is enabled on all three tables and no policies currently exist. The current data footprint is 9 leads, 7 lead-history records, and 1 settings record; Supabase Auth currently has 0 users.
 
 ## In progress
 
@@ -20,7 +21,7 @@ Last audited: 2026-09-14
 
 ## Blocked / Requires Owner
 
-- **Database schema not present in the repository.** The live database currently has at least `leads`, `lead_history`, and `business_settings`, but their exact columns, constraints, triggers, grants, RLS state, and existing policies must be inspected before safe migrations can be authored or applied.
+- **Database schema not present in the repository.** The table names, row counts, RLS state, and absence of policies are known, but exact columns, types, keys, constraints, triggers, grants, and the historical SQL for `enable_rls_business_settings` are still required before a preservation-safe migration can be authored or applied.
 - **No Supabase project/CLI/MCP connection is configured in this workspace.** Owner access is required to inspect the database, run security advisors, and apply migrations.
 - **No local environment configuration is present.** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY` are required by current API handlers. Do not commit these values.
 - **Vercel production is protected on the per-deployment URL.** The stable project domain is accessible, but deployment configuration and production environment variables require the Vercel project owner.
