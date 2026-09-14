@@ -57,7 +57,7 @@ create unique index if not exists business_settings_business_id_idx on public.bu
 alter table public.businesses enable row level security;
 alter table public.business_memberships enable row level security;
 
-revoke all on public.businesses, public.business_memberships, public.leads, public.lead_history, public.business_settings from anon;
+revoke all on public.businesses, public.business_memberships, public.leads, public.lead_history, public.business_settings from anon, authenticated;
 grant select on public.businesses, public.business_memberships, public.leads, public.lead_history, public.business_settings to authenticated;
 
 drop policy if exists "members read own memberships" on public.business_memberships;
