@@ -17,6 +17,7 @@ Last audited: 2026-09-14
 ## In progress
 
 - Reviewed-but-unapplied multi-tenant migration and owner-onboarding plan.
+- Pre-migration authentication rollout design. Authentication must be feature-gated until a real owner membership exists.
 - MVP hardening plan: tenant model, Supabase Auth/RLS, API authorization, request validation/rate limiting, AI guardrails, data lifecycle, automated tests, and documentation.
 
 ## Blocked / Requires Owner
@@ -26,6 +27,7 @@ Last audited: 2026-09-14
 - **No local environment configuration is present.** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY` are required by current API handlers. Do not commit these values.
 - **Vercel production is protected on the per-deployment URL.** The stable project domain is accessible, but deployment configuration and production environment variables require the Vercel project owner.
 - **Authentication configuration is absent.** Supabase Auth redirect URLs, email provider settings, and production site URL require owner configuration.
+- **Do not deploy authentication changes yet.** The required tenancy migration is intentionally not applied and there are no Auth users/memberships.
 - **Telephony provider is intentionally not selected.** A provider account, UK number, call-recording policy, and webhook credentials are required before phone reception can be enabled.
 
 ## Remaining
