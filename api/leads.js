@@ -1,3 +1,8 @@
+import {
+  requireBusinessMember,
+  sendAuthError
+} from "./_auth.js";
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -85,15 +90,39 @@ async function recordHistory(
   }
 }
 
+function validLeadId(value) {
+  return /^(?:[1-9]\d*)$/.test(String(value));
+}
+
+function validFollowUpDate(value) {
+  if (value === null || value === "") return true;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
 
 export default async function handler(req, res) {
   try {
 
+    let auth;
+    if (req.method === "GET" || req.method === "PATCH") {
+      try {
+        auth = await requireBusinessMember(req);
+      } catch (error) {
+        return sendAuthError(res, error);
+      }
+    }
+
     // GET ALL LEADS
     if (req.method === "GET") {
 
+      const tenantFilter = auth.enforced
+        ? `&business_id=eq.${encodeURIComponent(String(auth.businessId))}`
+        : "";
+
       const leads = await supabaseRequest(
-        "leads?select=*&order=created_at.desc"
+        `leads?select=*&order=created_at.desc${tenantFilter}`
       );
 
       return res.status(200).json(
@@ -107,18 +136,33 @@ export default async function handler(req, res) {
     // UPDATE LEAD
     if (req.method === "PATCH") {
 
-      const body =
-        typeof req.body === "string"
-          ? JSON.parse(req.body)
-          : req.body || {};
+      let body;
+      try {
+        body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      } catch {
+        return res.status(400).json({ error: "Invalid request body" });
+      }
+
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return res.status(400).json({ error: "Invalid request body" });
+      }
+
+      const allowedFields = new Set(["id", "status", "estimated_value", "notes", "priority", "follow_up_date"]);
+      if (Object.keys(body).some((key) => !allowedFields.has(key))) {
+        return res.status(400).json({ error: "Unsupported lead fields" });
+      }
 
       const id = body.id;
 
-      if (!id) {
+      if (!validLeadId(id)) {
         return res.status(400).json({
-          error: "Lead ID is required"
+          error: "Invalid lead ID"
         });
       }
+
+      const tenantFilter = auth.enforced
+        ? `&business_id=eq.${encodeURIComponent(String(auth.businessId))}`
+        : "";
 
 
       // Get the current lead first
@@ -126,7 +170,7 @@ export default async function handler(req, res) {
         await supabaseRequest(
           `leads?id=eq.${encodeURIComponent(
             String(id)
-          )}&select=*`
+          )}${tenantFilter}&select=*`
         );
 
       if (
@@ -188,7 +232,7 @@ export default async function handler(req, res) {
           Number(body.estimated_value);
 
         if (
-          Number.isNaN(value) ||
+          !Number.isFinite(value) ||
           value < 0
         ) {
           return res.status(400).json({
@@ -215,8 +259,11 @@ export default async function handler(req, res) {
       // NOTES
       if (body.notes !== undefined) {
 
-        const notes =
-          String(body.notes || "");
+        if (typeof body.notes !== "string" || body.notes.length > 5000) {
+          return res.status(400).json({ error: "Invalid notes" });
+        }
+
+        const notes = body.notes;
 
         updates.notes = notes;
 
@@ -275,6 +322,10 @@ export default async function handler(req, res) {
         body.follow_up_date !== undefined
       ) {
 
+        if (!validFollowUpDate(body.follow_up_date)) {
+          return res.status(400).json({ error: "Invalid follow-up date" });
+        }
+
         const date =
           body.follow_up_date || null;
 
@@ -308,7 +359,7 @@ export default async function handler(req, res) {
       const query =
         `leads?id=eq.${encodeURIComponent(
           String(id)
-        )}`;
+        )}${tenantFilter}`;
 
 
       const updated =
@@ -361,15 +412,10 @@ export default async function handler(req, res) {
 
   } catch (error) {
 
-    console.error(
-      "Leads API error:",
-      error
-    );
+    console.error("Leads API error");
 
     return res.status(500).json({
-      error:
-        error.message ||
-        "Could not process lead"
+      error: "Could not process lead"
     });
   }
 }
