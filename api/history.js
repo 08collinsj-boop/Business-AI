@@ -1,3 +1,8 @@
+import {
+  requireBusinessMember,
+  sendAuthError
+} from "./_auth.js";
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -60,20 +65,41 @@ export default async function handler(req, res) {
       });
     }
 
+    let auth;
+    try {
+      auth = await requireBusinessMember(req);
+    } catch (error) {
+      return sendAuthError(res, error);
+    }
+
     const leadId =
       String(req.query?.lead_id || "").trim();
 
-    if (!leadId) {
+    if (!leadId || (auth.enforced && !/^(?:[1-9]\d*)$/.test(leadId))) {
       return res.status(400).json({
-        error: "Lead ID is required"
+        error: auth.enforced ? "Invalid lead ID" : "Lead ID is required"
       });
     }
+
+    if (auth.enforced) {
+      const leads = await supabaseRequest(
+        `leads?id=eq.${encodeURIComponent(leadId)}&business_id=eq.${encodeURIComponent(String(auth.businessId))}&select=id&limit=1`
+      );
+
+      if (!Array.isArray(leads) || leads.length === 0) {
+        return res.status(404).json({ error: "Lead not found" });
+      }
+    }
+
+    const tenantFilter = auth.enforced
+      ? `&business_id=eq.${encodeURIComponent(String(auth.businessId))}`
+      : "";
 
     const history =
       await supabaseRequest(
         `lead_history?lead_id=eq.${encodeURIComponent(
           leadId
-        )}&select=*&order=created_at.desc`
+        )}${tenantFilter}&select=*&order=created_at.desc`
       );
 
     return res.status(200).json(
@@ -84,15 +110,10 @@ export default async function handler(req, res) {
 
   } catch (error) {
 
-    console.error(
-      "History API error:",
-      error
-    );
+    console.error("History API error");
 
     return res.status(500).json({
-      error:
-        error.message ||
-        "Could not load lead history"
+      error: "Could not load lead history"
     });
   }
 }
