@@ -1,3 +1,8 @@
+import {
+  requireBusinessMember,
+  sendAuthError
+} from "./_auth.js";
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -63,10 +68,20 @@ export default async function handler(req, res) {
       });
     }
 
+    let auth;
+    try {
+      auth = await requireBusinessMember(req);
+    } catch (error) {
+      return sendAuthError(res, error);
+    }
+
+    const tenantFilter = auth.enforced
+      ? `&business_id=eq.${encodeURIComponent(String(auth.businessId))}`
+      : "";
 
     const leads =
       await supabaseRequest(
-        "leads?select=id,status,estimated_value,priority,follow_up_date,created_at"
+        `leads?select=id,status,estimated_value,priority,follow_up_date,created_at${tenantFilter}`
       );
 
 
@@ -213,16 +228,11 @@ export default async function handler(req, res) {
 
   } catch (error) {
 
-    console.error(
-      "Pipeline API error:",
-      error
-    );
+    console.error("Pipeline API error");
 
     return res.status(500).json({
 
-      error:
-        error.message ||
-        "Could not load pipeline"
+      error: "Could not load pipeline"
 
     });
 
