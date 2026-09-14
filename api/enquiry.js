@@ -46,6 +46,8 @@ async function saveLead(lead) {
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Supabase lead error:", errorText);
     throw new Error("Failed to save lead");
   }
 
@@ -77,7 +79,9 @@ async function saveLead(lead) {
 }
 
 function cleanMessages(messages) {
-  if (!Array.isArray(messages)) return [];
+  if (!Array.isArray(messages)) {
+    return [];
+  }
 
   return messages
     .filter(
@@ -126,9 +130,9 @@ You are the AI receptionist for ${businessName}.
 Your job is to speak naturally with customers, understand their enquiry and collect useful information for the business.
 
 IMPORTANT:
-- Remember information the customer has already provided in earlier messages.
-- NEVER ask for information again if the customer has already provided it.
-- Build the lead from the entire conversation, not just the latest message.
+- Remember everything the customer has already told you.
+- NEVER ask for information again if it has already been provided.
+- Use the entire conversation to understand the enquiry.
 - If the customer gives several pieces of information at once, record all of them.
 - Ask only for the most useful missing information.
 - Do not repeatedly ask the same question.
@@ -146,7 +150,9 @@ Try to collect:
 - description
 - urgency
 
-Return ONLY valid JSON in exactly this structure:
+Return ONLY valid JSON.
+
+Use exactly this structure:
 
 {
   "reply": "your response to the customer",
@@ -164,25 +170,57 @@ Return ONLY valid JSON in exactly this structure:
 
 If a field has not been provided, leave it as an empty string.
 
-If the customer has already provided a field earlier in the conversation, keep that information in the lead object.
+If the customer provided a field earlier in the conversation, keep that information in the lead object.
 `;
 
+    /*
+     * Build the conversation in the format expected by
+     * the OpenAI Responses API.
+     */
     const conversation = [
       {
         role: "system",
-        content: systemPrompt
-      },
-      ...messages
+        content: [
+          {
+            type: "input_text",
+            text: systemPrompt
+          }
+        ]
+      }
     ];
 
+    for (const item of messages) {
+      conversation.push({
+        role: item.role,
+        content: [
+          {
+            type: item.role === "user"
+              ? "input_text"
+              : "output_text",
+            text: item.content
+          }
+        ]
+      });
+    }
+
+    /*
+     * Make absolutely sure the current message is included.
+     */
+    const lastMessage = messages[messages.length - 1];
+
     if (
-      !messages.length ||
-      messages[messages.length - 1].role !== "user" ||
-      messages[messages.length - 1].content !== message
+      !lastMessage ||
+      lastMessage.role !== "user" ||
+      lastMessage.content !== message
     ) {
       conversation.push({
         role: "user",
-        content: message
+        content: [
+          {
+            type: "input_text",
+            text: message
+          }
+        ]
       });
     }
 
@@ -203,7 +241,12 @@ If the customer has already provided a field earlier in the conversation, keep t
 
     if (!openAIResponse.ok) {
       const errorText = await openAIResponse.text();
-      console.error("OpenAI error:", errorText);
+
+      console.error(
+        "OpenAI error:",
+        openAIResponse.status,
+        errorText
+      );
 
       return res.status(500).json({
         error: "AI request failed"
@@ -226,7 +269,10 @@ If the customer has already provided a field earlier in the conversation, keep t
     try {
       result = JSON.parse(outputText);
     } catch (parseError) {
-      console.error("AI JSON parse error:", outputText);
+      console.error(
+        "AI JSON parse error:",
+        outputText
+      );
 
       return res.status(500).json({
         error: "AI returned an invalid response"
@@ -258,7 +304,10 @@ If the customer has already provided a field earlier in the conversation, keep t
     });
 
   } catch (error) {
-    console.error("Enquiry API error:", error);
+    console.error(
+      "Enquiry API error:",
+      error
+    );
 
     return res.status(500).json({
       error: "Something went wrong"
