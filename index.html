@@ -1703,6 +1703,18 @@ saveEnquiryConversation();
 
 addEnquiryMessage('assistant',reply);
 
+// A qualifying enquiry may have created or updated a lead. Refresh the
+// dashboard in the background so the customer-facing chat stays responsive.
+if(result.leadCaptured){
+
+loadAll().then(()=>toast('Lead captured and dashboard refreshed')).catch(error=>{
+
+console.error('Could not refresh dashboard after lead capture:',error);
+
+});
+
+}
+
 }catch(error){
 
 addEnquiryMessage('assistant',error.message||'Sorry, I could not process that enquiry.');
