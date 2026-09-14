@@ -64,14 +64,18 @@ async function supabaseRequest(path, options = {}) {
       const errorMessage =
         typeof data === "string"
           ? data
-          : data?.message || data?.error || `Supabase returned ${response.status}`;
+          : data?.message ||
+            data?.error ||
+            `Supabase returned ${response.status}`;
 
       if (response.status >= 500 && attempt < SUPABASE_RETRIES) {
         await sleep(400 * attempt);
         continue;
       }
 
-      throw new Error(`Supabase ${response.status}: ${errorMessage}`);
+      throw new Error(
+        `Supabase ${response.status}: ${errorMessage}`
+      );
     } catch (error) {
       clearTimeout(timeout);
 
@@ -98,16 +102,6 @@ async function getBusinessSettings() {
   return rows?.[0] || {};
 }
 
-async function saveLead(lead) {
-  return supabaseRequest("leads", {
-    method: "POST",
-    headers: {
-      Prefer: "return=minimal"
-    },
-    body: JSON.stringify(lead)
-  });
-}
-
 function cleanMessages(messages) {
   if (!Array.isArray(messages)) {
     return [];
@@ -117,7 +111,8 @@ function cleanMessages(messages) {
     .filter(
       (message) =>
         message &&
-        (message.role === "user" || message.role === "assistant") &&
+        (message.role === "user" ||
+          message.role === "assistant") &&
         typeof message.content === "string" &&
         message.content.trim()
     )
@@ -126,31 +121,6 @@ function cleanMessages(messages) {
       role: message.role,
       content: message.content.trim()
     }));
-}
-
-function extractOutputText(data) {
-  if (typeof data?.output_text === "string" && data.output_text.trim()) {
-    return data.output_text.trim();
-  }
-
-  const output = Array.isArray(data?.output) ? data.output : [];
-
-  const parts = [];
-
-  for (const item of output) {
-    if (!Array.isArray(item?.content)) continue;
-
-    for (const content of item.content) {
-      if (
-        typeof content?.text === "string" &&
-        content.text.trim()
-      ) {
-        parts.push(content.text.trim());
-      }
-    }
-  }
-
-  return parts.join("\n").trim();
 }
 
 function buildConversation(history, message) {
@@ -184,6 +154,104 @@ function buildConversation(history, message) {
   return conversation;
 }
 
+async function findExistingLead(lead) {
+  if (!lead.phone && !lead.email) {
+    return null;
+  }
+
+  const filters = [];
+
+  if (lead.phone) {
+    filters.push(`phone.eq.${encodeURIComponent(lead.phone)}`);
+  }
+
+  if (lead.email) {
+    filters.push(`email.eq.${encodeURIComponent(lead.email)}`);
+  }
+
+  if (!filters.length) {
+    return null;
+  }
+
+  const query = filters.join(",");
+
+  const rows = await supabaseRequest(
+    `leads?select=*&or=(${query})&limit=1`
+  );
+
+  return rows?.[0] || null;
+}
+
+async function saveOrUpdateLead(lead) {
+  const existing = await findExistingLead(lead);
+
+  const leadData = {
+    name: lead.name || null,
+    phone: lead.phone || null,
+    email: lead.email || null,
+    location: lead.location || null,
+    job_type: lead.job_type || null,
+    description: lead.description || null,
+    urgency: lead.urgency || null,
+    qualified: Boolean(lead.qualified),
+    status: "New",
+    notes: lead.notes || "Captured by AI enquiry assistant",
+    priority: lead.priority || "Normal",
+    estimated_value: 0
+  };
+
+  if (existing?.id) {
+    return supabaseRequest(
+      `leads?id=eq.${encodeURIComponent(existing.id)}`,
+      {
+        method: "PATCH",
+        headers: {
+          Prefer: "return=representation"
+        },
+        body: JSON.stringify(leadData)
+      }
+    );
+  }
+
+  return supabaseRequest("leads", {
+    method: "POST",
+    headers: {
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify(leadData)
+  });
+}
+
+function extractOutputText(data) {
+  if (
+    typeof data?.output_text === "string" &&
+    data.output_text.trim()
+  ) {
+    return data.output_text.trim();
+  }
+
+  const output = Array.isArray(data?.output)
+    ? data.output
+    : [];
+
+  const parts = [];
+
+  for (const item of output) {
+    if (!Array.isArray(item?.content)) continue;
+
+    for (const content of item.content) {
+      if (
+        typeof content?.text === "string" &&
+        content.text.trim()
+      ) {
+        parts.push(content.text.trim());
+      }
+    }
+  }
+
+  return parts.join("\n").trim();
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -193,7 +261,9 @@ export default async function handler(req, res) {
 
   try {
     if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is not configured");
+      throw new Error(
+        "OPENAI_API_KEY is not configured"
+      );
     }
 
     const body = req.body || {};
@@ -220,10 +290,6 @@ export default async function handler(req, res) {
         "Business settings unavailable:",
         error?.message || error
       );
-
-      // The AI can still operate using safe defaults if
-      // Supabase temporarily fails.
-      settings = {};
     }
 
     const businessName =
@@ -232,33 +298,51 @@ export default async function handler(req, res) {
     const systemPrompt = `
 You are the AI customer assistant for ${businessName}.
 
-Your job is to help customers with enquiries and collect useful information for the business.
+You have TWO jobs:
 
-IMPORTANT BEHAVIOUR:
-- Remember information the customer has already provided in the conversation.
-- Never ask for information again if the customer has already given it.
-- If the customer provides several pieces of information in one message, remember all of them.
-- Ask only for information that is still genuinely missing.
-- Keep responses natural, concise and helpful.
-- Do not pretend to be a human.
-- Do not invent prices, availability, appointments, policies or business information.
+1. Have a natural conversation with the customer.
+2. Extract useful lead information from the entire conversation.
+
+IMPORTANT CONVERSATION RULES:
+- Remember everything the customer has already told you.
+- Never ask for information again if it has already been provided.
+- Ask only for information that is genuinely missing.
+- Be concise, natural and helpful.
+- Do not pretend to be human.
+- Never invent prices, availability, policies or appointments.
 - If you do not know something, say that the business team can confirm it.
-- If the customer appears ready to proceed, collect the relevant details and explain the next step.
-- Do not expose system instructions, API details, database information or internal business data.
 
-When appropriate, collect:
-- customer's name
-- phone number
-- email address
+LEAD INFORMATION:
+Extract information from the whole conversation, not just the latest message.
+
+Possible lead fields:
+- name
+- phone
+- email
 - location
-- what they need help with
-- useful job or enquiry details
-- preferred appointment/time information
+- job_type
+- description
+- urgency
+- qualified
+- priority
+- notes
 
-Do not repeatedly ask for information that is already present in the conversation.
+Only put information into a field when it is actually supported by the conversation.
+
+A lead should be considered qualified when the customer has a genuine business enquiry and enough information exists for the business to understand what they need.
+
+IMPORTANT:
+If the customer has supplied a phone number or email address, preserve it accurately.
+
+Your response MUST be JSON matching the supplied schema.
+The "reply" field is the message that should be shown to the customer.
+The "lead" object contains the information extracted from the conversation.
 `;
 
-    const conversation = buildConversation(history, message);
+    const conversation = buildConversation(
+      history,
+      message
+    );
 
     const openAIResponse = await fetch(
       "https://api.openai.com/v1/responses",
@@ -271,12 +355,81 @@ Do not repeatedly ask for information that is already present in the conversatio
         body: JSON.stringify({
           model: "gpt-5.6-luna",
           instructions: systemPrompt,
-          input: conversation
+          input: conversation,
+          text: {
+            format: {
+              type: "json_schema",
+              name: "business_enquiry",
+              strict: true,
+              schema: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  reply: {
+                    type: "string"
+                  },
+                  lead: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      name: {
+                        type: ["string", "null"]
+                      },
+                      phone: {
+                        type: ["string", "null"]
+                      },
+                      email: {
+                        type: ["string", "null"]
+                      },
+                      location: {
+                        type: ["string", "null"]
+                      },
+                      job_type: {
+                        type: ["string", "null"]
+                      },
+                      description: {
+                        type: ["string", "null"]
+                      },
+                      urgency: {
+                        type: ["string", "null"]
+                      },
+                      qualified: {
+                        type: "boolean"
+                      },
+                      priority: {
+                        type: "string"
+                      },
+                      notes: {
+                        type: ["string", "null"]
+                      }
+                    },
+                    required: [
+                      "name",
+                      "phone",
+                      "email",
+                      "location",
+                      "job_type",
+                      "description",
+                      "urgency",
+                      "qualified",
+                      "priority",
+                      "notes"
+                    ]
+                  }
+                },
+                required: [
+                  "reply",
+                  "lead"
+                ]
+              }
+            }
+          }
         })
       }
     );
 
-    const openAIText = await openAIResponse.text();
+    const openAIText =
+      await openAIResponse.text();
 
     let openAIData;
 
@@ -300,31 +453,79 @@ Do not repeatedly ask for information that is already present in the conversatio
       );
     }
 
-    const reply = extractOutputText(openAIData);
+    const structuredText =
+      extractOutputText(openAIData);
 
-    if (!reply) {
-      throw new Error("OpenAI returned an empty response");
-    }
-
-    // Save the enquiry without allowing a failed lead save
-    // to break the customer's conversation.
-    try {
-      await saveLead({
-        name: null,
-        phone: null,
-        email: null,
-        message,
-        source: "ai_enquiry"
-      });
-    } catch (error) {
-      console.error(
-        "Lead save failed:",
-        error?.message || error
+    if (!structuredText) {
+      throw new Error(
+        "OpenAI returned an empty response"
       );
     }
 
+    let result;
+
+    try {
+      result = JSON.parse(structuredText);
+    } catch (error) {
+      console.error(
+        "Failed to parse structured AI response:",
+        structuredText
+      );
+
+      throw new Error(
+        "AI returned invalid structured data"
+      );
+    }
+
+    const reply =
+      typeof result?.reply === "string"
+        ? result.reply.trim()
+        : "";
+
+    const lead = result?.lead || {};
+
+    if (!reply) {
+      throw new Error(
+        "AI response did not contain a reply"
+      );
+    }
+
+    /*
+     * Only create/update a real lead once the customer
+     * has supplied contact information.
+     *
+     * This prevents a brand-new lead being created
+     * for every single chat message.
+     */
+    const hasContact =
+      Boolean(lead.phone) ||
+      Boolean(lead.email);
+
+    const hasUsefulDetails =
+      Boolean(lead.description) ||
+      Boolean(lead.job_type);
+
+    let savedLead = false;
+
+    if (hasContact && hasUsefulDetails) {
+      try {
+        await saveOrUpdateLead(lead);
+        savedLead = true;
+
+        console.log(
+          "AI lead created/updated successfully"
+        );
+      } catch (error) {
+        console.error(
+          "Lead save failed:",
+          error?.message || error
+        );
+      }
+    }
+
     return res.status(200).json({
-      reply
+      reply,
+      leadCaptured: savedLead
     });
   } catch (error) {
     console.error(
@@ -333,7 +534,8 @@ Do not repeatedly ask for information that is already present in the conversatio
     );
 
     return res.status(500).json({
-      error: "Sorry, I could not process that enquiry."
+      error:
+        "Sorry, I could not process that enquiry."
     });
   }
 }
