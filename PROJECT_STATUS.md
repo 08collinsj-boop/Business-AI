@@ -1,0 +1,38 @@
+# Business AI MVP status
+
+Last audited: 2026-09-14
+
+## Completed
+
+- Existing single-business dashboard is connected to the leads, pipeline, settings, history, and enquiry APIs.
+- The AI enquiry UI refreshes dashboard data after a saved lead.
+- Receptionist context preservation was improved: full browser-session history is sent to the API and known contact/job details are supplied to the model.
+- Live production smoke test completed on `business-ai-theta.vercel.app`:
+  - dashboard, pipeline, lead list, lead details, settings loading, and AI lead capture were reachable;
+  - the receptionist retained an early job detail after later location and phone messages;
+  - a lead was captured/updated and the dashboard refreshed.
+- Production deployment currently reports GitHub commit `6b7a5cf` as deployed by Vercel.
+
+## In progress
+
+- Full architecture and security audit.
+- MVP hardening plan: tenant model, Supabase Auth/RLS, API authorization, request validation/rate limiting, AI guardrails, data lifecycle, automated tests, and documentation.
+
+## Blocked / Requires Owner
+
+- **Database schema not present in the repository.** The live database currently has at least `leads`, `lead_history`, and `business_settings`, but their exact columns, constraints, triggers, grants, RLS state, and existing policies must be inspected before safe migrations can be authored or applied.
+- **No Supabase project/CLI/MCP connection is configured in this workspace.** Owner access is required to inspect the database, run security advisors, and apply migrations.
+- **No local environment configuration is present.** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY` are required by current API handlers. Do not commit these values.
+- **Vercel production is protected on the per-deployment URL.** The stable project domain is accessible, but deployment configuration and production environment variables require the Vercel project owner.
+- **Authentication configuration is absent.** Supabase Auth redirect URLs, email provider settings, and production site URL require owner configuration.
+- **Telephony provider is intentionally not selected.** A provider account, UK number, call-recording policy, and webhook credentials are required before phone reception can be enabled.
+
+## Remaining
+
+1. Inspect the Supabase schema and security configuration; create tested tenant/auth/RLS migrations.
+2. Add a server-side session verification and authorization layer to all dashboard APIs.
+3. Add tenant-scoped data model for businesses, memberships, leads, settings, conversations, usage, audit events, retention/export requests, and future actions/calls.
+4. Harden the receptionist: name parser fix, request limits, rate limits, structured guardrails, emergency/handover handling, cost/usage recording, and tenant-specific instructions.
+5. Complete dashboard UX for lead updates, conversation history, follow-ups, data export/deletion requests, and meaningful analytics.
+6. Add automated unit/integration/RLS tests and a reproducible local-development setup.
+7. Add deployment, security, Supabase, telephony, and operational documentation.

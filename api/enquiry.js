@@ -172,8 +172,8 @@ function findEmailInConversation(conversationText) {
 function findNameInConversation(conversationText) {
   const patterns = [
     /my name is\s+([A-Za-z][A-Za-z '-]{1,50})/i,
-    /i'm\s+([A-Za-z][A-Za-z '-]{1,50})/i,
-    /i am\s+([A-Za-z][A-Za-z '-]{1,50})/i
+    /i'm\s+(?!in\b)([A-Za-z][A-Za-z '-]{1,50})/i,
+    /i am\s+(?!in\b)([A-Za-z][A-Za-z '-]{1,50})/i
   ];
 
   for (const pattern of patterns) {
