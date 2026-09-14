@@ -1569,4 +1569,492 @@ const dateOnly=v=>{
 
 if(!v)return '';
 
-const [y,m,d]=String(v)
+const [y,m,d]=String(v).split('-');
+
+return [y,m,d].filter(Boolean).join('-');
+
+};
+
+
+const enquiryStorageKey='business-ai-enquiry-conversation';
+
+let enquiryMessages=[];
+
+
+const loadEnquiryConversation=()=>{
+
+try{
+
+const saved=JSON.parse(sessionStorage.getItem(enquiryStorageKey)||'[]');
+
+if(Array.isArray(saved)){
+
+enquiryMessages=saved.filter(message=>
+message&&
+(message.role==='user'||message.role==='assistant')&&
+typeof message.content==='string'&&
+message.content.trim()
+);
+
+}
+
+}catch{
+
+enquiryMessages=[];
+
+}
+
+};
+
+
+const saveEnquiryConversation=()=>{
+
+try{
+
+sessionStorage.setItem(enquiryStorageKey,JSON.stringify(enquiryMessages));
+
+}catch{
+
+// A chat can still continue if browser storage is unavailable.
+
+}
+
+};
+
+
+const addEnquiryMessage=(role,content)=>{
+
+const message=document.createElement('div');
+
+message.className=`msg ${role==='user'?'user':'ai'}`;
+
+message.textContent=content;
+
+$('messages').appendChild(message);
+
+$('messages').scrollTop=$('messages').scrollHeight;
+
+};
+
+
+const renderEnquiryConversation=()=>{
+
+const messages=$('messages');
+
+messages.replaceChildren();
+
+if(!enquiryMessages.length){
+
+addEnquiryMessage('assistant',"Hi! I'm the AI receptionist. Send a customer enquiry to test the system.");
+
+return;
+
+}
+
+enquiryMessages.forEach(message=>addEnquiryMessage(message.role,message.content));
+
+};
+
+
+async function sendEnquiry(event){
+
+event.preventDefault();
+
+const input=$('chatInput');
+
+const message=input.value.trim();
+
+if(!message)return;
+
+const submit=event.currentTarget.querySelector('button');
+
+input.value='';
+
+input.disabled=true;
+
+submit.disabled=true;
+
+enquiryMessages.push({role:'user',content:message});
+
+saveEnquiryConversation();
+
+addEnquiryMessage('user',message);
+
+try{
+
+const response=await fetch('/api/enquiry',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+// The API receives every previous turn, including customer details already supplied.
+body:JSON.stringify({message,messages:enquiryMessages.slice(0,-1)})
+});
+
+const result=await response.json();
+
+if(!response.ok)throw new Error(result.error||'Unable to send enquiry');
+
+const reply=typeof result.reply==='string'&&result.reply.trim()
+?result.reply.trim()
+:'Thanks. I have your details.';
+
+enquiryMessages.push({role:'assistant',content:reply});
+
+saveEnquiryConversation();
+
+addEnquiryMessage('assistant',reply);
+
+}catch(error){
+
+addEnquiryMessage('assistant',error.message||'Sorry, I could not process that enquiry.');
+
+}finally{
+
+input.disabled=false;
+
+submit.disabled=false;
+
+input.focus();
+
+}
+
+}
+
+
+function showView(view){
+
+document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item.id===`${view}View`));
+
+document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===view));
+
+}
+
+
+const api=async(url,options={})=>{
+
+const response=await fetch(url,options);
+
+let result=null;
+
+try{result=await response.json()}catch{}
+
+if(!response.ok)throw new Error(result?.error||'Something went wrong');
+
+return result;
+
+};
+
+
+const toast=(message)=>{
+
+const element=$('toast');
+
+element.textContent=message;
+
+element.classList.add('show');
+
+clearTimeout(toast.timer);
+
+toast.timer=setTimeout(()=>element.classList.remove('show'),2800);
+
+};
+
+
+const dateLabel=(value)=>{
+
+if(!value)return 'Not set';
+
+const date=new Date(`${dateOnly(value)}T12:00:00`);
+
+return Number.isNaN(date.getTime())?String(value):date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+};
+
+
+const timeLabel=(value)=>{
+
+if(!value)return '';
+
+const date=new Date(value);
+
+return Number.isNaN(date.getTime())?'':date.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+
+};
+
+
+const followUpState=(lead)=>{
+
+const date=dateOnly(lead.follow_up_date);
+
+if(!date)return '';
+
+const today=localKey();
+
+return date<today?'overdue':date===today?'today':'upcoming';
+
+};
+
+
+const statusClass=status=>String(status||'New').toLowerCase();
+
+
+function renderDashboard(){
+
+const data=pipeline||{};
+
+$('stats').innerHTML=`
+<div class="stat"><div class="stat-label">Pipeline value</div><div class="stat-value">${money(data.pipeline_value)}</div><div class="stat-sub">${data.total||0} total leads</div></div>
+<div class="stat"><div class="stat-label">Converted value</div><div class="stat-value">${money(data.converted_value)}</div><div class="stat-sub">${data.conversion_rate||0}% conversion rate</div></div>
+<div class="stat follow-stat"><div class="stat-label">Follow-ups today</div><div class="stat-value">${data.follow_ups_today||0}</div><div class="stat-sub">${data.high_priority||0} high priority</div></div>
+<div class="stat overdue-stat"><div class="stat-label">Overdue follow-ups</div><div class="stat-value">${data.overdue_follow_ups||0}</div><div class="stat-sub">Need attention</div></div>`;
+
+const stages=data.stages||{};
+
+$('pipelineSummary').textContent=`${money(data.pipeline_value)} open pipeline`;
+
+$('pipeline').innerHTML=['new','contacted','converted'].map(stage=>{
+
+const item=stages[stage]||{};
+
+return `<div class="stage ${stage}"><h4>${stage[0].toUpperCase()+stage.slice(1)}</h4><div class="stage-count">${item.count||0}</div><div class="stage-value">${money(item.value)}</div></div>`;
+
+}).join('');
+
+const recent=leads.slice(0,5);
+
+$('recentLeads').innerHTML=recent.length?recent.map(lead=>`<div class="lead-mini"><div class="lead-row"><div><div class="lead-name">${esc(lead.name||'New enquiry')}</div><div class="lead-meta">${esc(lead.job_type||lead.description||'General enquiry')} · ${esc(lead.location||'Location not supplied')}</div></div><span class="pill ${statusClass(lead.status)}">${esc(lead.status||'New')}</span></div></div>`).join(''):'<div class="empty">No leads captured yet.</div>';
+
+const followUps=leads.filter(lead=>lead.status!=='Converted'&&followUpState(lead)).sort((a,b)=>dateOnly(a.follow_up_date).localeCompare(dateOnly(b.follow_up_date)));
+
+$('followCount').textContent=`${followUps.length} needing attention`;
+
+$('followUps').innerHTML=followUps.length?followUps.slice(0,6).map(lead=>{
+
+const state=followUpState(lead);
+
+return `<div class="follow-up-item ${state} ${lead.priority==='High'?'high':''}"><div class="follow-up-main"><div><div class="follow-up-name">${esc(lead.name||'New enquiry')}</div><div class="follow-up-meta">${esc(lead.job_type||'General enquiry')} · ${dateLabel(lead.follow_up_date)}</div></div><span class="tag ${state}">${state==='overdue'?'Overdue':state==='today'?'Today':'Upcoming'}</span></div></div>`;
+
+}).join(''):'<div class="empty">No follow-ups need attention.</div>';
+
+const activity=leads.slice(0,5);
+
+$('activity').innerHTML=activity.length?activity.map(lead=>`<div class="activity"><div class="activity-icon">◉</div><div><div class="activity-text"><strong>${esc(lead.name||'New enquiry')}</strong> is ${esc((lead.status||'New').toLowerCase())}</div><div class="activity-time">${timeLabel(lead.created_at)||'Recently added'}</div></div></div>`).join(''):'<div class="empty">Activity will appear as leads arrive.</div>';
+
+}
+
+
+function renderLeads(){
+
+const query=$('search').value.trim().toLowerCase();
+
+const sort=$('sort').value;
+
+const priority={High:0,Normal:1};
+
+let visible=leads.filter(lead=>{
+
+const haystack=[lead.name,lead.job_type,lead.description,lead.location,lead.phone,lead.email].join(' ').toLowerCase();
+
+return (currentFilter==='All'||lead.status===currentFilter)&&(!query||haystack.includes(query));
+
+});
+
+visible.sort((a,b)=>{
+
+if(sort==='oldest')return String(a.created_at||'').localeCompare(String(b.created_at||''));
+
+if(sort==='valueHigh')return Number(b.estimated_value||0)-Number(a.estimated_value||0);
+
+if(sort==='valueLow')return Number(a.estimated_value||0)-Number(b.estimated_value||0);
+
+if(sort==='priority')return (priority[a.priority]??1)-(priority[b.priority]??1);
+
+if(sort==='followup')return String(a.follow_up_date||'9999-12-31').localeCompare(String(b.follow_up_date||'9999-12-31'));
+
+return String(b.created_at||'').localeCompare(String(a.created_at||''));
+
+});
+
+$('leadCount').textContent=`${visible.length} lead${visible.length===1?'':'s'}`;
+
+$('leadList').innerHTML=visible.length?visible.map(renderLeadCard).join(''):'<div class="empty">No leads match your search.</div>';
+
+}
+
+
+function renderLeadCard(lead){
+
+const id=esc(lead.id);
+
+const state=followUpState(lead);
+
+return `<article class="lead-card ${lead.priority==='High'?'high':''} ${state==='overdue'?'overdue-card':''} ${state==='today'?'today-card':''}">
+<div class="lead-top"><div><h3>${esc(lead.name||'New enquiry')}</h3><div class="lead-meta">${esc(lead.job_type||'General enquiry')} · ${esc(lead.location||'Location not supplied')}</div></div><span class="pill ${statusClass(lead.status)}">${esc(lead.status||'New')}</span></div>
+${lead.description?`<div class="description">${esc(lead.description)}</div>`:''}
+<div class="lead-tags">${lead.priority==='High'?'<span class="tag high">High priority</span>':''}<span class="tag money">${money(lead.estimated_value)}</span>${state?`<span class="tag ${state}">${state==='overdue'?'Overdue':state==='today'?'Follow up today':`Follow up ${dateLabel(lead.follow_up_date)}`}</span>`:''}</div>
+<div class="lead-actions"><button class="small-btn" onclick="toggleDetails('${id}')">Details & edit</button>${lead.status!=='Contacted'?`<button class="small-btn" onclick="updateLead('${id}',{status:'Contacted'})">Mark contacted</button>`:''}${lead.status!=='Converted'?`<button class="small-btn primary-action" onclick="updateLead('${id}',{status:'Converted'})">Mark converted</button>`:''}</div>
+<div id="details-${id}" class="details"><div class="detail"><div class="detail-label">Contact</div><div class="detail-value">${esc(lead.phone||'No phone')} ${lead.email?`· ${esc(lead.email)}`:''}</div></div><div class="detail"><div class="detail-label">Notes</div><div class="detail-value">${esc(lead.notes||'No notes yet')}</div></div>
+<div class="edit-grid"><div class="field"><label>Status</label><select id="status-${id}"><option ${lead.status==='New'?'selected':''}>New</option><option ${lead.status==='Contacted'?'selected':''}>Contacted</option><option ${lead.status==='Converted'?'selected':''}>Converted</option></select></div><div class="field"><label>Priority</label><select id="priority-${id}"><option ${lead.priority!=='High'?'selected':''}>Normal</option><option ${lead.priority==='High'?'selected':''}>High</option></select></div><div class="field"><label>Estimated value</label><input id="value-${id}" type="number" min="0" value="${Number(lead.estimated_value||0)}"></div><div class="field"><label>Follow-up date</label><input id="followup-${id}" type="date" value="${esc(dateOnly(lead.follow_up_date))}"></div><div class="field full"><label>Notes</label><textarea id="notes-${id}">${esc(lead.notes||'')}</textarea></div></div><button class="save-btn" onclick="saveLead('${id}')">Save lead changes</button><div class="detail" style="margin-top:16px"><div class="detail-label">History</div><div id="history-${id}" class="timeline"><div class="history-item"><div class="history-dot"></div><div class="history-values">Loading history…</div></div></div></div></div></article>`;
+
+}
+
+
+async function toggleDetails(id){
+
+const details=$(`details-${id}`);
+
+const opening=!details.classList.contains('open');
+
+details.classList.toggle('open',opening);
+
+if(opening&&!details.dataset.historyLoaded){
+
+details.dataset.historyLoaded='true';
+
+const target=$(`history-${id}`);
+
+try{
+
+const history=await api(`/api/history?lead_id=${encodeURIComponent(id)}`);
+
+target.innerHTML=history.length?history.map(item=>`<div class="history-item"><div class="history-dot"></div><div class="history-action">${esc(item.action||'Updated')}</div>${item.old_value||item.new_value?`<div class="history-values">${esc(item.old_value||'—')} → ${esc(item.new_value||'—')}</div>`:''}<div class="history-time">${timeLabel(item.created_at)}</div></div>`).join(''):'<div class="history-item"><div class="history-dot"></div><div class="history-values">No recorded changes yet.</div></div>';
+
+}catch(error){target.innerHTML=`<div class="history-item"><div class="history-dot"></div><div class="history-values">${esc(error.message)}</div></div>`}
+
+}
+
+}
+
+
+async function updateLead(id,updates){
+
+try{
+
+await api('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});
+
+toast('Lead updated');
+
+await loadAll();
+
+}catch(error){toast(error.message)}
+
+}
+
+
+function saveLead(id){
+
+return updateLead(id,{
+
+status:$(`status-${id}`).value,
+
+priority:$(`priority-${id}`).value,
+
+estimated_value:$(`value-${id}`).value,
+
+follow_up_date:$(`followup-${id}`).value||null,
+
+notes:$(`notes-${id}`).value
+
+});
+
+}
+
+
+function setFilter(filter){
+
+currentFilter=filter;
+
+document.querySelectorAll('.filter').forEach(button=>button.classList.toggle('active',button.dataset.filter===filter));
+
+renderLeads();
+
+}
+
+
+function fillSettings(){
+
+if(!settings)return;
+
+['business_name','business_type','phone','email','address','opening_hours','services','ai_instructions'].forEach(field=>{
+
+const input=$(`s_${field}`);
+
+if(input)input.value=settings[field]||'';
+
+});
+
+$('s_urgent').checked=Boolean(settings.urgent_jobs_enabled);
+
+$('brandName').textContent=settings.business_name||'Business AI';
+
+}
+
+
+async function saveSettings(){
+
+const status=$('settingsStatus');
+
+status.textContent='Saving…';
+
+try{
+
+const body={urgent_jobs_enabled:$('s_urgent').checked};
+
+['business_name','business_type','phone','email','address','opening_hours','services','ai_instructions'].forEach(field=>body[field]=$(`s_${field}`).value);
+
+settings=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+
+fillSettings();
+
+status.textContent='Settings saved.';
+
+toast('Business settings saved');
+
+}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`}
+
+}
+
+
+async function loadAll(showFeedback=false){
+
+try{
+
+const [leadData,pipelineData,settingsData]=await Promise.all([api('/api/leads'),api('/api/pipeline'),api('/api/settings')]);
+
+leads=Array.isArray(leadData)?leadData:[];
+
+pipeline=pipelineData||{};
+
+settings=settingsData||{};
+
+fillSettings();
+
+renderDashboard();
+
+renderLeads();
+
+if(showFeedback)toast('Dashboard refreshed');
+
+}catch(error){
+
+const message=`<div class="error">${esc(error.message||'Unable to load dashboard data.')}</div>`;
+
+$('stats').innerHTML=message;
+
+$('leadList').innerHTML=message;
+
+}
+
+}
+
+
+loadEnquiryConversation();
+
+renderEnquiryConversation();
+
+loadAll();
+
+</script>
+
+</body>
+
+</html>
