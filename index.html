@@ -889,6 +889,15 @@ border:1px solid rgba(255,107,107,.2);
 border-radius:13px
 }
 
+.auth-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px}
+.auth-card{width:100%;max-width:390px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:28px}
+.auth-card h2{margin:18px 0 6px}.auth-card p{margin:0 0 22px;color:var(--muted);font-size:14px}
+.auth-field{display:grid;gap:7px;margin:14px 0}.auth-field label{font-size:13px;color:var(--muted)}
+.auth-field input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:var(--text)}
+.auth-submit{width:100%;margin-top:8px}.auth-message{min-height:20px;margin-top:14px;color:var(--red);font-size:13px}
+.logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
+body.auth-pending .app,body.auth-required .app{display:none}body.auth-required .auth-screen{display:flex}body.auth-ready .logout-btn{display:block}
+
 .empty{
 text-align:center;
 padding:35px 15px;
@@ -938,11 +947,23 @@ margin-top:0
 </style>
 </head>
 
-<body>
+<body class="auth-pending">
 
 <div id="toast" class="toast"></div>
 
-<div class="app">
+<main id="authScreen" class="auth-screen" aria-live="polite">
+<form id="loginForm" class="auth-card">
+<div class="brand-icon">AI</div>
+<h2>Welcome to Business AI</h2>
+<p>Sign in to manage your business enquiries.</p>
+<div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+<div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+<button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
+<div id="loginMessage" class="auth-message" role="alert"></div>
+</form>
+</main>
+
+<div id="dashboardApp" class="app">
 
 <header class="topbar">
 
@@ -970,6 +991,8 @@ AI front desk & lead management
 class="status-dot"
 title="System online"
 ></div>
+
+<button id="logoutButton" class="logout-btn" type="button">Log out</button>
 
 </header>
 
@@ -1515,6 +1538,7 @@ Settings
 </nav>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 
 let leads=[];
@@ -1524,9 +1548,59 @@ let currentFilter='All';
 let settings=null;
 
 let pipeline=null;
+let supabaseClient=null;
+let frontendAuthEnabled=false;
 
 
 const $=id=>document.getElementById(id);
+
+const clearPrivateState=()=>{
+leads=[];settings=null;pipeline=null;
+['stats','leadList','recentLeads','followUps','activity','pipeline'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+};
+
+const setAuthView=(state,message='')=>{
+document.body.classList.remove('auth-pending','auth-required','auth-ready');
+document.body.classList.add(state);
+$('loginMessage').textContent=message;
+};
+
+const handleSession=(session)=>{
+if(!frontendAuthEnabled)return;
+if(session){setAuthView('auth-ready');loadAll().catch(()=>{});return;}
+clearPrivateState();setAuthView('auth-required');
+};
+
+async function initializeAuthentication(){
+try{
+const response=await fetch('/api/public-config');
+if(response.status===404){setAuthView('auth-ready');return false;}
+if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
+const config=await response.json();
+if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
+if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)throw new Error('Authentication is temporarily unavailable.');
+frontendAuthEnabled=true;
+supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+const {data:{session}}=await supabaseClient.auth.getSession();
+supabaseClient.auth.onAuthStateChange((_event,nextSession)=>handleSession(nextSession));
+handleSession(session);
+return true;
+}catch(error){frontendAuthEnabled=true;setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
+}
+
+$('loginForm').addEventListener('submit',async event=>{
+event.preventDefault();
+if(!supabaseClient)return;
+const button=$('loginSubmit');button.disabled=true;$('loginMessage').textContent='Signing in…';
+try{
+const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
+if(error)throw error;
+}catch{ $('loginMessage').textContent='Unable to sign in with those details.'; }finally{button.disabled=false;}
+});
+
+$('logoutButton').addEventListener('click',async()=>{
+if(supabaseClient)await supabaseClient.auth.signOut();
+});
 
 
 const money=n=>
@@ -1743,13 +1817,23 @@ document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('activ
 
 const api=async(url,options={})=>{
 
-const response=await fetch(url,options);
+const requestUrl=new URL(url,window.location.origin);
+const headers=new Headers(options.headers||{});
+if(frontendAuthEnabled&&supabaseClient){
+if(requestUrl.origin!==window.location.origin)throw new Error('Invalid API request');
+const {data:{session}}=await supabaseClient.auth.getSession();
+if(!session){handleSession(null);throw new Error('Your session has expired.');}
+headers.set('Authorization',`Bearer ${session.access_token}`);
+}
+
+const response=await fetch(url,{...options,headers});
 
 let result=null;
 
 try{result=await response.json()}catch{}
 
-if(!response.ok)throw new Error(result?.error||'Something went wrong');
+if(response.status===401&&supabaseClient){await supabaseClient.auth.signOut();throw new Error('Your session has expired.');}
+if(!response.ok)throw new Error(response.status===403?'You do not have permission for this action.':result?.error||'Something went wrong');
 
 return result;
 
@@ -2059,11 +2143,14 @@ $('leadList').innerHTML=message;
 }
 
 
+async function initializeApp(){
 loadEnquiryConversation();
-
 renderEnquiryConversation();
+const authActive=await initializeAuthentication();
+if(!authActive)loadAll();
+}
 
-loadAll();
+initializeApp();
 
 </script>
 
