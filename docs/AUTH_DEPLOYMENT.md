@@ -5,9 +5,10 @@ server routes until the reviewed tenancy migration is applied and a real owner
 membership exists. Do not enable the auth gate before completing this order:
 
 1. Create the real owner in Supabase Auth.
-2. Add that user's `owner` membership for the backfilled initial business.
-3. Apply and verify `20260915000000_add_multi_tenant_auth.sql` against the
+2. Apply and verify `20260915000000_add_multi_tenant_auth.sql` against the
    preservation checks in `TENANCY_MIGRATION_PLAN.md`.
+3. Run `supabase/verification/owner_onboarding.sql` to add the real owner to
+   the backfilled initial business. The operation is idempotent.
 4. Configure Supabase Auth Site URL and redirect URLs for the production domain.
 5. Add these Vercel environment variables:
 

@@ -12,7 +12,7 @@ Last audited: 2026-09-14
   - the receptionist retained an early job detail after later location and phone messages;
   - a lead was captured/updated and the dashboard refreshed.
 - Production deployment currently reports GitHub commit `6b7a5cf` as deployed by Vercel.
-- Live Supabase audit confirmed `public.leads`, `public.lead_history`, and `public.business_settings` exist. RLS is enabled on all three tables and no policies currently exist. The current data footprint is 9 leads, 7 lead-history records, and 1 settings record; Supabase Auth currently has 0 users.
+- Live Supabase audit confirmed `public.leads`, `public.lead_history`, and `public.business_settings` exist. RLS is enabled on all three tables and no policies currently exist. The current data footprint is 9 leads, 7 lead-history records, and 1 settings record. The real owner Auth account now exists; its verified UID is documented only in the post-migration owner-onboarding SQL.
 
 ## In progress
 
