@@ -16,7 +16,7 @@ Last audited: 2026-09-14
 
 ## In progress
 
-- Full architecture and security audit.
+- Reviewed-but-unapplied multi-tenant migration and owner-onboarding plan.
 - MVP hardening plan: tenant model, Supabase Auth/RLS, API authorization, request validation/rate limiting, AI guardrails, data lifecycle, automated tests, and documentation.
 
 ## Blocked / Requires Owner
@@ -30,7 +30,7 @@ Last audited: 2026-09-14
 
 ## Remaining
 
-1. Inspect the Supabase schema and security configuration; create tested tenant/auth/RLS migrations.
+1. Apply and verify the reviewed tenant migration only after owner onboarding and server API authorization are ready.
 2. Add a server-side session verification and authorization layer to all dashboard APIs.
 3. Add tenant-scoped data model for businesses, memberships, leads, settings, conversations, usage, audit events, retention/export requests, and future actions/calls.
 4. Harden the receptionist: name parser fix, request limits, rate limits, structured guardrails, emergency/handover handling, cost/usage recording, and tenant-specific instructions.
