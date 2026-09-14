@@ -55,6 +55,7 @@ async function supabaseRequest(path, options = {}) {
 // RECORD HISTORY
 async function recordHistory(
   leadId,
+  businessId,
   action,
   oldValue = "",
   newValue = ""
@@ -69,6 +70,7 @@ async function recordHistory(
 
       body: JSON.stringify({
         lead_id: leadId,
+        business_id: businessId,
         action,
         old_value: String(oldValue ?? ""),
         new_value: String(newValue ?? "")
@@ -338,6 +340,7 @@ export default async function handler(req, res) {
       ) {
         await recordHistory(
           id,
+          current.business_id,
           change.action,
           change.oldValue,
           change.newValue

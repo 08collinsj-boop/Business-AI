@@ -100,6 +100,15 @@ async function getBusinessSettings() {
   }
 }
 
+async function getInitialBusinessId() {
+  const rows = await supabaseRequest(
+    "business_settings?select=business_id&order=id.asc&limit=1"
+  );
+  const businessId = rows?.[0]?.business_id;
+  if (!businessId) throw new Error("Business configuration is unavailable");
+  return businessId;
+}
+
 function cleanMessages(messages) {
   if (!Array.isArray(messages)) return [];
 
@@ -251,7 +260,7 @@ function findJobDetails(conversationText) {
   return found.slice(0, 5).join(", ");
 }
 
-async function findExistingLead(lead) {
+async function findExistingLead(lead, businessId) {
   if (!lead.phone && !lead.email) return null;
 
   const filters = [];
@@ -267,16 +276,18 @@ async function findExistingLead(lead) {
   if (!filters.length) return null;
 
   const rows = await supabaseRequest(
-    `leads?select=*&or=(${filters.join(",")})&limit=1`
+    `leads?business_id=eq.${encodeURIComponent(businessId)}&select=*&or=(${filters.join(",")})&limit=1`
   );
 
   return rows?.[0] || null;
 }
 
 async function saveLead(lead) {
-  const existing = await findExistingLead(lead);
+  const businessId = await getInitialBusinessId();
+  const existing = await findExistingLead(lead, businessId);
 
   const leadData = {
+    business_id: businessId,
     name: lead.name || null,
     phone: lead.phone || null,
     email: lead.email || null,
