@@ -2,7 +2,6 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-const MAX_HISTORY_MESSAGES = 20;
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
 
@@ -112,7 +111,6 @@ function cleanMessages(messages) {
         typeof message.content === "string" &&
         message.content.trim()
     )
-    .slice(-MAX_HISTORY_MESSAGES)
     .map((message) => ({
       role: message.role,
       content: message.content.trim()
@@ -397,6 +395,14 @@ export default async function handler(req, res) {
       )
       .join("\n");
 
+    const knownDetails = {
+      name: findNameInConversation(conversationText),
+      phone: findPhoneInConversation(conversationText),
+      email: findEmailInConversation(conversationText),
+      location: findLocationInConversation(conversationText),
+      job_type: findJobDetails(conversationText)
+    };
+
     const systemPrompt = `
 You are the AI customer assistant for ${businessName}.
 
@@ -405,9 +411,13 @@ Your job is to:
 2. Collect enough information for a business lead.
 3. Extract lead information from the ENTIRE conversation.
 
-Remember information already provided.
+Remember every detail already provided anywhere in the conversation. These
+details were deterministically found in the transcript: ${JSON.stringify(knownDetails)}.
 
-Never ask for information that the customer has already supplied.
+Never ask for a job detail, area/location, phone number, email address, or
+name when it is present in the conversation or in the known details above.
+Use the existing value and ask only for genuinely missing information. Do not
+ask the customer to repeat or confirm a detail already supplied.
 
 A useful lead normally contains:
 - customer name
