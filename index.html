@@ -2055,6 +2055,15 @@ ${esc(e.message)}
 }
 
 
+/*
+  AI RECEPTIONIST
+  The important change here is that we now send
+  the previous conversation to the backend.
+
+  This means the AI can remember things the customer
+  already told it instead of asking for the same
+  information again.
+*/
 async function sendEnquiry(e){
 
 e.preventDefault();
@@ -2070,18 +2079,54 @@ if(!message)
 return;
 
 
+/*
+  Read the conversation currently displayed
+  in the receptionist chat.
+
+  User messages become:
+  { role: "user", content: "..." }
+
+  AI messages become:
+  { role: "assistant", content: "..." }
+*/
+const history=
+Array.from(
+$('messages').querySelectorAll('.msg')
+)
+.map(el=>({
+
+role:
+el.classList.contains('user')
+?'user'
+:'assistant',
+
+content:
+el.textContent.trim()
+
+}))
+.filter(
+m=>
+m.content &&
+m.content!=="Hi! I'm the AI receptionist. Send a customer enquiry to test the system."
+);
+
+
+/*
+  Show the new customer message immediately.
+*/
 addMsg(
 message,
 'user'
 );
 
-
 input.value='';
 
 
+/*
+  Show a temporary thinking message.
+*/
 const pending=
 document.createElement('div');
-
 
 pending.className='msg ai';
 
@@ -2090,10 +2135,8 @@ pending.textContent=
 
 pending.id='pending';
 
-
 $('messages')
 .appendChild(pending);
-
 
 $('messages').scrollTop=
 $('messages').scrollHeight;
@@ -2101,13 +2144,28 @@ $('messages').scrollHeight;
 
 try{
 
+/*
+  Send BOTH the current message and the
+  previous conversation to the backend.
+*/
 const data=
 await api(
 '/api/enquiry',
 {
 method:'POST',
+
 body:JSON.stringify({
-message
+
+message,
+
+messages:[
+...history,
+{
+role:'user',
+content:message
+}
+]
+
 })
 }
 );
@@ -2116,6 +2174,9 @@ message
 pending.remove();
 
 
+/*
+  Display the AI response.
+*/
 addMsg(
 data.reply||
 'Thanks, we will get back to you.',
@@ -2123,6 +2184,9 @@ data.reply||
 );
 
 
+/*
+  Refresh the dashboard if a lead was captured.
+*/
 if(data.saved){
 
 toast('Lead captured');
@@ -2136,7 +2200,6 @@ await loadAll();
 catch(err){
 
 pending.remove();
-
 
 addMsg(
 'Sorry, I could not process that enquiry. '+
