@@ -11,10 +11,7 @@ function sleep(ms) {
 }
 
 function supabaseUrl(path) {
-  if (!SUPABASE_URL) {
-    throw new Error("SUPABASE_URL is not configured");
-  }
-
+  if (!SUPABASE_URL) throw new Error("SUPABASE_URL is not configured");
   if (!SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   }
@@ -28,9 +25,7 @@ async function supabaseRequest(path, options = {}) {
   for (let attempt = 1; attempt <= SUPABASE_RETRIES; attempt++) {
     const controller = new AbortController();
 
-    const timeout = setTimeout(() => {
-      controller.abort();
-    }, SUPABASE_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), SUPABASE_TIMEOUT_MS);
 
     try {
       const response = await fetch(supabaseUrl(path), {
@@ -57,11 +52,9 @@ async function supabaseRequest(path, options = {}) {
         data = text;
       }
 
-      if (response.ok) {
-        return data;
-      }
+      if (response.ok) return data;
 
-      const errorMessage =
+      const message =
         typeof data === "string"
           ? data
           : data?.message ||
@@ -73,9 +66,7 @@ async function supabaseRequest(path, options = {}) {
         continue;
       }
 
-      throw new Error(
-        `Supabase ${response.status}: ${errorMessage}`
-      );
+      throw new Error(`Supabase ${response.status}: ${message}`);
     } catch (error) {
       clearTimeout(timeout);
 
@@ -86,7 +77,6 @@ async function supabaseRequest(path, options = {}) {
 
       if (attempt < SUPABASE_RETRIES) {
         await sleep(400 * attempt);
-        continue;
       }
     }
   }
@@ -95,24 +85,30 @@ async function supabaseRequest(path, options = {}) {
 }
 
 async function getBusinessSettings() {
-  const rows = await supabaseRequest(
-    "business_settings?select=business_name&limit=1"
-  );
+  try {
+    const rows = await supabaseRequest(
+      "business_settings?select=business_name&limit=1"
+    );
 
-  return rows?.[0] || {};
+    return rows?.[0] || {};
+  } catch (error) {
+    console.error(
+      "Business settings unavailable:",
+      error?.message || error
+    );
+
+    return {};
+  }
 }
 
 function cleanMessages(messages) {
-  if (!Array.isArray(messages)) {
-    return [];
-  }
+  if (!Array.isArray(messages)) return [];
 
   return messages
     .filter(
       (message) =>
         message &&
-        (message.role === "user" ||
-          message.role === "assistant") &&
+        (message.role === "user" || message.role === "assistant") &&
         typeof message.content === "string" &&
         message.content.trim()
     )
@@ -129,35 +125,136 @@ function buildConversation(history, message) {
   for (const item of history) {
     conversation.push({
       role: item.role,
-      content: [
-        {
-          type:
-            item.role === "user"
-              ? "input_text"
-              : "output_text",
-          text: item.content
-        }
-      ]
+      content: item.content
     });
   }
 
   conversation.push({
     role: "user",
-    content: [
-      {
-        type: "input_text",
-        text: message
-      }
-    ]
+    content: message
   });
 
   return conversation;
 }
 
-async function findExistingLead(lead) {
-  if (!lead.phone && !lead.email) {
-    return null;
+function normalisePhone(value) {
+  if (!value) return null;
+
+  const digits = String(value).replace(/\D/g, "");
+
+  if (!digits) return null;
+
+  if (digits.startsWith("44") && digits.length === 12) {
+    return `0${digits.slice(2)}`;
   }
+
+  return digits;
+}
+
+function findPhoneInConversation(conversationText) {
+  const matches = conversationText.match(
+    /(?:\+44\s?|0)(?:\d[\s-]?){9,10}/g
+  );
+
+  if (!matches?.length) return null;
+
+  return normalisePhone(matches[matches.length - 1]);
+}
+
+function findEmailInConversation(conversationText) {
+  const matches = conversationText.match(
+    /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi
+  );
+
+  return matches?.length
+    ? matches[matches.length - 1].trim()
+    : null;
+}
+
+function findNameInConversation(conversationText) {
+  const patterns = [
+    /my name is\s+([A-Za-z][A-Za-z '-]{1,50})/i,
+    /i'm\s+([A-Za-z][A-Za-z '-]{1,50})/i,
+    /i am\s+([A-Za-z][A-Za-z '-]{1,50})/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = conversationText.match(pattern);
+
+    if (match?.[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
+}
+
+function findLocationInConversation(conversationText) {
+  const knownLocations = [
+    "Hartlepool",
+    "Middlesbrough",
+    "Stockton",
+    "Billingham",
+    "Redcar",
+    "Sunderland",
+    "Durham",
+    "Peterlee",
+    "Seaham",
+    "Darlington"
+  ];
+
+  for (const location of knownLocations) {
+    if (new RegExp(`\\b${location}\\b`, "i").test(conversationText)) {
+      return location;
+    }
+  }
+
+  const match = conversationText.match(
+    /(?:in|near|around)\s+([A-Za-z][A-Za-z '-]{2,40})/i
+  );
+
+  return match?.[1]?.trim() || null;
+}
+
+function findJobDetails(conversationText) {
+  const text = conversationText.toLowerCase();
+
+  const keywords = [
+    "electrician",
+    "electrical",
+    "socket",
+    "sockets",
+    "wiring",
+    "rewire",
+    "lighting",
+    "light",
+    "consumer unit",
+    "fuse",
+    "fault",
+    "repair",
+    "installation",
+    "install",
+    "plumbing",
+    "boiler",
+    "roof",
+    "roofing",
+    "garage",
+    "car",
+    "bathroom",
+    "kitchen"
+  ];
+
+  const found = keywords.filter((keyword) =>
+    text.includes(keyword)
+  );
+
+  if (!found.length) return null;
+
+  return found.slice(0, 5).join(", ");
+}
+
+async function findExistingLead(lead) {
+  if (!lead.phone && !lead.email) return null;
 
   const filters = [];
 
@@ -169,20 +266,16 @@ async function findExistingLead(lead) {
     filters.push(`email.eq.${encodeURIComponent(lead.email)}`);
   }
 
-  if (!filters.length) {
-    return null;
-  }
-
-  const query = filters.join(",");
+  if (!filters.length) return null;
 
   const rows = await supabaseRequest(
-    `leads?select=*&or=(${query})&limit=1`
+    `leads?select=*&or=(${filters.join(",")})&limit=1`
   );
 
   return rows?.[0] || null;
 }
 
-async function saveOrUpdateLead(lead) {
+async function saveLead(lead) {
   const existing = await findExistingLead(lead);
 
   const leadData = {
@@ -190,18 +283,22 @@ async function saveOrUpdateLead(lead) {
     phone: lead.phone || null,
     email: lead.email || null,
     location: lead.location || null,
-    job_type: lead.job_type || null,
-    description: lead.description || null,
-    urgency: lead.urgency || null,
-    qualified: Boolean(lead.qualified),
-    status: "New",
-    notes: lead.notes || "Captured by AI enquiry assistant",
+    job_type: lead.job_type || "General enquiry",
+    description:
+      lead.description ||
+      "Customer enquiry captured by Business AI",
+    urgency: lead.urgency || "Normal",
+    qualified: true,
+    status: existing?.status || "New",
     priority: lead.priority || "Normal",
+    notes:
+      lead.notes ||
+      "Captured by Business AI AI receptionist",
     estimated_value: 0
   };
 
   if (existing?.id) {
-    return supabaseRequest(
+    const updated = await supabaseRequest(
       `leads?id=eq.${encodeURIComponent(existing.id)}`,
       {
         method: "PATCH",
@@ -211,15 +308,19 @@ async function saveOrUpdateLead(lead) {
         body: JSON.stringify(leadData)
       }
     );
+
+    return updated?.[0] || existing;
   }
 
-  return supabaseRequest("leads", {
+  const created = await supabaseRequest("leads", {
     method: "POST",
     headers: {
       Prefer: "return=representation"
     },
     body: JSON.stringify(leadData)
   });
+
+  return created?.[0] || created;
 }
 
 function extractOutputText(data) {
@@ -261,9 +362,7 @@ export default async function handler(req, res) {
 
   try {
     if (!OPENAI_API_KEY) {
-      throw new Error(
-        "OPENAI_API_KEY is not configured"
-      );
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
     const body = req.body || {};
@@ -281,68 +380,51 @@ export default async function handler(req, res) {
 
     const history = cleanMessages(body.messages);
 
-    let settings = {};
-
-    try {
-      settings = await getBusinessSettings();
-    } catch (error) {
-      console.error(
-        "Business settings unavailable:",
-        error?.message || error
-      );
-    }
+    const settings = await getBusinessSettings();
 
     const businessName =
       settings.business_name || "the business";
-
-    const systemPrompt = `
-You are the AI customer assistant for ${businessName}.
-
-You have TWO jobs:
-
-1. Have a natural conversation with the customer.
-2. Extract useful lead information from the entire conversation.
-
-IMPORTANT CONVERSATION RULES:
-- Remember everything the customer has already told you.
-- Never ask for information again if it has already been provided.
-- Ask only for information that is genuinely missing.
-- Be concise, natural and helpful.
-- Do not pretend to be human.
-- Never invent prices, availability, policies or appointments.
-- If you do not know something, say that the business team can confirm it.
-
-LEAD INFORMATION:
-Extract information from the whole conversation, not just the latest message.
-
-Possible lead fields:
-- name
-- phone
-- email
-- location
-- job_type
-- description
-- urgency
-- qualified
-- priority
-- notes
-
-Only put information into a field when it is actually supported by the conversation.
-
-A lead should be considered qualified when the customer has a genuine business enquiry and enough information exists for the business to understand what they need.
-
-IMPORTANT:
-If the customer has supplied a phone number or email address, preserve it accurately.
-
-Your response MUST be JSON matching the supplied schema.
-The "reply" field is the message that should be shown to the customer.
-The "lead" object contains the information extracted from the conversation.
-`;
 
     const conversation = buildConversation(
       history,
       message
     );
+
+    const conversationText = conversation
+      .map(
+        (item) =>
+          `${item.role}: ${item.content}`
+      )
+      .join("\n");
+
+    const systemPrompt = `
+You are the AI customer assistant for ${businessName}.
+
+Your job is to:
+1. Have a natural conversation with the customer.
+2. Collect enough information for a business lead.
+3. Extract lead information from the ENTIRE conversation.
+
+Remember information already provided.
+
+Never ask for information that the customer has already supplied.
+
+A useful lead normally contains:
+- customer name
+- phone or email
+- location
+- job/service required
+- description
+- urgency
+
+If the customer has provided a phone number or email, preserve it exactly.
+
+If the customer has provided a genuine business enquiry, set qualified to true.
+
+Do not invent information.
+
+Your response must follow the supplied JSON schema.
+`;
 
     const openAIResponse = await fetch(
       "https://api.openai.com/v1/responses",
@@ -428,33 +510,33 @@ The "lead" object contains the information extracted from the conversation.
       }
     );
 
-    const openAIText =
+    const responseText =
       await openAIResponse.text();
 
-    let openAIData;
+    let data;
 
     try {
-      openAIData = openAIText
-        ? JSON.parse(openAIText)
+      data = responseText
+        ? JSON.parse(responseText)
         : null;
     } catch {
-      openAIData = null;
+      data = null;
     }
 
     if (!openAIResponse.ok) {
       console.error(
         "OpenAI API error:",
         openAIResponse.status,
-        openAIData || openAIText
+        data || responseText
       );
 
       throw new Error(
-        `OpenAI request failed with status ${openAIResponse.status}`
+        `OpenAI request failed: ${openAIResponse.status}`
       );
     }
 
     const structuredText =
-      extractOutputText(openAIData);
+      extractOutputText(data);
 
     if (!structuredText) {
       throw new Error(
@@ -466,66 +548,121 @@ The "lead" object contains the information extracted from the conversation.
 
     try {
       result = JSON.parse(structuredText);
-    } catch (error) {
-      console.error(
-        "Failed to parse structured AI response:",
-        structuredText
-      );
-
+    } catch {
       throw new Error(
         "AI returned invalid structured data"
       );
     }
 
-    const reply =
-      typeof result?.reply === "string"
-        ? result.reply.trim()
-        : "";
-
     const lead = result?.lead || {};
 
-    if (!reply) {
-      throw new Error(
-        "AI response did not contain a reply"
-      );
-    }
+    /*
+     * IMPORTANT:
+     * We now supplement the AI extraction using
+     * deterministic extraction from the conversation.
+     */
+
+    const detectedPhone =
+      findPhoneInConversation(conversationText);
+
+    const detectedEmail =
+      findEmailInConversation(conversationText);
+
+    const detectedName =
+      findNameInConversation(conversationText);
+
+    const detectedLocation =
+      findLocationInConversation(conversationText);
+
+    const detectedJob =
+      findJobDetails(conversationText);
+
+    const finalLead = {
+      name:
+        lead.name ||
+        detectedName ||
+        null,
+
+      phone:
+        normalisePhone(lead.phone) ||
+        detectedPhone ||
+        null,
+
+      email:
+        lead.email ||
+        detectedEmail ||
+        null,
+
+      location:
+        lead.location ||
+        detectedLocation ||
+        null,
+
+      job_type:
+        lead.job_type ||
+        detectedJob ||
+        null,
+
+      description:
+        lead.description ||
+        null,
+
+      urgency:
+        lead.urgency ||
+        null,
+
+      qualified:
+        true,
+
+      priority:
+        lead.priority ||
+        "Normal",
+
+      notes:
+        lead.notes ||
+        "Captured by Business AI AI receptionist"
+    };
+
+    const hasContact =
+      Boolean(finalLead.phone) ||
+      Boolean(finalLead.email);
+
+    const hasJob =
+      Boolean(finalLead.job_type) ||
+      Boolean(finalLead.description);
+
+    let leadCaptured = false;
+    let savedLead = null;
 
     /*
-     * Only create/update a real lead once the customer
-     * has supplied contact information.
-     *
-     * This prevents a brand-new lead being created
-     * for every single chat message.
+     * If the customer has contact information and
+     * a genuine job enquiry, SAVE THE LEAD.
      */
-    const hasContact =
-      Boolean(lead.phone) ||
-      Boolean(lead.email);
 
-    const hasUsefulDetails =
-      Boolean(lead.description) ||
-      Boolean(lead.job_type);
-
-    let savedLead = false;
-
-    if (hasContact && hasUsefulDetails) {
+    if (hasContact && hasJob) {
       try {
-        await saveOrUpdateLead(lead);
-        savedLead = true;
+        savedLead = await saveLead(finalLead);
+        leadCaptured = Boolean(savedLead);
 
         console.log(
-          "AI lead created/updated successfully"
+          "BUSINESS AI LEAD CAPTURED:",
+          savedLead?.id || "unknown"
         );
       } catch (error) {
         console.error(
-          "Lead save failed:",
+          "LEAD SAVE FAILED:",
           error?.message || error
         );
       }
     }
 
     return res.status(200).json({
-      reply,
-      leadCaptured: savedLead
+      reply:
+        typeof result.reply === "string"
+          ? result.reply
+          : "Thanks. I have your details.",
+      leadCaptured,
+      lead: savedLead
     });
   } catch (error) {
     console.error(
