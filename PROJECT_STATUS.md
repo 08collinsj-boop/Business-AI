@@ -16,11 +16,13 @@ Last audited: 2026-09-15
   - `/api/enquiry` remained intentionally public.
 - The automated suite covers auth, tenant-scoped private APIs, frontend auth/public config, exact gates, and direct ESM module loading.
 - Bookings and actions are implemented in source: tenant-scoped tables, protected APIs, dashboard views, lead relationships, and isolated API tests. The new migration is source-controlled but **not yet applied** to Supabase.
+- A reproducible empty-project database bootstrap chain is source-controlled, including the reconstructed lead/history baseline and the two verified historical migrations that were previously absent from the repository.
 
 ## In Progress
 
 - Production authentication rollout preparation only. Production auth gates remain absent/disabled.
 - Bookings/actions await review and manual application of `supabase/migrations/20260915010000_add_bookings_actions.sql` before they can be used in a deployed environment.
+- Business-AI-Dev (`mvwseobgkexzpmmkgcxe`) is the intended safe target for the first complete bootstrap, but this workspace must be explicitly connected to that project before SQL is applied.
 - Supabase Auth production URL/redirect configuration and a controlled Production activation remain pending owner approval.
 
 ## Blocked / Requires Owner
