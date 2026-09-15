@@ -15,6 +15,10 @@ Run these migrations in filename order:
 
 The resulting schema contains `leads`, `lead_history`, `business_settings`, `businesses`, `business_memberships`, `bookings`, and `actions`, with RLS and tenant-safe foreign-key relationships.
 
+## Current Dev status
+
+On 2026-09-16, this exact chain was applied to **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) and verified with the Supabase CLI. All six migration versions are recorded remotely. The project contains no Dev Auth owner and no test lead/customer data yet. This record applies only to Business-AI-Dev; it does not indicate any Production database change.
+
 ## Dev-only onboarding
 
 After the migrations succeed, create a real test user in **Business-AI-Dev Auth**. Obtain that user's UID and insert an `owner` membership for the sole Dev business. Do not use the Production owner UID or any real customer data.
