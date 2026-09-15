@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const apiModules = ["_auth.js", "leads.js", "history.js", "pipeline.js", "settings.js", "public-config.js", "enquiry.js"];
+const apiModules = ["_auth.js", "leads.js", "history.js", "pipeline.js", "settings.js", "bookings.js", "actions.js", "public-config.js", "enquiry.js"];
 
 test("all Vercel API modules load directly as ESM", async () => {
   const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));

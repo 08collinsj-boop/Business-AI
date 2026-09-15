@@ -838,7 +838,7 @@ border:1px solid var(--border);
 border-radius:18px;
 padding:7px;
 display:grid;
-grid-template-columns:repeat(4,1fr);
+grid-template-columns:repeat(6,1fr);
 gap:4px;
 z-index:50;
 backdrop-filter:blur(14px)
@@ -850,7 +850,7 @@ background:transparent;
 color:var(--muted);
 border-radius:13px;
 padding:9px 5px;
-font-size:10px;
+font-size:9px;
 font-weight:700
 }
 
@@ -906,6 +906,10 @@ background:var(--panel);
 border:1px solid var(--border);
 border-radius:16px
 }
+
+.work-list{display:grid;gap:10px}
+.work-item{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:13px}
+.work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
 
 @media(min-width:700px){
 
@@ -1141,6 +1145,16 @@ Live
 
 </div>
 
+<div class="card">
+<div class="card-head"><h3>Upcoming bookings</h3><span onclick="showView('bookings')" style="cursor:pointer">Manage</span></div>
+<div id="upcomingBookings"><div class="empty">Bookings are loading when available.</div></div>
+</div>
+
+<div class="card">
+<div class="card-head"><h3>Actions to complete</h3><span onclick="showView('actions')" style="cursor:pointer">Manage</span></div>
+<div id="dashboardActions"><div class="empty">Actions are loading when available.</div></div>
+</div>
+
 </section>
 
 
@@ -1260,6 +1274,43 @@ Follow-up date
 
 <div id="leadList"></div>
 
+</section>
+
+<section id="bookingsView" class="view">
+<div class="page-title"><h2>Bookings</h2><p>Organise appointment requests and confirmed visits.</p></div>
+<div id="bookingsStatus"></div>
+<div class="card work-form">
+<div class="card-head"><h3>Create booking</h3><span>Requests are not confirmations until you set them.</span></div>
+<div class="edit-grid">
+<div class="field full"><label>Job or service</label><input id="bookingTitle" maxlength="200" placeholder="e.g. Boiler repair"></div>
+<div class="field"><label>Related lead</label><select id="bookingLead"><option value="">No related lead</option></select></div>
+<div class="field"><label>Status</label><select id="bookingStatus"><option value="requested">Requested</option><option value="confirmed">Confirmed</option></select></div>
+<div class="field"><label>Start date and time</label><input id="bookingStart" type="datetime-local"></div>
+<div class="field"><label>End date and time</label><input id="bookingEnd" type="datetime-local"></div>
+<div class="field full"><label>Location</label><input id="bookingLocation" maxlength="500" placeholder="Customer address or area"></div>
+<div class="field full"><label>Notes</label><textarea id="bookingNotes" maxlength="5000" placeholder="Access details, requested time, or anything the team needs"></textarea></div>
+</div>
+<button class="save-btn" onclick="createBooking()">Create booking</button>
+</div>
+<div id="bookingsList" class="work-list"></div>
+</section>
+
+<section id="actionsView" class="view">
+<div class="page-title"><h2>Actions</h2><p>Keep every customer follow-up moving.</p></div>
+<div id="actionsStatus"></div>
+<div class="card work-form">
+<div class="card-head"><h3>Create action</h3><span>Assigned to this business only.</span></div>
+<div class="edit-grid">
+<div class="field full"><label>Action</label><input id="actionTitle" maxlength="200" placeholder="e.g. Call customer about quote"></div>
+<div class="field"><label>Type</label><select id="actionType"><option value="call_customer">Call customer</option><option value="send_quote">Send quote</option><option value="follow_up">Follow up</option><option value="confirm_appointment">Confirm appointment</option><option value="review_enquiry">Review enquiry</option><option value="custom">Custom task</option></select></div>
+<div class="field"><label>Related lead</label><select id="actionLead"><option value="">No related lead</option></select></div>
+<div class="field"><label>Due date and time</label><input id="actionDue" type="datetime-local"></div>
+<div class="field"><label>Priority</label><select id="actionPriority"><option value="normal">Normal</option><option value="low">Low</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+<div class="field full"><label>Notes</label><textarea id="actionDescription" maxlength="5000" placeholder="Useful context for the person completing this action"></textarea></div>
+</div>
+<button class="save-btn" onclick="createAction()">Create action</button>
+</div>
+<div id="actionsList" class="work-list"></div>
 </section>
 
 
@@ -1515,6 +1566,10 @@ onclick="showView('leads')"
 Leads
 </button>
 
+<button class="nav-btn" data-view="bookings" onclick="showView('bookings')">▣<br>Bookings</button>
+
+<button class="nav-btn" data-view="actions" onclick="showView('actions')">✓<br>Actions</button>
+
 
 <button
 class="nav-btn"
@@ -1542,6 +1597,8 @@ Settings
 <script>
 
 let leads=[];
+let bookings=[];
+let businessActions=[];
 
 let currentFilter='All';
 
@@ -1555,8 +1612,8 @@ let frontendAuthEnabled=false;
 const $=id=>document.getElementById(id);
 
 const clearPrivateState=()=>{
-leads=[];settings=null;pipeline=null;
-['stats','leadList','recentLeads','followUps','activity','pipeline'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+leads=[];bookings=[];businessActions=[];settings=null;pipeline=null;
+['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 };
 
 const setAuthView=(state,message='')=>{
@@ -1812,6 +1869,8 @@ document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',
 
 document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===view));
 
+if(view==='bookings'||view==='actions')loadWorkItems();
+
 }
 
 
@@ -1935,6 +1994,88 @@ const activity=leads.slice(0,5);
 
 $('activity').innerHTML=activity.length?activity.map(lead=>`<div class="activity"><div class="activity-icon">◉</div><div><div class="activity-text"><strong>${esc(lead.name||'New enquiry')}</strong> is ${esc((lead.status||'New').toLowerCase())}</div><div class="activity-time">${timeLabel(lead.created_at)||'Recently added'}</div></div></div>`).join(''):'<div class="empty">Activity will appear as leads arrive.</div>';
 
+const upcoming=bookings.filter(booking=>booking.status!=='cancelled'&&booking.status!=='completed').slice(0,4);
+$('upcomingBookings').innerHTML=upcoming.length?upcoming.map(booking=>`<div class="lead-mini"><div class="lead-row"><div><div class="lead-name">${esc(booking.customer_name||leadName(booking.lead_id)||'Booking request')}</div><div class="lead-meta">${esc(booking.title)} · ${timeLabel(booking.starts_at)||'Time to be arranged'}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div></div>`).join(''):'<div class="empty">No upcoming bookings.</div>';
+
+const pending=businessActions.filter(action=>action.status==='pending').slice(0,4);
+$('dashboardActions').innerHTML=pending.length?pending.map(action=>`<div class="lead-mini"><div class="lead-row"><div><div class="lead-name">${esc(action.title)}</div><div class="lead-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'}</div></div><span class="tag ${esc(action.priority)}">${esc(action.priority)}</span></div></div>`).join(''):'<div class="empty">No actions waiting.</div>';
+
+}
+
+const leadName=id=>leads.find(lead=>String(lead.id)===String(id))?.name||'';
+
+const datetimeLocal=value=>{
+if(!value)return '';
+const date=new Date(value);
+if(Number.isNaN(date.getTime()))return '';
+const offset=date.getTimezoneOffset()*60000;
+return new Date(date.getTime()-offset).toISOString().slice(0,16);
+};
+
+function fillWorkLeadOptions(){
+const options=['<option value="">No related lead</option>',...leads.map(lead=>`<option value="${esc(lead.id)}">${esc(lead.name||'New enquiry')} · ${esc(lead.job_type||'General enquiry')}</option>`)].join('');
+['bookingLead','actionLead'].forEach(id=>{const input=$(id);if(input)input.innerHTML=options;});
+}
+
+function renderBookings(){
+const list=$('bookingsList');
+if(!list)return;
+list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
+}
+
+function renderActions(){
+const list=$('actionsList');
+if(!list)return;
+list.innerHTML=businessActions.length?businessActions.map(action=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'} · ${esc(action.action_type.replaceAll('_',' '))}</div></div><span class="tag ${esc(action.priority)}">${esc(action.priority)}</span></div>${action.description?`<div class="work-meta">${esc(action.description)}</div>`:''}<div class="work-actions">${action.status==='pending'?`<button class="small-btn primary-action" onclick="updateAction('${esc(action.id)}',{status:'completed'})">Complete</button><button class="small-btn" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editAction('${esc(action.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No actions yet.</div>';
+}
+
+async function loadWorkItems(){
+try{
+const [bookingData,actionData]=await Promise.all([api('/api/bookings'),api('/api/actions')]);
+bookings=Array.isArray(bookingData)?bookingData:[];
+businessActions=Array.isArray(actionData)?actionData:[];
+fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();
+['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).textContent='';});
+}catch(error){
+const message=error.message==='Bookings are not enabled'||error.message==='Actions are not enabled'?'Bookings and actions will be available after the database migration is applied.':error.message;
+['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).innerHTML=`<div class="error">${esc(message)}</div>`;});
+}
+}
+
+const formDate=value=>value?new Date(value).toISOString():null;
+
+async function createBooking(){
+try{
+await api('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('bookingTitle').value,lead_id:$('bookingLead').value||null,status:$('bookingStatus').value,starts_at:formDate($('bookingStart').value),ends_at:formDate($('bookingEnd').value),location:$('bookingLocation').value,notes:$('bookingNotes').value})});
+['bookingTitle','bookingStart','bookingEnd','bookingLocation','bookingNotes'].forEach(id=>$(id).value='');$('bookingLead').value='';$('bookingStatus').value='requested';toast('Booking created');await loadWorkItems();
+}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
+async function updateBooking(id,updates){
+try{await api('/api/bookings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Booking updated');await loadWorkItems();}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+
+function editBooking(id){
+const booking=bookings.find(item=>String(item.id)===String(id));if(!booking)return;
+const title=window.prompt('Booking title',booking.title);if(title===null)return;
+const notes=window.prompt('Booking notes',booking.notes||'');if(notes===null)return;
+updateBooking(id,{title,notes});
+}
+
+async function createAction(){
+try{
+await api('/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('actionTitle').value,action_type:$('actionType').value,lead_id:$('actionLead').value||null,due_at:formDate($('actionDue').value),priority:$('actionPriority').value,description:$('actionDescription').value})});
+['actionTitle','actionDue','actionDescription'].forEach(id=>$(id).value='');$('actionLead').value='';$('actionType').value='call_customer';$('actionPriority').value='normal';toast('Action created');await loadWorkItems();
+}catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
+async function updateAction(id,updates){
+try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Action updated');await loadWorkItems();}catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+
+function editAction(id){
+const action=businessActions.find(item=>String(item.id)===String(id));if(!action)return;
+const title=window.prompt('Action title',action.title);if(title===null)return;
+const description=window.prompt('Action notes',action.description||'');if(description===null)return;
+updateAction(id,{title,description});
 }
 
 
@@ -2124,9 +2265,13 @@ settings=settingsData||{};
 
 fillSettings();
 
+fillWorkLeadOptions();
+
 renderDashboard();
 
 renderLeads();
+
+if(frontendAuthEnabled)loadWorkItems();
 
 if(showFeedback)toast('Dashboard refreshed');
 
