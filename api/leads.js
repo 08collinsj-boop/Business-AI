@@ -2,6 +2,7 @@ import {
   requireBusinessMember,
   sendAuthError
 } from "./_auth.js";
+import { recordAuditEvent } from "./_audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
@@ -397,6 +398,8 @@ export default async function handler(req, res) {
           change.newValue
         );
       }
+
+      if (auth.enforced && updatedLead) await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "lead.updated", resourceType: "lead", resourceId: String(id), metadata: { fields: Object.keys(updates).sort().join(",") } });
 
 
       return res.status(200).json(

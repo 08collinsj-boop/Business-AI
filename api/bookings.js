@@ -2,6 +2,7 @@ import {
   requireBusinessMember,
   sendAuthError
 } from "./_auth.js";
+import { recordAuditEvent } from "./_audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -185,6 +186,7 @@ export default async function handler(req, res) {
       });
       const result = Array.isArray(created) ? created[0] : created;
       await recordLeadHistory(result?.lead_id, businessId, "Booking created", "", result?.title || "");
+      if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "booking.created", resourceType: "booking", resourceId: String(result.id), metadata: { status: result.status, source: result.source } });
       return res.status(201).json(result || null);
     }
 
@@ -208,6 +210,7 @@ export default async function handler(req, res) {
     );
     const result = Array.isArray(updated) ? updated[0] : updated;
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
+    if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
     return res.status(200).json(result || null);
   } catch (error) {
     if (/^(Invalid|Unsupported|No changes|End time)/.test(error?.message || "")) return res.status(400).json({ error: error.message });

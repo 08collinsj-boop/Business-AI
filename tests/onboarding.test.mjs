@@ -11,8 +11,10 @@ import {
 const apiSource = await readFile(new URL("../api/business-configuration.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
 const configSource = await readFile(new URL("../api/_business-configuration.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const configUrl = `data:text/javascript;base64,${Buffer.from(configSource).toString("base64")}`;
+const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
@@ -28,7 +30,8 @@ async function load(role = "owner", enabled = "true", database = async () => rep
   };
   const source = apiSource
     .replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`)
-    .replace('from "./_business-configuration.js"', `from "${configUrl}#${Math.random()}"`);
+    .replace('from "./_business-configuration.js"', `from "${configUrl}#${Math.random()}"`)
+    .replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 

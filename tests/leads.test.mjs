@@ -4,7 +4,9 @@ import { readFile } from "node:fs/promises";
 
 const leadsSource = await readFile(new URL("../api/leads.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
+const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
 const savedEnv = { ...process.env };
 const savedFetch = globalThis.fetch;
 
@@ -17,7 +19,7 @@ async function load({ enabled, fetchImpl }) {
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key";
   globalThis.fetch = fetchImpl;
-  const source = leadsSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`);
+  const source = leadsSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 function authRouter(api) {

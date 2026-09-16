@@ -20,7 +20,9 @@ Last audited: 2026-09-16
 - The complete six-migration chain was applied and verified on **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) only. The Dev owner has exactly one `owner` membership for `My Business`. The Dev environment contains only clearly fake end-to-end test records.
 - Provider-neutral AI phone receptionist foundation is implemented and Dev-migrated: tenant-owned provider/number mappings, calls/events, server-verified provider adapter contract, server-side number-to-tenant resolution, call safety/handover primitives, usage/cost fields, and a tenant-scoped private call-history API. It is disabled by default and has no provider adapter or live number.
 - Self-service onboarding/configuration foundation is implemented and Dev-migrated: a tenant-owned `business_configurations` row, industry-neutral template defaults, bounded FAQs/booking/handover/module preferences, owner/admin configuration API, and Settings-screen profile workflow. The public receptionist and future voice context load the matching tenant configuration server-side as bounded reference material; configuration cannot enable voice or override security/safety rules.
-- Controlled-pilot business creation and public tenant routing are implemented and Dev-migrated: an authenticated user without memberships can create exactly one business through a server-only atomic function that creates the owner membership, default settings/configuration, and a public slug route. Public enquiries resolve that route server-side and never accept an internal tenant ID. A bounded in-memory rate-limit foundation runs before public AI requests.
+- Controlled-pilot business creation and public tenant routing are implemented and Dev-migrated: an authenticated user without memberships can create exactly one business through a server-only atomic function that creates the owner membership, default settings/configuration, and a public slug route. Public enquiries resolve that route server-side and never accept an internal tenant ID.
+- Pilot hardening is implemented and Dev-migrated: durable database-backed public-enquiry quotas (HMAC source fingerprint plus routed-business window), tenant-scoped audit records, lifecycle-policy defaults, owner-only lead export/anonymisation endpoints, core human-handover detection/action creation, and redacted operational readiness logging.
+- A second fake Dev business and fake owner were created and validated on Business-AI-Dev only. Separate configuration, public routing, lead, booking/action, audit and authenticated API flows were verified. Cross-tenant history reads and lead updates were denied, injected `business_id` was rejected, and unauthenticated private access returned 401.
 
 ## In Progress
 
@@ -28,6 +30,7 @@ Last audited: 2026-09-16
 - Both Dev-only voice migrations are applied and verified. Provider selection, Dev provider setup, and a provider-specific adapter remain intentionally pending.
 - The Dev-only onboarding migration `20260916170000_add_business_configuration_onboarding.sql` is applied and verified on Business-AI-Dev. It is unapplied to Production.
 - The Dev-only creation/routing migration `20260916180000_add_business_creation_and_public_routes.sql` is applied and verified on Business-AI-Dev. It is unapplied to Production.
+- The Dev-only pilot-hardening migrations `20260916190000_add_pilot_hardening_foundation.sql` and `20260916191000_add_lifecycle_policy_for_new_businesses.sql` are applied and verified on Business-AI-Dev. They are unapplied to Production.
 - Supabase Auth production URL/redirect configuration and a controlled Production activation remain pending owner approval.
 
 ## Blocked / Requires Owner
@@ -45,4 +48,4 @@ Last audited: 2026-09-16
 4. Test one real Dev call before any Production consideration.
 5. Continue MVP hardening: rate limits, AI safety/urgent handover handling, data lifecycle/export/deletion workflows, tenant-aware analytics, messaging integrations/plugins, business templates (trades, restaurants, salons), free trial/pricing, role/audit controls, usage/cost controls, backups/disaster recovery, business-specific knowledge, and privacy-by-design work.
 6. Extend the controlled-pilot flow with owner-authorised membership invitations, multiple-business selection, verified custom-domain/widget routing, and multi-location onboarding before accepting unrestricted self-service sign-ups.
-7. Before accepting a real public pilot, add durable rate limiting/WAF controls, pilot-specific privacy/retention and support procedures, second-tenant live isolation testing, and a deliberate Production migration/auth rollout.
+7. Before accepting a real public pilot, configure the durable rate-limit mode/salt, enable Supabase breached-password protection, complete pilot privacy/retention/support procedures, and make a deliberate Production migration/auth rollout.

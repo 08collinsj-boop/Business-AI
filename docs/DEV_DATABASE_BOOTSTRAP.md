@@ -16,12 +16,14 @@ Run these migrations in filename order:
 8. `20260916154907_add_voice_foreign_key_indexes.sql`
 9. `20260916170000_add_business_configuration_onboarding.sql`
 10. `20260916180000_add_business_creation_and_public_routes.sql`
+11. `20260916190000_add_pilot_hardening_foundation.sql`
+12. `20260916191000_add_lifecycle_policy_for_new_businesses.sql`
 
-The resulting schema contains `leads`, `lead_history`, `business_settings`, `businesses`, `business_memberships`, `bookings`, `actions`, the provider-neutral voice foundation tables, tenant-scoped `business_configurations`, and server-owned `business_public_routes`, with RLS and tenant-safe foreign-key relationships.
+The resulting schema contains `leads`, `lead_history`, `business_settings`, `businesses`, `business_memberships`, `bookings`, `actions`, the provider-neutral voice foundation tables, tenant-scoped `business_configurations`, server-owned `business_public_routes`, tenant audit records, durable public-enquiry quota buckets and business lifecycle policies, with RLS and tenant-safe foreign-key relationships.
 
 ## Current Dev status
 
-On 2026-09-16, all ten migrations were applied to **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) and verified with the Supabase CLI. The Dev project has its own owner and clearly fake end-to-end lead, booking, action, and history data. The four voice foundation tables exist but contain no provider connection, phone number, credential, call, or event. Every Dev business has one blank, tenant-scoped business configuration row and one public slug route. This record applies only to Business-AI-Dev; it does not indicate any Production database change.
+On 2026-09-16, all twelve migrations were applied to **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) and verified with the Supabase CLI. The Dev project has two clearly fake tenants and only fake end-to-end lead, booking, action, and history data. The four voice foundation tables exist but contain no provider connection, phone number, credential, call, or event. Every Dev business has one tenant-scoped business configuration row, public slug route, and lifecycle-policy row. This record applies only to Business-AI-Dev; it does not indicate any Production database change.
 
 ## Dev-only onboarding
 

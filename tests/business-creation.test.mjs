@@ -7,8 +7,10 @@ import { checkPublicEnquiryRateLimit, resetPublicEnquiryRateLimitsForTest } from
 const handlerSource = await readFile(new URL("../api/business-onboarding.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
 const routeSource = await readFile(new URL("../api/_public-tenant.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const routeUrl = `data:text/javascript;base64,${Buffer.from(routeSource).toString("base64")}`;
+const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true, status = ok ? 200 : 500) => ({ ok, status, text: async () => JSON.stringify(body), json: async () => body });
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
@@ -23,7 +25,7 @@ async function load({ memberships = [], rpc = [{ business_id: "business-new", pu
     if (url.includes("rpc/create_business_for_owner")) return reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
-  const source = handlerSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "./_public-tenant.js"', `from "${routeUrl}#${Math.random()}"`);
+  const source = handlerSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "./_public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 

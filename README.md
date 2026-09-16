@@ -12,4 +12,6 @@ Tenant-scoped onboarding and business configuration is available on the authenti
 
 The controlled-pilot owner creation and public enquiry routing foundation is documented in [Business creation and public routing](docs/BUSINESS_CREATION_AND_PUBLIC_ROUTING.md). It is Dev-validated only; Production remains unchanged.
 
+Pilot hardening controls and the remaining launch checklist are in [Controlled pilot readiness](docs/PILOT_READINESS.md). They include durable public-enquiry quotas, audit records, lifecycle/export/erasure foundations and human-handover/incident guidance.
+
 Never place `SUPABASE_SERVICE_ROLE_KEY` or `OPENAI_API_KEY` in browser code. Required deployment variables and the staged authentication rollout are documented in [Authentication deployment](docs/AUTH_DEPLOYMENT.md) and [the production rollout checklist](docs/PRODUCTION_AUTH_ROLLOUT_CHECKLIST.md).

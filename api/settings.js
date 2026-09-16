@@ -3,6 +3,7 @@ import {
   requireBusinessAdmin,
   sendAuthError
 } from "./_auth.js";
+import { recordAuditEvent } from "./_audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
@@ -209,11 +210,9 @@ export default async function handler(req, res) {
         );
 
 
-      return res.status(200).json(
-        Array.isArray(updated)
-          ? updated[0] || null
-          : updated
-      );
+      const result = Array.isArray(updated) ? updated[0] || null : updated;
+      if (auth.enforced && result) await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "settings.updated", resourceType: "business_settings", resourceId: String(current.id), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
+      return res.status(200).json(result);
     }
 
 

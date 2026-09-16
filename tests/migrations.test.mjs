@@ -17,7 +17,9 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260916153249_add_voice_receptionist_foundation.sql",
     "20260916154907_add_voice_foreign_key_indexes.sql",
     "20260916170000_add_business_configuration_onboarding.sql",
-    "20260916180000_add_business_creation_and_public_routes.sql"
+    "20260916180000_add_business_creation_and_public_routes.sql",
+    "20260916190000_add_pilot_hardening_foundation.sql",
+    "20260916191000_add_lifecycle_policy_for_new_businesses.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -65,4 +67,14 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(publicRoutes, /security definer/i);
   assert.match(publicRoutes, /revoke all on function public\.create_business_for_owner/i);
   assert.match(publicRoutes, /grant execute on function public\.create_business_for_owner[\s\S]*to service_role/i);
+  const hardening = contents.get("20260916190000_add_pilot_hardening_foundation.sql");
+  assert.match(hardening, /create table if not exists public\.business_audit_events/i);
+  assert.match(hardening, /create table if not exists public\.public_enquiry_rate_limit_buckets/i);
+  assert.match(hardening, /create table if not exists public\.business_data_lifecycle_policies/i);
+  assert.match(hardening, /revoke all on public\.business_audit_events from anon, authenticated/i);
+  assert.match(hardening, /grant execute on function public\.consume_public_enquiry_quota[\s\S]*to service_role/i);
+  const lifecycleDefaults = contents.get("20260916191000_add_lifecycle_policy_for_new_businesses.sql");
+  assert.match(lifecycleDefaults, /create_default_business_data_lifecycle_policy/i);
+  assert.match(lifecycleDefaults, /after insert on public\.businesses/i);
+  assert.match(lifecycleDefaults, /revoke all on function public\.create_default_business_data_lifecycle_policy\(\) from public, anon, authenticated/i);
 });

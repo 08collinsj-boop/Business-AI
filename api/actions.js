@@ -2,6 +2,7 @@ import {
   requireBusinessMember,
   sendAuthError
 } from "./_auth.js";
+import { recordAuditEvent } from "./_audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -150,6 +151,7 @@ export default async function handler(req, res) {
       });
       const result = Array.isArray(created) ? created[0] : created;
       await recordLeadHistory(result?.lead_id, businessId, "Action created", "", result?.title || "");
+      if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "action.created", resourceType: "action", resourceId: String(result.id), metadata: { status: result.status, action_type: result.action_type, priority: result.priority } });
       return res.status(201).json(result || null);
     }
 
@@ -175,6 +177,7 @@ export default async function handler(req, res) {
     const result = Array.isArray(updated) ? updated[0] : updated;
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
+    if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "completed" ? "action.completed" : updates.status === "cancelled" ? "action.cancelled" : "action.updated", resourceType: "action", resourceId: String(actionId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at" && key !== "completed_at").sort().join(",") } });
     return res.status(200).json(result || null);
   } catch (error) {
     if (/^(Invalid|Unsupported|No changes)/.test(error?.message || "")) return res.status(400).json({ error: error.message });

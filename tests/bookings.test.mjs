@@ -4,7 +4,9 @@ import { readFile } from "node:fs/promises";
 
 const source = await readFile(new URL("../api/bookings.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
+const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
 const savedEnv = { ...process.env };
 const savedFetch = globalThis.fetch;
 
@@ -20,7 +22,7 @@ async function load(enabled, api, membership = { business_id: "business-a", role
     if (url.includes("business_memberships")) return reply(membership ? [membership] : []);
     return api(url, options);
   };
-  const moduleSource = source.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`);
+  const moduleSource = source.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(moduleSource).toString("base64")}#${Math.random()}`)).default;
 }
 

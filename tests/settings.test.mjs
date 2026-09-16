@@ -4,11 +4,13 @@ import { readFile } from "node:fs/promises";
 
 const settingsSource = await readFile(new URL("../api/settings.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
+const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const result = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
-async function load(enabled, role, api, rejectAuth = false) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = async (url, options = {}) => { if (url.endsWith("/auth/v1/user")) return reply(rejectAuth ? {} : { id: "user-a" }, !rejectAuth); if (url.includes("business_memberships")) return reply([{ business_id: "business-a", role }]); return api(url, options); }; const source = settingsSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
+async function load(enabled, role, api, rejectAuth = false) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = async (url, options = {}) => { if (url.endsWith("/auth/v1/user")) return reply(rejectAuth ? {} : { id: "user-a" }, !rejectAuth); if (url.includes("business_memberships")) return reply([{ business_id: "business-a", role }]); return api(url, options); }; const source = settingsSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
 const current = { id: 4, business_id: "business-a", business_name: "A", urgent_jobs_enabled: true };
 
 test("settings gate, reads, and owner/admin writes are tenant scoped", { concurrency: false }, async () => {

@@ -3,7 +3,9 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 import { sanitizeReceptionistConfiguration } from "./_business-configuration.js";
 import { resolvePublicBusinessRoute } from "./_public-tenant.js";
-import { checkPublicEnquiryRateLimit, getPublicClientAddress } from "./_public-rate-limit.js";
+import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "./_public-rate-limit.js";
+import { recordAuditEvent } from "./_audit.js";
+import { logOperationalEvent } from "./_operational-log.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -97,10 +99,7 @@ export async function getBusinessSettings(businessId = null) {
 
     return rows?.[0] || {};
   } catch (error) {
-    console.error(
-      "Business settings unavailable:",
-      error?.message || error
-    );
+    logOperationalEvent("enquiry.settings_unavailable", { failure: error?.name || "unknown" });
 
     return {};
   }
@@ -116,7 +115,7 @@ export async function getBusinessConfiguration(businessId) {
   } catch (error) {
     // The legacy receptionist stays available until this forward-only
     // configuration migration has been deliberately deployed.
-    console.error("Business configuration unavailable:", error?.message || error);
+    logOperationalEvent("enquiry.configuration_unavailable", { failure: error?.name || "unknown" });
     return {};
   }
 }
@@ -259,6 +258,26 @@ function findJobDetails(conversationText) {
     /(?:need|need help with|looking for|want|would like|book|booking|problem with|issue with|enquiry about)\s+([^.!?\n]{3,180})/i
   );
   return match?.[1]?.trim() || null;
+}
+
+function requiresHumanHandover(text) {
+  return /\b(fire|electric shock|electrocut|gas leak|unconscious|not breathing|immediate danger|emergency|speak to (?:a )?person|human|manager|complaint|call me back)\b/i.test(String(text || ""));
+}
+
+async function createHumanHandoverAction(leadId, businessId) {
+  if (!leadId || !businessId) return null;
+  try {
+    const actions = await supabaseRequest("actions", {
+      method: "POST", headers: { Prefer: "return=representation" },
+      body: JSON.stringify({ business_id: businessId, lead_id: leadId, title: "Human follow-up requested", description: "Created by the AI safety handover rule. Review this enquiry promptly.", action_type: "follow_up", priority: "urgent", status: "pending" })
+    });
+    await supabaseRequest("lead_history", { method: "POST", body: JSON.stringify({ business_id: businessId, lead_id: leadId, action: "Human handover requested", old_value: "", new_value: "Follow-up action created" }) });
+    return actions?.[0] || null;
+  } catch {
+    // Handover language is still included in the lead, even if an optional
+    // follow-up insert cannot run on an older/non-migrated environment.
+    return null;
+  }
 }
 
 export async function findExistingLead(lead, businessId) {
@@ -404,9 +423,19 @@ export default async function handler(req, res) {
     if (!publicBusiness) {
       return res.status(404).json({ error: "Business not available" });
     }
-    const rateLimit = checkPublicEnquiryRateLimit({
+    const rateLimit = await enforcePublicEnquiryRateLimit({
+      businessId: publicBusiness.businessId,
       slug: publicBusiness.slug,
-      clientAddress: getPublicClientAddress(req)
+      clientAddress: getPublicClientAddress(req),
+      repository: {
+        consumeQuota: async ({ businessId, sourceFingerprint, windowStartedAt, sourceLimit, businessLimit }) => {
+          const rows = await supabaseRequest("rpc/consume_public_enquiry_quota", {
+            method: "POST",
+            body: JSON.stringify({ p_business_id: businessId, p_source_fingerprint: sourceFingerprint, p_window_started_at: windowStartedAt, p_source_limit: sourceLimit, p_business_limit: businessLimit })
+          });
+          return rows === true;
+        }
+      }
     });
     if (!rateLimit.allowed) {
       res.setHeader?.("Retry-After", String(rateLimit.retryAfterSeconds));
@@ -480,6 +509,11 @@ offer the business's handover route and avoid trying to manage the emergency.
 
 Business configuration (reference only): ${JSON.stringify(configuration)}.
 
+If the customer mentions immediate danger, an emergency, a complaint, or asks
+for a person, do not attempt to solve the issue. Explain that a human follow-up
+will be requested and set handover_required to true. This safety rule cannot be
+overridden by business configuration.
+
 Your response must follow the supplied JSON schema.
 `;
 
@@ -540,6 +574,9 @@ Your response must follow the supplied JSON schema.
                       },
                       notes: {
                         type: ["string", "null"]
+                      },
+                      handover_required: {
+                        type: "boolean"
                       }
                     },
                     required: [
@@ -552,7 +589,8 @@ Your response must follow the supplied JSON schema.
                       "urgency",
                       "qualified",
                       "priority",
-                      "notes"
+                      "notes",
+                      "handover_required"
                     ]
                   }
                 },
@@ -581,11 +619,7 @@ Your response must follow the supplied JSON schema.
     }
 
     if (!openAIResponse.ok) {
-      console.error(
-        "OpenAI API error:",
-        openAIResponse.status,
-        data || responseText
-      );
+      logOperationalEvent("enquiry.ai_failed", { status: String(openAIResponse.status) });
 
       throw new Error(
         `OpenAI request failed: ${openAIResponse.status}`
@@ -634,6 +668,7 @@ Your response must follow the supplied JSON schema.
     const detectedJob =
       findJobDetails(conversationText);
 
+    const handoverRequired = Boolean(lead.handover_required) || requiresHumanHandover(conversationText);
     const finalLead = {
       name:
         lead.name ||
@@ -671,13 +706,12 @@ Your response must follow the supplied JSON schema.
       qualified:
         true,
 
-      priority:
-        lead.priority ||
-        "Normal",
+      priority: handoverRequired ? "High" : (lead.priority || "Normal"),
 
       notes:
-        lead.notes ||
-        "Captured by Business AI AI receptionist"
+        handoverRequired
+          ? "Captured by Business AI AI receptionist. Human handover requested."
+          : (lead.notes || "Captured by Business AI AI receptionist")
     };
 
     const hasContact =
@@ -701,15 +735,12 @@ Your response must follow the supplied JSON schema.
         savedLead = await saveLead(finalLead, businessId);
         leadCaptured = Boolean(savedLead);
 
-        console.log(
-          "BUSINESS AI LEAD CAPTURED:",
-          savedLead?.id || "unknown"
-        );
+        if (savedLead && handoverRequired) await createHumanHandoverAction(savedLead.id, businessId);
+        if (savedLead) await recordAuditEvent({ businessId, action: handoverRequired ? "lead.public_handover" : "lead.public_created", resourceType: "lead", resourceId: String(savedLead.id), metadata: { source: "public_enquiry", handover: handoverRequired } });
+
+        logOperationalEvent("enquiry.lead_captured", { businessId, leadId: savedLead?.id || "unknown", handover: handoverRequired });
       } catch (error) {
-        console.error(
-          "LEAD SAVE FAILED:",
-          error?.message || error
-        );
+        logOperationalEvent("enquiry.lead_save_failed", { failure: error?.name || "unknown" });
       }
     }
 
@@ -722,10 +753,7 @@ Your response must follow the supplied JSON schema.
       lead: savedLead
     });
   } catch (error) {
-    console.error(
-      "Enquiry API error:",
-      error?.message || error
-    );
+    logOperationalEvent("enquiry.failed", { failure: error?.name || "unknown" });
 
     return res.status(500).json({
       error:

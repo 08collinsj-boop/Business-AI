@@ -1,5 +1,6 @@
 import { requireAuthenticatedUser, sendAuthError } from "./_auth.js";
 import { normalisePublicBusinessSlug } from "./_public-tenant.js";
+import { recordAuditEvent } from "./_audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -48,6 +49,7 @@ export default async function handler(req, res) {
     });
     const created = Array.isArray(result) ? result[0] : result;
     if (!created?.business_id || created.public_slug !== publicSlug) throw new Error("Database request failed");
+    await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
     return res.status(201).json({ public_slug: publicSlug, public_path: `/?business=${encodeURIComponent(publicSlug)}` });
   } catch (error) {
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
