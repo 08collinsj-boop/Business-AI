@@ -39,7 +39,9 @@ export function isDurablePublicRateLimitEnabled() {
 }
 
 export function publicSourceFingerprint(clientAddress) {
-  const salt = process.env.PUBLIC_RATE_LIMIT_SALT;
+  // Vercel treats PUBLIC_-prefixed variables as browser-visible. This secret
+  // deliberately has a server-only name.
+  const salt = process.env.RATE_LIMIT_SALT;
   if (!salt || typeof clientAddress !== "string") return null;
   return createHmac("sha256", salt).update(clientAddress).digest("hex");
 }

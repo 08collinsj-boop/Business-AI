@@ -8,7 +8,7 @@ This document describes technical controls that support a small, controlled Busi
 
 - Counters are durable across serverless instances and use a fixed ten-minute window.
 - Limits are applied to both the verified routed business and an HMAC-SHA-256 fingerprint of the network source. Raw IP addresses are not stored.
-- `PUBLIC_RATE_LIMIT_SALT` is server-only and must be a random value of at least 32 bytes. If database mode is enabled but the salt, service role, or quota RPC is unavailable, public enquiries fail closed with `429` before an OpenAI request.
+- `RATE_LIMIT_SALT` is server-only and must be a random value of at least 32 bytes. It deliberately has no `PUBLIC_` prefix because Vercel treats that prefix as browser-visible. If database mode is enabled but the salt, service role, or quota RPC is unavailable, public enquiries fail closed with `429` before an OpenAI request.
 - The current pilot defaults are 20 requests per source and 100 per routed business per ten-minute window. They are intentionally conservative and should be reviewed using actual pilot traffic.
 
 For Preview, configure the two variables above only after the hardening migration is applied to the same Supabase project. Production remains unchanged until a deliberate rollout. A managed WAF/rate-limit service may be added later for broader network-level protection; it is not required for the low-volume controlled pilot.
@@ -58,7 +58,7 @@ The second owner could read its own lead/history/pipeline and create/complete it
 Before a real Hartlepool business trial:
 
 1. Apply and verify the forward-only hardening migrations in the intended non-production/Preview database, then repeat authenticated and public-route smoke tests.
-2. Configure `PUBLIC_ENQUIRY_RATE_LIMIT_MODE=database` and a unique server-only `PUBLIC_RATE_LIMIT_SALT` in that environment; do not enable this mode without the database migration.
+2. Configure `PUBLIC_ENQUIRY_RATE_LIMIT_MODE=database` and a unique server-only `RATE_LIMIT_SALT` in that environment; do not enable this mode without the database migration.
 3. Enable Supabase Auth leaked-password protection and configure owner password/reset and redirect settings.
 4. Set up a real monitored human-handover contact process, privacy notice, retention decision, subject-request process, and incident owner.
 5. Perform a deliberate Production migration/auth rollout using the existing checklist. Do not enable one auth gate without the other.

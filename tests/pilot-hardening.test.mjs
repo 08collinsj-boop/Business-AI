@@ -10,14 +10,14 @@ const health = (await import(new URL(`../api/health.js?health=${Math.random()}`,
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 
 test("durable public quota mode uses an HMAC source fingerprint and fails closed without its server secret", async () => {
-  process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = "database"; process.env.PUBLIC_RATE_LIMIT_SALT = "test-salt";
+  process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = "database"; process.env.RATE_LIMIT_SALT = "test-salt";
   assert.equal(isDurablePublicRateLimitEnabled(), true);
   assert.match(publicSourceFingerprint("198.51.100.9"), /^[a-f0-9]{64}$/);
   assert.equal(publicRateLimitWindow(Date.UTC(2026, 0, 1, 0, 11)).endsWith("00:10:00.000Z"), true);
   let received = null;
   const result = await enforcePublicEnquiryRateLimit({ businessId: "business-a", slug: "business-a", clientAddress: "198.51.100.9", now: 0, repository: { consumeQuota: async (value) => { received = value; return true; } } });
   assert.equal(result.allowed, true); assert.equal(received.businessId, "business-a"); assert.match(received.sourceFingerprint, /^[a-f0-9]{64}$/);
-  delete process.env.PUBLIC_RATE_LIMIT_SALT;
+  delete process.env.RATE_LIMIT_SALT;
   assert.equal((await enforcePublicEnquiryRateLimit({ businessId: "business-a", slug: "business-a", clientAddress: "198.51.100.9", repository: {} })).allowed, false);
 });
 
