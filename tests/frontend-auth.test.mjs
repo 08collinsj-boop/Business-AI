@@ -20,7 +20,8 @@ test("public config is gated and exposes only browser-safe Supabase config", { c
 test("frontend auth uses Supabase sessions only for private API requests", () => {
   assert.match(html, /signInWithPassword/); assert.match(html, /onAuthStateChange/); assert.match(html, /auth\.signOut/);
   assert.match(html, /headers\.set\('Authorization',`Bearer \$\{session\.access_token\}`\)/);
-  assert.match(html, /fetch\('\/api\/enquiry',\{[\s\S]*?headers:\{'Content-Type':'application\/json'\}/);
+  assert.match(html, /new URL\('\/api\/enquiry',window\.location\.origin\)/);
+  assert.match(html, /api\('\/api\/business-onboarding'\)/);
   assert.doesNotMatch(html, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY/);
   assert.doesNotMatch(html, /localStorage\.setItem\([^)]*token/i);
   assert.match(html, /response\.status===401&&supabaseClient/); assert.match(html, /response\.status===403/);

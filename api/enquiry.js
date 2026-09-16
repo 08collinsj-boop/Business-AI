@@ -2,6 +2,8 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 import { sanitizeReceptionistConfiguration } from "./_business-configuration.js";
+import { resolvePublicBusinessRoute } from "./_public-tenant.js";
+import { checkPublicEnquiryRateLimit, getPublicClientAddress } from "./_public-rate-limit.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -134,6 +136,25 @@ export async function getInitialBusinessId() {
   const businessId = rows?.[0]?.business_id;
   if (!businessId) throw new Error("Business configuration is unavailable");
   return businessId;
+}
+
+async function resolvePublicBusiness(req) {
+  const requestedSlug = req.query?.business ?? req.query?.slug;
+  if (requestedSlug !== undefined) {
+    return resolvePublicBusinessRoute({
+      findActivePublicSlug: async (slug) => {
+        const rows = await supabaseRequest(
+          `business_public_routes?route_type=eq.slug&route_value=eq.${encodeURIComponent(slug)}&active=eq.true&select=business_id,route_type,route_value,active&limit=1`
+        );
+        return rows?.[0] || null;
+      }
+    }, requestedSlug);
+  }
+  // Compatibility for the original single-business public page. Once a
+  // second tenant exists, the caller must provide a verified public route.
+  const businesses = await supabaseRequest("businesses?select=id&limit=2");
+  if (!Array.isArray(businesses) || businesses.length !== 1) return null;
+  return { businessId: await getInitialBusinessId(), slug: "legacy-single-business" };
 }
 
 function cleanMessages(messages) {
@@ -379,7 +400,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Message is too long" });
     }
 
-    const businessId = await getInitialBusinessId();
+    const publicBusiness = await resolvePublicBusiness(req);
+    if (!publicBusiness) {
+      return res.status(404).json({ error: "Business not available" });
+    }
+    const rateLimit = checkPublicEnquiryRateLimit({
+      slug: publicBusiness.slug,
+      clientAddress: getPublicClientAddress(req)
+    });
+    if (!rateLimit.allowed) {
+      res.setHeader?.("Retry-After", String(rateLimit.retryAfterSeconds));
+      return res.status(429).json({ error: "Please try again shortly" });
+    }
+    const businessId = publicBusiness.businessId;
     const { settings, configuration } = await getBusinessReceptionistConfiguration(businessId);
 
     const businessName =
@@ -665,7 +698,7 @@ Your response must follow the supplied JSON schema.
 
     if (hasContact && hasJob) {
       try {
-        savedLead = await saveLead(finalLead);
+        savedLead = await saveLead(finalLead, businessId);
         leadCaptured = Boolean(savedLead);
 
         console.log(

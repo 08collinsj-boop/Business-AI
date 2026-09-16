@@ -2,7 +2,7 @@
 
 ## Scope
 
-This foundation lets an authenticated business owner or admin configure the tenant that their server-verified membership already authorises. It does **not** create public sign-up, create businesses from a browser request, assign memberships, enable voice, or allow a browser to choose a tenant.
+This foundation lets an authenticated business owner or admin configure the tenant that their server-verified membership already authorises. The controlled-pilot business-creation flow is now documented separately in [Business creation and public routing](BUSINESS_CREATION_AND_PUBLIC_ROUTING.md). It does not allow a browser to assign roles, memberships, or internal tenant IDs.
 
 The forward-only migration `20260916170000_add_business_configuration_onboarding.sql` adds exactly one `business_configurations` row per business. It is applied and verified on **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) only. Production remains unchanged.
 

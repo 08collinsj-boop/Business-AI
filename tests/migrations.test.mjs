@@ -16,7 +16,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260915010000_add_bookings_actions.sql",
     "20260916153249_add_voice_receptionist_foundation.sql",
     "20260916154907_add_voice_foreign_key_indexes.sql",
-    "20260916170000_add_business_configuration_onboarding.sql"
+    "20260916170000_add_business_configuration_onboarding.sql",
+    "20260916180000_add_business_creation_and_public_routes.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -57,4 +58,11 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(configuration, /alter table public\.business_configurations enable row level security/i);
   assert.match(configuration, /revoke all on public\.business_configurations from anon, authenticated/i);
   assert.match(configuration, /members read business configuration/i);
+  const publicRoutes = contents.get("20260916180000_add_business_creation_and_public_routes.sql");
+  assert.match(publicRoutes, /create table if not exists public\.business_public_routes/i);
+  assert.match(publicRoutes, /alter table public\.business_public_routes enable row level security/i);
+  assert.match(publicRoutes, /revoke all on public\.business_public_routes from anon, authenticated/i);
+  assert.match(publicRoutes, /security definer/i);
+  assert.match(publicRoutes, /revoke all on function public\.create_business_for_owner/i);
+  assert.match(publicRoutes, /grant execute on function public\.create_business_for_owner[\s\S]*to service_role/i);
 });

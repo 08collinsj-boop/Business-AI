@@ -896,7 +896,7 @@ border-radius:13px
 .auth-field input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:var(--text)}
 .auth-submit{width:100%;margin-top:8px}.auth-message{min-height:20px;margin-top:14px;color:var(--red);font-size:13px}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
-body.auth-pending .app,body.auth-required .app{display:none}body.auth-required .auth-screen{display:flex}body.auth-ready .logout-btn{display:block}
+body.auth-pending .app,body.auth-required .app,body.onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen{display:flex}body.auth-ready .logout-btn{display:block}
 
 .empty{
 text-align:center;
@@ -964,6 +964,19 @@ margin-top:0
 <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
 <button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
 <div id="loginMessage" class="auth-message" role="alert"></div>
+</form>
+</main>
+
+<main id="businessSetupScreen" class="auth-screen" aria-live="polite">
+<form id="businessSetupForm" class="auth-card">
+<div class="brand-icon">AI</div>
+<h2>Set up your business</h2>
+<p>Create your secure Business AI workspace. You can complete the detailed business profile next.</p>
+<div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
+<div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, electrician"></div>
+<div class="auth-field"><label for="newBusinessSlug">Public enquiry link</label><input id="newBusinessSlug" maxlength="63" pattern="[a-z0-9][a-z0-9-]{1,61}[a-z0-9]" placeholder="your-business" required><span style="color:var(--muted);font-size:11px">Lowercase letters, numbers and hyphens. Customers will use this link.</span></div>
+<button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
+<div id="businessSetupMessage" class="auth-message" role="alert"></div>
 </form>
 </main>
 
@@ -1688,14 +1701,24 @@ leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null
 };
 
 const setAuthView=(state,message='')=>{
-document.body.classList.remove('auth-pending','auth-required','auth-ready');
+document.body.classList.remove('auth-pending','auth-required','onboarding-required','auth-ready');
 document.body.classList.add(state);
 $('loginMessage').textContent=message;
 };
 
-const handleSession=(session)=>{
+const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
-if(session){setAuthView('auth-ready');loadAll().catch(()=>{});return;}
+if(session){
+setAuthView('auth-pending');
+try{
+const onboarding=await api('/api/business-onboarding');
+if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
+setAuthView('auth-ready');loadAll().catch(()=>{});return;
+}catch(error){
+if(error.message==='Your session has expired.')return;
+clearPrivateState();setAuthView('auth-required','Your business access is unavailable.');return;
+}
+}
 clearPrivateState();setAuthView('auth-required');
 };
 
@@ -1711,7 +1734,7 @@ frontendAuthEnabled=true;
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
 const {data:{session}}=await supabaseClient.auth.getSession();
 supabaseClient.auth.onAuthStateChange((_event,nextSession)=>handleSession(nextSession));
-handleSession(session);
+await handleSession(session);
 return true;
 }catch(error){frontendAuthEnabled=true;setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
 }
@@ -1728,6 +1751,17 @@ if(error)throw error;
 
 $('logoutButton').addEventListener('click',async()=>{
 if(supabaseClient)await supabaseClient.auth.signOut();
+});
+
+$('businessSetupForm').addEventListener('submit',async event=>{
+event.preventDefault();
+const button=$('businessSetupSubmit');const message=$('businessSetupMessage');
+button.disabled=true;message.textContent='Creating your secure workspace…';
+try{
+const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,public_slug:$('newBusinessSlug').value.trim().toLowerCase()})});
+message.textContent=`Business created. Your public enquiry link is ${result.public_path}.`;
+setAuthView('auth-ready');await loadAll();
+}catch(error){message.textContent=error.message||'Could not create the business.';}finally{button.disabled=false;}
 });
 
 
@@ -1884,7 +1918,10 @@ addEnquiryMessage('user',message);
 
 try{
 
-const response=await fetch('/api/enquiry',{
+const enquiryUrl=new URL('/api/enquiry',window.location.origin);
+const publicBusinessSlug=new URLSearchParams(window.location.search).get('business');
+if(/^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(publicBusinessSlug||'').toLowerCase()))enquiryUrl.searchParams.set('business',publicBusinessSlug.toLowerCase());
+const response=await fetch(`${enquiryUrl.pathname}${enquiryUrl.search}`,{
 method:'POST',
 headers:{'Content-Type':'application/json'},
 // The API receives every previous turn, including customer details already supplied.

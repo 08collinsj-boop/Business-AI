@@ -37,6 +37,28 @@ async function supabase(path, options = {}) {
   return data;
 }
 
+export async function requireAuthenticatedUser(req) {
+  if (!isTenancyAuthEnabled()) {
+    return { enforced: false, userId: null };
+  }
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw safeError(500, "Server authentication is unavailable");
+  }
+  const token = extractBearerToken(req);
+  if (!token) throw safeError(401, "Authentication is required");
+  // Always ask Supabase Auth to verify the presented token. JWT contents,
+  // metadata and any browser claims are deliberately ignored.
+  const userResponse = await fetch(`${SUPABASE_URL.replace(/\/+$/, "")}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${token}` }
+  });
+  if (!userResponse.ok) throw safeError(401, "Authentication is invalid or expired");
+  const user = await userResponse.json();
+  if (!user?.id) throw safeError(401, "Authentication is invalid or expired");
+  return { enforced: true, userId: user.id };
+}
+
 export async function requireBusinessMember(req, allowedRoles = null) {
   if (!isTenancyAuthEnabled()) {
     return { enforced: false, userId: null, businessId: null, role: null };
@@ -46,23 +68,9 @@ export async function requireBusinessMember(req, allowedRoles = null) {
     throw safeError(500, "Server authentication is unavailable");
   }
 
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw safeError(500, "Server authentication is unavailable");
-  }
-  const token = extractBearerToken(req);
-  if (!token) throw safeError(401, "Authentication is required");
+  const user = await requireAuthenticatedUser(req);
 
-  // Auth validates the access token; no decoded JWT claim is trusted directly.
-  const userResponse = await fetch(`${SUPABASE_URL.replace(/\/+$/, "")}/auth/v1/user`, {
-    headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${token}` }
-  });
-  if (!userResponse.ok) throw safeError(401, "Authentication is invalid or expired");
-  const user = await userResponse.json();
-  if (!user?.id) throw safeError(401, "Authentication is invalid or expired");
-
-  const memberships = await supabase(`/rest/v1/business_memberships?user_id=eq.${encodeURIComponent(user.id)}&select=business_id,role&limit=2`);
+  const memberships = await supabase(`/rest/v1/business_memberships?user_id=eq.${encodeURIComponent(user.userId)}&select=business_id,role&limit=2`);
   if (!Array.isArray(memberships) || memberships.length !== 1) {
     throw safeError(403, "No authorised business membership");
   }
@@ -73,7 +81,7 @@ export async function requireBusinessMember(req, allowedRoles = null) {
   if (allowedRoles && !allowedRoles.includes(membership.role)) {
     throw safeError(403, "You are not authorised for this action");
   }
-  return { enforced: true, userId: user.id, businessId: membership.business_id, role: membership.role };
+  return { enforced: true, userId: user.userId, businessId: membership.business_id, role: membership.role };
 }
 
 export function requireBusinessAdmin(req) {
