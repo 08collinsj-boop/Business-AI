@@ -15,7 +15,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260915000000_add_multi_tenant_auth.sql",
     "20260915010000_add_bookings_actions.sql",
     "20260916153249_add_voice_receptionist_foundation.sql",
-    "20260916154907_add_voice_foreign_key_indexes.sql"
+    "20260916154907_add_voice_foreign_key_indexes.sql",
+    "20260916170000_add_business_configuration_onboarding.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -50,4 +51,10 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   const voiceIndexes = contents.get("20260916154907_add_voice_foreign_key_indexes.sql");
   assert.match(voiceIndexes, /voice_calls_lead_business_id_idx/i);
   assert.match(voiceIndexes, /voice_call_events_call_business_id_idx/i);
+  const configuration = contents.get("20260916170000_add_business_configuration_onboarding.sql");
+  assert.match(configuration, /create table if not exists public\.business_configurations/i);
+  assert.match(configuration, /business_id uuid primary key references public\.businesses/i);
+  assert.match(configuration, /alter table public\.business_configurations enable row level security/i);
+  assert.match(configuration, /revoke all on public\.business_configurations from anon, authenticated/i);
+  assert.match(configuration, /members read business configuration/i);
 });

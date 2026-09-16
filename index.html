@@ -1540,6 +1540,75 @@ Save business settings
 
 </div>
 
+<div class="card" style="margin-top:14px">
+
+<div class="card-head">
+
+<h3>Business profile & onboarding</h3>
+
+<span>Securely scoped to this business</span>
+
+</div>
+
+<p style="color:var(--muted);font-size:12px;line-height:1.5;margin:0 0 12px">Choose a starting template, then tailor the information your AI receptionist can use. Templates provide suggestions only; they do not change your security or booking permissions.</p>
+
+<div id="configurationStatus"></div>
+
+<div class="settings-grid">
+
+<div class="field">
+<label>Industry template</label>
+<select id="c_industry_template_id" onchange="applySelectedIndustryTemplate()"></select>
+</div>
+
+<div class="field">
+<label>Website</label>
+<input id="c_website" type="url" maxlength="2048" placeholder="https://example.co.uk">
+</div>
+
+<div class="field full">
+<label>Business description</label>
+<textarea id="c_description" maxlength="4000" placeholder="What does the business do and what makes it useful to customers?"></textarea>
+</div>
+
+<div class="field full">
+<label>Service areas</label>
+<textarea id="c_service_areas" maxlength="4000" placeholder="Areas, postcodes, locations or travel limits served by the business"></textarea>
+</div>
+
+<div class="field full">
+<label>Customer enquiry instructions</label>
+<textarea id="c_customer_enquiry_instructions" maxlength="6000" placeholder="What should the AI collect or explain during an enquiry? It cannot override safety rules or make promises."></textarea>
+</div>
+
+<div class="field full">
+<label>Human handover information</label>
+<textarea id="c_handover_instructions" maxlength="4000" placeholder="When should the AI hand over, and what is the safest way to reach a person?"></textarea>
+</div>
+
+<div class="field full">
+<label>Booking preferences</label>
+<div class="work-meta">Bookings remain requests until the business confirms them. Voice is unavailable until a provider is deliberately configured.</div>
+</div>
+
+<div class="field"><label>Minimum notice (hours)</label><input id="c_minimum_notice_hours" type="number" min="0" max="8760" value="0"></div>
+<div class="field"><label>Time zone</label><input id="c_timezone" maxlength="64" value="Europe/London"></div>
+
+</div>
+
+<div class="checkbox-row"><label><strong>Allow customer booking requests</strong><br><span style="color:var(--muted);font-size:10px">Requests still need business confirmation.</span></label><input id="c_allow_customer_requests" class="switch" type="checkbox" checked></div>
+
+<div class="checkbox-row"><label><strong>Onboarding complete</strong><br><span style="color:var(--muted);font-size:10px">You can continue editing this information later.</span></label><input id="c_complete_onboarding" class="switch" type="checkbox"></div>
+
+<div class="card-head" style="margin-top:18px"><h3>Frequently asked questions</h3><span>Optional basic knowledge</span></div>
+<div class="settings-grid"><div class="field full"><label>Question</label><input id="faqQuestion" maxlength="500" placeholder="e.g. Do you cover my area?"></div><div class="field full"><label>Answer</label><textarea id="faqAnswer" maxlength="2000" placeholder="A short, factual answer the receptionist may use."></textarea></div></div>
+<button class="small-btn" type="button" onclick="addFaq()">Add FAQ</button>
+<div id="faqList" class="work-list" style="margin-top:10px"></div>
+
+<button class="save-btn" onclick="saveBusinessConfiguration()">Save business profile</button>
+
+</div>
+
 </section>
 
 </div>
@@ -1599,6 +1668,8 @@ Settings
 let leads=[];
 let bookings=[];
 let businessActions=[];
+let businessConfiguration=null;
+let configurationTemplates=[];
 
 let currentFilter='All';
 
@@ -1612,7 +1683,7 @@ let frontendAuthEnabled=false;
 const $=id=>document.getElementById(id);
 
 const clearPrivateState=()=>{
-leads=[];bookings=[];businessActions=[];settings=null;pipeline=null;
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 };
 
@@ -2226,6 +2297,86 @@ $('brandName').textContent=settings.business_name||'Business AI';
 }
 
 
+function renderFaqs(){
+const list=$('faqList');
+if(!list)return;
+const faqs=Array.isArray(businessConfiguration?.faqs)?businessConfiguration.faqs:[];
+list.innerHTML=faqs.length?faqs.map((faq,index)=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(faq.question)}</h4><div class="work-meta">${esc(faq.answer)}</div></div><button class="small-btn" onclick="removeFaq(${index})">Remove</button></div></article>`).join(''):'<div class="empty">No FAQs added yet.</div>';
+}
+
+function fillBusinessConfiguration(){
+const template=$('c_industry_template_id');
+if(!template)return;
+template.innerHTML=configurationTemplates.length?configurationTemplates.map(item=>`<option value="${esc(item.id)}">${esc(item.label)}</option>`).join(''):'<option value="general">General business</option>';
+const config=businessConfiguration||{};
+template.value=config.industry_template_id||'general';
+['description','website','service_areas','customer_enquiry_instructions','handover_instructions'].forEach(field=>{const input=$(`c_${field}`);if(input)input.value=config[field]||'';});
+const preferences=config.booking_preferences||{};
+$('c_minimum_notice_hours').value=Number.isInteger(preferences.minimum_notice_hours)?preferences.minimum_notice_hours:0;
+$('c_timezone').value=preferences.timezone||'Europe/London';
+$('c_allow_customer_requests').checked=preferences.allow_customer_requests!==false;
+$('c_complete_onboarding').checked=Boolean(config.onboarding_completed_at);
+renderFaqs();
+}
+
+function applySelectedIndustryTemplate(){
+const selected=configurationTemplates.find(item=>item.id===$('c_industry_template_id').value);
+const defaults=selected?.defaults||{};
+if(defaults.customer_enquiry_instructions&&!$('c_customer_enquiry_instructions').value.trim())$('c_customer_enquiry_instructions').value=defaults.customer_enquiry_instructions;
+if(defaults.booking_preferences){
+if(Number($('c_minimum_notice_hours').value||0)===0&&Number.isInteger(defaults.booking_preferences.minimum_notice_hours))$('c_minimum_notice_hours').value=defaults.booking_preferences.minimum_notice_hours;
+if(defaults.booking_preferences.allow_customer_requests!==undefined)$('c_allow_customer_requests').checked=defaults.booking_preferences.allow_customer_requests;
+}
+const status=$('configurationStatus');if(selected?.description)status.textContent=`${selected.description} Defaults only fill empty fields; you can override them.`;
+}
+
+function addFaq(){
+const question=$('faqQuestion').value.trim();const answer=$('faqAnswer').value.trim();
+const status=$('configurationStatus');
+if(!question||!answer){status.innerHTML='<div class="error">Add both a question and answer.</div>';return;}
+if(question.length>500||answer.length>2000){status.innerHTML='<div class="error">That FAQ is too long.</div>';return;}
+if(!businessConfiguration)businessConfiguration={faqs:[]};
+if(!Array.isArray(businessConfiguration.faqs))businessConfiguration.faqs=[];
+if(businessConfiguration.faqs.length>=40){status.innerHTML='<div class="error">You can add up to 40 FAQs.</div>';return;}
+businessConfiguration.faqs.push({question,answer});$('faqQuestion').value='';$('faqAnswer').value='';status.textContent='FAQ added. Save the business profile to keep it.';renderFaqs();
+}
+
+function removeFaq(index){
+if(!Array.isArray(businessConfiguration?.faqs))return;
+businessConfiguration.faqs.splice(index,1);renderFaqs();
+}
+
+async function loadBusinessConfiguration(){
+try{
+const data=await api('/api/business-configuration');
+businessConfiguration=data?.configuration||null;configurationTemplates=Array.isArray(data?.templates)?data.templates:[];fillBusinessConfiguration();
+}catch(error){
+// This API is deliberately unavailable until its forward-only migration is deployed.
+if(error.message!=='Business configuration is not enabled'&&error.message!=='Business configuration not found')$('configurationStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;
+}
+}
+
+async function saveBusinessConfiguration(){
+const status=$('configurationStatus');status.textContent='Saving…';
+try{
+const body={
+industry_template_id:$('c_industry_template_id').value,
+description:$('c_description').value,
+website:$('c_website').value,
+service_areas:$('c_service_areas').value,
+customer_enquiry_instructions:$('c_customer_enquiry_instructions').value,
+handover_instructions:$('c_handover_instructions').value,
+faqs:Array.isArray(businessConfiguration?.faqs)?businessConfiguration.faqs:[],
+booking_preferences:{booking_mode:'request',confirmation_required:true,allow_customer_requests:$('c_allow_customer_requests').checked,minimum_notice_hours:Number($('c_minimum_notice_hours').value||0),timezone:$('c_timezone').value},
+enabled_modules:{enquiries:true,bookings:true,actions:true,voice:false},
+complete_onboarding:$('c_complete_onboarding').checked
+};
+const data=await api('/api/business-configuration',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+businessConfiguration=data?.configuration||businessConfiguration;configurationTemplates=Array.isArray(data?.templates)?data.templates:configurationTemplates;fillBusinessConfiguration();status.textContent='Business profile saved.';toast('Business profile saved');
+}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
+
 async function saveSettings(){
 
 const status=$('settingsStatus');
@@ -2272,6 +2423,7 @@ renderDashboard();
 renderLeads();
 
 if(frontendAuthEnabled)loadWorkItems();
+if(frontendAuthEnabled)loadBusinessConfiguration();
 
 if(showFeedback)toast('Dashboard refreshed');
 

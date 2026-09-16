@@ -1,4 +1,4 @@
-import { getBusinessSettings, saveLead } from "./enquiry.js";
+import { getBusinessReceptionistConfiguration, saveLead } from "./enquiry.js";
 
 const E164 = /^\+[1-9][0-9]{7,14}$/;
 const PROVIDER_NAME = /^[a-z][a-z0-9_-]{1,39}$/;
@@ -117,15 +117,21 @@ export function assessCallSafety(text) {
     : { level: "normal", handover: false, response: null };
 }
 
-export function buildVoiceReceptionistContext(settings = {}) {
+export function buildVoiceReceptionistContext(settings = {}, configuration = {}) {
   return {
     businessName: settings.business_name || "the business",
     businessType: settings.business_type || "",
     services: settings.services || "",
-    serviceAreas: settings.address || "",
     openingHours: settings.opening_hours || "",
     contactPhone: settings.phone || "",
     aiInstructions: settings.ai_instructions || "",
+    businessDescription: configuration.description || "",
+    serviceAreas: configuration.serviceAreas || settings.address || "",
+    enquiryInstructions: configuration.enquiryInstructions || "",
+    faqs: Array.isArray(configuration.faqs) ? configuration.faqs : [],
+    bookingPreferences: configuration.bookingPreferences || {},
+    handoverInstructions: configuration.handoverInstructions || "",
+    enabledModules: configuration.enabledModules || {},
     urgentJobsEnabled: settings.urgent_jobs_enabled !== false,
     rules: [
       "Do not promise availability, prices, attendance times, policies, or a confirmed booking unless a server-authorized action has succeeded.",
@@ -175,7 +181,7 @@ export async function captureVoiceLead({ businessId, lead }) {
 
 export async function loadVoiceBusinessContext(businessId) {
   if (typeof businessId !== "string" || !businessId) throw new Error("Invalid trusted voice context");
-  const settings = await getBusinessSettings(businessId);
+  const { settings, configuration } = await getBusinessReceptionistConfiguration(businessId);
   if (!settings?.business_name) throw new Error("Voice business configuration is unavailable");
-  return buildVoiceReceptionistContext(settings);
+  return buildVoiceReceptionistContext(settings, configuration);
 }

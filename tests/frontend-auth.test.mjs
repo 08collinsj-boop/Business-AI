@@ -24,6 +24,8 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
   assert.doesNotMatch(html, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY/);
   assert.doesNotMatch(html, /localStorage\.setItem\([^)]*token/i);
   assert.match(html, /response\.status===401&&supabaseClient/); assert.match(html, /response\.status===403/);
+  assert.match(html, /api\('\/api\/business-configuration'\)/);
+  assert.doesNotMatch(html, /TWILIO_AUTH_TOKEN|VOICE_WEBHOOK/);
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); });

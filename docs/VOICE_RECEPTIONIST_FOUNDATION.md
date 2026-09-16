@@ -59,7 +59,7 @@ No provider adapter is shipped in this milestone. Adding one requires a separate
 
 ## Intake, booking, action, and safety preparation
 
-`api/_voice.js` builds business-specific receptionist context from the same tenant's `business_settings`. It is industry-neutral: business name, type, services, hours, contact details, and AI instructions are supplied by settings rather than hard-coded trade text.
+`api/_voice.js` builds business-specific receptionist context from the same tenant's `business_settings` and optional tenant-owned onboarding configuration. It is industry-neutral: business name, type, services, areas, hours, contact details, FAQs, handover information, and AI instructions are supplied by configuration rather than hard-coded trade text.
 
 Its internal `captureVoiceLead` bridge reuses `saveLead` from `api/enquiry.js`; it may only receive a business ID returned by the trusted phone-number mapping. Existing public web enquiry behavior remains unchanged. Future speech/AI adapters should pass a trusted mapped tenant to this bridge, then use the existing bookings/actions APIs or a shared server service.
 
