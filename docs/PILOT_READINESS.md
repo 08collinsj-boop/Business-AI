@@ -13,6 +13,10 @@ This document describes technical controls that support a small, controlled Busi
 
 For Preview, configure the two variables above only after the hardening migration is applied to the same Supabase project. Production remains unchanged until a deliberate rollout. A managed WAF/rate-limit service may be added later for broader network-level protection; it is not required for the low-volume controlled pilot.
 
+## Authentication plan limitation
+
+Supabase leaked-password protection was investigated for the controlled Pilot but is unavailable on the current Supabase plan. It is an accepted Pilot limitation, not a substitute for credential controls. Pilot owner accounts must use strong, unique passwords, and no existing authentication, session verification, tenant-membership, or role controls may be weakened as a workaround. Reassess this protection before any wider or Production rollout.
+
 ## Audit records
 
 `business_audit_events` records tenant-scoped, append-only application events for business creation, configuration/settings updates, lead updates, booking/action changes, public lead capture and lifecycle requests. Each event has a tenant, optional actor UUID, action, resource reference and timestamp.
@@ -73,7 +77,7 @@ Interactive browser automation was not available in the validation workspace. Th
 
 Before a real Hartlepool business trial:
 
-1. Enable Supabase Auth leaked-password protection and configure pilot owner password/reset and redirect settings for the public Pilot URL.
+1. Create the Pilot owner Auth account with a strong, unique password and configure the relevant password/reset and redirect settings for the public Pilot URL. Leaked-password protection is unavailable on the current plan and remains an accepted controlled-Pilot limitation.
 2. Set up a real monitored human-handover contact process, privacy notice, retention decision, subject-request process, and incident owner.
 3. Create and configure a real pilot business/owner in the isolated Dev-backed Pilot environment, then complete a supervised customer-facing smoke test.
 4. Keep voice disabled. Telephony provider setup, call-recording policy and signature/replay configuration remain separate work.
