@@ -12,12 +12,13 @@ Run these migrations in filename order:
 4. `20260914195529_enable_rls_business_settings.sql`
 5. `20260915000000_add_multi_tenant_auth.sql`
 6. `20260915010000_add_bookings_actions.sql`
+7. `20260916153249_add_voice_receptionist_foundation.sql`
 
-The resulting schema contains `leads`, `lead_history`, `business_settings`, `businesses`, `business_memberships`, `bookings`, and `actions`, with RLS and tenant-safe foreign-key relationships.
+The resulting schema contains `leads`, `lead_history`, `business_settings`, `businesses`, `business_memberships`, `bookings`, `actions`, and the provider-neutral voice foundation tables, with RLS and tenant-safe foreign-key relationships.
 
 ## Current Dev status
 
-On 2026-09-16, this exact chain was applied to **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) and verified with the Supabase CLI. All six migration versions are recorded remotely. The project contains no Dev Auth owner and no test lead/customer data yet. This record applies only to Business-AI-Dev; it does not indicate any Production database change.
+On 2026-09-16, the first six migrations were applied to **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) and verified with the Supabase CLI. The Dev project now has its own owner and clearly fake end-to-end lead, booking, action, and history data. The voice foundation migration is source-controlled but **has not been applied to Dev or Production**. This record applies only to Business-AI-Dev; it does not indicate any Production database change.
 
 ## Dev-only onboarding
 

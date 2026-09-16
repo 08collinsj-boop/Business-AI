@@ -24,5 +24,6 @@ Private dashboard calls use a Supabase access token only for same-origin API req
 | `SUPABASE_PUBLISHABLE_KEY` | browser-safe config endpoint only | Supabase browser Auth client |
 | `TENANCY_AUTH_ENABLED` | feature gate | private API enforcement; exact value `true` enables it |
 | `FRONTEND_AUTH_ENABLED` | feature gate | login/session UI; exact value `true` enables it |
+| `VOICE_RECEPTIONIST_ENABLED` | server-only feature gate | voice webhook/call-history capability; exact value `true` enables it only after a verified provider adapter and number mapping exist |
 
 Never expose server-only values to the browser. The production activation and rollback sequence is maintained in `PRODUCTION_AUTH_ROLLOUT_CHECKLIST.md`.

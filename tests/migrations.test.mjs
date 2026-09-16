@@ -13,7 +13,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260913233511_add_business_settings.sql",
     "20260914195529_enable_rls_business_settings.sql",
     "20260915000000_add_multi_tenant_auth.sql",
-    "20260915010000_add_bookings_actions.sql"
+    "20260915010000_add_bookings_actions.sql",
+    "20260916153249_add_voice_receptionist_foundation.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -25,7 +26,7 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(contents.get("20260913233511_add_business_settings.sql"), /create table if not exists public\.business_settings/i);
 });
 
-test("tenancy and booking migrations retain tenant-safe constraints and RLS", () => {
+test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {
   const tenancy = contents.get("20260915000000_add_multi_tenant_auth.sql");
   const bookings = contents.get("20260915010000_add_bookings_actions.sql");
   assert.match(tenancy, /create table if not exists public\.businesses/i);
@@ -36,4 +37,13 @@ test("tenancy and booking migrations retain tenant-safe constraints and RLS", ()
   assert.match(bookings, /alter table public\.bookings enable row level security/i);
   assert.match(bookings, /alter table public\.actions enable row level security/i);
   assert.match(bookings, /revoke all on public\.bookings, public\.actions from anon, authenticated/i);
+  const voice = contents.get("20260916153249_add_voice_receptionist_foundation.sql");
+  assert.match(voice, /create table if not exists public\.voice_provider_connections/i);
+  assert.match(voice, /create table if not exists public\.voice_phone_numbers/i);
+  assert.match(voice, /create table if not exists public\.voice_calls/i);
+  assert.match(voice, /create table if not exists public\.voice_call_events/i);
+  assert.match(voice, /foreign key \(call_id, business_id\)/i);
+  assert.match(voice, /foreign key \(lead_id, business_id\)/i);
+  assert.match(voice, /alter table public\.voice_calls enable row level security/i);
+  assert.match(voice, /revoke all on public\.voice_provider_connections, public\.voice_phone_numbers/i);
 });

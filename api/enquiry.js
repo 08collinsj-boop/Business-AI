@@ -83,10 +83,13 @@ async function supabaseRequest(path, options = {}) {
   throw lastError || new Error("Supabase request failed");
 }
 
-async function getBusinessSettings() {
+export async function getBusinessSettings(businessId = null) {
   try {
+    const tenantFilter = businessId
+      ? `&business_id=eq.${encodeURIComponent(String(businessId))}`
+      : "";
     const rows = await supabaseRequest(
-      "business_settings?select=business_name&limit=1"
+      `business_settings?select=business_name,business_type,phone,email,address,opening_hours,services,ai_instructions,urgent_jobs_enabled&order=id.asc&limit=1${tenantFilter}`
     );
 
     return rows?.[0] || {};
@@ -100,7 +103,7 @@ async function getBusinessSettings() {
   }
 }
 
-async function getInitialBusinessId() {
+export async function getInitialBusinessId() {
   const rows = await supabaseRequest(
     "business_settings?select=business_id&order=id.asc&limit=1"
   );
@@ -260,7 +263,7 @@ function findJobDetails(conversationText) {
   return found.slice(0, 5).join(", ");
 }
 
-async function findExistingLead(lead, businessId) {
+export async function findExistingLead(lead, businessId) {
   if (!lead.phone && !lead.email) return null;
 
   const filters = [];
@@ -282,8 +285,14 @@ async function findExistingLead(lead, businessId) {
   return rows?.[0] || null;
 }
 
-async function saveLead(lead) {
-  const businessId = await getInitialBusinessId();
+export async function saveLead(lead, trustedBusinessId = null) {
+  // trustedBusinessId is only used by server-side integrations that resolved a
+  // tenant from a verified configuration (for example, a mapped phone number).
+  // Public browser requests continue to resolve the initial business here.
+  const businessId = trustedBusinessId || await getInitialBusinessId();
+  if (typeof businessId !== "string" || !businessId.trim()) {
+    throw new Error("Business configuration is unavailable");
+  }
   const existing = await findExistingLead(lead, businessId);
 
   const leadData = {
@@ -308,7 +317,7 @@ async function saveLead(lead) {
 
   if (existing?.id) {
     const updated = await supabaseRequest(
-      `leads?id=eq.${encodeURIComponent(existing.id)}`,
+      `leads?id=eq.${encodeURIComponent(existing.id)}&business_id=eq.${encodeURIComponent(businessId)}`,
       {
         method: "PATCH",
         headers: {
