@@ -26,6 +26,7 @@ Last audited: 2026-09-17
 - The isolated public Pilot/Staging Vercel project `business-ai-pilot` is deployed from `auth-preview` commit `c06df3f` and uses Business-AI-Dev only. Its public enquiry route, durable rate limit, fake lead/handover/audit path, authenticated tenant-scoped reads, cross-tenant denial, health endpoint, and private unauthenticated rejection were validated. The existing Production and protected Preview projects were untouched.
 - North East Electrical has been preflighted as the first supervised Pilot business: its proposed public slug `north-east-electrical` is available in Business-AI-Dev, but no tenant or owner account has been created yet. Existing onboarding requires a new authenticated user with no membership and creates the tenant plus owner membership atomically.
 - The Pilot authentication UI includes secure self-service email/password account registration. Confirmation remains enabled; a new Auth account has no business membership until its owner completes the existing server-authorised onboarding flow.
+- Commit `0e010ef` is deployed to the isolated Pilot project at `https://business-ai-pilot.vercel.app`. Its public config resolves to Business-AI-Dev, its sign-up UI is present, `/api/health` is healthy, and unauthenticated private dashboard/onboarding endpoints return `401`. No account was created during this deployment check.
 
 ## In Progress
 

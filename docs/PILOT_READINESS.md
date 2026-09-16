@@ -23,6 +23,10 @@ The Pilot login screen includes a minimal email/password **Create an account** p
 
 This is intentionally limited to one initial business membership per owner. Do not use it for staff invitations, multi-business ownership or franchise onboarding until those are separately designed and reviewed.
 
+### Deployment validation
+
+Commit `0e010ef` was deployed only to the isolated `business-ai-pilot` project on 2026-09-17. The deployment's browser-safe public configuration identified Business-AI-Dev (`mvwseobgkexzpmmkgcxe`); the create-account UI was present; `/api/health` returned `200`; and unauthenticated calls to leads, history, pipeline, settings, bookings, actions, and business onboarding each returned `401`. No test account or customer data was created. A manual confirmation-email/signup test is still required to validate actual email delivery and the configured redirect in the browser.
+
 ## Audit records
 
 `business_audit_events` records tenant-scoped, append-only application events for business creation, configuration/settings updates, lead updates, booking/action changes, public lead capture and lifecycle requests. Each event has a tenant, optional actor UUID, action, resource reference and timestamp.
