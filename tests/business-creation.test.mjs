@@ -82,6 +82,7 @@ test("public enquiry maps a slug to its server-resolved business and scopes lead
   const res = { statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } };
   await enquiry.default({ method: "POST", headers: { "x-forwarded-for": "198.51.100.8" }, query: { business: "garage-b", business_id: "business-a" }, body: { message: "I need an MOT. My number is 07000000000", messages: [] } }, res);
   assert.equal(res.statusCode, 200); assert.equal(res.body.leadCaptured, true);
+  assert.deepEqual(Object.keys(res.body).sort(), ["leadCaptured", "reply"], "public enquiries never receive the stored lead row or internal tenant identifier");
   const leadQuery = calls.find((call) => call.url.includes("leads?")); const leadWrite = calls.find((call) => call.url.endsWith("/rest/v1/leads"));
   assert.match(leadQuery.url, /business_id=eq.business-b/); assert.equal(JSON.parse(leadWrite.options.body).business_id, "business-b");
 });

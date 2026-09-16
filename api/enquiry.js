@@ -749,8 +749,10 @@ Your response must follow the supplied JSON schema.
         typeof result.reply === "string"
           ? result.reply
           : "Thanks. I have your details.",
-      leadCaptured,
-      lead: savedLead
+      // Public callers only need to know whether their details were received.
+      // Never expose a database row here: it can contain customer data and the
+      // internal tenant identifier used by server-side routing.
+      leadCaptured
     });
   } catch (error) {
     logOperationalEvent("enquiry.failed", { failure: error?.name || "unknown" });
