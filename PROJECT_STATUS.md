@@ -18,12 +18,12 @@ Last audited: 2026-09-16
 - Bookings and actions are implemented, migrated to Business-AI-Dev, and validated end-to-end with clearly fake Dev-only records.
 - A reproducible empty-project database bootstrap chain is source-controlled, including the reconstructed lead/history baseline and the two verified historical migrations that were previously absent from the repository.
 - The complete six-migration chain was applied and verified on **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) only. The Dev owner has exactly one `owner` membership for `My Business`. The Dev environment contains only clearly fake end-to-end test records.
-- Provider-neutral AI phone receptionist foundation is implemented in source: tenant-owned provider/number mappings, calls/events, server-verified provider adapter contract, server-side number-to-tenant resolution, call safety/handover primitives, usage/cost fields, and a tenant-scoped private call-history API. It is disabled by default and has no provider adapter or live number.
+- Provider-neutral AI phone receptionist foundation is implemented and Dev-migrated: tenant-owned provider/number mappings, calls/events, server-verified provider adapter contract, server-side number-to-tenant resolution, call safety/handover primitives, usage/cost fields, and a tenant-scoped private call-history API. It is disabled by default and has no provider adapter or live number.
 
 ## In Progress
 
 - Production authentication rollout preparation only. Production auth gates remain absent/disabled.
-- The voice foundation migration is source-controlled but unapplied. Provider selection, Dev provider setup, and a provider-specific adapter remain intentionally pending.
+- Both Dev-only voice migrations are applied and verified. Provider selection, Dev provider setup, and a provider-specific adapter remain intentionally pending.
 - Supabase Auth production URL/redirect configuration and a controlled Production activation remain pending owner approval.
 
 ## Blocked / Requires Owner
@@ -37,6 +37,6 @@ Last audited: 2026-09-16
 
 1. Review and execute `docs/PRODUCTION_AUTH_ROLLOUT_CHECKLIST.md` only with owner approval.
 2. Verify real-owner Production login, dashboard reads, lead history, authorised writes, logout, and unauthenticated 401 responses immediately after activation.
-3. Apply and verify `20260916153249_add_voice_receptionist_foundation.sql` to Business-AI-Dev only, then choose and configure a Dev telephony provider using `docs/VOICE_RECEPTIONIST_FOUNDATION.md`.
-4. Implement and test one provider-specific webhook adapter and one real Dev call before any Production consideration.
+3. Choose and configure a Dev telephony provider using `docs/VOICE_RECEPTIONIST_FOUNDATION.md`, then implement a provider-specific signature/replay adapter.
+4. Test one real Dev call before any Production consideration.
 5. Continue MVP hardening: rate limits, AI safety/urgent handover handling, data lifecycle/export/deletion workflows, tenant-aware analytics, messaging integrations/plugins, business templates (trades, restaurants, salons), free trial/pricing, role/audit controls, usage/cost controls, backups/disaster recovery, business-specific knowledge, and privacy-by-design work.

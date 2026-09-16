@@ -6,6 +6,15 @@ This foundation lets Business AI add a phone channel without making lead, bookin
 
 The only public entry point is `POST /api/voice-webhook?provider=<provider>`. It returns `404` unless the exact environment value `VOICE_RECEPTIONIST_ENABLED=true` is present. Even then, it returns `503` until a server-side provider adapter is installed. This is deliberate: an unverified caller must never be able to create calls, leads, bookings, or actions.
 
+## Migration status
+
+The Dev-only migrations were applied and verified on 2026-09-16 to **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`):
+
+1. `20260916153249_add_voice_receptionist_foundation.sql`
+2. `20260916154907_add_voice_foreign_key_indexes.sql`
+
+The second, additive migration covers the composite voice foreign keys with left-prefix indexes identified by the Supabase advisor. Both migrations are still unapplied to Production. The Dev voice tables contain no provider connection, number, credential, call, or event record.
+
 ## Tenant resolution and security model
 
 1. A provider-specific adapter verifies the provider's webhook signature against its **server-side** credential before any tenant lookup.

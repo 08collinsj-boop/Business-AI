@@ -24,7 +24,7 @@ create table if not exists public.voice_phone_numbers (
   id bigint generated always as identity primary key,
   business_id uuid not null references public.businesses(id) on delete restrict,
   provider_connection_id uuid not null,
-  e164_number text not null check (e164_number ~ '^\\+[1-9][0-9]{7,14}$'),
+  e164_number text not null check (e164_number ~ '^\+[1-9][0-9]{7,14}$'),
   provider_number_reference text not null default '',
   location_label text not null default '',
   active boolean not null default false,
@@ -54,9 +54,9 @@ create table if not exists public.voice_calls (
   status text not null default 'received'
     check (status in ('received', 'ringing', 'in_progress', 'completed', 'missed', 'failed', 'escalated')),
   caller_number text not null default ''
-    check (caller_number = '' or caller_number ~ '^\\+[1-9][0-9]{7,14}$'),
+    check (caller_number = '' or caller_number ~ '^\+[1-9][0-9]{7,14}$'),
   called_number text not null default ''
-    check (called_number = '' or called_number ~ '^\\+[1-9][0-9]{7,14}$'),
+    check (called_number = '' or called_number ~ '^\+[1-9][0-9]{7,14}$'),
   lead_id bigint,
   booking_id bigint,
   action_id bigint,

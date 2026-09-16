@@ -14,7 +14,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260914195529_enable_rls_business_settings.sql",
     "20260915000000_add_multi_tenant_auth.sql",
     "20260915010000_add_bookings_actions.sql",
-    "20260916153249_add_voice_receptionist_foundation.sql"
+    "20260916153249_add_voice_receptionist_foundation.sql",
+    "20260916154907_add_voice_foreign_key_indexes.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -46,4 +47,7 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(voice, /foreign key \(lead_id, business_id\)/i);
   assert.match(voice, /alter table public\.voice_calls enable row level security/i);
   assert.match(voice, /revoke all on public\.voice_provider_connections, public\.voice_phone_numbers/i);
+  const voiceIndexes = contents.get("20260916154907_add_voice_foreign_key_indexes.sql");
+  assert.match(voiceIndexes, /voice_calls_lead_business_id_idx/i);
+  assert.match(voiceIndexes, /voice_call_events_call_business_id_idx/i);
 });
