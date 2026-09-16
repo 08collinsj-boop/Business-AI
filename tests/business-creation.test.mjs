@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
-import { normalisePublicBusinessSlug, resolvePublicBusinessRoute } from "../api/_public-tenant.js";
-import { checkPublicEnquiryRateLimit, resetPublicEnquiryRateLimitsForTest } from "../api/_public-rate-limit.js";
+import { normalisePublicBusinessSlug, resolvePublicBusinessRoute } from "../lib/public-tenant.js";
+import { checkPublicEnquiryRateLimit, resetPublicEnquiryRateLimitsForTest } from "../lib/public-rate-limit.js";
 
 const handlerSource = await readFile(new URL("../api/business-onboarding.js", import.meta.url), "utf8");
-const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
-const routeSource = await readFile(new URL("../api/_public-tenant.js", import.meta.url), "utf8");
-const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
+const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
+const routeSource = await readFile(new URL("../lib/public-tenant.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../lib/audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const routeUrl = `data:text/javascript;base64,${Buffer.from(routeSource).toString("base64")}`;
 const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
@@ -25,7 +25,7 @@ async function load({ memberships = [], rpc = [{ business_id: "business-new", pu
     if (url.includes("rpc/create_business_for_owner")) return reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
-  const source = handlerSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "./_public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`);
+  const source = handlerSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 

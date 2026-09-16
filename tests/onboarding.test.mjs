@@ -6,12 +6,12 @@ import {
   getIndustryTemplates,
   sanitizeReceptionistConfiguration,
   validateBusinessConfiguration
-} from "../api/_business-configuration.js";
+} from "../lib/business-configuration.js";
 
 const apiSource = await readFile(new URL("../api/business-configuration.js", import.meta.url), "utf8");
-const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
-const configSource = await readFile(new URL("../api/_business-configuration.js", import.meta.url), "utf8");
-const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
+const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
+const configSource = await readFile(new URL("../lib/business-configuration.js", import.meta.url), "utf8");
+const auditSource = await readFile(new URL("../lib/audit.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const configUrl = `data:text/javascript;base64,${Buffer.from(configSource).toString("base64")}`;
 const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
@@ -29,9 +29,9 @@ async function load(role = "owner", enabled = "true", database = async () => rep
     return database(url, options);
   };
   const source = apiSource
-    .replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`)
-    .replace('from "./_business-configuration.js"', `from "${configUrl}#${Math.random()}"`)
-    .replace('from "./_audit.js"', `from "${auditUrl}#${Math.random()}"`);
+    .replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`)
+    .replace('from "../lib/business-configuration.js"', `from "${configUrl}#${Math.random()}"`)
+    .replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 

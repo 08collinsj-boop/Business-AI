@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const source = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const source = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
 const originalEnv = { ...process.env };
 const originalFetch = globalThis.fetch;
 

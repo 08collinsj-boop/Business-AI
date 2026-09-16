@@ -1,6 +1,6 @@
-import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "./_auth.js";
-import { getIndustryTemplates, validateBusinessConfiguration } from "./_business-configuration.js";
-import { recordAuditEvent } from "./_audit.js";
+import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "../lib/auth.js";
+import { getIndustryTemplates, validateBusinessConfiguration } from "../lib/business-configuration.js";
+import { recordAuditEvent } from "../lib/audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;

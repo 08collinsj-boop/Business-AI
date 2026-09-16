@@ -10,11 +10,11 @@ import {
   normaliseE164,
   resolveInboundTenant,
   validateInboundCallEvent
-} from "../api/_voice.js";
-import { createVoiceWebhookHandler } from "../api/voice-webhook.js";
+} from "../lib/voice.js";
+import { createVoiceWebhookHandler } from "../lib/voice-webhook-handler.js";
 
-const callsSource = await readFile(new URL("../api/voice-calls.js", import.meta.url), "utf8");
-const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const callsSource = await readFile(new URL("../lib/voice-calls-handler.js", import.meta.url), "utf8");
+const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const voiceUrl = `data:text/javascript;base64,${Buffer.from('export function isVoiceReceptionistEnabled(){ return process.env.VOICE_RECEPTIONIST_ENABLED === "true"; }').toString("base64")}`;
 const savedEnv = { ...process.env };
@@ -40,8 +40,8 @@ async function loadCalls(enabled, api) {
     return api(url, options);
   };
   const source = callsSource
-    .replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`)
-    .replace('from "./_voice.js"', `from "${voiceUrl}#${Math.random()}"`);
+    .replace('from "./auth.js"', `from "${authUrl}#${Math.random()}"`)
+    .replace('from "./voice.js"', `from "${voiceUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 

@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
-import { enforcePublicEnquiryRateLimit, isDurablePublicRateLimitEnabled, publicRateLimitWindow, publicSourceFingerprint } from "../api/_public-rate-limit.js";
+import { enforcePublicEnquiryRateLimit, isDurablePublicRateLimitEnabled, publicRateLimitWindow, publicSourceFingerprint } from "../lib/public-rate-limit.js";
 
-const auditSource = await readFile(new URL("../api/_audit.js", import.meta.url), "utf8");
-const lifecycleSource = await readFile(new URL("../api/data-lifecycle.js", import.meta.url), "utf8");
-const subjectSource = await readFile(new URL("../api/data-subjects.js", import.meta.url), "utf8");
-const health = (await import(new URL(`../api/health.js?health=${Math.random()}`, import.meta.url))).default;
+const auditSource = await readFile(new URL("../lib/audit.js", import.meta.url), "utf8");
+const lifecycleSource = await readFile(new URL("../lib/data-lifecycle-handler.js", import.meta.url), "utf8");
+const subjectSource = await readFile(new URL("../lib/data-subjects-handler.js", import.meta.url), "utf8");
+const health = (await import(new URL(`../lib/health-handler.js?health=${Math.random()}`, import.meta.url))).default;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 
 test("durable public quota mode uses an HMAC source fingerprint and fails closed without its server secret", async () => {

@@ -3,14 +3,14 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 
 const historySource = await readFile(new URL("../api/history.js", import.meta.url), "utf8");
-const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const result = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 async function load(enabled, fetchImpl) {
   process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = fetchImpl;
-  const source = historySource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`);
+  const source = historySource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 function tenantRouter(api) { return async (url, options = {}) => {

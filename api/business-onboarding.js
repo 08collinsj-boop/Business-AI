@@ -1,6 +1,6 @@
-import { requireAuthenticatedUser, sendAuthError } from "./_auth.js";
-import { normalisePublicBusinessSlug } from "./_public-tenant.js";
-import { recordAuditEvent } from "./_audit.js";
+import { requireAuthenticatedUser, sendAuthError } from "../lib/auth.js";
+import { normalisePublicBusinessSlug } from "../lib/public-tenant.js";
+import { recordAuditEvent } from "../lib/audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;

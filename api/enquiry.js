@@ -1,11 +1,11 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-import { sanitizeReceptionistConfiguration } from "./_business-configuration.js";
-import { resolvePublicBusinessRoute } from "./_public-tenant.js";
-import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "./_public-rate-limit.js";
-import { recordAuditEvent } from "./_audit.js";
-import { logOperationalEvent } from "./_operational-log.js";
+import { sanitizeReceptionistConfiguration } from "../lib/business-configuration.js";
+import { resolvePublicBusinessRoute } from "../lib/public-tenant.js";
+import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "../lib/public-rate-limit.js";
+import { recordAuditEvent } from "../lib/audit.js";
+import { logOperationalEvent } from "../lib/operational-log.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;

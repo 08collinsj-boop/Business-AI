@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/api/audit-log", "destination": "/api/operations?operation=audit-log" },
+    { "source": "/api/data-lifecycle", "destination": "/api/operations?operation=data-lifecycle" },
+    { "source": "/api/data-subjects", "destination": "/api/operations?operation=data-subjects" },
+    { "source": "/api/health", "destination": "/api/operations?operation=health" },
+    { "source": "/api/voice-calls", "destination": "/api/voice?operation=calls" },
+    { "source": "/api/voice-webhook", "destination": "/api/voice?operation=webhook" }
+  ]
+}

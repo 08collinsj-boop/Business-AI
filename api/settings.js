@@ -2,8 +2,8 @@ import {
   requireBusinessMember,
   requireBusinessAdmin,
   sendAuthError
-} from "./_auth.js";
-import { recordAuditEvent } from "./_audit.js";
+} from "../lib/auth.js";
+import { recordAuditEvent } from "../lib/audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
