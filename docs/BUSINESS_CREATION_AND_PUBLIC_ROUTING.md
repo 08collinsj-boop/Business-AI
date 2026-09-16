@@ -6,8 +6,8 @@
 
 ## Owner onboarding flow
 
-1. A real owner is created in the selected environment's Supabase Auth service using an email they control and a strong, unique password. The application does not provide public signup and must not create or retain an owner password.
-2. That Auth user signs in.
+1. A prospective owner uses the Business AI **Create an account** form with an email they control and a strong, unique password. The browser calls Supabase Auth's supported email/password `signUp` method using only the publishable key. It sends no business, role, membership or metadata values, and the application never creates or retains an owner password.
+2. With email confirmation enabled, Supabase sends its confirmation email and the account has no Business AI tenant access until the owner follows the configured Pilot confirmation URL and signs in. The UI gives the same confirmation message for a successful or existing address where Supabase's anti-enumeration flow permits it.
 3. The frontend asks `GET /api/business-onboarding` whether that verified user has a membership.
 4. A user with no membership can submit a business name, optional type, and public slug to `POST /api/business-onboarding`.
 5. The server verifies the bearer token with Supabase Auth. It ignores all browser role, user ID, and business ID values.
@@ -17,6 +17,12 @@
 The function is `SECURITY DEFINER` only because an atomic multi-table creation is required. Its search path is fixed, it rejects nonexistent Auth users and users who already have a membership, its public execution grants are revoked, and only `service_role` can execute it. The API independently verifies the authenticated user before providing the owner UID.
 
 This initial controlled-pilot version deliberately supports one membership per user because the existing dashboard selects its tenant exclusively from a single server-resolved membership. Multi-business owner selection/invitations are a future explicit design, not a browser tenant switch.
+
+## Pilot Auth URL and email requirements
+
+For the isolated Pilot project, Supabase Auth email confirmation must remain enabled. In **Business-AI-Dev → Authentication → URL Configuration**, the Site URL is `https://business-ai-pilot.vercel.app` and the allowed redirect list includes `https://business-ai-pilot.vercel.app/**`. These URLs allow the confirmation link to return to the Pilot; they do not grant a tenant membership.
+
+No SMTP provider is required for a small Dev-backed pilot if Supabase's configured email delivery is suitable. Before wider onboarding, configure a branded transactional sender, monitor deliverability, and document password reset/support handling. Never turn off confirmation merely to simplify a pilot test.
 
 ## Public routing
 

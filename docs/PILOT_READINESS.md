@@ -17,6 +17,12 @@ For Preview, configure the two variables above only after the hardening migratio
 
 Supabase leaked-password protection was investigated for the controlled Pilot but is unavailable on the current Supabase plan. It is an accepted Pilot limitation, not a substitute for credential controls. Pilot owner accounts must use strong, unique passwords, and no existing authentication, session verification, tenant-membership, or role controls may be weakened as a workaround. Reassess this protection before any wider or Production rollout.
 
+## Self-service owner sign-up
+
+The Pilot login screen includes a minimal email/password **Create an account** path. It uses the Supabase browser client and the Pilot's browser-safe publishable key only. It does not collect business data, role, tenant ID, or user metadata. Email confirmation remains enabled: a new account has no membership and sees the authenticated onboarding screen only after the email-confirmation flow and sign-in. The server-only `create_business_for_owner` function remains the sole path that creates the first tenant and owner membership atomically.
+
+This is intentionally limited to one initial business membership per owner. Do not use it for staff invitations, multi-business ownership or franchise onboarding until those are separately designed and reviewed.
+
 ## Audit records
 
 `business_audit_events` records tenant-scoped, append-only application events for business creation, configuration/settings updates, lead updates, booking/action changes, public lead capture and lifecycle requests. Each event has a tenant, optional actor UUID, action, resource reference and timestamp.

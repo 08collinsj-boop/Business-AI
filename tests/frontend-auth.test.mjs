@@ -29,4 +29,16 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
   assert.doesNotMatch(html, /TWILIO_AUTH_TOKEN|VOICE_WEBHOOK/);
 });
 
+test("self-service signup creates only an Auth account and waits for email confirmation", () => {
+  assert.match(html, /id="signUpForm"/);
+  assert.match(html, /auth\.signUp\(\{/);
+  assert.match(html, /emailRedirectTo:new URL\('\/',window\.location\.origin\)\.toString\(\)/);
+  assert.match(html, /If this email can be used, check your inbox to confirm it, then sign in\./);
+  assert.match(html, /password\.length<12/);
+  assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}business_id/);
+  assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}role:/);
+  assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}(?:user_metadata|app_metadata|data:)\s*/);
+  assert.match(html, /api\('\/api\/business-onboarding'\)/, "business setup remains a separate authenticated flow");
+});
+
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); });

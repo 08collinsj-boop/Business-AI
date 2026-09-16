@@ -894,7 +894,9 @@ border-radius:13px
 .auth-card h2{margin:18px 0 6px}.auth-card p{margin:0 0 22px;color:var(--muted);font-size:14px}
 .auth-field{display:grid;gap:7px;margin:14px 0}.auth-field label{font-size:13px;color:var(--muted)}
 .auth-field input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:var(--text)}
-.auth-submit{width:100%;margin-top:8px}.auth-message{min-height:20px;margin-top:14px;color:var(--red);font-size:13px}
+.auth-submit{width:100%;margin-top:8px}.auth-message{min-height:20px;margin-top:14px;color:var(--red);font-size:13px}.auth-message.info{color:var(--green)}
+.auth-switch{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}.auth-link{border:0;background:transparent;color:var(--blue);padding:0;font-weight:650;text-decoration:underline}
+.auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
 body.auth-pending .app,body.auth-required .app,body.onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen{display:flex}body.auth-ready .logout-btn{display:block}
 
@@ -964,6 +966,19 @@ margin-top:0
 <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
 <button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
 <div id="loginMessage" class="auth-message" role="alert"></div>
+<p class="auth-switch">New to Business AI? <button id="showSignUp" class="auth-link" type="button">Create an account</button></p>
+</form>
+
+<form id="signUpForm" class="auth-card auth-form-hidden">
+<div class="brand-icon">AI</div>
+<h2>Create your account</h2>
+<p>After confirming your email, you will set up your secure Business AI workspace.</p>
+<div class="auth-field"><label for="signUpEmail">Email</label><input id="signUpEmail" type="email" autocomplete="email" required></div>
+<div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
+<div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+<button id="signUpSubmit" class="btn primary auth-submit" type="submit">Create account</button>
+<div id="signUpMessage" class="auth-message" role="alert"></div>
+<p class="auth-switch">Already have an account? <button id="showLogin" class="auth-link" type="button">Sign in</button></p>
 </form>
 </main>
 
@@ -1691,6 +1706,7 @@ let settings=null;
 let pipeline=null;
 let supabaseClient=null;
 let frontendAuthEnabled=false;
+let authenticationMode='login';
 
 
 const $=id=>document.getElementById(id);
@@ -1704,6 +1720,17 @@ const setAuthView=(state,message='')=>{
 document.body.classList.remove('auth-pending','auth-required','onboarding-required','auth-ready');
 document.body.classList.add(state);
 $('loginMessage').textContent=message;
+};
+
+const setAuthenticationMode=(mode,message='')=>{
+authenticationMode=mode==='signup'?'signup':'login';
+$('loginForm').classList.toggle('auth-form-hidden',authenticationMode!=='login');
+$('signUpForm').classList.toggle('auth-form-hidden',authenticationMode!=='signup');
+if(message){
+const target=authenticationMode==='signup'?$('signUpMessage'):$('loginMessage');
+target.textContent=message;
+target.classList.add('info');
+}
 };
 
 const handleSession=async (session)=>{
@@ -1747,6 +1774,45 @@ try{
 const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
 if(error)throw error;
 }catch{ $('loginMessage').textContent='Unable to sign in with those details.'; }finally{button.disabled=false;}
+});
+
+$('showSignUp').addEventListener('click',()=>{
+$('loginMessage').textContent='';$('loginMessage').classList.remove('info');
+setAuthenticationMode('signup');
+});
+$('showLogin').addEventListener('click',()=>{
+$('signUpMessage').textContent='';$('signUpMessage').classList.remove('info');
+setAuthenticationMode('login');
+});
+
+$('signUpForm').addEventListener('submit',async event=>{
+event.preventDefault();
+if(!supabaseClient)return;
+const email=$('signUpEmail').value.trim();
+const password=$('signUpPassword').value;
+const confirmation=$('signUpPasswordConfirm').value;
+const button=$('signUpSubmit');const message=$('signUpMessage');
+message.classList.remove('info');
+if(password.length<12||password.length>128||password!==confirmation){
+message.textContent='Use a matching password of at least 12 characters.';return;
+}
+button.disabled=true;message.textContent='Creating your account…';
+try{
+const {data,error}=await supabaseClient.auth.signUp({
+email,
+password,
+options:{emailRedirectTo:new URL('/',window.location.origin).toString()}
+});
+if(error)throw error;
+if(data?.session){
+message.textContent='Your account is ready. Signing you in…';message.classList.add('info');
+await handleSession(data.session);
+}else{
+message.textContent='If this email can be used, check your inbox to confirm it, then sign in.';message.classList.add('info');
+}
+}catch{
+message.textContent='We could not create your account. Check your email and password, then try again.';
+}finally{button.disabled=false;}
 });
 
 $('logoutButton').addEventListener('click',async()=>{

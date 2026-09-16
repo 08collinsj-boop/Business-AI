@@ -25,6 +25,7 @@ Last audited: 2026-09-17
 - A second fake Dev business and fake owner were created and validated on Business-AI-Dev only. Separate configuration, public routing, lead, booking/action, audit and authenticated API flows were verified. Cross-tenant history reads and lead updates were denied, injected `business_id` was rejected, and unauthenticated private access returned 401.
 - The isolated public Pilot/Staging Vercel project `business-ai-pilot` is deployed from `auth-preview` commit `c06df3f` and uses Business-AI-Dev only. Its public enquiry route, durable rate limit, fake lead/handover/audit path, authenticated tenant-scoped reads, cross-tenant denial, health endpoint, and private unauthenticated rejection were validated. The existing Production and protected Preview projects were untouched.
 - North East Electrical has been preflighted as the first supervised Pilot business: its proposed public slug `north-east-electrical` is available in Business-AI-Dev, but no tenant or owner account has been created yet. Existing onboarding requires a new authenticated user with no membership and creates the tenant plus owner membership atomically.
+- The Pilot authentication UI includes secure self-service email/password account registration. Confirmation remains enabled; a new Auth account has no business membership until its owner completes the existing server-authorised onboarding flow.
 
 ## In Progress
 
@@ -36,6 +37,7 @@ Last audited: 2026-09-17
 - Supabase Auth production URL/redirect configuration and a controlled Production activation remain pending owner approval.
 - Public Pilot business onboarding is an operational next step, not a Production rollout. Voice remains disabled.
 - Supabase leaked-password protection is unavailable on the current plan. This is an accepted controlled-Pilot limitation; owner accounts must use strong, unique passwords and existing authentication controls remain mandatory.
+- Pilot self-service signup requires the Business-AI-Dev Auth Site URL and redirect allow-list to include `https://business-ai-pilot.vercel.app` and `https://business-ai-pilot.vercel.app/**`; owner confirmed these are configured. Email delivery and confirmation must remain enabled.
 
 ## Blocked / Requires Owner
 
