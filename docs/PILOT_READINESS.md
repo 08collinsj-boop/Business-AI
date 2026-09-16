@@ -53,13 +53,28 @@ Only **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) was used. A second clearly fak
 
 The second owner could read its own lead/history/pipeline and create/complete its own booking/action. It could not read another business’s lead history or update another business’s lead; both returned the safe not-found response. A browser-supplied `business_id` update field was rejected. An unauthenticated bookings request returned 401. No Production project, data, credentials or configuration was accessed.
 
+## Public Pilot/Staging validation on 2026-09-17
+
+The isolated Vercel project `business-ai-pilot` was used as the public Pilot/Staging surface. It is separate from the existing Production project and protected development Preview, and uses **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) only. Its intentionally public alias is `https://business-ai-pilot.vercel.app`; its dashboard remains protected by the application’s Supabase authentication.
+
+Commit `c06df3f` was deployed and validated with fake Dev-only records:
+
+- unauthenticated requests to all tested private APIs returned `401`; Voice remained disabled (`503`);
+- a public, server-verified fake business slug returned a safe AI response and created a tenant-matched fake lead;
+- the enquiry created the expected tenant-scoped handover action, audit event, and durable database quota bucket;
+- an unknown public slug returned `404`, and an authenticated fake owner could read only its own leads, history, pipeline, settings, bookings, actions, and audit records;
+- a cross-tenant lead-history request returned the same safe `404` response as a nonexistent lead;
+- the public response contains only `reply` and `leadCaptured`; it does not return the stored lead row or internal business identifier;
+- `/api/health` returned `200`, and browser-visible configuration exposed only the Supabase URL and browser-safe publishable key.
+
+Interactive browser automation was not available in the validation workspace. The authenticated API/session path was validated with the existing fake Dev owner; the protected Preview already has separate manual owner-login/dashboard validation. No Production deployment, data, or configuration was accessed.
+
 ## Pilot blockers and before-start checklist
 
 Before a real Hartlepool business trial:
 
-1. Apply and verify the forward-only hardening migrations in the intended non-production/Preview database, then repeat authenticated and public-route smoke tests.
-2. Configure `PUBLIC_ENQUIRY_RATE_LIMIT_MODE=database` and a unique server-only `RATE_LIMIT_SALT` in that environment; do not enable this mode without the database migration.
-3. Enable Supabase Auth leaked-password protection and configure owner password/reset and redirect settings.
-4. Set up a real monitored human-handover contact process, privacy notice, retention decision, subject-request process, and incident owner.
-5. Perform a deliberate Production migration/auth rollout using the existing checklist. Do not enable one auth gate without the other.
-6. Keep voice disabled. Telephony provider setup, call-recording policy and signature/replay configuration remain separate work.
+1. Enable Supabase Auth leaked-password protection and configure pilot owner password/reset and redirect settings for the public Pilot URL.
+2. Set up a real monitored human-handover contact process, privacy notice, retention decision, subject-request process, and incident owner.
+3. Create and configure a real pilot business/owner in the isolated Dev-backed Pilot environment, then complete a supervised customer-facing smoke test.
+4. Keep voice disabled. Telephony provider setup, call-recording policy and signature/replay configuration remain separate work.
+5. Treat any Production rollout as a separate decision: apply the required migrations and follow `PRODUCTION_AUTH_ROLLOUT_CHECKLIST.md`; do not enable one auth gate without the other.

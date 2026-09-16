@@ -1,6 +1,6 @@
 # Business AI MVP status
 
-Last audited: 2026-09-16
+Last audited: 2026-09-17
 
 ## Completed
 
@@ -23,6 +23,7 @@ Last audited: 2026-09-16
 - Controlled-pilot business creation and public tenant routing are implemented and Dev-migrated: an authenticated user without memberships can create exactly one business through a server-only atomic function that creates the owner membership, default settings/configuration, and a public slug route. Public enquiries resolve that route server-side and never accept an internal tenant ID.
 - Pilot hardening is implemented and Dev-migrated: durable database-backed public-enquiry quotas (HMAC source fingerprint plus routed-business window), tenant-scoped audit records, lifecycle-policy defaults, owner-only lead export/anonymisation endpoints, core human-handover detection/action creation, and redacted operational readiness logging.
 - A second fake Dev business and fake owner were created and validated on Business-AI-Dev only. Separate configuration, public routing, lead, booking/action, audit and authenticated API flows were verified. Cross-tenant history reads and lead updates were denied, injected `business_id` was rejected, and unauthenticated private access returned 401.
+- The isolated public Pilot/Staging Vercel project `business-ai-pilot` is deployed from `auth-preview` commit `c06df3f` and uses Business-AI-Dev only. Its public enquiry route, durable rate limit, fake lead/handover/audit path, authenticated tenant-scoped reads, cross-tenant denial, health endpoint, and private unauthenticated rejection were validated. The existing Production and protected Preview projects were untouched.
 
 ## In Progress
 
@@ -32,6 +33,7 @@ Last audited: 2026-09-16
 - The Dev-only creation/routing migration `20260916180000_add_business_creation_and_public_routes.sql` is applied and verified on Business-AI-Dev. It is unapplied to Production.
 - The Dev-only pilot-hardening migrations `20260916190000_add_pilot_hardening_foundation.sql` and `20260916191000_add_lifecycle_policy_for_new_businesses.sql` are applied and verified on Business-AI-Dev. They are unapplied to Production.
 - Supabase Auth production URL/redirect configuration and a controlled Production activation remain pending owner approval.
+- Public Pilot business onboarding is an operational next step, not a Production rollout. Voice remains disabled.
 
 ## Blocked / Requires Owner
 
@@ -48,4 +50,4 @@ Last audited: 2026-09-16
 4. Test one real Dev call before any Production consideration.
 5. Continue MVP hardening: rate limits, AI safety/urgent handover handling, data lifecycle/export/deletion workflows, tenant-aware analytics, messaging integrations/plugins, business templates (trades, restaurants, salons), free trial/pricing, role/audit controls, usage/cost controls, backups/disaster recovery, business-specific knowledge, and privacy-by-design work.
 6. Extend the controlled-pilot flow with owner-authorised membership invitations, multiple-business selection, verified custom-domain/widget routing, and multi-location onboarding before accepting unrestricted self-service sign-ups.
-7. Before accepting a real public pilot, configure the durable rate-limit mode/salt, enable Supabase breached-password protection, complete pilot privacy/retention/support procedures, and make a deliberate Production migration/auth rollout.
+7. Before onboarding a real public pilot, enable Supabase breached-password protection, complete pilot privacy/retention/support procedures, set up a monitored handover route, and perform a supervised real-owner smoke test in the isolated Pilot environment. Production rollout remains separate.
