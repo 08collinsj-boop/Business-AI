@@ -899,6 +899,9 @@ border-radius:13px
 .auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
 body.auth-pending .app,body.auth-required .app,body.onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen{display:flex}body.auth-ready .logout-btn{display:block}
+body.public-enquiry .app,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen{display:none}
+body.public-enquiry #publicEnquiryScreen{display:flex}
+.public-link-row{display:flex;gap:8px;align-items:center}.public-link-row input{flex:1;min-width:0}.public-link-row button{white-space:nowrap}
 
 .empty{
 text-align:center;
@@ -948,6 +951,7 @@ justify-content:space-between
 .pipeline .stage-value{
 margin-top:0
 }
+.public-link-row{align-items:stretch;flex-direction:column}.public-link-row button{width:100%}
 
 }
 </style>
@@ -993,6 +997,20 @@ margin-top:0
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
 </form>
+</main>
+
+<main id="publicEnquiryScreen" class="auth-screen" aria-live="polite">
+<section class="auth-card chat">
+<div class="brand-icon">AI</div>
+<h2>Business enquiry</h2>
+<p>Tell us what you need and the receptionist will pass your enquiry to the business.</p>
+<div id="publicMessages" class="messages"></div>
+<form id="publicEnquiryForm" class="chat-form">
+<input id="publicChatInput" maxlength="2000" placeholder="How can we help?" autocomplete="off" required>
+<button type="submit" aria-label="Send enquiry">↑</button>
+</form>
+<div id="publicEnquiryMessage" class="auth-message" role="alert"></div>
+</section>
 </main>
 
 <div id="dashboardApp" class="app">
@@ -1430,6 +1448,12 @@ Used by your AI receptionist
 
 </div>
 
+<div class="field full" style="margin-bottom:16px">
+<label for="publicEnquiryLink">Customer enquiry link</label>
+<div class="public-link-row"><input id="publicEnquiryLink" readonly aria-describedby="publicEnquiryLinkHelp"><button class="small-btn primary-action" type="button" onclick="copyPublicEnquiryLink()">Copy link</button></div>
+<div id="publicEnquiryLinkHelp" class="work-meta">A public link for customers. It does not reveal your internal business ID.</div>
+</div>
+
 
 <div class="settings-grid">
 
@@ -1707,6 +1731,7 @@ let pipeline=null;
 let supabaseClient=null;
 let frontendAuthEnabled=false;
 let authenticatedPublicBusinessSlug=null;
+let publicEnquirySlug=null;
 let authenticationMode='login';
 
 
@@ -1734,6 +1759,28 @@ target.classList.add('info');
 }
 };
 
+const publicSlugFromLocation=()=>{
+const slug=new URLSearchParams(window.location.search).get('business');
+return /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(slug||'').toLowerCase())?String(slug).toLowerCase():null;
+};
+
+const publicEnquiryUrl=slug=>{
+if(!slug)return '';
+const url=new URL('/',window.location.origin);url.searchParams.set('business',slug);return url.toString();
+};
+
+function fillPublicEnquiryLink(){
+const input=$('publicEnquiryLink');const help=$('publicEnquiryLinkHelp');if(!input||!help)return;
+const link=publicEnquiryUrl(authenticatedPublicBusinessSlug);input.value=link;
+help.textContent=link?'Share this customer-facing link. It uses your public route, not an internal business ID.':'Your customer enquiry link is unavailable.';
+}
+
+async function copyPublicEnquiryLink(){
+const input=$('publicEnquiryLink');const link=input?.value||'';
+if(!link){toast('Customer enquiry link is unavailable');return;}
+try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);else{input.select();document.execCommand('copy');}toast('Customer enquiry link copied');}catch{input.select();toast('Copy the customer enquiry link from the field');}
+}
+
 const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
 if(session){
@@ -1743,6 +1790,7 @@ const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
 authenticatedPublicBusinessSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
 if(!authenticatedPublicBusinessSlug)throw new Error('Business public route is unavailable');
+fillPublicEnquiryLink();
 setAuthView('auth-ready');loadAll().catch(()=>{});return;
 }catch(error){
 if(error.message==='Your session has expired.')return;
@@ -1827,6 +1875,17 @@ message.textContent='We could not create your account. Check your email and pass
 $('logoutButton').addEventListener('click',async()=>{
 if(supabaseClient)await supabaseClient.auth.signOut();
 });
+
+const publicEnquiryMessages=[];
+function addPublicEnquiryMessage(role,content){
+const list=$('publicMessages');if(!list)return;const message=document.createElement('div');message.className=`msg ${role==='user'?'user':'ai'}`;message.textContent=content;list.append(message);list.scrollTop=list.scrollHeight;
+}
+async function sendPublicEnquiry(event){
+event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug)return;
+input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
+try{const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1)})});const result=await response.json().catch(()=>null);if(!response.ok)throw new Error(result?.error||'Unable to send enquiry');const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);}catch{addPublicEnquiryMessage('assistant','Sorry, we could not process that enquiry. Please try again shortly.');}finally{input.disabled=false;submit.disabled=false;input.focus();}
+}
+$('publicEnquiryForm').addEventListener('submit',sendPublicEnquiry);
 
 $('businessSetupForm').addEventListener('submit',async event=>{
 event.preventDefault();
@@ -2405,6 +2464,7 @@ if(input)input.value=settings[field]||'';
 $('s_urgent').checked=Boolean(settings.urgent_jobs_enabled);
 
 $('brandName').textContent=settings.business_name||'Business AI';
+fillPublicEnquiryLink();
 
 }
 
@@ -2553,6 +2613,8 @@ $('leadList').innerHTML=message;
 
 
 async function initializeApp(){
+publicEnquirySlug=publicSlugFromLocation();
+if(publicEnquirySlug){document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');addPublicEnquiryMessage('assistant','Hi! How can we help?');return;}
 loadEnquiryConversation();
 renderEnquiryConversation();
 const authActive=await initializeAuthentication();

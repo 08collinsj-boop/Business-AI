@@ -41,6 +41,7 @@ Last audited: 2026-09-17
 - Pilot self-service signup requires the Business-AI-Dev Auth Site URL and redirect allow-list to include `https://business-ai-pilot.vercel.app` and `https://business-ai-pilot.vercel.app/**`; owner confirmed these are configured. Email delivery and confirmation must remain enabled.
 - The Pilot post-login onboarding check now defers Supabase session work outside the `onAuthStateChange` callback lock. This is awaiting a manual retest by the existing Collins LTD. owner after deployment; no tenant, membership, settings, or configuration data was changed.
 - Authenticated dashboard receptionist requests obtain the signed-in tenant's public slug through the authenticated onboarding check, then use the existing server-validated public route. This avoids unsafe implicit tenant selection when more than one Dev business exists.
+- The Pilot dashboard Settings view exposes a copyable customer enquiry link. Opening `/?business=<public-slug>` now presents a public customer enquiry screen only; it does not initialise dashboard authentication or reveal private business data.
 
 ## Blocked / Requires Owner
 
