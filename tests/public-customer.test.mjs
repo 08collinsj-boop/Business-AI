@@ -68,6 +68,12 @@ test("different public routes keep customer branding isolated between businesses
 
 test("the public customer UI is business-first, transparent and separate from owner PWA state", () => {
   assert.match(html, /id="publicBusinessName"/);
+  assert.match(html, /class="public-hero"/);
+  assert.match(html, /Ask a question/);
+  assert.match(html, /Request a quote/);
+  assert.match(html, /Speak to someone/);
+  assert.match(html, /General enquiry/);
+  assert.match(html, /function startPublicEnquiry\(message\)/);
   assert.match(html, /AI assistant for/);
   assert.match(html, /Powered by Business AI/);
   assert.match(html, /async function loadPublicBusinessIdentity/);
@@ -79,6 +85,13 @@ test("the public customer UI is business-first, transparent and separate from ow
   assert.match(html, /registerOwnerPwa\(\);/);
   const publicInitialisation = html.slice(html.indexOf("async function initializeApp"), html.indexOf("initializeApp();"));
   assert.doesNotMatch(publicInitialisation, /registerOwnerPwa/, "public visitors are not prompted to install the owner app");
+});
+
+test("public quick actions only guide the existing public conversation", () => {
+  const publicSection = html.slice(html.indexOf("function startPublicEnquiry"), html.indexOf("function addPublicEnquiryMessage"));
+  assert.match(publicSection, /input\.value=message/);
+  assert.doesNotMatch(publicSection, /Authorization|access_token|business_id|fetch\(/);
+  assert.match(html, /This is an AI assistant for/);
 });
 
 test("PWA metadata and worker cache only static non-sensitive assets", () => {

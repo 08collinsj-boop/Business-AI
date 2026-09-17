@@ -839,13 +839,13 @@ left:50%;
 bottom:12px;
 bottom:calc(12px + env(safe-area-inset-bottom));
 transform:translateX(-50%);
-width:min(94%,600px);
-background:rgba(15,20,26,.96);
-border:1px solid var(--border);
-border-radius:18px;
+width:min(94%,520px);
+background:rgba(12,17,23,.96);
+border:1px solid #293440;
+border-radius:20px;
 padding:7px;
 display:grid;
-grid-template-columns:repeat(6,1fr);
+grid-template-columns:repeat(4,1fr);
 gap:4px;
 z-index:50;
 backdrop-filter:blur(14px)
@@ -857,13 +857,13 @@ background:transparent;
 color:var(--muted);
 border-radius:13px;
 padding:9px 5px;
-font-size:9px;
+font-size:10px;
 font-weight:700
 }
 
 .nav-btn.active{
-background:#fff;
-color:#000
+background:#eaf2ff;
+color:#10213b
 }
 
 .toast{
@@ -906,12 +906,13 @@ border-radius:13px
 .auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
 body.auth-pending .app,body.auth-required .app,body.onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen{display:flex}body.auth-ready .logout-btn{display:block}
-body.public-enquiry{padding:0;background:#f4f6f8;color:#18212a}
+body.public-enquiry{padding:0;background:#f4f7fb;color:#17212b}
 body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen{display:none}
 body.public-enquiry #publicEnquiryScreen{display:block}
 .public-link-row{display:flex;gap:8px;align-items:center}.public-link-row input{flex:1;min-width:0}.public-link-row button{white-space:nowrap}
 
-.public-customer-shell{width:min(100%,760px);min-height:100dvh;margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}.public-business-header{display:flex;align-items:center;gap:13px;padding:7px 3px}.public-business-mark{width:48px;height:48px;border-radius:15px;background:#17212b;color:#fff;display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.5px;flex:none}.public-eyebrow{margin:0 0 3px;color:#667482;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}.public-business-name{margin:0;font-size:20px;line-height:1.18;letter-spacing:-.4px;overflow-wrap:anywhere}.public-business-type{margin:3px 0 0;color:#667482;font-size:13px;overflow-wrap:anywhere}.public-chat-card{background:#fff;border:1px solid #dfe5ea;border-radius:22px;box-shadow:0 12px 34px rgba(24,33,42,.08);display:flex;flex:1;min-height:0;flex-direction:column;padding:18px}.public-chat-heading{display:flex;align-items:flex-start;gap:11px;padding-bottom:15px;border-bottom:1px solid #e8edf1}.public-assistant-dot{width:10px;height:10px;margin-top:5px;border-radius:50%;background:#247a5b;box-shadow:0 0 0 4px #e8f5ef;flex:none}.public-chat-heading h2{margin:0;font-size:17px;letter-spacing:-.2px}.public-chat-heading p{margin:4px 0 0;color:#687683;font-size:13px;line-height:1.45}.public-business-details{display:flex;flex-wrap:wrap;gap:7px;padding:13px 0 3px}.public-detail{display:none;max-width:100%;padding:7px 9px;border-radius:999px;background:#f1f4f6;color:#4e5c68;font-size:11px;line-height:1.35;overflow-wrap:anywhere}.public-detail.has-content{display:block}.public-messages{flex:1;min-height:230px;overflow:auto;overscroll-behavior:contain;padding:16px 0 4px;scroll-behavior:smooth}.public-messages .msg{max-width:min(88%,530px);padding:12px 14px;margin-bottom:11px;border-radius:16px;font-size:14px;line-height:1.5;overflow-wrap:anywhere;box-shadow:none}.public-messages .msg.ai{background:#f2f5f7;border:1px solid #e3e8ec;color:#27323b;border-bottom-left-radius:5px}.public-messages .msg.user{background:#18212a;color:#fff;border-bottom-right-radius:5px}.public-typing{display:none;align-items:center;gap:7px;color:#64717d;font-size:12px;padding:4px 0 12px}.public-typing.visible{display:flex}.public-typing i{width:6px;height:6px;border-radius:50%;background:#607080;box-shadow:10px 0 #89949e,20px 0 #b0b7bd;margin-right:21px}.public-chat-form{border-top:1px solid #e8edf1;padding-top:13px;display:flex;gap:9px;align-items:flex-end}.public-chat-form input{min-width:0;flex:1;background:#f6f8f9;color:#17212b;border:1px solid #dbe2e7;border-radius:14px;padding:13px 14px;font-size:16px;line-height:1.25;outline:none}.public-chat-form input:focus{border-color:#66869d;box-shadow:0 0 0 3px rgba(102,134,157,.16)}.public-chat-form button{width:48px;height:48px;flex:none;border:0;border-radius:14px;background:#17212b;color:#fff;font-size:19px;font-weight:700}.public-chat-form button:disabled,.public-chat-form input:disabled{opacity:.58;cursor:not-allowed}.public-customer-error{min-height:0;margin:10px 0 0;color:#b42318;font-size:12px;line-height:1.45}.public-customer-footer{text-align:center;color:#6b7782;font-size:11px;line-height:1.5;padding:0 8px}.public-customer-footer strong{color:#43515d}.public-customer-footer a{color:inherit}.public-link-privacy{font-size:11px;color:#71808d;margin:10px 0 0;line-height:1.45}
+.public-customer-shell{width:min(100%,790px);min-height:100dvh;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}.public-business-header{display:flex;align-items:center;gap:12px;padding:4px 2px}.public-business-mark{width:46px;height:46px;border-radius:15px;background:#1463d8;color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;letter-spacing:-.5px;flex:none;box-shadow:0 8px 20px rgba(20,99,216,.22)}.public-eyebrow{margin:0 0 3px;color:#607080;font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}.public-business-name{margin:0;font-size:20px;line-height:1.15;letter-spacing:-.5px;overflow-wrap:anywhere}.public-business-type{margin:3px 0 0;color:#667482;font-size:13px;overflow-wrap:anywhere}.public-hero{position:relative;overflow:hidden;border-radius:25px;background:#102a4d;color:#fff;padding:25px 22px 22px;box-shadow:0 16px 36px rgba(14,45,82,.18)}.public-hero:before,.public-hero:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.16);border-radius:50%;pointer-events:none}.public-hero:before{width:220px;height:220px;right:-92px;top:-124px}.public-hero:after{width:130px;height:130px;right:34px;bottom:-92px}.public-hero-content{position:relative;z-index:1;max-width:560px}.public-hero h2{margin:0;font-size:29px;letter-spacing:-1px;line-height:1.08}.public-hero p{margin:10px 0 0;color:#dceaff;font-size:14px;line-height:1.5}.public-quick-actions{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:18px}.public-quick-action{min-height:44px;border:1px solid rgba(255,255,255,.25);border-radius:12px;background:rgba(255,255,255,.11);color:#fff;padding:9px 10px;text-align:left;font-size:12px;font-weight:700}.public-quick-action:active{transform:scale(.98)}.public-chat-card{background:#fff;border:1px solid #dfe7ef;border-radius:22px;box-shadow:0 14px 38px rgba(24,42,58,.09);display:flex;flex:1;min-height:0;flex-direction:column;padding:18px}.public-chat-heading{display:flex;align-items:flex-start;gap:11px;padding-bottom:15px;border-bottom:1px solid #e8edf1}.public-assistant-dot{width:10px;height:10px;margin-top:5px;border-radius:50%;background:#2169d8;box-shadow:0 0 0 4px #e8f1ff;flex:none}.public-chat-heading h2{margin:0;font-size:17px;letter-spacing:-.2px}.public-chat-heading p{margin:4px 0 0;color:#687683;font-size:13px;line-height:1.45}.public-business-details{display:flex;flex-wrap:wrap;gap:7px;padding:13px 0 3px}.public-detail{display:none;max-width:100%;padding:7px 9px;border-radius:999px;background:#f1f5fa;color:#4e5c68;font-size:11px;line-height:1.35;overflow-wrap:anywhere}.public-detail.has-content{display:block}.public-messages{flex:1;min-height:250px;overflow:auto;overscroll-behavior:contain;padding:16px 0 4px;scroll-behavior:smooth}.public-messages .msg{max-width:min(88%,530px);padding:12px 14px;margin-bottom:11px;border-radius:16px;font-size:14px;line-height:1.5;overflow-wrap:anywhere;box-shadow:none}.public-messages .msg.ai{background:#f1f4f7;border:1px solid #e3e8ec;color:#27323b;border-bottom-left-radius:5px}.public-messages .msg.user{background:#1764d6;color:#fff;border-bottom-right-radius:5px}.public-typing{display:none;align-items:center;gap:7px;color:#64717d;font-size:12px;padding:4px 0 12px}.public-typing.visible{display:flex}.public-typing i{width:6px;height:6px;border-radius:50%;background:#2169d8;box-shadow:10px 0 #6f9ee5,20px 0 #bdd2f4;margin-right:21px}.public-chat-form{border-top:1px solid #e8edf1;padding-top:13px;display:flex;gap:9px;align-items:flex-end}.public-chat-form input{min-width:0;flex:1;background:#f7f9fb;color:#17212b;border:1px solid #dbe2e7;border-radius:14px;padding:13px 14px;font-size:16px;line-height:1.25;outline:none}.public-chat-form input:focus{border-color:#4b83da;box-shadow:0 0 0 3px rgba(33,105,216,.14)}.public-chat-form button{width:48px;height:48px;flex:none;border:0;border-radius:50%;background:#1764d6;color:#fff;font-size:19px;font-weight:700;box-shadow:0 5px 12px rgba(23,100,214,.24)}.public-chat-form button:disabled,.public-chat-form input:disabled{opacity:.58;cursor:not-allowed}.public-customer-error{min-height:0;margin:10px 0 0;color:#b42318;font-size:12px;line-height:1.45}.public-customer-footer{text-align:center;color:#6b7782;font-size:11px;line-height:1.5;padding:0 8px}.public-customer-footer strong{color:#43515d}.public-link-privacy{font-size:11px;color:#71808d;margin:10px 0 0;line-height:1.45}
+.dashboard-welcome{margin:5px 0 20px;padding:4px 1px}.dashboard-welcome .eyebrow{margin:0 0 5px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.dashboard-welcome h2{margin:0;font-size:29px;letter-spacing:-1px;line-height:1.08}.dashboard-welcome p{margin:7px 0 0;color:var(--muted);font-size:14px}.dashboard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 16px}.dashboard-launch{min-height:78px;text-align:left;border:1px solid var(--border);border-radius:15px;background:var(--panel);color:var(--text);padding:13px}.dashboard-launch strong{display:block;font-size:13px}.dashboard-launch span{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.3}.dashboard-launch.primary{background:#eaf2ff;color:#10213b;border-color:#eaf2ff}.dashboard-launch.primary span{color:#355473}.activity-card{padding-top:3px}
 
 .empty{
 text-align:center;
@@ -923,6 +924,7 @@ border-radius:16px
 }
 
 .work-list{display:grid;gap:10px}
+.settings-section-label{margin:22px 2px 9px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
 .work-item{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:13px}
 .work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
 .first-run-list{display:grid;gap:10px;margin-top:12px}.first-run-step{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.first-run-mark{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px;background:#27303a;color:var(--muted)}.first-run-mark.done{background:rgba(56,211,159,.16);color:var(--green)}.first-run-step strong{display:block;font-size:12px}.first-run-step .work-meta{margin-top:2px}.first-run-step button{margin-left:auto;align-self:center;flex:none}
@@ -963,7 +965,7 @@ justify-content:space-between
 margin-top:0
 }
 .public-link-row{align-items:stretch;flex-direction:column}.public-link-row button{width:100%}
-.public-customer-shell{padding-left:14px;padding-right:14px;gap:12px}.public-chat-card{padding:15px;border-radius:18px}.public-business-mark{width:44px;height:44px;border-radius:14px}.public-business-name{font-size:18px}.public-messages{min-height:0}.public-chat-form{padding-bottom:max(2px,env(safe-area-inset-bottom))}.public-chat-form button{width:50px;height:50px}
+.public-customer-shell{padding-left:14px;padding-right:14px;gap:12px}.public-chat-card{padding:15px;border-radius:18px}.public-business-mark{width:44px;height:44px;border-radius:14px}.public-business-name{font-size:18px}.public-hero{border-radius:21px;padding:22px 18px 19px}.public-hero h2{font-size:26px}.public-quick-actions{gap:7px}.public-quick-action{min-height:42px;font-size:11px}.public-messages{min-height:240px}.public-chat-form{padding-bottom:max(2px,env(safe-area-inset-bottom))}.public-chat-form button{width:50px;height:50px}.dashboard-actions{grid-template-columns:1fr;gap:8px}.dashboard-launch{min-height:0}
 
 }
 </style>
@@ -1004,7 +1006,7 @@ margin-top:0
 <h2>Set up your business</h2>
 <p>Create your secure Business AI workspace. You can complete the detailed business profile next.</p>
 <div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
-<div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, electrician"></div>
+<div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
 <div class="auth-field"><label for="newBusinessSlug">Public enquiry link</label><input id="newBusinessSlug" maxlength="63" pattern="[a-z0-9][a-z0-9-]{1,61}[a-z0-9]" placeholder="your-business" required><span style="color:var(--muted);font-size:11px">Lowercase letters, numbers and hyphens. Customers will use this link.</span></div>
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
@@ -1021,6 +1023,18 @@ margin-top:0
 <p id="publicBusinessType" class="public-business-type">Loading business details…</p>
 </div>
 </header>
+<section class="public-hero" aria-label="Customer enquiry introduction">
+<div class="public-hero-content">
+<h2>How can we help?</h2>
+<p id="publicHeroDescription">Ask a question, request a quote or tell us what you need. Our AI assistant will collect the details for the business.</p>
+</div>
+<div class="public-quick-actions" aria-label="Start an enquiry">
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I have a question.')">Ask a question</button>
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I would like to request a quote.')">Request a quote</button>
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I would like to speak to someone.')">Speak to someone</button>
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I have a general enquiry.')">General enquiry</button>
+</div>
+</section>
 <section class="public-chat-card" aria-label="Customer enquiry">
 <div class="public-chat-heading"><span class="public-assistant-dot" aria-hidden="true"></span><div><h2>How can we help?</h2><p id="publicBusinessIntro">Tell us what you need. This AI assistant will pass your enquiry to the business.</p></div></div>
 <div id="publicBusinessDetails" class="public-business-details" aria-label="Business information">
@@ -1035,7 +1049,7 @@ margin-top:0
 <p class="public-link-privacy">Please do not send payment or card details in this chat.</p>
 <div id="publicEnquiryMessage" class="public-customer-error" role="alert"></div>
 </section>
-<footer class="public-customer-footer">You are chatting with an AI assistant, not a person. <strong>Powered by Business AI</strong></footer>
+<footer class="public-customer-footer">This is an AI assistant for <strong id="publicFooterBusinessName">this business</strong>, not a person. <strong>Powered by Business AI</strong></footer>
 </section>
 </main>
 
@@ -1056,7 +1070,7 @@ Business AI
 </h1>
 
 <p>
-AI front desk & lead management
+Run your business. Smarter.
 </p>
 
 </div>
@@ -1078,16 +1092,10 @@ id="dashboardView"
 class="view active"
 >
 
-<div class="page-title">
-
-<h2>
-Dashboard
-</h2>
-
-<p>
-Your business at a glance.
-</p>
-
+<div class="dashboard-welcome">
+<p class="eyebrow">Business AI · Run your business. Smarter.</p>
+<h2 id="dashboardGreeting">Welcome back.</h2>
+<p>Here’s what’s happening today.</p>
 </div>
 
 
@@ -1095,6 +1103,12 @@ Your business at a glance.
 class="stats"
 id="stats"
 ></div>
+
+<div class="dashboard-actions" aria-label="Quick access">
+<button class="dashboard-launch primary" type="button" onclick="showView('enquiries')"><strong>Test your AI</strong><span>Try the receptionist as a customer.</span></button>
+<button class="dashboard-launch" type="button" onclick="showView('bookings')"><strong>Bookings</strong><span>Review requests and upcoming work.</span></button>
+<button class="dashboard-launch" type="button" onclick="showView('settings')"><strong>Business settings</strong><span>Manage your customer link and AI details.</span></button>
+</div>
 
 
 <div class="card">
@@ -1168,9 +1182,7 @@ Business settings
 
 <div class="card-head">
 
-<h3>
-Recent leads
-</h3>
+<h3>Recent leads</h3>
 
 <span
 onclick="showView('leads')"
@@ -1209,9 +1221,7 @@ Follow-ups
 
 <div class="card-head">
 
-<h3>
-Recent activity
-</h3>
+<h3>Recent activity</h3>
 
 <span>
 Live
@@ -1431,7 +1441,7 @@ onsubmit="sendEnquiry(event)"
 
 <input
 id="chatInput"
-placeholder="e.g. I need an electrician for a faulty socket…"
+placeholder="Describe what you need help with…"
 >
 
 <button>
@@ -1471,6 +1481,7 @@ Control what your AI receptionist knows about the business.
 
 <div id="settingsStatus"></div>
 
+<div class="settings-section-label">Business</div>
 
 <div class="card">
 
@@ -1700,11 +1711,17 @@ Save business settings
 
 </div>
 
+<div class="settings-section-label">Operations</div>
+
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Human handovers</h3><span>Requires attention</span></div><p class="work-meta">Emergency, complaint and human-request enquiries are recorded as urgent follow-up actions. A handover means the system has flagged it; it does not mean someone has been contacted.</p><div id="handoverStatus"></div><div id="handoverList" class="work-list"><div class="empty">Loading handovers…</div></div></div>
 
 <div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Team access</h3><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
 
+<div class="settings-section-label" data-owner-only>Privacy &amp; security</div>
+
 <div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Privacy & retention</h3><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation controls are available through the protected lead-data API and must be used deliberately for individual records.</p></div>
+
+<div class="settings-section-label">Support</div>
 
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention — it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Business AI does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls, automatic outbound messages, live availability and payment processing are not enabled. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
 
@@ -1715,48 +1732,12 @@ Save business settings
 
 <nav class="bottom-nav">
 
-<button
-class="nav-btn active"
-data-view="dashboard"
-onclick="showView('dashboard')"
->
-⌂<br>
-Dashboard
-</button>
+<button class="nav-btn active" data-view="dashboard" onclick="showView('dashboard')">⌂<br>Home</button>
 
 
-<button
-class="nav-btn"
-data-view="leads"
-onclick="showView('leads')"
->
-◉<br>
-Leads
-</button>
-
-<button class="nav-btn" data-view="bookings" onclick="showView('bookings')">▣<br>Bookings</button>
-
+<button class="nav-btn" data-view="leads" onclick="showView('leads')">◉<br>Leads</button>
 <button class="nav-btn" data-view="actions" onclick="showView('actions')">✓<br>Actions</button>
-
-
-<button
-class="nav-btn"
-data-view="enquiries"
-onclick="showView('enquiries')"
->
-✦<br>
-AI
-</button>
-
-
-<button
-class="nav-btn"
-data-view="settings"
-onclick="showView('settings')"
->
-⚙<br>
-Settings
-</button>
+<button class="nav-btn" data-view="settings" onclick="showView('settings')">⚙<br>Settings</button>
 
 </nav>
 
@@ -1976,6 +1957,8 @@ const name=typeof business.name==='string'&&business.name.trim()?business.name.t
 $('publicBusinessMark').textContent=publicInitials(name);$('publicBusinessName').textContent=name;
 $('publicBusinessType').textContent=business.type||'Customer enquiries';
 $('publicBusinessIntro').textContent=business.description||`Tell ${name} what you need. This AI assistant will pass your enquiry to the business.`;
+$('publicHeroDescription').textContent=business.description||`Ask a question, request a quote or tell ${name} what you need. Our AI assistant will collect the details for the business.`;
+$('publicFooterBusinessName').textContent=name;
 setPublicDetail('publicBusinessServices','Services',business.services);
 setPublicDetail('publicBusinessAreas','Areas',business.service_areas);
 setPublicDetail('publicBusinessHours','Hours',business.opening_hours);
@@ -1985,8 +1968,16 @@ setPublicEnquiryAvailable(true);
 }catch{
 $('publicBusinessName').textContent='Customer enquiry';$('publicBusinessType').textContent='This customer link is unavailable.';
 $('publicBusinessIntro').textContent='Please check the link or contact the business directly.';
+$('publicHeroDescription').textContent='Please check the link or contact the business directly.';
 $('publicEnquiryMessage').textContent='This customer enquiry link is unavailable.';setPublicEnquiryAvailable(false);
 }
+}
+function startPublicEnquiry(message){
+const input=$('publicChatInput');
+if(!input||input.disabled)return;
+input.value=message;
+input.focus();
+input.scrollIntoView({behavior:'smooth',block:'center'});
 }
 function addPublicEnquiryMessage(role,content){
 const list=$('publicMessages');if(!list)return;const message=document.createElement('div');message.className=`msg ${role==='user'?'user':'ai'}`;message.textContent=content;list.append(message);list.scrollTop=list.scrollHeight;
@@ -2325,13 +2316,29 @@ function renderDashboard(){
 
 const data=pipeline||{};
 
+const hour=new Date().getHours();
+const salutation=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
+const businessName=String(settings?.business_name||businessConfiguration?.business_name||'').trim();
+const greeting=$('dashboardGreeting');
+if(greeting)greeting.textContent=businessName?`${salutation}, ${businessName}.`:`${salutation}.`;
+
+const newLeads=leads.filter(lead=>String(lead.status||'New')==='New').length;
+const pendingActions=businessActions.filter(action=>action.status==='pending');
+const today=localKey();
+const dueActions=pendingActions.filter(action=>{
+const due=dateOnly(action.due_at);return due&&due<=today;
+}).length;
+const highPriority=leads.filter(lead=>lead.status!=='Converted'&&lead.priority==='High').length;
+const handoverAttention=handovers.filter(item=>String(item.status||'').toLowerCase()==='requires_attention').length;
+const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0);
+
 renderFirstRunGuide();
 
 $('stats').innerHTML=`
-<div class="stat"><div class="stat-label">Pipeline value</div><div class="stat-value">${money(data.pipeline_value)}</div><div class="stat-sub">${data.total||0} total leads</div></div>
-<div class="stat"><div class="stat-label">Converted value</div><div class="stat-value">${money(data.converted_value)}</div><div class="stat-sub">${data.conversion_rate||0}% conversion rate</div></div>
-<div class="stat follow-stat"><div class="stat-label">Follow-ups today</div><div class="stat-value">${data.follow_ups_today||0}</div><div class="stat-sub">${data.high_priority||0} high priority</div></div>
-<div class="stat overdue-stat"><div class="stat-label">Overdue follow-ups</div><div class="stat-value">${data.overdue_follow_ups||0}</div><div class="stat-sub">Need attention</div></div>`;
+<div class="stat"><div class="stat-label">New leads</div><div class="stat-value">${newLeads}</div><div class="stat-sub">Awaiting your first response</div></div>
+<div class="stat overdue-stat"><div class="stat-label">Needs attention</div><div class="stat-value">${attentionCount}</div><div class="stat-sub">High priority, handovers or overdue follow-ups</div></div>
+<div class="stat follow-stat"><div class="stat-label">Actions due</div><div class="stat-value">${dueActions}</div><div class="stat-sub">Pending actions due today or earlier</div></div>
+<div class="stat"><div class="stat-label">Total enquiries</div><div class="stat-value">${leads.length}</div><div class="stat-sub">Captured for this business</div></div>`;
 
 const stages=data.stages||{};
 
@@ -2685,7 +2692,7 @@ async function inviteTeamMember(){const status=$('teamStatus');status.textConten
 async function revokeTeamInvitation(invitation_id){try{await api('/api/team',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitation_id,status:'revoked'})});await loadPilotOperations();toast('Invitation revoked');}catch(error){$('teamStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 function fillLifecycle(){if(!lifecyclePolicy)return;$('leadRetentionDays').value=lifecyclePolicy.lead_retention_days||365;$('auditRetentionDays').value=lifecyclePolicy.audit_retention_days||730;}
 async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)})});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
-async function loadPilotOperations(){const results=await Promise.allSettled([api('/api/handovers'),api('/api/team'),api('/api/data-lifecycle')]);if(results[0].status==='fulfilled'){handovers=Array.isArray(results[0].value)?results[0].value:[];renderHandovers();}if(results[1].status==='fulfilled'){teamState=results[1].value;renderTeam();}else $('teamList').innerHTML='<div class="work-meta">Team management is available to the business owner.</div>';if(results[2].status==='fulfilled'){lifecyclePolicy=results[2].value;fillLifecycle();}else $('lifecycleStatus').textContent='Retention controls are available to owners and admins.';}
+async function loadPilotOperations(){const results=await Promise.allSettled([api('/api/handovers'),api('/api/team'),api('/api/data-lifecycle')]);if(results[0].status==='fulfilled'){handovers=Array.isArray(results[0].value)?results[0].value:[];renderHandovers();}if(results[1].status==='fulfilled'){teamState=results[1].value;renderTeam();}else $('teamList').innerHTML='<div class="work-meta">Team management is available to the business owner.</div>';if(results[2].status==='fulfilled'){lifecyclePolicy=results[2].value;fillLifecycle();}else $('lifecycleStatus').textContent='Retention controls are available to owners and admins.';renderDashboard();}
 async function loadVoiceStatus(){try{const status=await api('/api/voice-status');$('voiceStatusBadge').textContent=status.provider_connected?'Connected':'Not connected';$('voiceStatusMessage').textContent=status.message||'Voice is disabled.';}catch(error){$('voiceStatusBadge').textContent='Unavailable';$('voiceStatusMessage').textContent='Voice status is unavailable. Live calling remains disabled.';}}
 
 

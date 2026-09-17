@@ -40,6 +40,17 @@ test("public customer links use only a validated slug and never unlock dashboard
   assert.doesNotMatch(publicHandler, /Authorization|access_token|business_id/);
 });
 
+test("owner navigation is focused while AI and bookings remain reachable from authenticated workspace cards", () => {
+  const nav = html.slice(html.indexOf("<nav class=\"bottom-nav\""), html.indexOf("</nav>", html.indexOf("<nav class=\"bottom-nav\"")));
+  assert.match(nav, /data-view="dashboard"[\s\S]*Home/);
+  assert.match(nav, /data-view="leads"[\s\S]*Leads/);
+  assert.match(nav, /data-view="actions"[\s\S]*Actions/);
+  assert.match(nav, /data-view="settings"[\s\S]*Settings/);
+  assert.doesNotMatch(nav, /data-view="(?:voice|bookings|enquiries)"/);
+  assert.match(html, /showView\('enquiries'\)[\s\S]{0,200}Test your AI/);
+  assert.match(html, /showView\('bookings'\)[\s\S]{0,200}Bookings/);
+});
+
 test("auth-state changes defer private API work until Supabase releases its callback lock", () => {
   assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{\s*if\(event==='INITIAL_SESSION'\)return;\s*window\.setTimeout\(\(\)=>\{handleSession\(nextSession\)\.catch\(\(\)=>\{\}\);\},0\);\s*\}\);/s);
   assert.doesNotMatch(html, /onAuthStateChange\(\(_event,nextSession\)=>handleSession\(nextSession\)\)/);
