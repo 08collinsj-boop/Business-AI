@@ -94,6 +94,17 @@ test("business configuration API uses membership-derived tenant and owner/admin 
   assert.equal(res.statusCode, 200); const patch = calls.find((call) => call.options.method === "PATCH"); const persisted = JSON.parse(patch.options.body); assert.match(patch.url, /business_id=eq.business-a/); assert.equal(persisted.enabled_modules.voice, false); assert.equal(persisted.onboarding_step, "services"); assert.equal(persisted.service_delivery_mode, "travel");
 });
 
+test("completed and legacy-configured businesses bypass onboarding while blank businesses remain in setup", { concurrency: false }, async () => {
+  const completeConfiguration = { business_id: "business-a", onboarding_completed_at: "2026-09-18T10:00:00.000Z", onboarding_step: "completed" };
+  let handler = await load("owner", "true", async (url) => url.includes("business_configurations") ? reply([completeConfiguration]) : reply([{ business_name: "Established Business", services: "Repairs", opening_hours: "Mon–Fri" }]));
+  let res = response(); await handler({ method: "GET", headers: { authorization: "Bearer good" } }, res);
+  assert.equal(res.statusCode, 200); assert.deepEqual(res.body.onboarding, { state: "completed", completed: true });
+
+  handler = await load("owner", "true", async (url) => url.includes("business_configurations") ? reply([{ business_id: "business-a", onboarding_step: "business", onboarding_completed_at: null }]) : reply([{ business_name: "New Business", services: "", opening_hours: "" }]));
+  res = response(); await handler({ method: "GET", headers: { authorization: "Bearer good" } }, res);
+  assert.equal(res.statusCode, 200); assert.deepEqual(res.body.onboarding, { state: "business", completed: false });
+});
+
 test("configuration API fails closed or safely when authentication/configuration is unavailable", { concurrency: false }, async () => {
   let handler = await load("owner", "false"); let res = response(); await handler({ method: "GET", headers: {} }, res); assert.equal(res.statusCode, 503);
   handler = await load("owner", "true", async () => reply([], true), true); res = response(); await handler({ method: "GET", headers: { authorization: "Bearer bad" } }, res); assert.equal(res.statusCode, 401);

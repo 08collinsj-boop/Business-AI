@@ -78,6 +78,13 @@ test("dashboard context uses a server-returned role and keeps test conversations
   assert.match(html, /data-owner-only/, "owner-only operations are separated in the UI as well as by the API");
 });
 
+test("configuration onboarding is a complete app state, not an overlay on private navigation", () => {
+  assert.match(html, /\.bottom-nav\{[\s\S]{0,800}?display:none;/, "private navigation is hidden until the authenticated app is ready");
+  assert.match(html, /body\.auth-ready \.bottom-nav\{display:grid\}/, "private navigation appears only after setup is complete");
+  assert.match(html, /authenticatedBusinessRole==='owner'&&!setup\?\.onboarding\?\.completed\)\{await beginConfigurationOnboarding\(\);return;\}/, "only incomplete owners enter the configuration wizard");
+  assert.match(html, /setAuthView\('configuration-onboarding-required'\)/, "wizard uses its own explicit application state");
+});
+
 test("self-service signup creates only an Auth account and waits for email confirmation", () => {
   assert.match(html, /id="signUpForm"/);
   assert.match(html, /auth\.signUp\(\{/);

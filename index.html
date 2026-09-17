@@ -848,7 +848,7 @@ background:rgba(10,17,25,.97);
 border:1px solid #243344;
 border-radius:20px;
 padding:7px;
-display:grid;
+display:none;
 grid-template-columns:repeat(4,1fr);
 gap:4px;
 z-index:50;
@@ -909,7 +909,7 @@ border-radius:13px
 .auth-switch{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}.auth-link{border:0;background:transparent;color:var(--blue);padding:0;font-weight:650;text-decoration:underline}
 .auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
-body.auth-pending .app,body.auth-required .app,body.onboarding-required .app,body.configuration-onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen,body.configuration-onboarding-required #configurationOnboardingScreen{display:flex}body.auth-ready .logout-btn{display:block}
+body.auth-pending .app,body.auth-required .app,body.onboarding-required .app,body.configuration-onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen,body.configuration-onboarding-required #configurationOnboardingScreen{display:flex}body.auth-ready .logout-btn{display:block}body.auth-ready .bottom-nav{display:grid}
 body.public-enquiry{padding:0;background:#f4f7fb;color:#17212b}
 body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen,body.public-enquiry #configurationOnboardingScreen{display:none}
 .onboarding-card{max-width:560px}.onboarding-progress{display:flex;gap:5px;margin:0 0 20px}.onboarding-progress i{height:5px;flex:1;border-radius:99px;background:var(--border)}.onboarding-progress i.active{background:var(--blue)}.wizard-step{display:none}.wizard-step.active{display:block}.wizard-actions{display:flex;gap:9px;justify-content:space-between;margin-top:20px}.wizard-actions button{min-width:112px}.onboarding-hint{font-size:12px;line-height:1.45;color:var(--muted);margin:0 0 14px}.wizard-review{display:grid;gap:10px}.wizard-review article{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.wizard-review strong{display:block;margin-bottom:3px}.wizard-review span{font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
