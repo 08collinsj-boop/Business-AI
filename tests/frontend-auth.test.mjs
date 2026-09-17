@@ -33,7 +33,7 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
 test("public customer links use only a validated slug and never unlock dashboard data", () => {
   assert.match(html, /const publicSlugFromLocation=\(\)=>\{/);
   assert.match(html, /if\(publicEnquirySlug\)\{document\.body\.classList\.remove\('auth-pending'\);document\.body\.classList\.add\('public-enquiry'\);/);
-  assert.match(html, /body\.public-enquiry \.app,body\.public-enquiry \.bottom-nav,body\.public-enquiry #authScreen,body\.public-enquiry #businessSetupScreen\{display:none\}/, "public customer mode hides the standalone private dashboard navigation");
+  assert.match(html, /body\.public-enquiry \.app,body\.public-enquiry \.bottom-nav,body\.public-enquiry #authScreen,body\.public-enquiry #businessSetupScreen,body\.public-enquiry #configurationOnboardingScreen\{display:none\}/, "public customer mode hides the standalone private dashboard navigation");
   assert.match(html, /url\.searchParams\.set\('business',publicEnquirySlug\)/);
   assert.match(html, /Customer enquiry link[\s\S]{0,600}It does not reveal your internal business ID/);
   const publicHandler = html.slice(html.indexOf("async function sendPublicEnquiry"), html.indexOf("$('publicEnquiryForm').addEventListener"));
@@ -74,7 +74,7 @@ test("dashboard context uses a server-returned role and keeps test conversations
   assert.match(html, /const enquiryStorageKey=slug=>`business-ai-enquiry-conversation:\$\{slug\}`/);
   assert.match(html, /sessionStorage\.removeItem\(enquiryStorageKey\(authenticatedPublicBusinessSlug\)\)/);
   assert.doesNotMatch(html, /const enquiryStorageKey='business-ai-enquiry-conversation'/);
-  assert.match(html, /const onboarding=await api\('\/api\/business-onboarding'\);\s*applyBusinessContext\(onboarding\);\s*setAuthView\('auth-ready'\);/s, "new owners refresh trusted business context immediately after creation");
+  assert.match(html, /const onboarding=await api\('\/api\/business-onboarding'\);\s*applyBusinessContext\(onboarding\);\s*await beginConfigurationOnboarding\(\);/s, "new owners continue into the secure configuration wizard");
   assert.match(html, /data-owner-only/, "owner-only operations are separated in the UI as well as by the API");
 });
 
@@ -88,6 +88,9 @@ test("self-service signup creates only an Auth account and waits for email confi
   assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}role:/);
   assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}(?:user_metadata|app_metadata|data:)\s*/);
   assert.match(html, /api\('\/api\/business-onboarding'\)/, "business setup remains a separate authenticated flow");
+  assert.match(html, /configuration-onboarding-required/, "incomplete owners are directed to a resumable setup wizard");
+  assert.match(html, /onboarding_step:complete\?'completed':next/, "wizard progress is persisted server-side");
+  assert.match(html, /Completing setup does not grant a trial or subscription/, "onboarding never grants billing entitlements");
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); });

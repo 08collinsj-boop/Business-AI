@@ -22,7 +22,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260916191000_add_lifecycle_policy_for_new_businesses.sql",
     "20260917113857_add_pilot_team_and_handover_operations.sql",
     "20260917202438_add_stripe_billing_foundation.sql",
-    "20260917203724_add_atomic_paid_trial_activation.sql"
+    "20260917203724_add_atomic_paid_trial_activation.sql",
+    "20260917221830_add_resumable_business_onboarding_state.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -98,4 +99,7 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(paidTrial, /create or replace function public\.activate_paid_business_trial/i);
   assert.match(paidTrial, /where not public\.business_billing_accounts\.trial_purchased/i);
   assert.match(paidTrial, /revoke all on function public\.activate_paid_business_trial/i);
+  const onboardingState = contents.get("20260917221830_add_resumable_business_onboarding_state.sql");
+  assert.match(onboardingState, /add column if not exists onboarding_step/i);
+  assert.match(onboardingState, /service_delivery_mode/i);
 });

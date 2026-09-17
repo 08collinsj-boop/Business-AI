@@ -4,11 +4,13 @@
 
 This foundation lets an authenticated business owner or admin configure the tenant that their server-verified membership already authorises. The controlled-pilot business-creation flow is now documented separately in [Business creation and public routing](BUSINESS_CREATION_AND_PUBLIC_ROUTING.md). It does not allow a browser to assign roles, memberships, or internal tenant IDs.
 
-The forward-only migration `20260916170000_add_business_configuration_onboarding.sql` adds exactly one `business_configurations` row per business. It is applied and verified on **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) only. Production remains unchanged.
+The forward-only migrations `20260916170000_add_business_configuration_onboarding.sql` and `20260917221830_add_resumable_business_onboarding_state.sql` add exactly one `business_configurations` row per business and a resumable setup state. They are applied and verified on **Business-AI-Dev** (`mvwseobgkexzpmmkgcxe`) only. Production remains unchanged.
 
 ## Configuration model
 
-The row is keyed by `business_id` and contains business description, website, service areas, enquiry and human-handover instructions, up to 40 structured FAQs, booking preferences, enabled-module preferences, industry-template selection, and onboarding completion state.
+The row is keyed by `business_id` and contains business description, website, service areas, service-delivery mode, enquiry and human-handover instructions, up to 40 structured FAQs, booking preferences, enabled-module preferences, industry-template selection, and resumable onboarding state.
+
+New owners complete a mobile-first seven-stage wizard: Business, Location, Services, Hours, AI setup, Knowledge, and Review. Each forward step persists through the protected tenant-scoped Settings and Configuration APIs, so it is safe to refresh or return later. Completing the wizard only marks configuration complete; it never grants a Stripe trial, subscription, plan, or entitlement. Existing businesses with a name, services, and opening hours are treated as complete for compatibility and are not forced through the wizard.
 
 Industry templates are code-defined, data-only defaults for general businesses, trades, automotive, personal care, lawn care, hospitality, and professional services. They prefill safe wording only. Every field remains individually editable, and a template can never alter roles, tenant selection, booking confirmation rules, or safety controls.
 

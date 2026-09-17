@@ -32,6 +32,7 @@ Last audited: 2026-09-17
 - Public customer enquiry pages now resolve a server-validated slug to a minimal public business identity card (name, type, customer-facing service/area/hours/phone fields only). They do not receive internal tenant IDs, private AI instructions or dashboard data.
 - The Pilot frontend has a deliberately separate Business AI v1 visual system: a focused dark owner workspace (Home, Leads, Actions and Settings) and a bright tenant-branded public customer enquiry surface. Public quick actions only prefill the existing conversation; they do not create bookings, claim human contact or add a new public API. The owner PWA and conservative private-data caching rules are unchanged.
 - Stripe billing source foundation is implemented behind the exact `BILLING_ENABLED=true` server feature gate: owner-only Checkout/portal/cancellation paths, signed idempotent Stripe webhooks, tenant-owned plan/status/period records, atomic AI-enquiry allowance reservations before OpenAI, staff-seat enforcement, and owner billing UI. It is not enabled or deployed to Production.
+- Resumable self-service owner onboarding is implemented and Dev-migrated: new owners are directed from secure business creation into a mobile-first Business → Location → Services → Hours → AI → Knowledge → Review wizard. Progress is saved through existing owner-scoped APIs, tenant configuration remains server-derived, existing sufficiently configured tenants remain compatible, and completion does not grant billing access.
 
 ## In Progress
 
@@ -49,6 +50,7 @@ Last audited: 2026-09-17
 - The Pilot dashboard Settings view exposes a copyable customer enquiry link. Opening `/?business=<public-slug>` now presents a public customer enquiry screen only; it does not initialise dashboard authentication or reveal private business data.
 - Dev-only Pilot operations migration `20260917113857_add_pilot_team_and_handover_operations.sql` is applied and verified on Business-AI-Dev. It adds owner-authorised, email-bound staff/admin invitation acceptance plus tenant-scoped durable handover records linked to leads and urgent actions. The owner Settings screen now includes handover review, invitation controls, lifecycle retention controls, and concise Pilot guidance. Invitations must be shared manually during the Pilot because no transactional email provider is configured.
 - Billing migrations `20260917202438_add_stripe_billing_foundation.sql` and `20260917203724_add_atomic_paid_trial_activation.sql` are applied and verified on Business-AI-Dev only. They add tenant-owned billing accounts/usage, a webhook idempotency ledger, RLS/least-privilege grants, atomic allowance consumption, and an atomic once-per-business paid-trial activation function. Stripe Sandbox configuration remains pending.
+- Dev-only onboarding-state migration `20260917221830_add_resumable_business_onboarding_state.sql` is applied and verified on Business-AI-Dev only. It adds tenant-owned progress and service-delivery fields without overwriting established business configuration.
 
 ## Blocked / Requires Owner
 

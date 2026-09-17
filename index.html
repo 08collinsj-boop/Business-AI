@@ -909,9 +909,10 @@ border-radius:13px
 .auth-switch{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}.auth-link{border:0;background:transparent;color:var(--blue);padding:0;font-weight:650;text-decoration:underline}
 .auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
-body.auth-pending .app,body.auth-required .app,body.onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen{display:flex}body.auth-ready .logout-btn{display:block}
+body.auth-pending .app,body.auth-required .app,body.onboarding-required .app,body.configuration-onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen,body.configuration-onboarding-required #configurationOnboardingScreen{display:flex}body.auth-ready .logout-btn{display:block}
 body.public-enquiry{padding:0;background:#f4f7fb;color:#17212b}
-body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen{display:none}
+body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen,body.public-enquiry #configurationOnboardingScreen{display:none}
+.onboarding-card{max-width:560px}.onboarding-progress{display:flex;gap:5px;margin:0 0 20px}.onboarding-progress i{height:5px;flex:1;border-radius:99px;background:var(--border)}.onboarding-progress i.active{background:var(--blue)}.wizard-step{display:none}.wizard-step.active{display:block}.wizard-actions{display:flex;gap:9px;justify-content:space-between;margin-top:20px}.wizard-actions button{min-width:112px}.onboarding-hint{font-size:12px;line-height:1.45;color:var(--muted);margin:0 0 14px}.wizard-review{display:grid;gap:10px}.wizard-review article{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.wizard-review strong{display:block;margin-bottom:3px}.wizard-review span{font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
 body.public-enquiry #publicEnquiryScreen{display:block}
 .public-link-row{display:flex;gap:8px;align-items:center}.public-link-row input{flex:1;min-width:0}.public-link-row button{white-space:nowrap}
 
@@ -1018,6 +1019,21 @@ margin-top:0
 <div class="auth-field"><label for="newBusinessSlug">Public enquiry link</label><input id="newBusinessSlug" maxlength="63" pattern="[a-z0-9][a-z0-9-]{1,61}[a-z0-9]" placeholder="your-business" required><span style="color:var(--muted);font-size:11px">Lowercase letters, numbers and hyphens. Customers will use this link.</span></div>
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
+</form>
+</main>
+
+<main id="configurationOnboardingScreen" class="auth-screen" aria-live="polite">
+<form id="configurationOnboardingForm" class="auth-card onboarding-card">
+<div class="brand-icon">AI</div>
+<div class="onboarding-progress" aria-label="Setup progress"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="wizard-step" data-wizard-step="business"><h2>Tell us about your business</h2><p>These details help customers recognise your business and help the AI answer accurately.</p><div class="auth-field"><label for="o_business_name">Business name</label><input id="o_business_name" maxlength="120" required></div><div class="auth-field"><label for="o_business_type">Industry or business type</label><input id="o_business_type" maxlength="120" required></div><div class="auth-field"><label for="o_phone">Business phone</label><input id="o_phone" maxlength="120" inputmode="tel"></div><div class="auth-field"><label for="o_email">Business email</label><input id="o_email" maxlength="320" type="email"></div><div class="auth-field"><label for="o_website">Website <small>(optional)</small></label><input id="o_website" maxlength="2048" type="url" placeholder="https://example.co.uk"></div></div>
+<div class="wizard-step" data-wizard-step="location"><h2>Where do you work?</h2><p>Tell customers where your business is based and where you can help.</p><div class="auth-field"><label for="o_address">Primary business location</label><textarea id="o_address" maxlength="1000" rows="3"></textarea></div><div class="auth-field"><label for="o_service_areas">Service areas</label><textarea id="o_service_areas" maxlength="4000" rows="4" placeholder="Towns, postcodes or travel limits"></textarea></div><div class="auth-field"><label for="o_delivery_mode">How do you serve customers?</label><select id="o_delivery_mode"><option value="unspecified">Choose later</option><option value="premises">Customers visit our premises</option><option value="travel">We travel to customers</option><option value="both">Both</option></select></div></div>
+<div class="wizard-step" data-wizard-step="services"><h2>What do you offer?</h2><p>Use clear, factual wording. You can expand this later in Settings.</p><div class="auth-field"><label for="o_services">Services offered</label><textarea id="o_services" maxlength="4000" rows="7" required placeholder="List the services your business provides"></textarea></div><div class="auth-field"><label for="o_description">Short business description</label><textarea id="o_description" maxlength="4000" rows="4" placeholder="What should customers know about your business?"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="hours"><h2>Opening hours</h2><p>Enter your usual Monday–Sunday hours. Use “Closed” for closed days. You can paste the same hours for multiple days.</p><div class="auth-field"><label for="o_hours">Opening hours</label><textarea id="o_hours" maxlength="4000" rows="9" required placeholder="Monday 08:00–18:00&#10;Tuesday 08:00–18:00&#10;…&#10;Sunday Closed"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="ai"><h2>Set up your AI receptionist</h2><p>Business AI’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="knowledge"><h2>Add useful knowledge</h2><p>Optional factual information the AI may use. You can add more FAQs later.</p><div class="auth-field"><label for="o_faq_question">Frequently asked question</label><input id="o_faq_question" maxlength="500" placeholder="For example: Do you cover my area?"></div><div class="auth-field"><label for="o_faq_answer">Answer</label><textarea id="o_faq_answer" maxlength="2000" rows="4" placeholder="A short factual answer"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="review"><h2>Review your setup</h2><p>Check the information your AI receptionist will use. You can edit everything later.</p><div id="onboardingReview" class="wizard-review"></div><p class="onboarding-hint">Completing setup does not grant a trial or subscription. Billing remains separate and secure.</p></div>
+<div id="configurationOnboardingMessage" class="auth-message" role="alert"></div><div class="wizard-actions"><button id="onboardingBack" class="btn" type="button">Back</button><button id="onboardingNext" class="btn primary" type="submit">Continue</button></div>
 </form>
 </main>
 
@@ -1805,7 +1821,7 @@ loadEnquiryConversation();renderEnquiryConversation();
 };
 
 const setAuthView=(state,message='')=>{
-document.body.classList.remove('auth-pending','auth-required','onboarding-required','auth-ready');
+document.body.classList.remove('auth-pending','auth-required','onboarding-required','configuration-onboarding-required','auth-ready');
 document.body.classList.add(state);
 $('loginMessage').textContent=message;
 };
@@ -1821,6 +1837,15 @@ target.classList.add('info');
 }
 };
 
+let onboardingWizardData=null;
+let onboardingWizardIndex=0;
+const onboardingWizardSteps=['business','location','services','hours','ai','knowledge','review'];
+const wizardValue=id=>String($(id)?.value||'').trim();
+function renderOnboardingWizard(){const step=onboardingWizardSteps[onboardingWizardIndex];document.querySelectorAll('[data-wizard-step]').forEach(node=>node.classList.toggle('active',node.dataset.wizardStep===step));document.querySelectorAll('.onboarding-progress i').forEach((node,index)=>node.classList.toggle('active',index<=onboardingWizardIndex));$('onboardingBack').hidden=onboardingWizardIndex===0;$('onboardingNext').textContent=step==='review'?'Finish setup':'Continue';if(step==='review')renderOnboardingReview();}
+function fillOnboardingWizard(data){const config=data?.configuration||{},business=data?.settings||{};const fields={o_business_name:business.business_name,o_business_type:business.business_type,o_phone:business.phone,o_email:business.email,o_address:business.address,o_services:business.services,o_hours:business.opening_hours,o_ai_instructions:business.ai_instructions,o_website:config.website,o_service_areas:config.service_areas,o_description:config.description,o_handover_instructions:config.handover_instructions};Object.entries(fields).forEach(([id,value])=>{if($(id))$(id).value=value||'';});$('o_delivery_mode').value=config.service_delivery_mode||'unspecified';const faq=Array.isArray(config.faqs)?config.faqs[0]:null;if(faq){$('o_faq_question').value=faq.question||'';$('o_faq_answer').value=faq.answer||'';}const savedStep=data?.onboarding?.state;onboardingWizardIndex=Math.max(0,onboardingWizardSteps.indexOf(savedStep));if(savedStep==='completed')onboardingWizardIndex=0;renderOnboardingWizard();}
+function renderOnboardingReview(){const items=[['Business',`${wizardValue('o_business_name')} · ${wizardValue('o_business_type')}`],['Location',`${wizardValue('o_address')}\n${wizardValue('o_service_areas')}`],['Services',wizardValue('o_services')],['Opening hours',wizardValue('o_hours')],['AI receptionist',wizardValue('o_ai_instructions')],['Knowledge',wizardValue('o_faq_question')?`${wizardValue('o_faq_question')}\n${wizardValue('o_faq_answer')}`:'No FAQ added yet']];$('onboardingReview').innerHTML=items.map(([title,value])=>`<article><strong>${esc(title)}</strong><span>${esc(value||'Not supplied')}</span></article>`).join('');}
+async function saveOnboardingProgress(complete=false){const current=onboardingWizardSteps[onboardingWizardIndex],next=onboardingWizardSteps[Math.min(onboardingWizardIndex+1,onboardingWizardSteps.length-1)];if(current==='business'&&(!wizardValue('o_business_name')||!wizardValue('o_business_type')))throw new Error('Add your business name and type to continue.');if(current==='services'&&!wizardValue('o_services'))throw new Error('Add at least one service to continue.');if(current==='hours'&&!wizardValue('o_hours'))throw new Error('Add your opening hours to continue.');const settingsBody={business_name:wizardValue('o_business_name'),business_type:wizardValue('o_business_type'),phone:wizardValue('o_phone'),email:wizardValue('o_email'),address:wizardValue('o_address'),services:wizardValue('o_services'),opening_hours:wizardValue('o_hours'),ai_instructions:wizardValue('o_ai_instructions'),urgent_jobs_enabled:Boolean(onboardingWizardData?.settings?.urgent_jobs_enabled)};const existingFaqs=Array.isArray(onboardingWizardData?.configuration?.faqs)?onboardingWizardData.configuration.faqs:[];const question=wizardValue('o_faq_question'),answer=wizardValue('o_faq_answer'),faqs=question&&answer?[{question,answer},...existingFaqs.slice(1)]:existingFaqs;const configBody={industry_template_id:onboardingWizardData?.configuration?.industry_template_id||'general',website:wizardValue('o_website'),service_areas:wizardValue('o_service_areas'),service_delivery_mode:$('o_delivery_mode').value,description:wizardValue('o_description'),customer_enquiry_instructions:onboardingWizardData?.configuration?.customer_enquiry_instructions||'',handover_instructions:wizardValue('o_handover_instructions'),faqs,booking_preferences:onboardingWizardData?.configuration?.booking_preferences||{},enabled_modules:{enquiries:true,bookings:true,actions:true,voice:false},onboarding_step:complete?'completed':next,complete_onboarding:complete};const [savedSettings,savedConfiguration]=await Promise.all([api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(settingsBody)}),api('/api/business-configuration',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(configBody)})]);onboardingWizardData={settings:savedSettings,configuration:savedConfiguration?.configuration||onboardingWizardData.configuration,onboarding:savedConfiguration?.onboarding||{state:complete?'completed':next}};}
+async function beginConfigurationOnboarding(){const [configData,settingsData]=await Promise.all([api('/api/business-configuration'),api('/api/settings')]);onboardingWizardData={...configData,settings:settingsData||{}};fillOnboardingWizard(onboardingWizardData);setAuthView('configuration-onboarding-required');}
 let pwaRegistrationStarted=false;
 let deferredInstallPrompt=null;
 const isStandaloneOwnerApp=()=>window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true;
@@ -1880,6 +1905,8 @@ if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'C
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
+const setup=await api('/api/business-configuration');
+if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();return;}
 setAuthView('auth-ready');registerOwnerPwa();loadAll().catch(()=>{});return;
 }catch(error){
 if(error.message==='Your session has expired.')return;
@@ -2033,9 +2060,12 @@ const result=await api('/api/business-onboarding',{method:'POST',headers:{'Conte
 message.textContent=`Business created. Your public enquiry link is ${result.public_path}.`;
 const onboarding=await api('/api/business-onboarding');
 applyBusinessContext(onboarding);
-setAuthView('auth-ready');registerOwnerPwa();await loadAll();
+await beginConfigurationOnboarding();
 }catch(error){message.textContent=error.message||'Could not create the business.';}finally{button.disabled=false;}
 });
+
+$('onboardingBack')?.addEventListener('click',()=>{if(onboardingWizardIndex>0){onboardingWizardIndex-=1;renderOnboardingWizard();}});
+$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent='Setup complete. Choose a plan or trial to start using AI enquiries.';setAuthView('auth-ready');registerOwnerPwa();await loadAll();showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
 
 
 const money=n=>

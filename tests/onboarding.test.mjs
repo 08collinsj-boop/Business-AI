@@ -50,6 +50,9 @@ test("industry templates are data-only defaults and configuration rejects unsafe
   assert.throws(() => validateBusinessConfiguration({ industry_template_id: "<script>" }), /Invalid industry/);
   assert.throws(() => validateBusinessConfiguration({ faqs: [{ question: "x", answer: "" }] }), /Invalid FAQs/);
   assert.throws(() => validateBusinessConfiguration({ booking_preferences: { booking_mode: "confirmed" } }), /Invalid booking/);
+  assert.throws(() => validateBusinessConfiguration({ onboarding_step: "database_admin" }), /Invalid onboarding step/);
+  assert.throws(() => validateBusinessConfiguration({ service_delivery_mode: "everywhere" }), /Invalid service delivery mode/);
+  assert.throws(() => validateBusinessConfiguration({ trial_purchased: true }), /Unsupported/);
 });
 
 test("receptionist configuration remains bounded untrusted reference data", () => {
@@ -87,8 +90,8 @@ test("business configuration API uses membership-derived tenant and owner/admin 
 
   calls.length = 0;
   handler = await load("owner", "true", async (url, options) => { calls.push({ url, options }); return reply([{ business_id: "business-a", description: "Updated" }]); });
-  res = response(); await handler({ method: "PATCH", headers: { authorization: "Bearer good", "x-role": "owner" }, body: { description: "Updated", enabled_modules: { voice: true } } }, res);
-  assert.equal(res.statusCode, 200); const patch = calls.find((call) => call.options.method === "PATCH"); assert.match(patch.url, /business_id=eq.business-a/); assert.equal(JSON.parse(patch.options.body).enabled_modules.voice, false);
+  res = response(); await handler({ method: "PATCH", headers: { authorization: "Bearer good", "x-role": "owner" }, body: { description: "Updated", onboarding_step: "services", service_delivery_mode: "travel", enabled_modules: { voice: true } } }, res);
+  assert.equal(res.statusCode, 200); const patch = calls.find((call) => call.options.method === "PATCH"); const persisted = JSON.parse(patch.options.body); assert.match(patch.url, /business_id=eq.business-a/); assert.equal(persisted.enabled_modules.voice, false); assert.equal(persisted.onboarding_step, "services"); assert.equal(persisted.service_delivery_mode, "travel");
 });
 
 test("configuration API fails closed or safely when authentication/configuration is unavailable", { concurrency: false }, async () => {

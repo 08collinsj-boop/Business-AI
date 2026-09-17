@@ -23,6 +23,18 @@ async function getConfiguration(businessId) {
   const rows = await request(`business_configurations?business_id=eq.${encodeURIComponent(businessId)}&select=*&limit=1`);
   return Array.isArray(rows) ? rows[0] || null : null;
 }
+async function getSettings(businessId) {
+  const rows = await request(`business_settings?business_id=eq.${encodeURIComponent(businessId)}&select=business_name,services,opening_hours&limit=1`);
+  return Array.isArray(rows) ? rows[0] || null : null;
+}
+function onboardingState(configuration, settings) {
+  if (configuration?.onboarding_completed_at) return "completed";
+  // Compatibility: established tenants with the original required receptionist
+  // settings are never forced back through the new wizard.
+  if (settings?.business_name?.trim() && settings?.services?.trim() && settings?.opening_hours?.trim()) return "completed";
+  const step = configuration?.onboarding_step;
+  return step === "completed" ? "completed" : step || "business";
+}
 
 export default async function handler(req, res) {
   if (!["GET", "PATCH"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
@@ -33,7 +45,8 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const configuration = await getConfiguration(auth.businessId);
       if (!configuration) return res.status(404).json({ error: "Business configuration not found" });
-      return res.status(200).json({ configuration, templates: getIndustryTemplates() });
+      const settings = await getSettings(auth.businessId);
+      return res.status(200).json({ configuration, onboarding: { state: onboardingState(configuration, settings), completed: onboardingState(configuration, settings) === "completed" }, templates: getIndustryTemplates() });
     }
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid request body" });
