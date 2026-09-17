@@ -94,6 +94,16 @@ test("public quick actions only guide the existing public conversation", () => {
   assert.match(html, /This is an AI assistant for/);
 });
 
+test("customer visual hierarchy keeps the chat near compact tenant identity and truthful action tiles", () => {
+  const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
+  assert.ok(publicMarkup.indexOf('class="public-hero"') < publicMarkup.indexOf('class="public-quick-actions"'));
+  assert.ok(publicMarkup.indexOf('class="public-quick-actions"') < publicMarkup.indexOf('id="publicBusinessDetails"'));
+  assert.ok(publicMarkup.indexOf('id="publicBusinessDetails"') < publicMarkup.indexOf('id="publicMessages"'));
+  assert.match(publicMarkup, /class="quick-icon" aria-hidden="true"/);
+  assert.doesNotMatch(publicMarkup, /<h2>How can we help\?<\/h2>[\s\S]{0,900}<h2>How can we help\?<\/h2>/);
+  assert.match(html, /\.public-chat-form button\{[^}]*border-radius:50%/);
+});
+
 test("PWA metadata and worker cache only static non-sensitive assets", () => {
   assert.equal(manifest.name, "Business AI"); assert.equal(manifest.display, "standalone"); assert.equal(manifest.start_url, "/");
   assert.ok(manifest.icons.some((icon) => icon.src === "/assets/icons/business-ai-192.png" && icon.sizes === "192x192"));
