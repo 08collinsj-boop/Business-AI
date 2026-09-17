@@ -1413,6 +1413,12 @@ placeholder="e.g. I need an electrician for a faulty socket…"
 </section>
 
 
+<section id="voiceView" class="view">
+<div class="page-title"><h2>Voice receptionist</h2><p>Prepare for future calls without enabling a phone service.</p></div>
+<div class="card"><div class="card-head"><h3>Voice status</h3><span id="voiceStatusBadge">Checking…</span></div><div id="voiceStatusMessage" class="work-meta">Voice is disabled until a provider, number, webhook verification and explicit environment approval are configured.</div><div class="settings-grid" style="margin-top:14px"><div class="field"><label>Greeting source</label><div class="work-meta">Your business name, services, hours, FAQs, AI instructions and handover instructions from Settings are used for future voice context.</div></div><div class="field"><label>Safety</label><div class="work-meta">Emergency/high-risk calls must be escalated. Calls can create booking requests only, never confirmed appointments.</div></div></div></div>
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Call history</h3><span>Development only</span></div><div id="voiceCallsList" class="empty">No simulated or live calls are available. Live phone answering is not active.</div></div>
+</section>
+
 <section
 id="settingsView"
 class="view"
@@ -1698,6 +1704,7 @@ Leads
 <button class="nav-btn" data-view="bookings" onclick="showView('bookings')">▣<br>Bookings</button>
 
 <button class="nav-btn" data-view="actions" onclick="showView('actions')">✓<br>Actions</button>
+<button class="nav-btn" data-view="voice" onclick="showView('voice')">☎<br>Voice</button>
 
 
 <button
@@ -2124,6 +2131,7 @@ document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',
 document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===view));
 
 if(view==='bookings'||view==='actions')loadWorkItems();
+if(view==='voice')loadVoiceStatus();
 
 }
 
@@ -2568,6 +2576,7 @@ async function revokeTeamInvitation(invitation_id){try{await api('/api/team',{me
 function fillLifecycle(){if(!lifecyclePolicy)return;$('leadRetentionDays').value=lifecyclePolicy.lead_retention_days||365;$('auditRetentionDays').value=lifecyclePolicy.audit_retention_days||730;}
 async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)})});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 async function loadPilotOperations(){const results=await Promise.allSettled([api('/api/handovers'),api('/api/team'),api('/api/data-lifecycle')]);if(results[0].status==='fulfilled'){handovers=Array.isArray(results[0].value)?results[0].value:[];renderHandovers();}if(results[1].status==='fulfilled'){teamState=results[1].value;renderTeam();}else $('teamList').innerHTML='<div class="work-meta">Team management is available to the business owner.</div>';if(results[2].status==='fulfilled'){lifecyclePolicy=results[2].value;fillLifecycle();}else $('lifecycleStatus').textContent='Retention controls are available to owners and admins.';}
+async function loadVoiceStatus(){try{const status=await api('/api/voice-status');$('voiceStatusBadge').textContent=status.provider_connected?'Connected':'Not connected';$('voiceStatusMessage').textContent=status.message||'Voice is disabled.';}catch(error){$('voiceStatusBadge').textContent='Unavailable';$('voiceStatusMessage').textContent='Voice status is unavailable. Live calling remains disabled.';}}
 
 
 async function saveSettings(){
@@ -2618,6 +2627,7 @@ renderLeads();
 if(frontendAuthEnabled)loadWorkItems();
 if(frontendAuthEnabled)loadBusinessConfiguration();
 if(frontendAuthEnabled)loadPilotOperations();
+if(frontendAuthEnabled)loadVoiceStatus();
 
 if(showFeedback)toast('Dashboard refreshed');
 

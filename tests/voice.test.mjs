@@ -12,6 +12,7 @@ import {
   validateInboundCallEvent
 } from "../lib/voice.js";
 import { createVoiceWebhookHandler } from "../lib/voice-webhook-handler.js";
+import { simulateInboundVoiceCall } from "../lib/voice-simulation.js";
 
 const callsSource = await readFile(new URL("../lib/voice-calls-handler.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
@@ -136,6 +137,20 @@ test("voice lead bridge reuses the scoped receptionist lead storage path", { con
   assert.match(requests[0].url, /business_id=eq.11111111-1111-4111-8111-111111111111/);
   assert.match(requests[1].url, /id=eq.12&business_id=eq.11111111-1111-4111-8111-111111111111/);
   assert.equal(JSON.parse(requests[1].options.body).business_id, "11111111-1111-4111-8111-111111111111");
+});
+
+test("internal voice simulation covers normal, handover, emergency, and incomplete calls without a provider", async () => {
+  const events = []; const updates = []; let callId = 0;
+  const repository = { createCall: async (record) => ({ ...record, id: ++callId }), addEvent: async (event) => events.push(event), updateCall: async (id, businessId, changes) => { updates.push({ id, businessId, changes }); return { id, business_id: businessId, ...changes }; }, captureLead: async ({ businessId, lead }) => ({ id: 41, business_id: businessId, ...lead }), createFollowUp: async ({ businessId, leadId }) => ({ id: 12, business_id: businessId, lead_id: leadId }) };
+  const tenant = { businessId: "11111111-1111-4111-8111-111111111111" };
+  const normal = await simulateInboundVoiceCall({ tenant, repository, turns: [{ speaker: "caller", content: "I need an electrical repair" }], lead: { name: "Test" } });
+  assert.equal(normal.call.status, "completed"); assert.equal(normal.lead.business_id, tenant.businessId);
+  const handover = await simulateInboundVoiceCall({ tenant, repository, turns: [{ speaker: "caller", content: "I need to speak to a person" }], lead: { name: "Test" } });
+  assert.equal(handover.call.status, "escalated"); assert.equal(handover.action.lead_id, 41);
+  const emergency = await simulateInboundVoiceCall({ tenant, repository, turns: [{ speaker: "caller", content: "There is an electric shock emergency" }] });
+  assert.equal(emergency.call.status, "escalated");
+  const incomplete = await simulateInboundVoiceCall({ tenant, repository, turns: [] });
+  assert.equal(incomplete.call.status, "missed"); assert.ok(events.length > 0); assert.ok(updates.every((item) => item.businessId === tenant.businessId));
 });
 
 test.after(() => {
