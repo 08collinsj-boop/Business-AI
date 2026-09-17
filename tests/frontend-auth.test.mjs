@@ -33,7 +33,7 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
 test("public customer links use only a validated slug and never unlock dashboard data", () => {
   assert.match(html, /const publicSlugFromLocation=\(\)=>\{/);
   assert.match(html, /if\(publicEnquirySlug\)\{document\.body\.classList\.remove\('auth-pending'\);document\.body\.classList\.add\('public-enquiry'\);/);
-  assert.match(html, /body\.public-enquiry \.app,body\.public-enquiry #authScreen,body\.public-enquiry #businessSetupScreen\{display:none\}/);
+  assert.match(html, /body\.public-enquiry \.app,body\.public-enquiry \.bottom-nav,body\.public-enquiry #authScreen,body\.public-enquiry #businessSetupScreen\{display:none\}/, "public customer mode hides the standalone private dashboard navigation");
   assert.match(html, /url\.searchParams\.set\('business',publicEnquirySlug\)/);
   assert.match(html, /Customer enquiry link[\s\S]{0,600}It does not reveal your internal business ID/);
   const publicHandler = html.slice(html.indexOf("async function sendPublicEnquiry"), html.indexOf("$('publicEnquiryForm').addEventListener"));
