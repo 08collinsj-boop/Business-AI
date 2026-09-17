@@ -8,8 +8,8 @@
     { "source": "/api/public-business", "destination": "/api/operations?operation=public-business" },
     { "source": "/api/health", "destination": "/api/operations?operation=health" },
     { "source": "/api/billing", "destination": "/api/operations?operation=billing" },
-    { "source": "/api/voice-calls", "destination": "/api/stripe-webhook?operation=calls" },
-    { "source": "/api/voice-status", "destination": "/api/stripe-webhook?operation=status" },
-    { "source": "/api/voice-webhook", "destination": "/api/stripe-webhook?operation=webhook" }
+    { "source": "/api/voice-calls", "destination": "/api/voice?operation=calls" },
+    { "source": "/api/voice-status", "destination": "/api/voice?operation=status" },
+    { "source": "/api/voice-webhook", "destination": "/api/voice?operation=webhook" }
   ]
 }

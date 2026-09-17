@@ -7,6 +7,7 @@ const billingSource = await readFile(new URL("../lib/billing.js", import.meta.ur
 const handlerSource = await readFile(new URL("../lib/billing-handler.js", import.meta.url), "utf8");
 const webhookSource = await readFile(new URL("../lib/stripe-webhook-handler.js", import.meta.url), "utf8");
 const webhookRouteSource = await readFile(new URL("../api/stripe-webhook.js", import.meta.url), "utf8");
+const fetchWebhookSource = await readFile(new URL("../lib/stripe-webhook-fetch-handler.js", import.meta.url), "utf8");
 const saved = { ...process.env }; const originalFetch = globalThis.fetch;
 const reply = (body, ok = true, status = ok ? 200 : 500) => ({ ok, status, text: async () => typeof body === "string" ? body : JSON.stringify(body), json: async () => body });
 const res = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
@@ -64,13 +65,21 @@ test("Stripe webhook verifies signatures, activates one paid trial, and treats d
   globalThis.fetch = async (url, options = {}) => url.includes("stripe_webhook_events") && options.method === "POST" ? reply({}, false, 409) : reply({}, false); const duplicate = res(); await handler({ method: "POST", headers: { "stripe-signature": `t=${timestamp},v1=${signature}` }, body: raw }, duplicate); assert.equal(duplicate.statusCode, 200); assert.equal(duplicate.body.duplicate, true);
 });
 
+test("Web Standard webhook route verifies the original request text before processing", async () => {
+  process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.STRIPE_WEBHOOK_SECRET = "whsec_test"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key";
+  const event = { id: "evt_test_fetch", type: "checkout.session.completed", created: 1780000000, data: { object: { id: "cs_fetch", payment_status: "paid", customer: "cus_fetch", client_reference_id: account.business_id, metadata: { plan: "trial", business_id: account.business_id } } } }; const raw = JSON.stringify(event); const timestamp = Math.floor(Date.now() / 1000); const signature = crypto.createHmac("sha256", process.env.STRIPE_WEBHOOK_SECRET).update(`${timestamp}.${raw}`).digest("hex");
+  globalThis.fetch = async (url, options = {}) => { if (url.includes("stripe_webhook_events") && options.method === "POST") return reply({}, true, 201); if (url.includes("activate_paid_business_trial")) return reply(true, true, 200); if (url.includes("business_audit_events")) return reply({}, true, 201); if (url.includes("stripe_webhook_events") && options.method === "PATCH") return reply({}, true, 204); return reply({}, false); };
+  const handler = (await import(new URL(`../lib/stripe-webhook-fetch-handler.js?fetch=${Math.random()}`, import.meta.url))).default; const response = await handler(new Request("https://pilot.example.test/api/stripe-webhook", { method: "POST", headers: { "stripe-signature": `t=${timestamp},v1=${signature}` }, body: raw })); assert.equal(response.status, 200); assert.deepEqual(await response.json(), { received: true });
+});
+
 test("billing source keeps Stripe secret/server checks and no browser pricing trust", () => {
   assert.match(billingSource, /BILLING_ENABLED === "true"/); assert.match(billingSource, /consume_billing_ai_enquiry_allowance/);
   assert.match(handlerSource, /requireBusinessMember\(req, \["owner"\]\)/); assert.match(handlerSource, /trial_purchased/);
   assert.match(webhookSource, /verifyStripeSignature/); assert.match(webhookSource, /markWebhookEvent/); assert.doesNotMatch(webhookSource, /console\.log/);
   assert.doesNotMatch(webhookSource, /JSON\.stringify\(req\.body\)/, "Stripe verification must use original bytes, never a reconstructed JSON body");
-  assert.match(webhookRouteSource, /export const config = \{ api: \{ bodyParser: false \} \};/, "the physical deployed webhook route must explicitly disable parsing");
-  assert.match(webhookRouteSource, /return stripeWebhookHandler\(req, res\);/, "the physical route must dispatch directly to Stripe without a rewrite operation");
+  assert.match(webhookRouteSource, /fetch: stripeWebhookFetchHandler/, "the physical deployed webhook route must use the Web Standard raw Request API");
+  assert.match(fetchWebhookSource, /await request\.text\(\)/, "Stripe verification must read original request text");
+  assert.doesNotMatch(fetchWebhookSource, /JSON\.stringify\(request\.body\)/, "Stripe verification must never reconstruct a request body");
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env, saved); globalThis.fetch = originalFetch; });
