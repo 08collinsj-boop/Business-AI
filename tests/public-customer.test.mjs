@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const apiSource = await readFile(new URL("../api/public-business.js", import.meta.url), "utf8");
+const apiSource = await readFile(new URL("../lib/public-business-handler.js", import.meta.url), "utf8");
 const routeSource = await readFile(new URL("../lib/public-tenant.js", import.meta.url), "utf8");
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const manifest = JSON.parse(await readFile(new URL("../manifest.webmanifest", import.meta.url), "utf8"));
@@ -23,7 +23,7 @@ async function load({ route, settings, configuration = {} } = {}) {
     if (url.includes("business_configurations")) return reply([configuration]);
     return reply({ hidden: true }, false);
   };
-  const source = apiSource.replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`);
+  const source = apiSource.replace('from "./public-tenant.js"', `from "${routeUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 

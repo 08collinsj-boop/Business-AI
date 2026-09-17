@@ -5,6 +5,7 @@
     { "source": "/api/data-subjects", "destination": "/api/operations?operation=data-subjects" },
     { "source": "/api/team", "destination": "/api/operations?operation=team" },
     { "source": "/api/handovers", "destination": "/api/operations?operation=handovers" },
+    { "source": "/api/public-business", "destination": "/api/operations?operation=public-business" },
     { "source": "/api/health", "destination": "/api/operations?operation=health" },
     { "source": "/api/voice-calls", "destination": "/api/voice?operation=calls" },
     { "source": "/api/voice-status", "destination": "/api/voice?operation=status" },
