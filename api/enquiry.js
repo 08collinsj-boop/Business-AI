@@ -264,15 +264,25 @@ function requiresHumanHandover(text) {
   return /\b(fire|electric shock|electrocut|gas leak|unconscious|not breathing|immediate danger|emergency|speak to (?:a )?person|human|manager|complaint|call me back)\b/i.test(String(text || ""));
 }
 
-async function createHumanHandoverAction(leadId, businessId) {
+function handoverReason(text) {
+  const value = String(text || "");
+  if (/\b(fire|electric shock|electrocut|gas leak|unconscious|not breathing|immediate danger|emergency)\b/i.test(value)) return "emergency_or_high_risk";
+  if (/\b(complaint|dispute)\b/i.test(value)) return "complaint_or_dispute";
+  if (/\b(speak to (?:a )?person|human|manager|call me back)\b/i.test(value)) return "human_requested";
+  return "sensitive_or_unusual";
+}
+
+async function createHumanHandoverAction(leadId, businessId, reason) {
   if (!leadId || !businessId) return null;
   try {
     const actions = await supabaseRequest("actions", {
       method: "POST", headers: { Prefer: "return=representation" },
       body: JSON.stringify({ business_id: businessId, lead_id: leadId, title: "Human follow-up requested", description: "Created by the AI safety handover rule. Review this enquiry promptly.", action_type: "follow_up", priority: "urgent", status: "pending" })
     });
+    const action = actions?.[0] || null;
     await supabaseRequest("lead_history", { method: "POST", body: JSON.stringify({ business_id: businessId, lead_id: leadId, action: "Human handover requested", old_value: "", new_value: "Follow-up action created" }) });
-    return actions?.[0] || null;
+    await supabaseRequest("lead_handovers", { method: "POST", body: JSON.stringify({ business_id: businessId, lead_id: leadId, action_id: action?.id || null, reason, summary: "A public AI enquiry was flagged for human attention. Review the linked lead and conversation context." }) });
+    return action;
   } catch {
     // Handover language is still included in the lead, even if an optional
     // follow-up insert cannot run on an older/non-migrated environment.
@@ -735,7 +745,7 @@ Your response must follow the supplied JSON schema.
         savedLead = await saveLead(finalLead, businessId);
         leadCaptured = Boolean(savedLead);
 
-        if (savedLead && handoverRequired) await createHumanHandoverAction(savedLead.id, businessId);
+        if (savedLead && handoverRequired) await createHumanHandoverAction(savedLead.id, businessId, handoverReason(conversationText));
         if (savedLead) await recordAuditEvent({ businessId, action: handoverRequired ? "lead.public_handover" : "lead.public_created", resourceType: "lead", resourceId: String(savedLead.id), metadata: { source: "public_enquiry", handover: handoverRequired } });
 
         logOperationalEvent("enquiry.lead_captured", { businessId, leadId: savedLead?.id || "unknown", handover: handoverRequired });

@@ -42,6 +42,7 @@ Last audited: 2026-09-17
 - The Pilot post-login onboarding check now defers Supabase session work outside the `onAuthStateChange` callback lock. This is awaiting a manual retest by the existing Collins LTD. owner after deployment; no tenant, membership, settings, or configuration data was changed.
 - Authenticated dashboard receptionist requests obtain the signed-in tenant's public slug through the authenticated onboarding check, then use the existing server-validated public route. This avoids unsafe implicit tenant selection when more than one Dev business exists.
 - The Pilot dashboard Settings view exposes a copyable customer enquiry link. Opening `/?business=<public-slug>` now presents a public customer enquiry screen only; it does not initialise dashboard authentication or reveal private business data.
+- Dev-only Pilot operations migration `20260917113857_add_pilot_team_and_handover_operations.sql` is applied and verified on Business-AI-Dev. It adds owner-authorised, email-bound staff/admin invitation acceptance plus tenant-scoped durable handover records linked to leads and urgent actions. The owner Settings screen now includes handover review, invitation controls, lifecycle retention controls, and concise Pilot guidance. Invitations must be shared manually during the Pilot because no transactional email provider is configured.
 
 ## Blocked / Requires Owner
 

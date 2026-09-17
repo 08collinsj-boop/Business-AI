@@ -1661,6 +1661,14 @@ Save business settings
 
 </div>
 
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Human handovers</h3><span>Requires attention</span></div><p class="work-meta">Emergency, complaint and human-request enquiries are recorded as urgent follow-up actions. A handover means the system has flagged it; it does not mean someone has been contacted.</p><div id="handoverStatus"></div><div id="handoverList" class="work-list"><div class="empty">Loading handovers…</div></div></div>
+
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Team access</h3><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
+
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Privacy & retention</h3><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation controls are available through the protected lead-data API and must be used deliberately for individual records.</p></div>
+
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta">Share the customer enquiry link above to test your AI receptionist. Qualified enquiries create leads; review new leads, urgent handovers and follow-up actions promptly. Bookings are requests until you confirm them. Voice calls, automatic outbound messages, live availability and payment processing are not enabled. If the service behaves unexpectedly, stop using the affected workflow, record the time and action, and report it to your Pilot contact.</div></div>
+
 </section>
 
 </div>
@@ -1732,13 +1740,14 @@ let supabaseClient=null;
 let frontendAuthEnabled=false;
 let authenticatedPublicBusinessSlug=null;
 let publicEnquirySlug=null;
+let handovers=[];let teamState=null;let lifecyclePolicy=null;
 let authenticationMode='login';
 
 
 const $=id=>document.getElementById(id);
 
 const clearPrivateState=()=>{
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;handovers=[];teamState=null;lifecyclePolicy=null;
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 };
 
@@ -1763,6 +1772,7 @@ const publicSlugFromLocation=()=>{
 const slug=new URLSearchParams(window.location.search).get('business');
 return /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(slug||'').toLowerCase())?String(slug).toLowerCase():null;
 };
+const invitationIdFromLocation=()=>{const value=new URLSearchParams(window.location.search).get('invite');return /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(value||''))?String(value):null;};
 
 const publicEnquiryUrl=slug=>{
 if(!slug)return '';
@@ -1786,6 +1796,8 @@ if(!frontendAuthEnabled)return;
 if(session){
 setAuthView('auth-pending');
 try{
+const invitationId=invitationIdFromLocation();
+if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
 authenticatedPublicBusinessSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
@@ -2548,6 +2560,15 @@ businessConfiguration=data?.configuration||businessConfiguration;configurationTe
 }catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}
 }
 
+function renderHandovers(){const list=$('handoverList');if(!list)return;list.innerHTML=handovers.length?handovers.map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.reason.replaceAll('_',' '))}</h4><div class="work-meta">Lead #${esc(item.lead_id)} · ${esc(item.status.replaceAll('_',' '))} · ${timeLabel(item.created_at)}</div></div><span class="tag high">${esc(item.status)}</span></div><div class="work-meta">${esc(item.summary||'Review the linked lead and conversation context.')}</div>${item.status==='requires_attention'?`<div class="work-actions"><button class="small-btn primary-action" onclick="updateHandover('${esc(item.id)}','acknowledged')">Acknowledge</button><button class="small-btn" onclick="updateHandover('${esc(item.id)}','resolved')">Resolve</button></div>`:''}</article>`).join(''):'<div class="empty">No handovers need attention.</div>';}
+async function updateHandover(id,status){try{await api('/api/handovers',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});await loadPilotOperations();toast('Handover updated');}catch(error){$('handoverStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+function renderTeam(){const list=$('teamList');if(!list||!teamState)return;const members=teamState.members||[];const invitations=teamState.invitations||[];list.innerHTML=[...members.map(member=>`<article class="work-item"><div class="work-item-top"><div><h4>Team member</h4><div class="work-meta">${esc(member.role)} access · joined ${timeLabel(member.created_at)}</div></div><span class="tag">${esc(member.role)}</span></div></article>`),...invitations.map(invite=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(invite.invited_email)}</h4><div class="work-meta">${esc(invite.role)} · ${esc(invite.status)} · expires ${timeLabel(invite.expires_at)}</div></div>${invite.status==='pending'?`<button class="small-btn" onclick="revokeTeamInvitation('${esc(invite.id)}')">Revoke</button>`:''}</div></article>`)].join('')||'<div class="empty">No team invitations yet.</div>';}
+async function inviteTeamMember(){const status=$('teamStatus');status.textContent='Creating invitation…';try{const result=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('teamInviteEmail').value,role:$('teamInviteRole').value})});const link=new URL(result.accept_path,window.location.origin).toString();try{await navigator.clipboard?.writeText(link);}catch{}$('teamInviteEmail').value='';status.textContent='Invitation created. Secure acceptance link copied; share it with the intended person.';await loadPilotOperations();}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+async function revokeTeamInvitation(invitation_id){try{await api('/api/team',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitation_id,status:'revoked'})});await loadPilotOperations();toast('Invitation revoked');}catch(error){$('teamStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+function fillLifecycle(){if(!lifecyclePolicy)return;$('leadRetentionDays').value=lifecyclePolicy.lead_retention_days||365;$('auditRetentionDays').value=lifecyclePolicy.audit_retention_days||730;}
+async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)})});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+async function loadPilotOperations(){const results=await Promise.allSettled([api('/api/handovers'),api('/api/team'),api('/api/data-lifecycle')]);if(results[0].status==='fulfilled'){handovers=Array.isArray(results[0].value)?results[0].value:[];renderHandovers();}if(results[1].status==='fulfilled'){teamState=results[1].value;renderTeam();}else $('teamList').innerHTML='<div class="work-meta">Team management is available to the business owner.</div>';if(results[2].status==='fulfilled'){lifecyclePolicy=results[2].value;fillLifecycle();}else $('lifecycleStatus').textContent='Retention controls are available to owners and admins.';}
+
 
 async function saveSettings(){
 
@@ -2596,6 +2617,7 @@ renderLeads();
 
 if(frontendAuthEnabled)loadWorkItems();
 if(frontendAuthEnabled)loadBusinessConfiguration();
+if(frontendAuthEnabled)loadPilotOperations();
 
 if(showFeedback)toast('Dashboard refreshed');
 

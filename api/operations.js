@@ -2,6 +2,8 @@ import auditLogHandler from "../lib/audit-log-handler.js";
 import dataLifecycleHandler from "../lib/data-lifecycle-handler.js";
 import dataSubjectsHandler from "../lib/data-subjects-handler.js";
 import healthHandler from "../lib/health-handler.js";
+import teamHandler from "../lib/team-handler.js";
+import handoverHandler from "../lib/handover-handler.js";
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -10,7 +12,9 @@ const handlers = Object.freeze({
   "audit-log": auditLogHandler,
   "data-lifecycle": dataLifecycleHandler,
   "data-subjects": dataSubjectsHandler,
-  health: healthHandler
+  health: healthHandler,
+  team: teamHandler,
+  handovers: handoverHandler
 });
 
 export default async function handler(req, res) {

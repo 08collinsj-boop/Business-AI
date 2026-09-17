@@ -19,7 +19,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260916170000_add_business_configuration_onboarding.sql",
     "20260916180000_add_business_creation_and_public_routes.sql",
     "20260916190000_add_pilot_hardening_foundation.sql",
-    "20260916191000_add_lifecycle_policy_for_new_businesses.sql"
+    "20260916191000_add_lifecycle_policy_for_new_businesses.sql",
+    "20260917113857_add_pilot_team_and_handover_operations.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -77,4 +78,10 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(lifecycleDefaults, /create_default_business_data_lifecycle_policy/i);
   assert.match(lifecycleDefaults, /after insert on public\.businesses/i);
   assert.match(lifecycleDefaults, /revoke all on function public\.create_default_business_data_lifecycle_policy\(\) from public, anon, authenticated/i);
+  const operations = contents.get("20260917113857_add_pilot_team_and_handover_operations.sql");
+  assert.match(operations, /create table if not exists public\.business_team_invitations/i);
+  assert.match(operations, /create table if not exists public\.lead_handovers/i);
+  assert.match(operations, /revoke all on public\.business_team_invitations from anon, authenticated/i);
+  assert.match(operations, /revoke all on public\.lead_handovers from anon, authenticated/i);
+  assert.match(operations, /foreign key \(lead_id, business_id\)/i);
 });
