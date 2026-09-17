@@ -15,13 +15,14 @@ const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true, status = ok ? 200 : 500) => ({ ok, status, text: async () => JSON.stringify(body), json: async () => body });
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 
-async function load({ memberships = [], rpc = [{ business_id: "business-new", public_slug: "hartlepool-garage" }], invalid = false } = {}) {
+async function load({ memberships = [], routes = [{ route_value: "hartlepool-garage" }], rpc = [{ business_id: "business-new", public_slug: "hartlepool-garage" }], invalid = false } = {}) {
   process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   const calls = [];
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.endsWith("/auth/v1/user")) return reply(invalid ? {} : { id: "owner-user" }, !invalid, invalid ? 401 : 200);
     if (url.includes("business_memberships")) return reply(memberships);
+    if (url.includes("business_public_routes")) return reply(routes);
     if (url.includes("rpc/create_business_for_owner")) return reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
@@ -66,14 +67,17 @@ test("business onboarding rejects invalid auth, duplicate membership, and duplic
 });
 
 test("an authenticated existing owner resolves to their dashboard instead of onboarding", { concurrency: false }, async () => {
-  const { handler, calls } = await load({ memberships: [{ business_id: "collins-business" }] });
+  const { handler, calls } = await load({ memberships: [{ business_id: "collins-business" }], routes: [{ route_value: "collins-ltd" }] });
   const res = response();
   await handler({ method: "GET", headers: { authorization: "Bearer verified" }, query: { business_id: "attacker-business", role: "owner" } }, res);
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(res.body, { needs_business: false });
+  assert.deepEqual(res.body, { needs_business: false, public_slug: "collins-ltd" });
   const membershipQuery = calls.find((call) => call.url.includes("business_memberships"));
   assert.match(membershipQuery.url, /user_id=eq.owner-user/);
   assert.doesNotMatch(membershipQuery.url, /attacker-business/);
+  const routeQuery = calls.find((call) => call.url.includes("business_public_routes"));
+  assert.match(routeQuery.url, /business_id=eq.collins-business/);
+  assert.doesNotMatch(routeQuery.url, /attacker-business/);
 });
 
 test("an authenticated user without a membership is sent only to onboarding", { concurrency: false }, async () => {
@@ -81,6 +85,13 @@ test("an authenticated user without a membership is sent only to onboarding", { 
   await handler({ method: "GET", headers: { authorization: "Bearer verified" } }, res);
   assert.equal(res.statusCode, 200);
   assert.deepEqual(res.body, { needs_business: true });
+});
+
+test("an existing business without an active public route fails safely", { concurrency: false }, async () => {
+  const { handler } = await load({ memberships: [{ business_id: "business-a" }], routes: [] }); const res = response();
+  await handler({ method: "GET", headers: { authorization: "Bearer verified" } }, res);
+  assert.equal(res.statusCode, 503);
+  assert.deepEqual(res.body, { error: "Business public route is unavailable" });
 });
 
 test("public enquiry maps a slug to its server-resolved business and scopes lead creation", { concurrency: false }, async () => {

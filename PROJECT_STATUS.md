@@ -40,6 +40,7 @@ Last audited: 2026-09-17
 - Supabase leaked-password protection is unavailable on the current plan. This is an accepted controlled-Pilot limitation; owner accounts must use strong, unique passwords and existing authentication controls remain mandatory.
 - Pilot self-service signup requires the Business-AI-Dev Auth Site URL and redirect allow-list to include `https://business-ai-pilot.vercel.app` and `https://business-ai-pilot.vercel.app/**`; owner confirmed these are configured. Email delivery and confirmation must remain enabled.
 - The Pilot post-login onboarding check now defers Supabase session work outside the `onAuthStateChange` callback lock. This is awaiting a manual retest by the existing Collins LTD. owner after deployment; no tenant, membership, settings, or configuration data was changed.
+- Authenticated dashboard receptionist requests obtain the signed-in tenant's public slug through the authenticated onboarding check, then use the existing server-validated public route. This avoids unsafe implicit tenant selection when more than one Dev business exists.
 
 ## Blocked / Requires Owner
 

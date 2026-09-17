@@ -1706,13 +1706,14 @@ let settings=null;
 let pipeline=null;
 let supabaseClient=null;
 let frontendAuthEnabled=false;
+let authenticatedPublicBusinessSlug=null;
 let authenticationMode='login';
 
 
 const $=id=>document.getElementById(id);
 
 const clearPrivateState=()=>{
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 };
 
@@ -1740,6 +1741,8 @@ setAuthView('auth-pending');
 try{
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
+authenticatedPublicBusinessSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
+if(!authenticatedPublicBusinessSlug)throw new Error('Business public route is unavailable');
 setAuthView('auth-ready');loadAll().catch(()=>{});return;
 }catch(error){
 if(error.message==='Your session has expired.')return;
@@ -1991,7 +1994,7 @@ addEnquiryMessage('user',message);
 try{
 
 const enquiryUrl=new URL('/api/enquiry',window.location.origin);
-const publicBusinessSlug=new URLSearchParams(window.location.search).get('business');
+const publicBusinessSlug=frontendAuthEnabled?authenticatedPublicBusinessSlug:new URLSearchParams(window.location.search).get('business');
 if(/^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(publicBusinessSlug||'').toLowerCase()))enquiryUrl.searchParams.set('business',publicBusinessSlug.toLowerCase());
 const response=await fetch(`${enquiryUrl.pathname}${enquiryUrl.search}`,{
 method:'POST',

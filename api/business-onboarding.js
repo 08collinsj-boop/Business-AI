@@ -30,6 +30,13 @@ async function memberships(userId) {
   const rows = await request(`business_memberships?user_id=eq.${encodeURIComponent(userId)}&select=business_id&limit=2`);
   return Array.isArray(rows) ? rows : [];
 }
+async function activePublicSlug(businessId) {
+  const rows = await request(
+    `business_public_routes?business_id=eq.${encodeURIComponent(businessId)}&route_type=eq.slug&active=eq.true&select=route_value&limit=2`
+  );
+  const slug = Array.isArray(rows) && rows.length === 1 ? rows[0]?.route_value : null;
+  return normalisePublicBusinessSlug(slug);
+}
 
 export default async function handler(req, res) {
   if (!["GET", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
@@ -38,7 +45,12 @@ export default async function handler(req, res) {
   if (!auth.enforced) return res.status(503).json({ error: "Business onboarding is not enabled" });
   try {
     const existing = await memberships(auth.userId);
-    if (req.method === "GET") return res.status(200).json({ needs_business: existing.length === 0 });
+    if (req.method === "GET") {
+      if (existing.length === 0) return res.status(200).json({ needs_business: true });
+      const publicSlug = await activePublicSlug(existing[0].business_id);
+      if (!publicSlug) return res.status(503).json({ error: "Business public route is unavailable" });
+      return res.status(200).json({ needs_business: false, public_slug: publicSlug });
+    }
     if (existing.length) return res.status(409).json({ error: "This account already belongs to a business" });
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid business details" });

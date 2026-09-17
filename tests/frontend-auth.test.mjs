@@ -22,6 +22,7 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
   assert.match(html, /headers\.set\('Authorization',`Bearer \$\{session\.access_token\}`\)/);
   assert.match(html, /new URL\('\/api\/enquiry',window\.location\.origin\)/);
   assert.match(html, /api\('\/api\/business-onboarding'\)/);
+  assert.match(html, /const publicBusinessSlug=frontendAuthEnabled\?authenticatedPublicBusinessSlug:new URLSearchParams\(window\.location\.search\)\.get\('business'\)/);
   assert.doesNotMatch(html, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY/);
   assert.doesNotMatch(html, /localStorage\.setItem\([^)]*token/i);
   assert.match(html, /response\.status===401&&supabaseClient/); assert.match(html, /response\.status===403/);
