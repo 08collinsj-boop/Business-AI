@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 
 const apiSource = await readFile(new URL("../lib/public-business-handler.js", import.meta.url), "utf8");
 const routeSource = await readFile(new URL("../lib/public-tenant.js", import.meta.url), "utf8");
@@ -114,15 +114,39 @@ test("customer banner is a graphical fallback, not invented tenant imagery", () 
   assert.doesNotMatch(publicMarkup, /<img|background-image:\s*url/i);
 });
 
-test("PWA metadata and worker cache only static non-sensitive assets", () => {
+test("PWA metadata uses the approved local icon assets and only static non-sensitive caching", async () => {
   assert.equal(manifest.name, "Business AI"); assert.equal(manifest.display, "standalone"); assert.equal(manifest.start_url, "/");
   assert.ok(manifest.icons.some((icon) => icon.src === "/assets/icons/business-ai-192.png" && icon.sizes === "192x192"));
   assert.ok(manifest.icons.some((icon) => icon.src === "/assets/icons/business-ai-512.png" && icon.sizes === "512x512"));
+  assert.ok(manifest.icons.every((icon) => icon.purpose === "any"), "the supplied artwork is not declared maskable without a safe maskable crop");
   assert.match(html, /<link rel="manifest" href="\/manifest\.webmanifest">/);
+  assert.match(html, /apple-mobile-web-app-capable" content="yes"/);
+  assert.match(html, /apple-mobile-web-app-status-bar-style" content="black-translucent"/);
+  assert.match(html, /apple-mobile-web-app-title" content="Business AI"/);
+  assert.match(html, /apple-touch-icon" sizes="180x180" href="\/assets\/icons\/business-ai-180\.png"/);
+  assert.match(html, /business-ai-32\.png" sizes="32x32"/);
+  assert.match(html, /business-ai-16\.png" sizes="16x16"/);
+  for (const size of [16, 32, 180, 192, 512]) {
+    const icon = await stat(new URL(`../assets/icons/business-ai-${size}.png`, import.meta.url));
+    assert.ok(icon.size > 0, `local ${size}px icon exists`);
+  }
   assert.match(serviceWorker, /request\.mode === "navigate"/);
   assert.match(serviceWorker, /url\.pathname\.startsWith\("\/api\/"\)/);
   assert.doesNotMatch(serviceWorker, /cache\.put\([^)]*\/api\//);
   assert.doesNotMatch(serviceWorker, /Authorization|access_token|SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY/);
+  assert.match(serviceWorker, /business-ai-180\.png/);
+});
+
+test("install guidance belongs only to the authenticated owner application", () => {
+  const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
+  const ownerMarkup = html.slice(html.indexOf('<div id="dashboardApp"'));
+  assert.doesNotMatch(publicMarkup, /Install Business AI|installAppCard|beforeinstallprompt/);
+  assert.match(ownerMarkup, /id="installAppCard"/);
+  assert.match(ownerMarkup, /Add Business AI to your Home Screen for quick access\./);
+  assert.match(html, /window\.addEventListener\('beforeinstallprompt'/);
+  assert.match(html, /\(display-mode: standalone\)/);
+  assert.match(html, /window\.navigator\.standalone===true/);
+  assert.match(html, /Tap Share in Safari/);
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); globalThis.fetch = savedFetch; });

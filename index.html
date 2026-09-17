@@ -8,8 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Business AI">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/assets/icons/business-ai-icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/assets/icons/business-ai-192.png">
+<link rel="icon" href="/assets/icons/business-ai-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/assets/icons/business-ai-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/business-ai-180.png">
 <title>Business AI</title>
 
 <style>
@@ -929,6 +930,7 @@ border-radius:16px
 
 .work-list{display:grid;gap:10px}
 .settings-section-label{margin:22px 2px 9px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.install-app-card{margin-top:14px}.install-app-card[hidden]{display:none}.install-app-row{display:flex;align-items:flex-start;gap:11px}.install-app-symbol{width:35px;height:35px;flex:none;border-radius:11px;background:rgba(39,135,255,.16);color:var(--blue);display:grid;place-items:center;font-size:18px;font-weight:800}.install-app-copy{min-width:0}.install-app-copy h3{margin:1px 0 0}.install-app-copy .work-meta{margin:4px 0 0}.install-app-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.install-ios-steps{margin:10px 0 0;padding-left:19px;color:var(--muted);font-size:12px;line-height:1.6}.install-ios-steps[hidden]{display:none}
 .work-item{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:13px}
 .work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
 .first-run-list{display:grid;gap:10px;margin-top:12px}.first-run-step{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.first-run-mark{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px;background:#27303a;color:var(--muted)}.first-run-mark.done{background:rgba(56,211,159,.16);color:var(--green)}.first-run-step strong{display:block;font-size:12px}.first-run-step .work-meta{margin-top:2px}.first-run-step button{margin-left:auto;align-self:center;flex:none}
@@ -1730,6 +1732,8 @@ Save business settings
 
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention — it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Business AI does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls, automatic outbound messages, live availability and payment processing are not enabled. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
 
+<div id="installAppCard" class="card install-app-card" hidden><div class="install-app-row"><div class="install-app-symbol" aria-hidden="true">↓</div><div class="install-app-copy"><h3>Install Business AI</h3><div class="work-meta">Add Business AI to your Home Screen for quick access.</div></div></div><div class="install-app-actions"><button id="installAppButton" class="small-btn primary-action" type="button" hidden>Install app</button></div><ol id="installAppIosInstructions" class="install-ios-steps" hidden><li>Tap Share in Safari.</li><li>Choose <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>.</li></ol></div>
+
 </section>
 
 </div>
@@ -1776,6 +1780,7 @@ const clearPrivateState=()=>{
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
 leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;enquiryMessages=[];
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+updateInstallAppCard?.();
 };
 
 const applyBusinessRole=()=>{
@@ -1790,6 +1795,7 @@ const publicSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slu
 const role=['owner','admin','member'].includes(onboarding?.role)?onboarding.role:null;
 if(!publicSlug||!role)throw new Error('Business access is unavailable');
 authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();
+updateInstallAppCard();
 loadEnquiryConversation();renderEnquiryConversation();
 };
 
@@ -1811,11 +1817,30 @@ target.classList.add('info');
 };
 
 let pwaRegistrationStarted=false;
+let deferredInstallPrompt=null;
+const isStandaloneOwnerApp=()=>window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true;
+const isIosBrowser=()=>/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+const updateInstallAppCard=()=>{
+const card=$('installAppCard');const button=$('installAppButton');const iosSteps=$('installAppIosInstructions');
+if(!card||!button||!iosSteps)return;
+const show=frontendAuthEnabled&&Boolean(authenticatedBusinessRole)&&!isStandaloneOwnerApp();
+card.hidden=!show;
+button.hidden=!show||!deferredInstallPrompt;
+iosSteps.hidden=!show||!isIosBrowser();
+};
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;updateInstallAppCard();});
+window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;updateInstallAppCard();});
+window.addEventListener('pageshow',updateInstallAppCard);
 const registerOwnerPwa=()=>{
 if(pwaRegistrationStarted||!('serviceWorker' in navigator))return;
 pwaRegistrationStarted=true;
 navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{pwaRegistrationStarted=false;});
 };
+$('installAppButton')?.addEventListener('click',async()=>{
+if(!deferredInstallPrompt)return;
+const prompt=deferredInstallPrompt;deferredInstallPrompt=null;updateInstallAppCard();
+try{await prompt.prompt();await prompt.userChoice;}catch{}finally{updateInstallAppCard();}
+});
 
 const publicSlugFromLocation=()=>{
 const slug=new URLSearchParams(window.location.search).get('business');

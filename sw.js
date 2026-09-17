@@ -1,7 +1,9 @@
-const STATIC_CACHE = "business-ai-static-v1";
+const STATIC_CACHE = "business-ai-static-v2";
 const SAFE_STATIC_PATHS = new Set([
   "/manifest.webmanifest",
-  "/assets/icons/business-ai-icon.svg",
+  "/assets/icons/business-ai-16.png",
+  "/assets/icons/business-ai-32.png",
+  "/assets/icons/business-ai-180.png",
   "/assets/icons/business-ai-192.png",
   "/assets/icons/business-ai-512.png"
 ]);
