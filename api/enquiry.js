@@ -6,6 +6,7 @@ import { resolvePublicBusinessRoute } from "../lib/public-tenant.js";
 import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "../lib/public-rate-limit.js";
 import { recordAuditEvent } from "../lib/audit.js";
 import { logOperationalEvent } from "../lib/operational-log.js";
+import { reserveAiEnquiryAllowance } from "../lib/billing.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -452,6 +453,13 @@ export default async function handler(req, res) {
       return res.status(429).json({ error: "Please try again shortly" });
     }
     const businessId = publicBusiness.businessId;
+    // This server-owned, atomic reservation runs before the OpenAI request.
+    // It cannot be selected, reset, or bypassed by a customer/browser input.
+    const billingAllowance = await reserveAiEnquiryAllowance(businessId);
+    if (!billingAllowance.allowed) {
+      if (billingAllowance.code === "BILLING_UNAVAILABLE") return res.status(503).json({ error: "This assistant is temporarily unavailable" });
+      return res.status(429).json({ error: "This business has reached its AI enquiry allowance", code: "AI_ENQUIRY_ALLOWANCE_REACHED" });
+    }
     const { settings, configuration } = await getBusinessReceptionistConfiguration(businessId);
 
     const businessName =

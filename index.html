@@ -931,6 +931,7 @@ border-radius:16px
 .work-list{display:grid;gap:10px}
 .settings-section-label{margin:22px 2px 9px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
 .install-app-card{margin-top:14px}.install-app-card[hidden]{display:none}.install-app-row{display:flex;align-items:flex-start;gap:11px}.install-app-symbol{width:35px;height:35px;flex:none;border-radius:11px;background:rgba(39,135,255,.16);color:var(--blue);display:grid;place-items:center;font-size:18px;font-weight:800}.install-app-copy{min-width:0}.install-app-copy h3{margin:1px 0 0}.install-app-copy .work-meta{margin:4px 0 0}.install-app-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.install-ios-steps{margin:10px 0 0;padding-left:19px;color:var(--muted);font-size:12px;line-height:1.6}.install-ios-steps[hidden]{display:none}
+.billing-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.billing-plan{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.billing-plan.pro{border-color:rgba(39,135,255,.65);box-shadow:inset 0 0 0 1px rgba(39,135,255,.18)}.billing-plan h4{margin:0;font-size:13px}.billing-plan p{margin:5px 0 8px;color:var(--muted);font-size:11px;line-height:1.35}.billing-plan strong{display:block;font-size:14px}.billing-plan .small-btn{margin-top:9px;width:100%}
 .work-item{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:13px}
 .work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
 .first-run-list{display:grid;gap:10px;margin-top:12px}.first-run-step{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.first-run-mark{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px;background:#27303a;color:var(--muted)}.first-run-mark.done{background:rgba(56,211,159,.16);color:var(--green)}.first-run-step strong{display:block;font-size:12px}.first-run-step .work-meta{margin-top:2px}.first-run-step button{margin-left:auto;align-self:center;flex:none}
@@ -971,6 +972,7 @@ justify-content:space-between
 margin-top:0
 }
 .public-link-row{align-items:stretch;flex-direction:column}.public-link-row button{width:100%}
+.billing-plans{grid-template-columns:1fr}
 .public-customer-shell{padding-left:14px;padding-right:14px;gap:10px}.public-chat-card{padding:0;border-radius:0}.public-business-mark{width:44px;height:44px;border-radius:50%}.public-business-name{font-size:20px}.public-hero{border-radius:18px;padding:16px 17px 15px}.public-hero h2{font-size:25px}.public-quick-actions{gap:7px}.public-quick-action{min-height:76px;font-size:10px}.public-quick-action .quick-icon{width:24px;height:24px}.public-messages{min-height:205px}.public-chat-form{padding-bottom:max(2px,env(safe-area-inset-bottom))}.public-chat-form button{width:50px;height:50px}.dashboard-actions{grid-template-columns:1fr;gap:8px}.dashboard-launch{min-height:0}
 
 }
@@ -1490,6 +1492,8 @@ Control what your AI receptionist knows about the business.
 
 <div class="settings-section-label">Business</div>
 
+<div id="billingCard" class="card" data-owner-only hidden><div class="card-head"><h3>Billing &amp; subscription</h3><span id="billingPlanBadge">Checking…</span></div><div id="billingSummary" class="work-meta">Your plan and AI enquiry allowance are shown here.</div><div id="billingPlans" class="billing-plans" aria-live="polite"></div><div class="work-actions"><button id="manageBillingButton" class="small-btn" type="button" hidden onclick="manageBilling()">Manage billing</button><button id="cancelBillingButton" class="small-btn" type="button" hidden onclick="cancelBilling()">Cancel at period end</button></div></div>
+
 <div class="card">
 
 <div class="card-head">
@@ -1771,6 +1775,7 @@ let authenticatedPublicBusinessSlug=null;
 let authenticatedBusinessRole=null;
 let publicEnquirySlug=null;
 let handovers=[];let teamState=null;let lifecyclePolicy=null;
+let billingState=null;
 let authenticationMode='login';
 
 
@@ -2759,6 +2764,24 @@ toast('Business settings saved');
 }
 
 
+const billingPlanPresentation={trial:{name:'Trial',price:'£3.99 / 7 days',detail:'100 AI enquiries · 1 staff account',note:'Ends after seven days. It does not automatically subscribe.'},starter:{name:'Starter',price:'£29 / month',detail:'250 AI enquiries · 2 staff accounts'},pro:{name:'Pro',price:'£69 / month',detail:'1,000 AI enquiries · 5 staff accounts'},business:{name:'Business',price:'£149 / month',detail:'3,000 AI enquiries · 15 staff accounts'}};
+function renderBilling(){
+const card=$('billingCard');const badge=$('billingPlanBadge');const summary=$('billingSummary');const plans=$('billingPlans');const manage=$('manageBillingButton');const cancel=$('cancelBillingButton');if(!card||!badge||!summary||!plans||!manage||!cancel)return;
+if(authenticatedBusinessRole!=='owner'||!billingState?.entitlements?.enforced){card.hidden=true;return;}
+const entitlement=billingState.entitlements;card.hidden=false;badge.textContent=entitlement.active?`${billingPlanPresentation[entitlement.plan]?.name||'Plan'} active`:'Choose a plan';
+summary.textContent=entitlement.active?`${entitlement.enquiriesUsed} of ${entitlement.enquiryAllowance} AI enquiries used this billing period. ${entitlement.enquiriesRemaining} remaining.${entitlement.trialExpiresAt?` Trial ends ${dateLabel(entitlement.trialExpiresAt)}.`:''}${entitlement.currentPeriodEndsAt?` Current period ends ${dateLabel(entitlement.currentPeriodEndsAt)}.`:''}`:'Choose a plan to activate AI enquiries for this business.';
+plans.innerHTML=Object.entries(billingPlanPresentation).map(([plan,item])=>`<article class="billing-plan ${plan==='pro'?'pro':''}"><h4>${esc(item.name)}</h4><strong>${esc(item.price)}</strong><p>${esc(item.detail)}${item.note?`<br>${esc(item.note)}`:''}</p><button class="small-btn ${plan==='pro'?'primary-action':''}" type="button" onclick="startBillingCheckout('${plan}')" ${plan==='trial'&&billingState?.account?.trial_purchased?'disabled':''}>${plan==='trial'&&billingState?.account?.trial_purchased?'Trial used':entitlement.plan===plan&&entitlement.active?'Current plan':plan==='pro'?'Choose Pro':'Choose plan'}</button></article>`).join('');
+manage.hidden=!billingState?.account?.stripe_customer_id;cancel.hidden=!billingState?.account?.stripe_subscription_id||Boolean(entitlement.cancelAtPeriodEnd);
+}
+async function loadBilling(){
+if(authenticatedBusinessRole!=='owner')return;
+try{billingState=await api('/api/billing');renderBilling();}catch{billingState=null;const card=$('billingCard');if(card)card.hidden=true;}
+}
+async function startBillingCheckout(plan){
+try{const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'checkout',plan})});if(typeof result?.checkout_url==='string'&&result.checkout_url.startsWith('https://'))window.location.assign(result.checkout_url);else throw new Error('Could not start secure checkout');}catch(error){toast(error.message||'Billing is temporarily unavailable');}}
+async function manageBilling(){try{const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'portal'})});if(typeof result?.portal_url==='string'&&result.portal_url.startsWith('https://'))window.location.assign(result.portal_url);else throw new Error('Billing management is unavailable');}catch(error){toast(error.message||'Billing management is unavailable');}}
+async function cancelBilling(){try{await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel'})});toast('Your subscription will cancel at the end of the current billing period.');await loadBilling();}catch(error){toast(error.message||'Could not update billing');}}
+
 async function loadAll(showFeedback=false){
 
 try{
@@ -2783,6 +2806,7 @@ if(frontendAuthEnabled)loadWorkItems();
 if(frontendAuthEnabled)loadBusinessConfiguration();
 if(frontendAuthEnabled)loadPilotOperations();
 if(frontendAuthEnabled)loadVoiceStatus();
+if(frontendAuthEnabled)loadBilling();
 
 if(showFeedback)toast('Dashboard refreshed');
 

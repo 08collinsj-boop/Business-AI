@@ -20,7 +20,9 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260916180000_add_business_creation_and_public_routes.sql",
     "20260916190000_add_pilot_hardening_foundation.sql",
     "20260916191000_add_lifecycle_policy_for_new_businesses.sql",
-    "20260917113857_add_pilot_team_and_handover_operations.sql"
+    "20260917113857_add_pilot_team_and_handover_operations.sql",
+    "20260917202438_add_stripe_billing_foundation.sql",
+    "20260917203724_add_atomic_paid_trial_activation.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -84,4 +86,16 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(operations, /revoke all on public\.business_team_invitations from anon, authenticated/i);
   assert.match(operations, /revoke all on public\.lead_handovers from anon, authenticated/i);
   assert.match(operations, /foreign key \(lead_id, business_id\)/i);
+  const billing = contents.get("20260917202438_add_stripe_billing_foundation.sql");
+  assert.match(billing, /create table if not exists public\.business_billing_accounts/i);
+  assert.match(billing, /create table if not exists public\.business_billing_usage/i);
+  assert.match(billing, /create table if not exists public\.stripe_webhook_events/i);
+  assert.match(billing, /alter table public\.business_billing_accounts enable row level security/i);
+  assert.match(billing, /revoke all on public\.business_billing_accounts, public\.business_billing_usage, public\.stripe_webhook_events from anon, authenticated/i);
+  assert.match(billing, /consume_billing_ai_enquiry_allowance/i);
+  assert.match(billing, /grant execute on function public\.consume_billing_ai_enquiry_allowance[\s\S]*to service_role/i);
+  const paidTrial = contents.get("20260917203724_add_atomic_paid_trial_activation.sql");
+  assert.match(paidTrial, /create or replace function public\.activate_paid_business_trial/i);
+  assert.match(paidTrial, /where not public\.business_billing_accounts\.trial_purchased/i);
+  assert.match(paidTrial, /revoke all on function public\.activate_paid_business_trial/i);
 });

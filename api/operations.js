@@ -5,6 +5,7 @@ import healthHandler from "../lib/health-handler.js";
 import teamHandler from "../lib/team-handler.js";
 import handoverHandler from "../lib/handover-handler.js";
 import publicBusinessHandler from "../lib/public-business-handler.js";
+import billingHandler from "../lib/billing-handler.js";
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -16,7 +17,8 @@ const handlers = Object.freeze({
   health: healthHandler,
   team: teamHandler,
   handovers: handoverHandler,
-  "public-business": publicBusinessHandler
+  "public-business": publicBusinessHandler,
+  billing: billingHandler
 });
 
 export default async function handler(req, res) {

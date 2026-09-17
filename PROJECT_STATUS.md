@@ -31,6 +31,7 @@ Last audited: 2026-09-17
 - The owner dashboard is installable as a conservative PWA: manifest, original raster/vector icons, standalone metadata and safe-area support are present. Its service worker caches only non-sensitive static branding assets; it never caches navigations, authenticated API responses, customer data or tokens. The public customer page is not an installation target.
 - Public customer enquiry pages now resolve a server-validated slug to a minimal public business identity card (name, type, customer-facing service/area/hours/phone fields only). They do not receive internal tenant IDs, private AI instructions or dashboard data.
 - The Pilot frontend has a deliberately separate Business AI v1 visual system: a focused dark owner workspace (Home, Leads, Actions and Settings) and a bright tenant-branded public customer enquiry surface. Public quick actions only prefill the existing conversation; they do not create bookings, claim human contact or add a new public API. The owner PWA and conservative private-data caching rules are unchanged.
+- Stripe billing source foundation is implemented behind the exact `BILLING_ENABLED=true` server feature gate: owner-only Checkout/portal/cancellation paths, signed idempotent Stripe webhooks, tenant-owned plan/status/period records, atomic AI-enquiry allowance reservations before OpenAI, staff-seat enforcement, and owner billing UI. It is not enabled or deployed to Production.
 
 ## In Progress
 
@@ -47,6 +48,7 @@ Last audited: 2026-09-17
 - Authenticated dashboard receptionist requests obtain the signed-in tenant's public slug through the authenticated onboarding check, then use the existing server-validated public route. This avoids unsafe implicit tenant selection when more than one Dev business exists.
 - The Pilot dashboard Settings view exposes a copyable customer enquiry link. Opening `/?business=<public-slug>` now presents a public customer enquiry screen only; it does not initialise dashboard authentication or reveal private business data.
 - Dev-only Pilot operations migration `20260917113857_add_pilot_team_and_handover_operations.sql` is applied and verified on Business-AI-Dev. It adds owner-authorised, email-bound staff/admin invitation acceptance plus tenant-scoped durable handover records linked to leads and urgent actions. The owner Settings screen now includes handover review, invitation controls, lifecycle retention controls, and concise Pilot guidance. Invitations must be shared manually during the Pilot because no transactional email provider is configured.
+- Billing migrations `20260917202438_add_stripe_billing_foundation.sql` and `20260917203724_add_atomic_paid_trial_activation.sql` are applied and verified on Business-AI-Dev only. They add tenant-owned billing accounts/usage, a webhook idempotency ledger, RLS/least-privilege grants, atomic allowance consumption, and an atomic once-per-business paid-trial activation function. Stripe Sandbox configuration remains pending.
 
 ## Blocked / Requires Owner
 
@@ -54,6 +56,7 @@ Last audited: 2026-09-17
 - Do not enable either Production auth gate independently. Preview configuration must not be copied to Production without the rollout checklist.
 - Telephony remains intentionally unconfigured; a provider account, Dev number, server-side webhook credential, provider signature/replay implementation, call-recording policy, and Dev migration application are required before phone reception can be enabled.
 - Applying this migration chain to any environment other than Business-AI-Dev remains a deliberate database deployment decision. Production has not received the bootstrap or bookings/actions migrations.
+- Stripe Sandbox setup is required before billing can be enabled in Pilot: create four Test-mode Prices, configure the Test webhook, configure the customer portal, and add the documented Pilot-only variables. Never add any Stripe values to the existing Production environment.
 
 ## Remaining
 
@@ -64,3 +67,4 @@ Last audited: 2026-09-17
 5. Continue MVP hardening: rate limits, AI safety/urgent handover handling, data lifecycle/export/deletion workflows, tenant-aware analytics, messaging integrations/plugins, business templates (trades, restaurants, salons), free trial/pricing, role/audit controls, usage/cost controls, backups/disaster recovery, business-specific knowledge, and privacy-by-design work.
 6. Extend the controlled-pilot flow with owner-authorised membership invitations, multiple-business selection, verified custom-domain/widget routing, and multi-location onboarding before accepting unrestricted self-service sign-ups.
 7. Before onboarding a real public pilot, enable Supabase breached-password protection, complete pilot privacy/retention/support procedures, set up a monitored handover route, and perform a supervised real-owner smoke test in the isolated Pilot environment. Production rollout remains separate.
+8. For Dev/Pilot billing only: configure Stripe Sandbox Prices/webhook/customer portal, then set the Pilot-only billing variables and test Checkout with Stripe test cards before enabling `BILLING_ENABLED=true`.
