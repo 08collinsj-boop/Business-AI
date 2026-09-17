@@ -915,6 +915,7 @@ border-radius:16px
 .work-list{display:grid;gap:10px}
 .work-item{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:13px}
 .work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
+.first-run-list{display:grid;gap:10px;margin-top:12px}.first-run-step{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.first-run-mark{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px;background:#27303a;color:var(--muted)}.first-run-mark.done{background:rgba(56,211,159,.16);color:var(--green)}.first-run-step strong{display:block;font-size:12px}.first-run-step .work-meta{margin-top:2px}.first-run-step button{margin-left:auto;align-self:center;flex:none}
 
 @media(min-width:700px){
 
@@ -1129,6 +1130,12 @@ Business settings
 
 </div>
 
+</div>
+
+<div class="card" id="firstRunGuide">
+<div class="card-head"><h3>Get your business ready</h3><span>First steps</span></div>
+<p class="work-meta">Complete these steps before sharing Business AI with customers. The AI only uses the information you save for this business.</p>
+<div id="firstRunSteps" class="first-run-list"></div>
 </div>
 
 
@@ -1591,6 +1598,7 @@ type="checkbox"
 
 <button
 class="save-btn"
+data-admin-only
 onclick="saveSettings()"
 >
 Save business settings
@@ -1663,17 +1671,17 @@ Save business settings
 <button class="small-btn" type="button" onclick="addFaq()">Add FAQ</button>
 <div id="faqList" class="work-list" style="margin-top:10px"></div>
 
-<button class="save-btn" onclick="saveBusinessConfiguration()">Save business profile</button>
+<button class="save-btn" data-admin-only onclick="saveBusinessConfiguration()">Save business profile</button>
 
 </div>
 
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Human handovers</h3><span>Requires attention</span></div><p class="work-meta">Emergency, complaint and human-request enquiries are recorded as urgent follow-up actions. A handover means the system has flagged it; it does not mean someone has been contacted.</p><div id="handoverStatus"></div><div id="handoverList" class="work-list"><div class="empty">Loading handovers…</div></div></div>
 
-<div class="card" style="margin-top:14px"><div class="card-head"><h3>Team access</h3><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
+<div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Team access</h3><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
 
-<div class="card" style="margin-top:14px"><div class="card-head"><h3>Privacy & retention</h3><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation controls are available through the protected lead-data API and must be used deliberately for individual records.</p></div>
+<div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Privacy & retention</h3><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation controls are available through the protected lead-data API and must be used deliberately for individual records.</p></div>
 
-<div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta">Share the customer enquiry link above to test your AI receptionist. Qualified enquiries create leads; review new leads, urgent handovers and follow-up actions promptly. Bookings are requests until you confirm them. Voice calls, automatic outbound messages, live availability and payment processing are not enabled. If the service behaves unexpectedly, stop using the affected workflow, record the time and action, and report it to your Pilot contact.</div></div>
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention — it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Business AI does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls, automatic outbound messages, live availability and payment processing are not enabled. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
 
 </section>
 
@@ -1704,7 +1712,6 @@ Leads
 <button class="nav-btn" data-view="bookings" onclick="showView('bookings')">▣<br>Bookings</button>
 
 <button class="nav-btn" data-view="actions" onclick="showView('actions')">✓<br>Actions</button>
-<button class="nav-btn" data-view="voice" onclick="showView('voice')">☎<br>Voice</button>
 
 
 <button
@@ -1746,6 +1753,7 @@ let pipeline=null;
 let supabaseClient=null;
 let frontendAuthEnabled=false;
 let authenticatedPublicBusinessSlug=null;
+let authenticatedBusinessRole=null;
 let publicEnquirySlug=null;
 let handovers=[];let teamState=null;let lifecyclePolicy=null;
 let authenticationMode='login';
@@ -1754,8 +1762,24 @@ let authenticationMode='login';
 const $=id=>document.getElementById(id);
 
 const clearPrivateState=()=>{
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;handovers=[];teamState=null;lifecyclePolicy=null;
+if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;enquiryMessages=[];
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+};
+
+const applyBusinessRole=()=>{
+const isOwner=authenticatedBusinessRole==='owner';
+const canManageSettings=isOwner||authenticatedBusinessRole==='admin';
+document.querySelectorAll('[data-owner-only]').forEach(node=>{node.hidden=!isOwner;});
+document.querySelectorAll('[data-admin-only]').forEach(node=>{node.hidden=!canManageSettings;});
+};
+
+const applyBusinessContext=onboarding=>{
+const publicSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
+const role=['owner','admin','member'].includes(onboarding?.role)?onboarding.role:null;
+if(!publicSlug||!role)throw new Error('Business access is unavailable');
+authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();
+loadEnquiryConversation();renderEnquiryConversation();
 };
 
 const setAuthView=(state,message='')=>{
@@ -1807,9 +1831,7 @@ const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
-authenticatedPublicBusinessSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
-if(!authenticatedPublicBusinessSlug)throw new Error('Business public route is unavailable');
-fillPublicEnquiryLink();
+applyBusinessContext(onboarding);
 setAuthView('auth-ready');loadAll().catch(()=>{});return;
 }catch(error){
 if(error.message==='Your session has expired.')return;
@@ -1913,6 +1935,8 @@ button.disabled=true;message.textContent='Creating your secure workspace…';
 try{
 const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,public_slug:$('newBusinessSlug').value.trim().toLowerCase()})});
 message.textContent=`Business created. Your public enquiry link is ${result.public_path}.`;
+const onboarding=await api('/api/business-onboarding');
+applyBusinessContext(onboarding);
 setAuthView('auth-ready');await loadAll();
 }catch(error){message.textContent=error.message||'Could not create the business.';}finally{button.disabled=false;}
 });
@@ -1965,7 +1989,7 @@ return [y,m,d].filter(Boolean).join('-');
 };
 
 
-const enquiryStorageKey='business-ai-enquiry-conversation';
+const enquiryStorageKey=slug=>`business-ai-enquiry-conversation:${slug}`;
 
 let enquiryMessages=[];
 
@@ -1974,7 +1998,7 @@ const loadEnquiryConversation=()=>{
 
 try{
 
-const saved=JSON.parse(sessionStorage.getItem(enquiryStorageKey)||'[]');
+const saved=authenticatedPublicBusinessSlug?JSON.parse(sessionStorage.getItem(enquiryStorageKey(authenticatedPublicBusinessSlug))||'[]'):[];
 
 if(Array.isArray(saved)){
 
@@ -2000,7 +2024,7 @@ const saveEnquiryConversation=()=>{
 
 try{
 
-sessionStorage.setItem(enquiryStorageKey,JSON.stringify(enquiryMessages));
+if(authenticatedPublicBusinessSlug)sessionStorage.setItem(enquiryStorageKey(authenticatedPublicBusinessSlug),JSON.stringify(enquiryMessages));
 
 }catch{
 
@@ -2213,10 +2237,25 @@ return date<today?'overdue':date===today?'today':'upcoming';
 
 const statusClass=status=>String(status||'New').toLowerCase();
 
+function renderFirstRunGuide(){
+const target=$('firstRunSteps');if(!target)return;
+const hasBasics=Boolean(settings?.business_name&&settings?.services&&settings?.opening_hours);
+const hasProfile=Boolean(businessConfiguration?.onboarding_completed_at);
+const hasEnquiry=leads.length>0;
+const step=(done,title,description,action,view)=>`<div class="first-run-step"><span class="first-run-mark ${done?'done':''}">${done?'✓':'○'}</span><div><strong>${title}</strong><div class="work-meta">${description}</div></div>${action?`<button class="small-btn" type="button" onclick="showView('${view}')">${action}</button>`:''}</div>`;
+target.innerHTML=[
+step(hasBasics,'Add your business basics','Save services and opening hours so the receptionist can answer accurately.',hasBasics?'Review':'Open settings','settings'),
+step(hasProfile,'Finish your business profile','Add service areas, customer instructions, FAQs and handover information.',hasProfile?'Review':'Complete','settings'),
+step(Boolean(authenticatedPublicBusinessSlug),'Share your customer link','Copy the safe public enquiry link from Settings. It never reveals an internal business ID.',authenticatedPublicBusinessSlug?'Open settings':null,'settings'),
+step(hasEnquiry,'Test and review an enquiry','Use AI Receptionist for a test, then check the lead, actions and any handover.',hasEnquiry?'View leads':'Test AI','enquiries')
+].join('');
+}
 
 function renderDashboard(){
 
 const data=pipeline||{};
+
+renderFirstRunGuide();
 
 $('stats').innerHTML=`
 <div class="stat"><div class="stat-label">Pipeline value</div><div class="stat-value">${money(data.pipeline_value)}</div><div class="stat-sub">${data.total||0} total leads</div></div>
@@ -2509,6 +2548,7 @@ $('c_timezone').value=preferences.timezone||'Europe/London';
 $('c_allow_customer_requests').checked=preferences.allow_customer_requests!==false;
 $('c_complete_onboarding').checked=Boolean(config.onboarding_completed_at);
 renderFaqs();
+renderFirstRunGuide();
 }
 
 function applySelectedIndustryTemplate(){
@@ -2647,8 +2687,7 @@ $('leadList').innerHTML=message;
 async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
 if(publicEnquirySlug){document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');addPublicEnquiryMessage('assistant','Hi! How can we help?');return;}
-loadEnquiryConversation();
-renderEnquiryConversation();
+try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();
 if(!authActive)loadAll();
 }

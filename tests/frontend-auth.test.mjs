@@ -45,6 +45,16 @@ test("auth-state changes defer private API work until Supabase releases its call
   assert.doesNotMatch(html, /onAuthStateChange\(\(_event,nextSession\)=>handleSession\(nextSession\)\)/);
 });
 
+test("dashboard context uses a server-returned role and keeps test conversations tenant-scoped", () => {
+  assert.match(html, /const applyBusinessContext=onboarding=>\{/);
+  assert.match(html, /\['owner','admin','member'\]\.includes\(onboarding\?\.role\)/);
+  assert.match(html, /const enquiryStorageKey=slug=>`business-ai-enquiry-conversation:\$\{slug\}`/);
+  assert.match(html, /sessionStorage\.removeItem\(enquiryStorageKey\(authenticatedPublicBusinessSlug\)\)/);
+  assert.doesNotMatch(html, /const enquiryStorageKey='business-ai-enquiry-conversation'/);
+  assert.match(html, /const onboarding=await api\('\/api\/business-onboarding'\);\s*applyBusinessContext\(onboarding\);\s*setAuthView\('auth-ready'\);/s, "new owners refresh trusted business context immediately after creation");
+  assert.match(html, /data-owner-only/, "owner-only operations are separated in the UI as well as by the API");
+});
+
 test("self-service signup creates only an Auth account and waits for email confirmation", () => {
   assert.match(html, /id="signUpForm"/);
   assert.match(html, /auth\.signUp\(\{/);

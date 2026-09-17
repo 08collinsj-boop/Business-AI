@@ -27,7 +27,7 @@ function validate(body) {
   return { businessName, businessType, publicSlug };
 }
 async function memberships(userId) {
-  const rows = await request(`business_memberships?user_id=eq.${encodeURIComponent(userId)}&select=business_id&limit=2`);
+  const rows = await request(`business_memberships?user_id=eq.${encodeURIComponent(userId)}&select=business_id,role&limit=2`);
   return Array.isArray(rows) ? rows : [];
 }
 async function activePublicSlug(businessId) {
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
       if (existing.length === 0) return res.status(200).json({ needs_business: true });
       const publicSlug = await activePublicSlug(existing[0].business_id);
       if (!publicSlug) return res.status(503).json({ error: "Business public route is unavailable" });
-      return res.status(200).json({ needs_business: false, public_slug: publicSlug });
+      return res.status(200).json({ needs_business: false, public_slug: publicSlug, role: existing[0].role });
     }
     if (existing.length) return res.status(409).json({ error: "This account already belongs to a business" });
     const body = parseBody(req.body);
