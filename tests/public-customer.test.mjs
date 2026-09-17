@@ -104,6 +104,16 @@ test("customer visual hierarchy keeps the chat near compact tenant identity and 
   assert.match(html, /\.public-chat-form button\{[^}]*border-radius:50%/);
 });
 
+test("customer banner is a graphical fallback, not invented tenant imagery", () => {
+  const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
+  assert.match(publicMarkup, /class="public-hero-art" aria-hidden="true"/);
+  assert.match(html, /\.public-hero\{[^}]*min-height:172px[^}]*linear-gradient/);
+  assert.match(html, /#publicBusinessAreas:before/);
+  assert.match(html, /#publicBusinessHours:before/);
+  assert.match(html, /#publicBusinessPhone:before/);
+  assert.doesNotMatch(publicMarkup, /<img|background-image:\s*url/i);
+});
+
 test("PWA metadata and worker cache only static non-sensitive assets", () => {
   assert.equal(manifest.name, "Business AI"); assert.equal(manifest.display, "standalone"); assert.equal(manifest.start_url, "/");
   assert.ok(manifest.icons.some((icon) => icon.src === "/assets/icons/business-ai-192.png" && icon.sizes === "192x192"));

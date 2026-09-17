@@ -51,6 +51,18 @@ test("owner navigation is focused while AI and bookings remain reachable from au
   assert.match(html, /showView\('bookings'\)[\s\S]{0,200}Bookings/);
 });
 
+test("owner dashboard uses semantic colour presentation without inventing metrics or activity", () => {
+  for (const token of ["--accent-blue", "--attention-red", "--action-orange", "--success-green", "--quote-purple", "--activity-pink"]) assert.match(html, new RegExp(token));
+  assert.match(html, /metric-icon blue[\s\S]{0,180}New leads/);
+  assert.match(html, /metric-icon red[\s\S]{0,180}Needs attention/);
+  assert.match(html, /metric-icon orange[\s\S]{0,180}Actions due/);
+  assert.match(html, /metric-icon green[\s\S]{0,180}Total enquiries/);
+  assert.match(html, /const activityTone=lead=>/);
+  assert.match(html, /ai-feature-card/);
+  assert.match(html, /Let AI handle the enquiries/);
+  assert.doesNotMatch(html, /\+33%|\+20%|Save time, stay organised, grow faster/);
+});
+
 test("auth-state changes defer private API work until Supabase releases its callback lock", () => {
   assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{\s*if\(event==='INITIAL_SESSION'\)return;\s*window\.setTimeout\(\(\)=>\{handleSession\(nextSession\)\.catch\(\(\)=>\{\}\);\},0\);\s*\}\);/s);
   assert.doesNotMatch(html, /onAuthStateChange\(\(_event,nextSession\)=>handleSession\(nextSession\)\)/);

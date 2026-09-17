@@ -25,6 +25,12 @@
 --blue:#6ea8fe;
 --red:#ff6b6b;
 --orange:#ff9f43;
+--accent-blue:#2787ff;
+--attention-red:#ef5d70;
+--action-orange:#ff982e;
+--success-green:#31c48d;
+--quote-purple:#9a72ff;
+--activity-pink:#e95082;
 --radius:18px
 }
 
@@ -139,13 +145,15 @@ margin-bottom:16px
 background:var(--panel);
 border:1px solid var(--border);
 border-radius:var(--radius);
-padding:17px
+padding:14px
 }
+
+.stat-top{display:flex;align-items:center;gap:10px}.metric-icon{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:18px;font-weight:800}.metric-icon.blue{background:rgba(39,135,255,.2);color:#70b1ff}.metric-icon.red{background:rgba(239,93,112,.2);color:#ff8d9f}.metric-icon.orange{background:rgba(255,152,46,.2);color:#ffb15b}.metric-icon.green{background:rgba(49,196,141,.2);color:#78e6bc}
 
 .stat-label{
 color:var(--muted);
 font-size:12px;
-margin-bottom:9px
+margin-bottom:2px
 }
 
 .stat-value{
@@ -160,13 +168,6 @@ font-size:11px;
 color:var(--muted)
 }
 
-.follow-stat .stat-value{
-color:var(--yellow)
-}
-
-.overdue-stat .stat-value{
-color:var(--red)
-}
 
 .card{
 background:var(--panel);
@@ -822,6 +823,8 @@ justify-content:center;
 flex:none
 }
 
+.activity-icon.new{background:rgba(233,80,130,.2);color:#ff86ae}.activity-icon.quote{background:rgba(154,114,255,.2);color:#c5adff}.activity-icon.attention{background:rgba(239,93,112,.2);color:#ff97a6}.activity-icon.success{background:rgba(49,196,141,.2);color:#7de7bd}.activity-icon.system{background:rgba(39,135,255,.2);color:#83bcff}
+
 .activity-text{
 font-size:13px;
 line-height:1.35
@@ -840,8 +843,8 @@ bottom:12px;
 bottom:calc(12px + env(safe-area-inset-bottom));
 transform:translateX(-50%);
 width:min(94%,520px);
-background:rgba(12,17,23,.96);
-border:1px solid #293440;
+background:rgba(10,17,25,.97);
+border:1px solid #243344;
 border-radius:20px;
 padding:7px;
 display:grid;
@@ -862,8 +865,8 @@ font-weight:700
 }
 
 .nav-btn.active{
-background:#eaf2ff;
-color:#10213b
+background:rgba(39,135,255,.14);
+color:#62a8ff
 }
 
 .toast{
@@ -911,8 +914,9 @@ body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #au
 body.public-enquiry #publicEnquiryScreen{display:block}
 .public-link-row{display:flex;gap:8px;align-items:center}.public-link-row input{flex:1;min-width:0}.public-link-row button{white-space:nowrap}
 
-.public-customer-shell{width:min(100%,790px);min-height:100dvh;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}.public-business-header{display:flex;align-items:center;gap:12px;padding:3px 2px}.public-business-mark{width:48px;height:48px;border-radius:50%;background:#112c51;color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;letter-spacing:-.5px;flex:none;box-shadow:0 7px 17px rgba(20,64,117,.2)}.public-eyebrow{margin:0 0 2px;color:#718096;font-size:12px;font-weight:650;letter-spacing:0;text-transform:none}.public-business-name{margin:0;font-size:21px;line-height:1.12;letter-spacing:-.65px;overflow-wrap:anywhere}.public-business-type{margin:3px 0 0;color:#667482;font-size:13px;overflow-wrap:anywhere}.public-hero{position:relative;overflow:hidden;border-radius:20px;background:#163d6a;color:#fff;padding:18px 19px 17px;box-shadow:0 12px 25px rgba(14,45,82,.16)}.public-hero:before,.public-hero:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.13);border-radius:50%;pointer-events:none}.public-hero:before{width:180px;height:180px;right:-84px;top:-116px}.public-hero:after{width:115px;height:115px;right:32px;bottom:-84px}.public-hero-content{position:relative;z-index:1;max-width:550px}.public-hero h2{margin:0;font-size:27px;letter-spacing:-.9px;line-height:1.08}.public-hero p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:7px 0 0;color:#e1edff;font-size:14px;line-height:1.42}.public-quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.public-quick-action{min-height:78px;border:1px solid #e1e9f2;border-radius:15px;background:#fff;color:#24313d;padding:9px 6px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:11px;line-height:1.2;font-weight:700;box-shadow:0 6px 15px rgba(29,52,73,.06)}.public-quick-action .quick-icon{width:25px;height:25px;border-radius:9px;background:#eaf2ff;color:#1764d6;display:grid;place-items:center;font-size:15px;font-weight:800}.public-quick-action:active{transform:scale(.98);background:#f5f9ff}.public-business-details{display:flex;flex-wrap:wrap;gap:7px;padding:0}.public-detail{display:none;max-width:100%;padding:7px 9px;border-radius:999px;background:#fff;color:#50606f;border:1px solid #e2e9f0;font-size:11px;line-height:1.35;overflow-wrap:anywhere;box-shadow:0 3px 8px rgba(27,49,70,.035)}.public-detail.has-content{display:inline-flex;align-items:center}.public-detail.has-content:before{content:"•";color:#1764d6;font-size:16px;line-height:8px;margin-right:5px}.public-chat-card{background:transparent;border:0;border-radius:0;box-shadow:none;display:flex;flex:1;min-height:0;flex-direction:column;padding:4px 0 0}.public-chat-heading{display:none}.public-messages{flex:1;min-height:210px;overflow:auto;overscroll-behavior:contain;padding:9px 0 2px 42px;scroll-behavior:smooth}.public-messages .msg{position:relative;max-width:min(88%,530px);padding:11px 13px;margin-bottom:10px;border-radius:16px;font-size:14px;line-height:1.48;overflow-wrap:anywhere;box-shadow:none}.public-messages .msg.ai{background:#eef2f6;border:1px solid #e1e8ee;color:#27323b;border-bottom-left-radius:5px}.public-messages .msg.ai:before{content:"✦";position:absolute;left:-39px;top:1px;width:29px;height:29px;border-radius:50%;background:#143b6a;color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800;box-shadow:0 4px 10px rgba(18,59,106,.18)}.public-messages .msg.user{background:#1670ed;color:#fff;border-bottom-right-radius:5px}.public-typing{display:none;align-items:center;gap:7px;color:#64717d;font-size:12px;padding:3px 0 9px 42px}.public-typing.visible{display:flex}.public-typing i{width:6px;height:6px;border-radius:50%;background:#2169d8;box-shadow:10px 0 #6f9ee5,20px 0 #bdd2f4;margin-right:21px}.public-chat-form{position:sticky;bottom:0;border-top:0;padding:9px 0 max(4px,env(safe-area-inset-bottom));display:flex;gap:9px;align-items:flex-end;background:#f4f7fb}.public-chat-form input{min-width:0;flex:1;background:#fff;color:#17212b;border:1px solid #d9e2ea;border-radius:999px;padding:13px 15px;font-size:16px;line-height:1.25;outline:none;box-shadow:0 3px 10px rgba(27,49,70,.04)}.public-chat-form input:focus{border-color:#4b83da;box-shadow:0 0 0 3px rgba(33,105,216,.14)}.public-chat-form button{width:48px;height:48px;flex:none;border:0;border-radius:50%;background:#1670ed;color:#fff;font-size:18px;font-weight:700;box-shadow:0 6px 14px rgba(23,100,214,.27)}.public-chat-form button:disabled,.public-chat-form input:disabled{opacity:.58;cursor:not-allowed}.public-customer-error{min-height:0;margin:5px 0 0;color:#b42318;font-size:12px;line-height:1.45}.public-customer-footer{text-align:center;color:#6b7782;font-size:11px;line-height:1.45;padding:2px 8px 0}.public-customer-footer strong{color:#43515d}.public-link-privacy{font-size:11px;color:#71808d;margin:3px 0 0;line-height:1.4;text-align:center}
-.dashboard-welcome{margin:5px 0 20px;padding:4px 1px}.dashboard-welcome .eyebrow{margin:0 0 5px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.dashboard-welcome h2{margin:0;font-size:29px;letter-spacing:-1px;line-height:1.08}.dashboard-welcome p{margin:7px 0 0;color:var(--muted);font-size:14px}.dashboard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 16px}.dashboard-launch{min-height:78px;text-align:left;border:1px solid var(--border);border-radius:15px;background:var(--panel);color:var(--text);padding:13px}.dashboard-launch strong{display:block;font-size:13px}.dashboard-launch span{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.3}.dashboard-launch.primary{background:#eaf2ff;color:#10213b;border-color:#eaf2ff}.dashboard-launch.primary span{color:#355473}.activity-card{padding-top:3px}
+.public-customer-shell{width:min(100%,790px);min-height:100dvh;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}.public-business-header{display:flex;align-items:center;gap:12px;padding:3px 2px}.public-business-mark{width:48px;height:48px;border-radius:50%;background:#112c51;color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;letter-spacing:-.5px;flex:none;box-shadow:0 7px 17px rgba(20,64,117,.2)}.public-eyebrow{margin:0 0 2px;color:#718096;font-size:12px;font-weight:650;letter-spacing:0;text-transform:none}.public-business-name{margin:0;font-size:21px;line-height:1.12;letter-spacing:-.65px;overflow-wrap:anywhere}.public-business-type{margin:3px 0 0;color:#667482;font-size:13px;overflow-wrap:anywhere}.public-hero{position:relative;overflow:hidden;border-radius:20px;background:#163d6a;color:#fff;padding:18px 19px 17px;box-shadow:0 12px 25px rgba(14,45,82,.16)}.public-hero:before,.public-hero:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.13);border-radius:50%;pointer-events:none}.public-hero:before{width:180px;height:180px;right:-84px;top:-116px}.public-hero:after{width:115px;height:115px;right:32px;bottom:-84px}.public-hero-content{position:relative;z-index:1;max-width:550px}.public-hero h2{margin:0;font-size:27px;letter-spacing:-.9px;line-height:1.08}.public-hero p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:7px 0 0;color:#e1edff;font-size:14px;line-height:1.42}.public-quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.public-quick-action{min-height:78px;border:1px solid #e1e9f2;border-radius:15px;background:#fff;color:#24313d;padding:9px 6px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:11px;line-height:1.2;font-weight:700;box-shadow:0 6px 15px rgba(29,52,73,.06)}.public-quick-action .quick-icon{width:25px;height:25px;border-radius:9px;background:#eaf2ff;color:#1764d6;display:grid;place-items:center;font-size:15px;font-weight:800}.public-quick-action:active{transform:scale(.98);background:#f5f9ff}.public-business-details{display:flex;flex-wrap:wrap;gap:7px;padding:0}.public-detail{display:none;max-width:100%;padding:7px 9px;border-radius:999px;background:#fff;color:#50606f;border:1px solid #e2e9f0;font-size:11px;line-height:1.35;overflow-wrap:anywhere;box-shadow:0 3px 8px rgba(27,49,70,.035)}.public-detail.has-content{display:inline-flex;align-items:center}.public-detail.has-content:before{content:"•";color:#1764d6;font-size:16px;line-height:8px;margin-right:5px}.public-chat-card{background:transparent;border:0;border-radius:0;box-shadow:none;display:flex;flex:1;min-height:0;flex-direction:column;padding:4px 0 0}.public-chat-heading{display:none}.public-messages{flex:1;min-height:210px;overflow:auto;overscroll-behavior:contain;padding:9px 0 2px 42px;scroll-behavior:smooth}.public-messages .msg{position:relative;max-width:min(88%,530px);padding:11px 13px;margin-bottom:10px;border-radius:16px;font-size:14px;line-height:1.48;overflow-wrap:anywhere;box-shadow:none}.public-messages .msg.ai{background:#eef2f6;border:1px solid #e1e8ee;color:#27323b;border-bottom-left-radius:5px}.public-messages .msg.ai:before{content:"";position:absolute;left:-39px;top:1px;width:29px;height:29px;border-radius:50%;background:#143b6a;box-shadow:0 4px 10px rgba(18,59,106,.18)}.public-messages .msg.ai:after{content:"";position:absolute;left:-28px;top:12px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.16)}.public-messages .msg.user{background:#1670ed;color:#fff;border-bottom-right-radius:5px}.public-typing{display:none;align-items:center;gap:7px;color:#64717d;font-size:12px;padding:3px 0 9px 42px}.public-typing.visible{display:flex}.public-typing i{width:6px;height:6px;border-radius:50%;background:#2169d8;box-shadow:10px 0 #6f9ee5,20px 0 #bdd2f4;margin-right:21px}.public-chat-form{position:sticky;bottom:0;border-top:0;padding:9px 0 max(4px,env(safe-area-inset-bottom));display:flex;gap:9px;align-items:flex-end;background:#f4f7fb}.public-chat-form input{min-width:0;flex:1;background:#fff;color:#17212b;border:1px solid #d9e2ea;border-radius:999px;padding:13px 15px;font-size:16px;line-height:1.25;outline:none;box-shadow:0 3px 10px rgba(27,49,70,.04)}.public-chat-form input:focus{border-color:#4b83da;box-shadow:0 0 0 3px rgba(33,105,216,.14)}.public-chat-form button{width:48px;height:48px;flex:none;border:0;border-radius:50%;background:#1670ed;color:#fff;font-size:18px;font-weight:700;box-shadow:0 6px 14px rgba(23,100,214,.27)}.public-chat-form button:disabled,.public-chat-form input:disabled{opacity:.58;cursor:not-allowed}.public-customer-error{min-height:0;margin:5px 0 0;color:#b42318;font-size:12px;line-height:1.45}.public-customer-footer{text-align:center;color:#6b7782;font-size:11px;line-height:1.45;padding:2px 8px 0}.public-customer-footer strong{color:#43515d}.public-link-privacy{font-size:11px;color:#71808d;margin:3px 0 0;line-height:1.4;text-align:center}
+.public-hero{isolation:isolate;min-height:172px;border-radius:22px;background:linear-gradient(135deg,#102842 0%,#1b5d9e 58%,#123152 100%);padding:23px 21px 20px;box-shadow:0 14px 30px rgba(14,45,82,.2)}.public-hero:before{width:235px;height:235px;right:-98px;top:-132px}.public-hero:after{width:145px;height:145px;right:20px;bottom:-96px}.public-hero-art{position:absolute;inset:0;z-index:0;opacity:.3;background:repeating-linear-gradient(135deg,transparent 0 18px,rgba(255,255,255,.08) 18px 19px)}.public-hero h2{font-size:30px;letter-spacing:-1px;line-height:1.05}.public-hero p{margin-top:9px;color:#eaf3ff;font-size:15px}.public-quick-action{min-height:82px}.public-detail#publicBusinessAreas:before{content:"⌖"}.public-detail#publicBusinessHours:before{content:"◷"}.public-detail#publicBusinessPhone:before{content:"☎"}
+.dashboard-welcome{margin:5px 0 20px;padding:4px 1px}.dashboard-welcome .eyebrow{margin:0 0 5px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.dashboard-welcome h2{margin:0;font-size:29px;letter-spacing:-1px;line-height:1.08}.dashboard-welcome p{margin:7px 0 0;color:var(--muted);font-size:14px}.dashboard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 16px}.dashboard-launch{min-height:78px;text-align:left;border:1px solid var(--border);border-radius:15px;background:var(--panel);color:var(--text);padding:13px}.dashboard-launch strong{display:block;font-size:13px}.dashboard-launch span{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.3}.dashboard-launch.primary{background:#eaf2ff;color:#10213b;border-color:#eaf2ff}.dashboard-launch.primary span{color:#355473}.activity-card{padding-top:3px}.ai-feature-card{position:relative;overflow:hidden;background:linear-gradient(120deg,#163b82,#0866c7);border-color:#2787ff;color:#fff}.ai-feature-card:after{content:"";position:absolute;right:-44px;top:-54px;width:180px;height:180px;border:1px solid rgba(255,255,255,.22);border-radius:50%}.ai-feature-card .ai-status{color:#cce3ff}.ai-feature-card .ai-status i{background:#bfe1ff}.ai-feature-card h3{position:relative;z-index:1;font-size:21px}.ai-feature-card p{position:relative;z-index:1;color:#e3efff}.ai-feature-card .btn{position:relative;z-index:1;background:rgba(9,24,55,.18);border-color:rgba(255,255,255,.32);color:#fff}.ai-feature-card .btn.primary{background:#fff;color:#12427c;border-color:#fff}.ai-feature-icon{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:21px;margin-bottom:12px;position:relative;z-index:1}.activity{padding:12px 0}.activity-icon{width:34px;height:34px;border-radius:11px;font-size:15px}
 
 .empty{
 text-align:center;
@@ -1024,6 +1028,7 @@ margin-top:0
 </div>
 </header>
 <section class="public-hero" aria-label="Customer enquiry introduction">
+<div class="public-hero-art" aria-hidden="true"></div>
 <div class="public-hero-content">
 <h2>How can we help?</h2>
 <p id="publicHeroDescription">Ask a question, request a quote or tell us what you need. Our AI assistant will collect the details for the business.</p>
@@ -1133,7 +1138,7 @@ id="pipeline"
 </div>
 
 
-<div class="card receptionist">
+<div class="card receptionist ai-feature-card">
 
 <div class="ai-status">
 
@@ -1143,12 +1148,12 @@ AI receptionist online
 
 </div>
 
-<h3>
-Capture your next customer
-</h3>
+<div class="ai-feature-icon" aria-hidden="true">✦</div>
+
+<h3>Let AI handle the enquiries</h3>
 
 <p>
-Your AI receptionist answers enquiries, qualifies genuine opportunities and saves useful leads automatically.
+Use the existing AI receptionist to capture customer details and save useful leads for your business.
 </p>
 
 <div class="actions">
@@ -1157,7 +1162,7 @@ Your AI receptionist answers enquiries, qualifies genuine opportunities and save
 class="btn primary"
 onclick="showView('enquiries')"
 >
-Test AI receptionist
+Open AI receptionist
 </button>
 
 <button
@@ -2335,10 +2340,10 @@ const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0)
 renderFirstRunGuide();
 
 $('stats').innerHTML=`
-<div class="stat"><div class="stat-label">New leads</div><div class="stat-value">${newLeads}</div><div class="stat-sub">Awaiting your first response</div></div>
-<div class="stat overdue-stat"><div class="stat-label">Needs attention</div><div class="stat-value">${attentionCount}</div><div class="stat-sub">High priority, handovers or overdue follow-ups</div></div>
-<div class="stat follow-stat"><div class="stat-label">Actions due</div><div class="stat-value">${dueActions}</div><div class="stat-sub">Pending actions due today or earlier</div></div>
-<div class="stat"><div class="stat-label">Total enquiries</div><div class="stat-value">${leads.length}</div><div class="stat-sub">Captured for this business</div></div>`;
+<div class="stat"><div class="stat-top"><span class="metric-icon blue" aria-hidden="true">◉</span><div><div class="stat-value">${newLeads}</div><div class="stat-label">New leads</div></div></div><div class="stat-sub">Awaiting your first response</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon red" aria-hidden="true">!</span><div><div class="stat-value">${attentionCount}</div><div class="stat-label">Needs attention</div></div></div><div class="stat-sub">High priority, handovers or overdue follow-ups</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon orange" aria-hidden="true">✓</span><div><div class="stat-value">${dueActions}</div><div class="stat-label">Actions due</div></div></div><div class="stat-sub">Pending actions due today or earlier</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon green" aria-hidden="true">✦</span><div><div class="stat-value">${leads.length}</div><div class="stat-label">Total enquiries</div></div></div><div class="stat-sub">Captured for this business</div></div>`;
 
 const stages=data.stages||{};
 
@@ -2369,8 +2374,16 @@ return `<div class="follow-up-item ${state} ${lead.priority==='High'?'high':''}"
 }).join(''):'<div class="empty">No follow-ups need attention.</div>';
 
 const activity=leads.slice(0,5);
+const activityTone=lead=>{
+const details=[lead.job_type,lead.description,lead.notes].join(' ').toLowerCase();
+if(lead.priority==='High')return {tone:'attention',icon:'!'};
+if(String(lead.status||'').toLowerCase()==='converted')return {tone:'success',icon:'✓'};
+if(details.includes('quote'))return {tone:'quote',icon:'▤'};
+if(String(lead.status||'').toLowerCase()==='new')return {tone:'new',icon:'◉'};
+return {tone:'system',icon:'✦'};
+};
 
-$('activity').innerHTML=activity.length?activity.map(lead=>`<div class="activity"><div class="activity-icon">◉</div><div><div class="activity-text"><strong>${esc(lead.name||'New enquiry')}</strong> is ${esc((lead.status||'New').toLowerCase())}</div><div class="activity-time">${timeLabel(lead.created_at)||'Recently added'}</div></div></div>`).join(''):'<div class="empty">Activity will appear as leads arrive.</div>';
+$('activity').innerHTML=activity.length?activity.map(lead=>{const presentation=activityTone(lead);return `<div class="activity"><div class="activity-icon ${presentation.tone}" aria-hidden="true">${presentation.icon}</div><div><div class="activity-text"><strong>${esc(lead.name||'New enquiry')}</strong> is ${esc((lead.status||'New').toLowerCase())}</div><div class="activity-time">${timeLabel(lead.created_at)||'Recently added'}</div></div></div>`;}).join(''):'<div class="empty">Activity will appear as leads arrive.</div>';
 
 const upcoming=bookings.filter(booking=>booking.status!=='cancelled'&&booking.status!=='completed').slice(0,4);
 $('upcomingBookings').innerHTML=upcoming.length?upcoming.map(booking=>`<div class="lead-mini"><div class="lead-row"><div><div class="lead-name">${esc(booking.customer_name||leadName(booking.lead_id)||'Booking request')}</div><div class="lead-meta">${esc(booking.title)} · ${timeLabel(booking.starts_at)||'Time to be arranged'}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div></div>`).join(''):'<div class="empty">No upcoming bookings.</div>';
