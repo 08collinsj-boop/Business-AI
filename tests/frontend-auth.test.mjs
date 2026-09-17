@@ -29,6 +29,11 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
   assert.doesNotMatch(html, /TWILIO_AUTH_TOKEN|VOICE_WEBHOOK/);
 });
 
+test("auth-state changes defer private API work until Supabase releases its callback lock", () => {
+  assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{\s*if\(event==='INITIAL_SESSION'\)return;\s*window\.setTimeout\(\(\)=>\{handleSession\(nextSession\)\.catch\(\(\)=>\{\}\);\},0\);\s*\}\);/s);
+  assert.doesNotMatch(html, /onAuthStateChange\(\(_event,nextSession\)=>handleSession\(nextSession\)\)/);
+});
+
 test("self-service signup creates only an Auth account and waits for email confirmation", () => {
   assert.match(html, /id="signUpForm"/);
   assert.match(html, /auth\.signUp\(\{/);

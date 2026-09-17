@@ -1760,7 +1760,13 @@ if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)
 frontendAuthEnabled=true;
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
 const {data:{session}}=await supabaseClient.auth.getSession();
-supabaseClient.auth.onAuthStateChange((_event,nextSession)=>handleSession(nextSession));
+// Supabase holds an internal auth lock while notifying listeners. Do not call
+// asynchronous Supabase methods (via handleSession -> api -> getSession) from
+// that callback; defer the work until the callback has returned.
+supabaseClient.auth.onAuthStateChange((event,nextSession)=>{
+if(event==='INITIAL_SESSION')return;
+window.setTimeout(()=>{handleSession(nextSession).catch(()=>{});},0);
+});
 await handleSession(session);
 return true;
 }catch(error){frontendAuthEnabled=true;setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}

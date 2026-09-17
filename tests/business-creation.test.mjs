@@ -65,6 +65,24 @@ test("business onboarding rejects invalid auth, duplicate membership, and duplic
   loaded = await load({ rpc: { message: "duplicate" } }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "", public_slug: "other-business" } }, res); assert.equal(res.statusCode, 500);
 });
 
+test("an authenticated existing owner resolves to their dashboard instead of onboarding", { concurrency: false }, async () => {
+  const { handler, calls } = await load({ memberships: [{ business_id: "collins-business" }] });
+  const res = response();
+  await handler({ method: "GET", headers: { authorization: "Bearer verified" }, query: { business_id: "attacker-business", role: "owner" } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body, { needs_business: false });
+  const membershipQuery = calls.find((call) => call.url.includes("business_memberships"));
+  assert.match(membershipQuery.url, /user_id=eq.owner-user/);
+  assert.doesNotMatch(membershipQuery.url, /attacker-business/);
+});
+
+test("an authenticated user without a membership is sent only to onboarding", { concurrency: false }, async () => {
+  const { handler } = await load({ memberships: [] }); const res = response();
+  await handler({ method: "GET", headers: { authorization: "Bearer verified" } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body, { needs_business: true });
+});
+
 test("public enquiry maps a slug to its server-resolved business and scopes lead creation", { concurrency: false }, async () => {
   process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only"; process.env.OPENAI_API_KEY = "openai-server-only"; resetPublicEnquiryRateLimitsForTest();
   const calls = [];

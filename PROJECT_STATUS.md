@@ -39,6 +39,7 @@ Last audited: 2026-09-17
 - Public Pilot business onboarding is an operational next step, not a Production rollout. Voice remains disabled.
 - Supabase leaked-password protection is unavailable on the current plan. This is an accepted controlled-Pilot limitation; owner accounts must use strong, unique passwords and existing authentication controls remain mandatory.
 - Pilot self-service signup requires the Business-AI-Dev Auth Site URL and redirect allow-list to include `https://business-ai-pilot.vercel.app` and `https://business-ai-pilot.vercel.app/**`; owner confirmed these are configured. Email delivery and confirmation must remain enabled.
+- The Pilot post-login onboarding check now defers Supabase session work outside the `onAuthStateChange` callback lock. This is awaiting a manual retest by the existing Collins LTD. owner after deployment; no tenant, membership, settings, or configuration data was changed.
 
 ## Blocked / Requires Owner
 
