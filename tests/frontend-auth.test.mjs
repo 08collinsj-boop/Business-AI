@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-const configSource = await readFile(new URL("../api/public-config.js", import.meta.url), "utf8");
+const configSource = await readFile(new URL("../lib/public-config-handler.js", import.meta.url), "utf8");
 const savedEnv = { ...process.env };
 
 function response() { return { statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } }; }

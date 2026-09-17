@@ -6,6 +6,7 @@
     { "source": "/api/team", "destination": "/api/operations?operation=team" },
     { "source": "/api/handovers", "destination": "/api/operations?operation=handovers" },
     { "source": "/api/public-business", "destination": "/api/operations?operation=public-business" },
+    { "source": "/api/public-config", "destination": "/api/operations?operation=public-config" },
     { "source": "/api/health", "destination": "/api/operations?operation=health" },
     { "source": "/api/billing", "destination": "/api/operations?operation=billing" },
     { "source": "/api/voice-calls", "destination": "/api/voice?operation=calls" },
