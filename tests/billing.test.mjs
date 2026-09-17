@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 const billingSource = await readFile(new URL("../lib/billing.js", import.meta.url), "utf8");
 const handlerSource = await readFile(new URL("../lib/billing-handler.js", import.meta.url), "utf8");
 const webhookSource = await readFile(new URL("../lib/stripe-webhook-handler.js", import.meta.url), "utf8");
+const webhookRouteSource = await readFile(new URL("../api/voice.js", import.meta.url), "utf8");
 const saved = { ...process.env }; const originalFetch = globalThis.fetch;
 const reply = (body, ok = true, status = ok ? 200 : 500) => ({ ok, status, text: async () => typeof body === "string" ? body : JSON.stringify(body), json: async () => body });
 const res = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
@@ -59,6 +60,7 @@ test("Stripe webhook verifies signatures, activates one paid trial, and treats d
   const calls = []; globalThis.fetch = async (url, options = {}) => { calls.push({ url, options }); if (url.includes("stripe_webhook_events") && options.method === "POST") return reply({}, true, 201); if (url.includes("activate_paid_business_trial")) return reply(true, true, 200); if (url.includes("business_audit_events")) return reply({}, true, 201); if (url.includes("stripe_webhook_events") && options.method === "PATCH") return reply({}, true, 204); return reply({}, false); };
   const handler = (await import(new URL(`../lib/stripe-webhook-handler.js?valid=${Math.random()}`, import.meta.url))).default; const response = res(); await handler({ method: "POST", headers: { "stripe-signature": `t=${timestamp},v1=${signature}` }, body: raw }, response); assert.equal(response.statusCode, 200); assert.ok(calls.some((call) => call.url.includes("rpc/activate_paid_business_trial") && call.options.body.includes('"p_business_id"')));
   const invalid = res(); await handler({ method: "POST", headers: { "stripe-signature": "t=1,v1=bad" }, body: raw }, invalid); assert.equal(invalid.statusCode, 400);
+  const parsed = res(); await handler({ method: "POST", headers: { "stripe-signature": `t=${timestamp},v1=${signature}` }, body: JSON.parse(raw) }, parsed); assert.equal(parsed.statusCode, 400, "a parsed body must never be re-serialized for signature verification");
   globalThis.fetch = async (url, options = {}) => url.includes("stripe_webhook_events") && options.method === "POST" ? reply({}, false, 409) : reply({}, false); const duplicate = res(); await handler({ method: "POST", headers: { "stripe-signature": `t=${timestamp},v1=${signature}` }, body: raw }, duplicate); assert.equal(duplicate.statusCode, 200); assert.equal(duplicate.body.duplicate, true);
 });
 
@@ -66,6 +68,8 @@ test("billing source keeps Stripe secret/server checks and no browser pricing tr
   assert.match(billingSource, /BILLING_ENABLED === "true"/); assert.match(billingSource, /consume_billing_ai_enquiry_allowance/);
   assert.match(handlerSource, /requireBusinessMember\(req, \["owner"\]\)/); assert.match(handlerSource, /trial_purchased/);
   assert.match(webhookSource, /verifyStripeSignature/); assert.match(webhookSource, /markWebhookEvent/); assert.doesNotMatch(webhookSource, /console\.log/);
+  assert.doesNotMatch(webhookSource, /JSON\.stringify\(req\.body\)/, "Stripe verification must use original bytes, never a reconstructed JSON body");
+  assert.match(webhookRouteSource, /export const config = \{ api: \{ bodyParser: false \} \};/, "the deployed webhook route must explicitly disable parsing");
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env, saved); globalThis.fetch = originalFetch; });
