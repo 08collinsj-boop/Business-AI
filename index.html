@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07090c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Business AI">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/assets/icons/business-ai-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/icons/business-ai-192.png">
 <title>Business AI</title>
 
 <style>
@@ -36,7 +42,7 @@ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif
 
 body{
 min-height:100vh;
-padding-bottom:92px
+padding-bottom:calc(92px + env(safe-area-inset-bottom))
 }
 
 button,input,select,textarea{
@@ -831,6 +837,7 @@ margin-top:3px
 position:fixed;
 left:50%;
 bottom:12px;
+bottom:calc(12px + env(safe-area-inset-bottom));
 transform:translateX(-50%);
 width:min(94%,600px);
 background:rgba(15,20,26,.96);
@@ -899,9 +906,12 @@ border-radius:13px
 .auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
 body.auth-pending .app,body.auth-required .app,body.onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen{display:flex}body.auth-ready .logout-btn{display:block}
+body.public-enquiry{padding:0;background:#f4f6f8;color:#18212a}
 body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen{display:none}
-body.public-enquiry #publicEnquiryScreen{display:flex}
+body.public-enquiry #publicEnquiryScreen{display:block}
 .public-link-row{display:flex;gap:8px;align-items:center}.public-link-row input{flex:1;min-width:0}.public-link-row button{white-space:nowrap}
+
+.public-customer-shell{width:min(100%,760px);min-height:100dvh;margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}.public-business-header{display:flex;align-items:center;gap:13px;padding:7px 3px}.public-business-mark{width:48px;height:48px;border-radius:15px;background:#17212b;color:#fff;display:grid;place-items:center;font-size:17px;font-weight:800;letter-spacing:-.5px;flex:none}.public-eyebrow{margin:0 0 3px;color:#667482;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}.public-business-name{margin:0;font-size:20px;line-height:1.18;letter-spacing:-.4px;overflow-wrap:anywhere}.public-business-type{margin:3px 0 0;color:#667482;font-size:13px;overflow-wrap:anywhere}.public-chat-card{background:#fff;border:1px solid #dfe5ea;border-radius:22px;box-shadow:0 12px 34px rgba(24,33,42,.08);display:flex;flex:1;min-height:0;flex-direction:column;padding:18px}.public-chat-heading{display:flex;align-items:flex-start;gap:11px;padding-bottom:15px;border-bottom:1px solid #e8edf1}.public-assistant-dot{width:10px;height:10px;margin-top:5px;border-radius:50%;background:#247a5b;box-shadow:0 0 0 4px #e8f5ef;flex:none}.public-chat-heading h2{margin:0;font-size:17px;letter-spacing:-.2px}.public-chat-heading p{margin:4px 0 0;color:#687683;font-size:13px;line-height:1.45}.public-business-details{display:flex;flex-wrap:wrap;gap:7px;padding:13px 0 3px}.public-detail{display:none;max-width:100%;padding:7px 9px;border-radius:999px;background:#f1f4f6;color:#4e5c68;font-size:11px;line-height:1.35;overflow-wrap:anywhere}.public-detail.has-content{display:block}.public-messages{flex:1;min-height:230px;overflow:auto;overscroll-behavior:contain;padding:16px 0 4px;scroll-behavior:smooth}.public-messages .msg{max-width:min(88%,530px);padding:12px 14px;margin-bottom:11px;border-radius:16px;font-size:14px;line-height:1.5;overflow-wrap:anywhere;box-shadow:none}.public-messages .msg.ai{background:#f2f5f7;border:1px solid #e3e8ec;color:#27323b;border-bottom-left-radius:5px}.public-messages .msg.user{background:#18212a;color:#fff;border-bottom-right-radius:5px}.public-typing{display:none;align-items:center;gap:7px;color:#64717d;font-size:12px;padding:4px 0 12px}.public-typing.visible{display:flex}.public-typing i{width:6px;height:6px;border-radius:50%;background:#607080;box-shadow:10px 0 #89949e,20px 0 #b0b7bd;margin-right:21px}.public-chat-form{border-top:1px solid #e8edf1;padding-top:13px;display:flex;gap:9px;align-items:flex-end}.public-chat-form input{min-width:0;flex:1;background:#f6f8f9;color:#17212b;border:1px solid #dbe2e7;border-radius:14px;padding:13px 14px;font-size:16px;line-height:1.25;outline:none}.public-chat-form input:focus{border-color:#66869d;box-shadow:0 0 0 3px rgba(102,134,157,.16)}.public-chat-form button{width:48px;height:48px;flex:none;border:0;border-radius:14px;background:#17212b;color:#fff;font-size:19px;font-weight:700}.public-chat-form button:disabled,.public-chat-form input:disabled{opacity:.58;cursor:not-allowed}.public-customer-error{min-height:0;margin:10px 0 0;color:#b42318;font-size:12px;line-height:1.45}.public-customer-footer{text-align:center;color:#6b7782;font-size:11px;line-height:1.5;padding:0 8px}.public-customer-footer strong{color:#43515d}.public-customer-footer a{color:inherit}.public-link-privacy{font-size:11px;color:#71808d;margin:10px 0 0;line-height:1.45}
 
 .empty{
 text-align:center;
@@ -953,6 +963,7 @@ justify-content:space-between
 margin-top:0
 }
 .public-link-row{align-items:stretch;flex-direction:column}.public-link-row button{width:100%}
+.public-customer-shell{padding-left:14px;padding-right:14px;gap:12px}.public-chat-card{padding:15px;border-radius:18px}.public-business-mark{width:44px;height:44px;border-radius:14px}.public-business-name{font-size:18px}.public-messages{min-height:0}.public-chat-form{padding-bottom:max(2px,env(safe-area-inset-bottom))}.public-chat-form button{width:50px;height:50px}
 
 }
 </style>
@@ -1001,16 +1012,30 @@ margin-top:0
 </main>
 
 <main id="publicEnquiryScreen" class="auth-screen" aria-live="polite">
-<section class="auth-card chat">
-<div class="brand-icon">AI</div>
-<h2>Business enquiry</h2>
-<p>Tell us what you need and the receptionist will pass your enquiry to the business.</p>
-<div id="publicMessages" class="messages"></div>
-<form id="publicEnquiryForm" class="chat-form">
-<input id="publicChatInput" maxlength="2000" placeholder="How can we help?" autocomplete="off" required>
-<button type="submit" aria-label="Send enquiry">↑</button>
+<section class="public-customer-shell">
+<header class="public-business-header">
+<div id="publicBusinessMark" class="public-business-mark" aria-hidden="true">B</div>
+<div>
+<p class="public-eyebrow">AI assistant for</p>
+<h1 id="publicBusinessName" class="public-business-name">Business enquiry</h1>
+<p id="publicBusinessType" class="public-business-type">Loading business details…</p>
+</div>
+</header>
+<section class="public-chat-card" aria-label="Customer enquiry">
+<div class="public-chat-heading"><span class="public-assistant-dot" aria-hidden="true"></span><div><h2>How can we help?</h2><p id="publicBusinessIntro">Tell us what you need. This AI assistant will pass your enquiry to the business.</p></div></div>
+<div id="publicBusinessDetails" class="public-business-details" aria-label="Business information">
+<span id="publicBusinessServices" class="public-detail"></span><span id="publicBusinessAreas" class="public-detail"></span><span id="publicBusinessHours" class="public-detail"></span><span id="publicBusinessPhone" class="public-detail"></span>
+</div>
+<div id="publicMessages" class="public-messages"></div>
+<div id="publicTyping" class="public-typing" role="status" aria-live="polite"><i aria-hidden="true"></i>Assistant is preparing a response…</div>
+<form id="publicEnquiryForm" class="public-chat-form">
+<input id="publicChatInput" maxlength="2000" placeholder="Type your message" autocomplete="off" enterkeyhint="send" required>
+<button type="submit" aria-label="Send message">↑</button>
 </form>
-<div id="publicEnquiryMessage" class="auth-message" role="alert"></div>
+<p class="public-link-privacy">Please do not send payment or card details in this chat.</p>
+<div id="publicEnquiryMessage" class="public-customer-error" role="alert"></div>
+</section>
+<footer class="public-customer-footer">You are chatting with an AI assistant, not a person. <strong>Powered by Business AI</strong></footer>
 </section>
 </main>
 
@@ -1799,6 +1824,13 @@ target.classList.add('info');
 }
 };
 
+let pwaRegistrationStarted=false;
+const registerOwnerPwa=()=>{
+if(pwaRegistrationStarted||!('serviceWorker' in navigator))return;
+pwaRegistrationStarted=true;
+navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{pwaRegistrationStarted=false;});
+};
+
 const publicSlugFromLocation=()=>{
 const slug=new URLSearchParams(window.location.search).get('business');
 return /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(slug||'').toLowerCase())?String(slug).toLowerCase():null;
@@ -1832,7 +1864,7 @@ if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'C
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
-setAuthView('auth-ready');loadAll().catch(()=>{});return;
+setAuthView('auth-ready');registerOwnerPwa();loadAll().catch(()=>{});return;
 }catch(error){
 if(error.message==='Your session has expired.')return;
 clearPrivateState();setAuthView('auth-required','Your business access is unavailable.');return;
@@ -1918,13 +1950,51 @@ if(supabaseClient)await supabaseClient.auth.signOut();
 });
 
 const publicEnquiryMessages=[];
+const setPublicDetail=(id,label,value)=>{
+const node=$(id);if(!node)return;
+const text=typeof value==='string'?value.trim():'';
+node.textContent=text?`${label}: ${text}`:'';
+node.classList.toggle('has-content',Boolean(text));
+};
+const publicInitials=name=>{
+const words=String(name||'').trim().split(/\s+/).filter(Boolean).slice(0,2);
+return words.map(word=>word[0]).join('').toUpperCase().slice(0,2)||'B';
+};
+const setPublicEnquiryAvailable=available=>{
+const input=$('publicChatInput');const submit=$('publicEnquiryForm')?.querySelector('button');
+if(input)input.disabled=!available;if(submit)submit.disabled=!available;
+};
+async function loadPublicBusinessIdentity(){
+if(!publicEnquirySlug)return;
+try{
+const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',publicEnquirySlug);
+const response=await fetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
+const result=await response.json().catch(()=>null);
+if(!response.ok||!result?.business)throw new Error('Business not available');
+const business=result.business;
+const name=typeof business.name==='string'&&business.name.trim()?business.name.trim():'Business enquiry';
+$('publicBusinessMark').textContent=publicInitials(name);$('publicBusinessName').textContent=name;
+$('publicBusinessType').textContent=business.type||'Customer enquiries';
+$('publicBusinessIntro').textContent=business.description||`Tell ${name} what you need. This AI assistant will pass your enquiry to the business.`;
+setPublicDetail('publicBusinessServices','Services',business.services);
+setPublicDetail('publicBusinessAreas','Areas',business.service_areas);
+setPublicDetail('publicBusinessHours','Hours',business.opening_hours);
+setPublicDetail('publicBusinessPhone','Phone',business.phone);
+addPublicEnquiryMessage('assistant',`Hello — I’m the AI assistant for ${name}. How can I help today?`);
+setPublicEnquiryAvailable(true);
+}catch{
+$('publicBusinessName').textContent='Customer enquiry';$('publicBusinessType').textContent='This customer link is unavailable.';
+$('publicBusinessIntro').textContent='Please check the link or contact the business directly.';
+$('publicEnquiryMessage').textContent='This customer enquiry link is unavailable.';setPublicEnquiryAvailable(false);
+}
+}
 function addPublicEnquiryMessage(role,content){
 const list=$('publicMessages');if(!list)return;const message=document.createElement('div');message.className=`msg ${role==='user'?'user':'ai'}`;message.textContent=content;list.append(message);list.scrollTop=list.scrollHeight;
 }
 async function sendPublicEnquiry(event){
-event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug)return;
+event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1)})});const result=await response.json().catch(()=>null);if(!response.ok)throw new Error(result?.error||'Unable to send enquiry');const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);}catch{addPublicEnquiryMessage('assistant','Sorry, we could not process that enquiry. Please try again shortly.');}finally{input.disabled=false;submit.disabled=false;input.focus();}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1)})});const result=await response.json().catch(()=>null);if(!response.ok)throw new Error(result?.error||'Unable to send enquiry');const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);}catch{addPublicEnquiryMessage('assistant','Sorry, we could not process that enquiry. Please try again shortly.');}finally{$('publicTyping').classList.remove('visible');input.disabled=false;submit.disabled=false;input.focus();}
 }
 $('publicEnquiryForm').addEventListener('submit',sendPublicEnquiry);
 
@@ -1937,7 +2007,7 @@ const result=await api('/api/business-onboarding',{method:'POST',headers:{'Conte
 message.textContent=`Business created. Your public enquiry link is ${result.public_path}.`;
 const onboarding=await api('/api/business-onboarding');
 applyBusinessContext(onboarding);
-setAuthView('auth-ready');await loadAll();
+setAuthView('auth-ready');registerOwnerPwa();await loadAll();
 }catch(error){message.textContent=error.message||'Could not create the business.';}finally{button.disabled=false;}
 });
 
@@ -2686,7 +2756,7 @@ $('leadList').innerHTML=message;
 
 async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
-if(publicEnquirySlug){document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');addPublicEnquiryMessage('assistant','Hi! How can we help?');return;}
+if(publicEnquirySlug){document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
 try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();
 if(!authActive)loadAll();
