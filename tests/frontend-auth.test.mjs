@@ -85,6 +85,15 @@ test("configuration onboarding is a complete app state, not an overlay on privat
   assert.match(html, /setAuthView\('configuration-onboarding-required'\)/, "wizard uses its own explicit application state");
 });
 
+test("configuration onboarding validates only the visible wizard step and reports save failures inline", () => {
+  assert.match(html, /<form id="configurationOnboardingForm" class="auth-card onboarding-card" novalidate>/, "hidden future-step inputs cannot block the current step through native form validation");
+  assert.doesNotMatch(html, /id="o_(?:business_name|business_type|services|hours)"[^>]*\srequired/, "the wizard owns required-field validation for each active step");
+  assert.match(html, /if\(current==='business'&&\(!wizardValue\('o_business_name'\)\|\|!wizardValue\('o_business_type'\)\)\)throw new Error\('Add your business name and type to continue\.'/);
+  assert.match(html, /if\(current==='services'&&!wizardValue\('o_services'\)\)throw new Error\('Add at least one service to continue\.'/);
+  assert.match(html, /if\(current==='hours'&&!wizardValue\('o_hours'\)\)throw new Error\('Add your opening hours to continue\.'/);
+  assert.match(html, /button\.disabled=true;message\.textContent='Saving your progress…';[\s\S]{0,800}?onboardingWizardIndex\+=1;[\s\S]{0,800}?catch\(error\)\{message\.textContent=error\.message\|\|'Could not save your setup\.';\}finally\{button\.disabled=false;\}/, "saving prevents duplicate submits, advances only after success, and preserves the active form on failure");
+});
+
 test("self-service signup creates only an Auth account and waits for email confirmation", () => {
   assert.match(html, /id="signUpForm"/);
   assert.match(html, /auth\.signUp\(\{/);
