@@ -1,0 +1,89 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/audit-log",
+      "destination": "/api/operations?operation=audit-log"
+    },
+    {
+      "source": "/api/data-lifecycle",
+      "destination": "/api/operations?operation=data-lifecycle"
+    },
+    {
+      "source": "/api/data-subjects",
+      "destination": "/api/operations?operation=data-subjects"
+    },
+    {
+      "source": "/api/team",
+      "destination": "/api/operations?operation=team"
+    },
+    {
+      "source": "/api/handovers",
+      "destination": "/api/operations?operation=handovers"
+    },
+    {
+      "source": "/api/public-business",
+      "destination": "/api/operations?operation=public-business"
+    },
+    {
+      "source": "/api/public-config",
+      "destination": "/api/operations?operation=public-config"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/operations?operation=health"
+    },
+    {
+      "source": "/api/addons",
+      "destination": "/api/operations?operation=addons"
+    },
+    {
+      "source": "/api/marketing",
+      "destination": "/api/operations?operation=marketing"
+    },
+    {
+      "source": "/api/knowledge",
+      "destination": "/api/operations?operation=knowledge"
+    },
+    {
+      "source": "/api/billing",
+      "destination": "/api/operations?operation=billing"
+    },
+    {
+      "source": "/api/voice-calls",
+      "destination": "/api/voice?operation=calls"
+    },
+    {
+      "source": "/api/voice-status",
+      "destination": "/api/voice?operation=status"
+    },
+    {
+      "source": "/api/voice-webhook",
+      "destination": "/api/voice?operation=webhook"
+    },
+    {
+      "source": "/api/meta",
+      "destination": "/api/operations?operation=meta"
+    },
+    {
+      "source": "/api/meta-callback",
+      "destination": "/api/operations?operation=meta&callback=1"
+    },
+    {
+      "source": "/api/marketing-publications",
+      "destination": "/api/operations?operation=marketing-publications"
+    },
+    {
+      "source": "/api/marketing-scheduler",
+      "destination": "/api/operations?operation=marketing-scheduler"
+    },
+    {
+      "source": "/api/feedback",
+      "destination": "/api/operations?operation=feedback"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "pilot-ready-20260923": false
+    }
+  }
+}

@@ -1,41 +1,53 @@
-# Business AI MVP status
+# Business AI Pilot source status
 
-Last audited: 2026-09-14
+Last local audit: 2026-09-23
 
-## Completed
+## Source-complete / locally verified
 
-- Existing single-business dashboard is connected to the leads, pipeline, settings, history, and enquiry APIs.
-- The AI enquiry UI refreshes dashboard data after a saved lead.
-- Receptionist context preservation was improved: full browser-session history is sent to the API and known contact/job details are supplied to the model.
-- Live production smoke test completed on `business-ai-theta.vercel.app`:
-  - dashboard, pipeline, lead list, lead details, settings loading, and AI lead capture were reachable;
-  - the receptionist retained an early job detail after later location and phone messages;
-  - a lead was captured/updated and the dashboard refreshed.
-- Production deployment currently reports GitHub commit `6b7a5cf` as deployed by Vercel.
-- Live Supabase audit confirmed `public.leads`, `public.lead_history`, and `public.business_settings` exist. RLS is enabled on all three tables and no policies currently exist. The current data footprint is 9 leads, 7 lead-history records, and 1 settings record. The real owner Auth account now exists; its verified UID is documented only in the post-migration owner-onboarding SQL.
+- Server-verified Supabase authentication, single-membership tenant resolution and owner/admin/member role checks.
+- Tenant-scoped leads, history, pipeline, settings, bookings, actions, handovers, team and audit/lifecycle operations.
+- Public slug-to-business routing without exposing or accepting an internal tenant ID.
+- Resumable owner onboarding and mobile-first owner/public experiences.
+- AI receptionist reliability pass: business instructions/context, approved Knowledge retrieval, off-topic handling, safer human/emergency detection, enquiry-session allowance semantics, reservation release on provider failure and distinct billing denial reasons.
+- Private Business Knowledge upload/review/approval/replacement system for PDF/JPG/PNG/WebP/TXT/CSV.
+- Stripe base-plan architecture for paid Trial (£3.99 / 7 days / 100 enquiries), Starter (£29/month / 250), Pro (£69/month / 1,000) and Business (£149/month / 3,000), including signed idempotent webhooks and stale-event protection.
+- Server-owned add-on catalogue. AI Marketing is available as an entitlement; AI Phone Calls remains Coming Soon.
+- AI Marketing generation using profile + approved Knowledge, saved draft library, editing/regeneration/deletion and owner-only approval for publishing.
+- Stripe add-on purchase/cancel architecture using a server-configured Marketing Price. The Marketing add-on cannot be charged until its price is explicitly configured/approved.
+- Meta foundation: OAuth state/CSRF protection, encrypted server-only tokens, server-discovered Facebook/Instagram account records, account selection, disconnect/revoke path, Facebook Page text-publish adapter and Instagram fail-closed media requirement.
+- Marketing publication/scheduling records, atomic claim functions, protected server scheduler endpoint, status/failure reporting and duplicate-risk handling for ambiguous provider results.
+- Lightweight Pilot feedback without automatic customer-conversation attachment.
+- Retention controls plus owner data export/anonymisation foundations and a public data-use notice.
+- Provider-neutral Voice data/adapter foundation remains disabled.
+- Final source includes `.env.example`, architecture/security/integration docs and a Codex Pilot deployment handoff.
+- Final local quality gate: **174/174 automated tests passing**, all JS/MJS syntax checks passing, inline app script parsing, no obvious secret patterns, and no temporary-code markers.
 
-## In progress
+## Newest migration files not to apply to Production as part of this task
 
-- Reviewed-but-unapplied multi-tenant migration and owner-onboarding plan.
-- Pre-migration authentication rollout design. Authentication must be feature-gated until a real owner membership exists.
-- MVP hardening plan: tenant model, Supabase Auth/RLS, API authorization, request validation/rate limiting, AI guardrails, data lifecycle, automated tests, and documentation.
+- `20260923190000_add_ai_enquiry_reservation_release.sql`
+- `20260923193000_add_business_knowledge_uploads.sql`
+- `20260923200000_add_marketing_publishing_and_feedback.sql`
 
-## Blocked / Requires Owner
+Codex must inspect live Business-AI-Dev migration history and apply only outstanding migrations to Pilot/Dev in filename order.
 
-- **Database schema not present in the repository.** The table names, row counts, RLS state, and absence of policies are known, but exact columns, types, keys, constraints, triggers, grants, and the historical SQL for `enable_rls_business_settings` are still required before a preservation-safe migration can be authored or applied.
-- **No Supabase project/CLI/MCP connection is configured in this workspace.** Owner access is required to inspect the database, run security advisors, and apply migrations.
-- **No local environment configuration is present.** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY` are required by current API handlers. Do not commit these values.
-- **Vercel production is protected on the per-deployment URL.** The stable project domain is accessible, but deployment configuration and production environment variables require the Vercel project owner.
-- **Authentication configuration is absent.** Supabase Auth redirect URLs, email provider settings, and production site URL require owner configuration.
-- **Do not deploy authentication changes yet.** The required tenancy migration is intentionally not applied and there are no Auth users/memberships.
-- **Telephony provider is intentionally not selected.** A provider account, UK number, call-recording policy, and webhook credentials are required before phone reception can be enabled.
+## Deliberately requires live Pilot verification
 
-## Remaining
+- Supabase migration execution, RLS/Storage behaviour and security advisors.
+- OpenAI live extraction/generation behaviour, latency and actual usage costs.
+- Stripe Test checkout/portal/webhooks, renewal, cancellation, payment failure, out-of-order webhook delivery and eventual Marketing add-on Price.
+- Meta app creation/review, current Graph API version/scopes, OAuth callback, Page discovery, token expiry and one harmless owner-approved Facebook Page post.
+- Selection/configuration of a server scheduler for `/api/marketing-scheduler`.
+- Authenticated mobile/browser smoke tests against the deployed Pilot.
 
-1. Apply and verify the reviewed tenant migration only after owner onboarding and server API authorization are ready.
-2. Add a server-side session verification and authorization layer to all dashboard APIs.
-3. Add tenant-scoped data model for businesses, memberships, leads, settings, conversations, usage, audit events, retention/export requests, and future actions/calls.
-4. Harden the receptionist: name parser fix, request limits, rate limits, structured guardrails, emergency/handover handling, cost/usage recording, and tenant-specific instructions.
-5. Complete dashboard UX for lead updates, conversation history, follow-ups, data export/deletion requests, and meaningful analytics.
-6. Add automated unit/integration/RLS tests and a reproducible local-development setup.
-7. Add deployment, security, Supabase, telephony, and operational documentation.
+## Product decisions still required
+
+1. Final monthly price/allowance (if any) for the AI Marketing add-on.
+2. Whether the Marketing add-on should be available to Starter, Pro and Business equally or have plan-specific limits.
+3. The server scheduler provider/cadence and the scheduling precision Business AI will promise customers.
+4. Final legal/privacy wording and support/incident ownership for real Pilot businesses.
+5. Future Meta scope: media generation/upload for Instagram, analytics, campaigns/content calendar and automated suggestions. Publishing must remain owner-approved.
+6. Future telephony provider/number/call-recording policy before AI Phone Calls can leave Coming Soon.
+
+## Production
+
+Production is intentionally unchanged. A Production rollout requires a separate explicit decision and the existing production rollout checklist.

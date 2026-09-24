@@ -3,7 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="app-version" content="0.2.0-pilot">
 <meta name="theme-color" content="#07090c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Business AI">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/assets/icons/business-ai-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/assets/icons/business-ai-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/business-ai-180.png">
 <title>Business AI</title>
 
 <style>
@@ -19,6 +27,12 @@
 --blue:#6ea8fe;
 --red:#ff6b6b;
 --orange:#ff9f43;
+--accent-blue:#2787ff;
+--attention-red:#ef5d70;
+--action-orange:#ff982e;
+--success-green:#31c48d;
+--quote-purple:#9a72ff;
+--activity-pink:#e95082;
 --radius:18px
 }
 
@@ -36,7 +50,7 @@ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif
 
 body{
 min-height:100vh;
-padding-bottom:92px
+padding-bottom:calc(92px + env(safe-area-inset-bottom))
 }
 
 button,input,select,textarea{
@@ -133,13 +147,15 @@ margin-bottom:16px
 background:var(--panel);
 border:1px solid var(--border);
 border-radius:var(--radius);
-padding:17px
+padding:14px
 }
+
+.stat-top{display:flex;align-items:center;gap:10px}.metric-icon{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:18px;font-weight:800}.metric-icon.blue{background:rgba(39,135,255,.2);color:#70b1ff}.metric-icon.red{background:rgba(239,93,112,.2);color:#ff8d9f}.metric-icon.orange{background:rgba(255,152,46,.2);color:#ffb15b}.metric-icon.green{background:rgba(49,196,141,.2);color:#78e6bc}
 
 .stat-label{
 color:var(--muted);
 font-size:12px;
-margin-bottom:9px
+margin-bottom:2px
 }
 
 .stat-value{
@@ -154,13 +170,6 @@ font-size:11px;
 color:var(--muted)
 }
 
-.follow-stat .stat-value{
-color:var(--yellow)
-}
-
-.overdue-stat .stat-value{
-color:var(--red)
-}
 
 .card{
 background:var(--panel);
@@ -816,6 +825,8 @@ justify-content:center;
 flex:none
 }
 
+.activity-icon.new{background:rgba(233,80,130,.2);color:#ff86ae}.activity-icon.quote{background:rgba(154,114,255,.2);color:#c5adff}.activity-icon.attention{background:rgba(239,93,112,.2);color:#ff97a6}.activity-icon.success{background:rgba(49,196,141,.2);color:#7de7bd}.activity-icon.system{background:rgba(39,135,255,.2);color:#83bcff}
+
 .activity-text{
 font-size:13px;
 line-height:1.35
@@ -831,13 +842,14 @@ margin-top:3px
 position:fixed;
 left:50%;
 bottom:12px;
+bottom:calc(12px + env(safe-area-inset-bottom));
 transform:translateX(-50%);
-width:min(94%,600px);
-background:rgba(15,20,26,.96);
-border:1px solid var(--border);
-border-radius:18px;
+width:min(94%,520px);
+background:rgba(10,17,25,.97);
+border:1px solid #243344;
+border-radius:20px;
 padding:7px;
-display:grid;
+display:none;
 grid-template-columns:repeat(4,1fr);
 gap:4px;
 z-index:50;
@@ -855,8 +867,8 @@ font-weight:700
 }
 
 .nav-btn.active{
-background:#fff;
-color:#000
+background:rgba(39,135,255,.14);
+color:#62a8ff
 }
 
 .toast{
@@ -894,9 +906,20 @@ border-radius:13px
 .auth-card h2{margin:18px 0 6px}.auth-card p{margin:0 0 22px;color:var(--muted);font-size:14px}
 .auth-field{display:grid;gap:7px;margin:14px 0}.auth-field label{font-size:13px;color:var(--muted)}
 .auth-field input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:var(--text)}
-.auth-submit{width:100%;margin-top:8px}.auth-message{min-height:20px;margin-top:14px;color:var(--red);font-size:13px}
+.auth-submit{width:100%;margin-top:8px}.auth-message{min-height:20px;margin-top:14px;color:var(--red);font-size:13px}.auth-message.info{color:var(--green)}
+.auth-switch{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}.auth-link{border:0;background:transparent;color:var(--blue);padding:0;font-weight:650;text-decoration:underline}
+.auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
-body.auth-pending .app,body.auth-required .app{display:none}body.auth-required .auth-screen{display:flex}body.auth-ready .logout-btn{display:block}
+body.auth-pending .app,body.auth-required .app,body.onboarding-required .app,body.configuration-onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen,body.configuration-onboarding-required #configurationOnboardingScreen{display:flex}body.auth-ready .logout-btn{display:block}body.auth-ready .bottom-nav{display:grid}
+body.public-enquiry{padding:0;background:#f4f7fb;color:#17212b}
+body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen,body.public-enquiry #configurationOnboardingScreen{display:none}
+.onboarding-card{max-width:560px}.onboarding-progress{display:flex;gap:5px;margin:0 0 20px}.onboarding-progress i{height:5px;flex:1;border-radius:99px;background:var(--border)}.onboarding-progress i.active{background:var(--blue)}.wizard-step{display:none}.wizard-step.active{display:block}.wizard-actions{display:flex;gap:9px;justify-content:space-between;margin-top:20px}.wizard-actions button{min-width:112px}.onboarding-hint{font-size:12px;line-height:1.45;color:var(--muted);margin:0 0 14px}.wizard-review{display:grid;gap:10px}.wizard-review article{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.wizard-review strong{display:block;margin-bottom:3px}.wizard-review span{font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+body.public-enquiry #publicEnquiryScreen{display:block}
+.public-link-row{display:flex;gap:8px;align-items:center}.public-link-row input{flex:1;min-width:0}.public-link-row button{white-space:nowrap}
+
+.public-customer-shell{width:min(100%,790px);min-height:100dvh;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}.public-business-header{display:flex;align-items:center;gap:12px;padding:3px 2px}.public-business-mark{width:48px;height:48px;border-radius:50%;background:#112c51;color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;letter-spacing:-.5px;flex:none;box-shadow:0 7px 17px rgba(20,64,117,.2)}.public-eyebrow{margin:0 0 2px;color:#718096;font-size:12px;font-weight:650;letter-spacing:0;text-transform:none}.public-business-name{margin:0;font-size:21px;line-height:1.12;letter-spacing:-.65px;overflow-wrap:anywhere}.public-business-type{margin:3px 0 0;color:#667482;font-size:13px;overflow-wrap:anywhere}.public-hero{position:relative;overflow:hidden;border-radius:20px;background:#163d6a;color:#fff;padding:18px 19px 17px;box-shadow:0 12px 25px rgba(14,45,82,.16)}.public-hero:before,.public-hero:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.13);border-radius:50%;pointer-events:none}.public-hero:before{width:180px;height:180px;right:-84px;top:-116px}.public-hero:after{width:115px;height:115px;right:32px;bottom:-84px}.public-hero-content{position:relative;z-index:1;max-width:550px}.public-hero h2{margin:0;font-size:27px;letter-spacing:-.9px;line-height:1.08}.public-hero p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:7px 0 0;color:#e1edff;font-size:14px;line-height:1.42}.public-quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.public-quick-action{min-height:78px;border:1px solid #e1e9f2;border-radius:15px;background:#fff;color:#24313d;padding:9px 6px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:11px;line-height:1.2;font-weight:700;box-shadow:0 6px 15px rgba(29,52,73,.06)}.public-quick-action .quick-icon{width:25px;height:25px;border-radius:9px;background:#eaf2ff;color:#1764d6;display:grid;place-items:center;font-size:15px;font-weight:800}.public-quick-action:active{transform:scale(.98);background:#f5f9ff}.public-business-details{display:flex;flex-wrap:wrap;gap:7px;padding:0}.public-detail{display:none;max-width:100%;padding:7px 9px;border-radius:999px;background:#fff;color:#50606f;border:1px solid #e2e9f0;font-size:11px;line-height:1.35;overflow-wrap:anywhere;box-shadow:0 3px 8px rgba(27,49,70,.035)}.public-detail.has-content{display:inline-flex;align-items:center}.public-detail.has-content:before{content:"•";color:#1764d6;font-size:16px;line-height:8px;margin-right:5px}.public-chat-card{background:transparent;border:0;border-radius:0;box-shadow:none;display:flex;flex:1;min-height:0;flex-direction:column;padding:4px 0 0}.public-chat-heading{display:none}.public-messages{flex:1;min-height:210px;overflow:auto;overscroll-behavior:contain;padding:9px 0 2px 42px;scroll-behavior:smooth}.public-messages .msg{position:relative;max-width:min(88%,530px);padding:11px 13px;margin-bottom:10px;border-radius:16px;font-size:14px;line-height:1.48;overflow-wrap:anywhere;box-shadow:none}.public-messages .msg.ai{background:#eef2f6;border:1px solid #e1e8ee;color:#27323b;border-bottom-left-radius:5px}.public-messages .msg.ai:before{content:"";position:absolute;left:-39px;top:1px;width:29px;height:29px;border-radius:50%;background:#143b6a;box-shadow:0 4px 10px rgba(18,59,106,.18)}.public-messages .msg.ai:after{content:"";position:absolute;left:-28px;top:12px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.16)}.public-messages .msg.user{background:#1670ed;color:#fff;border-bottom-right-radius:5px}.public-typing{display:none;align-items:center;gap:7px;color:#64717d;font-size:12px;padding:3px 0 9px 42px}.public-typing.visible{display:flex}.public-typing i{width:6px;height:6px;border-radius:50%;background:#2169d8;box-shadow:10px 0 #6f9ee5,20px 0 #bdd2f4;margin-right:21px}.public-chat-form{position:sticky;bottom:0;border-top:0;padding:9px 0 max(4px,env(safe-area-inset-bottom));display:flex;gap:9px;align-items:flex-end;background:#f4f7fb}.public-chat-form input{min-width:0;flex:1;background:#fff;color:#17212b;border:1px solid #d9e2ea;border-radius:999px;padding:13px 15px;font-size:16px;line-height:1.25;outline:none;box-shadow:0 3px 10px rgba(27,49,70,.04)}.public-chat-form input:focus{border-color:#4b83da;box-shadow:0 0 0 3px rgba(33,105,216,.14)}.public-chat-form button{width:48px;height:48px;flex:none;border:0;border-radius:50%;background:#1670ed;color:#fff;font-size:18px;font-weight:700;box-shadow:0 6px 14px rgba(23,100,214,.27)}.public-chat-form button:disabled,.public-chat-form input:disabled{opacity:.58;cursor:not-allowed}.public-customer-error{min-height:0;margin:5px 0 0;color:#b42318;font-size:12px;line-height:1.45}.public-customer-footer{text-align:center;color:#6b7782;font-size:11px;line-height:1.45;padding:2px 8px 0}.public-customer-footer strong{color:#43515d}.public-link-privacy{font-size:11px;color:#71808d;margin:3px 0 0;line-height:1.4;text-align:center}
+.public-hero{isolation:isolate;min-height:172px;border-radius:22px;background:linear-gradient(135deg,#102842 0%,#1b5d9e 58%,#123152 100%);padding:23px 21px 20px;box-shadow:0 14px 30px rgba(14,45,82,.2)}.public-hero:before{width:235px;height:235px;right:-98px;top:-132px}.public-hero:after{width:145px;height:145px;right:20px;bottom:-96px}.public-hero-art{position:absolute;inset:0;z-index:0;opacity:.3;background:repeating-linear-gradient(135deg,transparent 0 18px,rgba(255,255,255,.08) 18px 19px)}.public-hero h2{font-size:30px;letter-spacing:-1px;line-height:1.05}.public-hero p{margin-top:9px;color:#eaf3ff;font-size:15px}.public-quick-action{min-height:82px}.public-detail#publicBusinessAreas:before{content:"⌖"}.public-detail#publicBusinessHours:before{content:"◷"}.public-detail#publicBusinessPhone:before{content:"☎"}
+.dashboard-welcome{margin:5px 0 20px;padding:4px 1px}.dashboard-welcome .eyebrow{margin:0 0 5px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.dashboard-welcome h2{margin:0;font-size:29px;letter-spacing:-1px;line-height:1.08}.dashboard-welcome p{margin:7px 0 0;color:var(--muted);font-size:14px}.dashboard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 16px}.dashboard-launch{min-height:78px;text-align:left;border:1px solid var(--border);border-radius:15px;background:var(--panel);color:var(--text);padding:13px}.dashboard-launch strong{display:block;font-size:13px}.dashboard-launch span{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.3}.dashboard-launch.primary{background:#eaf2ff;color:#10213b;border-color:#eaf2ff}.dashboard-launch.primary span{color:#355473}.activity-card{padding-top:3px}.ai-feature-card{position:relative;overflow:hidden;background:linear-gradient(120deg,#163b82,#0866c7);border-color:#2787ff;color:#fff}.ai-feature-card:after{content:"";position:absolute;right:-44px;top:-54px;width:180px;height:180px;border:1px solid rgba(255,255,255,.22);border-radius:50%}.ai-feature-card .ai-status{color:#cce3ff}.ai-feature-card .ai-status i{background:#bfe1ff}.ai-feature-card h3{position:relative;z-index:1;font-size:21px}.ai-feature-card p{position:relative;z-index:1;color:#e3efff}.ai-feature-card .btn{position:relative;z-index:1;background:rgba(9,24,55,.18);border-color:rgba(255,255,255,.32);color:#fff}.ai-feature-card .btn.primary{background:#fff;color:#12427c;border-color:#fff}.ai-feature-icon{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:21px;margin-bottom:12px;position:relative;z-index:1}.activity{padding:12px 0}.activity-icon{width:34px;height:34px;border-radius:11px;font-size:15px}
 
 .empty{
 text-align:center;
@@ -906,6 +929,14 @@ background:var(--panel);
 border:1px solid var(--border);
 border-radius:16px
 }
+
+.work-list{display:grid;gap:10px}
+.settings-section-label{margin:22px 2px 9px;color:var(--blue);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.install-app-card{margin-top:14px}.install-app-card[hidden]{display:none}.install-app-row{display:flex;align-items:flex-start;gap:11px}.install-app-symbol{width:35px;height:35px;flex:none;border-radius:11px;background:rgba(39,135,255,.16);color:var(--blue);display:grid;place-items:center;font-size:18px;font-weight:800}.install-app-copy{min-width:0}.install-app-copy h3{margin:1px 0 0}.install-app-copy .work-meta{margin:4px 0 0}.install-app-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.install-ios-steps{margin:10px 0 0;padding-left:19px;color:var(--muted);font-size:12px;line-height:1.6}.install-ios-steps[hidden]{display:none}
+.billing-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.billing-plan{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.billing-plan.pro{border-color:rgba(39,135,255,.65);box-shadow:inset 0 0 0 1px rgba(39,135,255,.18)}.billing-plan h4{margin:0;font-size:13px}.billing-plan p{margin:5px 0 8px;color:var(--muted);font-size:11px;line-height:1.35}.billing-plan strong{display:block;font-size:14px}.billing-plan .small-btn{margin-top:9px;width:100%}
+.work-item{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:13px}
+.work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
+.first-run-list{display:grid;gap:10px;margin-top:12px}.first-run-step{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.first-run-mark{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px;background:#27303a;color:var(--muted)}.first-run-mark.done{background:rgba(56,211,159,.16);color:var(--green)}.first-run-step strong{display:block;font-size:12px}.first-run-step .work-meta{margin-top:2px}.first-run-step button{margin-left:auto;align-self:center;flex:none}
 
 @media(min-width:700px){
 
@@ -942,9 +973,47 @@ justify-content:space-between
 .pipeline .stage-value{
 margin-top:0
 }
+.public-link-row{align-items:stretch;flex-direction:column}.public-link-row button{width:100%}
+.billing-plans{grid-template-columns:1fr}
+.public-customer-shell{padding-left:14px;padding-right:14px;gap:10px}.public-chat-card{padding:0;border-radius:0}.public-business-mark{width:44px;height:44px;border-radius:50%}.public-business-name{font-size:20px}.public-hero{border-radius:18px;padding:16px 17px 15px}.public-hero h2{font-size:25px}.public-quick-actions{gap:7px}.public-quick-action{min-height:76px;font-size:10px}.public-quick-action .quick-icon{width:24px;height:24px}.public-messages{min-height:205px}.public-chat-form{padding-bottom:max(2px,env(safe-area-inset-bottom))}.public-chat-form button{width:50px;height:50px}.dashboard-actions{grid-template-columns:1fr;gap:8px}.dashboard-launch{min-height:0}
 
 }
+
+/* Owner-app visual system: kept separate from the intentionally light public customer page. */
+:root{--bg:#030b16;--panel:#081523;--panel2:#0b1b2c;--border:#193554;--text:#f6f9ff;--muted:#93a7c3;--blue:#4ba3ff;--accent-blue:#1685ff;--radius:20px}
+body.auth-ready{background:radial-gradient(circle at 85% -8%,rgba(18,102,228,.25),transparent 29rem),linear-gradient(155deg,#061323 0%,#030a13 74%)}
+body.auth-ready .app{max-width:760px;padding:max(24px,calc(env(safe-area-inset-top) + 18px)) 20px calc(118px + env(safe-area-inset-bottom))}
+.topbar{position:relative;margin:0 0 28px;padding:0;min-height:48px}.brand-icon{width:46px;height:46px;border:1px solid #287fe0;border-radius:14px;background:linear-gradient(145deg,#1265ca,#071526);color:#d8f0ff;box-shadow:0 0 24px rgba(20,127,255,.26)}.brand-text h1{font-size:17px;letter-spacing:-.35px}.brand-text p{font-size:11px;color:#9eb2ce}.status-dot{margin-left:auto;width:9px;height:9px;background:#28e8ba;box-shadow:0 0 15px rgba(40,232,186,.65)}.logout-btn{margin-left:12px;border-color:#1b3657;background:rgba(10,25,43,.74);border-radius:12px;padding:10px 12px;color:#e7f0ff}
+.page-title{margin:0 0 20px}.page-title:before{content:attr(data-kicker);display:block;color:#3d9dff;font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}.page-title h2{font-size:34px;line-height:1;letter-spacing:-1.35px}.page-title p{font-size:15px;color:#98aeca;line-height:1.45}.dashboard-welcome{position:relative;min-height:136px;padding:5px 132px 10px 0;margin:0 0 20px}.dashboard-welcome:after{content:"";position:absolute;right:0;bottom:-5px;width:128px;height:128px;background:url('/assets/icons/business-ai-mascot.png') center/contain no-repeat;filter:drop-shadow(0 0 18px rgba(32,132,255,.45));opacity:.96}.dashboard-welcome h2{font-size:34px;line-height:1.03}.dashboard-welcome .eyebrow{font-size:11px;color:#56a9ff}.dashboard-welcome p{font-size:15px}
+.stats{gap:12px}.stat,.card,.dashboard-launch{background:linear-gradient(145deg,rgba(13,31,49,.96),rgba(6,17,29,.97));border-color:#173452;box-shadow:0 15px 34px rgba(0,0,0,.17)}.stat{min-height:145px;padding:17px;border-radius:20px}.stat-value{font-size:31px}.stat-label{font-size:13px;color:#cad8eb}.stat-sub{font-size:11px;line-height:1.4}.metric-icon{width:46px;height:46px;border-radius:14px}.card{border-radius:20px;padding:17px}.card-head h3{font-size:16px}.dashboard-actions{grid-template-columns:1fr;gap:11px}.dashboard-launch{display:flex;align-items:center;min-height:84px;border-radius:19px;padding:17px 19px}.dashboard-launch:before{content:"›";order:2;margin-left:auto;color:#65adff;font-size:30px;line-height:1}.dashboard-launch strong{font-size:16px}.dashboard-launch span{font-size:12px}.dashboard-launch.primary{background:linear-gradient(115deg,#126cec,#133c92);border-color:#287fff;color:#fff}.dashboard-launch.primary span{color:#d9edff}.ai-feature-card{border-radius:22px}.ai-feature-card h3{font-size:21px}
+.toolbar{gap:10px}.search,.toolbar input,.filters .filter,.sortbar select{border-color:#1a385a;background:#09192a;color:var(--text);border-radius:14px}.filters{gap:8px}.filter{padding:10px 15px}.filter.active{background:#157df3;border-color:#49a3ff;color:#fff}.lead-card,.work-item{background:linear-gradient(145deg,#0c1d2e,#081625);border-color:#173858;border-radius:18px;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+.new-work-button{width:100%;border:1px solid #338bff;border-radius:14px;background:linear-gradient(100deg,#1686ff,#1465e7);color:#fff;padding:14px 16px;margin:0 0 13px;font-weight:760;box-shadow:0 10px 22px rgba(9,103,242,.25)}.work-form{position:relative;animation:sheet-in .18s ease-out}.work-form:before{content:"";display:block;width:42px;height:4px;border-radius:9px;background:#42617e;margin:0 auto 15px}@keyframes sheet-in{from{transform:translateY(8px);opacity:.4}to{transform:none;opacity:1}}.field input,.field select,.field textarea,.settings-grid input,.settings-grid select,.settings-grid textarea{background:#09192a!important;border-color:#1b3b5d!important;color:#f5f9ff!important;border-radius:13px!important}.save-btn,.primary-action,.btn.primary{background:linear-gradient(110deg,#248fff,#126bea);border-color:#338eff;color:#fff;border-radius:13px}.work-list{display:grid;gap:11px}.tag{border-radius:999px}
+.settings-section-label{font-size:11px;letter-spacing:.17em;color:#5aa8ff}.settings-section-label+.card{margin-top:10px!important}.settingsView .card{padding:16px}.billing-plan{background:#0b1c2e;border-color:#1c4269;border-radius:15px}.billing-plan.pro{background:linear-gradient(145deg,#0f2d56,#0a1d35)}
+.bottom-nav{bottom:max(12px,calc(env(safe-area-inset-bottom) + 9px));padding:7px;width:min(calc(100% - 28px),560px);border-radius:22px;background:rgba(4,16,29,.94);border-color:#1c4167;box-shadow:0 16px 38px rgba(0,0,0,.35)}.nav-btn{min-height:54px;border-radius:15px;font-size:11px}.nav-btn.active{background:linear-gradient(145deg,rgba(21,123,243,.34),rgba(13,64,135,.48));color:#5eb0ff}.toast{top:max(15px,calc(env(safe-area-inset-top) + 10px))}
+.auth-screen{background:radial-gradient(circle at 86% 10%,rgba(24,111,241,.23),transparent 21rem),#030b16;padding:max(24px,env(safe-area-inset-top)) 24px max(24px,env(safe-area-inset-bottom))}.auth-card{border-radius:24px;background:linear-gradient(145deg,rgba(11,29,47,.98),rgba(5,16,28,.98));border-color:#1a4168;box-shadow:0 24px 55px rgba(0,0,0,.35)}.auth-card>.brand-icon{margin:auto}.auth-card h2{text-align:center;font-size:26px}.auth-card>p{text-align:center}.auth-forgot{text-align:right!important;margin:-4px 0 15px!important}.auth-switch{margin-top:20px!important}.auth-field input{border-color:#1b3d61!important;background:#091929!important}.auth-link{color:#55a8ff}.auth-card .brand-icon{font-size:16px}
+@media(min-width:720px){body.auth-ready .app{padding-left:30px;padding-right:30px}.dashboard-actions{grid-template-columns:repeat(3,1fr)}.dashboard-launch{min-height:110px;display:block}.dashboard-launch:before{float:right}.stat{min-height:130px}}
+@media(max-width:390px){body.auth-ready .app{padding-left:15px;padding-right:15px}.dashboard-welcome{padding-right:110px}.dashboard-welcome:after{width:110px;height:110px}.page-title h2{font-size:31px}.stat{padding:14px}.stat-value{font-size:27px}}
+
+/* V1 owner-app composition: structural styles for the authenticated workspace only. */
+body.auth-ready .app{max-width:680px;padding-top:max(30px,calc(env(safe-area-inset-top) + 24px));padding-bottom:calc(126px + env(safe-area-inset-bottom))}
+.owner-tools{display:flex;align-items:center;gap:12px}.owner-tools .status-dot{margin-left:0}.owner-avatar{display:grid;place-items:center;width:34px;height:34px;border:1px solid #24496d;border-radius:50%;background:linear-gradient(145deg,#183658,#0a1728);color:#d5e9ff;font-size:10px;font-weight:800}.topbar{align-items:flex-start;margin-bottom:30px}.brand{padding-top:1px}.brand-icon{font-size:13px;font-weight:850;letter-spacing:-.5px}.brand-text h1{font-size:18px}.logout-btn{padding:9px 11px}
+.dashboard-hero{position:relative;display:flex;align-items:flex-end;min-height:162px;margin:0 0 20px;padding:2px 136px 14px 2px;overflow:visible}.dashboard-welcome{min-height:0;padding:0;margin:0;z-index:1}.dashboard-welcome:after{display:none}.dashboard-welcome .eyebrow{letter-spacing:.2em;margin-bottom:9px}.dashboard-welcome h2{font-size:36px;max-width:360px}.dashboard-welcome h2::first-line{color:#fff}.dashboard-mascot{position:absolute;right:-2px;bottom:-4px;width:145px;height:145px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(40,126,255,.55))}.dashboard-hero:after{content:"";position:absolute;right:-55px;top:-52px;width:240px;height:240px;border:1px solid rgba(47,139,255,.25);border-radius:50%;box-shadow:0 0 70px rgba(11,105,237,.16)}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-bottom:18px}.stat{position:relative;min-height:158px;padding:17px 15px;border-radius:22px;overflow:hidden}.stat:after{content:"";position:absolute;right:-26px;bottom:-34px;width:92px;height:92px;border-radius:50%;background:radial-gradient(circle,rgba(56,143,255,.12),transparent 67%)}.stat-top{display:block}.metric-icon{margin-bottom:14px;width:45px;height:45px;border-radius:14px;font-size:20px}.stat-value{font-size:32px;line-height:1}.stat-label{margin-top:7px;font-size:13px;font-weight:720}.stat-sub{margin-top:8px;font-size:11px;max-width:150px}.metric-icon.red{background:linear-gradient(145deg,rgba(229,70,98,.4),rgba(100,25,44,.35))}.metric-icon.orange{background:linear-gradient(145deg,rgba(255,149,37,.36),rgba(112,60,12,.35))}.metric-icon.green{background:linear-gradient(145deg,rgba(41,197,143,.31),rgba(12,91,68,.35))}.metric-icon.blue{background:linear-gradient(145deg,rgba(35,139,255,.4),rgba(11,65,151,.4))}
+.dashboard-actions{gap:12px}.dashboard-launch{position:relative;display:grid;grid-template-columns:46px 1fr 22px;align-items:center;gap:13px;min-height:91px;padding:16px;border-radius:21px;text-align:left}.dashboard-launch:before{display:none}.dashboard-launch i{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#142b48;color:#cae5ff;font-style:normal;font-size:22px}.dashboard-launch.primary i{background:rgba(255,255,255,.17);color:#fff}.dashboard-launch span{display:block;margin:0}.dashboard-launch strong{display:block;font-size:16px}.dashboard-launch em{display:block;margin-top:5px;color:#9db2cd;font-size:12px;font-style:normal;line-height:1.35}.dashboard-launch.primary em{color:#dcecff}.dashboard-launch b{justify-self:end;color:#5eadff;font-size:28px;font-weight:400}.dashboard-launch.primary b{color:#fff}.dashboard-actions+.card{margin-top:20px}
+.card{border-radius:22px;padding:18px;margin-bottom:14px}.card-head{margin-bottom:14px}.card-head h3{font-size:17px}.card-head span{font-size:11px}.ai-feature-card{padding:21px;border-color:#2789ff;background:radial-gradient(circle at 92% 0,rgba(51,159,255,.42),transparent 34%),linear-gradient(115deg,#113e9c,#0b65ce)}.ai-feature-card .ai-feature-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.14);font-size:25px}.ai-feature-card .actions{margin-top:18px}.ai-feature-card .btn{background:rgba(1,18,54,.28);border-color:rgba(255,255,255,.28);color:#fff}.ai-feature-card .btn.primary{background:#fff;color:#0758bf}
+.screen-title{position:relative;padding:4px 0 18px;margin:0 0 13px}.page-title:before{display:none}.page-kicker{display:block;margin-bottom:8px;color:#57aaff;font-size:11px;font-weight:800;letter-spacing:.23em;text-transform:uppercase}.screen-title h2{font-size:37px;letter-spacing:-1.6px}.screen-title p{max-width:420px;font-size:15px}.ai-screen-title{padding-right:64px}.ai-screen-title:after{content:"✦";position:absolute;right:2px;top:1px;display:grid;place-items:center;width:51px;height:51px;border:1px solid #287de0;border-radius:16px;background:linear-gradient(145deg,#123c7b,#071627);color:#7ec4ff;font-size:24px;box-shadow:0 0 22px rgba(28,125,255,.2)}
+.toolbar{gap:11px;margin-bottom:13px}.search{height:51px;padding:0 16px;border-radius:16px;font-size:14px}.refresh{width:51px;border-radius:16px;font-size:20px}.filters{gap:9px;margin-bottom:14px}.filter{padding:10px 16px;border-radius:14px;font-size:12px}.sortbar{padding:0 2px;margin-bottom:15px}.sortbar select{padding:10px 13px;border-radius:13px}.lead-card{position:relative;padding:16px 15px 15px;border-radius:20px;margin-bottom:12px}.lead-card:before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:3px;border-radius:4px;background:#258bff}.lead-card.high:before,.lead-card.overdue-card:before{background:#ff5e72}.lead-card h3{font-size:17px}.description{font-size:13px;line-height:1.45;color:#bdcee3}.lead-actions .small-btn{min-height:38px;border-radius:11px}
+.new-work-button{height:54px;margin:0 0 15px;border-radius:16px;font-size:14px}.work-list{gap:12px}.work-item{position:relative;padding:16px;border-radius:20px}.work-item h4{font-size:16px}.work-meta{font-size:12px;line-height:1.45}.work-actions{margin-top:14px}.work-actions .small-btn{min-height:37px;border-radius:11px}.pill,.tag{padding:6px 9px;font-size:10px}.work-form[hidden]{display:none}.work-form:not([hidden]){position:fixed;z-index:90;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 20px),600px);max-height:min(82dvh,780px);overflow:auto;margin:0;padding:19px;border:1px solid #2a6cab;border-radius:26px 26px 20px 20px;background:linear-gradient(160deg,#10243a,#081421);box-shadow:0 -20px 70px rgba(0,0,0,.58)}.work-form:not([hidden]):after{content:"";position:fixed;z-index:-1;inset:-100vmax;background:rgba(1,9,19,.63);pointer-events:none}.work-form:before{display:none}.sheet-handle{width:43px;height:4px;border-radius:99px;background:#4d6b8b;margin:0 auto 15px}.sheet-close{display:grid;place-items:center;width:34px;height:34px;border:1px solid #244766;border-radius:50%;background:#0b1b2d;color:#b9d0e9;font-size:23px;line-height:1}.work-form .card-head{align-items:flex-start}.work-form .card-head>div span{display:block;margin-top:4px;color:var(--muted);font-size:11px}.work-form .edit-grid{gap:13px}.work-form .field input,.work-form .field select,.work-form .field textarea{min-height:47px;padding:12px;border-radius:14px!important}.work-form .save-btn{min-height:52px;border-radius:15px;font-size:15px}
+.chat{min-height:calc(100dvh - 300px);display:flex;flex-direction:column;padding:17px;border:1px solid #1b4d78;background:radial-gradient(circle at 100% 0,rgba(24,116,244,.21),transparent 32%),linear-gradient(145deg,#091a2a,#06111e)}.messages{flex:1;min-height:270px;padding:4px 0 15px}.chat-form{border-top:1px solid #1a3858;padding-top:15px}.chat-form input{min-height:51px;border-radius:16px;padding:13px 15px}.chat-form button{width:54px;border-radius:16px;background:linear-gradient(135deg,#2995ff,#1267e8);color:#fff}
+.settings-hub{display:grid;gap:9px;margin:-2px 0 20px}.settings-hub>div{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid #193a5e;border-radius:17px;background:linear-gradient(145deg,#0d2034,#081625)}.settings-hub i{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#1c79ef,#123b86);color:#fff;font-style:normal}.settings-hub>div:nth-child(2) i{background:linear-gradient(145deg,#955bf2,#4b257f)}.settings-hub>div:nth-child(3) i{background:linear-gradient(145deg,#23a789,#135c56)}.settings-hub strong{display:block;font-size:14px}.settings-hub small{display:block;margin-top:3px;color:#95a9c3;font-size:11px}.settings-section-label{margin:24px 0 8px;font-size:11px;letter-spacing:.2em}.settings-section-label:before{content:"";display:inline-block;width:5px;height:5px;margin-right:8px;border-radius:50%;background:#298cff;vertical-align:middle}.settings-section-label+.card{margin-top:0!important}.settings-grid{gap:12px}.checkbox-row{border-color:#1a3c61;background:#0a1b2b;border-radius:15px}.billing-plan{padding:14px;border-radius:17px}.billing-plan h4{font-size:15px}.billing-plan strong{font-size:17px}.billing-plan.pro{border-color:#328aff;box-shadow:0 0 0 1px rgba(41,137,255,.2),0 12px 28px rgba(0,79,200,.12)}
+.auth-screen{align-items:flex-start;padding-top:max(46px,calc(env(safe-area-inset-top) + 30px));overflow:auto}.auth-card{position:relative;max-width:405px;padding:28px 24px 25px;border-radius:28px}.auth-mark{position:relative;display:flex;justify-content:center;align-items:center;min-height:64px;margin-bottom:10px}.auth-mark .brand-icon{margin:0}.auth-mark img{position:absolute;right:11px;top:-14px;width:86px;height:86px;object-fit:contain;filter:drop-shadow(0 0 15px rgba(33,139,255,.5))}.auth-card h2{font-size:28px;letter-spacing:-1.1px}.auth-card>p{font-size:14px;line-height:1.45}.auth-field{margin:16px 0}.auth-field label{font-size:12px}.auth-field input{min-height:50px;border-radius:15px!important}.auth-submit{min-height:52px;border-radius:15px;font-size:15px}.auth-switch{font-size:12px!important}.auth-forgot{text-align:right!important;margin:-3px 0 17px!important}
+@media(min-width:720px){.dashboard-hero{min-height:185px;padding-right:180px}.dashboard-mascot{width:180px;height:180px}.dashboard-actions{grid-template-columns:repeat(3,1fr)}.dashboard-launch{grid-template-columns:1fr;align-content:start;min-height:158px}.dashboard-launch i{margin-bottom:8px}.dashboard-launch b{position:absolute;right:16px;bottom:12px}.settings-hub{grid-template-columns:repeat(3,1fr)}.settings-hub>div{min-height:95px;align-items:flex-start}}
+@media(max-width:390px){.dashboard-hero{padding-right:113px;min-height:142px}.dashboard-mascot{width:117px;height:117px}.dashboard-welcome h2{font-size:31px}.stat{min-height:148px}.screen-title h2{font-size:33px}}
+
+/* Authentication is deliberately lightweight: the screen itself is the surface, not a second large card. */
+.auth-screen{justify-content:flex-start;align-items:center;padding-top:max(54px,calc(env(safe-area-inset-top) + 38px));background:radial-gradient(circle at 50% 5%,rgba(20,115,255,.22),transparent 20rem),#030b16}.auth-card{max-width:370px;padding:0 4px 28px;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important}.auth-mark{min-height:104px;margin:0 0 12px}.auth-mark .brand-icon{display:none}.auth-mark:before{content:"AI";display:grid;place-items:center;width:42px;height:42px;border:1px solid #267fe6;border-radius:13px;background:linear-gradient(145deg,#176cd8,#07172b);color:#d8efff;font-size:12px;font-weight:850;box-shadow:0 0 20px rgba(35,139,255,.3)}.auth-mark img{position:absolute;right:50%;top:14px;transform:translateX(50%);width:102px;height:102px;opacity:.98}.auth-card h2{margin:0;text-align:center;font-size:29px;letter-spacing:-1.25px}.auth-card>p{margin:7px auto 24px;text-align:center;color:#9fb3cf;font-size:14px}.auth-field{gap:6px;margin:12px 0}.auth-field label{font-size:11px;color:#8ea6c6}.auth-field input{min-height:46px;padding:10px 13px;border-radius:13px!important;background:rgba(8,25,43,.82)!important}.auth-forgot{margin:-1px 0 15px!important}.auth-forgot .auth-link{font-size:12px;font-weight:600;text-decoration:none}.auth-submit{min-height:50px;border-radius:14px}.auth-switch{margin-top:18px!important}.auth-switch .auth-link{font-size:13px}.auth-message{font-size:12px;text-align:center}
 </style>
+<link rel="stylesheet" href="/assets/marketing.css">
 </head>
 
 <body class="auth-pending">
@@ -953,46 +1022,119 @@ margin-top:0
 
 <main id="authScreen" class="auth-screen" aria-live="polite">
 <form id="loginForm" class="auth-card">
-<div class="brand-icon">AI</div>
+<div class="auth-mark"><div class="brand-icon">AI</div><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Welcome to Business AI</h2>
-<p>Sign in to manage your business enquiries.</p>
+<p>Run your business. Smarter.</p>
 <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
 <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+<p class="auth-forgot"><button id="showPasswordReset" class="auth-link" type="button">Forgot password?</button></p>
 <button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
 <div id="loginMessage" class="auth-message" role="alert"></div>
+<p class="auth-switch">New to Business AI? <button id="showSignUp" class="auth-link" type="button">Create an account</button></p>
 </form>
+
+<form id="passwordResetRequestForm" class="auth-card auth-form-hidden">
+<div class="auth-mark"><div class="brand-icon">AI</div></div><h2>Reset your password</h2><p>Enter your email and, if it can be used, we’ll send a secure reset link.</p>
+<div class="auth-field"><label for="passwordResetEmail">Email</label><input id="passwordResetEmail" type="email" autocomplete="email" required></div>
+<button id="passwordResetRequestSubmit" class="btn primary auth-submit" type="submit">Send reset link</button><div id="passwordResetRequestMessage" class="auth-message" role="alert"></div>
+<p class="auth-switch"><button class="auth-link show-login-link" type="button">Back to sign in</button></p>
+</form>
+
+<form id="passwordRecoveryForm" class="auth-card auth-form-hidden">
+<div class="auth-mark"><div class="brand-icon">AI</div></div><h2>Choose a new password</h2><p>Create a strong, unique password with at least 12 characters.</p>
+<div class="auth-field"><label for="recoveryPassword">New password</label><input id="recoveryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+<div class="auth-field"><label for="recoveryPasswordConfirm">Confirm new password</label><input id="recoveryPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+<button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit">Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
+</form>
+
+<form id="signUpForm" class="auth-card auth-form-hidden">
+<div class="auth-mark"><div class="brand-icon">AI</div></div>
+<h2>Create your account</h2>
+<p>After confirming your email, you will set up your secure Business AI workspace.</p>
+<div class="auth-field"><label for="signUpEmail">Email</label><input id="signUpEmail" type="email" autocomplete="email" required></div>
+<div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
+<div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+<button id="signUpSubmit" class="btn primary auth-submit" type="submit">Create account</button>
+<div id="signUpMessage" class="auth-message" role="alert"></div>
+<p class="auth-switch">Already have an account? <button id="showLogin" class="auth-link" type="button">Sign in</button></p>
+</form>
+</main>
+
+<main id="businessSetupScreen" class="auth-screen" aria-live="polite">
+<form id="businessSetupForm" class="auth-card">
+<div class="brand-icon">AI</div>
+<h2>Set up your business</h2>
+<p>Create your secure Business AI workspace. You can complete the detailed business profile next.</p>
+<div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
+<div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
+<div class="auth-field"><label for="newBusinessSlug">Public enquiry link</label><input id="newBusinessSlug" maxlength="63" pattern="[a-z0-9][a-z0-9-]{1,61}[a-z0-9]" placeholder="your-business" required><span style="color:var(--muted);font-size:11px">Lowercase letters, numbers and hyphens. Customers will use this link.</span></div>
+<button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
+<div id="businessSetupMessage" class="auth-message" role="alert"></div>
+</form>
+</main>
+
+<main id="configurationOnboardingScreen" class="auth-screen" aria-live="polite">
+<form id="configurationOnboardingForm" class="auth-card onboarding-card" novalidate>
+<div class="brand-icon">AI</div>
+<div class="onboarding-progress" aria-label="Setup progress"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="wizard-step" data-wizard-step="business"><h2>Tell us about your business</h2><p>These details help customers recognise your business and help the AI answer accurately.</p><div class="auth-field"><label for="o_business_name">Business name</label><input id="o_business_name" maxlength="120"></div><div class="auth-field"><label for="o_business_type">Industry or business type</label><input id="o_business_type" maxlength="120"></div><div class="auth-field"><label for="o_phone">Business phone</label><input id="o_phone" maxlength="120" inputmode="tel"></div><div class="auth-field"><label for="o_email">Business email</label><input id="o_email" maxlength="320" type="email"></div><div class="auth-field"><label for="o_website">Website <small>(optional)</small></label><input id="o_website" maxlength="2048" type="url" placeholder="https://example.co.uk"></div></div>
+<div class="wizard-step" data-wizard-step="location"><h2>Where do you work?</h2><p>Tell customers where your business is based and where you can help.</p><div class="auth-field"><label for="o_address">Primary business location</label><textarea id="o_address" maxlength="1000" rows="3"></textarea></div><div class="auth-field"><label for="o_service_areas">Service areas</label><textarea id="o_service_areas" maxlength="4000" rows="4" placeholder="Towns, postcodes or travel limits"></textarea></div><div class="auth-field"><label for="o_delivery_mode">How do you serve customers?</label><select id="o_delivery_mode"><option value="unspecified">Choose later</option><option value="premises">Customers visit our premises</option><option value="travel">We travel to customers</option><option value="both">Both</option></select></div></div>
+<div class="wizard-step" data-wizard-step="services"><h2>What do you offer?</h2><p>Use clear, factual wording. You can expand this later in Settings.</p><div class="auth-field"><label for="o_services">Services offered</label><textarea id="o_services" maxlength="4000" rows="7" placeholder="List the services your business provides"></textarea></div><div class="auth-field"><label for="o_description">Short business description</label><textarea id="o_description" maxlength="4000" rows="4" placeholder="What should customers know about your business?"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="hours"><h2>Opening hours</h2><p>Enter your usual Monday–Sunday hours. Use “Closed” for closed days. You can paste the same hours for multiple days.</p><div class="auth-field"><label for="o_hours">Opening hours</label><textarea id="o_hours" maxlength="4000" rows="9" placeholder="Monday 08:00–18:00&#10;Tuesday 08:00–18:00&#10;…&#10;Sunday Closed"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="ai"><h2>Set up your AI receptionist</h2><fieldset class="field"><legend>How would you like Business AI to handle your customers?</legend><label style="display:block;margin:12px 0"><input type="radio" name="o_ai_handling_mode" value="human_first" > <strong>Human-first — Personal service first</strong><br><span class="work-meta">AI answers basic questions and captures enquiries. Your team handles important conversations personally.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="o_ai_handling_mode" value="balanced" checked> <strong>Balanced — Recommended</strong><br><span class="work-meta">AI handles everyday enquiries but hands customers over when a personal response is more appropriate.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="o_ai_handling_mode" value="ai_first" > <strong>AI-first — Maximum automation</strong><br><span class="work-meta">AI handles as much as your business settings allow, while customers can still request a person at any time.</span></label></fieldset><p>Business AI’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="knowledge"><h2>Add useful knowledge</h2><p>Optional factual information the AI may use. You can add more FAQs later.</p><div class="auth-field"><label for="o_faq_question">Frequently asked question</label><input id="o_faq_question" maxlength="500" placeholder="For example: Do you cover my area?"></div><div class="auth-field"><label for="o_faq_answer">Answer</label><textarea id="o_faq_answer" maxlength="2000" rows="4" placeholder="A short factual answer"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="review"><h2>Review your setup</h2><p>Check the information your AI receptionist will use. You can edit everything later.</p><div id="onboardingReview" class="wizard-review"></div><p class="onboarding-hint">Completing setup does not grant a trial or subscription. Billing remains separate and secure.</p></div>
+<div id="configurationOnboardingMessage" class="auth-message" role="alert"></div><div class="wizard-actions"><button id="onboardingBack" class="btn" type="button">Back</button><button id="onboardingNext" class="btn primary" type="submit">Continue</button></div>
+</form>
+</main>
+
+<main id="publicEnquiryScreen" class="auth-screen" aria-live="polite">
+<section class="public-customer-shell">
+<header class="public-business-header">
+<div id="publicBusinessMark" class="public-business-mark" aria-hidden="true">B</div>
+<div>
+<p class="public-eyebrow">AI assistant for</p>
+<h1 id="publicBusinessName" class="public-business-name">Business enquiry</h1>
+<p id="publicBusinessType" class="public-business-type">Loading business details…</p>
+</div>
+</header>
+<section class="public-hero" aria-label="Customer enquiry introduction">
+<div class="public-hero-art" aria-hidden="true"></div>
+<div class="public-hero-content">
+<h2>How can we help?</h2>
+<p id="publicHeroDescription">Ask a question, request a quote or tell us what you need. Our AI assistant will collect the details for the business.</p>
+</div>
+</section>
+<div class="public-quick-actions" aria-label="Start an enquiry">
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I have a question.')"><span class="quick-icon" aria-hidden="true">?</span><span>Ask a question</span></button>
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I would like to request a quote.')"><span class="quick-icon" aria-hidden="true">£</span><span>Request a quote</span></button>
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I would like to speak to someone.')"><span class="quick-icon" aria-hidden="true">↗</span><span>Speak to someone</span></button>
+<button class="public-quick-action" type="button" onclick="startPublicEnquiry('I have a general enquiry.')"><span class="quick-icon" aria-hidden="true">⋯</span><span>General enquiry</span></button>
+</div>
+<div id="publicBusinessDetails" class="public-business-details" aria-label="Business information">
+<span id="publicBusinessServices" class="public-detail"></span><span id="publicBusinessAreas" class="public-detail"></span><span id="publicBusinessHours" class="public-detail"></span><span id="publicBusinessPhone" class="public-detail"></span>
+</div>
+<section class="public-chat-card" aria-label="Customer enquiry">
+<div class="public-chat-heading"><span class="public-assistant-dot" aria-hidden="true"></span><div><p id="publicBusinessIntro">Tell us what you need. This AI assistant will pass your enquiry to the business.</p></div></div>
+<div id="publicMessages" class="public-messages"></div>
+<div id="publicTyping" class="public-typing" role="status" aria-live="polite"><i aria-hidden="true"></i>Assistant is preparing a response…</div>
+<form id="publicEnquiryForm" class="public-chat-form">
+<input id="publicChatInput" maxlength="2000" placeholder="Type your message" autocomplete="off" enterkeyhint="send" required>
+<button type="submit" aria-label="Send message">↑</button>
+</form>
+<button class="small-btn" type="button" onclick="requestPublicHuman()">Speak to someone</button>
+<p class="public-link-privacy">Please do not send payment or card details in this chat. Details you submit are stored for this business to manage your enquiry; contact the business if you need access or deletion support.</p>
+<div id="publicEnquiryMessage" class="public-customer-error" role="alert"></div>
+</section>
+<footer class="public-customer-footer">This is an AI assistant for <strong id="publicFooterBusinessName">this business</strong>, not a person. <strong>Powered by Business AI</strong></footer>
+</section>
 </main>
 
 <div id="dashboardApp" class="app">
 
 <header class="topbar">
-
-<div class="brand">
-
-<div class="brand-icon">
-AI
-</div>
-
-<div class="brand-text">
-
-<h1 id="brandName">
-Business AI
-</h1>
-
-<p>
-AI front desk & lead management
-</p>
-
-</div>
-
-</div>
-
-<div
-class="status-dot"
-title="System online"
-></div>
-
-<button id="logoutButton" class="logout-btn" type="button">Log out</button>
+<div class="brand"><div class="brand-icon" aria-hidden="true">AI</div><div class="brand-text"><h1 id="brandName">Business AI</h1><p>Run your business. Smarter.</p></div></div>
+<div class="owner-tools"><span class="status-dot" title="System online"></span><span class="owner-avatar" aria-hidden="true">AI</span><button id="logoutButton" class="logout-btn" type="button">Log out</button></div>
 
 </header>
 
@@ -1002,23 +1144,19 @@ id="dashboardView"
 class="view active"
 >
 
-<div class="page-title">
-
-<h2>
-Dashboard
-</h2>
-
-<p>
-Your business at a glance.
-</p>
-
-</div>
+<div class="dashboard-hero"><div class="dashboard-welcome"><p class="eyebrow">Business AI</p><h2 id="dashboardGreeting">Welcome back.</h2><p>Here’s what’s happening today.</p></div><img class="dashboard-mascot" src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 
 
 <div
 class="stats"
 id="stats"
 ></div>
+
+<div class="dashboard-actions" aria-label="Quick access">
+<button class="dashboard-launch primary" type="button" onclick="showView('enquiries')"><i aria-hidden="true">◌</i><span><strong>Test your AI</strong><em>Try the receptionist as a customer.</em></span><b aria-hidden="true">›</b></button>
+<button class="dashboard-launch" type="button" onclick="showView('bookings')"><i aria-hidden="true">□</i><span><strong>Bookings</strong><em>Review requests and upcoming work.</em></span><b aria-hidden="true">›</b></button>
+<button class="dashboard-launch" type="button" onclick="showView('settings')"><i aria-hidden="true">⚙</i><span><strong>Business settings</strong><em>Manage your customer link and AI details.</em></span><b aria-hidden="true">›</b></button>
+</div>
 
 
 <div class="card">
@@ -1043,7 +1181,7 @@ id="pipeline"
 </div>
 
 
-<div class="card receptionist">
+<div class="card receptionist ai-feature-card">
 
 <div class="ai-status">
 
@@ -1053,12 +1191,12 @@ AI receptionist online
 
 </div>
 
-<h3>
-Capture your next customer
-</h3>
+<div class="ai-feature-icon" aria-hidden="true">✦</div>
+
+<h3>Let AI handle the enquiries</h3>
 
 <p>
-Your AI receptionist answers enquiries, qualifies genuine opportunities and saves useful leads automatically.
+Use the existing AI receptionist to capture customer details and save useful leads for your business.
 </p>
 
 <div class="actions">
@@ -1067,7 +1205,7 @@ Your AI receptionist answers enquiries, qualifies genuine opportunities and save
 class="btn primary"
 onclick="showView('enquiries')"
 >
-Test AI receptionist
+Open AI receptionist
 </button>
 
 <button
@@ -1081,14 +1219,18 @@ Business settings
 
 </div>
 
+<div class="card" id="firstRunGuide">
+<div class="card-head"><h3>Get your business ready</h3><span>First steps</span></div>
+<p class="work-meta">Complete these steps before sharing Business AI with customers. The AI only uses the information you save for this business.</p>
+<div id="firstRunSteps" class="first-run-list"></div>
+</div>
+
 
 <div class="card">
 
 <div class="card-head">
 
-<h3>
-Recent leads
-</h3>
+<h3>Recent leads</h3>
 
 <span
 onclick="showView('leads')"
@@ -1127,9 +1269,7 @@ Follow-ups
 
 <div class="card-head">
 
-<h3>
-Recent activity
-</h3>
+<h3>Recent activity</h3>
 
 <span>
 Live
@@ -1141,6 +1281,16 @@ Live
 
 </div>
 
+<div class="card">
+<div class="card-head"><h3>Upcoming bookings</h3><span onclick="showView('bookings')" style="cursor:pointer">Manage</span></div>
+<div id="upcomingBookings"><div class="empty">Bookings are loading when available.</div></div>
+</div>
+
+<div class="card">
+<div class="card-head"><h3>Actions to complete</h3><span onclick="showView('actions')" style="cursor:pointer">Manage</span></div>
+<div id="dashboardActions"><div class="empty">Actions are loading when available.</div></div>
+</div>
+
 </section>
 
 
@@ -1149,17 +1299,7 @@ id="leadsView"
 class="view"
 >
 
-<div class="page-title">
-
-<h2>
-Leads
-</h2>
-
-<p>
-Manage every opportunity from enquiry to conversion.
-</p>
-
-</div>
+<div class="page-title screen-title"><span class="page-kicker">Leads</span><h2>Leads</h2><p>Manage every opportunity from enquiry to conversion.</p></div>
 
 
 <div class="toolbar">
@@ -1262,23 +1402,52 @@ Follow-up date
 
 </section>
 
+<section id="bookingsView" class="view">
+<div class="page-title screen-title"><span class="page-kicker">Operations</span><h2>Bookings</h2><p>Organise appointment requests and confirmed visits.</p></div>
+<div id="bookingsStatus"></div>
+<button class="new-work-button" type="button" onclick="toggleWorkForm('bookings')">＋ New booking</button>
+<div id="bookingsFormCard" class="card work-form" hidden role="dialog" aria-modal="true" aria-label="Create booking">
+<div class="sheet-handle" aria-hidden="true"></div><div class="card-head"><div><h3>Create booking</h3><span>Requests are not confirmations until you set them.</span></div><button class="sheet-close" type="button" onclick="toggleWorkForm('bookings')" aria-label="Close create booking">×</button></div>
+<div class="edit-grid">
+<div class="field full"><label>Job or service</label><input id="bookingTitle" maxlength="200" placeholder="e.g. Boiler repair"></div>
+<div class="field"><label>Related lead</label><select id="bookingLead"><option value="">No related lead</option></select></div>
+<div class="field"><label>Status</label><select id="bookingStatus"><option value="requested">Requested</option><option value="confirmed">Confirmed</option></select></div>
+<div class="field"><label>Start date and time</label><input id="bookingStart" type="datetime-local"></div>
+<div class="field"><label>End date and time</label><input id="bookingEnd" type="datetime-local"></div>
+<div class="field full"><label>Location</label><input id="bookingLocation" maxlength="500" placeholder="Customer address or area"></div>
+<div class="field full"><label>Notes</label><textarea id="bookingNotes" maxlength="5000" placeholder="Access details, requested time, or anything the team needs"></textarea></div>
+</div>
+<button class="save-btn" onclick="createBooking()">Create booking</button>
+</div>
+<div id="bookingsList" class="work-list"></div>
+</section>
+
+<section id="actionsView" class="view">
+<div class="page-title screen-title"><span class="page-kicker">Actions</span><h2>Actions</h2><p>Keep every customer follow-up moving.</p></div>
+<div id="actionsStatus"></div>
+<button class="new-work-button" type="button" onclick="toggleWorkForm('actions')">＋ New action</button>
+<div id="actionsFormCard" class="card work-form" hidden role="dialog" aria-modal="true" aria-label="Create action">
+<div class="sheet-handle" aria-hidden="true"></div><div class="card-head"><div><h3>Create action</h3><span>Assigned to this business only.</span></div><button class="sheet-close" type="button" onclick="toggleWorkForm('actions')" aria-label="Close create action">×</button></div>
+<div class="edit-grid">
+<div class="field full"><label>Action</label><input id="actionTitle" maxlength="200" placeholder="e.g. Call customer about quote"></div>
+<div class="field"><label>Type</label><select id="actionType"><option value="call_customer">Call customer</option><option value="send_quote">Send quote</option><option value="follow_up">Follow up</option><option value="confirm_appointment">Confirm appointment</option><option value="review_enquiry">Review enquiry</option><option value="custom">Custom task</option></select></div>
+<div class="field"><label>Related lead</label><select id="actionLead"><option value="">No related lead</option></select></div>
+<div class="field"><label>Due date and time</label><input id="actionDue" type="datetime-local"></div>
+<div class="field"><label>Priority</label><select id="actionPriority"><option value="normal">Normal</option><option value="low">Low</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+<div class="field full"><label>Notes</label><textarea id="actionDescription" maxlength="5000" placeholder="Useful context for the person completing this action"></textarea></div>
+</div>
+<button class="save-btn" onclick="createAction()">Create action</button>
+</div>
+<div id="actionsList" class="work-list"></div>
+</section>
+
 
 <section
 id="enquiriesView"
 class="view"
 >
 
-<div class="page-title">
-
-<h2>
-AI Receptionist
-</h2>
-
-<p>
-Test the customer enquiry experience.
-</p>
-
-</div>
+<div class="page-title screen-title ai-screen-title"><span class="page-kicker">AI receptionist</span><h2>AI Receptionist</h2><p>Test the customer enquiry experience.</p></div>
 
 
 <div class="card chat">
@@ -1302,7 +1471,7 @@ onsubmit="sendEnquiry(event)"
 
 <input
 id="chatInput"
-placeholder="e.g. I need an electrician for a faulty socket…"
+placeholder="Describe what you need help with…"
 >
 
 <button>
@@ -1316,26 +1485,70 @@ placeholder="e.g. I need an electrician for a faulty socket…"
 </section>
 
 
+<section id="voiceView" class="view">
+<div class="page-title"><h2>Voice receptionist</h2><p>Prepare for future calls without enabling a phone service.</p></div>
+<div class="card"><div class="card-head"><h3>Voice status</h3><span id="voiceStatusBadge">Checking…</span></div><div id="voiceStatusMessage" class="work-meta">Voice is disabled until a provider, number, webhook verification and explicit environment approval are configured.</div><div class="settings-grid" style="margin-top:14px"><div class="field"><label>Greeting source</label><div class="work-meta">Your business name, services, hours, FAQs, AI instructions and handover instructions from Settings are used for future voice context.</div></div><div class="field"><label>Safety</label><div class="work-meta">Emergency/high-risk calls must be escalated. Calls can create booking requests only, never confirmed appointments.</div></div></div></div>
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Call history</h3><span>Development only</span></div><div id="voiceCallsList" class="empty">No simulated or live calls are available. Live phone answering is not active.</div></div>
+</section>
+
+<section id="addonsView" class="view marketing-workspace">
+<div class="screen-title"><h2>Additional Features</h2><p>More possibilities for your business. Add features when you need them.</p></div>
+<div class="work-actions"><button class="small-btn" type="button" onclick="showView('settings')">Back to Settings</button></div>
+<p id="addonStatus" class="marketing-message" role="status"></p><div id="addonCards" class="addon-grid"></div>
+</section>
+<section id="marketingView" class="view marketing-workspace">
+<div class="screen-title"><h2>Marketing</h2><p>Create, review and manage business-aware content. Nothing is published without approval.</p></div>
+<div class="work-actions"><button class="small-btn" type="button" onclick="showView('addons')">Additional Features</button><button class="small-btn" type="button" onclick="showView('settings')">Back to Settings</button></div>
+<p id="marketingMessage" class="marketing-message" role="status" aria-live="polite"></p>
+<div id="marketingLocked" class="card" hidden><span class="addon-badge">AI Marketing · Locked</span><h3>Turn your business knowledge into reviewed content</h3><p class="work-meta">Create social posts, captions, offers and announcements using approved business information. Core Business AI works without this add-on.</p><button class="small-btn primary-action" type="button" onclick="showView('addons')">View Additional Features</button></div>
+<div id="marketingCreator" hidden>
+<div class="marketing-tabs"><strong>Create</strong><span>History</span><span>Connections</span></div>
+<form id="marketingForm" class="card marketing-form">
+<div class="settings-grid">
+<div class="field"><label for="marketingType">Content type</label><select id="marketingType" name="content_type"><option value="social_post">Social media post</option><option value="caption">Caption</option><option value="promotional_post">Promotional post</option><option value="announcement">Product/service announcement</option><option value="offer">Offer / sale</option><option value="event">Event announcement</option><option value="update">General business update</option></select></div>
+<div class="field"><label for="marketingPlatform">Platform</label><select id="marketingPlatform" name="platform"><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="linkedin">LinkedIn</option><option value="general">General</option></select></div>
+<div class="field"><label for="marketingTone">Tone</label><select id="marketingTone" name="tone"><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="casual">Casual</option><option value="promotional">Promotional</option></select></div>
+</div>
+<div class="field"><label for="marketingPrompt">What do you want to promote or talk about?</label><textarea id="marketingPrompt" name="prompt" maxlength="2000" required placeholder="Tell us your idea. Include any exact offer, price or event date you want used in this draft."></textarea></div>
+<div class="field"><label for="marketingExtra">Extra instructions (optional)</label><textarea id="marketingExtra" name="extra_instructions" maxlength="1000" placeholder="Anything else to include or avoid?"></textarea></div>
+<p class="work-meta">Uses your business profile and approved Business Knowledge. Details entered here apply only to this generation and never update trusted knowledge.</p>
+<button id="marketingGenerate" class="small-btn primary-action" type="submit">Generate draft</button>
+</form>
+<div id="marketingEmpty" class="card work-meta">Your draft will appear here. Every draft stays private until you review it.</div>
+<article id="marketingResult" class="card" tabindex="-1" hidden>
+<div class="card-head"><div><span id="marketingApprovalBadge" class="addon-badge">Draft · Review required</span><h3 style="margin:10px 0 0">Review draft</h3></div><span id="marketingDraftDate" class="work-meta"></span></div>
+<div class="field"><label for="marketing_main_copy">Main post / caption</label><textarea id="marketing_main_copy" class="marketing-copy marketing-editable" maxlength="5000"></textarea></div>
+<div class="field"><label for="marketing_short_alternative">Shorter alternative</label><textarea id="marketing_short_alternative" class="marketing-copy marketing-editable" maxlength="1200"></textarea></div>
+<div class="field"><label for="marketing_call_to_action">Suggested call-to-action</label><textarea id="marketing_call_to_action" class="marketing-copy marketing-editable" maxlength="500"></textarea></div>
+<div class="field"><label for="marketing_hashtags">Hashtags</label><input id="marketing_hashtags" maxlength="3600" placeholder="#Business #Local"></div>
+<p id="marketing_missing" class="marketing-message"></p>
+<div class="work-actions"><button id="marketingSaveDraft" class="small-btn" type="button">Save edits</button><button id="marketingApprove" class="small-btn primary-action" type="button">Approve for publishing</button><button id="marketingCopy" class="small-btn" type="button">Copy</button><button id="marketingRegenerate" class="small-btn" type="button">Regenerate</button><button id="marketingEdit" class="small-btn" type="button">Edit input</button><button id="marketingDelete" class="small-btn" type="button">Delete</button></div>
+<div id="marketingPublishControls" class="marketing-publish-panel" hidden><h4>Publish approved content</h4><p class="work-meta">Facebook publishing uses the Page selected below. Instagram is connected for future media posts; Business AI will not pretend a text-only Instagram post can be published.</p><div class="settings-grid"><div class="field"><label for="marketingPublishPlatform">Channel</label><select id="marketingPublishPlatform"><option value="facebook">Facebook Page</option><option value="instagram">Instagram professional account</option></select></div><div class="field"><label for="marketingScheduleAt">Schedule time (optional)</label><input id="marketingScheduleAt" type="datetime-local"></div></div><div class="work-actions"><button id="marketingPublishNow" class="small-btn primary-action" type="button">Publish now</button><button id="marketingSchedule" class="small-btn" type="button">Schedule</button></div></div>
+</article>
+
+<div class="marketing-grid">
+<section class="card"><div class="card-head"><h3>Draft library</h3><button id="marketingRefreshHistory" class="small-btn" type="button">Refresh</button></div><p class="work-meta">Reopen previous drafts, edit them, regenerate from the same idea or approve them when ready.</p><div id="marketingHistory" class="work-list"><div class="empty">No saved drafts yet.</div></div></section>
+<section class="card"><div class="card-head"><h3>Facebook &amp; Instagram</h3><span id="metaConnectionBadge">Not connected</span></div><p class="work-meta">Connect a Meta account, then select the Facebook Page Business AI may publish to. Access tokens stay server-side and encrypted.</p><div id="metaConnectionStatus" class="work-meta"></div><div id="metaAccounts" class="work-list"></div><div class="work-actions"><button id="metaConnect" class="small-btn primary-action" type="button">Connect Facebook</button><button id="metaDisconnect" class="small-btn" type="button" hidden>Disconnect</button></div></section>
+</div>
+<section class="card" style="margin-top:14px"><div class="card-head"><h3>Publishing activity</h3><button id="marketingRefreshPublications" class="small-btn" type="button">Refresh</button></div><p class="work-meta">Scheduled jobs run server-side. Failed posts never silently claim they were published.</p><div id="marketingPublications" class="work-list"><div class="empty">No publishing activity yet.</div></div></section>
+</div></section>
+
 <section
 id="settingsView"
 class="view"
 >
 
-<div class="page-title">
+<div class="page-title screen-title"><span class="page-kicker">Your workspace</span><h2>Settings</h2><p>Manage your business, AI and account.</p></div>
 
-<h2>
-Business Settings
-</h2>
-
-<p>
-Control what your AI receptionist knows about the business.
-</p>
-
-</div>
+<div class="work-actions" style="margin-bottom:18px"><button class="small-btn" type="button" onclick="showView('addons')">✦ Additional Features</button><button class="small-btn" type="button" onclick="showView('marketing')">Marketing workspace</button></div>
+<div class="settings-hub" aria-label="Settings overview"><div><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span></div><div><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span></div><div><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span></div></div>
 
 
 <div id="settingsStatus"></div>
 
+<div class="settings-section-label">Business</div>
+
+<div id="billingCard" class="card" data-owner-only hidden><div class="card-head"><h3>Billing &amp; subscription</h3><span id="billingPlanBadge">Checking…</span></div><div id="billingSummary" class="work-meta">Your plan and AI enquiry allowance are shown here.</div><div id="billingPlans" class="billing-plans" aria-live="polite"></div><h4>Additional features</h4><p class="work-meta">Optional add-ons for Starter, Pro and Business. Your base plan and Trial stay separate.</p><div id="addonPlanOptions" class="addon-plan-options"></div><div class="work-actions"><button id="manageBillingButton" class="small-btn" type="button" hidden onclick="manageBilling()">Manage billing</button><button id="cancelBillingButton" class="small-btn" type="button" hidden onclick="cancelBilling()">Cancel at period end</button></div></div>
 
 <div class="card">
 
@@ -1349,6 +1562,12 @@ Business details
 Used by your AI receptionist
 </span>
 
+</div>
+
+<div class="field full" style="margin-bottom:16px">
+<label for="publicEnquiryLink">Customer enquiry link</label>
+<div class="public-link-row"><input id="publicEnquiryLink" readonly aria-describedby="publicEnquiryLinkHelp"><button class="small-btn primary-action" type="button" onclick="copyPublicEnquiryLink()">Copy link</button></div>
+<div id="publicEnquiryLinkHelp" class="work-meta">A public link for customers. It does not reveal your internal business ID.</div>
 </div>
 
 
@@ -1482,12 +1701,111 @@ type="checkbox"
 
 <button
 class="save-btn"
+data-admin-only
 onclick="saveSettings()"
 >
 Save business settings
 </button>
 
 </div>
+
+<div class="card" style="margin-top:14px">
+
+<div class="card-head">
+
+<h3>Business profile & onboarding</h3>
+
+<span>Securely scoped to this business</span>
+
+</div>
+
+<p style="color:var(--muted);font-size:12px;line-height:1.5;margin:0 0 12px">Choose a starting template, then tailor the information your AI receptionist can use. Templates provide suggestions only; they do not change your security or booking permissions.</p>
+
+<div id="configurationStatus"></div><h3>AI Receptionist</h3><fieldset class="field"><legend>How should your AI handle customers?</legend><label style="display:block;margin:12px 0"><input type="radio" name="c_ai_handling_mode" value="human_first" > <strong>Human-first — Personal service first</strong><br><span class="work-meta">AI answers basic questions and captures enquiries. Your team handles important conversations personally.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="c_ai_handling_mode" value="balanced" checked> <strong>Balanced — Recommended</strong><br><span class="work-meta">AI handles everyday enquiries but hands customers over when a personal response is more appropriate.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="c_ai_handling_mode" value="ai_first" > <strong>AI-first — Maximum automation</strong><br><span class="work-meta">AI handles as much as your business settings allow, while customers can still request a person at any time.</span></label></fieldset>
+
+<div class="settings-grid">
+
+<div class="field">
+<label>Industry template</label>
+<select id="c_industry_template_id" onchange="applySelectedIndustryTemplate()"></select>
+</div>
+
+<div class="field">
+<label>Website</label>
+<input id="c_website" type="url" maxlength="2048" placeholder="https://example.co.uk">
+</div>
+
+<div class="field full">
+<label>Business description</label>
+<textarea id="c_description" maxlength="4000" placeholder="What does the business do and what makes it useful to customers?"></textarea>
+</div>
+
+<div class="field full">
+<label>Service areas</label>
+<textarea id="c_service_areas" maxlength="4000" placeholder="Areas, postcodes, locations or travel limits served by the business"></textarea>
+</div>
+
+<div class="field full">
+<label>Customer enquiry instructions</label>
+<textarea id="c_customer_enquiry_instructions" maxlength="6000" placeholder="What should the AI collect or explain during an enquiry? It cannot override safety rules or make promises."></textarea>
+</div>
+
+<div class="field full">
+<label>Human handover information</label>
+<textarea id="c_handover_instructions" maxlength="4000" placeholder="When should the AI hand over, and what is the safest way to reach a person?"></textarea>
+</div>
+
+<div class="field full">
+<label>Booking preferences</label>
+<div class="work-meta">Bookings remain requests until the business confirms them. Voice is unavailable until a provider is deliberately configured.</div>
+</div>
+
+<div class="field"><label>Minimum notice (hours)</label><input id="c_minimum_notice_hours" type="number" min="0" max="8760" value="0"></div>
+<div class="field"><label>Time zone</label><input id="c_timezone" maxlength="64" value="Europe/London"></div>
+
+</div>
+
+<div class="checkbox-row"><label><strong>Allow customer booking requests</strong><br><span style="color:var(--muted);font-size:10px">Requests still need business confirmation.</span></label><input id="c_allow_customer_requests" class="switch" type="checkbox" checked></div>
+
+<div class="checkbox-row"><label><strong>Onboarding complete</strong><br><span style="color:var(--muted);font-size:10px">You can continue editing this information later.</span></label><input id="c_complete_onboarding" class="switch" type="checkbox"></div>
+
+<div class="card-head" style="margin-top:18px"><h3>Frequently asked questions</h3><span>Optional basic knowledge</span></div>
+<div class="settings-grid"><div class="field full"><label>Question</label><input id="faqQuestion" maxlength="500" placeholder="e.g. Do you cover my area?"></div><div class="field full"><label>Answer</label><textarea id="faqAnswer" maxlength="2000" placeholder="A short, factual answer the receptionist may use."></textarea></div></div>
+<button class="small-btn" type="button" onclick="addFaq()">Add FAQ</button>
+<div id="faqList" class="work-list" style="margin-top:10px"></div>
+
+<button class="save-btn" data-admin-only onclick="saveBusinessConfiguration()">Save business profile</button>
+
+</div>
+
+<div class="card" style="margin-top:14px" id="businessKnowledgeCard">
+<div class="card-head"><h3>Business knowledge</h3><span>Files reviewed by you</span></div>
+<p class="work-meta">Upload menus, price lists, service documents and other factual business files. Business AI extracts reviewable facts first; nothing from a file is used by the receptionist or Marketing until an owner/admin approves it.</p>
+<div id="knowledgeStatus" class="work-meta" role="status" aria-live="polite"></div>
+<div class="work-actions" style="margin-top:12px" data-admin-only><input id="knowledgeFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.csv,application/pdf,image/jpeg,image/png,image/webp,text/plain,text/csv" hidden><button class="small-btn primary-action" type="button" onclick="chooseKnowledgeFile()">+ Upload knowledge</button></div>
+<p class="work-meta">Pilot limits: up to 10 current files, 10 MB per file and 100 MB total. Supported: PDF, JPG, PNG, WebP, TXT and CSV.</p>
+<div id="knowledgeList" class="work-list" style="margin-top:12px"><div class="empty">Loading business knowledge…</div></div>
+<div id="knowledgeReview" style="margin-top:14px" hidden></div>
+</div>
+
+<div class="settings-section-label">Operations</div>
+
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Human handovers</h3><span>Requires attention</span></div><p class="work-meta">Emergency, complaint and human-request enquiries are recorded as urgent follow-up actions. A handover means the system has flagged it; it does not mean someone has been contacted.</p><div id="handoverStatus"></div><div id="handoverList" class="work-list"><div class="empty">Loading handovers…</div></div></div>
+
+<div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Team access</h3><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
+
+<div class="settings-section-label" data-owner-only>Privacy &amp; security</div>
+
+<div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Privacy & retention</h3><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation controls are available through the protected lead-data API and must be used deliberately for individual records.</p></div>
+
+<div class="settings-section-label">Pilot feedback</div>
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Report something</h3><span>Helps improve the Pilot</span></div><p class="work-meta">Report a bug, confusing behaviour, an inaccurate AI response or a missing feature. Business AI adds only the current app page and version automatically — it does not attach customer conversations.</p><form id="pilotFeedbackForm" class="marketing-form"><div class="settings-grid"><div class="field"><label for="pilotFeedbackCategory">Category</label><select id="pilotFeedbackCategory"><option value="bug">Bug</option><option value="confusing">Confusing behaviour</option><option value="ai_accuracy">Inaccurate AI response</option><option value="missing_feature">Missing feature</option><option value="suggestion">Suggestion</option></select></div></div><div class="field"><label for="pilotFeedbackMessage">What happened?</label><textarea id="pilotFeedbackMessage" maxlength="3000" required placeholder="Describe what you expected and what happened instead."></textarea></div><button id="pilotFeedbackSubmit" class="small-btn primary-action" type="submit">Send feedback</button><div id="pilotFeedbackStatus" class="work-meta" role="status"></div></form></div>
+
+<div class="settings-section-label">Support</div>
+
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention — it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Business AI does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls remain Coming Soon. Marketing publishing is available only after the owner connects an eligible account and explicitly approves a draft; billing availability is shown in the Billing section. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
+
+<div id="installAppCard" class="card install-app-card" hidden><div class="install-app-row"><div class="install-app-symbol" aria-hidden="true">↓</div><div class="install-app-copy"><h3>Install Business AI</h3><div class="work-meta">Add Business AI to your Home Screen for quick access.</div></div></div><div class="install-app-actions"><button id="installAppButton" class="small-btn primary-action" type="button" hidden>Install app</button></div><ol id="installAppIosInstructions" class="install-ios-steps" hidden><li>Tap Share in Safari.</li><li>Choose <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>.</li></ol></div>
 
 </section>
 
@@ -1496,44 +1814,12 @@ Save business settings
 
 <nav class="bottom-nav">
 
-<button
-class="nav-btn active"
-data-view="dashboard"
-onclick="showView('dashboard')"
->
-⌂<br>
-Dashboard
-</button>
+<button class="nav-btn active" data-view="dashboard" onclick="showView('dashboard')">⌂<br>Home</button>
 
 
-<button
-class="nav-btn"
-data-view="leads"
-onclick="showView('leads')"
->
-◉<br>
-Leads
-</button>
-
-
-<button
-class="nav-btn"
-data-view="enquiries"
-onclick="showView('enquiries')"
->
-✦<br>
-AI
-</button>
-
-
-<button
-class="nav-btn"
-data-view="settings"
-onclick="showView('settings')"
->
-⚙<br>
-Settings
-</button>
+<button class="nav-btn" data-view="leads" onclick="showView('leads')">◉<br>Leads</button>
+<button class="nav-btn" data-view="actions" onclick="showView('actions')">✓<br>Actions</button>
+<button class="nav-btn" data-view="settings" onclick="showView('settings')">⚙<br>Settings</button>
 
 </nav>
 
@@ -1542,6 +1828,10 @@ Settings
 <script>
 
 let leads=[];
+let bookings=[];
+let businessActions=[];
+let businessConfiguration=null;
+let configurationTemplates=[];
 
 let currentFilter='All';
 
@@ -1550,24 +1840,136 @@ let settings=null;
 let pipeline=null;
 let supabaseClient=null;
 let frontendAuthEnabled=false;
+let authenticatedPublicBusinessSlug=null;
+let authenticatedBusinessRole=null;
+let publicEnquirySlug=null;
+let handovers=[];let teamState=null;let lifecyclePolicy=null;
+let billingState=null;
+let knowledgeSources=[];let knowledgeCanManage=false;let knowledgeReviewSource=null;let knowledgeReplaceSourceId=null;
+let authenticationMode='login';
 
 
 const $=id=>document.getElementById(id);
 
 const clearPrivateState=()=>{
-leads=[];settings=null;pipeline=null;
-['stats','leadList','recentLeads','followUps','activity','pipeline'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+window.marketingWorkspace?.reset();
+if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;enquiryMessages=[];
+['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+updateInstallAppCard?.();
+};
+
+const applyBusinessRole=()=>{
+const isOwner=authenticatedBusinessRole==='owner';
+const canManageSettings=isOwner||authenticatedBusinessRole==='admin';
+document.querySelectorAll('[data-owner-only]').forEach(node=>{node.hidden=!isOwner;});
+document.querySelectorAll('[data-admin-only]').forEach(node=>{node.hidden=!canManageSettings;});
+};
+
+const applyBusinessContext=onboarding=>{
+const publicSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
+const role=['owner','admin','member'].includes(onboarding?.role)?onboarding.role:null;
+if(!publicSlug||!role)throw new Error('Business access is unavailable');
+authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();
+updateInstallAppCard();
+loadEnquiryConversation();renderEnquiryConversation();
 };
 
 const setAuthView=(state,message='')=>{
-document.body.classList.remove('auth-pending','auth-required','auth-ready');
+document.body.classList.remove('auth-pending','auth-required','onboarding-required','configuration-onboarding-required','auth-ready');
 document.body.classList.add(state);
 $('loginMessage').textContent=message;
 };
 
-const handleSession=(session)=>{
+const setAuthenticationMode=(mode,message='')=>{
+authenticationMode=['signup','reset-request','recovery'].includes(mode)?mode:'login';
+$('loginForm').classList.toggle('auth-form-hidden',authenticationMode!=='login');
+$('signUpForm').classList.toggle('auth-form-hidden',authenticationMode!=='signup');
+$('passwordResetRequestForm').classList.toggle('auth-form-hidden',authenticationMode!=='reset-request');
+$('passwordRecoveryForm').classList.toggle('auth-form-hidden',authenticationMode!=='recovery');
+if(message){
+const target=authenticationMode==='signup'?$('signUpMessage'):authenticationMode==='reset-request'?$('passwordResetRequestMessage'):authenticationMode==='recovery'?$('passwordRecoveryMessage'):$('loginMessage');
+target.textContent=message;
+target.classList.add('info');
+}
+};
+
+let onboardingWizardData=null;
+let onboardingWizardIndex=0;
+const onboardingWizardSteps=['business','location','services','hours','ai','knowledge','review'];
+const wizardValue=id=>String($(id)?.value||'').trim();
+function renderOnboardingWizard(){const step=onboardingWizardSteps[onboardingWizardIndex];document.querySelectorAll('[data-wizard-step]').forEach(node=>node.classList.toggle('active',node.dataset.wizardStep===step));document.querySelectorAll('.onboarding-progress i').forEach((node,index)=>node.classList.toggle('active',index<=onboardingWizardIndex));$('onboardingBack').hidden=onboardingWizardIndex===0;$('onboardingNext').textContent=step==='review'?'Finish setup':'Continue';if(step==='review')renderOnboardingReview();}
+function fillOnboardingWizard(data){const config=data?.configuration||{},business=data?.settings||{};const fields={o_business_name:business.business_name,o_business_type:business.business_type,o_phone:business.phone,o_email:business.email,o_address:business.address,o_services:business.services,o_hours:business.opening_hours,o_ai_instructions:business.ai_instructions,o_website:config.website,o_service_areas:config.service_areas,o_description:config.description,o_handover_instructions:config.handover_instructions};Object.entries(fields).forEach(([id,value])=>{if($(id))$(id).value=value||'';});setHandlingMode('o',config.ai_handling_mode);$('o_delivery_mode').value=config.service_delivery_mode||'unspecified';const faq=Array.isArray(config.faqs)?config.faqs[0]:null;if(faq){$('o_faq_question').value=faq.question||'';$('o_faq_answer').value=faq.answer||'';}const savedStep=data?.onboarding?.state;onboardingWizardIndex=Math.max(0,onboardingWizardSteps.indexOf(savedStep));if(savedStep==='completed')onboardingWizardIndex=0;renderOnboardingWizard();}
+function renderOnboardingReview(){const items=[['Business',`${wizardValue('o_business_name')} · ${wizardValue('o_business_type')}`],['Location',`${wizardValue('o_address')}\n${wizardValue('o_service_areas')}`],['Services',wizardValue('o_services')],['Opening hours',wizardValue('o_hours')],['AI receptionist',`${selectedHandlingMode('o').replaceAll('_',' ')}\n${wizardValue('o_ai_instructions')}`],['Knowledge',wizardValue('o_faq_question')?`${wizardValue('o_faq_question')}\n${wizardValue('o_faq_answer')}\nYou can upload menus, price lists and other files after setup in Business Knowledge.`:'No FAQ added yet. You can upload menus, price lists and other files after setup in Business Knowledge.']];$('onboardingReview').innerHTML=items.map(([title,value])=>`<article><strong>${esc(title)}</strong><span>${esc(value||'Not supplied')}</span></article>`).join('');}
+async function saveOnboardingProgress(complete=false){const current=onboardingWizardSteps[onboardingWizardIndex],next=onboardingWizardSteps[Math.min(onboardingWizardIndex+1,onboardingWizardSteps.length-1)];if(current==='business'&&(!wizardValue('o_business_name')||!wizardValue('o_business_type')))throw new Error('Add your business name and type to continue.');if(current==='services'&&!wizardValue('o_services'))throw new Error('Add at least one service to continue.');if(current==='hours'&&!wizardValue('o_hours'))throw new Error('Add your opening hours to continue.');const settingsBody={business_name:wizardValue('o_business_name'),business_type:wizardValue('o_business_type'),phone:wizardValue('o_phone'),email:wizardValue('o_email'),address:wizardValue('o_address'),services:wizardValue('o_services'),opening_hours:wizardValue('o_hours'),ai_instructions:wizardValue('o_ai_instructions'),urgent_jobs_enabled:Boolean(onboardingWizardData?.settings?.urgent_jobs_enabled)};const existingFaqs=Array.isArray(onboardingWizardData?.configuration?.faqs)?onboardingWizardData.configuration.faqs:[];const question=wizardValue('o_faq_question'),answer=wizardValue('o_faq_answer'),faqs=question&&answer?[{question,answer},...existingFaqs.slice(1)]:existingFaqs;const configBody={ai_handling_mode:selectedHandlingMode('o'),industry_template_id:onboardingWizardData?.configuration?.industry_template_id||'general',website:wizardValue('o_website'),service_areas:wizardValue('o_service_areas'),service_delivery_mode:$('o_delivery_mode').value,description:wizardValue('o_description'),customer_enquiry_instructions:onboardingWizardData?.configuration?.customer_enquiry_instructions||'',handover_instructions:wizardValue('o_handover_instructions'),faqs,booking_preferences:onboardingWizardData?.configuration?.booking_preferences||{},enabled_modules:{enquiries:true,bookings:true,actions:true,voice:false},onboarding_step:complete?'completed':next,complete_onboarding:complete};const [savedSettings,savedConfiguration]=await Promise.all([api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(settingsBody)}),api('/api/business-configuration',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(configBody)})]);onboardingWizardData={settings:savedSettings,configuration:savedConfiguration?.configuration||onboardingWizardData.configuration,onboarding:savedConfiguration?.onboarding||{state:complete?'completed':next}};}
+async function beginConfigurationOnboarding(){const [configData,settingsData]=await Promise.all([api('/api/business-configuration'),api('/api/settings')]);onboardingWizardData={...configData,settings:settingsData||{}};fillOnboardingWizard(onboardingWizardData);setAuthView('configuration-onboarding-required');}
+let pwaRegistrationStarted=false;
+let deferredInstallPrompt=null;
+const isStandaloneOwnerApp=()=>window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true;
+const isIosBrowser=()=>/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+const updateInstallAppCard=()=>{
+const card=$('installAppCard');const button=$('installAppButton');const iosSteps=$('installAppIosInstructions');
+if(!card||!button||!iosSteps)return;
+const show=frontendAuthEnabled&&Boolean(authenticatedBusinessRole)&&!isStandaloneOwnerApp();
+card.hidden=!show;
+button.hidden=!show||!deferredInstallPrompt;
+iosSteps.hidden=!show||!isIosBrowser();
+};
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;updateInstallAppCard();});
+window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;updateInstallAppCard();});
+window.addEventListener('pageshow',updateInstallAppCard);
+const registerOwnerPwa=()=>{
+if(pwaRegistrationStarted||!('serviceWorker' in navigator))return;
+pwaRegistrationStarted=true;
+navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{pwaRegistrationStarted=false;});
+};
+$('installAppButton')?.addEventListener('click',async()=>{
+if(!deferredInstallPrompt)return;
+const prompt=deferredInstallPrompt;deferredInstallPrompt=null;updateInstallAppCard();
+try{await prompt.prompt();await prompt.userChoice;}catch{}finally{updateInstallAppCard();}
+});
+
+const publicSlugFromLocation=()=>{
+const slug=new URLSearchParams(window.location.search).get('business');
+return /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(slug||'').toLowerCase())?String(slug).toLowerCase():null;
+};
+const invitationIdFromLocation=()=>{const value=new URLSearchParams(window.location.search).get('invite');return /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(value||''))?String(value):null;};
+
+const publicEnquiryUrl=slug=>{
+if(!slug)return '';
+const url=new URL('/',window.location.origin);url.searchParams.set('business',slug);return url.toString();
+};
+
+function fillPublicEnquiryLink(){
+const input=$('publicEnquiryLink');const help=$('publicEnquiryLinkHelp');if(!input||!help)return;
+const link=publicEnquiryUrl(authenticatedPublicBusinessSlug);input.value=link;
+help.textContent=link?'Share this customer-facing link. It uses your public route, not an internal business ID.':'Your customer enquiry link is unavailable.';
+}
+
+async function copyPublicEnquiryLink(){
+const input=$('publicEnquiryLink');const link=input?.value||'';
+if(!link){toast('Customer enquiry link is unavailable');return;}
+try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);else{input.select();document.execCommand('copy');}toast('Customer enquiry link copied');}catch{input.select();toast('Copy the customer enquiry link from the field');}
+}
+
+const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
-if(session){setAuthView('auth-ready');loadAll().catch(()=>{});return;}
+if(session){
+setAuthView('auth-pending');
+try{
+const invitationId=invitationIdFromLocation();
+if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
+const onboarding=await api('/api/business-onboarding');
+if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
+applyBusinessContext(onboarding);
+const setup=await api('/api/business-configuration');
+if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();return;}
+setAuthView('auth-ready');registerOwnerPwa();loadAll().catch(()=>{});return;
+}catch(error){
+if(error.message==='Your session has expired.')return;
+clearPrivateState();setAuthView('auth-required','Your business access is unavailable.');return;
+}
+}
 clearPrivateState();setAuthView('auth-required');
 };
 
@@ -1582,8 +1984,15 @@ if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)
 frontendAuthEnabled=true;
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
 const {data:{session}}=await supabaseClient.auth.getSession();
-supabaseClient.auth.onAuthStateChange((_event,nextSession)=>handleSession(nextSession));
-handleSession(session);
+// Supabase holds an internal auth lock while notifying listeners. Do not call
+// asynchronous Supabase methods (via handleSession -> api -> getSession) from
+// that callback; defer the work until the callback has returned.
+supabaseClient.auth.onAuthStateChange((event,nextSession)=>{
+if(event==='INITIAL_SESSION')return;
+if(event==='PASSWORD_RECOVERY'){setAuthView('auth-required');setAuthenticationMode('recovery');return;}
+window.setTimeout(()=>{handleSession(nextSession).catch(()=>{});},0);
+});
+await handleSession(session);
 return true;
 }catch(error){frontendAuthEnabled=true;setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
 }
@@ -1598,9 +2007,148 @@ if(error)throw error;
 }catch{ $('loginMessage').textContent='Unable to sign in with those details.'; }finally{button.disabled=false;}
 });
 
+$('showSignUp').addEventListener('click',()=>{
+$('loginMessage').textContent='';$('loginMessage').classList.remove('info');
+setAuthenticationMode('signup');
+});
+$('showLogin').addEventListener('click',()=>{
+$('signUpMessage').textContent='';$('signUpMessage').classList.remove('info');
+setAuthenticationMode('login');
+});
+document.querySelectorAll('.show-login-link').forEach(button=>button.addEventListener('click',()=>setAuthenticationMode('login')));
+$('showPasswordReset').addEventListener('click',()=>setAuthenticationMode('reset-request'));
+
+$('passwordResetRequestForm').addEventListener('submit',async event=>{
+event.preventDefault();if(!supabaseClient)return;
+const button=$('passwordResetRequestSubmit');const message=$('passwordResetRequestMessage');button.disabled=true;message.classList.remove('info');message.textContent='Sending reset link…';
+try{const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:new URL('/',window.location.origin).toString()});if(error)throw error;message.textContent='If this email can be used, check your inbox for a secure reset link.';message.classList.add('info');}catch{message.textContent='We could not send a reset link. Please try again shortly.';}finally{button.disabled=false;}
+});
+
+$('passwordRecoveryForm').addEventListener('submit',async event=>{
+event.preventDefault();if(!supabaseClient)return;
+const password=$('recoveryPassword').value;const confirmation=$('recoveryPasswordConfirm').value;const message=$('passwordRecoveryMessage');if(password.length<12||password.length>128||password!==confirmation){message.textContent='Use matching passwords of at least 12 characters.';return;}
+const button=$('passwordRecoverySubmit');button.disabled=true;message.classList.remove('info');message.textContent='Saving your new password…';
+try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';}catch{message.textContent='We could not update your password. Please use a fresh reset link and try again.';}finally{button.disabled=false;}
+});
+
+$('signUpForm').addEventListener('submit',async event=>{
+event.preventDefault();
+if(!supabaseClient)return;
+const email=$('signUpEmail').value.trim();
+const password=$('signUpPassword').value;
+const confirmation=$('signUpPasswordConfirm').value;
+const button=$('signUpSubmit');const message=$('signUpMessage');
+message.classList.remove('info');
+if(password.length<12||password.length>128||password!==confirmation){
+message.textContent='Use a matching password of at least 12 characters.';return;
+}
+button.disabled=true;message.textContent='Creating your account…';
+try{
+const {data,error}=await supabaseClient.auth.signUp({
+email,
+password,
+options:{emailRedirectTo:new URL('/',window.location.origin).toString()}
+});
+if(error)throw error;
+if(data?.session){
+message.textContent='Your account is ready. Signing you in…';message.classList.add('info');
+await handleSession(data.session);
+}else{
+message.textContent='If this email can be used, check your inbox to confirm it, then sign in.';message.classList.add('info');
+}
+}catch{
+message.textContent='We could not create your account. Check your email and password, then try again.';
+}finally{button.disabled=false;}
+});
+
 $('logoutButton').addEventListener('click',async()=>{
 if(supabaseClient)await supabaseClient.auth.signOut();
 });
+
+const publicEnquiryMessages=[];
+let publicEnquiryContinuation=null;
+let publicEnquirySession=null;
+let publicAssistantAvailable=false;
+const setPublicDetail=(id,label,value)=>{
+const node=$(id);if(!node)return;
+const text=typeof value==='string'?value.trim():'';
+node.textContent=text?`${label}: ${text}`:'';
+node.classList.toggle('has-content',Boolean(text));
+};
+const publicInitials=name=>{
+const words=String(name||'').trim().split(/\s+/).filter(Boolean).slice(0,2);
+return words.map(word=>word[0]).join('').toUpperCase().slice(0,2)||'B';
+};
+const setPublicEnquiryAvailable=available=>{
+const input=$('publicChatInput');const submit=$('publicEnquiryForm')?.querySelector('button');
+if(input)input.disabled=!available;if(submit)submit.disabled=!available;
+};
+async function loadPublicBusinessIdentity(){
+if(!publicEnquirySlug)return;
+try{
+const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',publicEnquirySlug);
+const response=await fetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
+const result=await response.json().catch(()=>null);
+if(!response.ok||!result?.business)throw new Error('Business not available');
+const business=result.business;
+const name=typeof business.name==='string'&&business.name.trim()?business.name.trim():'Business enquiry';
+$('publicBusinessMark').textContent=publicInitials(name);$('publicBusinessName').textContent=name;
+$('publicBusinessType').textContent=business.type||'Customer enquiries';
+$('publicBusinessIntro').textContent=business.description||`Tell ${name} what you need. This AI assistant will pass your enquiry to the business.`;
+$('publicHeroDescription').textContent=business.description||`Ask a question, request a quote or tell ${name} what you need. Our AI assistant will collect the details for the business.`;
+$('publicFooterBusinessName').textContent=name;
+setPublicDetail('publicBusinessServices','Services',business.services);
+setPublicDetail('publicBusinessAreas','Areas',business.service_areas);
+setPublicDetail('publicBusinessHours','Hours',business.opening_hours);
+setPublicDetail('publicBusinessPhone','Phone',business.phone);
+publicAssistantAvailable=business.assistant_available!==false;
+if(publicAssistantAvailable){
+addPublicEnquiryMessage('assistant',`Hello — I’m the AI assistant for ${name}. I can help with questions and enquiries, or you can ask to speak to someone from the team.`);
+$('publicEnquiryMessage').textContent='';setPublicEnquiryAvailable(true);
+}else{
+addPublicEnquiryMessage('assistant',`The AI assistant for ${name} is currently unavailable. Please contact the business directly${business.phone?` on ${business.phone}`:''}.`);
+$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';setPublicEnquiryAvailable(false);
+}
+}catch{
+$('publicBusinessName').textContent='Customer enquiry';$('publicBusinessType').textContent='This customer link is unavailable.';
+$('publicBusinessIntro').textContent='Please check the link or contact the business directly.';
+$('publicHeroDescription').textContent='Please check the link or contact the business directly.';
+publicAssistantAvailable=false;$('publicEnquiryMessage').textContent='This customer enquiry link is unavailable.';setPublicEnquiryAvailable(false);
+}
+}
+function requestPublicHuman(){if($('publicChatInput').disabled)return;startPublicEnquiry('I would like to speak to someone.');$('publicEnquiryForm').requestSubmit();}
+function startPublicEnquiry(message){
+const input=$('publicChatInput');
+if(!input||input.disabled)return;
+input.value=message;
+input.focus();
+input.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function addPublicEnquiryMessage(role,content){
+const list=$('publicMessages');if(!list)return;const message=document.createElement('div');message.className=`msg ${role==='user'?'user':'ai'}`;message.textContent=content;list.append(message);list.scrollTop=list.scrollHeight;
+}
+async function sendPublicEnquiry(event){
+event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
+input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+}
+$('publicEnquiryForm').addEventListener('submit',sendPublicEnquiry);
+
+$('businessSetupForm').addEventListener('submit',async event=>{
+event.preventDefault();
+const button=$('businessSetupSubmit');const message=$('businessSetupMessage');
+button.disabled=true;message.textContent='Creating your secure workspace…';
+try{
+const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,public_slug:$('newBusinessSlug').value.trim().toLowerCase()})});
+message.textContent=`Business created. Your public enquiry link is ${result.public_path}.`;
+const onboarding=await api('/api/business-onboarding');
+applyBusinessContext(onboarding);
+await beginConfigurationOnboarding();
+}catch(error){message.textContent=error.message||'Could not create the business.';}finally{button.disabled=false;}
+});
+
+$('onboardingBack')?.addEventListener('click',()=>{if(onboardingWizardIndex>0){onboardingWizardIndex-=1;renderOnboardingWizard();}});
+$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent='Setup complete. Choose a plan or trial to start using AI enquiries.';setAuthView('auth-ready');registerOwnerPwa();await loadAll();showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
 
 
 const money=n=>
@@ -1650,7 +2198,7 @@ return [y,m,d].filter(Boolean).join('-');
 };
 
 
-const enquiryStorageKey='business-ai-enquiry-conversation';
+const enquiryStorageKey=slug=>`business-ai-enquiry-conversation:${slug}`;
 
 let enquiryMessages=[];
 
@@ -1659,7 +2207,7 @@ const loadEnquiryConversation=()=>{
 
 try{
 
-const saved=JSON.parse(sessionStorage.getItem(enquiryStorageKey)||'[]');
+const saved=authenticatedPublicBusinessSlug?JSON.parse(sessionStorage.getItem(enquiryStorageKey(authenticatedPublicBusinessSlug))||'[]'):[];
 
 if(Array.isArray(saved)){
 
@@ -1685,7 +2233,7 @@ const saveEnquiryConversation=()=>{
 
 try{
 
-sessionStorage.setItem(enquiryStorageKey,JSON.stringify(enquiryMessages));
+if(authenticatedPublicBusinessSlug)sessionStorage.setItem(enquiryStorageKey(authenticatedPublicBusinessSlug),JSON.stringify(enquiryMessages));
 
 }catch{
 
@@ -1756,7 +2304,10 @@ addEnquiryMessage('user',message);
 
 try{
 
-const response=await fetch('/api/enquiry',{
+const enquiryUrl=new URL('/api/enquiry',window.location.origin);
+const publicBusinessSlug=frontendAuthEnabled?authenticatedPublicBusinessSlug:new URLSearchParams(window.location.search).get('business');
+if(/^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(publicBusinessSlug||'').toLowerCase()))enquiryUrl.searchParams.set('business',publicBusinessSlug.toLowerCase());
+const response=await fetch(`${enquiryUrl.pathname}${enquiryUrl.search}`,{
 method:'POST',
 headers:{'Content-Type':'application/json'},
 // The API receives every previous turn, including customer details already supplied.
@@ -1810,8 +2361,20 @@ function showView(view){
 
 document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item.id===`${view}View`));
 
-document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===view));
+const navContext=['addons','marketing'].includes(view)?'settings':(view==='enquiries'||view==='bookings')?'dashboard':view;
+document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===navContext));
 
+if(view==='bookings'||view==='actions')loadWorkItems();
+if(view==='voice')loadVoiceStatus();
+window.marketingWorkspace?.open(view);
+
+}
+
+function toggleWorkForm(kind){
+const card=$(kind==='actions'?'actionsFormCard':'bookingsFormCard');
+if(!card)return;
+const opening=card.hidden;card.hidden=!opening;
+if(opening){card.scrollIntoView({behavior:'smooth',block:'start'});card.querySelector('input,select,textarea')?.focus();}
 }
 
 
@@ -1839,6 +2402,8 @@ return result;
 
 };
 
+
+$('knowledgeFileInput')?.addEventListener('change',uploadKnowledgeFile);
 
 const toast=(message)=>{
 
@@ -1892,16 +2457,47 @@ return date<today?'overdue':date===today?'today':'upcoming';
 
 const statusClass=status=>String(status||'New').toLowerCase();
 
+function renderFirstRunGuide(){
+const target=$('firstRunSteps');if(!target)return;
+const hasBasics=Boolean(settings?.business_name&&settings?.services&&settings?.opening_hours);
+const hasProfile=Boolean(businessConfiguration?.onboarding_completed_at);
+const hasEnquiry=leads.length>0;
+const step=(done,title,description,action,view)=>`<div class="first-run-step"><span class="first-run-mark ${done?'done':''}">${done?'✓':'○'}</span><div><strong>${title}</strong><div class="work-meta">${description}</div></div>${action?`<button class="small-btn" type="button" onclick="showView('${view}')">${action}</button>`:''}</div>`;
+target.innerHTML=[
+step(hasBasics,'Add your business basics','Save services and opening hours so the receptionist can answer accurately.',hasBasics?'Review':'Open settings','settings'),
+step(hasProfile,'Finish your business profile','Add service areas, customer instructions, FAQs and handover information.',hasProfile?'Review':'Complete','settings'),
+step(Boolean(authenticatedPublicBusinessSlug),'Share your customer link','Copy the safe public enquiry link from Settings. It never reveals an internal business ID.',authenticatedPublicBusinessSlug?'Open settings':null,'settings'),
+step(hasEnquiry,'Test and review an enquiry','Use AI Receptionist for a test, then check the lead, actions and any handover.',hasEnquiry?'View leads':'Test AI','enquiries')
+].join('');
+}
 
 function renderDashboard(){
 
 const data=pipeline||{};
 
+const hour=new Date().getHours();
+const salutation=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
+const businessName=String(settings?.business_name||businessConfiguration?.business_name||'').trim();
+const greeting=$('dashboardGreeting');
+if(greeting)greeting.textContent=businessName?`${salutation}, ${businessName}.`:`${salutation}.`;
+
+const newLeads=leads.filter(lead=>String(lead.status||'New')==='New').length;
+const pendingActions=businessActions.filter(action=>action.status==='pending');
+const today=localKey();
+const dueActions=pendingActions.filter(action=>{
+const due=dateOnly(action.due_at);return due&&due<=today;
+}).length;
+const highPriority=leads.filter(lead=>lead.status!=='Converted'&&lead.priority==='High').length;
+const handoverAttention=handovers.filter(item=>String(item.status||'').toLowerCase()==='requires_attention').length;
+const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0);
+
+renderFirstRunGuide();
+
 $('stats').innerHTML=`
-<div class="stat"><div class="stat-label">Pipeline value</div><div class="stat-value">${money(data.pipeline_value)}</div><div class="stat-sub">${data.total||0} total leads</div></div>
-<div class="stat"><div class="stat-label">Converted value</div><div class="stat-value">${money(data.converted_value)}</div><div class="stat-sub">${data.conversion_rate||0}% conversion rate</div></div>
-<div class="stat follow-stat"><div class="stat-label">Follow-ups today</div><div class="stat-value">${data.follow_ups_today||0}</div><div class="stat-sub">${data.high_priority||0} high priority</div></div>
-<div class="stat overdue-stat"><div class="stat-label">Overdue follow-ups</div><div class="stat-value">${data.overdue_follow_ups||0}</div><div class="stat-sub">Need attention</div></div>`;
+<div class="stat"><div class="stat-top"><span class="metric-icon blue" aria-hidden="true">◉</span><div><div class="stat-value">${newLeads}</div><div class="stat-label">New leads</div></div></div><div class="stat-sub">Awaiting your first response</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon red" aria-hidden="true">!</span><div><div class="stat-value">${attentionCount}</div><div class="stat-label">Needs attention</div></div></div><div class="stat-sub">High priority, handovers or overdue follow-ups</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon orange" aria-hidden="true">✓</span><div><div class="stat-value">${dueActions}</div><div class="stat-label">Actions due</div></div></div><div class="stat-sub">Pending actions due today or earlier</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon green" aria-hidden="true">✦</span><div><div class="stat-value">${leads.length}</div><div class="stat-label">Total enquiries</div></div></div><div class="stat-sub">Captured for this business</div></div>`;
 
 const stages=data.stages||{};
 
@@ -1932,9 +2528,101 @@ return `<div class="follow-up-item ${state} ${lead.priority==='High'?'high':''}"
 }).join(''):'<div class="empty">No follow-ups need attention.</div>';
 
 const activity=leads.slice(0,5);
+const activityTone=lead=>{
+const details=[lead.job_type,lead.description,lead.notes].join(' ').toLowerCase();
+if(lead.priority==='High')return {tone:'attention',icon:'!'};
+if(String(lead.status||'').toLowerCase()==='converted')return {tone:'success',icon:'✓'};
+if(details.includes('quote'))return {tone:'quote',icon:'▤'};
+if(String(lead.status||'').toLowerCase()==='new')return {tone:'new',icon:'◉'};
+return {tone:'system',icon:'✦'};
+};
 
-$('activity').innerHTML=activity.length?activity.map(lead=>`<div class="activity"><div class="activity-icon">◉</div><div><div class="activity-text"><strong>${esc(lead.name||'New enquiry')}</strong> is ${esc((lead.status||'New').toLowerCase())}</div><div class="activity-time">${timeLabel(lead.created_at)||'Recently added'}</div></div></div>`).join(''):'<div class="empty">Activity will appear as leads arrive.</div>';
+$('activity').innerHTML=activity.length?activity.map(lead=>{const presentation=activityTone(lead);return `<div class="activity"><div class="activity-icon ${presentation.tone}" aria-hidden="true">${presentation.icon}</div><div><div class="activity-text"><strong>${esc(lead.name||'New enquiry')}</strong> is ${esc((lead.status||'New').toLowerCase())}</div><div class="activity-time">${timeLabel(lead.created_at)||'Recently added'}</div></div></div>`;}).join(''):'<div class="empty">Activity will appear as leads arrive.</div>';
 
+const upcoming=bookings.filter(booking=>booking.status!=='cancelled'&&booking.status!=='completed').slice(0,4);
+$('upcomingBookings').innerHTML=upcoming.length?upcoming.map(booking=>`<div class="lead-mini"><div class="lead-row"><div><div class="lead-name">${esc(booking.customer_name||leadName(booking.lead_id)||'Booking request')}</div><div class="lead-meta">${esc(booking.title)} · ${timeLabel(booking.starts_at)||'Time to be arranged'}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div></div>`).join(''):'<div class="empty">No upcoming bookings.</div>';
+
+const pending=businessActions.filter(action=>action.status==='pending').slice(0,4);
+$('dashboardActions').innerHTML=pending.length?pending.map(action=>`<div class="lead-mini"><div class="lead-row"><div><div class="lead-name">${esc(action.title)}</div><div class="lead-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'}</div></div><span class="tag ${esc(action.priority)}">${esc(action.priority)}</span></div></div>`).join(''):'<div class="empty">No actions waiting.</div>';
+
+}
+
+const leadName=id=>leads.find(lead=>String(lead.id)===String(id))?.name||'';
+
+const datetimeLocal=value=>{
+if(!value)return '';
+const date=new Date(value);
+if(Number.isNaN(date.getTime()))return '';
+const offset=date.getTimezoneOffset()*60000;
+return new Date(date.getTime()-offset).toISOString().slice(0,16);
+};
+
+function fillWorkLeadOptions(){
+const options=['<option value="">No related lead</option>',...leads.map(lead=>`<option value="${esc(lead.id)}">${esc(lead.name||'New enquiry')} · ${esc(lead.job_type||'General enquiry')}</option>`)].join('');
+['bookingLead','actionLead'].forEach(id=>{const input=$(id);if(input)input.innerHTML=options;});
+}
+
+function renderBookings(){
+const list=$('bookingsList');
+if(!list)return;
+list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
+}
+
+function renderActions(){
+const list=$('actionsList');
+if(!list)return;
+list.innerHTML=businessActions.length?businessActions.map(action=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'} · ${esc(action.action_type.replaceAll('_',' '))}</div></div><span class="tag ${esc(action.priority)}">${esc(action.priority)}</span></div>${action.description?`<div class="work-meta">${esc(action.description)}</div>`:''}<div class="work-actions">${action.status==='pending'?`<button class="small-btn primary-action" onclick="updateAction('${esc(action.id)}',{status:'completed'})">Complete</button><button class="small-btn" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editAction('${esc(action.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No actions yet.</div>';
+}
+
+async function loadWorkItems(){
+try{
+const [bookingData,actionData]=await Promise.all([api('/api/bookings'),api('/api/actions')]);
+bookings=Array.isArray(bookingData)?bookingData:[];
+businessActions=Array.isArray(actionData)?actionData:[];
+fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();
+['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).textContent='';});
+}catch(error){
+const message=error.message==='Bookings are not enabled'||error.message==='Actions are not enabled'?'Bookings and actions will be available after the database migration is applied.':error.message;
+['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).innerHTML=`<div class="error">${esc(message)}</div>`;});
+}
+}
+
+const formDate=value=>value?new Date(value).toISOString():null;
+
+async function createBooking(){
+try{
+await api('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('bookingTitle').value,lead_id:$('bookingLead').value||null,status:$('bookingStatus').value,starts_at:formDate($('bookingStart').value),ends_at:formDate($('bookingEnd').value),location:$('bookingLocation').value,notes:$('bookingNotes').value})});
+['bookingTitle','bookingStart','bookingEnd','bookingLocation','bookingNotes'].forEach(id=>$(id).value='');$('bookingLead').value='';$('bookingStatus').value='requested';toast('Booking created');await loadWorkItems();
+$('bookingsFormCard').hidden=true;
+}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
+async function updateBooking(id,updates){
+try{await api('/api/bookings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Booking updated');await loadWorkItems();}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+
+function editBooking(id){
+const booking=bookings.find(item=>String(item.id)===String(id));if(!booking)return;
+const title=window.prompt('Booking title',booking.title);if(title===null)return;
+const notes=window.prompt('Booking notes',booking.notes||'');if(notes===null)return;
+updateBooking(id,{title,notes});
+}
+
+async function createAction(){
+try{
+await api('/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('actionTitle').value,action_type:$('actionType').value,lead_id:$('actionLead').value||null,due_at:formDate($('actionDue').value),priority:$('actionPriority').value,description:$('actionDescription').value})});
+['actionTitle','actionDue','actionDescription'].forEach(id=>$(id).value='');$('actionLead').value='';$('actionType').value='call_customer';$('actionPriority').value='normal';toast('Action created');await loadWorkItems();
+$('actionsFormCard').hidden=true;
+}catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
+async function updateAction(id,updates){
+try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Action updated');await loadWorkItems();}catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+
+function editAction(id){
+const action=businessActions.find(item=>String(item.id)===String(id));if(!action)return;
+const title=window.prompt('Action title',action.title);if(title===null)return;
+const description=window.prompt('Action notes',action.description||'');if(description===null)return;
+updateAction(id,{title,description});
 }
 
 
@@ -2081,8 +2769,147 @@ if(input)input.value=settings[field]||'';
 $('s_urgent').checked=Boolean(settings.urgent_jobs_enabled);
 
 $('brandName').textContent=settings.business_name||'Business AI';
+fillPublicEnquiryLink();
 
 }
+
+
+function renderFaqs(){
+const list=$('faqList');
+if(!list)return;
+const faqs=Array.isArray(businessConfiguration?.faqs)?businessConfiguration.faqs:[];
+list.innerHTML=faqs.length?faqs.map((faq,index)=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(faq.question)}</h4><div class="work-meta">${esc(faq.answer)}</div></div><button class="small-btn" onclick="removeFaq(${index})">Remove</button></div></article>`).join(''):'<div class="empty">No FAQs added yet.</div>';
+}
+
+function selectedHandlingMode(prefix){return document.querySelector(`input[name="${prefix}_ai_handling_mode"]:checked`)?.value||'balanced';}
+function setHandlingMode(prefix,value){document.querySelectorAll(`input[name="${prefix}_ai_handling_mode"]`).forEach(input=>{input.checked=input.value===(['human_first','balanced','ai_first'].includes(value)?value:'balanced');});}
+function fillBusinessConfiguration(){
+const template=$('c_industry_template_id');
+if(!template)return;
+template.innerHTML=configurationTemplates.length?configurationTemplates.map(item=>`<option value="${esc(item.id)}">${esc(item.label)}</option>`).join(''):'<option value="general">General business</option>';
+const config=businessConfiguration||{};
+template.value=config.industry_template_id||'general';
+setHandlingMode('c',config.ai_handling_mode);
+['description','website','service_areas','customer_enquiry_instructions','handover_instructions'].forEach(field=>{const input=$(`c_${field}`);if(input)input.value=config[field]||'';});
+const preferences=config.booking_preferences||{};
+$('c_minimum_notice_hours').value=Number.isInteger(preferences.minimum_notice_hours)?preferences.minimum_notice_hours:0;
+$('c_timezone').value=preferences.timezone||'Europe/London';
+$('c_allow_customer_requests').checked=preferences.allow_customer_requests!==false;
+$('c_complete_onboarding').checked=Boolean(config.onboarding_completed_at);
+renderFaqs();
+renderFirstRunGuide();
+}
+
+function applySelectedIndustryTemplate(){
+const selected=configurationTemplates.find(item=>item.id===$('c_industry_template_id').value);
+const defaults=selected?.defaults||{};
+if(defaults.customer_enquiry_instructions&&!$('c_customer_enquiry_instructions').value.trim())$('c_customer_enquiry_instructions').value=defaults.customer_enquiry_instructions;
+if(defaults.booking_preferences){
+if(Number($('c_minimum_notice_hours').value||0)===0&&Number.isInteger(defaults.booking_preferences.minimum_notice_hours))$('c_minimum_notice_hours').value=defaults.booking_preferences.minimum_notice_hours;
+if(defaults.booking_preferences.allow_customer_requests!==undefined)$('c_allow_customer_requests').checked=defaults.booking_preferences.allow_customer_requests;
+}
+const status=$('configurationStatus');if(selected?.description)status.textContent=`${selected.description} Defaults only fill empty fields; you can override them.`;
+}
+
+function addFaq(){
+const question=$('faqQuestion').value.trim();const answer=$('faqAnswer').value.trim();
+const status=$('configurationStatus');
+if(!question||!answer){status.innerHTML='<div class="error">Add both a question and answer.</div>';return;}
+if(question.length>500||answer.length>2000){status.innerHTML='<div class="error">That FAQ is too long.</div>';return;}
+if(!businessConfiguration)businessConfiguration={faqs:[]};
+if(!Array.isArray(businessConfiguration.faqs))businessConfiguration.faqs=[];
+if(businessConfiguration.faqs.length>=40){status.innerHTML='<div class="error">You can add up to 40 FAQs.</div>';return;}
+businessConfiguration.faqs.push({question,answer});$('faqQuestion').value='';$('faqAnswer').value='';status.textContent='FAQ added. Save the business profile to keep it.';renderFaqs();
+}
+
+function removeFaq(index){
+if(!Array.isArray(businessConfiguration?.faqs))return;
+businessConfiguration.faqs.splice(index,1);renderFaqs();
+}
+
+async function loadBusinessConfiguration(){
+try{
+const data=await api('/api/business-configuration');
+businessConfiguration=data?.configuration||null;configurationTemplates=Array.isArray(data?.templates)?data.templates:[];fillBusinessConfiguration();
+}catch(error){
+// This API is deliberately unavailable until its forward-only migration is deployed.
+if(error.message!=='Business configuration is not enabled'&&error.message!=='Business configuration not found')$('configurationStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;
+}
+}
+
+async function saveBusinessConfiguration(){
+const status=$('configurationStatus');status.textContent='Saving…';
+try{
+const body={
+ai_handling_mode:selectedHandlingMode('c'),
+industry_template_id:$('c_industry_template_id').value,
+description:$('c_description').value,
+website:$('c_website').value,
+service_areas:$('c_service_areas').value,
+customer_enquiry_instructions:$('c_customer_enquiry_instructions').value,
+handover_instructions:$('c_handover_instructions').value,
+faqs:Array.isArray(businessConfiguration?.faqs)?businessConfiguration.faqs:[],
+booking_preferences:{booking_mode:'request',confirmation_required:true,allow_customer_requests:$('c_allow_customer_requests').checked,minimum_notice_hours:Number($('c_minimum_notice_hours').value||0),timezone:$('c_timezone').value},
+enabled_modules:{enquiries:true,bookings:true,actions:true,voice:false},
+complete_onboarding:$('c_complete_onboarding').checked
+};
+const data=await api('/api/business-configuration',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+businessConfiguration=data?.configuration||businessConfiguration;configurationTemplates=Array.isArray(data?.templates)?data.templates:configurationTemplates;fillBusinessConfiguration();status.textContent='Business profile saved.';toast('Business profile saved');
+}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
+
+const knowledgeTypeLabels={product:'Product',service:'Service',price:'Price',hours:'Opening hours',policy:'Policy',faq:'FAQ',contact:'Contact',location:'Location',dietary:'Dietary / allergen',other:'Other'};
+const knowledgeStatusLabel=status=>({pending_upload:'Waiting for upload',processing:'Processing',needs_review:'Needs review',active:'Active',failed:'Failed',superseded:'Superseded'}[status]||String(status||'Unknown'));
+function knowledgeBytes(value){const bytes=Math.max(0,Number(value)||0);if(bytes<1024)return `${bytes} B`;if(bytes<1024*1024)return `${(bytes/1024).toFixed(1)} KB`;return `${(bytes/(1024*1024)).toFixed(1)} MB`;}
+function renderKnowledgeSources(){
+const list=$('knowledgeList');if(!list)return;
+if(!knowledgeSources.length){list.innerHTML='<div class="empty">No files uploaded yet. Add a menu, price list or other factual business document.</div>';return;}
+list.innerHTML=knowledgeSources.map(source=>{const counts=source.item_counts||{};const active=Number(counts.active)||0;const review=Number(counts.needs_review)||0;const details=source.status==='active'?`${active} approved fact${active===1?'':'s'}`:source.status==='needs_review'?`${review} fact${review===1?'':'s'} ready to review`:source.status==='failed'?(source.error_message||'Extraction failed'):source.status==='superseded'?'Previous version retained for history':knowledgeStatusLabel(source.status);const actions=[];if(['needs_review','active','superseded'].includes(source.status))actions.push(`<button class="small-btn" type="button" onclick="openKnowledgeReview('${source.id}')">${source.status==='needs_review'?'Review':'View knowledge'}</button>`);if(knowledgeCanManage&&source.status==='active')actions.push(`<button class="small-btn" type="button" onclick="chooseKnowledgeFile('${source.id}')">Replace</button>`);if(knowledgeCanManage&&source.status==='failed')actions.push(`<button class="small-btn" type="button" onclick="retryKnowledgeExtraction('${source.id}')">Retry</button>`);if(knowledgeCanManage&&!['processing','pending_upload'].includes(source.status))actions.push(`<button class="small-btn" type="button" onclick="removeKnowledgeSource('${source.id}')">Remove</button>`);return `<article class="work-item"><div class="work-item-top"><div><h4>${esc(source.file_name)}</h4><div class="work-meta">${esc(knowledgeBytes(source.size_bytes))} · ${esc(details)}</div></div><span class="tag">${esc(knowledgeStatusLabel(source.status))}</span></div>${source.extracted_summary?`<div class="work-meta" style="margin-top:8px">${esc(source.extracted_summary)}</div>`:''}${actions.length?`<div class="work-actions">${actions.join('')}</div>`:''}</article>`;}).join('');
+}
+async function loadKnowledge(){
+const status=$('knowledgeStatus');try{const data=await api('/api/knowledge');knowledgeSources=Array.isArray(data?.sources)?data.sources:[];knowledgeCanManage=Boolean(data?.can_manage);renderKnowledgeSources();if(status)status.textContent='';}catch(error){knowledgeSources=[];knowledgeCanManage=false;if($('knowledgeList'))$('knowledgeList').innerHTML='<div class="empty">Business knowledge uploads are not available in this environment yet.</div>';if(status)status.textContent=error.message||'Business knowledge is unavailable.';}
+}
+function chooseKnowledgeFile(replaceSourceId=null){if(!knowledgeCanManage){toast('Only an owner or admin can manage knowledge files.');return;}knowledgeReplaceSourceId=replaceSourceId||null;const input=$('knowledgeFileInput');if(input){input.value='';input.click();}}
+async function uploadKnowledgeFile(event){
+const input=event?.target;const file=input?.files?.[0];if(!file)return;const status=$('knowledgeStatus');if(file.size>10*1024*1024){status.textContent='That file is larger than 10 MB.';return;}status.textContent='Preparing secure upload…';let prepared=null;let uploaded=false;
+try{
+prepared=await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create_upload',file_name:file.name,mime_type:file.type||'',size_bytes:file.size,replace_source_id:knowledgeReplaceSourceId})});
+if(!supabaseClient)throw new Error('Secure file upload is unavailable.');
+status.textContent='Uploading privately…';
+const {error}=await supabaseClient.storage.from(prepared.bucket).uploadToSignedUrl(prepared.path,prepared.token,file,{contentType:file.type||prepared.source?.mime_type||'application/octet-stream'});
+if(error)throw new Error('The private upload could not be completed.');
+uploaded=true;status.textContent='Extracting business facts…';
+const extracted=await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finalize',source_id:prepared.source.id})});
+status.textContent='Extraction complete. Review the facts before they are used.';await loadKnowledge();await openKnowledgeReview(extracted.source.id);toast('Knowledge ready for review');
+}catch(error){if(prepared?.source?.id&&!uploaded){try{await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'remove',source_id:prepared.source.id})});}catch{}}status.innerHTML=`<span class="error">${esc(error.message||'Could not upload this file.')}</span>`;await loadKnowledge();}finally{knowledgeReplaceSourceId=null;if(input)input.value='';}
+}
+async function retryKnowledgeExtraction(id){const status=$('knowledgeStatus');status.textContent='Retrying extraction…';try{const result=await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finalize',source_id:id})});status.textContent='Extraction complete. Review the facts before they are used.';await loadKnowledge();await openKnowledgeReview(result.source.id);}catch(error){status.innerHTML=`<span class="error">${esc(error.message)}</span>`;await loadKnowledge();}}
+async function openKnowledgeReview(id){
+const target=$('knowledgeReview');if(!target)return;target.hidden=false;target.innerHTML='<div class="empty">Loading extracted knowledge…</div>';
+try{knowledgeReviewSource=await api(`/api/knowledge?source_id=${encodeURIComponent(id)}`);renderKnowledgeReview();target.scrollIntoView({behavior:'smooth',block:'start'});}catch(error){target.innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+function renderKnowledgeReview(){
+const target=$('knowledgeReview');const detail=knowledgeReviewSource;if(!target||!detail?.source)return;const editable=knowledgeCanManage&&['needs_review','active'].includes(detail.source.status);const typeOptions=Object.entries(knowledgeTypeLabels).map(([value,label])=>`<option value="${value}">${esc(label)}</option>`).join('');
+const items=Array.isArray(detail.items)?detail.items:[];target.innerHTML=`<div class="card-head"><h3>${detail.source.status==='needs_review'?'Review extracted knowledge':'Knowledge from '+esc(detail.source.file_name)}</h3><button class="small-btn" type="button" onclick="closeKnowledgeReview()">Close</button></div><p class="work-meta">Only approved items are available to the receptionist and Marketing. Edit anything that was extracted incorrectly and untick anything you do not want used.</p><div id="knowledgeReviewItems" class="work-list">${items.map(item=>`<article class="work-item" data-knowledge-item="${item.id}"><div class="settings-grid"><div class="field"><label>Type</label><select data-k-field="type" ${editable?'':'disabled'}>${typeOptions}</select></div><div class="field"><label>Use this fact</label><div class="checkbox-row" style="margin:0"><label><span class="work-meta">Approved AI knowledge</span></label><input data-k-field="include" class="switch" type="checkbox" ${item.status!=='rejected'&&item.status!=='superseded'?'checked':''} ${editable?'':'disabled'}></div></div><div class="field full"><label>Title</label><input data-k-field="title" maxlength="300" value="${esc(item.title)}" ${editable?'':'disabled'}></div><div class="field full"><label>Fact</label><textarea data-k-field="content" maxlength="3000" ${editable?'':'disabled'}>${esc(item.content)}</textarea></div></div></article>`).join('')||'<div class="empty">No extracted facts are available.</div>'}</div>${editable&&items.length?'<div class="work-actions"><button class="small-btn primary-action" type="button" onclick="approveKnowledgeReview()">Save approved knowledge</button></div>':''}`;
+items.forEach(item=>{const row=target.querySelector(`[data-knowledge-item="${item.id}"]`);const select=row?.querySelector('[data-k-field="type"]');if(select)select.value=item.item_type;});
+}
+async function approveKnowledgeReview(){
+const target=$('knowledgeReviewItems');if(!target||!knowledgeReviewSource?.source)return;const rows=[...target.querySelectorAll('[data-knowledge-item]')].map(row=>({id:row.dataset.knowledgeItem,item_type:row.querySelector('[data-k-field="type"]').value,title:row.querySelector('[data-k-field="title"]').value.trim(),content:row.querySelector('[data-k-field="content"]').value.trim(),include:row.querySelector('[data-k-field="include"]').checked}));const status=$('knowledgeStatus');status.textContent='Saving approved knowledge…';
+try{knowledgeReviewSource=await api('/api/knowledge',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',source_id:knowledgeReviewSource.source.id,items:rows})});status.textContent='Approved knowledge is now available to your AI receptionist and Marketing.';renderKnowledgeReview();await loadKnowledge();toast('Business knowledge updated');}catch(error){status.innerHTML=`<span class="error">${esc(error.message)}</span>`;}
+}
+function closeKnowledgeReview(){knowledgeReviewSource=null;const target=$('knowledgeReview');if(target){target.hidden=true;target.replaceChildren();}}
+async function removeKnowledgeSource(id){if(!knowledgeCanManage)return;if(!window.confirm('Remove this knowledge file and its extracted facts?'))return;const status=$('knowledgeStatus');status.textContent='Removing file…';try{await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'remove',source_id:id})});if(knowledgeReviewSource?.source?.id===id)closeKnowledgeReview();await loadKnowledge();status.textContent='Knowledge file removed.';toast('Knowledge removed');}catch(error){status.innerHTML=`<span class="error">${esc(error.message)}</span>`;}}
+
+function renderHandovers(){const list=$('handoverList');if(!list)return;list.innerHTML=handovers.length?handovers.map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.reason.replaceAll('_',' '))}</h4><div class="work-meta">Lead #${esc(item.lead_id)} · ${esc(item.status.replaceAll('_',' '))} · ${timeLabel(item.created_at)}</div></div><span class="tag high">${esc(item.status)}</span></div><div class="work-meta">${esc(item.summary||'Review the linked lead and conversation context.')}</div>${item.status==='requires_attention'?`<div class="work-actions"><button class="small-btn primary-action" onclick="updateHandover('${esc(item.id)}','acknowledged')">Acknowledge</button><button class="small-btn" onclick="updateHandover('${esc(item.id)}','resolved')">Resolve</button></div>`:''}</article>`).join(''):'<div class="empty">No handovers need attention.</div>';}
+async function updateHandover(id,status){try{await api('/api/handovers',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});await loadPilotOperations();toast('Handover updated');}catch(error){$('handoverStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+function renderTeam(){const list=$('teamList');if(!list||!teamState)return;const members=teamState.members||[];const invitations=teamState.invitations||[];list.innerHTML=[...members.map(member=>`<article class="work-item"><div class="work-item-top"><div><h4>Team member</h4><div class="work-meta">${esc(member.role)} access · joined ${timeLabel(member.created_at)}</div></div><span class="tag">${esc(member.role)}</span></div></article>`),...invitations.map(invite=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(invite.invited_email)}</h4><div class="work-meta">${esc(invite.role)} · ${esc(invite.status)} · expires ${timeLabel(invite.expires_at)}</div></div>${invite.status==='pending'?`<button class="small-btn" onclick="revokeTeamInvitation('${esc(invite.id)}')">Revoke</button>`:''}</div></article>`)].join('')||'<div class="empty">No team invitations yet.</div>';}
+async function inviteTeamMember(){const status=$('teamStatus');status.textContent='Creating invitation…';try{const result=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('teamInviteEmail').value,role:$('teamInviteRole').value})});const link=new URL(result.accept_path,window.location.origin).toString();try{await navigator.clipboard?.writeText(link);}catch{}$('teamInviteEmail').value='';status.textContent='Invitation created. Secure acceptance link copied; share it with the intended person.';await loadPilotOperations();}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+async function revokeTeamInvitation(invitation_id){try{await api('/api/team',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitation_id,status:'revoked'})});await loadPilotOperations();toast('Invitation revoked');}catch(error){$('teamStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+function fillLifecycle(){if(!lifecyclePolicy)return;$('leadRetentionDays').value=lifecyclePolicy.lead_retention_days||365;$('auditRetentionDays').value=lifecyclePolicy.audit_retention_days||730;}
+async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)})});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+async function loadPilotOperations(){const results=await Promise.allSettled([api('/api/handovers'),api('/api/team'),api('/api/data-lifecycle')]);if(results[0].status==='fulfilled'){handovers=Array.isArray(results[0].value)?results[0].value:[];renderHandovers();}if(results[1].status==='fulfilled'){teamState=results[1].value;renderTeam();}else $('teamList').innerHTML='<div class="work-meta">Team management is available to the business owner.</div>';if(results[2].status==='fulfilled'){lifecyclePolicy=results[2].value;fillLifecycle();}else $('lifecycleStatus').textContent='Retention controls are available to owners and admins.';renderDashboard();}
+async function loadVoiceStatus(){try{const status=await api('/api/voice-status');$('voiceStatusBadge').textContent=status.provider_connected?'Connected':'Not connected';$('voiceStatusMessage').textContent=status.message||'Voice is disabled.';}catch(error){$('voiceStatusBadge').textContent='Unavailable';$('voiceStatusMessage').textContent='Voice status is unavailable. Live calling remains disabled.';}}
 
 
 async function saveSettings(){
@@ -2110,6 +2937,24 @@ toast('Business settings saved');
 }
 
 
+const billingPlanPresentation={trial:{name:'Trial',price:'£3.99 / 7 days',detail:'100 AI enquiries · 1 staff account',note:'Ends after seven days. It does not automatically subscribe.'},starter:{name:'Starter',price:'£29 / month',detail:'250 AI enquiries · 2 staff accounts'},pro:{name:'Pro',price:'£69 / month',detail:'1,000 AI enquiries · 5 staff accounts'},business:{name:'Business',price:'£149 / month',detail:'3,000 AI enquiries · 15 staff accounts'}};
+function renderBilling(){
+const card=$('billingCard');const badge=$('billingPlanBadge');const summary=$('billingSummary');const plans=$('billingPlans');const manage=$('manageBillingButton');const cancel=$('cancelBillingButton');if(!card||!badge||!summary||!plans||!manage||!cancel)return;
+if(authenticatedBusinessRole!=='owner'||!billingState?.entitlements?.enforced){card.hidden=true;return;}
+const entitlement=billingState.entitlements;const account=billingState.account;const managedSubscription=Boolean(account?.has_subscription&&['active','trialing','past_due'].includes(account.status));card.hidden=false;badge.textContent=entitlement.active?`${billingPlanPresentation[entitlement.plan]?.name||'Plan'} active`:entitlement.status==='past_due'?'Payment needs attention':'Choose a plan';
+summary.textContent=entitlement.active?`${entitlement.enquiriesUsed} of ${entitlement.enquiryAllowance} AI enquiries used this billing period. ${entitlement.enquiriesRemaining} remaining.${entitlement.trialExpiresAt?` Trial ends ${dateLabel(entitlement.trialExpiresAt)}.`:''}${entitlement.currentPeriodEndsAt?` Current period ends ${dateLabel(entitlement.currentPeriodEndsAt)}.`:''}${entitlement.cancelAtPeriodEnd?' Your subscription will cancel at the end of this period.':''}`:entitlement.status==='past_due'?'A payment needs attention. Use Manage billing to update your payment method.':'Choose a plan to activate AI enquiries for this business.';
+plans.innerHTML=Object.entries(billingPlanPresentation).map(([plan,item])=>{const usedTrial=plan==='trial'&&account?.trial_purchased;const disabled=usedTrial||managedSubscription;const label=usedTrial?'Trial used':managedSubscription?'Manage subscription':entitlement.plan===plan&&entitlement.active?'Current plan':plan==='pro'?'Choose Pro':'Choose plan';return `<article class="billing-plan ${plan==='pro'?'pro':''}"><h4>${esc(item.name)}</h4><strong>${esc(item.price)}</strong><p>${esc(item.detail)}${item.note?`<br>${esc(item.note)}`:''}</p><button class="small-btn ${plan==='pro'?'primary-action':''}" type="button" onclick="startBillingCheckout('${plan}')" ${disabled?'disabled':''}>${label}</button></article>`;}).join('');
+manage.hidden=!account?.has_subscription;cancel.hidden=!account?.has_subscription||!entitlement.active||Boolean(entitlement.cancelAtPeriodEnd);
+}
+async function loadBilling(){
+if(authenticatedBusinessRole!=='owner')return;
+try{billingState=await api('/api/billing');renderBilling();}catch{billingState=null;const card=$('billingCard');if(card)card.hidden=true;}
+}
+async function startBillingCheckout(plan){
+try{const addons=plan==='trial'?[]:(window.selectedCheckoutAddons?.()||[]);const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'checkout',plan,addons})});if(typeof result?.checkout_url==='string'&&result.checkout_url.startsWith('https://'))window.location.assign(result.checkout_url);else throw new Error('Could not start secure checkout');}catch(error){toast(error.message||'Billing is temporarily unavailable');}}
+async function manageBilling(){try{const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'portal'})});if(typeof result?.portal_url==='string'&&result.portal_url.startsWith('https://'))window.location.assign(result.portal_url);else throw new Error('Billing management is unavailable');}catch(error){toast(error.message||'Billing management is unavailable');}}
+async function cancelBilling(){try{await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel'})});toast('Your subscription will cancel at the end of the current billing period.');await loadBilling();}catch(error){toast(error.message||'Could not update billing');}}
+
 async function loadAll(showFeedback=false){
 
 try{
@@ -2124,9 +2969,18 @@ settings=settingsData||{};
 
 fillSettings();
 
+fillWorkLeadOptions();
+
 renderDashboard();
 
 renderLeads();
+
+if(frontendAuthEnabled)loadWorkItems();
+if(frontendAuthEnabled)loadBusinessConfiguration();
+if(frontendAuthEnabled)loadKnowledge();
+if(frontendAuthEnabled)loadPilotOperations();
+if(frontendAuthEnabled)loadVoiceStatus();
+if(frontendAuthEnabled)loadBilling();
 
 if(showFeedback)toast('Dashboard refreshed');
 
@@ -2144,8 +2998,9 @@ $('leadList').innerHTML=message;
 
 
 async function initializeApp(){
-loadEnquiryConversation();
-renderEnquiryConversation();
+publicEnquirySlug=publicSlugFromLocation();
+if(publicEnquirySlug){document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
+try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();
 if(!authActive)loadAll();
 }
@@ -2154,6 +3009,8 @@ initializeApp();
 
 </script>
 
+<script src="/assets/marketing.js"></script>
+<script src="/assets/pilot.js"></script>
 </body>
 
 </html>

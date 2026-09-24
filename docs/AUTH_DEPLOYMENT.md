@@ -1,29 +1,29 @@
-# Authentication rollout (pre-migration)
+# Authentication deployment status
 
-The current production application must remain on the existing unauthenticated
-server routes until the reviewed tenancy migration is applied and a real owner
-membership exists. Do not enable the auth gate before completing this order:
+## Current state
 
-1. Create the real owner in Supabase Auth.
-2. Apply and verify `20260915000000_add_multi_tenant_auth.sql` against the
-   preservation checks in `TENANCY_MIGRATION_PLAN.md`.
-3. Run `supabase/verification/owner_onboarding.sql` to add the real owner to
-   the backfilled initial business. The operation is idempotent.
-4. Configure Supabase Auth Site URL and redirect URLs for the production domain.
-5. Add these Vercel environment variables:
+- The multi-tenant migration is applied in Production and the real owner has an `owner` membership.
+- Server authentication and tenant enforcement are implemented for leads, history, pipeline, and settings.
+- The frontend login/session foundation is implemented.
+- Preview validation on the `auth-preview` branch succeeded with the real owner account: login, dashboard, tenant data, lead details, and lead history/activity loaded correctly.
+- Preview gates are enabled. Production `TENANCY_AUTH_ENABLED` and `FRONTEND_AUTH_ENABLED` remain absent/disabled.
 
-| Variable | Visibility | Purpose |
+## Authorisation design
+
+Private dashboard calls use a Supabase access token only for same-origin API requests. The server verifies it with Supabase Auth, looks up the user in `business_memberships`, and returns the server-derived `businessId` and role. APIs do not trust request business IDs, roles, metadata, or decoded JWT claims. Settings writes require `owner` or `admin`.
+
+`/api/enquiry` is intentionally public and does not receive the dashboard bearer token. Its current single-business tenant resolution is server-side.
+
+## Required Vercel variables
+
+| Variable | Scope | Purpose |
 | --- | --- | --- |
-| `SUPABASE_URL` | server only | Supabase project URL used by APIs |
-| `SUPABASE_SERVICE_ROLE_KEY` | server only | privileged database access after application authorization |
-| `SUPABASE_PUBLISHABLE_KEY` | browser-safe | Supabase Auth browser client key |
+| `SUPABASE_URL` | server only | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | server only | privileged server-side data access after application authorisation |
 | `OPENAI_API_KEY` | server only | receptionist model calls |
-| `TENANCY_AUTH_ENABLED=true` | server only | enables authenticated dashboard API enforcement |
+| `SUPABASE_PUBLISHABLE_KEY` | browser-safe config endpoint only | Supabase browser Auth client |
+| `TENANCY_AUTH_ENABLED` | feature gate | private API enforcement; exact value `true` enables it |
+| `FRONTEND_AUTH_ENABLED` | feature gate | login/session UI; exact value `true` enables it |
+| `VOICE_RECEPTIONIST_ENABLED` | server-only feature gate | voice webhook/call-history capability; exact value `true` enables it only after a verified provider adapter and number mapping exist |
 
-The publishable key is not a substitute for RLS. Dashboard APIs must verify the
-Bearer token with Supabase Auth, resolve membership in `business_memberships`,
-and filter every query by the resolved `business_id`. Browser-provided business
-IDs and roles must be ignored for authorization.
-
-The public receptionist remains separate: future tenant routing must use a
-trusted domain/widget credential mapping, never a caller-supplied business ID.
+Never expose server-only values to the browser. The production activation and rollback sequence is maintained in `PRODUCTION_AUTH_ROLLOUT_CHECKLIST.md`.

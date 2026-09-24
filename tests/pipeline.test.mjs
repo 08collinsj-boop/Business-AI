@@ -3,12 +3,12 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 
 const pipelineSource = await readFile(new URL("../api/pipeline.js", import.meta.url), "utf8");
-const authSource = await readFile(new URL("../api/_auth.js", import.meta.url), "utf8");
+const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const result = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
-async function load(enabled, fetchImpl) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = fetchImpl; const source = pipelineSource.replace('from "./_auth.js"', `from "${authUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
+async function load(enabled, fetchImpl) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = fetchImpl; const source = pipelineSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
 function router(api) { return async (url, options = {}) => { if (url.endsWith("/auth/v1/user")) return reply({ id: "user-a" }); if (url.includes("business_memberships")) return reply([{ business_id: "business-a", role: "member" }]); return api(url, options); }; }
 
 test("pipeline preserves legacy mode and scopes all metrics to the authenticated tenant", { concurrency: false }, async () => {
