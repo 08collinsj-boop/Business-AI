@@ -163,3 +163,213 @@ test('receptionist and Marketing both consume only approved uploaded knowledge h
   assert.match(marketing, /getApprovedKnowledgeSafe/);
   assert.match(marketing, /approved_uploaded_knowledge/);
 });
+
+const OWNER_BUSINESS = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const OTHER_BUSINESS = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const SOURCE_A = '22222222-2222-4222-8222-222222222222';
+const SOURCE_B = '33333333-3333-4333-8333-333333333333';
+
+function knowledgeScenario({ role = 'owner', sources = [], items = [] } = {}) {
+  const calls = [];
+  process.env.TENANCY_AUTH_ENABLED = 'true';
+  process.env.SUPABASE_URL = 'https://project.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-secret';
+  globalThis.fetch = async (url, options = {}) => {
+    const value = String(url);
+    const method = options.method || 'GET';
+    calls.push({ url: value, method, body: options.body });
+    if (value.endsWith('/auth/v1/user')) return jsonResponse({ id: '11111111-1111-4111-8111-111111111111', email: 'owner@example.test' });
+    if (value.includes('/rest/v1/business_memberships?')) return jsonResponse([{ business_id: OWNER_BUSINESS, role }]);
+    if (value.includes('/storage/v1/object/upload/sign/business-knowledge/')) {
+      return jsonResponse({ url: `/storage/v1/object/upload/sign/token?token=signed-token-${calls.length}` });
+    }
+    if (value.includes('/storage/v1/object/business-knowledge')) {
+      if (method === 'DELETE') return jsonResponse({});
+      throw new Error(`Unexpected storage fetch ${method} ${value}`);
+    }
+    if (value.includes('/rest/v1/business_audit_events')) return jsonResponse(null);
+    if (value.includes('/rest/v1/business_knowledge_sources')) {
+      if (method === 'GET') {
+        const tenantMatch = value.match(/business_id=eq\.([0-9a-f-]+)/i);
+        const tenantId = tenantMatch ? tenantMatch[1] : null;
+        const scoped = (sources || []).filter(row => !tenantId || row.business_id === tenantId);
+        const idMatch = value.match(/[?&]id=eq\.([0-9a-f-]+)/i);
+        if (idMatch) return jsonResponse(scoped.filter(row => row.id === idMatch[1]));
+        return jsonResponse(scoped);
+      }
+      if (method === 'POST') {
+        const posted = JSON.parse(options.body);
+        return jsonResponse([{ ...posted, created_at: '2026-09-25T10:00:00.000Z', updated_at: '2026-09-25T10:00:00.000Z' }], 201);
+      }
+      if (method === 'DELETE' || method === 'PATCH') return jsonResponse(null);
+    }
+    if (value.includes('/rest/v1/business_knowledge_items')) return jsonResponse(items);
+    throw new Error(`Unexpected fetch ${method} ${value}`);
+  };
+  return calls;
+}
+
+test('handler rejects unsupported file types before any storage call', async () => {
+  const calls = knowledgeScenario({ role: 'owner' });
+  const response = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Menu.exe', mime_type: 'application/octet-stream', size_bytes: 5000 }
+  });
+  assert.equal(response.statusCode, 400);
+  assert.ok(calls.every(entry => !entry.url.includes('business_knowledge_sources') || entry.url.includes('business_memberships')));
+});
+
+test('handler rejects oversized files before any storage call', async () => {
+  const calls = knowledgeScenario({ role: 'owner' });
+  const response = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Menu.pdf', mime_type: 'application/pdf', size_bytes: KNOWLEDGE_MAX_FILE_BYTES + 1 }
+  });
+  assert.equal(response.statusCode, 400);
+  assert.ok(calls.every(entry => !entry.url.includes('/rest/v1/business_knowledge_sources')));
+});
+
+test('owner valid upload returns private signed upload and pending source', async () => {
+  const calls = knowledgeScenario({ role: 'owner', sources: [] });
+  const response = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Menu.pdf', mime_type: 'application/pdf', size_bytes: 5000 }
+  });
+  assert.equal(response.statusCode, 201);
+  assert.equal(response.body.source.status, 'pending_upload');
+  assert.equal(response.body.source.file_name, 'Menu.pdf');
+  assert.equal(response.body.bucket, 'business-knowledge');
+  assert.ok(response.body.path.startsWith('source/'));
+  assert.ok(typeof response.body.token === 'string' && response.body.token.length > 0);
+  assert.doesNotMatch(JSON.stringify(response.body), /service-secret/);
+});
+
+test('duplicate filenames are allowed with unique storage paths', async () => {
+  const calls = knowledgeScenario({ role: 'owner', sources: [] });
+  const first = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Menu.pdf', mime_type: 'application/pdf', size_bytes: 5000 }
+  });
+  const second = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Menu.pdf', mime_type: 'application/pdf', size_bytes: 5000 }
+  });
+  assert.equal(first.statusCode, 201);
+  assert.equal(second.statusCode, 201);
+  assert.notEqual(first.body.source.id, second.body.source.id);
+  assert.notEqual(first.body.path, second.body.path);
+});
+
+test('admin can manage uploads while member reads without managing', async () => {
+  let calls = knowledgeScenario({ role: 'admin', sources: [] });
+  let list = await call(knowledgeHandler, { method: 'GET', headers: { authorization: 'Bearer user-token' } });
+  assert.equal(list.statusCode, 200);
+  assert.equal(list.body.can_manage, true);
+  const created = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Prices.csv', mime_type: 'text/csv', size_bytes: 200 }
+  });
+  assert.equal(created.statusCode, 201);
+
+  calls = knowledgeScenario({ role: 'member', sources: [] });
+  list = await call(knowledgeHandler, { method: 'GET', headers: { authorization: 'Bearer user-token' } });
+  assert.equal(list.statusCode, 200);
+  assert.equal(list.body.can_manage, false);
+  calls.length = 0;
+  const denied = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'create_upload', file_name: 'Prices.csv', mime_type: 'text/csv', size_bytes: 200 }
+  });
+  assert.equal(denied.statusCode, 403);
+  assert.ok(calls.every(entry => !entry.url.includes('/rest/v1/business_knowledge_sources')));
+});
+
+test('cross-tenant knowledge reads return not found', async () => {
+  const otherSource = {
+    id: SOURCE_A, business_id: OTHER_BUSINESS, file_name: 'Secret.pdf',
+    storage_path: 'source/other/Secret.pdf', mime_type: 'application/pdf',
+    size_bytes: 100, status: 'active', created_at: '2026-09-25T10:00:00.000Z', updated_at: '2026-09-25T10:00:00.000Z'
+  };
+  knowledgeScenario({ role: 'owner', sources: [otherSource] });
+  const response = await call(knowledgeHandler, {
+    method: 'GET', headers: { authorization: 'Bearer user-token' }, query: { source_id: SOURCE_A }
+  });
+  assert.equal(response.statusCode, 404);
+});
+
+test('cross-tenant knowledge deletes return not found without touching storage', async () => {
+  const otherSource = {
+    id: SOURCE_A, business_id: OTHER_BUSINESS, file_name: 'Secret.pdf',
+    storage_path: 'source/other/Secret.pdf', mime_type: 'application/pdf',
+    size_bytes: 100, status: 'active', created_at: '2026-09-25T10:00:00.000Z', updated_at: '2026-09-25T10:00:00.000Z'
+  };
+  const calls = knowledgeScenario({ role: 'owner', sources: [otherSource] });
+  const response = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'remove', source_id: SOURCE_A }
+  });
+  assert.equal(response.statusCode, 404);
+  assert.ok(calls.every(entry => !(entry.url.includes('/storage/v1/object/business-knowledge') && entry.method === 'DELETE')));
+});
+
+test('owner deletion removes only their own storage object and metadata', async () => {
+  const ownSource = {
+    id: SOURCE_B, business_id: OWNER_BUSINESS, file_name: 'Menu.pdf',
+    storage_path: 'source/mine/Menu.pdf', mime_type: 'application/pdf',
+    size_bytes: 100, status: 'failed', created_at: '2026-09-25T10:00:00.000Z', updated_at: '2026-09-25T10:00:00.000Z'
+  };
+  const calls = knowledgeScenario({ role: 'owner', sources: [ownSource] });
+  const response = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'remove', source_id: SOURCE_B }
+  });
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.body, { removed: true });
+  const storageDelete = calls.find(entry => entry.url.includes('/storage/v1/object/business-knowledge') && entry.method === 'DELETE');
+  assert.ok(storageDelete);
+  assert.match(String(storageDelete.body), /source\/mine\/Menu\.pdf/);
+  const metadataDelete = calls.find(entry => entry.url.includes('/rest/v1/business_knowledge_sources') && entry.method === 'DELETE');
+  assert.ok(metadataDelete);
+  assert.ok(metadataDelete.url.includes(`business_id=eq.${OWNER_BUSINESS}`));
+  assert.ok(metadataDelete.url.includes(`id=eq.${SOURCE_B}`));
+});
+
+test('deleting a missing knowledge file returns a safe not-found error', async () => {
+  knowledgeScenario({ role: 'owner', sources: [] });
+  const response = await call(knowledgeHandler, {
+    method: 'POST', headers: { authorization: 'Bearer user-token' },
+    body: { action: 'remove', source_id: SOURCE_A }
+  });
+  assert.equal(response.statusCode, 404);
+  assert.equal(response.body.error, 'Knowledge source not found');
+});
+
+test('client-supplied business IDs cannot bypass tenancy on remove or finalize', async () => {
+  const calls = knowledgeScenario({ role: 'owner', sources: [] });
+  for (const action of ['remove', 'finalize']) {
+    const response = await call(knowledgeHandler, {
+      method: 'POST', headers: { authorization: 'Bearer user-token' },
+      body: { action, source_id: SOURCE_A, business_id: OTHER_BUSINESS }
+    });
+    assert.equal(response.statusCode, 400);
+  }
+  assert.ok(calls.every(entry => !entry.url.includes('/rest/v1/business_knowledge_sources')));
+});
+
+test('empty knowledge library lists zero sources with an empty state', async () => {
+  knowledgeScenario({ role: 'owner', sources: [], items: [] });
+  const response = await call(knowledgeHandler, { method: 'GET', headers: { authorization: 'Bearer user-token' } });
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.body.sources, []);
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /No files uploaded yet/);
+});
+
+test('knowledge list rows expose file name, type, size, upload date and status', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /source\.file_name/);
+  assert.match(html, /source\.mime_type/);
+  assert.match(html, /knowledgeBytes\(source\.size_bytes\)/);
+  assert.match(html, /timeLabel\(source\.created_at\)/);
+  assert.match(html, /knowledgeStatusLabel\(source\.status\)/);
+});
