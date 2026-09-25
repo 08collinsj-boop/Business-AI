@@ -32,7 +32,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260923213424_add_marketing_billing_period_allowances.sql",
     "20260925174629_fix_stripe_marketing_entitlement_sync.sql",
     "20260925174915_align_stripe_entitlement_expiry_constraint.sql",
-    "20260925200000_add_marketing_schedules.sql"
+    "20260925200000_add_marketing_schedules.sql",
+    "20260925210000_add_feedback_title_and_other.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -150,4 +151,15 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   const onboardingState = contents.get("20260917221830_add_resumable_business_onboarding_state.sql");
   assert.match(onboardingState, /add column if not exists onboarding_step/i);
   assert.match(onboardingState, /service_delivery_mode/i);
+  const schedules = contents.get("20260925200000_add_marketing_schedules.sql");
+  assert.match(schedules, /create table if not exists public\.marketing_schedules/i);
+  assert.match(schedules, /foreign key \(marketing_generation_id, business_id\)/i);
+  assert.match(schedules, /alter table public\.marketing_schedules enable row level security/i);
+  assert.match(schedules, /revoke all on public\.marketing_schedules from anon, authenticated/i);
+  assert.match(schedules, /members read own marketing schedules/i);
+  const feedbackTitle = contents.get("20260925210000_add_feedback_title_and_other.sql");
+  assert.match(feedbackTitle, /add column if not exists title/i);
+  assert.match(feedbackTitle, /pilot_feedback_title_check/i);
+  assert.match(feedbackTitle, /pilot_feedback_category_check/i);
+  assert.match(feedbackTitle, /'other'/i);
 });
