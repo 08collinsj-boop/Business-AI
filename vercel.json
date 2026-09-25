@@ -73,6 +73,10 @@
       "destination": "/api/operations?operation=marketing-publications"
     },
     {
+      "source": "/api/marketing-schedules",
+      "destination": "/api/operations?operation=marketing-schedules"
+    },
+    {
       "source": "/api/marketing-scheduler",
       "destination": "/api/operations?operation=marketing-scheduler"
     },

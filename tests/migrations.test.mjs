@@ -31,7 +31,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260923200000_add_marketing_publishing_and_feedback.sql",
     "20260923213424_add_marketing_billing_period_allowances.sql",
     "20260925174629_fix_stripe_marketing_entitlement_sync.sql",
-    "20260925174915_align_stripe_entitlement_expiry_constraint.sql"
+    "20260925174915_align_stripe_entitlement_expiry_constraint.sql",
+    "20260925200000_add_marketing_schedules.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);

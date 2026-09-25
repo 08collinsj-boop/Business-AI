@@ -12,6 +12,7 @@ import billingHandler from "../lib/billing-handler.js";
 import publicConfigHandler from "../lib/public-config-handler.js";
 import metaHandler from '../lib/meta-handler.js';
 import marketingPublicationHandler from '../lib/marketing-publication-handler.js';
+import marketingScheduleHandler from '../lib/marketing-schedule-handler.js';
 import marketingSchedulerHandler from '../lib/marketing-scheduler-handler.js';
 import feedbackHandler from '../lib/feedback-handler.js';
 
@@ -33,6 +34,7 @@ const handlers = Object.freeze({
   "public-config": publicConfigHandler,
   meta: metaHandler,
   "marketing-publications": marketingPublicationHandler,
+  "marketing-schedules": marketingScheduleHandler,
   "marketing-scheduler": marketingSchedulerHandler,
   feedback: feedbackHandler
 });
