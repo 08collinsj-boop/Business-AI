@@ -29,8 +29,9 @@ begin
  r := public.reserve_marketing_generation(other_b,u,request,repeat('d',64));
  if r->>'reason' <> 'membership' then raise exception 'Cross-tenant actor accepted'; end if;
  update public.business_billing_accounts set plan='pro',current_period_started_at=now()-interval '1 day',current_period_ends_at=now()+interval '29 days',last_stripe_event_created_at=event_at where business_id=b;
- insert into public.business_feature_entitlements(business_id,feature_key,status,source,source_reference,expires_at)
- values(b,'ai_marketing','active','stripe','si_disposable',now()+interval '29 days');
+ perform public.sync_marketing_entitlement_from_stripe(b,event_at,'si_disposable',now()+interval '29 days',true);
+ perform public.sync_marketing_entitlement_from_stripe(b,event_at,'si_disposable',now()+interval '29 days',true);
+ if (select count(*) from public.business_feature_entitlements where business_id=b and feature_key='ai_marketing' and status='active' and expires_at is null) <> 1 then raise exception 'Stripe activation was not idempotent with null expiry'; end if;
  update public.marketing_generations set created_at=now()-interval '2 days' where business_id=b;
  r := public.reserve_marketing_generation(b,u,request,repeat('e',64));
  if not (r->>'allowed')::boolean then raise exception 'New Stripe period did not reset usage: %',r; end if;
@@ -42,7 +43,7 @@ begin
  r := public.reserve_marketing_generation(b,u,request,repeat('1',64));
  if r->>'reason' <> 'allowance' then raise exception 'Paid generation 101 was not denied: %',r; end if;
  perform public.sync_marketing_entitlement_from_stripe(b,event_at,null,now()+interval '29 days',true);
- if not exists(select 1 from public.business_feature_entitlements where business_id=b and status='active' and expires_at>now()) then raise exception 'Cancellation discarded paid-through access'; end if;
+ if exists(select 1 from public.business_feature_entitlements where business_id=b and status='active') then raise exception 'Removed Marketing item remained active'; end if;
  update public.business_billing_accounts set status='past_due',last_stripe_event_created_at=event_at+interval '1 second' where business_id=b;
  if public.sync_marketing_entitlement_from_stripe(b,event_at,'si_stale',now()+interval '29 days',true) then raise exception 'Stale Stripe event accepted'; end if;
  r := public.reserve_marketing_generation(b,u,request,repeat('2',64));
@@ -51,5 +52,5 @@ begin
  r := public.reserve_marketing_generation(b,u,request,repeat('3',64));
  if r->>'reason' <> 'entitlement' then raise exception 'Expired base with stale add-on was accepted'; end if;
 end $$;
-select 'PASS: Trial 10, paid 100, Stripe-period reset, pending reservations, failed release, deletion accounting, tenant boundary, paid-through cancellation, stale event rejection, base expiry/past_due' as result;
+select 'PASS: Trial 10, paid 100, Stripe-period reset, pending reservations, failed release, deletion accounting, tenant boundary, item removal revocation and idempotent null-expiry activation, stale event rejection, base expiry/past_due' as result;
 rollback;
