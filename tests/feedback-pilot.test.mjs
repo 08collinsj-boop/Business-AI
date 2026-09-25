@@ -81,4 +81,18 @@ test('tester feedback form is mobile-friendly, escaped and has a success state',
   assert.match(html, /value="other">Other/);
 });
 
+test('feedback has exactly one submission path', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const bindings = html.match(/pilotFeedbackForm'\)\?\.addEventListener\('submit',submitPilotFeedback/g) || [];
+  assert.equal(bindings.length, 1);
+  assert.doesNotMatch(html, /assets\/pilot\.js/);
+  await assert.rejects(readFile(new URL('../assets/pilot.js', import.meta.url), 'utf8'), /ENOENT/);
+});
+
+test('privacy copy no longer promises unavailable UI controls', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /lead-data API/);
+  assert.match(html, /contact your Pilot support contact/i);
+});
+
 test.after(()=>{ for(const key of Object.keys(process.env)) if(!(key in saved)) delete process.env[key]; Object.assign(process.env,saved); globalThis.fetch=originalFetch; });
