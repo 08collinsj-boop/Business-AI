@@ -47,7 +47,7 @@
 
   function setBusy(value) {
     busy=value;
-    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule']) if(node(id)) node(id).disabled=value;
+    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy']) if(node(id)) node(id).disabled=value;
     if(node('marketingGenerate')) node('marketingGenerate').textContent=value?'Working…':'Generate draft';
     node('marketingForm')?.setAttribute('aria-busy',String(value));
   }
@@ -73,18 +73,72 @@
     node('marketingResult').hidden=false; node('marketingEmpty').hidden=true;
   }
 
-  async function loadHistory(){
-    try { const data=await api('/api/marketing?limit=30'); history=Array.isArray(data.generations)?data.generations:[]; }
-    catch { history=[]; }
+  const historyFilter=()=>({platform:node('marketingFilterPlatform')?.value||'',contentType:node('marketingFilterType')?.value||'',sort:node('marketingFilterSort')?.value||'newest'});
+  const historyStatus=text=>{const target=node('marketingHistoryStatus');if(target)target.textContent=text||'';};
+  const previewText=value=>{const text=String(value||'').trim();return text.length>140?`${text.slice(0,140)}…`:text;};
+
+  function filteredHistory(){
+    const filter=historyFilter();
+    const rows=history.filter(item=>(!filter.platform||item.platform===filter.platform)&&(!filter.contentType||item.content_type===filter.contentType));
+    rows.sort((a,b)=>filter.sort==='oldest'?String(a.created_at||'').localeCompare(String(b.created_at||'')):String(b.created_at||'').localeCompare(String(a.created_at||'')));
+    return rows;
+  }
+
+  function renderHistory(){
     const target=node('marketingHistory'); if(!target)return;
-    if(!history.length){target.innerHTML='<div class="empty">No saved drafts yet.</div>';return;}
-    target.innerHTML=history.map(item=>`<article class="work-item ${item.id===currentGenerationId?'marketing-history-active':''}"><div class="work-item-top"><div><h4>${esc(item.request_text)}</h4><div class="work-meta">${esc(item.platform)} · ${esc(item.tone)} · ${esc(when(item.created_at))}</div></div><span class="tag">${item.approval_status==='approved'?'Approved':'Draft'}</span></div><div class="work-actions"><button class="small-btn" type="button" data-open-marketing="${esc(item.id)}">Open</button></div></article>`).join('');
+    if(!history.length){target.innerHTML='<div class="empty">No marketing drafts yet. Create your first draft above and it will be saved here.</div>';historyStatus('');return;}
+    const rows=filteredHistory();
+    if(!rows.length){target.innerHTML='<div class="empty">No drafts match these filters. Try a different platform or content type.</div>';historyStatus(`${history.length} saved ${history.length===1?'draft':'drafts'} · none match the current filters`);return;}
+    historyStatus(`${rows.length} of ${history.length} saved ${history.length===1?'draft':'drafts'}`);
+    target.innerHTML=rows.map(item=>{const preview=item.output?.edited_output?.main_copy||item.output?.main_copy||item.request_text||'';return `<article class="work-item ${item.id===currentGenerationId?'marketing-history-active':''}"><div class="work-item-top"><div><h4>${esc(item.platform)} · ${esc(item.content_type)}</h4><div class="work-meta">${esc(item.tone)} · ${esc(when(item.created_at))} · ${item.approval_status==='approved'?'Approved':'Draft'}</div></div><span class="tag">${item.approval_status==='approved'?'Approved':'Draft'}</span></div><div class="work-meta marketing-preview">${esc(previewText(preview))}</div><div class="work-actions"><button class="small-btn" type="button" data-open-marketing="${esc(item.id)}">Open</button><button class="small-btn" type="button" data-reuse-marketing="${esc(item.id)}">Use again</button><button class="small-btn" type="button" data-delete-marketing="${esc(item.id)}">Delete</button></div></article>`;}).join('');
     target.querySelectorAll('[data-open-marketing]').forEach(button=>button.addEventListener('click',()=>openGeneration(button.dataset.openMarketing)));
+    target.querySelectorAll('[data-reuse-marketing]').forEach(button=>button.addEventListener('click',()=>reuseGeneration(button.dataset.reuseMarketing)));
+    target.querySelectorAll('[data-delete-marketing]').forEach(button=>button.addEventListener('click',()=>deleteHistoryGeneration(button.dataset.deleteMarketing)));
+  }
+
+  async function loadHistory(){
+    const target=node('marketingHistory'); if(target)target.innerHTML='<div class="empty">Loading your drafts…</div>'; historyStatus('Loading…');
+    try { const data=await api('/api/marketing?limit=30'); history=Array.isArray(data.generations)?data.generations:[]; }
+    catch(error){ history=[]; if(target)target.innerHTML='<div class="empty">Could not load your drafts. Check your connection and press Refresh.</div>'; historyStatus(error?.message||'Drafts are unavailable right now.'); return; }
+    renderHistory();
+  }
+
+  function fillFormFromGeneration(generation){
+    if(!generation)return false;
+    if(node('marketingType'))node('marketingType').value=generation.content_type||'social_post';
+    if(node('marketingPlatform'))node('marketingPlatform').value=generation.platform||'facebook';
+    if(node('marketingTone'))node('marketingTone').value=generation.tone||'friendly';
+    if(node('marketingPrompt'))node('marketingPrompt').value=generation.request_text||'';
+    if(node('marketingExtra'))node('marketingExtra').value=generation.extra_instructions||'';
+    return true;
   }
 
   async function openGeneration(id){
-    try { const data=await api(`/api/marketing?generation_id=${encodeURIComponent(id)}`); const generation=data.generation; if(!generation)return; node('marketingType').value=generation.content_type; node('marketingPlatform').value=generation.platform; node('marketingTone').value=generation.tone; node('marketingPrompt').value=generation.request_text; node('marketingExtra').value=generation.extra_instructions||''; renderCurrent(generation); await loadHistory(); node('marketingResult').scrollIntoView({behavior:'smooth',block:'start'}); }
+    try { const data=await api(`/api/marketing?generation_id=${encodeURIComponent(id)}`); const generation=data.generation; if(!generation)return; fillFormFromGeneration(generation); renderCurrent(generation); renderHistory(); tab('create'); node('marketingResult').scrollIntoView({behavior:'smooth',block:'start'}); }
     catch(error){message(error.message||'Could not open that draft.');}
+  }
+
+  async function reuseGeneration(id){
+    const cached=history.find(item=>item.id===id);
+    const apply=generation=>{ if(!fillFormFromGeneration(generation))return; renderHistory(); tab('create'); message('Draft details copied into the form. Press Generate draft when you are ready — nothing has been generated yet.'); node('marketingForm').scrollIntoView({behavior:'smooth',block:'start'}); node('marketingPrompt')?.focus(); };
+    if(cached&&cached.request_text){ apply(cached); return; }
+    try { const data=await api(`/api/marketing?generation_id=${encodeURIComponent(id)}`); if(data.generation)apply(data.generation); }
+    catch(error){message(error.message||'Could not reuse that draft.');}
+  }
+
+  async function deleteHistoryGeneration(id){
+    if(!confirm('Delete this Marketing draft from your library?'))return;
+    try{await api('/api/marketing',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete',generation_id:id})}); if(id===currentGenerationId){currentGenerationId=null;currentGeneration=null;output=null;renderCurrent(null);} message('Draft deleted.'); await loadHistory();}
+    catch(error){message(error.message||'Could not delete this draft.');}
+  }
+
+  function tab(name){
+    const create=name!=='history';
+    if(node('marketingCreatePane'))node('marketingCreatePane').hidden=!create;
+    if(node('marketingHistoryPane'))node('marketingHistoryPane').hidden=create;
+    if(node('marketingTabCreate')){node('marketingTabCreate').setAttribute('aria-selected',String(create));node('marketingTabCreate').classList.toggle('primary-action',create);}
+    if(node('marketingTabHistory')){node('marketingTabHistory').setAttribute('aria-selected',String(!create));node('marketingTabHistory').classList.toggle('primary-action',!create);}
+    if(!create)renderHistory();
   }
 
   async function generate(event){
@@ -129,8 +183,15 @@
   }
 
   node('marketingForm')?.addEventListener('submit',generate);node('marketingRegenerate')?.addEventListener('click',generate);node('marketingSaveDraft')?.addEventListener('click',saveDraft);node('marketingApprove')?.addEventListener('click',approveDraft);node('marketingDelete')?.addEventListener('click',deleteDraft);node('marketingEdit')?.addEventListener('click',()=>{node('marketingPrompt').focus();node('marketingForm').scrollIntoView({behavior:'smooth',block:'start'});});
-  node('marketingCopy')?.addEventListener('click',async()=>{const value=outputFromEditor();try{await navigator.clipboard.writeText([value.main_copy,value.call_to_action,value.hashtags.join(' ')].filter(Boolean).join('\n\n'));message('Post, call-to-action and hashtags copied.');}catch{message('Copy is unavailable. Select the draft text to copy it manually.');}});
-  node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
+  async function copyMarketingField(field){
+    const value=outputFromEditor();
+    const text=field==='main'?value.main_copy:field==='short'?value.short_alternative:field==='cta'?value.call_to_action:field==='tags'?value.hashtags.join(' '):[value.main_copy,value.short_alternative,value.call_to_action,value.hashtags.join(' ')].filter(Boolean).join('\n\n');
+    const label=field==='main'?'Main post copied.':field==='short'?'Shorter version copied.':field==='cta'?'Call-to-action copied.':field==='tags'?'Hashtags copied.':'Post, shorter version, call-to-action and hashtags copied.';
+    if(!text)return message('There is nothing to copy yet.');
+    try{await navigator.clipboard.writeText(text);message(label);}
+    catch{message('Copy is unavailable. Select the draft text to copy it manually.');}
+  }
+  node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();setBusy(false);node('marketingForm')?.reset();renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus'])node(id)?.replaceChildren();}};
 })();
