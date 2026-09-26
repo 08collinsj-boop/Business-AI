@@ -96,7 +96,7 @@ function setup({
       SUPABASE_SERVICE_ROLE_KEY:
         'fake-service-key',
 
-      OPENAI_API_KEY:
+      OPENROUTER_API_KEY:
         'fake-provider-key'
     }
   );
@@ -213,7 +213,7 @@ function setup({
 
     if (
       url.startsWith(
-        'https://api.openai.com'
+        'https://openrouter.ai'
       )
     ) {
       return response({
@@ -746,7 +746,7 @@ test(
     assert.ok(
       calls.every(
         call =>
-          !/business_settings|openai|reserve_marketing/.test(
+          !/business_settings|openrouter|reserve_marketing/.test(
             call.url
           )
       )
@@ -827,7 +827,7 @@ for (
           calls.find(
             call =>
               call.url.includes(
-                'api.openai.com'
+                'openrouter.ai'
               )
           ).options.body
         );
@@ -864,10 +864,15 @@ for (
         undefined
       );
 
-      // This is a simple structured copy-generation task.
+      // Keep the free router compatible with the widest model pool.
       assert.equal(
-        modelCall.reasoning.effort,
-        'none'
+        modelCall.reasoning,
+        undefined
+      );
+
+      assert.equal(
+        modelCall.model,
+        'openrouter/free'
       );
 
       assert.equal(
@@ -957,7 +962,7 @@ for (
         calls.every(
           call =>
             !call.url.includes(
-              'openai'
+              'openrouter'
             )
         )
       );
@@ -1037,7 +1042,7 @@ test(
       calls.every(
         call =>
           !call.url.includes(
-            'openai'
+            'openrouter'
           )
       )
     );
@@ -1071,7 +1076,7 @@ test(
       calls.every(
         call =>
           !call.url.includes(
-            'openai'
+            'openrouter'
           )
       )
     );
@@ -1107,7 +1112,7 @@ test(
           calls.find(
             call =>
               call.url.includes(
-                'openai'
+                'openrouter'
               )
           ).options.body
         ).input
@@ -1264,7 +1269,7 @@ test(
         options
       ) =>
         url.includes(
-          'openai'
+          'openrouter'
         )
           ? response(
               {
