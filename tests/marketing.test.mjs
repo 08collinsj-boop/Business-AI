@@ -891,6 +891,11 @@ for (
         'json_schema'
       );
 
+      assert.equal(
+        modelCall.max_tokens,
+        1200
+      );
+
       assert.ok(
         calls.find(
           call =>
