@@ -220,16 +220,28 @@ function setup({
         id:
           'response-a',
 
-        output_text:
-          typeof model === 'string'
-            ? model
-            : JSON.stringify(model),
+        model:
+          'openrouter/test-free',
+
+        choices: [
+          {
+            finish_reason:
+              'stop',
+
+            message: {
+              content:
+                typeof model === 'string'
+                  ? model
+                  : JSON.stringify(model)
+            }
+          }
+        ],
 
         usage: {
-          input_tokens:
+          prompt_tokens:
             150,
 
-          output_tokens:
+          completion_tokens:
             100
         }
       });
@@ -834,7 +846,7 @@ for (
 
       const context =
         JSON.parse(
-          modelCall.input
+          modelCall.messages[1].content
         );
 
       assert.equal(
@@ -864,20 +876,19 @@ for (
         undefined
       );
 
-      // Keep the free router compatible with the widest model pool.
-      assert.equal(
-        modelCall.reasoning,
-        undefined
-      );
-
       assert.equal(
         modelCall.model,
         'openrouter/free'
       );
 
       assert.equal(
-        modelCall.store,
-        false
+        modelCall.provider.require_parameters,
+        true
+      );
+
+      assert.equal(
+        modelCall.response_format.type,
+        'json_schema'
       );
 
       assert.ok(
@@ -1115,7 +1126,7 @@ test(
                 'openrouter'
               )
           ).options.body
-        ).input
+        ).messages[1].content
       );
 
     assert.match(
