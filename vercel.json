@@ -81,6 +81,14 @@
       "destination": "/api/operations?operation=marketing-scheduler"
     },
     {
+      "source": "/api/marketing-images",
+      "destination": "/api/operations?operation=marketing-images"
+    },
+    {
+      "source": "/api/marketing-automation",
+      "destination": "/api/operations?operation=marketing-automation"
+    },
+    {
       "source": "/api/feedback",
       "destination": "/api/operations?operation=feedback"
     }
@@ -89,5 +97,11 @@
     "deploymentEnabled": {
       "pilot-ready-20260923": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/marketing-scheduler",
+      "schedule": "0 8 * * *"
+    }
+  ]
 }

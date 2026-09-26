@@ -1,5 +1,5 @@
 (() => {
-  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null;
+  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, automationState = null, imageGenerationMode = 'simulate';
   const node = id => document.getElementById(id);
   const message = text => { const target=node('marketingMessage'); if(target) target.textContent = text || ''; };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
@@ -47,7 +47,7 @@
 
   function setBusy(value) {
     busy=value;
-    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft']) if(node(id)) node(id).disabled=value;
+    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingAutomationSave','marketingAutomationRun']) if(node(id)) node(id).disabled=value;
     if(node('marketingGenerate')) node('marketingGenerate').textContent=value?'Working…':'Generate draft';
     node('marketingForm')?.setAttribute('aria-busy',String(value));
   }
@@ -71,6 +71,7 @@
     node('marketingApprove').hidden=authenticatedBusinessRole!=='owner'||approved; node('marketingSaveDraft').hidden=approved; node('marketingDelete').hidden=!['owner','admin'].includes(authenticatedBusinessRole); node('marketingPublishControls').hidden=!approved;
     for(const id of ['marketing_main_copy','marketing_short_alternative','marketing_call_to_action','marketing_hashtags']) node(id).disabled=approved;
     node('marketingResult').hidden=false; node('marketingEmpty').hidden=true;
+    void loadImageForCurrent();
   }
 
   const historyFilter=()=>({platform:node('marketingFilterPlatform')?.value||'',contentType:node('marketingFilterType')?.value||'',sort:node('marketingFilterSort')?.value||'newest'});
@@ -246,6 +247,101 @@
   async function approveDraft(){ if(!currentGenerationId||busy)return; setBusy(true); try{const result=await api('/api/marketing',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',generation_id:currentGenerationId})}); renderCurrent(result.generation); message('Approved. You can now publish or schedule this exact reviewed version.'); await Promise.all([loadHistory(),loadMeta(),loadPublications()]);}catch(error){message(error.message||'Could not approve this draft.');}finally{setBusy(false);} }
   async function deleteDraft(){ if(!currentGenerationId||busy)return; if(!confirm('Delete this Marketing draft from your library?'))return; setBusy(true); try{await api('/api/marketing',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete',generation_id:currentGenerationId})}); currentGenerationId=null;currentGeneration=null;output=null;renderCurrent(null);message('Draft deleted.');await loadHistory();}catch(error){message(error.message||'Could not delete this draft.');}finally{setBusy(false);} }
 
+
+  function renderImage(){
+    const status=node('marketingImageStatus'),preview=node('marketingImagePreview');
+    if(!status||!preview)return;
+    preview.replaceChildren();
+    if(!currentGenerationId){status.textContent='No image requested for this draft.';return;}
+    if(!imageState){status.textContent=imageGenerationMode==='simulate'?'Image generation is in simulation mode. No paid image has been created.':'No image has been generated for this draft yet.';return;}
+    if(imageState.status==='simulated'){status.textContent='Simulation passed. The paid image-generation path is ready, but no real image was created or charged.';return;}
+    if(imageState.status==='failed'){status.textContent=imageState.failure_message||'Image generation failed.';return;}
+    if(imageState.status==='pending'){status.textContent='Image generation is still processing…';return;}
+    if(imageState.status==='completed'&&imageState.image_url){
+      status.textContent='Image ready. Facebook publishing will use this image with the approved post.';
+      const img=document.createElement('img');img.src=imageState.image_url;img.alt='Generated marketing image preview';img.className='marketing-image-preview';preview.append(img);return;
+    }
+    status.textContent='Image state is unavailable.';
+  }
+
+  async function loadImageForCurrent(){
+    imageState=null;
+    if(!currentGenerationId){renderImage();return;}
+    try{
+      const data=await api('/api/marketing-images?generation_id='+encodeURIComponent(currentGenerationId));
+      imageState=data.image||null;
+      imageGenerationMode=data.configuration?.mode||imageGenerationMode;
+    }catch{imageState=null;}
+    renderImage();
+  }
+
+  async function generateImage(){
+    if(!currentGenerationId||busy)return message('Create or open a saved Marketing draft first.');
+    setBusy(true);message(imageGenerationMode==='simulate'?'Testing the image-generation backend…':'Generating a marketing image…');
+    try{
+      const data=await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'generate',generation_id:currentGenerationId})});
+      imageState=data.image||null;imageGenerationMode=data.configuration?.mode||imageGenerationMode;renderImage();
+      message(imageState?.simulation?'Image simulation passed. No paid image was generated.':'Marketing image generated and attached to this draft.');
+    }catch(error){message(error?.message||'Could not generate an image for this draft.');}
+    finally{setBusy(false);}
+  }
+
+  function renderAutomation(){
+    const settings=automationState||{enabled:false,mode:'approval_required',tone:'friendly',image_enabled:false};
+    const owner=authenticatedBusinessRole==='owner';
+    if(node('marketingAutomationMode')){node('marketingAutomationMode').value=settings.mode||'approval_required';node('marketingAutomationMode').disabled=!owner;}
+    if(node('marketingAutomationTone')){node('marketingAutomationTone').value=settings.tone||'friendly';node('marketingAutomationTone').disabled=!owner;}
+    if(node('marketingAutomationEnabled')){node('marketingAutomationEnabled').checked=settings.enabled===true;node('marketingAutomationEnabled').disabled=!owner;}
+    if(node('marketingAutomationImage')){node('marketingAutomationImage').checked=settings.image_enabled===true;node('marketingAutomationImage').disabled=!owner;}
+    if(node('marketingAutomationSave'))node('marketingAutomationSave').hidden=!owner;
+    if(node('marketingAutomationRun'))node('marketingAutomationRun').hidden=!owner;
+    if(node('marketingAutomationBadge'))node('marketingAutomationBadge').textContent=settings.mode==='fully_automated'?'Fully automated':'Approval required';
+    const last=settings.last_status?('Last run: '+settings.last_status.replaceAll('_',' ')+(settings.last_run_at?' · '+when(settings.last_run_at):'')):'No automated run yet.';
+    if(node('marketingAutomationStatus'))node('marketingAutomationStatus').textContent=last+(settings.last_error_code?' · '+settings.last_error_code:'');
+    if(node('marketingAutomationHint')){
+      const imageNote=imageGenerationMode==='simulate'?'Image generation is currently simulated, so automated Facebook posts remain text-only until live image generation is enabled.':'Generated images can be attached to Facebook posts.';
+      node('marketingAutomationHint').textContent=(settings.mode==='fully_automated'?'Fully automated mode can generate, approve and publish a daily Facebook post without asking first. ':'Approval required mode creates a daily draft and waits for the owner. ')+imageNote;
+    }
+  }
+
+  async function loadAutomation(){
+    try{
+      const data=await api('/api/marketing-automation');
+      automationState=data.settings||null;
+      imageGenerationMode=data.image_generation_mode||imageGenerationMode;
+    }catch{automationState=null;}
+    renderAutomation();
+  }
+
+  async function saveAutomation(){
+    if(authenticatedBusinessRole!=='owner'||busy)return;
+    const body={
+      enabled:Boolean(node('marketingAutomationEnabled')?.checked),
+      mode:node('marketingAutomationMode')?.value||'approval_required',
+      tone:node('marketingAutomationTone')?.value||'friendly',
+      image_enabled:Boolean(node('marketingAutomationImage')?.checked)
+    };
+    setBusy(true);
+    try{
+      const data=await api('/api/marketing-automation',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      automationState=data.settings||body;imageGenerationMode=data.image_generation_mode||imageGenerationMode;renderAutomation();
+      message(body.enabled?(body.mode==='fully_automated'?'Fully automated Facebook Marketing enabled.':'Daily Marketing drafts enabled with owner approval required.'):'Marketing automation disabled.');
+    }catch(error){message(error?.message||'Could not save Marketing automation settings.');}
+    finally{setBusy(false);}
+  }
+
+  async function runAutomationNow(){
+    if(authenticatedBusinessRole!=='owner'||busy)return;
+    setBusy(true);message('Running Marketing automation now…');
+    try{
+      const data=await api('/api/marketing-automation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'run_now'})});
+      const result=data.result||{};
+      message(result.status==='published'?'Automated Facebook post published successfully.':result.status==='draft_created'?'Automated draft created and saved for your approval.':'Automation completed.');
+      await Promise.all([loadHistory(),loadPublications(),loadAutomation()]);
+    }catch(error){message(error?.message||'Marketing automation could not run.');await loadAutomation();}
+    finally{setBusy(false);}
+  }
+
   async function loadMeta(){
     try{metaState=await api('/api/meta');}catch{metaState=null;}
     const badge=node('metaConnectionBadge'),status=node('metaConnectionStatus'),accounts=node('metaAccounts'),connect=node('metaConnect'),disconnect=node('metaDisconnect'); if(!badge)return;
@@ -272,7 +368,7 @@
     if(!['addons','marketing','settings'].includes(view))return; const current=++epoch;
     if(view==='marketing'){node('marketingCreator').hidden=true;node('marketingLocked').hidden=true;message('Checking Marketing access…');}
     if(view==='addons')node('addonStatus').textContent='Loading additional features…';
-    try{const result=await api('/api/addons');if(current!==epoch)return;addons=result.addons||[];renderAddons();renderPricing();if(node('addonStatus'))node('addonStatus').textContent='';if(view==='marketing'){const active=addons.some(a=>a.key==='ai_marketing'&&a.entitlement==='active');node('marketingCreator').hidden=!active;node('marketingLocked').hidden=active;if(!active){renderCurrent(null);message('');return;}await Promise.all([loadHistory(),loadMeta(),loadPublications(),loadSchedules()]);const query=new URLSearchParams(location.search);if(query.get('meta')==='connected')message('Facebook connection completed. Select the Page Business AI may use.');else if(query.get('meta')==='error')message('Facebook connection was not completed. Check the Meta setup and try again.');else message('');}}
+    try{const result=await api('/api/addons');if(current!==epoch)return;addons=result.addons||[];renderAddons();renderPricing();if(node('addonStatus'))node('addonStatus').textContent='';if(view==='marketing'){const active=addons.some(a=>a.key==='ai_marketing'&&a.entitlement==='active');node('marketingCreator').hidden=!active;node('marketingLocked').hidden=active;if(!active){renderCurrent(null);message('');return;}await Promise.all([loadHistory(),loadMeta(),loadPublications(),loadSchedules(),loadAutomation()]);const query=new URLSearchParams(location.search);if(query.get('meta')==='connected')message('Facebook connection completed. Select the Page Business AI may use.');else if(query.get('meta')==='error')message('Facebook connection was not completed. Check the Meta setup and try again.');else message('');}}
     catch(error){if(current!==epoch)return;if(view==='marketing')message(error.message||'Could not check Marketing access.');if(view==='addons')node('addonStatus').textContent=error.message||'Could not load additional features.';}
   }
 
@@ -285,7 +381,7 @@
     try{await navigator.clipboard.writeText(text);message(label);}
     catch{message('Copy is unavailable. Select the draft text to copy it manually.');}
   }
-  node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
+  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;imageGenerationMode='simulate';setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
 })();
