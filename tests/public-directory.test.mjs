@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readFile } from 'node:fs/promises';
+
+const savedEnv = { ...process.env };
+const savedFetch = globalThis.fetch;
+const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
+const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
+
+async function loadDirectory() {
+  process.env.SUPABASE_URL = 'https://example.supabase.co';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'server-only';
+  const calls = [];
+  globalThis.fetch = async url => {
+    calls.push(String(url));
+    if (String(url).includes('business_public_routes')) return reply([
+      { business_id: 'business-a', route_value: 'collins-ltd' },
+      { business_id: 'business-b', route_value: 'harbour-cafe' }
+    ]);
+    if (String(url).includes('business_settings')) return reply([
+      { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance' },
+      { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch' }
+    ]);
+    if (String(url).includes('business_configurations')) return reply([
+      { business_id: 'business-a', description: 'Local electrical services', service_areas: 'Hartlepool' },
+      { business_id: 'business-b', description: 'Independent cafe', service_areas: 'Hartlepool Marina' }
+    ]);
+    return reply([], false);
+  };
+  const module = await import(new URL('../lib/public-businesses-handler.js?directory=' + Math.random(), import.meta.url));
+  return { handler: module.default, calls };
+}
+
+test('public directory searches public business-facing fields without exposing tenant IDs', { concurrency: false }, async () => {
+  const { handler, calls } = await loadDirectory();
+  const res = response();
+  await handler({ method: 'GET', query: { q: 'electrical', business_id: 'attacker-business' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.businesses.length, 1);
+  assert.deepEqual(res.body.businesses[0], {
+    slug: 'collins-ltd',
+    name: 'Collins LTD',
+    type: 'Electrical services',
+    description: 'Local electrical services',
+    services: 'Electrical repairs and maintenance',
+    service_areas: 'Hartlepool',
+    message_path: '/customer?business=collins-ltd'
+  });
+  assert.equal('business_id' in res.body.businesses[0], false);
+  assert.ok(calls.every(url => !url.includes('attacker-business')));
+});
+
+test('public directory returns active businesses alphabetically when no search is supplied', { concurrency: false }, async () => {
+  const { handler } = await loadDirectory();
+  const res = response();
+  await handler({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body.businesses.map(item => item.name), ['Collins LTD', 'Harbour Cafe']);
+  assert.equal(res.headers['Cache-Control'], 'public, max-age=30, stale-while-revalidate=60');
+});
+
+test('customer portal keeps owner login separate and supports search then direct messaging', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const vercel = await readFile(new URL('../vercel.json', import.meta.url), 'utf8');
+  assert.match(html, /id="publicDirectoryScreen"/);
+  assert.match(html, /id="publicDirectorySearch"/);
+  assert.match(html, /Message a business directly/);
+  assert.match(html, /Looking for a business\?/);
+  assert.match(html, /new URL\('\/api\/public-businesses'/);
+  assert.match(html, /new URL\('\/customer'/);
+  assert.match(html, /customerPortalFromLocation/);
+  assert.match(html, /Find another business/);
+  assert.match(vercel, /"source": "\/customer"/);
+  assert.match(vercel, /"source": "\/api\/public-businesses"/);
+});
+
+test.after(() => {
+  for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key];
+  Object.assign(process.env, savedEnv);
+  globalThis.fetch = savedFetch;
+});

@@ -234,7 +234,7 @@ test('history rows render metadata, preview and status without raw ids', async (
   assert.match(script, /marketing-preview/);
   assert.match(script, /approval_status/);
   assert.ok(script.includes('esc(item.platform)'));
-  assert.ok(script.includes('esc(previewText(preview))'));
+  assert.ok(script.includes('previewNode.textContent=previewText(preview)') || script.includes('esc(previewText(preview))'));
   assert.doesNotMatch(script, />\$\{item\.id\}/);
 });
 
@@ -256,7 +256,7 @@ test('reuse populates the form without generating', async () => {
   assert.match(reuse, /nothing has been generated yet/i);
   assert.doesNotMatch(reuse, /POST/);
   assert.doesNotMatch(reuse, /generate\(/);
-  assert.ok(script.includes('>Use again<'), 'reuse button label');
+  assert.ok(script.includes("makeButton('Use again','reuseMarketing')") || script.includes('>Use again<'), 'reuse button label');
 });
 
 test('per-field and combined copy actions exist', async () => {
@@ -310,4 +310,16 @@ test('polished Marketing workspace exposes usage, review and automation controls
   assert.match(css, /marketing-usage-grid/);
   assert.match(css, /marketing-review-card/);
   assert.match(css, /marketing-bottom-grid/);
+});
+
+
+test('saved drafts show only the newest item until expanded', async () => {
+  const script = await readFile(new URL('../assets/marketing.js', import.meta.url), 'utf8');
+  assert.match(script, /historyExpanded = false/);
+  assert.match(script, /const visibleRows=historyExpanded\?rows:/);
+  assert.match(script, /See more drafts/);
+  assert.match(script, /Show less/);
+  assert.match(script, /Date\.parse\(b\.created_at/);
+  const css = await readFile(new URL('../assets/marketing.css', import.meta.url), 'utf8');
+  assert.match(css, /marketing-history-toggle/);
 });

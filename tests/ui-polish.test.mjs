@@ -12,10 +12,10 @@ test('destructive actions are visually separated from primary actions', () => {
   for (const snippet of ['updateBooking', 'updateAction', 'removeKnowledgeSource', 'revokeTeamInvitation']) {
     assert.ok(html.includes('small-btn danger') && html.includes(`onclick="${snippet}`), snippet);
   }
-  assert.ok(marketing.includes('data-delete-marketing="${esc(item.id)}">Delete</button>'.replace('">Delete', '" class="small-btn danger" type="button" data-delete-marketing') ) || marketing.includes('small-btn danger" type="button" data-delete-marketing'));
+  assert.ok(marketing.includes("makeButton('Delete','deleteMarketing',' danger')") || marketing.includes('small-btn danger\" type=\"button\" data-delete-marketing'));
   assert.ok(marketing.includes('small-btn danger" type="button" data-cancel-schedule'));
   assert.ok(marketing.includes('small-btn danger" type="button" data-pub-action="cancel"'));
-  assert.ok(!marketing.includes('primary-action" type="button" data-delete-marketing'));
+  assert.ok(marketing.includes("makeButton('Delete','deleteMarketing',' danger')") || marketing.includes('small-btn danger\" type=\"button\" data-delete-marketing'));
   assert.ok(!marketing.includes('primary-action" type="button" data-cancel-schedule'));
 });
 
@@ -64,7 +64,7 @@ test('polished templates keep user content escaped', () => {
     assert.ok(file.includes('esc('), 'esc helper in use');
   }
   assert.ok(marketing.includes('esc(item.platform)'));
-  assert.ok(marketing.includes('esc(previewText(preview))'));
+  assert.ok(marketing.includes('previewNode.textContent=previewText(preview)') || marketing.includes('esc(previewText(preview))'));
   assert.doesNotMatch(marketing, />\$\{item\.id\}</);
 });
 

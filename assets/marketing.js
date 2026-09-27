@@ -1,5 +1,5 @@
 (() => {
-  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, automationState = null, usageState = null, imageGenerationMode = 'simulate';
+  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], historyExpanded = false, metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, automationState = null, usageState = null, imageGenerationMode = 'simulate';
   const node = id => document.getElementById(id);
   const message = text => { const target=node('marketingMessage'); if(target) target.textContent = text || ''; };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
@@ -127,11 +127,43 @@
 
   function renderHistory(){
     const target=node('marketingHistory'); if(!target)return;
-    if(!history.length){target.innerHTML='<div class="empty">No marketing drafts yet. Create your first draft above and it will be saved here.</div>';historyStatus('');return;}
+    target.replaceChildren();
+    if(!history.length){
+      const empty=document.createElement('div');empty.className='empty';empty.textContent='No marketing drafts yet. Create your first draft above and it will be saved here.';target.append(empty);historyStatus('');return;
+    }
     const rows=filteredHistory();
-    if(!rows.length){target.innerHTML='<div class="empty">No drafts match these filters. Try a different platform or content type.</div>';historyStatus(`${history.length} saved ${history.length===1?'draft':'drafts'} · none match the current filters`);return;}
-    historyStatus(`${rows.length} of ${history.length} saved ${history.length===1?'draft':'drafts'}`);
-    target.innerHTML=rows.map(item=>{const preview=item.output?.edited_output?.main_copy||item.output?.main_copy||item.request_text||'';return `<article class="work-item ${item.id===currentGenerationId?'marketing-history-active':''}"><div class="work-item-top"><div><h4>${esc(item.platform)} · ${esc(item.content_type)}</h4><div class="work-meta">${esc(item.tone)} · ${esc(when(item.created_at))} · ${item.approval_status==='approved'?'Approved':'Draft'}</div></div><span class="tag">${item.approval_status==='approved'?'Approved':'Draft'}</span></div><div class="work-meta marketing-preview">${esc(previewText(preview))}</div><div class="work-actions"><button class="small-btn" type="button" data-open-marketing="${esc(item.id)}">Open</button><button class="small-btn" type="button" data-reuse-marketing="${esc(item.id)}">Use again</button><button class="small-btn" type="button" data-schedule-marketing="${esc(item.id)}">Plan post</button><button class="small-btn danger" type="button" data-delete-marketing="${esc(item.id)}">Delete</button></div></article>`;}).join('');
+    if(!rows.length){
+      const empty=document.createElement('div');empty.className='empty';empty.textContent='No drafts match these filters. Try a different platform or content type.';target.append(empty);
+      historyStatus(String(history.length)+' saved '+(history.length===1?'draft':'drafts')+' · none match the current filters');return;
+    }
+    const latest=[...rows].sort((a,b)=>Date.parse(b.created_at||0)-Date.parse(a.created_at||0))[0];
+    const visibleRows=historyExpanded?rows:(latest?[latest]:[]);
+    historyStatus(historyExpanded
+      ? String(rows.length)+' of '+String(history.length)+' saved '+(history.length===1?'draft':'drafts')
+      : 'Showing latest draft · '+String(history.length)+' saved '+(history.length===1?'draft':'drafts'));
+    for(const item of visibleRows){
+      const preview=item.output?.edited_output?.main_copy||item.output?.main_copy||item.request_text||'';
+      const article=document.createElement('article');article.className='work-item'+(item.id===currentGenerationId?' marketing-history-active':'');
+      const top=document.createElement('div');top.className='work-item-top';
+      const titleWrap=document.createElement('div');
+      const title=document.createElement('h4');title.textContent=String(item.platform||'general')+' · '+String(item.content_type||'post');
+      const meta=document.createElement('div');meta.className='work-meta';meta.textContent=String(item.tone||'')+' · '+when(item.created_at)+' · '+(item.approval_status==='approved'?'Approved':'Draft');
+      titleWrap.append(title,meta);
+      const tag=document.createElement('span');tag.className='tag';tag.textContent=item.approval_status==='approved'?'Approved':'Draft';
+      top.append(titleWrap,tag);
+      const previewNode=document.createElement('div');previewNode.className='work-meta marketing-preview';previewNode.textContent=previewText(preview);
+      const actions=document.createElement('div');actions.className='work-actions';
+      const makeButton=(label,kind,extra='')=>{const button=document.createElement('button');button.className='small-btn'+extra;button.type='button';button.textContent=label;button.dataset[kind]=item.id;return button;};
+      actions.append(makeButton('Open','openMarketing'),makeButton('Use again','reuseMarketing'),makeButton('Plan post','scheduleMarketing'),makeButton('Delete','deleteMarketing',' danger'));
+      article.append(top,previewNode,actions);target.append(article);
+    }
+    if(rows.length>1){
+      const wrap=document.createElement('div');wrap.className='marketing-history-toggle';
+      const button=document.createElement('button');button.className='small-btn';button.type='button';button.setAttribute('aria-expanded',historyExpanded?'true':'false');button.textContent=historyExpanded?'Show less':'See more drafts ('+String(rows.length-1)+')';
+      button.addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
+      wrap.append(button);target.append(wrap);
+    }
+    target.classList.toggle('marketing-history-expanded',historyExpanded);
     target.querySelectorAll('[data-open-marketing]').forEach(button=>button.addEventListener('click',()=>openGeneration(button.dataset.openMarketing)));
     target.querySelectorAll('[data-reuse-marketing]').forEach(button=>button.addEventListener('click',()=>reuseGeneration(button.dataset.reuseMarketing)));
     target.querySelectorAll('[data-schedule-marketing]').forEach(button=>button.addEventListener('click',()=>startSchedule(button.dataset.scheduleMarketing)));
@@ -438,5 +470,5 @@
   }
   node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
 })();

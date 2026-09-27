@@ -62,3 +62,8 @@
   .marketing-tabs{position:sticky;top:max(8px,env(safe-area-inset-top));z-index:8;background:rgba(7,17,29,.96);backdrop-filter:blur(12px)}
   .marketing-tabs .small-btn{flex:1 0 auto}.marketing-form,.marketing-review-card{padding:15px}.marketing-schedule-item{grid-template-columns:56px minmax(0,1fr)}.marketing-schedule-date{min-height:58px}.marketing-automation-summary{grid-template-columns:1fr 1fr}.marketing-automation-summary>div:first-child{grid-column:1/-1}
 }
+
+.marketing-history-toggle{display:flex;justify-content:center;padding-top:4px}
+.marketing-history-toggle .small-btn{min-width:160px}
+.marketing-history-expanded .work-item{animation:marketingDraftDrop .16s ease-out}
+@keyframes marketingDraftDrop{from{opacity:.45;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}

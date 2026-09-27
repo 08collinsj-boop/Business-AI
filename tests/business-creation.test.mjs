@@ -54,7 +54,7 @@ test("authenticated user without a membership can atomically create one owner bu
   assert.equal(res.statusCode, 400, "mass-assignment fields are rejected");
   const created = response();
   await handler({ method: "POST", headers: { authorization: "Bearer verified", "x-role": "owner" }, body: { business_name: "Hartlepool Garage", business_type: "Garage", public_slug: "hartlepool-garage" } }, created);
-  assert.equal(created.statusCode, 201); assert.deepEqual(created.body, { public_slug: "hartlepool-garage", public_path: "/?business=hartlepool-garage" });
+  assert.equal(created.statusCode, 201); assert.deepEqual(created.body, { public_slug: "hartlepool-garage", public_path: "/customer?business=hartlepool-garage" });
   const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner"));
   const body = JSON.parse(rpc.options.body); assert.equal(body.p_owner_user_id, "owner-user"); assert.equal(body.p_public_slug, "hartlepool-garage"); assert.equal(body.role, undefined); assert.equal(body.business_id, undefined);
 });

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/customer",
+      "destination": "/index.html"
+    },
+    {
       "source": "/api/audit-log",
       "destination": "/api/operations?operation=audit-log"
     },
@@ -23,6 +27,10 @@
     {
       "source": "/api/public-business",
       "destination": "/api/operations?operation=public-business"
+    },
+    {
+      "source": "/api/public-businesses",
+      "destination": "/api/operations?operation=public-businesses"
     },
     {
       "source": "/api/public-config",
