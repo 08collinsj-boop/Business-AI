@@ -155,16 +155,17 @@
 
   const scheduleMessage=text=>{const target=node('marketingScheduleMessage');if(target)target.textContent=text||'';};
   const scheduleStatus=text=>{const target=node('marketingScheduleStatus');if(target)target.textContent=text||'';};
-  const scheduleLabels={scheduled:'Scheduled',cancelled:'Cancelled',posted:'Posted',failed:'Failed'};
+  const scheduleLabels={scheduled:'Scheduled',processing:'Publishing',cancelled:'Cancelled',posted:'Posted',failed:'Failed'};
 
   function startSchedule(id,platform){
     const cached=history.find(item=>item.id===id)||(id===currentGenerationId?currentGeneration:null);
     if(!cached){message('Open the draft first, then choose Schedule.');return;}
+    if(cached.approval_status!=='approved'){message('Approve the draft before scheduling it.');return;}
     scheduleDraftId=cached.id||id;
     if(node('marketingSchedulePlatform'))node('marketingSchedulePlatform').value=platform||cached.platform||'facebook';
     const summary=node('marketingScheduleDraftSummary');
     if(summary)summary.textContent=`Scheduling: ${(cached.platform||'general')} · ${(cached.content_type||'post').replaceAll('_',' ')} — ${(cached.request_text||'saved draft').slice(0,120)}`;
-    scheduleMessage('Choose a future date and time, then press Schedule post. Nothing will be published.');
+    scheduleMessage('Choose a future date and time, then press Schedule post. Business AI will publish it automatically at that time.');
     tab('schedule');
     node('marketingScheduleDate')?.focus();
   }
@@ -193,7 +194,7 @@
     setBusy(true);scheduleMessage('Saving your scheduled post…');
     try{
       const result=await api('/api/marketing-schedules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create',generation_id:scheduleDraftId,platform:node('marketingSchedulePlatform')?.value||'facebook',scheduled_for:scheduledFor})});
-      scheduleMessage(`Scheduled for ${when(result.schedule.scheduled_for)}. It will stay scheduled until a future system processes it — nothing has been published.`);
+      scheduleMessage(`Scheduled for ${when(result.schedule.scheduled_for)}. Business AI will publish it automatically.`);
       clearScheduleForm();await loadSchedules();
     }catch(error){scheduleMessage(error?.message||'Could not save this scheduled post.');}
     finally{setBusy(false);}

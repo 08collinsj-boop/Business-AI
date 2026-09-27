@@ -21,7 +21,7 @@ const OUTPUT = {
 const generationRow = {
   id: GENERATION, content_type: 'social_post', platform: 'facebook', tone: 'friendly',
   request_text: 'Promote weekend repairs', output: OUTPUT, edited_output: null,
-  approval_status: 'draft', created_at: '2026-09-20T10:00:00.000Z'
+  approval_status: 'approved', created_at: '2026-09-20T10:00:00.000Z'
 };
 const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 const scheduleRow = {
@@ -100,6 +100,17 @@ test('valid schedule creation stores a future UTC timestamp', async () => {
   assert.equal(stored.business_id, BUSINESS);
   assert.equal(stored.marketing_generation_id, GENERATION);
   assert.equal(stored.status, 'scheduled');
+});
+
+test('unapproved drafts cannot be scheduled', async () => {
+  setup({ generations: [{ ...generationRow, approval_status: 'draft' }] });
+  const response = res();
+  await scheduleHandler(
+    { method: 'POST', query: {}, headers: authed, body: { action: 'create', generation_id: GENERATION, platform: 'facebook', scheduled_for: future } },
+    response
+  );
+  assert.equal(response.statusCode, 409);
+  assert.match(response.body.error, /Approve this draft/);
 });
 
 test('unauthenticated schedule access is rejected', async () => {
