@@ -1016,11 +1016,45 @@ body.auth-ready .app{max-width:680px;padding-top:max(30px,calc(env(safe-area-ins
 .small-btn.danger{border-color:rgba(255,107,107,.45);color:#ff9d9d;background:rgba(255,107,107,.08)}
 .work-item h4,.work-meta,.lead-name,.lead-meta,.description,.history-action,.history-values{overflow-wrap:anywhere}
 .app button:focus-visible,.app input:focus-visible,.app select:focus-visible,.app textarea:focus-visible{outline:2px solid #48a7ff;outline-offset:2px}
+
+/* Branded startup experience and subtle interaction polish. */
+.app-splash{position:fixed;z-index:1000;inset:0;display:flex;align-items:center;justify-content:center;padding:max(28px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 18%,rgba(35,139,255,.28),transparent 23rem),linear-gradient(160deg,#071a31 0%,#030b16 64%,#02070d 100%);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .32s ease,visibility .32s ease}
+body.app-loading{overflow:hidden}
+body.app-loading .app-splash{opacity:1;visibility:visible;pointer-events:auto}
+.app-splash-inner{width:min(100%,360px);text-align:center}
+.app-splash-mark{position:relative;width:112px;height:112px;margin:0 auto 24px;display:grid;place-items:center}
+.app-splash-mark:before,.app-splash-mark:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(73,163,255,.35);animation:splashRing 2.2s ease-out infinite}
+.app-splash-mark:before{inset:6px}.app-splash-mark:after{inset:-10px;animation-delay:.7s;opacity:.55}
+.app-splash-mark img{position:relative;z-index:1;width:92px;height:92px;object-fit:contain;filter:drop-shadow(0 0 24px rgba(48,142,255,.58));animation:splashFloat 2.6s ease-in-out infinite}
+.app-splash-brand{margin:0;color:#f8fbff;font-size:30px;font-weight:820;letter-spacing:-1.25px}
+.app-splash-tagline{margin:7px 0 0;color:#9eb5d1;font-size:13px;letter-spacing:.01em}
+.app-splash-status{display:flex;align-items:center;justify-content:center;gap:10px;margin:27px 0 0;color:#c9d9ec;font-size:12px;font-weight:650}
+.app-splash-dots{display:inline-flex;align-items:center;gap:4px}
+.app-splash-dots i{width:5px;height:5px;border-radius:50%;background:#4ba3ff;animation:splashDot 1.15s ease-in-out infinite}
+.app-splash-dots i:nth-child(2){animation-delay:.16s}.app-splash-dots i:nth-child(3){animation-delay:.32s}
+.view.active{animation:viewEnter .22s ease both}
+button:disabled{cursor:wait;opacity:.58;transform:none!important}
+.card,.lead-card,.work-item,.dashboard-launch,.stat{transition:border-color .2s ease,background-color .2s ease,transform .2s ease,box-shadow .2s ease}
+@media(hover:hover) and (pointer:fine){.dashboard-launch:hover,.lead-card:hover,.work-item:hover{transform:translateY(-1px);border-color:#285783}.dashboard-launch.primary:hover{border-color:#66b3ff}}
+@keyframes splashRing{0%{transform:scale(.82);opacity:.72}72%,100%{transform:scale(1.18);opacity:0}}
+@keyframes splashFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes splashDot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+@keyframes viewEnter{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.app-splash,.view.active,.card,.lead-card,.work-item,.dashboard-launch,.stat{transition:none;animation:none}.app-splash-mark:before,.app-splash-mark:after,.app-splash-mark img,.app-splash-dots i{animation:none}}
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 </head>
 
-<body class="auth-pending">
+<body class="auth-pending app-loading" aria-busy="true">
+
+<div id="appSplash" class="app-splash" role="status" aria-live="polite" aria-label="Business AI is loading">
+<div class="app-splash-inner">
+<div class="app-splash-mark" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
+<h1 class="app-splash-brand">Business AI</h1>
+<p class="app-splash-tagline">Your business, intelligently managed.</p>
+<div class="app-splash-status"><span>Preparing your workspace</span><span class="app-splash-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+</div>
+</div>
 
 <div id="toast" class="toast"></div>
 
@@ -1884,6 +1918,12 @@ updateInstallAppCard();
 loadEnquiryConversation();renderEnquiryConversation();
 };
 
+const setAppLoading=loading=>{
+const active=Boolean(loading);
+document.body.classList.toggle('app-loading',active);
+document.body.setAttribute('aria-busy',String(active));
+};
+
 const setAuthView=(state,message='')=>{
 document.body.classList.remove('auth-pending','auth-required','onboarding-required','configuration-onboarding-required','auth-ready');
 document.body.classList.add(state);
@@ -1964,22 +2004,24 @@ try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);
 const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
 if(session){
+setAppLoading(true);
 setAuthView('auth-pending');
 try{
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 const onboarding=await api('/api/business-onboarding');
-if(onboarding?.needs_business){setAuthView('onboarding-required');return;}
+if(onboarding?.needs_business){setAppLoading(false);setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
 const setup=await api('/api/business-configuration');
-if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();return;}
-setAuthView('auth-ready');registerOwnerPwa();loadAll().catch(()=>{});return;
+if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();setAppLoading(false);return;}
+setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);return;
 }catch(error){
+setAppLoading(false);
 if(error.message==='Your session has expired.')return;
 clearPrivateState();setAuthView('auth-required','Your business access is unavailable.');return;
 }
 }
-clearPrivateState();setAuthView('auth-required');
+setAppLoading(false);clearPrivateState();setAuthView('auth-required');
 };
 
 async function initializeAuthentication(){
@@ -2003,7 +2045,7 @@ window.setTimeout(()=>{handleSession(nextSession).catch(()=>{});},0);
 });
 await handleSession(session);
 return true;
-}catch(error){frontendAuthEnabled=true;setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
+}catch(error){frontendAuthEnabled=true;setAppLoading(false);setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
 }
 
 $('loginForm').addEventListener('submit',async event=>{
@@ -2157,7 +2199,7 @@ await beginConfigurationOnboarding();
 });
 
 $('onboardingBack')?.addEventListener('click',()=>{if(onboardingWizardIndex>0){onboardingWizardIndex-=1;renderOnboardingWizard();}});
-$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent='Setup complete. Choose a plan or trial to start using AI enquiries.';setAuthView('auth-ready');registerOwnerPwa();await loadAll();showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
+$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent='Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
 
 
 const money=n=>
@@ -3013,10 +3055,10 @@ $('leadList').innerHTML=message;
 
 async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
-if(publicEnquirySlug){document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
+if(publicEnquirySlug){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
 try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();
-if(!authActive)loadAll();
+if(!authActive){setAppLoading(true);await loadAll();setAppLoading(false);}
 }
 
 initializeApp();
