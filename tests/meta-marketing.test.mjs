@@ -75,6 +75,37 @@ test('Meta Graph requests keep access tokens out of URLs and use the Authorizati
   }
 });
 
+test('Meta schedules Facebook Page posts natively', async () => {
+  baseEnv();
+  process.env.META_PUBLISH_ENABLED = 'true';
+  const meta = await import(new URL(`../lib/meta.js?native-schedule=${Math.random()}`, import.meta.url));
+  const account = {
+    platform: 'facebook',
+    provider_account_id: 'page-1',
+    display_name: 'Page',
+    ...meta.encryptMetaToken('EAAB-native-schedule-token')
+  };
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), options });
+    return response({ id: 'page-1_post-123' });
+  };
+  const scheduledFor = new Date(Date.now() + 12 * 60 * 1000).toISOString();
+  const result = await meta.scheduleMetaText({
+    platform: 'facebook',
+    account,
+    text: 'Scheduled test post',
+    scheduledFor
+  });
+  assert.equal(result.providerPostId, 'page-1_post-123');
+  assert.equal(calls.length, 1);
+  const form = new URLSearchParams(calls[0].options.body);
+  assert.equal(form.get('published'), 'false');
+  assert.equal(form.get('unpublished_content_type'), 'SCHEDULED');
+  assert.equal(Number(form.get('scheduled_publish_time')), Math.floor(Date.parse(scheduledFor) / 1000));
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer EAAB-native-schedule-token');
+});
+
 test('expired Meta connections are reported as requiring reconnection', async () => {
   baseEnv();
   globalThis.fetch = async (url) => {
