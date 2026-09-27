@@ -34,8 +34,9 @@ test("public customer links use only a validated slug and never unlock dashboard
   assert.match(html, /const publicSlugFromLocation=\(\)=>\{/);
   assert.match(html, /if\(publicEnquirySlug\)\{setAppLoading\(false\);document\.body\.classList\.remove\('auth-pending'\);document\.body\.classList\.add\('public-enquiry'\);/);
   assert.match(html, /body\.public-enquiry \.app,body\.public-enquiry \.bottom-nav,body\.public-enquiry #authScreen,body\.public-enquiry #businessSetupScreen,body\.public-enquiry #configurationOnboardingScreen\{display:none\}/, "public customer mode hides the standalone private dashboard navigation");
-  assert.match(html, /url\.searchParams\.set\('business',publicEnquirySlug\)/);
-  assert.match(html, /Customer enquiry link[\s\S]{0,600}It does not reveal your internal business ID/);
+  assert.match(html, /const url=new URL\('\/customer',window\.location\.origin\);url\.searchParams\.set\('business',slug\)/);
+  assert.match(html, /Customer enquiry link[\s\S]{0,900}direct customer link/);
+  assert.match(html, /works even when customer search is off and never exposes your internal business ID/);
   const publicHandler = html.slice(html.indexOf("async function sendPublicEnquiry"), html.indexOf("$('publicEnquiryForm').addEventListener"));
   assert.doesNotMatch(publicHandler, /Authorization|access_token|business_id/);
   assert.match(publicHandler, /AI_ENQUIRY_ALLOWANCE_REACHED[\s\S]*SUBSCRIPTION_REQUIRED[\s\S]*PAYMENT_REQUIRED[\s\S]*BILLING_CONFIGURATION_ERROR[\s\S]*BILLING_UNAVAILABLE/, "billing/subscription blocks are not misrepresented as transient AI failures");

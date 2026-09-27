@@ -150,7 +150,7 @@ export default async function handler(req, res) {
         "services",
         "ai_instructions"
       ];
-      const allowedFields = new Set([...textFields, "urgent_jobs_enabled"]);
+      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled"]);
       if (Object.keys(body).some((field) => !allowedFields.has(field))) {
         return res.status(400).json({ error: "Unsupported settings fields" });
       }
@@ -177,6 +177,18 @@ export default async function handler(req, res) {
         }
 
         updates.urgent_jobs_enabled = body.urgent_jobs_enabled;
+      }
+
+      // PUBLIC DIRECTORY DISCOVERABILITY — owner only.
+      // Turning this off never disables the business's direct public link.
+      if (body.directory_search_enabled !== undefined) {
+        if (typeof body.directory_search_enabled !== "boolean") {
+          return res.status(400).json({ error: "Invalid directory search setting" });
+        }
+        if (auth.enforced && auth.role !== "owner") {
+          return res.status(403).json({ error: "Only the business owner can change directory visibility" });
+        }
+        updates.directory_search_enabled = body.directory_search_enabled;
       }
 
 

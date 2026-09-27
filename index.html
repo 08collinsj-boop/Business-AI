@@ -1852,7 +1852,16 @@ Used by your AI receptionist
 <div class="field full" style="margin-bottom:16px">
 <label for="publicEnquiryLink">Customer enquiry link</label>
 <div class="public-link-row"><input id="publicEnquiryLink" readonly aria-describedby="publicEnquiryLinkHelp"><button class="small-btn primary-action" type="button" onclick="copyPublicEnquiryLink()">Copy link</button></div>
-<div id="publicEnquiryLinkHelp" class="work-meta">A public link for customers. It does not reveal your internal business ID.</div>
+<div id="publicEnquiryLinkHelp" class="work-meta">Share this direct customer link. It keeps working even if directory search is turned off.</div>
+</div>
+
+<div class="checkbox-row directory-visibility-row" data-owner-only>
+<label for="s_directory_search_enabled">
+<strong>Show my business in customer search</strong>
+<br>
+<span style="color:var(--muted);font-size:10px">When on, customers can find this business in the Business AI directory. Turn it off to make the business direct-link only.</span>
+</label>
+<input id="s_directory_search_enabled" class="switch" type="checkbox" checked>
 </div>
 
 
@@ -2257,7 +2266,7 @@ const url=new URL('/customer',window.location.origin);url.searchParams.set('busi
 function fillPublicEnquiryLink(){
 const input=$('publicEnquiryLink');const help=$('publicEnquiryLinkHelp');if(!input||!help)return;
 const link=publicEnquiryUrl(authenticatedPublicBusinessSlug);input.value=link;
-help.textContent=link?'Share this customer-facing link. It uses your public route, not an internal business ID.':'Your customer enquiry link is unavailable.';
+help.textContent=link?'Share this direct customer link. It works even when customer search is off and never exposes your internal business ID.':'Your customer enquiry link is unavailable.';
 }
 
 async function copyPublicEnquiryLink(){
@@ -3211,6 +3220,7 @@ if(input)input.value=settings[field]||'';
 });
 
 $('s_urgent').checked=Boolean(settings.urgent_jobs_enabled);
+if($('s_directory_search_enabled'))$('s_directory_search_enabled').checked=settings.directory_search_enabled!==false;
 
 $('brandName').textContent=settings.business_name||'Business AI';
 fillPublicEnquiryLink();
@@ -3370,6 +3380,7 @@ status.textContent='Saving…';
 try{
 
 const body={urgent_jobs_enabled:$('s_urgent').checked};
+if(authenticatedBusinessRole==='owner'&&$('s_directory_search_enabled'))body.directory_search_enabled=$('s_directory_search_enabled').checked;
 
 ['business_name','business_type','phone','email','address','opening_hours','services','ai_instructions'].forEach(field=>body[field]=$(`s_${field}`).value);
 

@@ -39,7 +39,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260927171000_process_due_marketing_schedules.sql",
     "20260927173500_meta_native_marketing_schedules.sql",
     "20260927175200_allow_cloudflare_marketing_images.sql",
-    "20260927202500_add_marketing_usage_limits.sql"
+    "20260927202500_add_marketing_usage_limits.sql",
+    "20260927232000_add_directory_visibility.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -49,6 +50,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.doesNotMatch(baseline, /insert into public\.lead_history/i);
   assert.match(contents.get("20260911235034_add_lead_status.sql"), /leads_status_check/);
   assert.match(contents.get("20260913233511_add_business_settings.sql"), /create table if not exists public\.business_settings/i);
+  const directoryVisibility = contents.get("20260927232000_add_directory_visibility.sql");
+  assert.match(directoryVisibility, /add column if not exists directory_search_enabled boolean not null default true/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {

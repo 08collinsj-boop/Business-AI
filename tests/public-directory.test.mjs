@@ -17,10 +17,13 @@ async function loadDirectory() {
       { business_id: 'business-a', route_value: 'collins-ltd' },
       { business_id: 'business-b', route_value: 'harbour-cafe' }
     ]);
-    if (String(url).includes('business_settings')) return reply([
-      { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance' },
-      { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch' }
-    ]);
+    if (String(url).includes('business_settings')) {
+      assert.match(String(url), /directory_search_enabled=eq.true/);
+      return reply([
+        { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance', directory_search_enabled: true },
+        { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch', directory_search_enabled: true }
+      ]);
+    }
     if (String(url).includes('business_configurations')) return reply([
       { business_id: 'business-a', description: 'Local electrical services', service_areas: 'Hartlepool' },
       { business_id: 'business-b', description: 'Independent cafe', service_areas: 'Hartlepool Marina' }
@@ -78,4 +81,16 @@ test.after(() => {
   for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key];
   Object.assign(process.env, savedEnv);
   globalThis.fetch = savedFetch;
+});
+
+
+test('directory visibility is server-enforced while direct public routes stay independent', async () => {
+  const directory = await readFile(new URL('../lib/public-businesses-handler.js', import.meta.url), 'utf8');
+  const direct = await readFile(new URL('../lib/public-business-handler.js', import.meta.url), 'utf8');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(directory, /directory_search_enabled=eq.true/);
+  assert.doesNotMatch(direct, /directory_search_enabled/);
+  assert.match(html, /id="s_directory_search_enabled"/);
+  assert.match(html, /Show my business in customer search/);
+  assert.match(html, /direct-link only/);
 });

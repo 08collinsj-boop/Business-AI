@@ -11,7 +11,7 @@ const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const result = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 async function load(enabled, role, api, rejectAuth = false) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = async (url, options = {}) => { if (url.endsWith("/auth/v1/user")) return reply(rejectAuth ? {} : { id: "user-a" }, !rejectAuth); if (url.includes("business_memberships")) return reply([{ business_id: "business-a", role }]); return api(url, options); }; const source = settingsSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
-const current = { id: 4, business_id: "business-a", business_name: "A", urgent_jobs_enabled: true };
+const current = { id: 4, business_id: "business-a", business_name: "A", urgent_jobs_enabled: true, directory_search_enabled: true };
 
 test("settings gate, reads, and owner/admin writes are tenant scoped", { concurrency: false }, async () => {
   let calls = [];
@@ -31,3 +31,25 @@ test("settings rejects members, mass assignment, invalid input, and safe failure
   res = result(); await handler({ method: "POST", headers: {} }, res); assert.equal(res.statusCode, 405);
 });
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); globalThis.fetch = savedFetch; });
+
+
+test("directory visibility is owner-only and remains tenant scoped", { concurrency: false }, async () => {
+  let calls = [];
+  let handler = await load("true", "owner", async (url, options) => { calls.push({ url, options }); return options.method === "PATCH" ? reply([{ ...current, directory_search_enabled: false }]) : reply([current]); });
+  let res = result();
+  await handler({ method: "PATCH", headers: { authorization: "Bearer good" }, body: { directory_search_enabled: false } }, res);
+  assert.equal(res.statusCode, 200);
+  const patch = calls.find((entry) => entry.options.method === "PATCH");
+  assert.match(patch.url, /business_id=eq.business-a/);
+  assert.equal(JSON.parse(patch.options.body).directory_search_enabled, false);
+
+  handler = await load("true", "admin", async () => reply([current]));
+  res = result();
+  await handler({ method: "PATCH", headers: { authorization: "Bearer good" }, body: { directory_search_enabled: false } }, res);
+  assert.equal(res.statusCode, 403);
+
+  handler = await load("true", "owner", async () => reply([current]));
+  res = result();
+  await handler({ method: "PATCH", headers: { authorization: "Bearer good" }, body: { directory_search_enabled: "no" } }, res);
+  assert.equal(res.statusCode, 400);
+});
