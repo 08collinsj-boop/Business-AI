@@ -9,6 +9,7 @@ import { logOperationalEvent } from "../lib/operational-log.js";
 import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowance } from "../lib/billing.js";
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
 import { LEGAL_VERSIONS } from "../lib/legal.js";
+import { extractBearerToken, requireAuthenticatedUser } from "../lib/auth.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -163,6 +164,26 @@ async function hasCurrentBusinessDpa(businessId) {
     `business_legal_acceptances?business_id=eq.${encodeURIComponent(String(businessId))}&document_key=eq.dpa&document_version=eq.${encodeURIComponent(LEGAL_VERSIONS.dpa)}&select=id&limit=1`
   );
   return Boolean(rows?.[0]?.id);
+}
+
+async function optionalCustomerAccount(req) {
+  if (!extractBearerToken(req)) return null;
+  try {
+    const user = await requireAuthenticatedUser(req);
+    return user?.userId ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+async function linkCustomerEnquiry(customerUserId, businessId, leadId) {
+  if (!customerUserId || !businessId || !leadId) return false;
+  await supabaseRequest("customer_enquiry_access?on_conflict=customer_user_id,lead_id", {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({ customer_user_id: customerUserId, business_id: businessId, lead_id: leadId })
+  });
+  return true;
 }
 
 function cleanMessages(messages) {
@@ -541,6 +562,7 @@ export default async function handler(req, res) {
       return res.status(429).json({ error: "Please try again shortly" });
     }
     const businessId = publicBusiness.businessId;
+    const customerAccount = await optionalCustomerAccount(req);
 
     // Load and validate tenant configuration before consuming paid AI allowance.
     // Configuration/storage failures must never reduce the customer's plan usage.
@@ -833,6 +855,7 @@ Your response must follow the supplied JSON schema.
       email:
         lead.email ||
         detectedEmail ||
+        customerAccount?.email ||
         null,
 
       location:
@@ -874,6 +897,7 @@ Your response must follow the supplied JSON schema.
 
     let leadCaptured = false;
     let savedLead = null;
+    let trackingAvailable = false;
 
     /*
      * If the customer has contact information and
@@ -887,6 +911,10 @@ Your response must follow the supplied JSON schema.
         if (savedLead?.handover_reason) {
           reason = savedLead.handover_reason;
           handoverRequired = true;
+        }
+
+        if (customerAccount?.userId && savedLead?.id) {
+          trackingAvailable = await linkCustomerEnquiry(customerAccount.userId, businessId, savedLead.id).catch(() => false);
         }
 
         logOperationalEvent("enquiry.lead_captured", { businessId, leadId: savedLead?.id || "unknown", handover: handoverRequired });
@@ -908,7 +936,8 @@ Your response must follow the supplied JSON schema.
       // Public callers only need to know whether their details were received.
       // Never expose a database row here: it can contain customer data and the
       // internal tenant identifier used by server-side routing.
-      leadCaptured
+      leadCaptured,
+      trackingAvailable
     });
   } catch (error) {
     logOperationalEvent("enquiry.failed", { failure: error?.name || "unknown" });

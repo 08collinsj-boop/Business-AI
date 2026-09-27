@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/customer/account",
+      "destination": "/index.html"
+    },
+    {
       "source": "/customer",
       "destination": "/index.html"
     },
@@ -31,6 +35,10 @@
     {
       "source": "/api/public-businesses",
       "destination": "/api/operations?operation=public-businesses"
+    },
+    {
+      "source": "/api/customer-portal",
+      "destination": "/api/operations?operation=customer-portal"
     },
     {
       "source": "/api/public-config",

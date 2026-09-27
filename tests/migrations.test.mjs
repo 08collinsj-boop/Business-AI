@@ -40,7 +40,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260927173500_meta_native_marketing_schedules.sql",
     "20260927175200_allow_cloudflare_marketing_images.sql",
     "20260927202500_add_marketing_usage_limits.sql",
-    "20260927232000_add_directory_visibility.sql"
+    "20260927232000_add_directory_visibility.sql",
+    "20260927235000_add_customer_portal.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -52,6 +53,11 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(contents.get("20260913233511_add_business_settings.sql"), /create table if not exists public\.business_settings/i);
   const directoryVisibility = contents.get("20260927232000_add_directory_visibility.sql");
   assert.match(directoryVisibility, /add column if not exists directory_search_enabled boolean not null default true/i);
+  const customerPortal = contents.get("20260927235000_add_customer_portal.sql");
+  assert.match(customerPortal, /create table if not exists public\.customer_profiles/i);
+  assert.match(customerPortal, /create table if not exists public\.customer_enquiry_access/i);
+  assert.match(customerPortal, /alter table public\.customer_enquiry_access enable row level security/i);
+  assert.match(customerPortal, /revoke all on public\.customer_enquiry_access from anon, authenticated/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {

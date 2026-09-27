@@ -11,6 +11,7 @@ import teamHandler from "../lib/team-handler.js";
 import handoverHandler from "../lib/handover-handler.js";
 import publicBusinessHandler from "../lib/public-business-handler.js";
 import publicBusinessesHandler from "../lib/public-businesses-handler.js";
+import customerPortalHandler from "../lib/customer-portal-handler.js";
 import billingHandler from "../lib/billing-handler.js";
 import publicConfigHandler from "../lib/public-config-handler.js";
 import metaHandler from '../lib/meta-handler.js';
@@ -33,6 +34,7 @@ const handlers = Object.freeze({
   handovers: handoverHandler,
   "public-business": publicBusinessHandler,
   "public-businesses": publicBusinessesHandler,
+  "customer-portal": customerPortalHandler,
   billing: billingHandler,
   addons: addonsHandler,
   marketing: marketingHandler,

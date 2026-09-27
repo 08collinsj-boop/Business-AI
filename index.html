@@ -1176,6 +1176,7 @@ body.public-directory #publicDirectoryScreen{display:block}
 
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
+<link rel="stylesheet" href="/assets/customer-portal.css">
 </head>
 
 <body class="auth-pending app-loading" aria-busy="true">
@@ -1202,7 +1203,7 @@ body.public-directory #publicDirectoryScreen{display:block}
 <button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
 <div id="loginMessage" class="auth-message" role="alert"></div>
 <p class="auth-switch">New to Business AI? <button id="showSignUp" class="auth-link" type="button">Create an account</button></p>
-<p class="auth-switch customer-entry-link">Looking for a business? <a class="auth-link" href="/customer">Search businesses</a></p>
+<div class="customer-entry-choice"><a class="business" href="/">Business sign in</a><a class="customer" href="/customer/account">Customer sign in</a></div><p class="auth-switch customer-entry-link">Just looking for a business? <a class="auth-link" href="/customer">Continue as guest</a></p>
 </form>
 
 <form id="passwordResetRequestForm" class="auth-card auth-form-hidden">
@@ -1294,11 +1295,84 @@ body.public-directory #publicDirectoryScreen{display:block}
 </form>
 </main>
 
+<main id="customerAuthScreen" class="auth-screen" hidden aria-live="polite">
+<section class="customer-auth-shell">
+<div class="customer-auth-card">
+<div class="customer-auth-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><strong>Business AI</strong><div style="color:#748593;font-size:10px">Customer Portal</div></div></div>
+<h1>Customer account</h1>
+<p>Sign in to find businesses and keep track of enquiries you send while signed in.</p>
+<div class="customer-auth-tabs"><button id="customerAuthTabSignIn" class="active" type="button">Sign in</button><button id="customerAuthTabSignUp" type="button">Create account</button></div>
+<form id="customerSignInForm" class="customer-auth-form">
+<label>Email<input id="customerSignInEmail" type="email" autocomplete="email" required></label>
+<label>Password<input id="customerSignInPassword" type="password" autocomplete="current-password" required></label>
+<button class="customer-auth-primary" type="submit">Sign in as customer</button>
+<div id="customerSignInMessage" class="customer-auth-message" role="alert"></div>
+</form>
+<form id="customerSignUpForm" class="customer-auth-form" hidden>
+<label>Your name<input id="customerSignUpName" maxlength="120" autocomplete="name" required></label>
+<label>Email<input id="customerSignUpEmail" type="email" autocomplete="email" required></label>
+<label>Password<input id="customerSignUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+<label>Confirm password<input id="customerSignUpConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+<label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>. Customer accounts are used to provide account access and enquiry tracking.</span></label>
+<button class="customer-auth-primary" type="submit">Create customer account</button>
+<div id="customerSignUpMessage" class="customer-auth-message" role="alert"></div>
+</form>
+<a class="customer-auth-secondary" href="/customer">Continue as guest and search businesses</a>
+<a class="customer-auth-secondary" href="/">Business sign in</a>
+</div>
+</section>
+</main>
+
+<main id="customerPortalScreen" hidden>
+<section class="customer-portal-shell">
+<header class="customer-portal-top">
+<div class="customer-portal-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><strong>Business AI</strong><div style="color:#748593;font-size:10px">Customer Portal</div></div></div>
+<div class="customer-portal-user"><span id="customerPortalEmail" style="color:#697b89;font-size:10px"></span><button id="customerPortalLogout" type="button">Sign out</button></div>
+</header>
+<section class="customer-portal-hero"><span>Customer Portal</span><h1 id="customerPortalGreeting">Welcome</h1><p>Find businesses, track your enquiries and see when a business has responded.</p></section>
+<nav class="customer-portal-nav" aria-label="Customer portal">
+<button class="active" type="button" data-customer-tab="home">Home</button>
+<button type="button" data-customer-tab="find">Find a business</button>
+<button type="button" data-customer-tab="enquiries">My enquiries</button>
+<button type="button" data-customer-tab="account">Account</button>
+</nav>
+
+<section class="customer-portal-pane" data-customer-pane="home">
+<div class="customer-portal-grid">
+<button class="customer-card customer-quick-card" type="button" data-customer-go="find"><strong>Find a business</strong><span>Search businesses by name, service or area and start an enquiry.</span></button>
+<button class="customer-card customer-quick-card" type="button" data-customer-go="enquiries"><strong>My enquiries</strong><span>See the latest customer-safe status for enquiries submitted while signed in.</span></button>
+</div>
+<div class="customer-card" style="margin-top:12px"><h3>Recent enquiries</h3><p>Your latest tracked enquiries appear here.</p><div id="customerRecentEnquiries" class="customer-enquiry-list"></div></div>
+</section>
+
+<section class="customer-portal-pane" data-customer-pane="find" hidden>
+<div class="customer-card"><h2>Find a business</h2><p>Search businesses that have chosen to appear in the Business AI customer directory.</p>
+<form id="customerPortalSearchForm" class="customer-search-box"><input id="customerPortalSearchInput" type="search" maxlength="80" placeholder="Business, service or area"><button type="submit">Search</button></form>
+<div id="customerPortalSearchResults" class="customer-search-results"></div></div>
+</section>
+
+<section class="customer-portal-pane" data-customer-pane="enquiries" hidden>
+<div class="customer-card"><h2>My enquiries</h2><p>Statuses are simplified for customers. Internal business notes, actions and private workflow details are never shown here.</p><div id="customerAllEnquiries" class="customer-enquiry-list"></div></div>
+</section>
+
+<section class="customer-portal-pane" data-customer-pane="account" hidden>
+<div class="customer-card"><h2>Account</h2><p>Update the name shown in your customer account.</p>
+<form id="customerProfileForm" class="customer-profile-form">
+<label>Name<input id="customerProfileName" maxlength="120" autocomplete="name" required></label>
+<label>Email<input id="customerProfileEmail" type="email" readonly></label>
+<button type="submit">Save account</button><div id="customerProfileMessage" class="customer-auth-message" role="status"></div>
+</form>
+<p style="margin-top:16px"><a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a> · <a href="/customer">Customer directory</a></p>
+</div>
+</section>
+</section>
+</main>
+
 <main id="publicDirectoryScreen" class="auth-screen" aria-live="polite">
 <section class="public-directory-shell">
 <header class="public-directory-header">
 <div class="public-directory-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><p class="public-eyebrow">Business AI</p><h1>Find a business</h1></div></div>
-<a class="public-directory-owner-link" href="/">Business login</a>
+<div style="display:flex;gap:12px;align-items:center"><a class="public-directory-owner-link" data-customer-account-link href="/customer/account">Customer sign in</a><a class="public-directory-owner-link" href="/">Business login</a></div>
 </header>
 <section class="public-directory-hero">
 <span class="public-directory-kicker">Customer directory</span>
@@ -1324,7 +1398,7 @@ body.public-directory #publicDirectoryScreen{display:block}
 <h1 id="publicBusinessName" class="public-business-name">Business enquiry</h1>
 <p id="publicBusinessType" class="public-business-type">Loading business details…</p>
 </div>
-<a class="public-find-another" href="/customer">Find another business</a>
+<div style="margin-left:auto;display:flex;gap:10px;align-items:center"><a class="public-find-another" data-customer-account-link href="/customer/account">Customer sign in</a><a class="public-find-another" href="/customer">Find another business</a></div>
 </header>
 <section class="public-hero" aria-label="Customer enquiry introduction">
 <div class="public-hero-art" aria-hidden="true"></div>
@@ -1351,6 +1425,7 @@ body.public-directory #publicDirectoryScreen{display:block}
 <button type="submit" aria-label="Send message">↑</button>
 </form>
 <button class="small-btn" type="button" onclick="requestPublicHuman()">Speak to someone</button>
+<div id="publicCustomerAccountHint" class="public-customer-account-note">Want to track your enquiry? <a href="/customer/account">Sign in as a customer</a> before sending it.</div>
 <p class="public-link-privacy">Please do not send payment or card details in this chat. Details you submit are stored for this business to manage your enquiry; contact the business if you need access or deletion support. <a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a> · <a href="/legal/storage.html" target="_blank" rel="noopener">Device storage</a></p>
 <div id="publicEnquiryMessage" class="public-customer-error" role="alert"></div>
 </section>
@@ -2258,6 +2333,7 @@ return /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(slug||'').toLowerCas
 const invitationIdFromLocation=()=>{const value=new URLSearchParams(window.location.search).get('invite');return /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(value||''))?String(value):null;};
 
 const customerPortalFromLocation=()=>/^\/customer\/?$/.test(window.location.pathname);
+const customerAccountFromLocation=()=>/^\/customer\/account\/?$/.test(window.location.pathname);
 const publicEnquiryUrl=slug=>{
 if(!slug)return new URL('/customer',window.location.origin).toString();
 const url=new URL('/customer',window.location.origin);url.searchParams.set('business',slug);return url.toString();
@@ -2545,7 +2621,7 @@ const list=$('publicMessages');if(!list)return;const message=document.createElem
 async function sendPublicEnquiry(event){
 event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 $('publicEnquiryForm').addEventListener('submit',sendPublicEnquiry);
 $('publicDirectoryForm')?.addEventListener('submit',event=>{
@@ -3477,6 +3553,7 @@ $('leadList').innerHTML=message;
 async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
 if(publicEnquirySlug){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
+if(customerAccountFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('customer-account');return;}
 if(customerPortalFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-directory');loadPublicBusinessDirectory();return;}
 try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();
@@ -3488,6 +3565,7 @@ initializeApp();
 </script>
 
 <script src="/assets/marketing.js"></script>
+<script src="/assets/customer-portal.js"></script>
 </body>
 
 </html>
