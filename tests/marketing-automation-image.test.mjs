@@ -183,6 +183,9 @@ test('simulated live provider completes storage and Facebook photo pipeline with
     if (href.includes('/rest/v1/business_knowledge_')) {
       return response([]);
     }
+    if (href.includes('/rest/v1/rpc/reserve_marketing_image_usage')) {
+      return response({ allowed: true, id: '99999999-9999-4999-8999-999999999999', used: 1, limit: 3 });
+    }
     if (href.includes('/rest/v1/marketing_images?on_conflict=business_id,generation_id') && options.method === 'POST') {
       const body = JSON.parse(options.body);
       return response([{ id: IMAGE, ...body, created_at: new Date().toISOString() }], true, 201);
@@ -307,6 +310,9 @@ test('Cloudflare FLUX adapter generates, stores and signs an image through the s
     }
     if (href.includes('/rest/v1/business_configurations')) return response([{}]);
     if (href.includes('/rest/v1/business_knowledge_')) return response([]);
+    if (href.includes('/rest/v1/rpc/reserve_marketing_image_usage')) {
+      return response({ allowed: true, id: '99999999-9999-4999-8999-999999999999', used: 1, limit: 3 });
+    }
     if (href.includes('/rest/v1/marketing_images?on_conflict=business_id,generation_id') && options.method === 'POST') {
       const body = JSON.parse(options.body);
       return response([{ id: IMAGE, ...body, created_at: new Date().toISOString() }], true, 201);

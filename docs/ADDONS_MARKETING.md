@@ -28,7 +28,11 @@ Facebook Page text publishing is implemented but disabled until live Meta Pilot 
 
 ## Operational limits
 
-Marketing generation keeps existing server-side input/output bounds, duplicate/burst protection and per-business hourly/day attempt limits. These protect cost/abuse and are separate from the 10-generation Trial and 100-generation paid billing-period allowances.
+Business AI defaults automated Marketing to one post per day. Facebook publishing and scheduling have a hard server-side cap of three posts per business per UTC calendar day.
+
+AI draft generation keeps the existing burst and hourly protection, with plan-aware 24-hour limits: Trial 10, Starter 10, Pro 25 and Business 50. These are separate from the 10-generation Trial and 100-generation paid billing-period allowances.
+
+Live AI image generation is also plan-aware over a rolling 24-hour window: Trial 3, Starter 3, Pro 10 and Business 20 image attempts. Simulation does not consume image usage. The server reserves image usage before making a live provider request so repeated regenerations cannot bypass the limit.
 
 Marketing never writes generated claims back into trusted Business Knowledge.
 
