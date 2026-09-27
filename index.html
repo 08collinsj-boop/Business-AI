@@ -1032,15 +1032,22 @@ body.app-loading .app-splash{opacity:1;visibility:visible;pointer-events:auto}
 .app-splash-dots{display:inline-flex;align-items:center;gap:4px}
 .app-splash-dots i{width:5px;height:5px;border-radius:50%;background:#4ba3ff;animation:splashDot 1.15s ease-in-out infinite}
 .app-splash-dots i:nth-child(2){animation-delay:.16s}.app-splash-dots i:nth-child(3){animation-delay:.32s}
-.view.active{animation:viewEnter .22s ease both}
+.view.active{animation:viewEnter .34s cubic-bezier(.22,.61,.36,1) both;view-transition-name:owner-content}
+.nav-btn{transition:background-color .28s ease,color .28s ease,transform .18s ease}
+.nav-btn:active{transform:scale(.96)}
 button:disabled{cursor:wait;opacity:.58;transform:none!important}
 .card,.lead-card,.work-item,.dashboard-launch,.stat{transition:border-color .2s ease,background-color .2s ease,transform .2s ease,box-shadow .2s ease}
 @media(hover:hover) and (pointer:fine){.dashboard-launch:hover,.lead-card:hover,.work-item:hover{transform:translateY(-1px);border-color:#285783}.dashboard-launch.primary:hover{border-color:#66b3ff}}
 @keyframes splashRing{0%{transform:scale(.82);opacity:.72}72%,100%{transform:scale(1.18);opacity:0}}
 @keyframes splashFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes splashDot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
-@keyframes viewEnter{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(prefers-reduced-motion:reduce){.app-splash,.view.active,.card,.lead-card,.work-item,.dashboard-launch,.stat{transition:none;animation:none}.app-splash-mark:before,.app-splash-mark:after,.app-splash-mark img,.app-splash-dots i{animation:none}}
+@keyframes viewEnter{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+@keyframes viewFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-1px)}}
+@keyframes viewFadeIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-old(owner-content){animation:viewFadeOut .14s ease-out both}
+::view-transition-new(owner-content){animation:viewFadeIn .34s cubic-bezier(.22,.61,.36,1) both}
+@media(prefers-reduced-motion:reduce){.app-splash,.view.active,.nav-btn,.card,.lead-card,.work-item,.dashboard-launch,.stat{transition:none;animation:none}.app-splash-mark:before,.app-splash-mark:after,.app-splash-mark img,.app-splash-dots i{animation:none}::view-transition-old(owner-content),::view-transition-new(owner-content){animation:none}}
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 </head>
@@ -2410,10 +2417,23 @@ input.focus();
 
 function showView(view){
 
-document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item.id===`${view}View`));
+const target=document.getElementById(`${view}View`);
+if(!target)return;
+
+const current=document.querySelector('.view.active');
+const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const switchView=()=>{
+document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item===target));
 
 const navContext=['addons','marketing'].includes(view)?'settings':(view==='enquiries'||view==='bookings')?'dashboard':view;
 document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===navContext));
+};
+
+if(current!==target&&document.startViewTransition&&!reduceMotion){
+document.startViewTransition(switchView);
+}else{
+switchView();
+}
 
 if(view==='bookings'||view==='actions')loadWorkItems();
 if(view==='voice')loadVoiceStatus();
