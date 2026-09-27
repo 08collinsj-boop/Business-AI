@@ -1048,6 +1048,16 @@ button:disabled{cursor:wait;opacity:.58;transform:none!important}
 ::view-transition-old(owner-content){animation:viewFadeOut .14s ease-out both}
 ::view-transition-new(owner-content){animation:viewFadeIn .34s cubic-bezier(.22,.61,.36,1) both}
 @media(prefers-reduced-motion:reduce){.app-splash,.view.active,.nav-btn,.card,.lead-card,.work-item,.dashboard-launch,.stat{transition:none;animation:none}.app-splash-mark:before,.app-splash-mark:after,.app-splash-mark img,.app-splash-dots i{animation:none}::view-transition-old(owner-content),::view-transition-new(owner-content){animation:none}}
+
+/* Persistent bottom navigation: content changes independently while the active pill glides between tabs. */
+.view.active{animation:viewEnter .28s cubic-bezier(.22,.61,.36,1) both;view-transition-name:none}
+@keyframes viewEnter{from{opacity:.58;transform:translateY(1px)}to{opacity:1;transform:translateY(0)}}
+.bottom-nav{--nav-offset:0%;gap:0;isolation:isolate;overflow:hidden}
+.bottom-nav::before{content:"";position:absolute;z-index:0;left:7px;top:7px;bottom:7px;width:calc((100% - 14px)/4);border-radius:15px;background:linear-gradient(145deg,rgba(21,123,243,.38),rgba(13,64,135,.56));border:1px solid rgba(62,151,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 7px 20px rgba(8,75,170,.14);transform:translateX(var(--nav-offset));transition:transform .38s cubic-bezier(.22,.75,.25,1);pointer-events:none}
+.bottom-nav .nav-btn{position:relative;z-index:1;background:transparent!important;transition:color .3s ease,transform .16s ease;text-shadow:none}
+.bottom-nav .nav-btn.active{background:transparent!important;color:#67b6ff}
+.bottom-nav .nav-btn:active{transform:scale(.96)}
+@media(prefers-reduced-motion:reduce){.bottom-nav::before{transition:none}.view.active{animation:none}}
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 </head>
@@ -2420,20 +2430,14 @@ function showView(view){
 const target=document.getElementById(`${view}View`);
 if(!target)return;
 
-const current=document.querySelector('.view.active');
-const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-const switchView=()=>{
 document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item===target));
 
 const navContext=['addons','marketing'].includes(view)?'settings':(view==='enquiries'||view==='bookings')?'dashboard':view;
+const navOrder=['dashboard','leads','actions','settings'];
+const navIndex=Math.max(0,navOrder.indexOf(navContext));
+const bottomNav=document.querySelector('.bottom-nav');
+bottomNav?.style.setProperty('--nav-offset',`${navIndex*100}%`);
 document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item.dataset.view===navContext));
-};
-
-if(current!==target&&document.startViewTransition&&!reduceMotion){
-document.startViewTransition(switchView);
-}else{
-switchView();
-}
 
 if(view==='bookings'||view==='actions')loadWorkItems();
 if(view==='voice')loadVoiceStatus();
