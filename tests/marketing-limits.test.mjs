@@ -1,13 +1,9 @@
 import assert from 'node:assert/strict';
-import test, { afterEach } from 'node:test';
+import test from 'node:test';
 import { assertFacebookDailyPostLimit, facebookDailyPostUsage } from '../lib/marketing-limits.js';
 
 const savedEnv = { ...process.env };
 const originalFetch = globalThis.fetch;
-afterEach(() => {
-  process.env = { ...savedEnv };
-  globalThis.fetch = originalFetch;
-});
 
 function response(body) {
   return { ok: true, status: 200, text: async () => JSON.stringify(body) };
@@ -26,7 +22,7 @@ function setup({ schedules = [], publications = [] } = {}) {
   };
 }
 
-test('Facebook daily usage combines schedules and direct publications without double counting linked rows', async () => {
+test('Facebook daily post limit allows three slots, deduplicates linked rows and rejects a fourth', async () => {
   setup({
     schedules: [
       { id: 'schedule-1', publication_id: 'publication-1' },
@@ -37,13 +33,11 @@ test('Facebook daily usage combines schedules and direct publications without do
       { id: 'publication-2' }
     ]
   });
-  const usage = await facebookDailyPostUsage('business-a', '2026-09-27T12:00:00.000Z');
-  assert.equal(usage.limit, 3);
-  assert.equal(usage.used, 3);
-  assert.equal(usage.remaining, 0);
-});
+  const combined = await facebookDailyPostUsage('business-a', '2026-09-27T12:00:00.000Z');
+  assert.equal(combined.limit, 3);
+  assert.equal(combined.used, 3);
+  assert.equal(combined.remaining, 0);
 
-test('third Facebook post is allowed but a fourth is rejected', async () => {
   setup({
     schedules: [
       { id: 'schedule-1', publication_id: null },
@@ -66,4 +60,9 @@ test('third Facebook post is allowed but a fourth is rejected', async () => {
     () => assertFacebookDailyPostLimit('business-a', '2026-09-27T12:00:00.000Z'),
     error => error?.status === 429 && error?.code === 'MARKETING_DAILY_POST_LIMIT_REACHED'
   );
+});
+
+test.after(() => {
+  process.env = savedEnv;
+  globalThis.fetch = originalFetch;
 });
