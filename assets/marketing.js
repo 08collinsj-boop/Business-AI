@@ -1,10 +1,29 @@
 (() => {
-  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, automationState = null, imageGenerationMode = 'simulate';
+  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, automationState = null, usageState = null, imageGenerationMode = 'simulate';
   const node = id => document.getElementById(id);
   const message = text => { const target=node('marketingMessage'); if(target) target.textContent = text || ''; };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   const money = price => ['configured','approved'].includes(price?.state) && Number.isFinite(Number(price.amount)) ? `£${(Number(price.amount)/100).toFixed(2)}/${price.interval || 'month'}` : 'Pricing not configured';
   const when = value => { const d=new Date(value); return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}); };
+  const planLabel = value => ({trial:'Trial',starter:'Starter',pro:'Pro',business:'Business',pilot:'Pilot'})[value] || 'Plan';
+
+  function renderUsage(){
+    const usage=usageState;
+    const rows=[
+      {key:'drafts',value:'marketingDraftUsageValue',bar:'marketingDraftUsageBar'},
+      {key:'images',value:'marketingImageUsageValue',bar:'marketingImageUsageBar'},
+      {key:'facebook_posts',value:'marketingPostUsageValue',bar:'marketingPostUsageBar'}
+    ];
+    if(node('marketingPlanLabel'))node('marketingPlanLabel').textContent='Plan · '+(usage?planLabel(usage.plan):'—');
+    for(const row of rows){
+      const item=usage?.[row.key]||null;
+      if(node(row.value))node(row.value).textContent=item?(String(item.remaining)+' / '+String(item.limit)):'—';
+      if(node(row.bar)){
+        const ratio=item?.limit?Math.max(0,Math.min(1,Number(item.used||0)/Number(item.limit))):0;
+        node(row.bar).style.width=String(Math.round(ratio*100))+'%';
+      }
+    }
+  }
 
   function selectedCheckoutAddons(){ return [...document.querySelectorAll('[data-addon-checkout]:checked')].map(input=>input.value); }
   window.selectedCheckoutAddons = selectedCheckoutAddons;
@@ -83,10 +102,12 @@
 
   function renderCurrent(generation){
     currentGeneration=generation||null; currentGenerationId=generation?.id||null; output=generation?.output||null;
-    if(!generation||!output){ node('marketingResult').hidden=true; node('marketingEmpty').hidden=false; return; }
+    if(!generation||!output){ node('marketingResult').hidden=true; node('marketingResult')?.classList.remove('is-approved'); node('marketingEmpty').hidden=false; if(node('marketingReviewState'))node('marketingReviewState').textContent='Check the wording, facts and offer details before approval.'; return; }
     node('marketing_main_copy').value=output.main_copy||''; node('marketing_short_alternative').value=output.short_alternative||''; node('marketing_call_to_action').value=output.call_to_action||''; node('marketing_hashtags').value=(output.hashtags||[]).join(' ');
     node('marketing_missing').textContent=(output.missing_information||[]).length?`Information to check: ${output.missing_information.join('; ')}`:'';
     const approved=generation.approval_status==='approved'; node('marketingApprovalBadge').textContent=approved?'Approved · Ready to publish':'Draft · Review required'; node('marketingDraftDate').textContent=when(generation.updated_at||generation.created_at);
+    node('marketingResult')?.classList.toggle('is-approved',approved);
+    if(node('marketingReviewState'))node('marketingReviewState').textContent=approved?'Approved version locked. Publish it now or schedule it for later.':'Check the wording, facts and image before the owner approves this version.';
     node('marketingApprove').hidden=authenticatedBusinessRole!=='owner'||approved; node('marketingSaveDraft').hidden=approved; node('marketingDelete').hidden=!['owner','admin'].includes(authenticatedBusinessRole); node('marketingPublishControls').hidden=!approved;
     for(const id of ['marketing_main_copy','marketing_short_alternative','marketing_call_to_action','marketing_hashtags']) node(id).disabled=approved;
     node('marketingResult').hidden=false; node('marketingEmpty').hidden=true;
@@ -195,7 +216,7 @@
     try{
       const result=await api('/api/marketing-schedules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create',generation_id:scheduleDraftId,platform:node('marketingSchedulePlatform')?.value||'facebook',scheduled_for:scheduledFor})});
       scheduleMessage(`Scheduled for ${when(result.schedule.scheduled_for)}. Business AI will publish it automatically.`);
-      clearScheduleForm();await loadSchedules();
+      clearScheduleForm();await Promise.all([loadSchedules(),loadAutomation()]);
     }catch(error){scheduleMessage(error?.message||'Could not save this scheduled post.');}
     finally{setBusy(false);}
   }
@@ -209,9 +230,11 @@
 
   function renderSchedules(){
     const target=node('marketingScheduleList');if(!target)return;
-    const upcoming=[...schedules].sort((a,b)=>String(a.scheduled_for||'').localeCompare(String(b.scheduled_for||'')));
-    if(!upcoming.length){target.innerHTML='<div class="empty">No scheduled posts yet. Open a draft and choose Schedule to plan a future post.</div>';scheduleStatus('');return;}
-    scheduleStatus(`${upcoming.length} scheduled ${upcoming.length===1?'item':'items'}`);
+    const upcoming=[...schedules].sort((a,b)=>{const rank=value=>['scheduled','processing'].includes(value)?0:value==='failed'?1:2;return rank(a.status)-rank(b.status)||String(a.scheduled_for||'').localeCompare(String(b.scheduled_for||''));});
+    if(!upcoming.length){target.innerHTML='<div class="empty">No scheduled posts yet. Approve a draft, then choose Schedule to add it here.</div>';scheduleStatus('');return;}
+    const active=upcoming.filter(item=>['scheduled','processing'].includes(item.status));
+    const next=active.find(item=>Date.parse(item.scheduled_for)>Date.now())||active[0]||null;
+    scheduleStatus(active.length?`${active.length} upcoming${next?' · next '+when(next.scheduled_for):''}`:`${upcoming.length} previous scheduled ${upcoming.length===1?'item':'items'}`);
     target.innerHTML=upcoming.map(item=>{
       const generation=item.generation||{};
       const preview=generation.main_copy||'';
@@ -234,7 +257,7 @@
     if(!scheduledFor){scheduleStatus('That date and time could not be understood.');return;}
     try{
       await api('/api/marketing-schedules',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reschedule',schedule_id:id,scheduled_for:scheduledFor})});
-      editingScheduleId=null;scheduleStatus('Scheduled time updated.');await loadSchedules();
+      editingScheduleId=null;scheduleStatus('Scheduled time updated.');await Promise.all([loadSchedules(),loadAutomation()]);
     }catch(error){scheduleStatus(error?.message||'Could not update this scheduled post.');}
   }
 
@@ -242,7 +265,7 @@
     if(!confirm('Cancel this scheduled post? Your draft stays in Drafts & History.'))return;
     try{
       await api('/api/marketing-schedules',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel',schedule_id:id})});
-      scheduleStatus('Scheduled post cancelled. Your draft was kept.');await loadSchedules();
+      scheduleStatus('Scheduled post cancelled. Your draft was kept.');await Promise.all([loadSchedules(),loadAutomation()]);
     }catch(error){scheduleStatus(error?.message||'Could not cancel this scheduled post.');}
   }
 
@@ -258,7 +281,7 @@
 
   async function generate(event){
     event?.preventDefault(); if(busy)return; const current=epoch; const input=Object.fromEntries(new FormData(node('marketingForm'))); setBusy(true); message('Creating a draft using approved business information…');
-    try { const result=await api('/api/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)}); if(current!==epoch)return; renderCurrent({id:result.id,content_type:input.content_type,platform:input.platform,tone:input.tone,request_text:input.prompt,extra_instructions:input.extra_instructions||'',output:result.output,approval_status:'draft',created_at:new Date().toISOString(),updated_at:new Date().toISOString()}); message('Draft ready. Check facts, dates and offers before approving. Nothing has been published.'); await loadHistory(); node('marketingResult').focus(); }
+    try { const result=await api('/api/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)}); if(current!==epoch)return; renderCurrent({id:result.id,content_type:input.content_type,platform:input.platform,tone:input.tone,request_text:input.prompt,extra_instructions:input.extra_instructions||'',output:result.output,approval_status:'draft',created_at:new Date().toISOString(),updated_at:new Date().toISOString()}); message('Draft ready. Check facts, dates and offers before approving. Nothing has been published.'); await Promise.all([loadHistory(),loadAutomation()]); node('marketingResult').focus(); }
     catch(error){if(current===epoch)message(error.message||'Could not generate a draft.');}
     finally{if(current===epoch)setBusy(false);}
   }
@@ -269,16 +292,17 @@
 
 
   function renderImage(){
-    const status=node('marketingImageStatus'),preview=node('marketingImagePreview');
+    const status=node('marketingImageStatus'),preview=node('marketingImagePreview'),button=node('marketingGenerateImage');
     if(!status||!preview)return;
     preview.replaceChildren();
+    if(button)button.textContent=imageState?.status==='completed'?'Generate new image':'Generate image';
     if(!currentGenerationId){status.textContent='No image requested for this draft.';return;}
-    if(!imageState){status.textContent=imageGenerationMode==='simulate'?'Image generation is in simulation mode. No paid image has been created.':'No image has been generated for this draft yet.';return;}
-    if(imageState.status==='simulated'){status.textContent='Simulation passed. The paid image-generation path is ready, but no real image was created or charged.';return;}
+    if(!imageState){status.textContent=imageGenerationMode==='simulate'?'Image generation is in simulation mode. No paid image has been created.':'Generate a square marketing image for this draft. Image changes require the post to be approved again.';return;}
+    if(imageState.status==='simulated'){status.textContent='Simulation passed. The image pipeline is ready, but no real image was created.';return;}
     if(imageState.status==='failed'){status.textContent=imageState.failure_message||'Image generation failed.';return;}
     if(imageState.status==='pending'){status.textContent='Image generation is still processing…';return;}
     if(imageState.status==='completed'&&imageState.image_url){
-      status.textContent='Image ready. Facebook publishing will use this image with the approved post.';
+      status.textContent='Image ready. Review it before approval. Generate a new image if you want to replace it.';
       const img=document.createElement('img');img.src=imageState.image_url;img.alt='Generated marketing image preview';img.className='marketing-image-preview';preview.append(img);return;
     }
     status.textContent='Image state is unavailable.';
@@ -299,9 +323,15 @@
     if(!currentGenerationId||busy)return message('Create or open a saved Marketing draft first.');
     setBusy(true);message(imageGenerationMode==='simulate'?'Testing the image-generation backend…':'Generating a marketing image…');
     try{
-      const data=await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'generate',generation_id:currentGenerationId})});
+      const generationId=currentGenerationId;
+      const data=await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'generate',generation_id:generationId})});
       imageState=data.image||null;imageGenerationMode=data.configuration?.mode||imageGenerationMode;renderImage();
-      message(imageState?.simulation?'Image simulation passed. No paid image was generated.':'Marketing image generated and attached to this draft.');
+      if(!imageState?.simulation){
+        const refreshed=await api('/api/marketing?generation_id='+encodeURIComponent(generationId)).catch(()=>null);
+        if(refreshed?.generation)renderCurrent(refreshed.generation);
+      }
+      message(imageState?.simulation?'Image simulation passed. No paid image was generated.':'Image generated. Review the image and approve the draft before publishing.');
+      await Promise.all([loadHistory(),loadAutomation()]);
     }catch(error){message(error?.message||'Could not generate an image for this draft.');}
     finally{setBusy(false);}
   }
@@ -309,6 +339,8 @@
   function renderAutomation(){
     const settings=automationState||{enabled:false,mode:'approval_required',tone:'friendly',image_enabled:false};
     const owner=authenticatedBusinessRole==='owner';
+    if(node('marketingAutomationEnabledLabel'))node('marketingAutomationEnabledLabel').textContent=settings.enabled===true?'Enabled':'Paused';
+    if(node('marketingAutomationSummaryChip'))node('marketingAutomationSummaryChip').textContent='Automation · '+(settings.enabled===true?(settings.mode==='fully_automated'?'Auto publish':'Approval'):'Paused');
     if(node('marketingAutomationMode')){node('marketingAutomationMode').value=settings.mode||'approval_required';node('marketingAutomationMode').disabled=!owner;}
     if(node('marketingAutomationTone')){node('marketingAutomationTone').value=settings.tone||'friendly';node('marketingAutomationTone').disabled=!owner;}
     if(node('marketingAutomationEnabled')){node('marketingAutomationEnabled').checked=settings.enabled===true;node('marketingAutomationEnabled').disabled=!owner;}
@@ -328,8 +360,10 @@
     try{
       const data=await api('/api/marketing-automation');
       automationState=data.settings||null;
+      usageState=data.usage||usageState;
       imageGenerationMode=data.image_generation_mode||imageGenerationMode;
     }catch{automationState=null;}
+    renderUsage();
     renderAutomation();
   }
 
@@ -365,9 +399,10 @@
   async function loadMeta(){
     try{metaState=await api('/api/meta');}catch{metaState=null;}
     const badge=node('metaConnectionBadge'),status=node('metaConnectionStatus'),accounts=node('metaAccounts'),connect=node('metaConnect'),disconnect=node('metaDisconnect'); if(!badge)return;
-    if(!metaState?.configured){badge.textContent='Setup required';status.textContent='Meta credentials have not been configured for this Pilot environment yet.';accounts.innerHTML='';connect.disabled=true;disconnect.hidden=true;return;}
-    connect.disabled=false; if(!metaState.connected){badge.textContent=metaState.needs_reauth?'Reconnect required':'Not connected';status.textContent='Connect Facebook to load eligible Pages. Instagram professional accounts linked to those Pages will be detected where available.';accounts.innerHTML='';connect.textContent=metaState.needs_reauth?'Reconnect Facebook':'Connect Facebook';disconnect.hidden=true;return;}
+    if(!metaState?.configured){badge.textContent='Setup required';status.textContent='Meta credentials have not been configured for this Pilot environment yet.';accounts.innerHTML='';connect.disabled=true;disconnect.hidden=true;if(node('marketingMetaSummaryChip'))node('marketingMetaSummaryChip').textContent='Facebook · Setup required';return;}
+    connect.disabled=false; if(!metaState.connected){badge.textContent=metaState.needs_reauth?'Reconnect required':'Not connected';status.textContent='Connect Facebook to load eligible Pages. Instagram professional accounts linked to those Pages will be detected where available.';accounts.innerHTML='';connect.textContent=metaState.needs_reauth?'Reconnect Facebook':'Connect Facebook';disconnect.hidden=true;if(node('marketingMetaSummaryChip'))node('marketingMetaSummaryChip').textContent='Facebook · '+(metaState.needs_reauth?'Reconnect':'Not connected');return;}
     badge.textContent='Connected';status.textContent=metaState.publish_enabled?'Connection ready. Publishing still requires an owner-approved draft.':'Connected. Live publishing is disabled until the Pilot Meta publishing switch is enabled.';connect.textContent='Reconnect Facebook';disconnect.hidden=false;
+    if(node('marketingMetaSummaryChip'))node('marketingMetaSummaryChip').textContent='Facebook · '+(metaState.publish_enabled?'Ready':'Connected');
     const list=Array.isArray(metaState.accounts)?metaState.accounts:[]; accounts.innerHTML=list.length?list.map(a=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(a.display_name||a.platform)}</h4><div class="work-meta">${esc(a.platform==='facebook'?'Facebook Page':'Instagram professional account')}</div></div><span class="tag">${a.selected?'Selected':'Available'}</span></div>${!a.selected?`<div class="work-actions"><button type="button" class="small-btn" data-select-meta="${esc(a.id)}">Select</button></div>`:''}</article>`).join(''):'<div class="empty">No eligible Pages or professional Instagram accounts were returned by Meta.</div>';
     accounts.querySelectorAll('[data-select-meta]').forEach(button=>button.addEventListener('click',()=>selectMeta(button.dataset.selectMeta)));
   }
@@ -382,7 +417,7 @@
     target.querySelectorAll('[data-pub-action]').forEach(button=>button.addEventListener('click',()=>publicationAction(button.dataset.pubAction,button.dataset.pubId)));
   }
   async function publicationAction(action,id){try{await api('/api/marketing-publications',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,publication_id:id})});message(action==='cancel'?'Scheduled publication cancelled.':'Publication retry completed.');await loadPublications();}catch(error){message(error.message||'Could not update publication.');}}
-  async function publish(schedule){if(!currentGenerationId||currentGeneration?.approval_status!=='approved')return message('Owner approval is required before publishing.');const platform=node('marketingPublishPlatform').value;const at=node('marketingScheduleAt').value;if(schedule&&!at)return message('Choose a schedule date and time.');const scheduledFor=schedule?new Date(at).toISOString():'';const requestKey=`${currentGenerationId}:${platform}:${scheduledFor||'now'}`;let requestId=pendingPublicationRequests.get(requestKey);if(!requestId){requestId=crypto.randomUUID();pendingPublicationRequests.set(requestKey,requestId);}setBusy(true);try{const body={action:'schedule',generation_id:currentGenerationId,platform,request_id:requestId};if(schedule)body.scheduled_for=scheduledFor;const result=await api('/api/marketing-publications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});pendingPublicationRequests.delete(requestKey);message(result.publication?.status==='published'?'Published successfully.':result.publication?.status==='failed'?(result.publication.failure_message||'Publishing failed.'):'Publication scheduled.');await loadPublications();}catch(error){message(error.message||'Could not publish this draft.');}finally{setBusy(false);}}
+  async function publish(schedule){if(!currentGenerationId||currentGeneration?.approval_status!=='approved')return message('Owner approval is required before publishing.');const platform=node('marketingPublishPlatform').value;const at=node('marketingScheduleAt').value;if(schedule&&!at)return message('Choose a schedule date and time.');const scheduledFor=schedule?new Date(at).toISOString():'';const requestKey=`${currentGenerationId}:${platform}:${scheduledFor||'now'}`;let requestId=pendingPublicationRequests.get(requestKey);if(!requestId){requestId=crypto.randomUUID();pendingPublicationRequests.set(requestKey,requestId);}setBusy(true);try{const body={action:'schedule',generation_id:currentGenerationId,platform,request_id:requestId};if(schedule)body.scheduled_for=scheduledFor;const result=await api('/api/marketing-publications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});pendingPublicationRequests.delete(requestKey);message(result.publication?.status==='published'?'Published successfully.':result.publication?.status==='failed'?(result.publication.failure_message||'Publishing failed.'):'Publication scheduled.');await Promise.all([loadPublications(),loadAutomation()]);}catch(error){message(error.message||'Could not publish this draft.');}finally{setBusy(false);}}
 
   async function open(view){
     if(!['addons','marketing','settings'].includes(view))return; const current=++epoch;
@@ -403,5 +438,5 @@
   }
   node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;imageGenerationMode='simulate';setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
 })();

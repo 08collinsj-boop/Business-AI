@@ -228,6 +228,12 @@ test('simulated live provider completes storage and Facebook photo pipeline with
   assert.equal(generated.status, 'completed');
   assert.equal(generated.image_url, 'https://signed.example.test/generated-image.jpg?token=test');
   assert.equal(generated.mime_type, 'image/jpeg');
+  const approvalReset = calls.find(call => call.href.includes('/rest/v1/marketing_generations?business_id=eq.') && call.options.method === 'PATCH');
+  assert.ok(approvalReset, 'new image must reset the Marketing draft approval');
+  const approvalBody = JSON.parse(approvalReset.options.body);
+  assert.equal(approvalBody.approval_status, 'draft');
+  assert.equal(approvalBody.approved_at, null);
+  assert.equal(approvalBody.approved_by, null);
 
   const meta = await import(new URL('../lib/meta.js?pipeline=' + Math.random(), import.meta.url));
   const account = {

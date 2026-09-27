@@ -309,14 +309,15 @@ test('schedule UI renders date, platform, preview and status safely', async () =
   assert.match(css, /marketing-preview/);
 });
 
-test('planning-only wording never promises publishing', async () => {
+test('scheduler wording matches live Facebook scheduling', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  assert.match(html, /Planning a post here does not publish it automatically/);
-  assert.match(html, /Content plan/);
-  assert.match(html, /Plan post/);
+  assert.match(html, /Schedule an approved post/);
+  assert.match(html, /Business AI creates the scheduled Facebook post with Meta/);
+  assert.match(html, />Schedule</);
+  assert.match(html, />Schedule post</);
   assert.match(html, /Schedule &amp; publish/);
-  const script = await readFile(new URL('../assets/marketing.js', import.meta.url), 'utf8');
-  assert.ok(script.includes('>Plan post</button>'));
+  assert.match(html, /id="marketingSchedulePlatform"[\s\S]*Facebook Page/);
+  assert.doesNotMatch(html, /id="marketingSchedulePlatform"[\s\S]{0,500}<option value="instagram"/);
 });
 
 test('scheduling never triggers publishing or provider calls', async () => {

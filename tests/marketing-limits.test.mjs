@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { assertFacebookDailyPostLimit, facebookDailyPostUsage } from '../lib/marketing-limits.js';
+import { assertFacebookDailyPostLimit, facebookDailyPostUsage, marketingUsageLimitsForPlan } from '../lib/marketing-limits.js';
 
 const savedEnv = { ...process.env };
 const originalFetch = globalThis.fetch;
@@ -21,6 +21,15 @@ function setup({ schedules = [], publications = [] } = {}) {
     throw new Error('Unexpected request: ' + href);
   };
 }
+
+
+
+test('Marketing daily usage limits scale by base plan', () => {
+  assert.deepEqual(marketingUsageLimitsForPlan('trial'), { drafts: 10, images: 3 });
+  assert.deepEqual(marketingUsageLimitsForPlan('starter'), { drafts: 10, images: 3 });
+  assert.deepEqual(marketingUsageLimitsForPlan('pro'), { drafts: 25, images: 10 });
+  assert.deepEqual(marketingUsageLimitsForPlan('business'), { drafts: 50, images: 20 });
+});
 
 test('Facebook daily post limit allows three slots, deduplicates linked rows and rejects a fourth', async () => {
   setup({

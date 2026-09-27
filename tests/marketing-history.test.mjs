@@ -295,3 +295,19 @@ test('long marketing copy cannot break history rendering', async () => {
   assert.ok(preview.length <= 140);
   assert.ok(draftOutput.main_copy.length > 140);
 });
+
+
+test('polished Marketing workspace exposes usage, review and automation controls', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  for (const id of [
+    'marketingDraftUsageValue', 'marketingImageUsageValue', 'marketingPostUsageValue',
+    'marketingReviewState', 'marketingAutomationEnabledLabel', 'marketingAutomationSummaryChip',
+    'marketingMetaSummaryChip'
+  ]) assert.ok(html.includes(id), `missing ${id}`);
+  assert.match(html, /1 post \/ day/);
+  assert.match(html, /3 posts \/ day/);
+  const css = await readFile(new URL('../assets/marketing.css', import.meta.url), 'utf8');
+  assert.match(css, /marketing-usage-grid/);
+  assert.match(css, /marketing-review-card/);
+  assert.match(css, /marketing-bottom-grid/);
+});
