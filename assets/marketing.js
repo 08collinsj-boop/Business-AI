@@ -14,11 +14,30 @@
     target.replaceChildren();
     if (!addons) { target.textContent = 'Optional features: view Additional Features for availability.'; return; }
     for (const addon of addons) {
-      const label = document.createElement('label'), checkbox = document.createElement('input');
+      const active = addon.entitlement === 'active' && !addon.trial_included;
+      const coming = addon.status === 'coming_soon';
+      const row = document.createElement('div'); row.className = `addon-choice${active?' is-active':''}${coming?' is-coming':''}`;
+      const checkbox = document.createElement('input');
       checkbox.type = 'checkbox'; checkbox.value = addon.key; checkbox.dataset.addonCheckout='1';
-      checkbox.disabled = addon.status === 'coming_soon' || (addon.entitlement === 'active' && !addon.trial_included) || addon.pricing?.state !== 'configured';
-      const suffix = addon.status === 'coming_soon' ? 'Coming soon' : addon.entitlement === 'active' && !addon.trial_included ? 'Already active' : money(addon.pricing);
-      label.append(checkbox, document.createTextNode(`${addon.name} — ${suffix}`)); target.append(label);
+      checkbox.id = `billing-addon-${addon.key}`;
+      checkbox.checked = active;
+      checkbox.disabled = coming || active || addon.pricing?.state !== 'configured';
+
+      const copy = document.createElement('label'); copy.className='addon-choice-copy'; copy.htmlFor=checkbox.id;
+      const title = document.createElement('strong'); title.textContent=addon.name;
+      const detail = document.createElement('small');
+      detail.textContent = coming ? 'Not available yet' : active ? 'Included on your current subscription' : `Add to your next plan checkout · ${money(addon.pricing)}`;
+      copy.append(title,detail);
+
+      const side = document.createElement('div');
+      if(active && addon.key==='ai_marketing'){
+        const openButton=document.createElement('button'); openButton.type='button'; openButton.className='addon-inline-action'; openButton.textContent='Open';
+        openButton.addEventListener('click',()=>showView('marketing')); side.append(openButton);
+      } else {
+        const status=document.createElement('span'); status.className='addon-choice-status';
+        status.textContent=coming?'Coming soon':active?'Active':money(addon.pricing); side.append(status);
+      }
+      row.append(checkbox,copy,side); target.append(row);
     }
   }
 

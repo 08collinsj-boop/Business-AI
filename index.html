@@ -1058,6 +1058,60 @@ button:disabled{cursor:wait;opacity:.58;transform:none!important}
 .bottom-nav .nav-btn.active{background:transparent!important;color:#67b6ff}
 .bottom-nav .nav-btn:active{transform:scale(.96)}
 @media(prefers-reduced-motion:reduce){.bottom-nav::before{transition:none}.view.active{animation:none}}
+/* Settings refinement: tappable overview, premium cards, AI modes and billing controls. */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.settings-hub{gap:12px;margin:2px 0 24px}
+.settings-hub-card{width:100%;min-height:88px;display:grid;grid-template-columns:50px minmax(0,1fr) 22px;align-items:center;gap:14px;padding:16px;border:1px solid #1d476f;border-radius:20px;background:linear-gradient(145deg,rgba(13,34,55,.98),rgba(7,22,37,.98));color:var(--text);text-align:left;box-shadow:0 10px 28px rgba(0,0,0,.12);transition:border-color .2s ease,transform .16s ease,background .2s ease}
+.settings-hub-card:active{transform:scale(.985)}
+.settings-hub-card i{display:grid;place-items:center;width:50px;height:50px;border-radius:15px;background:linear-gradient(145deg,#1c79ef,#123b86);color:#fff;font-style:normal;font-size:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.settings-hub-card:nth-child(2) i{background:linear-gradient(145deg,#955bf2,#4b257f)}
+.settings-hub-card:nth-child(3) i{background:linear-gradient(145deg,#23a789,#135c56)}
+.settings-hub-card strong{display:block;font-size:16px;letter-spacing:-.2px}
+.settings-hub-card small{display:block;margin-top:4px;color:#94a9c4;font-size:12px;line-height:1.35}
+.settings-hub-card b{justify-self:end;color:#4f8fc9;font-size:27px;font-weight:400}
+.settings-card{border-color:#1c4268;background:linear-gradient(155deg,rgba(12,31,50,.98),rgba(6,20,34,.98));box-shadow:0 14px 34px rgba(0,0,0,.14)}
+.settings-anchor-card{scroll-margin-top:max(82px,calc(env(safe-area-inset-top) + 30px))}
+.settings-focus-pulse{animation:settingsFocusPulse .9s ease}
+@keyframes settingsFocusPulse{0%{box-shadow:0 0 0 0 rgba(52,147,255,.34),0 14px 34px rgba(0,0,0,.14)}100%{box-shadow:0 0 0 14px rgba(52,147,255,0),0 14px 34px rgba(0,0,0,.14)}}
+.settings-card-kicker{display:block;margin-bottom:4px;color:#5babff;font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.settings-status-badge{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border:1px solid #28547e;border-radius:999px;background:#0a2036;color:#9fc9f5!important;font-size:11px!important;font-weight:700}
+.settings-subsection-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:24px 0 12px}
+.settings-subsection-head h3{margin:0;font-size:20px}
+.settings-subsection-note{max-width:190px;color:#8299b7;font-size:11px;text-align:right;line-height:1.35}
+.ai-mode-fieldset{margin:0 0 18px;padding:0;border:0}
+.ai-mode-options{display:grid;gap:10px}
+.ai-mode-option{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;padding:14px;border:1px solid #1b4168;border-radius:17px;background:rgba(5,20,34,.76);cursor:pointer;transition:border-color .2s ease,background .2s ease,transform .16s ease}
+.ai-mode-option:active{transform:scale(.99)}
+.ai-mode-option input{position:absolute;opacity:0;pointer-events:none}
+.ai-mode-dot{width:22px;height:22px;margin:2px 0 0 2px;border:2px solid #52708e;border-radius:50%;background:#071727;box-shadow:inset 0 0 0 5px #071727;transition:.2s}
+.ai-mode-option:has(input:checked){border-color:#287fd8;background:linear-gradient(145deg,rgba(18,60,103,.68),rgba(7,27,47,.9));box-shadow:0 0 0 1px rgba(49,141,244,.12)}
+.ai-mode-option:has(input:checked) .ai-mode-dot{border-color:#42a3ff;background:#42a3ff;box-shadow:inset 0 0 0 5px #0c2c4c}
+.ai-mode-copy strong{display:inline-block;font-size:14px;color:#f5f9ff}
+.ai-mode-copy small{display:inline-flex;margin-left:8px;padding:3px 7px;border-radius:999px;background:#102a46;color:#8dbbe8;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:2px}
+.ai-mode-option.recommended .ai-mode-copy small{background:rgba(44,142,255,.18);color:#6ab5ff}
+.ai-mode-copy em{display:block;margin-top:6px;color:#92a7c2;font-size:12px;font-style:normal;line-height:1.45}
+.billing-card .billing-summary{margin:-3px 0 16px;line-height:1.5}
+.billing-feature-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:22px 0 4px;padding-top:18px;border-top:1px solid #183c60}
+.billing-feature-head h4{margin:0;font-size:17px}
+.text-action{border:0;background:transparent;color:#5cabff;padding:7px 0;font-size:12px;font-weight:750}
+.addon-plan-options{display:grid;gap:10px;margin:14px 0 4px}
+.addon-choice{display:grid;grid-template-columns:26px minmax(0,1fr) auto;align-items:center;gap:11px;min-height:66px;padding:12px 13px;border:1px solid #1b4168;border-radius:16px;background:#081b2d}
+.addon-choice.is-active{border-color:#236eac;background:linear-gradient(145deg,#0d2c48,#081b2d)}
+.addon-choice.is-coming{opacity:.72}
+.addon-choice input{width:20px;height:20px;margin:0;accent-color:#2a97ff}
+.addon-choice-copy strong{display:block;color:#edf5ff;font-size:13px}
+.addon-choice-copy small{display:block;margin-top:3px;color:#8fa5bf;font-size:11px;line-height:1.35}
+.addon-choice-status{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border:1px solid #264b70;border-radius:999px;color:#9ab6d3;font-size:10px;font-weight:750;white-space:nowrap}
+.addon-choice.is-active .addon-choice-status{border-color:#2479bc;background:rgba(37,128,203,.14);color:#6fbdff}
+.addon-inline-action{border:0;background:transparent;color:#61b2ff;padding:5px;font-size:11px;font-weight:800}
+.billing-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:18px}
+.billing-action{min-height:48px;border:1px solid #27537c;border-radius:14px;background:#0b2035;color:#dcecff;font-weight:750}
+.billing-action.primary{border-color:#2f86df;background:linear-gradient(135deg,#1e77dd,#1159b7);color:#fff}
+.billing-action.danger-soft{border-color:rgba(255,104,120,.34);background:rgba(255,83,104,.065);color:#ff9baa}
+.billing-action:disabled{opacity:.55}
+@media(min-width:720px){.settings-hub{grid-template-columns:repeat(3,1fr)}.settings-hub-card{min-height:110px;grid-template-columns:50px minmax(0,1fr)}.settings-hub-card b{display:none}}
+@media(max-width:430px){.billing-actions{grid-template-columns:1fr}.settings-subsection-head{align-items:flex-start;flex-direction:column}.settings-subsection-note{text-align:left;max-width:none}}
+
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 </head>
@@ -1601,22 +1655,26 @@ class="view"
 <div class="page-title screen-title"><span class="page-kicker">Your workspace</span><h2>Settings</h2><p>Manage your business, AI and account.</p></div>
 
 <div class="work-actions" style="margin-bottom:18px"><button class="small-btn" type="button" onclick="showView('addons')">✦ Additional Features</button><button class="small-btn" type="button" onclick="showView('marketing')">Marketing workspace</button></div>
-<div class="settings-hub" aria-label="Settings overview"><div><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span></div><div><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span></div><div><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span></div></div>
+<div class="settings-hub" aria-label="Settings overview">
+<button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
+<button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
+<button class="settings-hub-card" type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span><b aria-hidden="true">›</b></button>
+</div>
 
 
 <div id="settingsStatus"></div>
 
 <div class="settings-section-label">Business</div>
 
-<div id="billingCard" class="card" data-owner-only hidden><div class="card-head"><h3>Billing &amp; subscription</h3><span id="billingPlanBadge">Checking…</span></div><div id="billingSummary" class="work-meta">Your plan and AI enquiry allowance are shown here.</div><div id="billingPlans" class="billing-plans" aria-live="polite"></div><h4>Additional features</h4><p class="work-meta">Optional add-ons for Starter, Pro and Business. Your base plan and Trial stay separate.</p><div id="addonPlanOptions" class="addon-plan-options"></div><div class="work-actions"><button id="manageBillingButton" class="small-btn" type="button" hidden onclick="manageBilling()">Manage billing</button><button id="cancelBillingButton" class="small-btn" type="button" hidden onclick="cancelBilling()">Cancel at period end</button></div></div>
+<div id="billingCard" class="card settings-card billing-card settings-anchor-card" data-owner-only hidden><div class="card-head"><div><span class="settings-card-kicker">Account</span><h3>Billing &amp; subscription</h3></div><span id="billingPlanBadge" class="settings-status-badge">Checking…</span></div><div id="billingSummary" class="work-meta billing-summary">Your plan and AI enquiry allowance are shown here.</div><div id="billingPlans" class="billing-plans" aria-live="polite"></div><div class="billing-feature-head"><div><span class="settings-card-kicker">Optional</span><h4>Additional features</h4></div><button class="text-action" type="button" onclick="showView('addons')">View all add-ons</button></div><p class="work-meta">Add features to a paid plan when you need them. Trial and your base subscription remain separate.</p><div id="addonPlanOptions" class="addon-plan-options"></div><div class="billing-actions"><button id="manageBillingButton" class="billing-action primary" type="button" hidden onclick="manageBilling()">Manage subscription</button><button id="cancelBillingButton" class="billing-action danger-soft" type="button" hidden onclick="cancelBilling()">Cancel renewal</button></div></div>
 
-<div class="card">
+<div id="businessDetailsCard" class="card settings-card settings-anchor-card">
 
 <div class="card-head">
 
-<h3>
+<div><span class="settings-card-kicker">Business</span><h3>
 Business details
-</h3>
+</h3></div>
 
 <span>
 Used by your AI receptionist
@@ -1769,11 +1827,11 @@ Save business settings
 
 </div>
 
-<div class="card" style="margin-top:14px">
+<div id="aiReceptionistSettingsCard" class="card settings-card settings-anchor-card" style="margin-top:14px">
 
 <div class="card-head">
 
-<h3>Business profile & onboarding</h3>
+<div><span class="settings-card-kicker">AI setup</span><h3>Business profile & onboarding</h3></div>
 
 <span>Securely scoped to this business</span>
 
@@ -1781,7 +1839,11 @@ Save business settings
 
 <p style="color:var(--muted);font-size:12px;line-height:1.5;margin:0 0 12px">Choose a starting template, then tailor the information your AI receptionist can use. Templates provide suggestions only; they do not change your security or booking permissions.</p>
 
-<div id="configurationStatus"></div><h3>AI Receptionist</h3><fieldset class="field"><legend>How should your AI handle customers?</legend><label style="display:block;margin:12px 0"><input type="radio" name="c_ai_handling_mode" value="human_first" > <strong>Human-first — Personal service first</strong><br><span class="work-meta">AI answers basic questions and captures enquiries. Your team handles important conversations personally.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="c_ai_handling_mode" value="balanced" checked> <strong>Balanced — Recommended</strong><br><span class="work-meta">AI handles everyday enquiries but hands customers over when a personal response is more appropriate.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="c_ai_handling_mode" value="ai_first" > <strong>AI-first — Maximum automation</strong><br><span class="work-meta">AI handles as much as your business settings allow, while customers can still request a person at any time.</span></label></fieldset>
+<div id="configurationStatus"></div><div class="settings-subsection-head"><div><span class="settings-card-kicker">Behaviour</span><h3>AI Receptionist</h3></div><span class="settings-subsection-note">Choose how much the AI should handle</span></div><fieldset class="ai-mode-fieldset"><legend class="sr-only">How should your AI handle customers?</legend><div class="ai-mode-options">
+<label class="ai-mode-option"><input type="radio" name="c_ai_handling_mode" value="human_first"><span class="ai-mode-dot" aria-hidden="true"></span><span class="ai-mode-copy"><strong>Human-first</strong><small>Personal service first</small><em>AI answers basic questions and captures enquiries, then your team handles important conversations.</em></span></label>
+<label class="ai-mode-option recommended"><input type="radio" name="c_ai_handling_mode" value="balanced" checked><span class="ai-mode-dot" aria-hidden="true"></span><span class="ai-mode-copy"><strong>Balanced</strong><small>Recommended</small><em>AI handles everyday enquiries and hands customers over when a personal response is more appropriate.</em></span></label>
+<label class="ai-mode-option"><input type="radio" name="c_ai_handling_mode" value="ai_first"><span class="ai-mode-dot" aria-hidden="true"></span><span class="ai-mode-copy"><strong>AI-first</strong><small>Maximum automation</small><em>AI handles as much as your business settings allow while customers can still request a person at any time.</em></span></label>
+</div></fieldset>
 
 <div class="settings-grid">
 
@@ -1852,11 +1914,11 @@ Save business settings
 
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Human handovers</h3><span>Requires attention</span></div><p class="work-meta">Emergency, complaint and human-request enquiries are recorded as urgent follow-up actions. A handover means the system has flagged it; it does not mean someone has been contacted.</p><div id="handoverStatus"></div><div id="handoverList" class="work-list"><div class="empty">Loading handovers…</div></div></div>
 
-<div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Team access</h3><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
+<div id="teamPrivacyCard" class="card settings-card settings-anchor-card" data-owner-only style="margin-top:14px"><div class="card-head"><div><span class="settings-card-kicker">Team &amp; privacy</span><h3>Team access</h3></div><span>Owner controls</span></div><p class="work-meta">Invite a staff member or admin using their email. Business AI does not send email invitations during the Pilot: copy the secure invitation link and share it only with the intended person. Invitations expire after seven days.</p><div id="teamStatus"></div><div class="settings-grid"><div class="field"><label>Team member email</label><input id="teamInviteEmail" type="email" maxlength="320" placeholder="staff@example.com"></div><div class="field"><label>Access</label><select id="teamInviteRole"><option value="member">Staff member</option><option value="admin">Admin</option></select></div></div><button class="small-btn primary-action" type="button" onclick="inviteTeamMember()">Create invitation</button><div id="teamList" class="work-list" style="margin-top:12px"></div></div>
 
 <div class="settings-section-label" data-owner-only>Privacy &amp; security</div>
 
-<div class="card" data-owner-only style="margin-top:14px"><div class="card-head"><h3>Privacy & retention</h3><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation are handled on request during the Pilot. To export or anonymise an individual customer record, contact your Pilot support contact.</p></div>
+<div id="privacyRetentionCard" class="card settings-card settings-anchor-card" data-owner-only style="margin-top:14px"><div class="card-head"><div><span class="settings-card-kicker">Data controls</span><h3>Privacy & retention</h3></div><span>Owner responsibility</span></div><p class="work-meta">Business AI stores customer contact details, enquiry details, lead activity, bookings/actions and limited audit records so you can manage enquiries. Set a review period; you remain responsible for deciding when lawful deletion/anonymisation is appropriate. This is a technical foundation, not legal advice or automatic compliance.</p><div id="lifecycleStatus"></div><div class="settings-grid"><div class="field"><label>Lead review period (days)</label><input id="leadRetentionDays" type="number" min="30" max="3650"></div><div class="field"><label>Audit retention period (days)</label><input id="auditRetentionDays" type="number" min="365" max="3650"></div></div><button class="small-btn primary-action" type="button" onclick="saveLifecyclePolicy()">Save retention policy</button><p class="work-meta">Owner-only customer-data export and anonymisation are handled on request during the Pilot. To export or anonymise an individual customer record, contact your Pilot support contact.</p></div>
 
 <div class="settings-section-label">Pilot feedback</div>
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Send feedback</h3><span>Helps improve the Pilot</span></div><p class="work-meta">Report a bug, confusing behaviour, a missing feature or a suggestion. Only your category, title, area and description are sent — never customer conversations or files.</p><form id="pilotFeedbackForm" class="marketing-form"><div class="settings-grid"><div class="field"><label for="pilotFeedbackCategory">Category</label><select id="pilotFeedbackCategory"><option value="bug">Bug</option><option value="confusing">Confusing</option><option value="missing_feature">Missing feature</option><option value="suggestion">Suggestion</option><option value="other">Other</option></select></div><div class="field"><label for="pilotFeedbackArea">Area</label><select id="pilotFeedbackArea"><option value="home">Home</option><option value="leads">Leads</option><option value="actions">Actions</option><option value="bookings">Bookings</option><option value="receptionist">AI Receptionist</option><option value="knowledge">Business Knowledge</option><option value="marketing">Marketing</option><option value="settings">Settings</option><option value="billing">Billing</option><option value="other">Other</option></select></div></div><div class="field"><label for="pilotFeedbackTitle">Short title (optional)</label><input id="pilotFeedbackTitle" maxlength="120" placeholder="A few words about the issue"></div><div class="field"><label for="pilotFeedbackMessage">Feedback details</label><textarea id="pilotFeedbackMessage" maxlength="3000" required placeholder="Describe what you expected and what happened instead."></textarea></div><button id="pilotFeedbackSubmit" class="small-btn primary-action" type="submit">Send feedback</button><div id="pilotFeedbackStatus" class="work-meta" role="status" aria-live="polite"></div></form><div id="pilotFeedbackList" class="work-list" style="margin-top:12px"></div></div>
@@ -2424,6 +2486,19 @@ input.focus();
 
 }
 
+
+function openSettingsSection(id){
+
+const target=document.getElementById(id);
+if(!target)return;
+target.scrollIntoView({behavior:'smooth',block:'start'});
+target.classList.remove('settings-focus-pulse');
+requestAnimationFrame(()=>{
+target.classList.add('settings-focus-pulse');
+window.setTimeout(()=>target.classList.remove('settings-focus-pulse'),900);
+});
+
+}
 
 function positionBottomNavIndicator(navContext){
 
@@ -3045,8 +3120,25 @@ try{billingState=await api('/api/billing');renderBilling();}catch{billingState=n
 }
 async function startBillingCheckout(plan){
 try{const addons=plan==='trial'?[]:(window.selectedCheckoutAddons?.()||[]);const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'checkout',plan,addons})});if(typeof result?.checkout_url==='string'&&result.checkout_url.startsWith('https://'))window.location.assign(result.checkout_url);else throw new Error('Could not start secure checkout');}catch(error){toast(error.message||'Billing is temporarily unavailable');}}
-async function manageBilling(){try{const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'portal'})});if(typeof result?.portal_url==='string'&&result.portal_url.startsWith('https://'))window.location.assign(result.portal_url);else throw new Error('Billing management is unavailable');}catch(error){toast(error.message||'Billing management is unavailable');}}
-async function cancelBilling(){try{await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel'})});toast('Your subscription will cancel at the end of the current billing period.');await loadBilling();}catch(error){toast(error.message||'Could not update billing');}}
+async function manageBilling(){
+const button=$('manageBillingButton');const original=button?.textContent||'Manage subscription';
+if(button){button.disabled=true;button.textContent='Opening secure billing…';}
+try{
+const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'portal'})});
+if(typeof result?.portal_url==='string'&&result.portal_url.startsWith('https://')){toast('Opening secure billing…');window.location.assign(result.portal_url);}
+else throw new Error('Billing management is unavailable');
+}catch(error){toast(error.message||'Billing management is unavailable');if(button){button.disabled=false;button.textContent=original;}}
+}
+async function cancelBilling(){
+if(!window.confirm('Cancel renewal at the end of the current billing period? You will keep access until then.'))return;
+const button=$('cancelBillingButton');const original=button?.textContent||'Cancel renewal';
+if(button){button.disabled=true;button.textContent='Updating…';}
+try{
+await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel'})});
+toast('Renewal cancelled. Your access continues until the end of the current billing period.');
+await loadBilling();
+}catch(error){toast(error.message||'Could not update billing');if(button){button.disabled=false;button.textContent=original;}}
+}
 
 async function loadAll(showFeedback=false){
 
