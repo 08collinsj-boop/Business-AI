@@ -123,6 +123,242 @@ test('Facebook image publishing posts to the selected Page photos endpoint and k
   assert.equal(form.get('published'), 'true');
 });
 
+
+test('simulated live provider completes storage and Facebook photo pipeline without external calls', async () => {
+  const BUSINESS = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const GENERATION = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  const IMAGE = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+
+  Object.assign(process.env, {
+    BILLING_ENABLED: 'false',
+    SUPABASE_URL: 'https://example.supabase.co',
+    SUPABASE_SERVICE_ROLE_KEY: 'server-key',
+    OPENAI_API_KEY: 'fake-provider-key',
+    IMAGE_GENERATION_MODE: 'live',
+    IMAGE_GENERATION_MODEL: 'fake-image-model',
+    META_APP_ID: 'app-id',
+    META_APP_SECRET: 'app-secret',
+    META_REDIRECT_URI: 'https://pilot.example.test/api/meta-callback',
+    META_GRAPH_API_VERSION: 'v24.0',
+    META_OAUTH_SCOPES: 'pages_show_list,pages_read_engagement,pages_manage_posts',
+    META_TOKEN_ENCRYPTION_KEY: '22'.repeat(32),
+    META_PUBLISH_ENABLED: 'true'
+  });
+
+  const calls = [];
+  const fakeImage = Buffer.alloc(256, 7).toString('base64');
+  globalThis.fetch = async (url, options = {}) => {
+    const href = String(url);
+    calls.push({ href, options });
+
+    if (href.includes('/rest/v1/business_feature_entitlements')) {
+      return response([{ feature_key: 'ai_marketing', status: 'active', source: 'manual', expires_at: null }]);
+    }
+    if (href.includes('/rest/v1/marketing_generations')) {
+      return response([{
+        id: GENERATION,
+        business_id: BUSINESS,
+        content_type: 'social_post',
+        platform: 'facebook',
+        tone: 'friendly',
+        request_text: 'Promote electrical maintenance',
+        status: 'completed',
+        approval_status: 'approved',
+        output: {
+          main_copy: 'Reliable electrical maintenance for local businesses.',
+          short_alternative: 'Electrical maintenance.',
+          call_to_action: 'Message us to learn more.',
+          hashtags: ['#Electrical'],
+          missing_information: []
+        },
+        edited_output: null
+      }]);
+    }
+    if (href.includes('/rest/v1/business_settings')) {
+      return response([{ business_name: 'Example Electrical', business_type: 'Electrical contractor', services: 'Electrical maintenance', address: 'Teesside', opening_hours: null, phone: null, email: null }]);
+    }
+    if (href.includes('/rest/v1/business_configurations')) {
+      return response([{ description: 'Local electrical contractor', website: null, service_areas: ['Teesside'], faqs: [] }]);
+    }
+    if (href.includes('/rest/v1/business_knowledge_')) {
+      return response([]);
+    }
+    if (href.includes('/rest/v1/marketing_images?on_conflict=business_id,generation_id') && options.method === 'POST') {
+      const body = JSON.parse(options.body);
+      return response([{ id: IMAGE, ...body, created_at: new Date().toISOString() }], true, 201);
+    }
+    if (href.includes('/rest/v1/marketing_images?business_id=eq.') && options.method === 'PATCH') {
+      const body = JSON.parse(options.body);
+      return response([{
+        id: IMAGE,
+        generation_id: GENERATION,
+        business_id: BUSINESS,
+        provider: 'openai',
+        model: 'fake-image-model',
+        storage_path: BUSINESS + '/' + GENERATION + '/' + IMAGE + '.jpg',
+        created_at: new Date().toISOString(),
+        ...body
+      }]);
+    }
+    if (href === 'https://api.openai.com/v1/images/generations') {
+      return response({ data: [{ id: 'fake-provider-image', b64_json: fakeImage }] });
+    }
+    if (href.includes('/storage/v1/object/marketing-images/')) {
+      return response({}, true, 200);
+    }
+    if (href.includes('/storage/v1/object/sign/marketing-images/')) {
+      return response({ signedURL: 'https://signed.example.test/generated-image.jpg?token=test' });
+    }
+    if (href.includes('graph.facebook.com') && href.endsWith('/page-123/photos')) {
+      return response({ id: 'page-123_photo-1' });
+    }
+    return response([], true, 200);
+  };
+
+  const imageModule = await import(new URL('../lib/marketing-image.js?pipeline=' + Math.random(), import.meta.url));
+  const generated = await imageModule.generateMarketingImage({
+    businessId: BUSINESS,
+    actorUserId: null,
+    generationId: GENERATION
+  });
+
+  assert.equal(generated.status, 'completed');
+  assert.equal(generated.image_url, 'https://signed.example.test/generated-image.jpg?token=test');
+  assert.equal(generated.mime_type, 'image/jpeg');
+
+  const meta = await import(new URL('../lib/meta.js?pipeline=' + Math.random(), import.meta.url));
+  const account = {
+    provider_account_id: 'page-123',
+    ...meta.encryptMetaToken('EAAB-simulated-page-token')
+  };
+  const published = await meta.publishMetaPhoto({
+    platform: 'facebook',
+    account,
+    text: 'Reliable electrical maintenance for local businesses.',
+    imageUrl: generated.image_url
+  });
+
+  assert.equal(published.providerPostId, 'page-123_photo-1');
+  assert.equal(published.mediaType, 'image');
+
+  const providerCall = calls.find(call => call.href === 'https://api.openai.com/v1/images/generations');
+  assert.ok(providerCall);
+  const storageUpload = calls.find(call => call.href.includes('/storage/v1/object/marketing-images/'));
+  assert.ok(storageUpload);
+  assert.equal(storageUpload.options.headers['Content-Type'], 'image/jpeg');
+  assert.equal(Buffer.isBuffer(storageUpload.options.body), true);
+  const metaCall = calls.find(call => call.href.endsWith('/page-123/photos'));
+  assert.ok(metaCall);
+  const form = new URLSearchParams(metaCall.options.body);
+  assert.equal(form.get('url'), generated.image_url);
+  assert.equal(form.get('published'), 'true');
+});
+
+
+test('Cloudflare FLUX adapter generates, stores and signs an image through the shared pipeline', async () => {
+  const BUSINESS = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  const GENERATION = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+  const IMAGE = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+  const ACCOUNT = 'a'.repeat(32);
+  const TOKEN = 'cloudflare-test-token-value-1234567890';
+
+  Object.assign(process.env, {
+    BILLING_ENABLED: 'false',
+    SUPABASE_URL: 'https://example.supabase.co',
+    SUPABASE_SERVICE_ROLE_KEY: 'server-key',
+    IMAGE_GENERATION_PROVIDER: 'cloudflare',
+    CLOUDFLARE_ACCOUNT_ID: ACCOUNT,
+    CLOUDFLARE_API_TOKEN: TOKEN,
+    CLOUDFLARE_IMAGE_MODEL: '@cf/black-forest-labs/flux-1-schnell'
+  });
+  delete process.env.OPENAI_API_KEY;
+
+  const calls = [];
+  const fakeImage = Buffer.alloc(256, 9).toString('base64');
+  globalThis.fetch = async (url, options = {}) => {
+    const href = String(url);
+    calls.push({ href, options });
+
+    if (href.includes('/rest/v1/business_feature_entitlements')) {
+      return response([{ feature_key: 'ai_marketing', status: 'active', source: 'manual', expires_at: null }]);
+    }
+    if (href.includes('/rest/v1/marketing_generations')) {
+      return response([{
+        id: GENERATION,
+        business_id: BUSINESS,
+        content_type: 'social_post',
+        platform: 'facebook',
+        tone: 'friendly',
+        request_text: 'Promote electrical maintenance',
+        status: 'completed',
+        approval_status: 'approved',
+        output: {
+          main_copy: 'Reliable electrical maintenance for local businesses.',
+          short_alternative: '',
+          call_to_action: '',
+          hashtags: [],
+          missing_information: []
+        },
+        edited_output: null
+      }]);
+    }
+    if (href.includes('/rest/v1/business_settings')) {
+      return response([{ business_name: 'Example Electrical', business_type: 'Electrical contractor', services: 'Electrical maintenance', address: 'Teesside' }]);
+    }
+    if (href.includes('/rest/v1/business_configurations')) return response([{}]);
+    if (href.includes('/rest/v1/business_knowledge_')) return response([]);
+    if (href.includes('/rest/v1/marketing_images?on_conflict=business_id,generation_id') && options.method === 'POST') {
+      const body = JSON.parse(options.body);
+      return response([{ id: IMAGE, ...body, created_at: new Date().toISOString() }], true, 201);
+    }
+    if (href.includes('/rest/v1/marketing_images?business_id=eq.') && options.method === 'PATCH') {
+      const body = JSON.parse(options.body);
+      return response([{
+        id: IMAGE,
+        generation_id: GENERATION,
+        business_id: BUSINESS,
+        provider: 'cloudflare',
+        model: '@cf/black-forest-labs/flux-1-schnell',
+        storage_path: BUSINESS + '/' + GENERATION + '/' + IMAGE + '.jpg',
+        created_at: new Date().toISOString(),
+        ...body
+      }]);
+    }
+    if (href === 'https://api.cloudflare.com/client/v4/accounts/' + ACCOUNT + '/ai/run/@cf/black-forest-labs/flux-1-schnell') {
+      return response({ success: true, result: { image: fakeImage }, errors: [], messages: [] });
+    }
+    if (href.includes('/storage/v1/object/marketing-images/')) return response({}, true, 200);
+    if (href.includes('/storage/v1/object/sign/marketing-images/')) {
+      return response({ signedURL: 'https://signed.example.test/cloudflare-image.jpg?token=test' });
+    }
+    return response([], true, 200);
+  };
+
+  const image = await import(new URL('../lib/marketing-image.js?cloudflare=' + Math.random(), import.meta.url));
+  const config = image.imageGenerationConfiguration();
+  assert.equal(config.provider, 'cloudflare');
+  assert.equal(config.configured, true);
+  assert.equal(config.model, '@cf/black-forest-labs/flux-1-schnell');
+
+  const generated = await image.generateMarketingImage({
+    businessId: BUSINESS,
+    actorUserId: null,
+    generationId: GENERATION
+  });
+
+  assert.equal(generated.status, 'completed');
+  assert.equal(generated.provider, 'cloudflare');
+  assert.equal(generated.image_url, 'https://signed.example.test/cloudflare-image.jpg?token=test');
+
+  const providerCall = calls.find(call => call.href.includes('api.cloudflare.com/client/v4/accounts/'));
+  assert.ok(providerCall);
+  assert.equal(providerCall.options.headers.Authorization, 'Bearer ' + TOKEN);
+  const providerBody = JSON.parse(providerCall.options.body);
+  assert.equal(providerBody.steps, 4);
+  assert.match(providerBody.prompt, /Example Electrical/);
+  assert.ok(providerBody.prompt.length <= 2048);
+});
+
 test.after(() => {
   process.env = savedEnv;
   globalThis.fetch = savedFetch;
