@@ -111,7 +111,12 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(css, /transition:transform \.22s/);
   assert.match(css, /customer-portal-ready/);
   assert.match(script, /bindAuthRoleSwitches/);
-  assert.match(script, /window\.setTimeout\(\(\)=>window\.location\.assign\(link\.href\),180\)/);
+  assert.doesNotMatch(script, /window\.location\.assign\(link\.href\)/);
+  assert.match(script, /history\.pushState\(\{authRole:'customer'\},'', '\/customer\/account'\)/);
+  assert.match(script, /history\.pushState\(\{authRole:'business'\},'', '\/'\)/);
+  assert.match(script, /showCustomerAuthSurface/);
+  assert.match(script, /showBusinessAuthSurface/);
+  assert.match(script, /setAppLoading==='function'\)setAppLoading\(false\)/);
   const businessLogin = html.match(/<form id="loginForm"[\s\S]*?<\/form>/)?.[0] || '';
   const customerLogin = html.match(/<main id="customerAuthScreen"[\s\S]*?<\/main>/)?.[0] || '';
   assert.match(businessLogin, /business-active/);

@@ -1,43 +1,90 @@
 (function(){
-const path=window.location.pathname.replace(/\/+$/,'')||'/';
-const isAccount=path==='/customer/account';
-const isCustomerRoute=path==='/customer'||isAccount||(/^\/customer$/.test(path)&&new URLSearchParams(window.location.search).has('business'));
+const currentPath=()=>window.location.pathname.replace(/\/+$/,'')||'/';
+const isCustomerAccountRoute=()=>currentPath()==='/customer/account';
+const isCustomerRoute=()=>currentPath()==='/customer'||isCustomerAccountRoute()||(/^\/customer$/.test(currentPath())&&new URLSearchParams(window.location.search).has('business'));
 let client=null;
 let session=null;
+let customerRuntimeBound=false;
 let portalState={customer:null,enquiries:[]};
 const byId=id=>document.getElementById(id);
+const wait=ms=>new Promise(resolve=>window.setTimeout(resolve,ms));
+
+function setRoleControlState(control,target){
+  control.classList.toggle('customer-active',target==='customer');
+  control.classList.toggle('business-active',target==='business');
+  control.querySelectorAll('[data-auth-role-target]').forEach(option=>{
+    const active=option.dataset.authRoleTarget===target;
+    option.classList.toggle('active',active);
+    if(active)option.setAttribute('aria-current','page');else option.removeAttribute('aria-current');
+  });
+}
+
+async function showCustomerAuthSurface({updateHistory=true}={}){
+  if(updateHistory&&currentPath()!=='/customer/account')history.pushState({authRole:'customer'},'', '/customer/account');
+  if(typeof setAppLoading==='function')setAppLoading(false);
+  document.body.classList.remove('auth-role-transitioning','auth-required','auth-pending','auth-ready');
+  setCustomerSurface(false);
+  await ensureCustomerRuntime();
+  setCustomerAuthMode('signin');
+}
+
+async function showBusinessAuthSurface({updateHistory=true}={}){
+  if(updateHistory&&currentPath()!=='/')history.pushState({authRole:'business'},'', '/');
+  if(typeof setAppLoading==='function')setAppLoading(false);
+  document.body.classList.remove('customer-account','customer-auth-active','customer-portal-ready','auth-role-transitioning');
+  const customerAuth=byId('customerAuthScreen');
+  const customerPortal=byId('customerPortalScreen');
+  if(customerAuth){customerAuth.hidden=true;customerAuth.inert=true;customerAuth.setAttribute('aria-hidden','true');}
+  if(customerPortal){customerPortal.hidden=true;customerPortal.inert=true;customerPortal.setAttribute('aria-hidden','true');}
+  if(typeof setAuthenticationMode==='function')setAuthenticationMode('login');
+  if(typeof setAuthView==='function')setAuthView('auth-required');
+  if(typeof frontendAuthEnabled!=='undefined'&&!frontendAuthEnabled&&typeof initializeAuthentication==='function'){
+    await initializeAuthentication();
+  }
+}
 
 function bindAuthRoleSwitches(){
   document.querySelectorAll('[data-auth-role-switch]').forEach(control=>{
     control.querySelectorAll('[data-auth-role-target]').forEach(link=>{
-      link.addEventListener('click',event=>{
+      link.addEventListener('click',async event=>{
         const target=link.dataset.authRoleTarget;
-        const alreadyActive=link.classList.contains('active');
+        const alreadyActive=link.classList.contains('active')
+          && ((target==='customer'&&isCustomerAccountRoute())||(target==='business'&&currentPath()==='/'));
         if(alreadyActive)return;
         event.preventDefault();
+        if(control.classList.contains('switching'))return;
         control.classList.add('switching');
         document.body.classList.add('auth-role-transitioning');
-        control.classList.toggle('customer-active',target==='customer');
-        control.classList.toggle('business-active',target==='business');
-        control.querySelectorAll('[data-auth-role-target]').forEach(option=>{
-          const active=option===link;
-          option.classList.toggle('active',active);
-          if(active)option.setAttribute('aria-current','page');else option.removeAttribute('aria-current');
-        });
-        window.setTimeout(()=>window.location.assign(link.href),180);
+        document.querySelectorAll('[data-auth-role-switch]').forEach(item=>setRoleControlState(item,target));
+        await wait(145);
+        try{
+          if(target==='customer')await showCustomerAuthSurface();
+          else await showBusinessAuthSurface();
+        }finally{
+          document.querySelectorAll('[data-auth-role-switch]').forEach(item=>item.classList.remove('switching'));
+          document.body.classList.remove('auth-role-transitioning');
+        }
       });
     });
+  });
+  window.addEventListener('popstate',()=>{
+    if(isCustomerAccountRoute())showCustomerAuthSurface({updateHistory:false}).catch(()=>{});
+    else if(currentPath()==='/')showBusinessAuthSurface({updateHistory:false}).catch(()=>{});
   });
 }
 bindAuthRoleSwitches();
 
 async function initClient(){
-  if(!isCustomerRoute)return null;
+  if(client)return client;
   try{
-    const response=await fetch('/api/public-config',{headers:{Accept:'application/json'}});
-    const config=await response.json();
-    if(!response.ok||!config?.frontendAuthEnabled||!window.supabase?.createClient)return null;
-    client=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+    if(typeof supabaseClient!=='undefined'&&supabaseClient){
+      client=supabaseClient;
+    }else{
+      const response=await fetch('/api/public-config',{headers:{Accept:'application/json'}});
+      const config=await response.json();
+      if(!response.ok||!config?.frontendAuthEnabled||!window.supabase?.createClient)return null;
+      client=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+    }
     const current=await client.auth.getSession();session=current.data.session||null;
     window.customerPortalAuthHeaders=async()=>{
       const value=await client.auth.getSession();
@@ -125,7 +172,7 @@ async function searchBusinesses(query){
 }
 
 function setCustomerSurface(portalReady){
-  if(!isAccount)return;
+  if(!isCustomerAccountRoute())return;
   const auth=byId('customerAuthScreen');
   const portal=byId('customerPortalScreen');
   document.body.classList.add('customer-account');
@@ -145,12 +192,12 @@ function setCustomerSurface(portalReady){
 }
 
 async function refreshRoute(){
-  if(!isCustomerRoute)return;
+  if(!isCustomerRoute())return;
   const signedIn=Boolean(session);
   document.querySelectorAll('[data-customer-account-link]').forEach(link=>{link.textContent=signedIn?'My enquiries':'Customer sign in';link.href='/customer/account';});
   const hint=byId('publicCustomerAccountHint');
   if(hint)hint.innerHTML=signedIn?'Signed in · qualifying enquiries will appear in <a href="/customer/account">My enquiries</a>.':'Want to track your enquiry? <a href="/customer/account">Sign in as a customer</a> before sending it.';
-  if(!isAccount)return;
+  if(!isCustomerAccountRoute())return;
 
   // Never expose the portal merely because a browser has a Supabase session.
   // The authenticated customer API must succeed before the portal is revealed.
@@ -169,7 +216,9 @@ async function refreshRoute(){
   }
 }
 
-async function bind(){
+async function bindCustomerRuntime(){
+  if(customerRuntimeBound)return;
+  customerRuntimeBound=true;
   byId('customerShowSignIn')?.addEventListener('click',()=>setCustomerAuthMode('signin'));
   byId('customerShowSignUp')?.addEventListener('click',()=>setCustomerAuthMode('signup'));
   byId('customerSignInForm')?.addEventListener('submit',async event=>{
@@ -201,17 +250,22 @@ async function bind(){
   });
 }
 
-(async()=>{
+async function ensureCustomerRuntime(){
   await initClient();
   if(!client){
-    if(isAccount){
+    if(isCustomerAccountRoute()){
       setCustomerSurface(false);
       const message=byId('customerSignInMessage');
       if(message)message.textContent='Customer sign in is temporarily unavailable. You can still continue as a guest.';
     }
-    return;
+    return false;
   }
-  await bind();
+  await bindCustomerRuntime();
   await refreshRoute();
+  return true;
+}
+
+(async()=>{
+  if(isCustomerRoute())await ensureCustomerRuntime();
 })();
 })();
