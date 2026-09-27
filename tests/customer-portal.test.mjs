@@ -108,10 +108,10 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(css, /customer-portal-hero/);
   assert.match(css, /customer-enquiry-card/);
   assert.match(css, /auth-role-slider/);
-  assert.match(css, /transition:transform \.24s/);
-  assert.match(css, /customer-auth-active/);
+  assert.match(css, /transition:transform \.22s/);
+  assert.match(css, /customer-portal-ready/);
   assert.match(script, /bindAuthRoleSwitches/);
-  assert.match(script, /window\.setTimeout\(\(\)=>window\.location\.assign\(link\.href\),210\)/);
+  assert.match(script, /window\.setTimeout\(\(\)=>window\.location\.assign\(link\.href\),180\)/);
   const businessLogin = html.match(/<form id="loginForm"[\s\S]*?<\/form>/)?.[0] || '';
   const customerLogin = html.match(/<main id="customerAuthScreen"[\s\S]*?<\/main>/)?.[0] || '';
   assert.match(businessLogin, /business-active/);
@@ -119,6 +119,14 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(customerLogin, /customer-active/);
   assert.match(customerLogin, /Continue as guest/);
   assert.doesNotMatch(customerLogin, /customerAuthTabSignIn|customerAuthTabSignUp/);
+  assert.match(customerLogin, /customer-auth-mascot/);
+  assert.match(html, /id="customerPortalScreen" hidden inert aria-hidden="true"/);
+  assert.match(css, /#customerPortalScreen\[hidden\][\s\S]{0,180}display:none!important/);
+  assert.match(css, /customer-portal-ready/);
+  assert.match(css, /position:fixed[\s\S]{0,260}customer-portal-nav|customer-portal-nav[\s\S]{0,260}position:fixed/);
+  assert.match(script, /function setCustomerSurface\(portalReady\)/);
+  assert.match(script, /portal\.inert=!portalReady/);
+  assert.match(script, /setCustomerSurface\(false\);[\s\S]{0,500}await loadPortal\(\);[\s\S]{0,180}setCustomerSurface\(true\)/);
   assert.match(vercel, /"source": "\/customer\/account"/);
   assert.match(vercel, /"source": "\/api\/customer-portal"/);
 });

@@ -1299,12 +1299,12 @@ body.public-directory #publicDirectoryScreen{display:block}
 </form>
 </main>
 
-<main id="customerAuthScreen" class="auth-screen" hidden aria-live="polite">
+<main id="customerAuthScreen" class="auth-screen" hidden inert aria-live="polite">
 <section class="customer-auth-shell">
 <div class="customer-auth-card">
-<div class="customer-auth-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><strong>Business AI</strong><div style="color:#748593;font-size:10px">Customer Portal</div></div></div>
+<div class="customer-auth-mascot" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
 <h1>Welcome to Business AI</h1>
-<p>Sign in as a customer to find businesses and keep track of your enquiries.</p>
+<p>Find businesses, track enquiries and stay updated when a business responds.</p>
 <div class="auth-role-switch customer-active" data-auth-role-switch aria-label="Choose account type">
 <span class="auth-role-slider" aria-hidden="true"></span>
 <a class="auth-role-option" href="/" data-auth-role-target="business">Business</a>
@@ -1332,24 +1332,24 @@ body.public-directory #publicDirectoryScreen{display:block}
 </section>
 </main>
 
-<main id="customerPortalScreen" hidden>
+<main id="customerPortalScreen" hidden inert aria-hidden="true">
 <section class="customer-portal-shell">
 <header class="customer-portal-top">
-<div class="customer-portal-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><strong>Business AI</strong><div style="color:#748593;font-size:10px">Customer Portal</div></div></div>
+<div class="customer-portal-brand"><div class="customer-portal-mark" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div><strong>Business AI</strong><div>Customer Portal</div></div></div>
 <div class="customer-portal-user"><span id="customerPortalEmail" style="color:#697b89;font-size:10px"></span><button id="customerPortalLogout" type="button">Sign out</button></div>
 </header>
 <section class="customer-portal-hero"><span>Customer Portal</span><h1 id="customerPortalGreeting">Welcome</h1><p>Find businesses, track your enquiries and see when a business has responded.</p></section>
 <nav class="customer-portal-nav" aria-label="Customer portal">
-<button class="active" type="button" data-customer-tab="home">Home</button>
-<button type="button" data-customer-tab="find">Find a business</button>
-<button type="button" data-customer-tab="enquiries">My enquiries</button>
-<button type="button" data-customer-tab="account">Account</button>
+<button class="active" type="button" data-customer-tab="home"><span aria-hidden="true">⌂</span><small>Home</small></button>
+<button type="button" data-customer-tab="find"><span aria-hidden="true">⌕</span><small>Find</small></button>
+<button type="button" data-customer-tab="enquiries"><span aria-hidden="true">◉</span><small>Enquiries</small></button>
+<button type="button" data-customer-tab="account"><span aria-hidden="true">○</span><small>Account</small></button>
 </nav>
 
 <section class="customer-portal-pane" data-customer-pane="home">
 <div class="customer-portal-grid">
-<button class="customer-card customer-quick-card" type="button" data-customer-go="find"><strong>Find a business</strong><span>Search businesses by name, service or area and start an enquiry.</span></button>
-<button class="customer-card customer-quick-card" type="button" data-customer-go="enquiries"><strong>My enquiries</strong><span>See the latest customer-safe status for enquiries submitted while signed in.</span></button>
+<button class="customer-card customer-quick-card" type="button" data-customer-go="find"><i aria-hidden="true">⌕</i><div><strong>Find a business</strong><span>Search by name, service or area and start an enquiry.</span></div><b aria-hidden="true">›</b></button>
+<button class="customer-card customer-quick-card" type="button" data-customer-go="enquiries"><i aria-hidden="true">◉</i><div><strong>My enquiries</strong><span>Track the latest status of enquiries sent while signed in.</span></div><b aria-hidden="true">›</b></button>
 </div>
 <div class="customer-card" style="margin-top:12px"><h3>Recent enquiries</h3><p>Your latest tracked enquiries appear here.</p><div id="customerRecentEnquiries" class="customer-enquiry-list"></div></div>
 </section>

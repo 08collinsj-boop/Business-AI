@@ -16,6 +16,7 @@ function bindAuthRoleSwitches(){
         if(alreadyActive)return;
         event.preventDefault();
         control.classList.add('switching');
+        document.body.classList.add('auth-role-transitioning');
         control.classList.toggle('customer-active',target==='customer');
         control.classList.toggle('business-active',target==='business');
         control.querySelectorAll('[data-auth-role-target]').forEach(option=>{
@@ -23,7 +24,7 @@ function bindAuthRoleSwitches(){
           option.classList.toggle('active',active);
           if(active)option.setAttribute('aria-current','page');else option.removeAttribute('aria-current');
         });
-        window.setTimeout(()=>window.location.assign(link.href),210);
+        window.setTimeout(()=>window.location.assign(link.href),180);
       });
     });
   });
@@ -123,6 +124,26 @@ async function searchBusinesses(query){
   }catch{target.innerHTML='<div class="customer-empty">Business search is temporarily unavailable.</div>';}
 }
 
+function setCustomerSurface(portalReady){
+  if(!isAccount)return;
+  const auth=byId('customerAuthScreen');
+  const portal=byId('customerPortalScreen');
+  document.body.classList.add('customer-account');
+  document.body.classList.toggle('customer-auth-active',!portalReady);
+  document.body.classList.toggle('customer-portal-ready',portalReady);
+  document.body.classList.remove('auth-role-transitioning');
+  if(auth){
+    auth.hidden=portalReady;
+    auth.inert=portalReady;
+    auth.setAttribute('aria-hidden',portalReady?'true':'false');
+  }
+  if(portal){
+    portal.hidden=!portalReady;
+    portal.inert=!portalReady;
+    portal.setAttribute('aria-hidden',portalReady?'false':'true');
+  }
+}
+
 async function refreshRoute(){
   if(!isCustomerRoute)return;
   const signedIn=Boolean(session);
@@ -130,10 +151,22 @@ async function refreshRoute(){
   const hint=byId('publicCustomerAccountHint');
   if(hint)hint.innerHTML=signedIn?'Signed in · qualifying enquiries will appear in <a href="/customer/account">My enquiries</a>.':'Want to track your enquiry? <a href="/customer/account">Sign in as a customer</a> before sending it.';
   if(!isAccount)return;
-  document.body.classList.add('customer-account');
-  document.body.classList.toggle('customer-auth-active',!signedIn);
-  byId('customerAuthScreen').hidden=signedIn;byId('customerPortalScreen').hidden=!signedIn;
-  if(signedIn){try{await loadPortal();}catch{await client.auth.signOut();}}
+
+  // Never expose the portal merely because a browser has a Supabase session.
+  // The authenticated customer API must succeed before the portal is revealed.
+  setCustomerSurface(false);
+  if(!signedIn)return;
+
+  try{
+    await loadPortal();
+    setCustomerSurface(true);
+  }catch{
+    await client.auth.signOut().catch(()=>{});
+    session=null;
+    setCustomerSurface(false);
+    const message=byId('customerSignInMessage');
+    if(message)message.textContent='Your customer session could not be verified. Please sign in again.';
+  }
 }
 
 async function bind(){
@@ -168,5 +201,17 @@ async function bind(){
   });
 }
 
-(async()=>{await initClient();if(!client)return;await bind();await refreshRoute();})();
+(async()=>{
+  await initClient();
+  if(!client){
+    if(isAccount){
+      setCustomerSurface(false);
+      const message=byId('customerSignInMessage');
+      if(message)message.textContent='Customer sign in is temporarily unavailable. You can still continue as a guest.';
+    }
+    return;
+  }
+  await bind();
+  await refreshRoute();
+})();
 })();
