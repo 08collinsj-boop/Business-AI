@@ -18,7 +18,8 @@ Status: Pilot implementation prepared for 27 September 2026.
 
 - Supabase: database, authentication, private file storage.
 - Vercel: hosting/serverless runtime.
-- OpenAI: AI response/content generation.
+- OpenAI: AI receptionist responses and optional live marketing-image generation.
+- OpenRouter: AI Marketing text generation and model routing to underlying providers.
 - Stripe: checkout/subscription billing.
 - Meta Platforms: optional Facebook Page connection/publishing.
 
