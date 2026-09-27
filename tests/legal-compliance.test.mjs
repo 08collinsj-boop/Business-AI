@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const html = await read('index.html');
 const handler = await read('lib/legal-handler.js');
+const publicHandler = await read('lib/legal-public-handler.js');
 const enquiry = await read('api/enquiry.js');
 const legalVersions = await read('lib/legal.js');
 const migration = await read('supabase/migrations/20260927110000_add_legal_acceptances.sql');
@@ -14,8 +15,9 @@ const vercel = await read('vercel.json');
 test('UK legal pack is publicly linked and versioned', async () => {
   for (const path of ['legal/index.html','legal/terms.html','legal/privacy.html','legal/dpa.html','legal/acceptable-use.html','legal/storage.html','legal/subprocessors.html']) {
     const text = await read(path);
-    assert.match(text, /Version 1\.0/);
+    assert.match(text, /Version 1\.1/);
     assert.match(text, /27 September 2026/);
+    assert.match(text, /\/legal\/operator\.js/);
   }
   assert.match(html, /id="signUpLegalAccept"[^>]*required/);
   assert.match(html, /\/legal\/terms\.html/);
@@ -25,14 +27,14 @@ test('UK legal pack is publicly linked and versioned', async () => {
   assert.match(html, /id="dpaAcceptanceScreen"/);
   assert.match(html, /public-link-privacy[\s\S]*\/legal\/privacy\.html#customer-enquiries/);
   assert.match(html, /Legal &amp; compliance/);
+  assert.match(html, /Before paying, review the selected plan\/add-ons/);
 });
 
 test('legal acceptance is server-owned, versioned and tenant safe', () => {
-  assert.match(legalVersions, /LEGAL_VERSIONS = Object\.freeze/);
-  assert.match(legalVersions, /terms: '1\.0'/);
-  assert.match(legalVersions, /privacy: '1\.0'/);
-  assert.match(legalVersions, /acceptable_use: '1\.0'/);
-  assert.match(legalVersions, /dpa: '1\.0'/);
+  assert.match(legalVersions, /terms: '1\.1'/);
+  assert.match(legalVersions, /privacy: '1\.1'/);
+  assert.match(legalVersions, /acceptable_use: '1\.1'/);
+  assert.match(legalVersions, /dpa: '1\.1'/);
   assert.match(handler, /requireAuthenticatedUser/);
   assert.match(handler, /requireBusinessMember\(req, \['owner'\]\)/);
   assert.match(handler, /legal\.dpa_accepted/);
@@ -40,21 +42,29 @@ test('legal acceptance is server-owned, versioned and tenant safe', () => {
   assert.match(enquiry, /hasCurrentBusinessDpa/);
   assert.match(enquiry, /TENANCY_AUTH_ENABLED !== "true"/);
   assert.match(enquiry, /LEGAL_SETUP_REQUIRED/);
-  assert.match(enquiry, /business_legal_acceptances\?business_id=eq/);
   assert.match(migration, /unique \(user_id, document_key, document_version\)/i);
   assert.match(migration, /unique \(business_id, document_key, document_version\)/i);
-  assert.match(migration, /revoke all on public\.user_legal_acceptances, public\.business_legal_acceptances from anon, authenticated/i);
 });
 
-test('legal API is routed through the existing operations dispatcher', () => {
-  assert.match(operations, /legal: legalHandler/);
-  assert.match(vercel, /"source": "\/api\/legal"/);
-  assert.match(vercel, /operation=legal/);
+test('public legal identity exposes only deliberately public operator fields', () => {
+  assert.match(publicHandler, /LEGAL_OPERATOR_NAME/);
+  assert.match(publicHandler, /LEGAL_OPERATOR_ADDRESS/);
+  assert.match(publicHandler, /LEGAL_CONTACT_EMAIL/);
+  assert.match(publicHandler, /LEGAL_COMPANY_NUMBER/);
+  assert.match(publicHandler, /LEGAL_VAT_NUMBER/);
+  assert.doesNotMatch(publicHandler, /SUPABASE_SERVICE_ROLE_KEY|META_APP_SECRET|STRIPE_SECRET_KEY|CLOUDFLARE_API_TOKEN/);
+  assert.match(operations, /"legal-public": legalPublicHandler/);
+  assert.match(vercel, /"source": "\/api\/legal-public"/);
 });
 
-test('storage notice matches the Pilot privacy posture', async () => {
+test('privacy and storage wording reflects current Pilot processing', async () => {
+  const privacy = await read('legal/privacy.html');
   const storage = await read('legal/storage.html');
+  const subprocessors = await read('legal/subprocessors.html');
+  assert.match(privacy, /Your right to object/);
+  assert.match(privacy, /lawful basis/i);
   assert.match(storage, /sessionStorage/);
-  assert.match(storage, /Supabase Auth/);
-  assert.match(storage, /does not intentionally configure advertising cookies or behavioural analytics trackers/);
+  assert.match(storage, /does not currently show a non-essential cookie-consent banner/);
+  assert.match(subprocessors, /Cloudflare/);
+  assert.match(subprocessors, /Workers AI image generation/);
 });

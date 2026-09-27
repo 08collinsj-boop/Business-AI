@@ -1,12 +1,18 @@
 # Pilot privacy and data controls
 
-Status: technical controls are implemented locally; final business/legal wording still requires approval before real-customer use.
+Status: the technical controls and v1.1 UK Pilot legal wording have been reviewed against current ICO guidance as of 27 September 2026. This is not legal certification. Paid public launch remains blocked until the operator identity/contact details and organisation-specific compliance decisions below are completed.
 
 ## What the Pilot stores
 
 Business AI may store customer enquiry/contact details, lead history, booking requests, actions, human-handover records and limited audit events so the business can manage enquiries. It also stores business configuration, approved Business Knowledge and optional Marketing records.
 
-The public customer page states that the assistant is AI, asks customers not to send payment/card details, and tells them that submitted details are stored for the business to manage the enquiry.
+The public customer page states that the assistant is AI, links to privacy information at the point customer data is collected, asks customers not to send payment/card details, and explains that submitted details are stored for the business to manage the enquiry.
+
+## Controller / processor model
+
+For customer enquiry data, the subscribing business normally decides why and how the information is used and is therefore the controller. The Business AI operator processes that data on the business's documented instructions and is normally the processor. Business AI is a controller for its own account administration, billing, security, legal records and Pilot support.
+
+The DPA is versioned and owner acceptance is required before customer-data processing is enabled for a business.
 
 ## Tenant and role boundaries
 
@@ -16,28 +22,38 @@ Audit metadata deliberately excludes common secret/personal-data fields. Pilot f
 
 ## Retention
 
-`business_data_lifecycle_policies` stores owner-configurable review periods for lead data and audit records. These values are operational review settings, not an automatic claim of legal compliance and not a substitute for the business deciding whether it has a lawful reason to retain/delete data.
+`business_data_lifecycle_policies` stores owner-configurable review periods for lead data and audit records. The current defaults are 365 days for lead review and 730 days for audit review. These are review settings, not automatic deletion promises.
 
-The Pilot owner UI exposes the retention settings and makes clear that the business remains responsible for deletion/anonymisation decisions.
+Before paid public launch, the operator must document the operational deletion schedule, backup/deletion handling, legal-record retention and who performs periodic reviews.
 
-## Data access / deletion foundation
+## Data access / deletion
 
-The protected data-subject API supports owner-only export/anonymisation for an individual tenant-scoped lead. It is intentionally deliberate rather than an unattended bulk-delete mechanism.
+The protected data-subject API supports owner-only export/anonymisation for an individual tenant-scoped lead. Before paid public launch, verify the complete rights-request workflow with fake data and document the person/contact route responsible for receiving and tracking requests.
 
-Before real Pilot use, verify the workflow with fake data and document who receives and processes customer requests.
+## Providers and transfers
 
-## Knowledge and provider data
+The legal sub-processor notice now reflects Supabase, Vercel, OpenAI, OpenRouter, Cloudflare, Stripe and Meta. Provider contracts/DPAs, data locations and international-transfer safeguards still need an organisation-specific review before paid public launch. Current ICO international-transfer guidance uses a three-step assessment and the ICO states that the existing IDTA/Addendum should continue to be used until updated versions are issued.
 
-Business Knowledge source files are private. Extracted facts are untrusted until a business user reviews/approves them.
+## Device storage / PECR
 
-Stripe and Meta credentials/tokens remain server-side. Meta tokens are encrypted at rest in application tables. No payment/card details should be entered into the Business AI customer chat.
+The Pilot intentionally uses only storage required for requested authentication/app functions and static app delivery. It does not intentionally configure advertising or behavioural-tracking technologies. If non-essential storage/access is added later, assess the current PECR exception/consent requirements before enabling it.
 
-## Decisions required before real customers
+## Incident handling
 
-- final privacy notice / controller-processor wording appropriate to the operating business;
-- support/contact route for access or deletion requests;
-- retention periods and incident owner;
-- whether additional consent/notice is needed for any future call recording or analytics;
-- review of third-party provider terms/data-processing settings.
+Maintain an incident log for all personal-data breaches. If a breach is notifiable, the controller must notify the ICO without undue delay and, where feasible, within 72 hours of becoming aware. Where a breach is likely to create a high risk to people, affected individuals may also need to be informed without undue delay. Processor-to-controller notification is covered in the DPA.
 
-This document describes technical behaviour only and is not legal advice.
+See `docs/PRIVACY_INCIDENT_RUNBOOK.md`.
+
+## Remaining paid-public-launch decisions
+
+- Configure `LEGAL_OPERATOR_NAME`, `LEGAL_OPERATOR_ADDRESS` and `LEGAL_CONTACT_EMAIL`.
+- Configure company/register number and VAT number where applicable.
+- Complete the ICO data-protection fee self-assessment and register/pay if required.
+- Record the operator's incident owner and privacy-request contact/process.
+- Review provider DPAs and restricted-transfer arrangements.
+- Confirm tax/VAT presentation before taking real paid orders.
+- Verify checkout/order confirmation and access to the accepted terms.
+- Review retention/deletion operations with fake data.
+- Obtain professional legal review if the risk profile, customer type or processing becomes materially more complex.
+
+This document describes the current technical/compliance position and is not legal advice.

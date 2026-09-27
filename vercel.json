@@ -93,6 +93,10 @@
       "destination": "/api/operations?operation=feedback"
     },
     {
+      "source": "/api/legal-public",
+      "destination": "/api/operations?operation=legal-public"
+    },
+    {
       "source": "/api/legal",
       "destination": "/api/operations?operation=legal"
     }

@@ -1,4 +1,5 @@
 import legalHandler from '../lib/legal-handler.js';
+import legalPublicHandler from '../lib/legal-public-handler.js';
 import addonsHandler from '../lib/addons-handler.js';
 import marketingHandler from '../lib/marketing-handler.js';
 import knowledgeHandler from '../lib/knowledge-handler.js';
@@ -42,7 +43,8 @@ const handlers = Object.freeze({
   "marketing-images": marketingImageHandler,
   "marketing-automation": marketingAutomationHandler,
   feedback: feedbackHandler,
-  legal: legalHandler
+  legal: legalHandler,
+  "legal-public": legalPublicHandler
 });
 
 export default async function handler(req, res) {
