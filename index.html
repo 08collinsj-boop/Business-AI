@@ -910,7 +910,7 @@ border-radius:13px
 .auth-switch{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}.auth-link{border:0;background:transparent;color:var(--blue);padding:0;font-weight:650;text-decoration:underline}
 .auth-form-hidden{display:none}
 .logout-btn{display:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px}
-body.auth-pending .app,body.auth-required .app,body.onboarding-required .app,body.configuration-onboarding-required .app{display:none}body.auth-required #authScreen,body.onboarding-required #businessSetupScreen,body.configuration-onboarding-required #configurationOnboardingScreen{display:flex}body.auth-ready .logout-btn{display:block}body.auth-ready .bottom-nav{display:grid}
+body.auth-pending .app,body.auth-required .app,body.legal-acceptance-required .app,body.dpa-acceptance-required .app,body.onboarding-required .app,body.configuration-onboarding-required .app{display:none}body.auth-required #authScreen,body.legal-acceptance-required #legalAcceptanceScreen,body.dpa-acceptance-required #dpaAcceptanceScreen,body.onboarding-required #businessSetupScreen,body.configuration-onboarding-required #configurationOnboardingScreen{display:flex}body.auth-ready .logout-btn{display:block}body.auth-ready .bottom-nav{display:grid}
 body.public-enquiry{padding:0;background:#f4f7fb;color:#17212b}
 body.public-enquiry .app,body.public-enquiry .bottom-nav,body.public-enquiry #authScreen,body.public-enquiry #businessSetupScreen,body.public-enquiry #configurationOnboardingScreen{display:none}
 .onboarding-card{max-width:560px}.onboarding-progress{display:flex;gap:5px;margin:0 0 20px}.onboarding-progress i{height:5px;flex:1;border-radius:99px;background:var(--border)}.onboarding-progress i.active{background:var(--blue)}.wizard-step{display:none}.wizard-step.active{display:block}.wizard-actions{display:flex;gap:9px;justify-content:space-between;margin-top:20px}.wizard-actions button{min-width:112px}.onboarding-hint{font-size:12px;line-height:1.45;color:var(--muted);margin:0 0 14px}.wizard-review{display:grid;gap:10px}.wizard-review article{padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.wizard-review strong{display:block;margin-bottom:3px}.wizard-review span{font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
@@ -1136,6 +1136,26 @@ padding-right:max(14px,env(safe-area-inset-right));
 }
 
 
+
+/* UK compliance pack and acceptance surfaces. */
+.legal-consent-row{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;margin:15px 0;color:#a8b9ce;font-size:12px;line-height:1.45;text-align:left}
+.legal-consent-row input{width:18px;height:18px;margin:1px 0 0;accent-color:#2787ff}
+.legal-consent-row a,.public-link-privacy a,.public-legal-links a{color:#62b0ff;text-decoration:none}
+.legal-consent-row a:hover,.public-link-privacy a:hover,.public-legal-links a:hover{text-decoration:underline}
+.legal-gate-card{max-width:470px!important}
+.legal-kicker{margin:0 0 7px!important;color:#55a8ff!important;font-size:10px!important;font-weight:800!important;letter-spacing:.17em;text-transform:uppercase}
+.legal-gate-links{display:grid;gap:8px;margin:17px 0}
+.legal-gate-links a{display:flex;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid #1c4167;border-radius:13px;background:#081a2b;color:#ddecff;text-decoration:none;font-size:12px;font-weight:720}
+.legal-gate-links a span{color:#6eb7ff}
+.legal-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0}
+.legal-settings-grid a{display:block;padding:13px;border:1px solid #1b4168;border-radius:15px;background:#081b2d;color:#eef6ff;text-decoration:none}
+.legal-settings-grid strong{display:block;font-size:12px}
+.legal-settings-grid small{display:block;margin-top:4px;color:#8fa5bf;font-size:10px;line-height:1.35}
+.legal-status-line{margin-top:7px}
+.legal-launch-warning{margin:14px 0 0;padding:12px;border:1px solid rgba(240,199,94,.24);border-radius:13px;background:rgba(240,199,94,.06);color:#d9c98e;font-size:11px;line-height:1.45}
+.public-legal-links{display:flex;justify-content:center;gap:14px;margin-top:7px;font-size:10px}
+@media(max-width:430px){.legal-settings-grid{grid-template-columns:1fr}}
+
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 </head>
@@ -1187,9 +1207,43 @@ padding-right:max(14px,env(safe-area-inset-right));
 <div class="auth-field"><label for="signUpEmail">Email</label><input id="signUpEmail" type="email" autocomplete="email" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
 <div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+<label class="legal-consent-row"><input id="signUpLegalAccept" type="checkbox" required><span>I agree to the <a href="/legal/terms.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="/legal/acceptable-use.html" target="_blank" rel="noopener">Acceptable Use Policy</a>, and acknowledge the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
 <button id="signUpSubmit" class="btn primary auth-submit" type="submit">Create account</button>
 <div id="signUpMessage" class="auth-message" role="alert"></div>
 <p class="auth-switch">Already have an account? <button id="showLogin" class="auth-link" type="button">Sign in</button></p>
+</form>
+</main>
+
+<main id="legalAcceptanceScreen" class="auth-screen" aria-live="polite">
+<form id="legalAcceptanceForm" class="auth-card legal-gate-card">
+<div class="auth-mark"><div class="brand-icon">AI</div></div>
+<p class="legal-kicker">Business AI · Legal update</p>
+<h2>Review the Pilot terms</h2>
+<p>Before continuing, please review and accept the current Business AI Pilot terms. Your acceptance is recorded with the document versions and time.</p>
+<div class="legal-gate-links">
+<a href="/legal/terms.html" target="_blank" rel="noopener">Terms of Service <span id="legalTermsVersion"></span></a>
+<a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice <span id="legalPrivacyVersion"></span></a>
+<a href="/legal/acceptable-use.html" target="_blank" rel="noopener">Acceptable Use Policy <span id="legalAupVersion"></span></a>
+</div>
+<label class="legal-consent-row"><input id="legalGateAccept" type="checkbox" required><span>I agree to the Terms of Service and Acceptable Use Policy and acknowledge the Privacy Notice.</span></label>
+<button id="legalAcceptanceSubmit" class="btn primary auth-submit" type="submit">Accept and continue</button>
+<div id="legalAcceptanceMessage" class="auth-message" role="alert"></div>
+</form>
+</main>
+
+<main id="dpaAcceptanceScreen" class="auth-screen" aria-live="polite">
+<form id="dpaAcceptanceForm" class="auth-card legal-gate-card">
+<div class="auth-mark"><div class="brand-icon">AI</div></div>
+<p class="legal-kicker">Business data processing</p>
+<h2>Accept the Data Processing Agreement</h2>
+<p>Business AI processes customer enquiry data on behalf of your business. The business owner must accept the current DPA before customer-data processing is enabled.</p>
+<div class="legal-gate-links">
+<a href="/legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement <span id="legalDpaVersion"></span></a>
+<a href="/legal/subprocessors.html" target="_blank" rel="noopener">Sub-processor list</a>
+</div>
+<label class="legal-consent-row"><input id="dpaGateAccept" type="checkbox" required><span>I am authorised to accept the DPA for this business.</span></label>
+<button id="dpaAcceptanceSubmit" class="btn primary auth-submit" type="submit">Accept DPA and continue</button>
+<div id="dpaAcceptanceMessage" class="auth-message" role="alert"></div>
 </form>
 </main>
 
@@ -1256,10 +1310,10 @@ padding-right:max(14px,env(safe-area-inset-right));
 <button type="submit" aria-label="Send message">↑</button>
 </form>
 <button class="small-btn" type="button" onclick="requestPublicHuman()">Speak to someone</button>
-<p class="public-link-privacy">Please do not send payment or card details in this chat. Details you submit are stored for this business to manage your enquiry; contact the business if you need access or deletion support.</p>
+<p class="public-link-privacy">Please do not send payment or card details in this chat. Details you submit are stored for this business to manage your enquiry; contact the business if you need access or deletion support. <a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a> · <a href="/legal/storage.html" target="_blank" rel="noopener">Device storage</a></p>
 <div id="publicEnquiryMessage" class="public-customer-error" role="alert"></div>
 </section>
-<footer class="public-customer-footer">This is an AI assistant for <strong id="publicFooterBusinessName">this business</strong>, not a person. <strong>Powered by Business AI</strong></footer>
+<footer class="public-customer-footer">This is an AI assistant for <strong id="publicFooterBusinessName">this business</strong>, not a person. <strong>Powered by Business AI</strong><div class="public-legal-links"><a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a><a href="/legal/storage.html" target="_blank" rel="noopener">Storage</a><a href="/legal/subprocessors.html" target="_blank" rel="noopener">Providers</a></div></footer>
 </section>
 </main>
 
@@ -1947,6 +2001,23 @@ Save business settings
 <div class="settings-section-label">Pilot feedback</div>
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Send feedback</h3><span>Helps improve the Pilot</span></div><p class="work-meta">Report a bug, confusing behaviour, a missing feature or a suggestion. Only your category, title, area and description are sent — never customer conversations or files.</p><form id="pilotFeedbackForm" class="marketing-form"><div class="settings-grid"><div class="field"><label for="pilotFeedbackCategory">Category</label><select id="pilotFeedbackCategory"><option value="bug">Bug</option><option value="confusing">Confusing</option><option value="missing_feature">Missing feature</option><option value="suggestion">Suggestion</option><option value="other">Other</option></select></div><div class="field"><label for="pilotFeedbackArea">Area</label><select id="pilotFeedbackArea"><option value="home">Home</option><option value="leads">Leads</option><option value="actions">Actions</option><option value="bookings">Bookings</option><option value="receptionist">AI Receptionist</option><option value="knowledge">Business Knowledge</option><option value="marketing">Marketing</option><option value="settings">Settings</option><option value="billing">Billing</option><option value="other">Other</option></select></div></div><div class="field"><label for="pilotFeedbackTitle">Short title (optional)</label><input id="pilotFeedbackTitle" maxlength="120" placeholder="A few words about the issue"></div><div class="field"><label for="pilotFeedbackMessage">Feedback details</label><textarea id="pilotFeedbackMessage" maxlength="3000" required placeholder="Describe what you expected and what happened instead."></textarea></div><button id="pilotFeedbackSubmit" class="small-btn primary-action" type="submit">Send feedback</button><div id="pilotFeedbackStatus" class="work-meta" role="status" aria-live="polite"></div></form><div id="pilotFeedbackList" class="work-list" style="margin-top:12px"></div></div>
 
+<div class="settings-section-label">Legal &amp; compliance</div>
+<div id="legalComplianceCard" class="card settings-card" style="margin-top:14px">
+<div class="card-head"><div><span class="settings-card-kicker">UK Pilot</span><h3>Legal documents</h3></div><span id="legalPackVersion" class="settings-status-badge">v1.0</span></div>
+<p class="work-meta">Review the current Business AI terms, privacy information and data-processing documents. Acceptance of the current account terms is versioned and recorded.</p>
+<div class="legal-settings-grid">
+<a href="/legal/terms.html" target="_blank" rel="noopener"><strong>Terms of Service</strong><small>B2B Pilot terms</small></a>
+<a href="/legal/privacy.html" target="_blank" rel="noopener"><strong>Privacy Notice</strong><small>How personal data is used</small></a>
+<a href="/legal/dpa.html" target="_blank" rel="noopener"><strong>Data Processing Agreement</strong><small>Controller–processor terms</small></a>
+<a href="/legal/acceptable-use.html" target="_blank" rel="noopener"><strong>Acceptable Use</strong><small>Safe and lawful use</small></a>
+<a href="/legal/storage.html" target="_blank" rel="noopener"><strong>Storage Notice</strong><small>Cookies and browser storage</small></a>
+<a href="/legal/subprocessors.html" target="_blank" rel="noopener"><strong>Sub-processors</strong><small>Service providers used</small></a>
+</div>
+<div id="legalAcceptanceSummary" class="work-meta legal-status-line">Account legal status: checking…</div>
+<div id="dpaAcceptanceSummary" class="work-meta legal-status-line" data-owner-only>DPA status: checking…</div>
+<p class="legal-launch-warning"><strong>Paid public launch blocker:</strong> the service provider's final legal/trading name, geographic address and direct contact email must be published before Business AI is offered as a paid public service.</p>
+</div>
+
 <div class="settings-section-label">Support</div>
 
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention — it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Business AI does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls remain Coming Soon. Marketing publishing is available only after the owner connects an eligible account and explicitly approves a draft; billing availability is shown in the Billing section. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
@@ -1993,6 +2064,7 @@ let handovers=[];let teamState=null;let lifecyclePolicy=null;
 let billingState=null;
 let knowledgeSources=[];let knowledgeCanManage=false;let knowledgeReviewSource=null;let knowledgeReplaceSourceId=null;
 let authenticationMode='login';
+let legalState=null;
 
 
 const $=id=>document.getElementById(id);
@@ -2000,7 +2072,7 @@ const $=id=>document.getElementById(id);
 const clearPrivateState=()=>{
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;enquiryMessages=[];
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 updateInstallAppCard?.();
 };
@@ -2028,7 +2100,7 @@ document.body.setAttribute('aria-busy',String(active));
 };
 
 const setAuthView=(state,message='')=>{
-document.body.classList.remove('auth-pending','auth-required','onboarding-required','configuration-onboarding-required','auth-ready');
+document.body.classList.remove('auth-pending','auth-required','legal-acceptance-required','dpa-acceptance-required','onboarding-required','configuration-onboarding-required','auth-ready');
 document.body.classList.add(state);
 $('loginMessage').textContent=message;
 };
@@ -2104,17 +2176,61 @@ if(!link){toast('Customer enquiry link is unavailable');return;}
 try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);else{input.select();document.execCommand('copy');}toast('Customer enquiry link copied');}catch{input.select();toast('Copy the customer enquiry link from the field');}
 }
 
+
+const renderLegalStatus=()=>{
+const docs=legalState?.documents||{};
+if($('legalTermsVersion'))$('legalTermsVersion').textContent=docs.terms?.version?`v${docs.terms.version}`:'';
+if($('legalPrivacyVersion'))$('legalPrivacyVersion').textContent=docs.privacy?.version?`v${docs.privacy.version}`:'';
+if($('legalAupVersion'))$('legalAupVersion').textContent=docs.acceptable_use?.version?`v${docs.acceptable_use.version}`:'';
+if($('legalDpaVersion'))$('legalDpaVersion').textContent=docs.dpa?.version?`v${docs.dpa.version}`:'';
+if($('legalPackVersion'))$('legalPackVersion').textContent=docs.terms?.version?`v${docs.terms.version}`:'v1.0';
+if($('legalAcceptanceSummary'))$('legalAcceptanceSummary').textContent=legalState?.needs_user_acceptance?'Account legal status: acceptance required.':`Account legal status: current versions accepted${legalState?.user_accepted_at?` · ${timeLabel(legalState.user_accepted_at)}`:''}.`;
+if($('dpaAcceptanceSummary'))$('dpaAcceptanceSummary').textContent=legalState?.dpa_required?(legalState?.dpa_accepted?`DPA status: accepted${legalState?.dpa_accepted_at?` · ${timeLabel(legalState.dpa_accepted_at)}`:''}.`:'DPA status: owner acceptance required.'):'DPA status: owner acceptance is not required for this account.';
+};
+
+async function loadLegalState(){
+legalState=await api('/api/legal');
+renderLegalStatus();
+return legalState;
+}
+
+async function acceptUserLegalPack(){
+const message=$('legalAcceptanceMessage');const button=$('legalAcceptanceSubmit');
+if(!$('legalGateAccept')?.checked){message.textContent='Tick the box to confirm your acceptance.';return;}
+button.disabled=true;message.textContent='Recording your acceptance…';
+try{
+legalState=await api('/api/legal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept_user'})});
+renderLegalStatus();message.textContent='Accepted. Continuing…';message.classList.add('info');
+const {data:{session}}=await supabaseClient.auth.getSession();await handleSession(session);
+}catch(error){message.textContent=error.message||'Could not record your acceptance.';}finally{button.disabled=false;}
+}
+
+async function acceptBusinessDpa(){
+const message=$('dpaAcceptanceMessage');const button=$('dpaAcceptanceSubmit');
+if(!$('dpaGateAccept')?.checked){message.textContent='Tick the box to confirm you are authorised to accept the DPA.';return;}
+button.disabled=true;message.textContent='Recording the DPA acceptance…';
+try{
+legalState=await api('/api/legal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept_dpa'})});
+renderLegalStatus();message.textContent='DPA accepted. Continuing…';message.classList.add('info');
+const {data:{session}}=await supabaseClient.auth.getSession();await handleSession(session);
+}catch(error){message.textContent=error.message||'Could not record the DPA acceptance.';}finally{button.disabled=false;}
+}
+
 const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
 if(session){
 setAppLoading(true);
 setAuthView('auth-pending');
 try{
+const accountLegal=await loadLegalState();
+if(accountLegal?.needs_user_acceptance){setAppLoading(false);setAuthView('legal-acceptance-required');return;}
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){setAppLoading(false);setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
+const businessLegal=await loadLegalState();
+if(authenticatedBusinessRole==='owner'&&businessLegal?.dpa_required&&!businessLegal?.dpa_accepted){setAppLoading(false);setAuthView('dpa-acceptance-required');return;}
 const setup=await api('/api/business-configuration');
 if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();setAppLoading(false);return;}
 setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);return;
@@ -2196,6 +2312,7 @@ message.classList.remove('info');
 if(password.length<12||password.length>128||password!==confirmation){
 message.textContent='Use a matching password of at least 12 characters.';return;
 }
+if(!$('signUpLegalAccept')?.checked){message.textContent='Please review and accept the Business AI terms to create an account.';return;}
 button.disabled=true;message.textContent='Creating your account…';
 try{
 const {data,error}=await supabaseClient.auth.signUp({
@@ -2205,7 +2322,8 @@ options:{emailRedirectTo:new URL('/',window.location.origin).toString()}
 });
 if(error)throw error;
 if(data?.session){
-message.textContent='Your account is ready. Signing you in…';message.classList.add('info');
+message.textContent='Your account is ready. Recording your legal acceptance…';message.classList.add('info');
+try{await api('/api/legal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept_user'})});}catch{}
 await handleSession(data.session);
 }else{
 message.textContent='If this email can be used, check your inbox to confirm it, then sign in.';message.classList.add('info');
@@ -2214,6 +2332,9 @@ message.textContent='If this email can be used, check your inbox to confirm it, 
 message.textContent='We could not create your account. Check your email and password, then try again.';
 }finally{button.disabled=false;}
 });
+
+$('legalAcceptanceForm').addEventListener('submit',async event=>{event.preventDefault();await acceptUserLegalPack();});
+$('dpaAcceptanceForm').addEventListener('submit',async event=>{event.preventDefault();await acceptBusinessDpa();});
 
 $('logoutButton').addEventListener('click',async()=>{
 if(supabaseClient)await supabaseClient.auth.signOut();

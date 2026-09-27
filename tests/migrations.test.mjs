@@ -34,7 +34,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260925174915_align_stripe_entitlement_expiry_constraint.sql",
     "20260925200000_add_marketing_schedules.sql",
     "20260925210000_add_feedback_title_and_other.sql",
-    "20260926233524_add_marketing_automation_images.sql"
+    "20260926233524_add_marketing_automation_images.sql",
+    "20260927110000_add_legal_acceptances.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -158,6 +159,13 @@ test("tenancy, booking, and voice migrations retain tenant-safe constraints and 
   assert.match(schedules, /alter table public\.marketing_schedules enable row level security/i);
   assert.match(schedules, /revoke all on public\.marketing_schedules from anon, authenticated/i);
   assert.match(schedules, /members read own marketing schedules/i);
+  const legalAcceptances = contents.get("20260927110000_add_legal_acceptances.sql");
+  assert.match(legalAcceptances, /create table if not exists public\.user_legal_acceptances/i);
+  assert.match(legalAcceptances, /create table if not exists public\.business_legal_acceptances/i);
+  assert.match(legalAcceptances, /alter table public\.user_legal_acceptances enable row level security/i);
+  assert.match(legalAcceptances, /alter table public\.business_legal_acceptances enable row level security/i);
+  assert.match(legalAcceptances, /revoke all on public\.user_legal_acceptances, public\.business_legal_acceptances from anon, authenticated/i);
+  assert.match(legalAcceptances, /grant all on public\.user_legal_acceptances, public\.business_legal_acceptances to service_role/i);
   const feedbackTitle = contents.get("20260925210000_add_feedback_title_and_other.sql");
   assert.match(feedbackTitle, /add column if not exists title/i);
   assert.match(feedbackTitle, /pilot_feedback_title_check/i);

@@ -91,6 +91,10 @@
     {
       "source": "/api/feedback",
       "destination": "/api/operations?operation=feedback"
+    },
+    {
+      "source": "/api/legal",
+      "destination": "/api/operations?operation=legal"
     }
   ],
   "git": {
