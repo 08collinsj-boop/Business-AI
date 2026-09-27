@@ -159,7 +159,7 @@ begin
     where business_id = p_business_id
       and feature_key = 'ai_marketing'
       and status = 'active'
-      and expires_at > now()
+      and (expires_at is null or expires_at > now())
     for share;
     if not found then
       return jsonb_build_object('allowed',false,'reason','entitlement');

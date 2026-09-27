@@ -69,6 +69,7 @@ function setup({ role = 'owner', entitled = true, authValid = true, generations 
       }
       return ok(null);
     }
+    if (value.includes('/rest/v1/marketing_publications')) return ok([]);
     if (value.includes('/rest/v1/marketing_generations')) {
       if (!value.includes(`business_id=eq.${BUSINESS}`)) return ok([]);
       const single = value.match(/[?&]id=eq\.([0-9a-f-]+)/i);
@@ -100,6 +101,24 @@ test('valid schedule creation stores a future UTC timestamp', async () => {
   assert.equal(stored.business_id, BUSINESS);
   assert.equal(stored.marketing_generation_id, GENERATION);
   assert.equal(stored.status, 'scheduled');
+});
+
+
+test('a fourth Facebook schedule is rejected by the daily cap', async () => {
+  setup({
+    schedules: [
+      { ...scheduleRow, id: '31111111-1111-4111-8111-111111111111' },
+      { ...scheduleRow, id: '32222222-2222-4222-8222-222222222222' },
+      { ...scheduleRow, id: '33333333-3333-4333-8333-333333333333' }
+    ]
+  });
+  const response = res();
+  await scheduleHandler(
+    { method: 'POST', query: {}, headers: authed, body: { action: 'create', generation_id: GENERATION, platform: 'facebook', scheduled_for: future } },
+    response
+  );
+  assert.equal(response.statusCode, 429);
+  assert.match(response.body.error, /Daily Facebook post limit reached/);
 });
 
 test('unapproved drafts cannot be scheduled', async () => {
@@ -304,7 +323,7 @@ test('scheduling never triggers publishing or provider calls', async () => {
   const calls = setup({ schedules: [] });
   const created = res();
   await scheduleHandler(
-    { method: 'POST', query: {}, headers: authed, body: { action: 'create', generation_id: GENERATION, platform: 'general', scheduled_for: future } },
+    { method: 'POST', query: {}, headers: authed, body: { action: 'create', generation_id: GENERATION, platform: 'facebook', scheduled_for: future } },
     created
   );
   assert.equal(created.statusCode, 201);

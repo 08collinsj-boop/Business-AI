@@ -35,6 +35,8 @@ function authFetch(role = 'owner', extra = async () => null) {
     const href = String(url);
     if (href.endsWith('/auth/v1/user')) return response({ id: userId, email: 'owner@example.test' });
     if (href.includes('business_memberships')) return response([{ business_id: businessId, role }]);
+    if (href.includes('/rest/v1/marketing_schedules?') && href.includes('status=in.')) return response([]);
+    if (href.includes('/rest/v1/marketing_publications?') && href.includes('status=in.')) return response([]);
     const custom = await extra(href, options);
     return custom || response({}, false);
   };
