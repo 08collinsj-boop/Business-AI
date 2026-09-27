@@ -1197,13 +1197,17 @@ body.public-directory #publicDirectoryScreen{display:block}
 <div class="auth-mark"><div class="brand-icon">AI</div><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Welcome to Business AI</h2>
 <p>Run your business. Smarter.</p>
+<div class="auth-role-switch business-active" data-auth-role-switch aria-label="Choose account type">
+<span class="auth-role-slider" aria-hidden="true"></span>
+<a class="auth-role-option active" href="/" data-auth-role-target="business" aria-current="page">Business</a>
+<a class="auth-role-option" href="/customer/account" data-auth-role-target="customer">Customer</a>
+</div>
 <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
 <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
 <p class="auth-forgot"><button id="showPasswordReset" class="auth-link" type="button">Forgot password?</button></p>
 <button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
 <div id="loginMessage" class="auth-message" role="alert"></div>
 <p class="auth-switch">New to Business AI? <button id="showSignUp" class="auth-link" type="button">Create an account</button></p>
-<div class="customer-entry-choice"><a class="business" href="/">Business sign in</a><a class="customer" href="/customer/account">Customer sign in</a></div><p class="auth-switch customer-entry-link">Just looking for a business? <a class="auth-link" href="/customer">Continue as guest</a></p>
 </form>
 
 <form id="passwordResetRequestForm" class="auth-card auth-form-hidden">
@@ -1299,14 +1303,19 @@ body.public-directory #publicDirectoryScreen{display:block}
 <section class="customer-auth-shell">
 <div class="customer-auth-card">
 <div class="customer-auth-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><strong>Business AI</strong><div style="color:#748593;font-size:10px">Customer Portal</div></div></div>
-<h1>Customer account</h1>
-<p>Sign in to find businesses and keep track of enquiries you send while signed in.</p>
-<div class="customer-auth-tabs"><button id="customerAuthTabSignIn" class="active" type="button">Sign in</button><button id="customerAuthTabSignUp" type="button">Create account</button></div>
+<h1>Welcome to Business AI</h1>
+<p>Sign in as a customer to find businesses and keep track of your enquiries.</p>
+<div class="auth-role-switch customer-active" data-auth-role-switch aria-label="Choose account type">
+<span class="auth-role-slider" aria-hidden="true"></span>
+<a class="auth-role-option" href="/" data-auth-role-target="business">Business</a>
+<a class="auth-role-option active" href="/customer/account" data-auth-role-target="customer" aria-current="page">Customer</a>
+</div>
 <form id="customerSignInForm" class="customer-auth-form">
 <label>Email<input id="customerSignInEmail" type="email" autocomplete="email" required></label>
 <label>Password<input id="customerSignInPassword" type="password" autocomplete="current-password" required></label>
-<button class="customer-auth-primary" type="submit">Sign in as customer</button>
+<button class="customer-auth-primary" type="submit">Sign in</button>
 <div id="customerSignInMessage" class="customer-auth-message" role="alert"></div>
+<p class="customer-auth-switch">New to Business AI? <button id="customerShowSignUp" type="button">Create a customer account</button></p>
 </form>
 <form id="customerSignUpForm" class="customer-auth-form" hidden>
 <label>Your name<input id="customerSignUpName" maxlength="120" autocomplete="name" required></label>
@@ -1316,9 +1325,9 @@ body.public-directory #publicDirectoryScreen{display:block}
 <label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>. Customer accounts are used to provide account access and enquiry tracking.</span></label>
 <button class="customer-auth-primary" type="submit">Create customer account</button>
 <div id="customerSignUpMessage" class="customer-auth-message" role="alert"></div>
+<p class="customer-auth-switch">Already have an account? <button id="customerShowSignIn" type="button">Sign in</button></p>
 </form>
-<a class="customer-auth-secondary" href="/customer">Continue as guest and search businesses</a>
-<a class="customer-auth-secondary" href="/">Business sign in</a>
+<a class="customer-guest-link" href="/customer"><span>Continue as guest</span><small>Search businesses without an account</small></a>
 </div>
 </section>
 </main>
@@ -3553,7 +3562,7 @@ $('leadList').innerHTML=message;
 async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
 if(publicEnquirySlug){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
-if(customerAccountFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('customer-account');return;}
+if(customerAccountFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('customer-account','customer-auth-active');return;}
 if(customerPortalFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-directory');loadPublicBusinessDirectory();return;}
 try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();

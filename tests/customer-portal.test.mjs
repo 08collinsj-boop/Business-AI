@@ -92,7 +92,9 @@ test('customer portal UI is separate from business sign in and preserves guest a
   const css = await readFile(new URL('../assets/customer-portal.css', import.meta.url), 'utf8');
   const vercel = await readFile(new URL('../vercel.json', import.meta.url), 'utf8');
 
-  assert.match(html, /Customer sign in/);
+  assert.match(html, /data-auth-role-switch/);
+  assert.match(html, /data-auth-role-target="business"/);
+  assert.match(html, /data-auth-role-target="customer"/);
   assert.match(html, /Continue as guest/);
   assert.match(html, /id="customerAuthScreen"/);
   assert.match(html, /id="customerPortalScreen"/);
@@ -105,6 +107,18 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(script, /\/api\/public-businesses/);
   assert.match(css, /customer-portal-hero/);
   assert.match(css, /customer-enquiry-card/);
+  assert.match(css, /auth-role-slider/);
+  assert.match(css, /transition:transform \.24s/);
+  assert.match(css, /customer-auth-active/);
+  assert.match(script, /bindAuthRoleSwitches/);
+  assert.match(script, /window\.setTimeout\(\(\)=>window\.location\.assign\(link\.href\),210\)/);
+  const businessLogin = html.match(/<form id="loginForm"[\s\S]*?<\/form>/)?.[0] || '';
+  const customerLogin = html.match(/<main id="customerAuthScreen"[\s\S]*?<\/main>/)?.[0] || '';
+  assert.match(businessLogin, /business-active/);
+  assert.doesNotMatch(businessLogin, /Continue as guest/);
+  assert.match(customerLogin, /customer-active/);
+  assert.match(customerLogin, /Continue as guest/);
+  assert.doesNotMatch(customerLogin, /customerAuthTabSignIn|customerAuthTabSignUp/);
   assert.match(vercel, /"source": "\/customer\/account"/);
   assert.match(vercel, /"source": "\/api\/customer-portal"/);
 });

@@ -7,6 +7,29 @@ let session=null;
 let portalState={customer:null,enquiries:[]};
 const byId=id=>document.getElementById(id);
 
+function bindAuthRoleSwitches(){
+  document.querySelectorAll('[data-auth-role-switch]').forEach(control=>{
+    control.querySelectorAll('[data-auth-role-target]').forEach(link=>{
+      link.addEventListener('click',event=>{
+        const target=link.dataset.authRoleTarget;
+        const alreadyActive=link.classList.contains('active');
+        if(alreadyActive)return;
+        event.preventDefault();
+        control.classList.add('switching');
+        control.classList.toggle('customer-active',target==='customer');
+        control.classList.toggle('business-active',target==='business');
+        control.querySelectorAll('[data-auth-role-target]').forEach(option=>{
+          const active=option===link;
+          option.classList.toggle('active',active);
+          if(active)option.setAttribute('aria-current','page');else option.removeAttribute('aria-current');
+        });
+        window.setTimeout(()=>window.location.assign(link.href),210);
+      });
+    });
+  });
+}
+bindAuthRoleSwitches();
+
 async function initClient(){
   if(!isCustomerRoute)return null;
   try{
@@ -38,8 +61,12 @@ async function portalApi(url,options={}){
 
 function setCustomerAuthMode(mode){
   const signIn=mode!=='signup';
-  byId('customerSignInForm').hidden=!signIn;byId('customerSignUpForm').hidden=signIn;
-  byId('customerAuthTabSignIn').classList.toggle('active',signIn);byId('customerAuthTabSignUp').classList.toggle('active',!signIn);
+  const signInForm=byId('customerSignInForm');
+  const signUpForm=byId('customerSignUpForm');
+  if(signInForm)signInForm.hidden=!signIn;
+  if(signUpForm)signUpForm.hidden=signIn;
+  if(signIn)byId('customerSignInEmail')?.focus();
+  else byId('customerSignUpName')?.focus();
 }
 
 function statusDate(value){
@@ -104,13 +131,14 @@ async function refreshRoute(){
   if(hint)hint.innerHTML=signedIn?'Signed in · qualifying enquiries will appear in <a href="/customer/account">My enquiries</a>.':'Want to track your enquiry? <a href="/customer/account">Sign in as a customer</a> before sending it.';
   if(!isAccount)return;
   document.body.classList.add('customer-account');
+  document.body.classList.toggle('customer-auth-active',!signedIn);
   byId('customerAuthScreen').hidden=signedIn;byId('customerPortalScreen').hidden=!signedIn;
   if(signedIn){try{await loadPortal();}catch{await client.auth.signOut();}}
 }
 
 async function bind(){
-  byId('customerAuthTabSignIn')?.addEventListener('click',()=>setCustomerAuthMode('signin'));
-  byId('customerAuthTabSignUp')?.addEventListener('click',()=>setCustomerAuthMode('signup'));
+  byId('customerShowSignIn')?.addEventListener('click',()=>setCustomerAuthMode('signin'));
+  byId('customerShowSignUp')?.addEventListener('click',()=>setCustomerAuthMode('signup'));
   byId('customerSignInForm')?.addEventListener('submit',async event=>{
     event.preventDefault();const message=byId('customerSignInMessage');message.textContent='Signing in…';
     const result=await client.auth.signInWithPassword({email:byId('customerSignInEmail').value.trim(),password:byId('customerSignInPassword').value});
