@@ -32,7 +32,7 @@ test("frontend auth uses Supabase sessions only for private API requests", () =>
 
 test("public customer links use only a validated slug and never unlock dashboard data", () => {
   assert.match(html, /const publicSlugFromLocation=\(\)=>\{/);
-  assert.match(html, /if\(publicEnquirySlug\)\{document\.body\.classList\.remove\('auth-pending'\);document\.body\.classList\.add\('public-enquiry'\);/);
+  assert.match(html, /if\(publicEnquirySlug\)\{setAppLoading\(false\);document\.body\.classList\.remove\('auth-pending'\);document\.body\.classList\.add\('public-enquiry'\);/);
   assert.match(html, /body\.public-enquiry \.app,body\.public-enquiry \.bottom-nav,body\.public-enquiry #authScreen,body\.public-enquiry #businessSetupScreen,body\.public-enquiry #configurationOnboardingScreen\{display:none\}/, "public customer mode hides the standalone private dashboard navigation");
   assert.match(html, /url\.searchParams\.set\('business',publicEnquirySlug\)/);
   assert.match(html, /Customer enquiry link[\s\S]{0,600}It does not reveal your internal business ID/);
@@ -86,7 +86,7 @@ test("dashboard context uses a server-returned role and keeps test conversations
 test("configuration onboarding is a complete app state, not an overlay on private navigation", () => {
   assert.match(html, /\.bottom-nav\{[\s\S]{0,800}?display:none;/, "private navigation is hidden until the authenticated app is ready");
   assert.match(html, /body\.auth-ready \.bottom-nav\{display:grid\}/, "private navigation appears only after setup is complete");
-  assert.match(html, /authenticatedBusinessRole==='owner'&&!setup\?\.onboarding\?\.completed\)\{await beginConfigurationOnboarding\(\);return;\}/, "only incomplete owners enter the configuration wizard");
+  assert.match(html, /authenticatedBusinessRole==='owner'&&!setup\?\.onboarding\?\.completed\)\{await beginConfigurationOnboarding\(\);setAppLoading\(false\);return;\}/, "only incomplete owners enter the configuration wizard");
   assert.match(html, /setAuthView\('configuration-onboarding-required'\)/, "wizard uses its own explicit application state");
 });
 
