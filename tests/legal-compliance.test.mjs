@@ -5,6 +5,8 @@ import { readFile } from 'node:fs/promises';
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const html = await read('index.html');
 const handler = await read('lib/legal-handler.js');
+const enquiry = await read('api/enquiry.js');
+const legalVersions = await read('lib/legal.js');
 const migration = await read('supabase/migrations/20260927110000_add_legal_acceptances.sql');
 const operations = await read('api/operations.js');
 const vercel = await read('vercel.json');
@@ -26,15 +28,19 @@ test('UK legal pack is publicly linked and versioned', async () => {
 });
 
 test('legal acceptance is server-owned, versioned and tenant safe', () => {
-  assert.match(handler, /LEGAL_VERSIONS = Object\.freeze/);
-  assert.match(handler, /terms: '1\.0'/);
-  assert.match(handler, /privacy: '1\.0'/);
-  assert.match(handler, /acceptable_use: '1\.0'/);
-  assert.match(handler, /dpa: '1\.0'/);
+  assert.match(legalVersions, /LEGAL_VERSIONS = Object\.freeze/);
+  assert.match(legalVersions, /terms: '1\.0'/);
+  assert.match(legalVersions, /privacy: '1\.0'/);
+  assert.match(legalVersions, /acceptable_use: '1\.0'/);
+  assert.match(legalVersions, /dpa: '1\.0'/);
   assert.match(handler, /requireAuthenticatedUser/);
   assert.match(handler, /requireBusinessMember\(req, \['owner'\]\)/);
   assert.match(handler, /legal\.dpa_accepted/);
   assert.doesNotMatch(handler, /body\.(?:business_id|user_id|document_version)/);
+  assert.match(enquiry, /hasCurrentBusinessDpa/);
+  assert.match(enquiry, /TENANCY_AUTH_ENABLED !== "true"/);
+  assert.match(enquiry, /LEGAL_SETUP_REQUIRED/);
+  assert.match(enquiry, /business_legal_acceptances\?business_id=eq/);
   assert.match(migration, /unique \(user_id, document_key, document_version\)/i);
   assert.match(migration, /unique \(business_id, document_key, document_version\)/i);
   assert.match(migration, /revoke all on public\.user_legal_acceptances, public\.business_legal_acceptances from anon, authenticated/i);

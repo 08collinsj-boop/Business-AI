@@ -8,6 +8,7 @@ import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "../lib/pu
 import { logOperationalEvent } from "../lib/operational-log.js";
 import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowance } from "../lib/billing.js";
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
+import { LEGAL_VERSIONS } from "../lib/legal.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -154,6 +155,14 @@ async function resolvePublicBusiness(req) {
   const businesses = await supabaseRequest("businesses?select=id&limit=2");
   if (!Array.isArray(businesses) || businesses.length !== 1) return null;
   return { businessId: await getInitialBusinessId(), slug: "legacy-single-business" };
+}
+
+async function hasCurrentBusinessDpa(businessId) {
+  if (process.env.TENANCY_AUTH_ENABLED !== "true") return true;
+  const rows = await supabaseRequest(
+    `business_legal_acceptances?business_id=eq.${encodeURIComponent(String(businessId))}&document_key=eq.dpa&document_version=eq.${encodeURIComponent(LEGAL_VERSIONS.dpa)}&select=id&limit=1`
+  );
+  return Boolean(rows?.[0]?.id);
 }
 
 function cleanMessages(messages) {
@@ -504,6 +513,13 @@ export default async function handler(req, res) {
     const publicBusiness = await resolvePublicBusiness(req);
     if (!publicBusiness) {
       return res.status(404).json({ error: "Business not available" });
+    }
+    if (!(await hasCurrentBusinessDpa(publicBusiness.businessId))) {
+      logOperationalEvent("enquiry.legal_setup_required", { businessId: publicBusiness.businessId });
+      return res.status(503).json({
+        error: "This assistant is currently unavailable. Please contact the business directly.",
+        code: "LEGAL_SETUP_REQUIRED"
+      });
     }
     const clientAddress = getPublicClientAddress(req);
     const rateLimit = await enforcePublicEnquiryRateLimit({
