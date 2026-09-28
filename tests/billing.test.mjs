@@ -268,6 +268,7 @@ test("billing source keeps Stripe secret/server checks and no browser pricing tr
   assert.doesNotMatch(fetchWebhookSource, /JSON\.stringify\(request\.body\)/, "Stripe verification must never reconstruct a request body");
   assert.match(webhookSource, /Webhook tenant mapping conflict/); assert.match(stripeSource, /planFromStripePrice/);
   assert.match(frontendSource, /account\?\.has_subscription/); assert.doesNotMatch(frontendSource, /account\?\.stripe_customer_id/);
+  assert.match(frontendSource, /£34\\.99 \\/ month/); assert.match(frontendSource, /£79\\.99 \\/ month/); assert.match(frontendSource, /£159\\.99 \\/ month/);
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key]; Object.assign(process.env, saved); globalThis.fetch = originalFetch; });
