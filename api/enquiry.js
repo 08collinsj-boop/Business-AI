@@ -602,6 +602,12 @@ async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
+      const retryForTruncation = attempt > 1;
+      const maxTokens = retryForTruncation ? 2200 : 1200;
+      const fallbackSystemPrompt = retryForTruncation
+        ? `${systemPrompt}\nReturn compact JSON only. Keep reply under 240 characters and keep every free-text lead field concise. Do not add explanation outside the schema.`
+        : systemPrompt;
+
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         signal: AbortSignal.timeout(45000),
@@ -612,8 +618,8 @@ async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
         body: JSON.stringify({
           model: requestedModel,
           provider: { require_parameters: true },
-          messages: [{ role: "system", content: systemPrompt }, ...conversation],
-          max_tokens: 1200,
+          messages: [{ role: "system", content: fallbackSystemPrompt }, ...conversation],
+          max_tokens: maxTokens,
           response_format: {
             type: "json_schema",
             json_schema: {
@@ -669,7 +675,8 @@ async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
       if (attempt < 2) {
         logOperationalEvent("enquiry.ai_fallback_retry", {
           provider: "openrouter",
-          attempt
+          attempt,
+          next_max_tokens: 2200
         });
         await sleep(250);
       }

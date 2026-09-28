@@ -142,7 +142,7 @@ async function loadWithBilling({ providerFails = false, providerStatus = 500, fa
     if (url.includes('openrouter.ai')) {
       openRouterAttempts++;
       if (!fallbackSucceeds) return { ok: false, status: 503, text: async () => JSON.stringify({ error: 'fallback failed' }) };
-      if (fallbackFailsOnce && openRouterAttempts === 1) return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: 'not-json' }, finish_reason: 'stop' }] });
+      if (fallbackFailsOnce && openRouterAttempts === 1) return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: 'not-json' }, finish_reason: 'length' }] });
       return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify({ reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) }, finish_reason: 'stop' }] });
     }
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: null });
@@ -188,9 +188,14 @@ test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowan
   assert.equal(loaded.calls.filter(c => c.url.includes('openrouter.ai')).length, 2);
   assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
   assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 0);
-  const fallbackBody = JSON.parse(loaded.calls.find(c => c.url.includes('openrouter.ai')).options.body);
-  assert.equal(fallbackBody.response_format.type, 'json_schema');
-  assert.equal(fallbackBody.provider.require_parameters, true);
+  const fallbackCalls = loaded.calls.filter(c => c.url.includes('openrouter.ai'));
+  const firstFallbackBody = JSON.parse(fallbackCalls[0].options.body);
+  const retryFallbackBody = JSON.parse(fallbackCalls[1].options.body);
+  assert.equal(firstFallbackBody.response_format.type, 'json_schema');
+  assert.equal(firstFallbackBody.provider.require_parameters, true);
+  assert.equal(firstFallbackBody.max_tokens, 1200);
+  assert.equal(retryFallbackBody.max_tokens, 2200);
+  assert.match(retryFallbackBody.messages[0].content, /Return compact JSON only/);
 });
 
 test('business configuration failure happens before billing allowance is consumed', async () => {
