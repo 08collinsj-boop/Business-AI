@@ -47,6 +47,7 @@ async function load(mode, intent = supported, model = null) {
   process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai'; delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'false'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
+  let requestedBooking = null;
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.includes('business_public_routes')) return reply([{ business_id: 'business-a', route_type: 'slug', route_value: 'business-a', active: true }]);
@@ -54,6 +55,13 @@ async function load(mode, intent = supported, model = null) {
     if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode }]);
     if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify(model || { reply: 'Approved answer', intent, lead: { phone: '07000000000', job_type: 'Repair', handover_required: false } }) });
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: JSON.parse(options.body).p_reason });
+    if (url.includes('bookings?')) return reply(requestedBooking ? [requestedBooking] : []);
+    if (url.endsWith('/rest/v1/bookings') && options.method === 'POST') {
+      const body = JSON.parse(options.body);
+      requestedBooking = { id: 7, ...body };
+      return reply([requestedBooking]);
+    }
+    if (url.endsWith('/rest/v1/lead_history') || url.endsWith('/rest/v1/business_audit_events')) return reply({}, true);
     throw new Error(`Unexpected call: ${url}`);
   };
   const handler = (await import(new URL(`../api/enquiry.js?handling=${Math.random()}`, import.meta.url))).default;
@@ -112,6 +120,57 @@ test('realistic quote with contact details is captured even when the fallback mo
   assert.match(persisted.job_type, /quote to replace two indoor sockets in Hartlepool/i);
 });
 
+test('complete customer booking creates one pending AI booking request and never claims confirmation', async () => {
+  const { handler, calls } = await load('balanced');
+  const message = 'I would like to book an appointment to replace two indoor sockets in Hartlepool. My name is Casey QA and my email is casey.qa@example.test.';
+
+  let res = response();
+  await handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.42' },
+    query: { business: 'business-a' },
+    body: { message }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, true);
+  assert.equal(res.body.bookingRequested, true);
+  assert.match(res.body.reply, /saved your booking request/i);
+  assert.match(res.body.reply, /still needs to confirm availability and a time/i);
+  assert.doesNotMatch(res.body.reply, /confirmed appointment|appointment is confirmed/i);
+  assert.ok(!calls.some(c => c.url.includes('api.openai.com')), 'complete booking details should not wait on the AI provider');
+
+  const bookingPosts = calls.filter(c => c.url.endsWith('/rest/v1/bookings') && c.options.method === 'POST');
+  assert.equal(bookingPosts.length, 1);
+  const booking = JSON.parse(bookingPosts[0].options.body);
+  assert.equal(booking.business_id, 'business-a');
+  assert.equal(booking.lead_id, 1);
+  assert.equal(booking.status, 'requested');
+  assert.equal(booking.source, 'ai_request');
+  assert.equal(booking.customer_name, 'Casey QA');
+  assert.equal(booking.customer_email, 'casey.qa@example.test');
+  assert.equal(booking.location, 'Hartlepool');
+  assert.equal(booking.starts_at, undefined);
+  assert.match(booking.notes, /request only; confirm availability/i);
+
+  const firstSession = res.body.session;
+  res = response();
+  await handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.42' },
+    query: { business: 'business-a' },
+    body: { message, session: firstSession }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.bookingRequested, true);
+  assert.equal(
+    calls.filter(c => c.url.endsWith('/rest/v1/bookings') && c.options.method === 'POST').length,
+    1,
+    'repeated customer messages must not create a second pending AI booking'
+  );
+});
+
 test('clearly off-topic requests stay off-topic even when they contain contact details and a want phrase', async () => {
   const { handler, calls } = await load('ai_first', supported);
   const res = response();
@@ -165,6 +224,7 @@ async function loadWithBilling({ providerFails = false, providerStatus = 500, fa
   process.env.BILLING_ENABLED = 'true'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
   let openRouterAttempts = 0;
+  let requestedBooking = null;
   const account = { business_id: 'business-a', plan: 'starter', status: 'active', current_period_started_at: '2026-09-01T00:00:00.000Z', current_period_ends_at: '2026-10-01T00:00:00.000Z', cancel_at_period_end: false };
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
@@ -186,6 +246,13 @@ async function loadWithBilling({ providerFails = false, providerStatus = 500, fa
       return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify({ reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) }, finish_reason: 'stop' }] });
     }
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: null });
+    if (url.includes('bookings?')) return reply(requestedBooking ? [requestedBooking] : []);
+    if (url.endsWith('/rest/v1/bookings') && options.method === 'POST') {
+      const body = JSON.parse(options.body);
+      requestedBooking = { id: 8, ...body };
+      return reply([requestedBooking]);
+    }
+    if (url.endsWith('/rest/v1/lead_history') || url.endsWith('/rest/v1/business_audit_events')) return reply({}, true);
     throw new Error(`Unexpected call: ${url}`);
   };
   const handler = (await import(new URL(`../api/enquiry.js?billing=${Math.random()}`, import.meta.url))).default;

@@ -187,6 +187,78 @@ async function linkCustomerEnquiry(customerUserId, businessId, leadId) {
   return true;
 }
 
+function bookingText(value, max) {
+  return String(value || "").trim().slice(0, max);
+}
+
+async function createRequestedBooking({ businessId, leadId, lead, conversationText }) {
+  if (!businessId || !leadId || !lead) return null;
+
+  const existing = await supabaseRequest(
+    `bookings?business_id=eq.${encodeURIComponent(String(businessId))}&lead_id=eq.${encodeURIComponent(String(leadId))}&source=eq.ai_request&status=eq.requested&select=id,status,source,lead_id&order=created_at.desc&limit=1`
+  );
+  if (Array.isArray(existing) && existing[0]?.id) {
+    return existing[0];
+  }
+
+  const title =
+    bookingText(lead.job_type || "Customer booking request", 200) ||
+    "Customer booking request";
+  const context = bookingText(conversationText, 4200);
+  const notes = bookingText(
+    `Customer requested a booking through Business AI. This is a request only; confirm availability before marking it confirmed.${context ? `\n\nCustomer enquiry:\n${context}` : ""}`,
+    5000
+  );
+
+  const rows = await supabaseRequest("bookings", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      business_id: businessId,
+      lead_id: leadId,
+      title,
+      customer_name: bookingText(lead.name, 160),
+      customer_phone: bookingText(lead.phone, 64),
+      customer_email: bookingText(lead.email, 320),
+      location: bookingText(lead.location, 500),
+      status: "requested",
+      notes,
+      source: "ai_request"
+    })
+  });
+
+  const booking = Array.isArray(rows) ? rows[0] || null : rows || null;
+  if (booking?.id) {
+    await supabaseRequest("lead_history", {
+      method: "POST",
+      body: JSON.stringify({
+        business_id: businessId,
+        lead_id: leadId,
+        action: "Booking requested",
+        old_value: "",
+        new_value: title
+      })
+    }).catch(() => null);
+
+    await supabaseRequest("business_audit_events", {
+      method: "POST",
+      body: JSON.stringify({
+        business_id: businessId,
+        action: "booking.public_requested",
+        resource_type: "booking",
+        resource_id: String(booking.id),
+        metadata: {
+          source: "public_enquiry",
+          lead_id: leadId,
+          status: "requested"
+        }
+      })
+    }).catch(() => null);
+  }
+
+  return booking;
+}
+
 function cleanMessages(messages) {
   if (!Array.isArray(messages)) return [];
 
@@ -912,7 +984,11 @@ Your response must follow the supplied JSON schema.
         result = {
           reply: "",
           intent: {
-            type: /\bquote\b/i.test(conversationText) ? "quote" : "normal_enquiry",
+            type: /\bquote\b/i.test(conversationText)
+              ? "quote"
+              : /\b(?:book|booking|appointment|schedule|arrange)\b/i.test(conversationText)
+                ? "booking"
+                : "normal_enquiry",
             supported: true,
             requires_human: false,
             safety_reason: "none",
@@ -1003,7 +1079,11 @@ Your response must follow the supplied JSON schema.
               : "I'm having trouble generating a full reply right now, but I can still pass your enquiry to the business. What phone number or email address should they use?"
             : "I'm temporarily unable to generate a full answer. You can still leave your contact details and what you need, and I'll pass the enquiry to the business.",
           intent: {
-            type: /\bquote\b/i.test(message) ? "quote" : "normal_enquiry",
+            type: /\bquote\b/i.test(message)
+              ? "quote"
+              : /\b(?:book|booking|appointment|schedule|arrange)\b/i.test(message)
+                ? "booking"
+                : "normal_enquiry",
             supported: clearlyBusinessRequest,
             requires_human: false,
             safety_reason: "none",
@@ -1116,6 +1196,7 @@ Your response must follow the supplied JSON schema.
     let leadCaptured = false;
     let savedLead = null;
     let trackingAvailable = false;
+    let bookingRequested = false;
 
     /*
      * If the customer has contact information and
@@ -1135,6 +1216,35 @@ Your response must follow the supplied JSON schema.
           trackingAvailable = await linkCustomerEnquiry(customerAccount.userId, businessId, savedLead.id).catch(() => false);
         }
 
+        const customerAskedToBook =
+          result.intent?.type === "booking" ||
+          /\b(?:book|booking|appointment|schedule|arrange)\b/i.test(message);
+
+        if (customerAskedToBook && savedLead?.id) {
+          try {
+            const booking = await createRequestedBooking({
+              businessId,
+              leadId: savedLead.id,
+              lead: finalLead,
+              conversationText
+            });
+            bookingRequested = Boolean(booking?.id);
+            if (bookingRequested) {
+              logOperationalEvent("enquiry.booking_requested", {
+                businessId,
+                leadId: savedLead.id,
+                bookingId: booking.id
+              });
+            }
+          } catch (error) {
+            logOperationalEvent("enquiry.booking_request_save_failed", {
+              businessId,
+              leadId: savedLead.id,
+              failure: error?.name || "unknown"
+            });
+          }
+        }
+
         logOperationalEvent("enquiry.lead_captured", { businessId, leadId: savedLead?.id || "unknown", handover: handoverRequired });
       } catch (error) {
         logOperationalEvent("enquiry.lead_save_failed", { failure: error?.name || "unknown" });
@@ -1146,17 +1256,21 @@ Your response must follow the supplied JSON schema.
       session: aiSession || null,
       reply: offTopic
         ? `I can help with questions and enquiries about ${businessName}. For anything unrelated, please use the appropriate service or source.`
-        : handoverRequired
+        : reason === "emergency_or_high_risk" || reason === "complaint_or_dispute"
           ? `${reason === "emergency_or_high_risk" ? "If anyone is in immediate danger, contact the emergency services now. " : ""}${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : leadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
-          : leadCaptured
-            ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
-            : typeof result.reply === "string"
-              ? result.reply
-              : "Thanks. I have your details.",
-      // Public callers only need to know whether their details were received.
-      // Never expose a database row here: it can contain customer data and the
-      // internal tenant identifier used by server-side routing.
+          : bookingRequested
+            ? `Thanks. I've saved your booking request for ${businessName}. The business still needs to confirm availability and a time.`
+            : handoverRequired
+              ? `${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : leadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
+              : leadCaptured
+                ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
+                : typeof result.reply === "string"
+                  ? result.reply
+                  : "Thanks. I have your details.",
+      // Public callers only need booleans showing what was received.
+      // Never expose database rows or internal tenant identifiers.
       leadCaptured,
+      bookingRequested,
       trackingAvailable
     });
   } catch (error) {
