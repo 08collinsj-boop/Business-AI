@@ -41,3 +41,12 @@ Marketing never writes generated claims back into trusted Business Knowledge.
 AI Marketing is £19.99/month, explicitly optional with Starter, Pro or Business. The £3.99 paid seven-day Trial includes 10 successful generations with no recurring Marketing subscription. Paid Marketing includes 100 successful generations per Stripe billing period, never a calendar-month reset. Pending reservations prevent concurrent overspending; failed generations release allowance while remaining in short-term abuse counters. Deleting successful drafts does not refund usage.
 
 The server and database require current base-plan access. Marketing item removal revokes access when confirmed by Stripe. Scheduling cancellation of the whole base subscription preserves access while that subscription remains active, until its paid period ends. Active Stripe-managed Marketing rows have no separate expiry; base-period expiry is always enforced. Initial add-on purchases require successful immediate payment. Stripe event-version guards prevent delayed updates from overwriting newer entitlement state.
+
+
+## Owner-uploaded Marketing photos
+
+Marketing drafts support private owner-uploaded JPG, PNG and WebP photos up to 10 MB. The browser uploads directly to the private `marketing-images` Supabase bucket using a short-lived signed upload token, so image bytes do not pass through the public application API.
+
+After upload, Business AI validates the stored file, may create a cautious non-sensitive visual description for copy generation, resets owner approval, and can refresh the existing draft using that photo context plus approved Business Knowledge. Photo context is never treated as a trusted business fact. The owner must review and approve the resulting post again.
+
+Uploaded photos use the same private signed-preview and Facebook photo-publishing path as generated images. Owners/admins can replace or remove the image before publishing. Owner uploads do not consume the AI-image generation allowance.

@@ -2503,8 +2503,11 @@ placeholder="Describe what you need help with…"
 </div>
 
 <div id="marketingImagePanel" class="marketing-publish-panel marketing-image-panel">
-<div class="marketing-panel-heading"><div><span class="marketing-eyebrow">Visual</span><h4>Marketing image</h4></div><button id="marketingGenerateImage" class="small-btn" type="button">Generate image</button></div>
-<p id="marketingImageStatus" class="work-meta">No image requested for this draft.</p><div id="marketingImagePreview" class="marketing-image-frame"></div>
+<div class="marketing-panel-heading"><div><span class="marketing-eyebrow">Visual</span><h4>Post image</h4></div><div class="marketing-image-actions"><button id="marketingUploadPhoto" class="small-btn primary-action" type="button">Upload your photo</button><button id="marketingGenerateImage" class="small-btn" type="button">Generate AI image</button></div></div>
+<input id="marketingPhotoInput" type="file" accept="image/*" hidden>
+<p id="marketingImageStatus" class="work-meta">Upload a real business photo or generate an AI image for this draft.</p>
+<div id="marketingImagePreview" class="marketing-image-frame"></div>
+<div class="marketing-image-footer"><p class="work-meta marketing-image-upload-note">Your uploaded photo stays private until you publish the approved post. Business AI can use what is visibly in the photo to refresh the caption without treating it as trusted business facts.</p><button id="marketingRemoveImage" class="small-btn danger" type="button" hidden>Remove image</button></div>
 </div>
 
 <div id="marketingPublishControls" class="marketing-publish-panel marketing-publish-card" hidden>

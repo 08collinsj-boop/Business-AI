@@ -73,3 +73,15 @@
 .addon-card .small-btn{min-height:40px;border-radius:12px}
 #addonsView .work-actions{margin:0 0 12px}
 .marketing-workspace .screen-title p{color:#98aec8}
+
+
+/* Owner-uploaded Marketing photos */
+.marketing-image-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.marketing-image-footer{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-top:10px}
+.marketing-image-upload-note{margin:0;max-width:620px;line-height:1.5}
+@media(max-width:640px){
+  .marketing-image-actions{width:100%;justify-content:stretch}
+  .marketing-image-actions .small-btn{flex:1}
+  .marketing-image-footer{flex-direction:column}
+  .marketing-image-footer .small-btn{width:100%}
+}

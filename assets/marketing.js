@@ -85,7 +85,7 @@
 
   function setBusy(value) {
     busy=value;
-    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingAutomationSave','marketingAutomationRun']) if(node(id)) node(id).disabled=value;
+    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun']) if(node(id)) node(id).disabled=value;
     if(node('marketingGenerate')) node('marketingGenerate').textContent=value?'Working…':'Generate draft';
     node('marketingForm')?.setAttribute('aria-busy',String(value));
   }
@@ -324,18 +324,21 @@
 
 
   function renderImage(){
-    const status=node('marketingImageStatus'),preview=node('marketingImagePreview'),button=node('marketingGenerateImage');
+    const status=node('marketingImageStatus'),preview=node('marketingImagePreview'),button=node('marketingGenerateImage'),upload=node('marketingUploadPhoto'),remove=node('marketingRemoveImage');
     if(!status||!preview)return;
     preview.replaceChildren();
-    if(button)button.textContent=imageState?.status==='completed'?'Generate new image':'Generate image';
-    if(!currentGenerationId){status.textContent='No image requested for this draft.';return;}
-    if(!imageState){status.textContent=imageGenerationMode==='simulate'?'Image generation is in simulation mode. No paid image has been created.':'Generate a square marketing image for this draft. Image changes require the post to be approved again.';return;}
-    if(imageState.status==='simulated'){status.textContent='Simulation passed. The image pipeline is ready, but no real image was created.';return;}
+    const uploaded=imageState?.provider==='upload';
+    if(button)button.textContent=imageState?.status==='completed'&&!uploaded?'Generate new AI image':'Generate AI image';
+    if(upload)upload.textContent=uploaded?'Replace photo':'Upload your photo';
+    if(remove)remove.hidden=!imageState||!['completed','simulated','failed'].includes(imageState.status);
+    if(!currentGenerationId){status.textContent='Create or open a saved draft before adding a photo.';return;}
+    if(!imageState){status.textContent=imageGenerationMode==='simulate'?'Upload your own photo, or test the AI image pipeline in simulation mode.':'Upload a real business photo or generate a square AI image. Any image change requires owner approval again.';return;}
+    if(imageState.status==='simulated'){status.textContent='AI image simulation passed. No real AI image was created. You can still upload your own photo.';return;}
     if(imageState.status==='failed'){status.textContent=imageState.failure_message||'Image generation failed.';return;}
-    if(imageState.status==='pending'){status.textContent='Image generation is still processing…';return;}
+    if(imageState.status==='pending'){status.textContent=uploaded?'Your photo is being prepared…':'AI image generation is still processing…';return;}
     if(imageState.status==='completed'&&imageState.image_url){
-      status.textContent='Image ready. Review it before approval. Generate a new image if you want to replace it.';
-      const img=document.createElement('img');img.src=imageState.image_url;img.alt='Generated marketing image preview';img.className='marketing-image-preview';preview.append(img);return;
+      status.textContent=uploaded?'Your photo is attached to this draft. Review the refreshed caption and photo before approval.':'AI image ready. Review it before approval, or upload your own photo instead.';
+      const img=document.createElement('img');img.src=imageState.image_url;img.alt=uploaded?'Uploaded business photo preview':'Generated marketing image preview';img.className='marketing-image-preview';preview.append(img);return;
     }
     status.textContent='Image state is unavailable.';
   }
@@ -365,6 +368,77 @@
       message(imageState?.simulation?'Image simulation passed. No paid image was generated.':'Image generated. Review the image and approve the draft before publishing.');
       await Promise.all([loadHistory(),loadAutomation()]);
     }catch(error){message(error?.message||'Could not generate an image for this draft.');}
+    finally{setBusy(false);}
+  }
+
+
+  function chooseMarketingPhoto(){
+    if(!currentGenerationId||busy)return message('Create or open a saved Marketing draft first.');
+    const input=node('marketingPhotoInput');if(input){input.value='';input.click();}
+  }
+
+  async function normaliseMarketingPhoto(file){
+    const supported=['image/jpeg','image/png','image/webp'];
+    if(!file||!String(file.type||'').startsWith('image/'))throw new Error('Choose an image from your device.');
+    if(supported.includes(file.type)&&file.size<=10*1024*1024){
+      return {blob:file,fileName:file.name||('marketing-photo.'+(file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg')),mimeType:file.type};
+    }
+    const url=URL.createObjectURL(file);
+    try{
+      const img=new Image();
+      await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('That photo format could not be opened. Try a JPG, PNG or WebP image.'));img.src=url;});
+      const maxSide=1920,scale=Math.min(1,maxSide/Math.max(img.naturalWidth||1,img.naturalHeight||1));
+      const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round((img.naturalWidth||1)*scale));canvas.height=Math.max(1,Math.round((img.naturalHeight||1)*scale));
+      const context=canvas.getContext('2d');if(!context)throw new Error('This photo could not be prepared on your device.');
+      context.drawImage(img,0,0,canvas.width,canvas.height);
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.88));
+      if(!blob||blob.size<1||blob.size>10*1024*1024)throw new Error('That photo is too large. Choose a photo under 10 MB.');
+      const base=String(file.name||'marketing-photo').replace(/\.[^.]+$/,'').slice(0,180)||'marketing-photo';
+      return {blob,fileName:base+'.jpg',mimeType:'image/jpeg'};
+    }finally{URL.revokeObjectURL(url);}
+  }
+
+  async function uploadMarketingPhoto(event){
+    const input=event?.target,file=input?.files?.[0];
+    if(!file)return;
+    if(!currentGenerationId){if(input)input.value='';return message('Create or open a saved Marketing draft first.');}
+    if(busy){if(input)input.value='';return;}
+    setBusy(true);message('Preparing your photo…');
+    let prepared=null,uploaded=false;
+    try{
+      const photo=await normaliseMarketingPhoto(file);
+      prepared=await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create_upload',generation_id:currentGenerationId,file_name:photo.fileName,mime_type:photo.mimeType,size_bytes:photo.blob.size})});
+      if(!supabaseClient)throw new Error('Secure photo upload is unavailable.');
+      message('Uploading your photo privately…');
+      const {error}=await supabaseClient.storage.from(prepared.upload.bucket).uploadToSignedUrl(prepared.upload.path,prepared.upload.token,photo.blob,{contentType:photo.mimeType});
+      if(error)throw new Error('The private photo upload could not be completed.');
+      uploaded=true;message('Business AI is reviewing the photo and refreshing the caption…');
+      const data=await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finalize_upload',generation_id:currentGenerationId,path:prepared.upload.path,file_name:photo.fileName,mime_type:photo.mimeType,size_bytes:photo.blob.size})});
+      imageState=data.image||null;imageGenerationMode=data.configuration?.mode||imageGenerationMode;
+      if(data.generation)renderCurrent(data.generation);else renderImage();
+      if(data.copy_refreshed)message('Photo uploaded. Business AI used the visible photo context to refresh the caption. Review both before approval.');
+      else if(data.copy_refresh_error)message('Photo uploaded and ready to publish. '+data.copy_refresh_error);
+      else if(data.analysed)message('Photo uploaded and analysed. Review the post and photo before approval.');
+      else message('Photo uploaded and attached to this post. Review it before approval.');
+      await Promise.all([loadHistory(),loadAutomation()]);
+    }catch(error){
+      message(error?.message||'Could not upload this photo.');
+      if(uploaded)await loadImageForCurrent().catch(()=>null);
+    }finally{setBusy(false);if(input)input.value='';}
+  }
+
+  async function removeCurrentImage(){
+    if(!currentGenerationId||!imageState||busy)return;
+    if(!confirm('Remove this image from the Marketing draft?'))return;
+    setBusy(true);message('Removing image…');
+    try{
+      await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'remove',generation_id:currentGenerationId})});
+      imageState=null;renderImage();
+      const refreshed=await api('/api/marketing?generation_id='+encodeURIComponent(currentGenerationId)).catch(()=>null);
+      if(refreshed?.generation)renderCurrent(refreshed.generation);
+      message('Image removed. Owner approval is required again before publishing.');
+      await loadHistory();
+    }catch(error){message(error?.message||'Could not remove this image.');}
     finally{setBusy(false);}
   }
 
@@ -468,7 +542,7 @@
     try{await navigator.clipboard.writeText(text);message(label);}
     catch{message('Copy is unavailable. Select the draft text to copy it manually.');}
   }
-  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
+  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',chooseMarketingPhoto);node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();if(node('marketingPhotoInput'))node('marketingPhotoInput').value='';if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
 })();
