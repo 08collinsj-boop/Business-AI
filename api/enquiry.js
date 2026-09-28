@@ -613,7 +613,7 @@ async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const retryForTruncation = attempt > 1;
-      const maxTokens = retryForTruncation ? 2200 : 1200;
+      const maxTokens = retryForTruncation ? 3200 : 1400;
       const fallbackSystemPrompt = retryForTruncation
         ? `${systemPrompt}\nReturn compact JSON only. Keep reply under 240 characters and keep every free-text lead field concise. Do not add explanation outside the schema.`
         : systemPrompt;
@@ -686,7 +686,7 @@ async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
         logOperationalEvent("enquiry.ai_fallback_retry", {
           provider: "openrouter",
           attempt,
-          next_max_tokens: 2200
+          next_max_tokens: 3200
         });
         await sleep(250);
       }
@@ -916,8 +916,61 @@ Your response must follow the supplied JSON schema.
         aiSession = aiSession || aiSessionToken(businessId, clientAddress);
       } catch (error) {
         // A failed provider/structured response must not consume paid allowance.
-        if (billingReservation) await releaseAiEnquiryAllowance(businessId, billingReservation);
-        throw error;
+        if (billingReservation) {
+          await releaseAiEnquiryAllowance(businessId, billingReservation);
+          billingReservation = null;
+        }
+
+        const deterministicContact =
+          knownDetails.phone ||
+          knownDetails.email ||
+          customerAccount?.email ||
+          null;
+        const deterministicJob = knownDetails.job_type || null;
+        const clearlyBusinessRequest =
+          !looksClearlyOffTopic(message, settings, configuration) &&
+          Boolean(
+            deterministicJob ||
+            /\b(?:quote|booking|book|appointment|repair|replace|install|installation|maintenance|service|enquiry)\b/i.test(message)
+          );
+
+        logOperationalEvent("enquiry.ai_degraded_fallback", {
+          businessId,
+          has_contact: Boolean(deterministicContact),
+          has_job: Boolean(deterministicJob),
+          business_request: clearlyBusinessRequest,
+          failure: error?.name || "unknown"
+        });
+
+        result = {
+          reply: clearlyBusinessRequest
+            ? deterministicContact
+              ? `Thanks. I've captured your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
+              : "I'm having trouble generating a full reply right now, but I can still pass your enquiry to the business. What phone number or email address should they use?"
+            : "I'm temporarily unable to generate a full answer. You can still leave your contact details and what you need, and I'll pass the enquiry to the business.",
+          intent: {
+            type: /\bquote\b/i.test(message) ? "quote" : "normal_enquiry",
+            supported: clearlyBusinessRequest,
+            requires_human: false,
+            safety_reason: "none",
+            unsupported_reason: clearlyBusinessRequest ? "none" : "missing_knowledge"
+          },
+          lead: {
+            name: knownDetails.name || null,
+            phone: knownDetails.phone || null,
+            email: knownDetails.email || customerAccount?.email || null,
+            location: knownDetails.location || null,
+            job_type: deterministicJob,
+            description: clearlyBusinessRequest ? message.slice(0, 1200) : null,
+            urgency: null,
+            qualified: clearlyBusinessRequest,
+            priority: "Normal",
+            notes: clearlyBusinessRequest
+              ? "Captured by Business AI during a temporary AI provider failure."
+              : null,
+            handover_required: false
+          }
+        };
       }
     }
 

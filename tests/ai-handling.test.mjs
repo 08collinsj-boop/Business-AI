@@ -228,9 +228,37 @@ test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowan
   const retryFallbackBody = JSON.parse(fallbackCalls[1].options.body);
   assert.equal(firstFallbackBody.response_format.type, 'json_schema');
   assert.equal(firstFallbackBody.provider.require_parameters, true);
-  assert.equal(firstFallbackBody.max_tokens, 1200);
-  assert.equal(retryFallbackBody.max_tokens, 2200);
+  assert.equal(firstFallbackBody.max_tokens, 1400);
+  assert.equal(retryFallbackBody.max_tokens, 3200);
   assert.match(retryFallbackBody.messages[0].content, /Return compact JSON only/);
+});
+
+test('provider outage still captures a quote lead with deterministic customer details', async () => {
+  const loaded = await loadWithBilling({ providerFails: true });
+  const res = response();
+  await loaded.handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.33' },
+    query: { business: 'business-a' },
+    body: {
+      message: 'I would like a quote to replace two indoor sockets in Hartlepool. My name is Alex QA and my email is alex.qa@example.test.'
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, true);
+  assert.match(res.body.reply, /saved your enquiry|captured your enquiry/i);
+  assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
+  assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 1);
+  assert.equal(res.body.session, null);
+
+  const saveCall = loaded.calls.find(c => c.url.includes('rpc/save_public_enquiry'));
+  assert.ok(saveCall, 'the quote should still be persisted');
+  const payload = JSON.parse(saveCall.options.body);
+  assert.equal(payload.p_lead.email, 'alex.qa@example.test');
+  assert.match(payload.p_lead.name || '', /Alex QA/i);
+  assert.match(payload.p_lead.job_type || '', /quote|replace|socket/i);
+  assert.equal(payload.p_lead.qualified, true);
 });
 
 test('business configuration failure happens before billing allowance is consumed', async () => {
@@ -242,13 +270,16 @@ test('business configuration failure happens before billing allowance is consume
   assert.equal(loaded.calls.filter(c => c.url.includes('api.openai.com')).length, 0);
 });
 
-test('failed AI provider calls release the reserved allowance and direct human handover spends none', async () => {
+test('failed AI providers degrade safely, release allowance, and direct human handover spends none', async () => {
   let loaded = await loadWithBilling({ providerFails: true });
   let res = response();
   await loaded.handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.26' }, query: { business: 'business-a' }, body: { message: 'Can you help with a repair?' } }, res);
-  assert.equal(res.statusCode, 500);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, false);
+  assert.match(res.body.reply, /contact details|phone number|email address/i);
   assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
   assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 1);
+  assert.equal(res.body.session, null, 'a degraded provider failure must not mint a free AI session');
 
   loaded = await loadWithBilling(); res = response();
   await loaded.handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.27' }, query: { business: 'business-a' }, body: { message: 'Can I speak to someone?' } }, res);
