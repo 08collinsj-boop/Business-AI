@@ -112,7 +112,8 @@ test("public enquiry maps a slug to its server-resolved business and scopes lead
   const res = { statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } };
   await enquiry.default({ method: "POST", headers: { "x-forwarded-for": "198.51.100.8" }, query: { business: "garage-b", business_id: "business-a" }, body: { message: "I need an MOT. My number is 07000000000", messages: [] } }, res);
   assert.equal(res.statusCode, 200); assert.equal(res.body.leadCaptured, true);
-  assert.deepEqual(Object.keys(res.body).sort(), ["continuation", "leadCaptured", "reply", "session", "trackingAvailable"], "public enquiries expose only safe delivery/tracking flags, never the stored lead row or tenant identifier");
+  assert.deepEqual(Object.keys(res.body).sort(), ["bookingRequested", "continuation", "leadCaptured", "reply", "session", "trackingAvailable"], "public enquiries expose only safe delivery/tracking flags, never the stored lead row or tenant identifier");
+  assert.equal(typeof res.body.bookingRequested, "boolean");
   assert.equal(typeof res.body.trackingAvailable, "boolean");
   assert.equal("business_id" in res.body, false);
   assert.equal("lead" in res.body, false);
