@@ -249,8 +249,10 @@ test('provider outage still captures a quote lead with deterministic customer de
   assert.equal(res.body.leadCaptured, true);
   assert.match(res.body.reply, /saved your enquiry|captured your enquiry|passed your enquiry/i);
   assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
-  assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 1);
-  assert.equal(res.body.session, null);
+  assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 0);
+  assert.equal(loaded.calls.filter(c => c.url.includes('api.openai.com')).length, 0);
+  assert.equal(loaded.calls.filter(c => c.url.includes('openrouter.ai')).length, 0);
+  assert.ok(res.body.session, 'a counted complete enquiry should keep the same session for follow-up turns');
 
   const saveCall = loaded.calls.find(c => c.url.includes('rpc/save_public_enquiry'));
   assert.ok(saveCall, 'the quote should still be persisted');

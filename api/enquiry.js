@@ -884,7 +884,54 @@ Your response must follow the supplied JSON schema.
         billingReservation = billingAllowance.reservation;
       }
 
-      try {
+      const currentMessageContact =
+        findPhoneInConversation(`user: ${message}`) ||
+        findEmailInConversation(`user: ${message}`) ||
+        null;
+      const currentMessageJob =
+        findJobDetails(`user: ${message}`) ||
+        (/\b(?:quote|booking|book|appointment|repair|replace|install|installation|maintenance|service|enquiry)\b/i.test(message)
+          ? message.slice(0, 180)
+          : null);
+      const completeDeterministicEnquiry =
+        !looksClearlyOffTopic(message, settings, configuration) &&
+        Boolean(
+          (knownDetails.phone || knownDetails.email || customerAccount?.email) &&
+          knownDetails.job_type &&
+          (currentMessageContact || currentMessageJob)
+        );
+
+      if (completeDeterministicEnquiry) {
+        result = {
+          reply: "",
+          intent: {
+            type: /\bquote\b/i.test(conversationText) ? "quote" : "normal_enquiry",
+            supported: true,
+            requires_human: false,
+            safety_reason: "none",
+            unsupported_reason: "none"
+          },
+          lead: {
+            name: knownDetails.name || null,
+            phone: knownDetails.phone || null,
+            email: knownDetails.email || customerAccount?.email || null,
+            location: knownDetails.location || null,
+            job_type: knownDetails.job_type,
+            description: conversationText.slice(-6000),
+            urgency: null,
+            qualified: true,
+            priority: "Normal",
+            notes: "Captured by Business AI from complete customer details.",
+            handover_required: false
+          }
+        };
+        aiSession = aiSession || aiSessionToken(businessId, clientAddress);
+        logOperationalEvent("enquiry.deterministic_capture", {
+          businessId,
+          has_contact: true,
+          has_job: true
+        });
+      } else try {
         let primaryError = null;
 
         if (OPENAI_API_KEY) {
