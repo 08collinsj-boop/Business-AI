@@ -279,11 +279,18 @@ function findNameInConversation(conversationText) {
 }
 
 function findLocationInConversation(conversationText) {
-  const match = conversationText.match(
+  const value = String(conversationText || "");
+
+  const direct = value.match(
     /(?:i(?:'m| am)|we(?:'re| are)|located|based|live|work)\s+(?:in|near|around|at)\s+([A-Za-z][A-Za-z '-]{2,60})/i
   );
+  if (direct?.[1]) return direct[1].replace(/[,.!?]+$/g, "").trim();
 
-  return match?.[1]?.trim() || null;
+  const serviceLocation = value.match(
+    /\b(?:quote|repair|replace|install|installation|maintenance|service|work|job|booking|appointment)\b[^.!?\n]{0,160}?\b(?:in|near|around)\s+([A-Za-z][A-Za-z '-]{2,60}?)(?=[,.!?]|\s+(?:and\s+)?(?:my|our|with|for|because)\b|$)/i
+  );
+
+  return serviceLocation?.[1]?.trim() || null;
 }
 
 function findJobDetails(conversationText) {
@@ -1051,6 +1058,7 @@ Your response must follow the supplied JSON schema.
     const decision = offTopic ? null : decideAIHandover(mode, result.intent, conversationText, Boolean(lead.handover_required));
     let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : previousHandover || decision);
     let handoverRequired = Boolean(reason);
+    const urgentHandover = ["emergency_or_high_risk", "complaint_or_dispute", "sensitive_or_unusual"].includes(reason);
     const finalLead = {
       name:
         lead.name ||
@@ -1089,7 +1097,7 @@ Your response must follow the supplied JSON schema.
       qualified:
         !offTopic && (result.intent?.supported === true || handoverRequired || deterministicBusinessEnquiry),
 
-      priority: handoverRequired ? "High" : (lead.priority || "Normal"),
+      priority: urgentHandover ? "High" : (lead.priority || "Normal"),
 
       notes:
         handoverRequired

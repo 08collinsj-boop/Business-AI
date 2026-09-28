@@ -22,8 +22,14 @@ for (const mode of modes) {
     assert.equal(decideAIHandover(mode, { ...supported, type: 'basic_faq' }, 'When are you open?'), null);
     assert.equal(decideAIHandover(mode, supported, 'I need a repair'), mode === 'human_first' ? 'human_first_mode' : null);
     assert.equal(decideAIHandover(mode, { ...supported, type: 'booking' }, 'I need an appointment'), mode === 'human_first' ? 'human_first_mode' : null);
-    assert.ok(decideAIHandover(mode, { ...supported, type: 'quote' }, 'Quote for a kitchen rewire'));
-    assert.ok(decideAIHandover(mode, { ...supported, type: 'commitment' }, 'Guarantee tomorrow'));
+    assert.equal(
+      decideAIHandover(mode, { ...supported, type: 'quote' }, 'Quote for a kitchen rewire'),
+      mode === 'human_first' ? 'human_first_mode' : 'quote_or_commitment'
+    );
+    assert.equal(
+      decideAIHandover(mode, { ...supported, type: 'commitment' }, 'Guarantee tomorrow'),
+      mode === 'human_first' ? 'human_first_mode' : 'quote_or_commitment'
+    );
     assert.equal(decideAIHandover(mode, { ...supported, type: 'unsupported', supported: false, unsupported_reason: 'missing_knowledge' }, 'An uncertain detail'), 'ai_uncertain');
     assert.equal(decideAIHandover(mode, { ...supported, type: 'unsupported', supported: false, unsupported_reason: 'off_topic' }, 'What is the capital of France?'), null);
     assert.equal(decideAIHandover(mode, null, 'Missing classification'), 'ai_uncertain');
@@ -102,9 +108,13 @@ test('realistic quote with contact details is captured even when the fallback mo
 
   const saveCall = calls.find(c => c.url.includes('rpc/save_public_enquiry'));
   assert.ok(saveCall);
-  const persisted = JSON.parse(saveCall.options.body).p_lead;
+  const savedRequest = JSON.parse(saveCall.options.body);
+  const persisted = savedRequest.p_lead;
+  assert.equal(savedRequest.p_reason, 'quote_or_commitment');
   assert.equal(persisted.name, 'Alex QA');
   assert.equal(persisted.email, 'alex.qa@example.test');
+  assert.equal(persisted.location, 'Hartlepool');
+  assert.equal(persisted.priority, 'Normal');
   assert.match(persisted.job_type, /quote to replace two indoor sockets in Hartlepool/i);
 });
 
@@ -258,8 +268,11 @@ test('provider outage still captures a quote lead with deterministic customer de
   const saveCall = loaded.calls.find(c => c.url.includes('rpc/save_public_enquiry'));
   assert.ok(saveCall, 'the quote should still be persisted');
   const payload = JSON.parse(saveCall.options.body);
+  assert.equal(payload.p_reason, 'quote_or_commitment');
   assert.equal(payload.p_lead.email, 'alex.qa@example.test');
   assert.match(payload.p_lead.name || '', /Alex QA/i);
+  assert.equal(payload.p_lead.location, 'Hartlepool');
+  assert.equal(payload.p_lead.priority, 'Normal');
   assert.match(payload.p_lead.job_type || '', /quote|replace|socket/i);
   assert.equal(payload.p_lead.qualified, true);
 });
