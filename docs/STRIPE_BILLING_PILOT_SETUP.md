@@ -7,9 +7,9 @@ Applies only to `business-ai-pilot` + Business-AI-Dev. Production must remain un
 | Plan | Price | Stripe type | AI enquiries |
 | --- | ---: | --- | ---: |
 | 7-day Trial | £3.99 | one-time | 100 |
-| Starter | £29/month | recurring | 250 |
-| Pro | £69/month | recurring | 1,000 |
-| Business | £149/month | recurring | 3,000 |
+| Starter | £34.99/month | recurring | 250 |
+| Pro | £79.99/month | recurring | 1,000 |
+| Business | £159.99/month | recurring | 3,000 |
 
 The Trial never silently converts into a subscription.
 

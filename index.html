@@ -4155,7 +4155,7 @@ toast('Business settings saved');
 }
 
 
-const billingPlanPresentation={trial:{name:'Trial',price:'£3.99 / 7 days',detail:'100 AI enquiries · 1 staff account',note:'Ends after seven days. It does not automatically subscribe.'},starter:{name:'Starter',price:'£29 / month',detail:'250 AI enquiries · 2 staff accounts'},pro:{name:'Pro',price:'£69 / month',detail:'1,000 AI enquiries · 5 staff accounts'},business:{name:'Business',price:'£149 / month',detail:'3,000 AI enquiries · 15 staff accounts'}};
+const billingPlanPresentation={trial:{name:'Trial',price:'£3.99 / 7 days',detail:'100 AI enquiries · 1 staff account',note:'Ends after seven days. It does not automatically subscribe.'},starter:{name:'Starter',price:'£34.99 / month',detail:'250 AI enquiries · 2 staff accounts'},pro:{name:'Pro',price:'£79.99 / month',detail:'1,000 AI enquiries · 5 staff accounts'},business:{name:'Business',price:'£159.99 / month',detail:'3,000 AI enquiries · 15 staff accounts'}};
 function renderBilling(){
 const card=$('billingCard');const badge=$('billingPlanBadge');const summary=$('billingSummary');const plans=$('billingPlans');const manage=$('manageBillingButton');const cancel=$('cancelBillingButton');if(!card||!badge||!summary||!plans||!manage||!cancel)return;
 if(authenticatedBusinessRole!=='owner'||!billingState?.entitlements?.enforced){card.hidden=true;return;}
