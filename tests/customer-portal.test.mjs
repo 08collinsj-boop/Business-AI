@@ -112,6 +112,8 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(css, /auth-role-slider/);
   assert.match(css, /transition:transform \.22s/);
   assert.match(css, /customer-portal-ready/);
+  assert.match(css, /\.customer-auth-shell\{[\s\S]{0,240}min-height:0;[\s\S]{0,240}align-items:flex-start;[\s\S]{0,120}justify-content:center;/, 'customer auth shares the same top-anchored composition as business auth');
+  assert.match(css, /\.customer-auth-card\{[\s\S]{0,180}max-width:370px;[\s\S]{0,180}padding:0 4px 28px;/, 'customer auth matches the business auth content width and inset');
   assert.match(script, /bindAuthRoleSwitches/);
   assert.doesNotMatch(script, /window\.location\.assign\(link\.href\)/);
   assert.match(script, /history\.pushState\(\{authRole:'customer'\},'', '\/customer\/account'\)/);

@@ -28,23 +28,23 @@ body.auth-role-transitioning #authScreen,
 body.auth-role-transitioning #customerAuthScreen{opacity:0;transform:translateY(5px)}
 
 .customer-auth-shell{
-  width:min(100%,430px);
-  min-height:100dvh;
-  margin:0 auto;
-  padding:max(38px,calc(env(safe-area-inset-top) + 24px)) 24px max(34px,calc(env(safe-area-inset-bottom) + 24px));
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:0;
   box-sizing:border-box;
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
 }
 .customer-auth-card{
   width:100%;
-  max-width:390px;
+  max-width:370px;
   box-sizing:border-box;
   background:transparent;
   border:0;
   border-radius:0;
-  padding:0;
+  padding:0 4px 28px;
   box-shadow:none;
   animation:customerAuthEnter .22s ease-out both;
 }
@@ -501,8 +501,8 @@ body.customer-account.customer-portal-ready{
 .public-customer-account-note a{color:#2466a4;font-weight:800;text-decoration:none}
 
 @media(max-width:640px){
-  .customer-auth-shell{padding-left:22px;padding-right:22px}
-  .customer-auth-card h1{font-size:28px}
+  .customer-auth-shell{padding-left:0;padding-right:0}
+  .customer-auth-card h1{font-size:29px}
   .customer-portal-shell{padding-left:14px;padding-right:14px}
   .customer-portal-hero{padding:18px}
   .customer-portal-hero h1{font-size:25px}
