@@ -119,11 +119,12 @@ test('owner/onboarding controls save explicitly and retain draft on failure', as
   assert.match(html, /requestSubmit\(\)/);
 });
 
-async function loadWithBilling({ providerFails = false, providerStatus = 500, fallbackSucceeds = false, configurationFails = false } = {}) {
+async function loadWithBilling({ providerFails = false, providerStatus = 500, fallbackSucceeds = false, fallbackFailsOnce = false, configurationFails = false } = {}) {
   process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai';
   if (fallbackSucceeds) process.env.OPENROUTER_API_KEY = 'test-openrouter'; else delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'true'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
+  let openRouterAttempts = 0;
   const account = { business_id: 'business-a', plan: 'starter', status: 'active', current_period_started_at: '2026-09-01T00:00:00.000Z', current_period_ends_at: '2026-10-01T00:00:00.000Z', cancel_at_period_end: false };
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
@@ -139,8 +140,10 @@ async function loadWithBilling({ providerFails = false, providerStatus = 500, fa
       return reply({ output_text: JSON.stringify({ reply: 'Approved answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) });
     }
     if (url.includes('openrouter.ai')) {
+      openRouterAttempts++;
       if (!fallbackSucceeds) return { ok: false, status: 503, text: async () => JSON.stringify({ error: 'fallback failed' }) };
-      return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify({ reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) } }] });
+      if (fallbackFailsOnce && openRouterAttempts === 1) return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: 'not-json' }, finish_reason: 'stop' }] });
+      return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify({ reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) }, finish_reason: 'stop' }] });
     }
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: null });
     throw new Error(`Unexpected call: ${url}`);
@@ -163,13 +166,13 @@ test('one customer AI session consumes one advertised enquiry allowance unit acr
 });
 
 test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowance', async () => {
-  const loaded = await loadWithBilling({ providerFails: true, providerStatus: 429, fallbackSucceeds: true });
+  const loaded = await loadWithBilling({ providerFails: true, providerStatus: 429, fallbackSucceeds: true, fallbackFailsOnce: true });
   const res = response();
   await loaded.handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.29' }, query: { business: 'business-a' }, body: { message: 'Can you help with a repair?' } }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.reply, 'Fallback answer');
   assert.equal(loaded.calls.filter(c => c.url.includes('api.openai.com')).length, 1);
-  assert.equal(loaded.calls.filter(c => c.url.includes('openrouter.ai')).length, 1);
+  assert.equal(loaded.calls.filter(c => c.url.includes('openrouter.ai')).length, 2);
   assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
   assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 0);
   const fallbackBody = JSON.parse(loaded.calls.find(c => c.url.includes('openrouter.ai')).options.body);

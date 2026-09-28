@@ -598,47 +598,85 @@ async function callOpenAIEnquiryModel(systemPrompt, conversation) {
 
 async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
   const requestedModel = "liquid/lfm-2.5-2.6b:free";
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    signal: AbortSignal.timeout(45000),
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: requestedModel,
-      provider: { require_parameters: true },
-      messages: [{ role: "system", content: systemPrompt }, ...conversation],
-      max_tokens: 1200,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "business_enquiry",
-          strict: true,
-          schema: ENQUIRY_RESPONSE_SCHEMA
-        }
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        signal: AbortSignal.timeout(45000),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: requestedModel,
+          provider: { require_parameters: true },
+          messages: [{ role: "system", content: systemPrompt }, ...conversation],
+          max_tokens: 1200,
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "business_enquiry",
+              strict: true,
+              schema: ENQUIRY_RESPONSE_SCHEMA
+            }
+          }
+        })
+      });
+
+      const responseText = await response.text();
+      let data = null;
+      try { data = responseText ? JSON.parse(responseText) : null; } catch {}
+
+      if (!response.ok) {
+        logOperationalEvent("enquiry.ai_fallback_failed", {
+          provider: "openrouter",
+          status: String(response.status),
+          attempt
+        });
+        throw providerError(`OpenRouter request failed: ${response.status}`, response.status);
       }
-    })
-  });
 
-  const responseText = await response.text();
-  let data = null;
-  try { data = responseText ? JSON.parse(responseText) : null; } catch {}
+      const structuredText = extractChatCompletionText(data);
+      if (!structuredText) {
+        logOperationalEvent("enquiry.ai_fallback_empty", {
+          provider: "openrouter",
+          attempt,
+          finish_reason: String(data?.choices?.[0]?.finish_reason || "unknown").slice(0, 80)
+        });
+        throw providerError("OpenRouter returned an empty response");
+      }
 
-  if (!response.ok) {
-    logOperationalEvent("enquiry.ai_fallback_failed", { provider: "openrouter", status: String(response.status) });
-    throw providerError(`OpenRouter request failed: ${response.status}`, response.status);
+      try {
+        const result = JSON.parse(structuredText);
+        logOperationalEvent("enquiry.ai_fallback_succeeded", {
+          provider: "openrouter",
+          model: String(data?.model || requestedModel).slice(0, 120),
+          attempt
+        });
+        return result;
+      } catch {
+        logOperationalEvent("enquiry.ai_fallback_invalid_output", {
+          provider: "openrouter",
+          attempt,
+          finish_reason: String(data?.choices?.[0]?.finish_reason || "unknown").slice(0, 80)
+        });
+        throw providerError("OpenRouter returned invalid structured data");
+      }
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) {
+        logOperationalEvent("enquiry.ai_fallback_retry", {
+          provider: "openrouter",
+          attempt
+        });
+        await sleep(250);
+      }
+    }
   }
 
-  const structuredText = extractChatCompletionText(data);
-  if (!structuredText) throw providerError("OpenRouter returned an empty response");
-  try {
-    const result = JSON.parse(structuredText);
-    logOperationalEvent("enquiry.ai_fallback_succeeded", { provider: "openrouter", model: String(data?.model || requestedModel).slice(0, 120) });
-    return result;
-  } catch {
-    throw providerError("OpenRouter returned invalid structured data");
-  }
+  throw lastError || providerError("OpenRouter fallback failed");
 }
 
 export default async function handler(req, res) {
