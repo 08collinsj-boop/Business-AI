@@ -1278,6 +1278,186 @@ body.public-enquiry .public-customer-footer .public-legal-links a{font-size:8px}
   body.public-enquiry .public-chat-form button{width:48px;height:48px}
 }
 
+
+/* Keep the public assistant inside the mobile viewport; only message history scrolls. */
+@media(max-width:560px){
+  body.public-enquiry{
+    height:100dvh;
+    min-height:100dvh;
+    overflow:hidden;
+  }
+  body.public-enquiry #publicEnquiryScreen{
+    height:100dvh;
+    min-height:0;
+    overflow:hidden;
+  }
+  body.public-enquiry .public-chat-first-shell{
+    height:100dvh;
+    min-height:0;
+    overflow:hidden;
+    padding:max(10px,calc(env(safe-area-inset-top) + 6px)) 14px max(7px,env(safe-area-inset-bottom));
+    gap:8px;
+  }
+  body.public-enquiry .public-assistant-hero{
+    flex:none;
+    grid-template-columns:minmax(0,1fr) 62px;
+    min-height:92px;
+    gap:8px;
+    padding:0 2px;
+  }
+  body.public-enquiry .public-assistant-hero:before{
+    width:220px;
+    height:220px;
+    right:-92px;
+    top:-110px;
+  }
+  body.public-enquiry .public-assistant-hero h1{
+    font-size:23px;
+    line-height:1.02;
+  }
+  body.public-enquiry .public-assistant-hero p{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    overflow:hidden;
+    margin-top:6px;
+    font-size:10px;
+    line-height:1.4;
+  }
+  body.public-enquiry .public-hero-kicker{
+    margin-bottom:4px;
+    font-size:8px;
+  }
+  body.public-enquiry .public-assistant-hero-mascot{
+    width:60px;
+    height:60px;
+  }
+  body.public-enquiry .public-quick-actions-panel{flex:none}
+  body.public-enquiry .public-quick-actions-toggle{
+    min-height:48px;
+    grid-template-columns:34px 1fr 22px;
+    padding:0 12px;
+    border-radius:15px;
+    font-size:11px;
+  }
+  body.public-enquiry .public-quick-actions-grid{
+    width:24px;
+    height:24px;
+    grid-template-columns:repeat(3,3px);
+    grid-auto-rows:3px;
+    gap:3px;
+  }
+  body.public-enquiry .public-quick-actions-grid i{width:3px;height:3px}
+  body.public-enquiry .public-quick-actions-body.open .public-quick-actions-reveal{padding-top:6px}
+  body.public-enquiry .public-quick-action{min-height:58px;font-size:9px}
+  body.public-enquiry .public-quick-action .quick-icon{width:24px;height:24px;font-size:12px}
+  body.public-enquiry .public-business-details{margin-top:5px}
+  body.public-enquiry .public-detail{padding:5px 8px;font-size:8px}
+  body.public-enquiry .public-chat-primary{
+    flex:1 1 0;
+    min-height:0;
+    overflow:hidden;
+    padding:9px;
+    border-radius:18px;
+  }
+  body.public-enquiry .public-chat-heading{
+    flex:none;
+    min-height:44px;
+    gap:8px;
+    padding:0 1px 8px;
+  }
+  body.public-enquiry .public-assistant-avatar{
+    width:36px;
+    height:36px;
+    border-radius:12px;
+  }
+  body.public-enquiry .public-chat-heading-copy strong{font-size:11px}
+  body.public-enquiry .public-chat-heading-copy .public-business-name{margin-top:2px;font-size:9px}
+  body.public-enquiry .public-online-pill{
+    min-height:26px;
+    padding:0 8px;
+    gap:5px;
+    font-size:8px;
+  }
+  body.public-enquiry .public-online-pill i{width:6px;height:6px}
+  body.public-enquiry .public-messages{
+    flex:1 1 0;
+    min-height:0;
+    max-height:none;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    padding:10px 1px 6px 38px;
+  }
+  body.public-enquiry .public-messages .msg{
+    margin-bottom:7px;
+    padding:9px 10px;
+    font-size:11px;
+    line-height:1.42;
+  }
+  body.public-enquiry .public-messages .msg.ai:before{
+    left:-36px;
+    width:28px;
+    height:28px;
+  }
+  body.public-enquiry .public-typing{
+    flex:none;
+    padding:2px 0 4px 38px;
+    font-size:8px;
+  }
+  body.public-enquiry .public-chat-form{
+    position:relative;
+    bottom:auto;
+    flex:none;
+    min-height:52px;
+    margin-top:4px;
+    padding:5px 5px 5px 9px;
+    border-radius:17px;
+  }
+  body.public-enquiry .public-composer-icon{
+    width:20px;
+    font-size:17px;
+  }
+  body.public-enquiry .public-chat-form input{
+    min-height:40px;
+    padding:0 5px;
+    font-size:12px;
+  }
+  body.public-enquiry .public-chat-form button{
+    width:40px;
+    height:40px;
+    font-size:17px;
+  }
+  body.public-enquiry .public-customer-account-note{display:none}
+  body.public-enquiry .public-customer-footer{
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    min-height:20px;
+    padding:0 2px;
+    text-align:center;
+    font-size:7px;
+  }
+  body.public-enquiry .public-footer-lock{display:none}
+  body.public-enquiry .public-customer-footer p{
+    margin:0;
+    max-width:58%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  body.public-enquiry .public-customer-footer p br{display:none}
+  body.public-enquiry .public-customer-footer .public-legal-links{
+    display:flex;
+    grid-column:auto;
+    justify-content:center;
+    gap:6px;
+    margin:0;
+  }
+  body.public-enquiry .public-customer-footer .public-legal-links a{font-size:7px}
+}
+
 /* Owner-app visual system: kept separate from the intentionally light public customer page. */
 :root{--bg:#030b16;--panel:#081523;--panel2:#0b1b2c;--border:#193554;--text:#f6f9ff;--muted:#93a7c3;--blue:#4ba3ff;--accent-blue:#1685ff;--radius:20px}
 body.auth-ready{background:radial-gradient(circle at 85% -8%,rgba(18,102,228,.25),transparent 29rem),linear-gradient(155deg,#061323 0%,#030a13 74%)}

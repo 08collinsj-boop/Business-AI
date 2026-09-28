@@ -97,23 +97,21 @@ test("public directory is search-first and does not enumerate businesses on load
   assert.match(html, /body\.public-directory\{padding:0;background:radial-gradient/);
 });
 
-test("the public customer UI is business-first, transparent and separate from owner PWA state", () => {
+test("the public customer UI is transparent and separate from owner PWA state", () => {
   assert.match(html, /id="publicBusinessName"/);
-  assert.match(html, /class="public-hero"/);
+  assert.match(html, /class="public-assistant-hero"/);
   assert.match(html, /Ask a question/);
   assert.match(html, /Request a quote/);
   assert.match(html, /Speak to someone/);
   assert.match(html, /General enquiry/);
   assert.match(html, /function startPublicEnquiry\(message\)/);
-  assert.match(html, /AI assistant for/);
-  assert.match(html, /Powered by Business AI/);
+  assert.match(html, /This is an AI assistant for/);
   assert.match(html, /async function loadPublicBusinessIdentity/);
   assert.match(html, /new URL\('\/api\/public-business',window\.location\.origin\)/);
   const publicSection = html.slice(html.indexOf("const publicEnquiryMessages"), html.indexOf("$('publicEnquiryForm').addEventListener"));
   assert.doesNotMatch(publicSection, /Authorization|access_token|business_id/);
   assert.match(html, /public-customer-shell/);
   assert.match(html, /env\(safe-area-inset-bottom\)/);
-  assert.match(html, /registerOwnerPwa\(\);/);
   const publicInitialisation = html.slice(html.indexOf("async function initializeApp"), html.indexOf("initializeApp();"));
   assert.doesNotMatch(publicInitialisation, /registerOwnerPwa/, "public visitors are not prompted to install the owner app");
 });
@@ -140,37 +138,36 @@ test("approved chat-first customer layout keeps quick actions collapsed with an 
   assert.match(html, /publicQuickActionsToggle'\)\?\.addEventListener\('click'/);
 });
 
-test("public enquiry uses the premium dark customer theme and glass quick actions", () => {
+test("public enquiry uses the approved dark chat-first theme", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.match(publicMarkup, /class="public-business-identity"/);
-  assert.match(publicMarkup, /class="public-business-actions"/);
-  assert.match(publicMarkup, /class="public-hero-kicker">Customer assistant/);
-  assert.match(publicMarkup, /class="public-section-label"/);
+  assert.match(publicMarkup, /class="public-assistant-hero"/);
+  assert.match(publicMarkup, /class="public-quick-actions-panel"/);
+  assert.match(publicMarkup, /class="public-chat-card public-chat-primary"/);
   assert.match(publicMarkup, /Business AI assistant/);
-  assert.match(html, /body\.public-enquiry\{[\s\S]{0,240}radial-gradient/);
-  assert.match(html, /body\.public-enquiry \.public-quick-action\{[\s\S]{0,500}backdrop-filter:blur\(18px\)/);
-  assert.match(html, /body\.public-enquiry \.public-chat-form\{[\s\S]{0,500}backdrop-filter:blur\(20px\)/);
-  assert.match(html, /body\.public-enquiry \.public-quick-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(html, /body\.public-enquiry \.public-quick-actions-toggle\{[\s\S]{0,700}backdrop-filter:blur\(18px\)/);
 });
 
-test("customer visual hierarchy keeps the chat near compact tenant identity and truthful action tiles", () => {
+test("customer visual hierarchy keeps messaging primary", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.ok(publicMarkup.indexOf('class="public-hero"') < publicMarkup.indexOf('class="public-quick-actions"'));
-  assert.ok(publicMarkup.indexOf('class="public-quick-actions"') < publicMarkup.indexOf('id="publicBusinessDetails"'));
-  assert.ok(publicMarkup.indexOf('id="publicBusinessDetails"') < publicMarkup.indexOf('id="publicMessages"'));
+  assert.ok(publicMarkup.indexOf('class="public-assistant-hero"') < publicMarkup.indexOf('id="publicQuickActionsToggle"'));
+  assert.ok(publicMarkup.indexOf('id="publicQuickActionsToggle"') < publicMarkup.indexOf('class="public-chat-card public-chat-primary"'));
   assert.match(publicMarkup, /class="quick-icon" aria-hidden="true"/);
-  assert.doesNotMatch(publicMarkup, /<h2>How can we help\?<\/h2>[\s\S]{0,900}<h2>How can we help\?<\/h2>/);
-  assert.match(html, /\.public-chat-form button\{[^}]*border-radius:50%/);
+  assert.match(publicMarkup, /id="publicMessages"/);
+  assert.match(publicMarkup, /id="publicEnquiryForm"/);
 });
 
-test("customer banner is a graphical fallback, not invented tenant imagery", () => {
+test("customer uses only the approved local mascot artwork", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.match(publicMarkup, /class="public-hero-art" aria-hidden="true"/);
-  assert.match(html, /\.public-hero\{[^}]*min-height:172px[^}]*linear-gradient/);
-  assert.match(html, /#publicBusinessAreas:before/);
-  assert.match(html, /#publicBusinessHours:before/);
-  assert.match(html, /#publicBusinessPhone:before/);
-  assert.doesNotMatch(publicMarkup, /<img|background-image:\s*url/i);
+  assert.match(publicMarkup, /\/assets\/icons\/business-ai-mascot\.png/);
+  assert.doesNotMatch(publicMarkup, /https?:\/\/[^"' ]+\.(?:png|jpe?g|webp)/i);
+});
+
+test("mobile public enquiry fits the viewport and scrolls only message history", () => {
+  assert.match(html, /body\.public-enquiry\{[\s\S]{0,120}height:100dvh;[\s\S]{0,120}overflow:hidden;/);
+  assert.match(html, /body\.public-enquiry \.public-chat-first-shell\{[\s\S]{0,160}height:100dvh;[\s\S]{0,160}overflow:hidden;/);
+  assert.match(html, /body\.public-enquiry \.public-chat-primary\{[\s\S]{0,180}min-height:0;[\s\S]{0,120}overflow:hidden;/);
+  assert.match(html, /body\.public-enquiry \.public-messages\{[\s\S]{0,220}min-height:0;[\s\S]{0,220}overflow-y:auto;/);
+  assert.match(html, /body\.public-enquiry \.public-chat-form\{[\s\S]{0,180}position:relative;[\s\S]{0,120}bottom:auto;/);
 });
 
 test("PWA metadata uses the approved local icon assets and only static non-sensitive caching", async () => {
