@@ -1058,7 +1058,7 @@ Your response must follow the supplied JSON schema.
     const decision = offTopic ? null : decideAIHandover(mode, result.intent, conversationText, Boolean(lead.handover_required));
     let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : previousHandover || decision);
     let handoverRequired = Boolean(reason);
-    const urgentHandover = ["emergency_or_high_risk", "complaint_or_dispute", "sensitive_or_unusual"].includes(reason);
+    const ordinaryQuoteHandover = reason === "quote_or_commitment";
     const finalLead = {
       name:
         lead.name ||
@@ -1097,7 +1097,7 @@ Your response must follow the supplied JSON schema.
       qualified:
         !offTopic && (result.intent?.supported === true || handoverRequired || deterministicBusinessEnquiry),
 
-      priority: urgentHandover ? "High" : (lead.priority || "Normal"),
+      priority: handoverRequired && !ordinaryQuoteHandover ? "High" : (lead.priority || "Normal"),
 
       notes:
         handoverRequired

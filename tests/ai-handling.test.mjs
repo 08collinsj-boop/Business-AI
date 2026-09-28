@@ -22,14 +22,8 @@ for (const mode of modes) {
     assert.equal(decideAIHandover(mode, { ...supported, type: 'basic_faq' }, 'When are you open?'), null);
     assert.equal(decideAIHandover(mode, supported, 'I need a repair'), mode === 'human_first' ? 'human_first_mode' : null);
     assert.equal(decideAIHandover(mode, { ...supported, type: 'booking' }, 'I need an appointment'), mode === 'human_first' ? 'human_first_mode' : null);
-    assert.equal(
-      decideAIHandover(mode, { ...supported, type: 'quote' }, 'Quote for a kitchen rewire'),
-      mode === 'human_first' ? 'human_first_mode' : 'quote_or_commitment'
-    );
-    assert.equal(
-      decideAIHandover(mode, { ...supported, type: 'commitment' }, 'Guarantee tomorrow'),
-      mode === 'human_first' ? 'human_first_mode' : 'quote_or_commitment'
-    );
+    assert.equal(decideAIHandover(mode, { ...supported, type: 'quote' }, 'Quote for a kitchen rewire'), 'quote_or_commitment');
+    assert.equal(decideAIHandover(mode, { ...supported, type: 'commitment' }, 'Guarantee tomorrow'), 'quote_or_commitment');
     assert.equal(decideAIHandover(mode, { ...supported, type: 'unsupported', supported: false, unsupported_reason: 'missing_knowledge' }, 'An uncertain detail'), 'ai_uncertain');
     assert.equal(decideAIHandover(mode, { ...supported, type: 'unsupported', supported: false, unsupported_reason: 'off_topic' }, 'What is the capital of France?'), null);
     assert.equal(decideAIHandover(mode, null, 'Missing classification'), 'ai_uncertain');
@@ -79,7 +73,7 @@ test('public API uses routed configuration, persists policy metadata and never r
   assert.equal(res.statusCode, 200); assert.equal(res.body.leadCaptured, true); assert.match(res.body.reply, /personal response/);
   assert.ok(calls.find(c => c.url.includes('business_configurations')).url.includes('business_id=eq.business-a'));
   const persisted = JSON.parse(calls.find(c => c.url.includes('rpc/save_public_enquiry')).options.body);
-  assert.equal(persisted.p_business_id, 'business-a'); assert.equal(persisted.p_mode, 'human_first'); assert.equal(persisted.p_reason, 'human_first_mode');
+  assert.equal(persisted.p_business_id, 'business-a'); assert.equal(persisted.p_mode, 'human_first'); assert.equal(persisted.p_reason, 'quote_or_commitment');
   assert.equal(res.body.id, undefined); assert.equal(res.body.business_id, undefined);
   const prompt = JSON.parse(calls.find(c => c.url.includes('api.openai.com')).options.body).instructions;
   assert.match(prompt, /Server-selected handling mode: human_first/);
