@@ -5,30 +5,35 @@ import { readFile, stat } from "node:fs/promises";
 const apiSource = await readFile(new URL("../lib/public-business-handler.js", import.meta.url), "utf8");
 const routeSource = await readFile(new URL("../lib/public-tenant.js", import.meta.url), "utf8");
 const billingSource = await readFile(new URL("../lib/billing.js", import.meta.url), "utf8");
+const legalSource = await readFile(new URL("../lib/legal.js", import.meta.url), "utf8");
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const manifest = JSON.parse(await readFile(new URL("../manifest.webmanifest", import.meta.url), "utf8"));
 const serviceWorker = await readFile(new URL("../sw.js", import.meta.url), "utf8");
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const routeUrl = `data:text/javascript;base64,${Buffer.from(routeSource).toString("base64")}`;
 const billingUrl = `data:text/javascript;base64,${Buffer.from(billingSource).toString("base64")}`;
+const legalUrl = `data:text/javascript;base64,${Buffer.from(legalSource).toString("base64")}`;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
 const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
 
-async function load({ route, settings, configuration = {} } = {}) {
+async function load({ route, settings, configuration = {}, dpaAccepted = true } = {}) {
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   process.env.BILLING_ENABLED = "false";
+  process.env.TENANCY_AUTH_ENABLED = "true";
   const calls = [];
   globalThis.fetch = async (url) => {
     calls.push(url);
     if (url.includes("business_public_routes")) return reply(route ? [route] : []);
     if (url.includes("business_settings")) return reply(settings ? [settings] : []);
     if (url.includes("business_configurations")) return reply([configuration]);
+    if (url.includes("business_legal_acceptances")) return reply(dpaAccepted ? [{ id: 1 }] : []);
     return reply({ hidden: true }, false);
   };
   const source = apiSource
     .replace('from "./public-tenant.js"', `from "${routeUrl}#${Math.random()}"`)
-    .replace('from "./billing.js"', `from "${billingUrl}#${Math.random()}"`);
+    .replace('from "./billing.js"', `from "${billingUrl}#${Math.random()}"`)
+    .replace('from "./legal.js"', `from "${legalUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 
@@ -46,6 +51,19 @@ test("a verified public slug returns only its business-facing identity", { concu
   assert.equal(res.headers["Cache-Control"], "no-store");
   assert.ok(calls.some((url) => url.includes("business_id=eq.business-a")));
   assert.ok(calls.every((url) => !url.includes("business-b")), "request-supplied tenant IDs never affect the lookup");
+});
+
+test("public assistant is unavailable until the business has accepted the current DPA", { concurrency: false }, async () => {
+  const { handler } = await load({
+    route: { business_id: "business-a", route_type: "slug", route_value: "collins-ltd", active: true },
+    settings: { business_name: "Collins LTD.", business_type: "Electrical services", phone: "01234 567890", opening_hours: "Mon–Fri 08:00–18:00", services: "Electrical repairs" },
+    configuration: { description: "Local electrical services", service_areas: "Hartlepool" },
+    dpaAccepted: false
+  });
+  const res = response();
+  await handler({ method: "GET", query: { business: "collins-ltd" } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.business.assistant_available, false);
 });
 
 test("unknown or mismatched public routes fail without tenant disclosure", { concurrency: false }, async () => {
