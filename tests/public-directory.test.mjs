@@ -68,7 +68,7 @@ test('customer portal keeps owner login separate and supports search then direct
   assert.match(html, /id="publicDirectoryScreen"/);
   assert.match(html, /id="publicDirectorySearch"/);
   assert.match(html, /<h2>Search businesses<\/h2>/);
-  assert.match(html, /Customer sign in/);
+  assert.match(html, /Customer<br>sign in/);
   assert.match(html, /Continue as guest/);
   assert.match(html, /new URL\('\/api\/public-businesses'/);
   assert.match(html, /new URL\('\/customer'/);
