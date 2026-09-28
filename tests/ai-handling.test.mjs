@@ -44,7 +44,7 @@ const savedEnv = { ...process.env }, savedFetch = globalThis.fetch;
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 const reply = body => ({ ok: true, text: async () => JSON.stringify(body), json: async () => body });
 async function load(mode, intent = supported) {
-  process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai';
+  process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai'; delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'false'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
   globalThis.fetch = async (url, options = {}) => {
@@ -119,8 +119,9 @@ test('owner/onboarding controls save explicitly and retain draft on failure', as
   assert.match(html, /requestSubmit\(\)/);
 });
 
-async function loadWithBilling({ providerFails = false, configurationFails = false } = {}) {
+async function loadWithBilling({ providerFails = false, providerStatus = 500, fallbackSucceeds = false, configurationFails = false } = {}) {
   process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai';
+  if (fallbackSucceeds) process.env.OPENROUTER_API_KEY = 'test-openrouter'; else delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'true'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
   const account = { business_id: 'business-a', plan: 'starter', status: 'active', current_period_started_at: '2026-09-01T00:00:00.000Z', current_period_ends_at: '2026-10-01T00:00:00.000Z', cancel_at_period_end: false };
@@ -134,8 +135,12 @@ async function loadWithBilling({ providerFails = false, configurationFails = fal
     if (url.includes('consume_billing_ai_enquiry_allowance')) return reply(true);
     if (url.includes('release_billing_ai_enquiry_allowance')) return reply(true);
     if (url.includes('api.openai.com')) {
-      if (providerFails) return { ok: false, status: 500, text: async () => JSON.stringify({ error: 'provider failed' }) };
+      if (providerFails) return { ok: false, status: providerStatus, text: async () => JSON.stringify({ error: 'provider failed' }) };
       return reply({ output_text: JSON.stringify({ reply: 'Approved answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) });
+    }
+    if (url.includes('openrouter.ai')) {
+      if (!fallbackSucceeds) return { ok: false, status: 503, text: async () => JSON.stringify({ error: 'fallback failed' }) };
+      return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify({ reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) } }] });
     }
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: null });
     throw new Error(`Unexpected call: ${url}`);
@@ -155,6 +160,21 @@ test('one customer AI session consumes one advertised enquiry allowance unit acr
   assert.equal(res.statusCode, 200); assert.equal(res.body.session, session);
   assert.equal(calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
   assert.equal(calls.filter(c => c.url.includes('api.openai.com')).length, 2);
+});
+
+test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowance', async () => {
+  const loaded = await loadWithBilling({ providerFails: true, providerStatus: 429, fallbackSucceeds: true });
+  const res = response();
+  await loaded.handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.29' }, query: { business: 'business-a' }, body: { message: 'Can you help with a repair?' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.reply, 'Fallback answer');
+  assert.equal(loaded.calls.filter(c => c.url.includes('api.openai.com')).length, 1);
+  assert.equal(loaded.calls.filter(c => c.url.includes('openrouter.ai')).length, 1);
+  assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
+  assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 0);
+  const fallbackBody = JSON.parse(loaded.calls.find(c => c.url.includes('openrouter.ai')).options.body);
+  assert.equal(fallbackBody.response_format.type, 'json_schema');
+  assert.equal(fallbackBody.provider.require_parameters, true);
 });
 
 test('business configuration failure happens before billing allowance is consumed', async () => {

@@ -1,6 +1,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { sanitizeReceptionistConfiguration, normaliseAIHandlingMode, handlingModeInstructions, decideAIHandover, customerHandoverReason } from "../lib/business-configuration.js";
 import { resolvePublicBusinessRoute } from "../lib/public-tenant.js";
@@ -498,6 +499,148 @@ function extractOutputText(data) {
   return parts.join("\n").trim();
 }
 
+function extractChatCompletionText(data) {
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content.trim();
+  if (!Array.isArray(content)) return "";
+  return content
+    .filter((item) => item?.type === "text" && typeof item?.text === "string")
+    .map((item) => item.text)
+    .join("")
+    .trim();
+}
+
+const ENQUIRY_RESPONSE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    intent: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        type: { type: "string", enum: ["basic_faq", "normal_enquiry", "booking", "quote", "commitment", "unsupported"] },
+        supported: { type: "boolean" },
+        requires_human: { type: "boolean" },
+        safety_reason: { type: "string", enum: ["none", "emergency_or_high_risk", "complaint_or_dispute", "sensitive_or_unusual"] },
+        unsupported_reason: { type: "string", enum: ["none", "off_topic", "missing_knowledge"] }
+      },
+      required: ["type", "supported", "requires_human", "safety_reason", "unsupported_reason"]
+    },
+    reply: { type: "string" },
+    lead: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        name: { type: ["string", "null"] },
+        phone: { type: ["string", "null"] },
+        email: { type: ["string", "null"] },
+        location: { type: ["string", "null"] },
+        job_type: { type: ["string", "null"] },
+        description: { type: ["string", "null"] },
+        urgency: { type: ["string", "null"] },
+        qualified: { type: "boolean" },
+        priority: { type: "string" },
+        notes: { type: ["string", "null"] },
+        handover_required: { type: "boolean" }
+      },
+      required: ["name", "phone", "email", "location", "job_type", "description", "urgency", "qualified", "priority", "notes", "handover_required"]
+    }
+  },
+  required: ["reply", "lead", "intent"]
+};
+
+function providerError(message, status = 0) {
+  const error = new Error(message);
+  error.providerStatus = Number(status) || 0;
+  return error;
+}
+
+async function callOpenAIEnquiryModel(systemPrompt, conversation) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    signal: AbortSignal.timeout(45000),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-5.6-luna",
+      instructions: systemPrompt,
+      input: conversation,
+      text: {
+        format: {
+          type: "json_schema",
+          name: "business_enquiry",
+          strict: true,
+          schema: ENQUIRY_RESPONSE_SCHEMA
+        }
+      }
+    })
+  });
+
+  const responseText = await response.text();
+  let data = null;
+  try { data = responseText ? JSON.parse(responseText) : null; } catch {}
+
+  if (!response.ok) {
+    logOperationalEvent("enquiry.ai_failed", { provider: "openai", status: String(response.status) });
+    throw providerError(`OpenAI request failed: ${response.status}`, response.status);
+  }
+
+  const structuredText = extractOutputText(data);
+  if (!structuredText) throw providerError("OpenAI returned an empty response");
+  try {
+    return JSON.parse(structuredText);
+  } catch {
+    throw providerError("OpenAI returned invalid structured data");
+  }
+}
+
+async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
+  const requestedModel = "liquid/lfm-2.5-2.6b:free";
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    signal: AbortSignal.timeout(45000),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: requestedModel,
+      provider: { require_parameters: true },
+      messages: [{ role: "system", content: systemPrompt }, ...conversation],
+      max_tokens: 1200,
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "business_enquiry",
+          strict: true,
+          schema: ENQUIRY_RESPONSE_SCHEMA
+        }
+      }
+    })
+  });
+
+  const responseText = await response.text();
+  let data = null;
+  try { data = responseText ? JSON.parse(responseText) : null; } catch {}
+
+  if (!response.ok) {
+    logOperationalEvent("enquiry.ai_fallback_failed", { provider: "openrouter", status: String(response.status) });
+    throw providerError(`OpenRouter request failed: ${response.status}`, response.status);
+  }
+
+  const structuredText = extractChatCompletionText(data);
+  if (!structuredText) throw providerError("OpenRouter returned an empty response");
+  try {
+    const result = JSON.parse(structuredText);
+    logOperationalEvent("enquiry.ai_fallback_succeeded", { provider: "openrouter", model: String(data?.model || requestedModel).slice(0, 120) });
+    return result;
+  } catch {
+    throw providerError("OpenRouter returned invalid structured data");
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -506,8 +649,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is not configured");
+    if (!OPENAI_API_KEY && !OPENROUTER_API_KEY) {
+      throw new Error("No enquiry AI provider is configured");
     }
 
     let body;
@@ -687,125 +830,34 @@ Your response must follow the supplied JSON schema.
       }
 
       try {
-        const openAIResponse = await fetch(
-          "https://api.openai.com/v1/responses",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-              model: "gpt-5.6-luna",
-              instructions: systemPrompt,
-              input: conversation,
-              text: {
-                format: {
-                  type: "json_schema",
-                  name: "business_enquiry",
-                  strict: true,
-                  schema: {
-                    type: "object",
-                    additionalProperties: false,
-                    properties: {
-                      intent: {
-                        type: "object", additionalProperties: false,
-                        properties: {
-                          type: { type: "string", enum: ["basic_faq", "normal_enquiry", "booking", "quote", "commitment", "unsupported"] },
-                          supported: { type: "boolean" },
-                          requires_human: { type: "boolean" },
-                          safety_reason: { type: "string", enum: ["none", "emergency_or_high_risk", "complaint_or_dispute", "sensitive_or_unusual"] },
-                          unsupported_reason: { type: "string", enum: ["none", "off_topic", "missing_knowledge"] }
-                        }, required: ["type", "supported", "requires_human", "safety_reason", "unsupported_reason"]
-                      },
-                      reply: {
-                        type: "string"
-                      },
-                      lead: {
-                        type: "object",
-                        additionalProperties: false,
-                        properties: {
-                          name: {
-                            type: ["string", "null"]
-                          },
-                          phone: {
-                            type: ["string", "null"]
-                          },
-                          email: {
-                            type: ["string", "null"]
-                          },
-                          location: {
-                            type: ["string", "null"]
-                          },
-                          job_type: {
-                            type: ["string", "null"]
-                          },
-                          description: {
-                            type: ["string", "null"]
-                          },
-                          urgency: {
-                            type: ["string", "null"]
-                          },
-                          qualified: {
-                            type: "boolean"
-                          },
-                          priority: {
-                            type: "string"
-                          },
-                          notes: {
-                            type: ["string", "null"]
-                          },
-                          handover_required: {
-                            type: "boolean"
-                          }
-                        },
-                        required: [
-                          "name",
-                          "phone",
-                          "email",
-                          "location",
-                          "job_type",
-                          "description",
-                          "urgency",
-                          "qualified",
-                          "priority",
-                          "notes",
-                          "handover_required"
-                        ]
-                      }
-                    },
-                    required: [
-                      "reply",
-                      "lead",
-                      "intent"
-                    ]
-                  }
-                }
-              }
-            })
+        let primaryError = null;
+
+        if (OPENAI_API_KEY) {
+          try {
+            result = await callOpenAIEnquiryModel(systemPrompt, conversation);
+          } catch (error) {
+            primaryError = error;
           }
-        );
-
-        const responseText = await openAIResponse.text();
-        let data;
-        try {
-          data = responseText ? JSON.parse(responseText) : null;
-        } catch {
-          data = null;
+        } else {
+          primaryError = providerError("OpenAI is not configured");
         }
 
-        if (!openAIResponse.ok) {
-          logOperationalEvent("enquiry.ai_failed", { status: String(openAIResponse.status) });
-          throw new Error(`OpenAI request failed: ${openAIResponse.status}`);
+        if (!result) {
+          const status = Number(primaryError?.providerStatus) || 0;
+          const fallbackAllowed =
+            Boolean(OPENROUTER_API_KEY) &&
+            (!OPENAI_API_KEY || status === 0 || status === 429 || status >= 500);
+
+          if (!fallbackAllowed) throw primaryError;
+
+          logOperationalEvent("enquiry.ai_fallback_started", {
+            primary_provider: "openai",
+            primary_status: status ? String(status) : "unavailable"
+          });
+
+          result = await callOpenRouterEnquiryModel(systemPrompt, conversation);
         }
 
-        const structuredText = extractOutputText(data);
-        if (!structuredText) throw new Error("OpenAI returned an empty response");
-        try {
-          result = JSON.parse(structuredText);
-        } catch {
-          throw new Error("AI returned invalid structured data");
-        }
         aiSession = aiSession || aiSessionToken(businessId, clientAddress);
       } catch (error) {
         // A failed provider/structured response must not consume paid allowance.
