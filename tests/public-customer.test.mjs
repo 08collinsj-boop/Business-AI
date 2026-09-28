@@ -71,6 +71,18 @@ test("different public routes keep customer branding isolated between businesses
   assert.equal("business_id" in res.body.business, false);
 });
 
+test("public directory matches the approved mascot-led reference while keeping search real", () => {
+  const directoryMarkup = html.slice(html.indexOf('<main id="publicDirectoryScreen"'), html.indexOf('<main id="publicEnquiryScreen"'));
+  assert.match(directoryMarkup, /class="public-directory-brand-mark"/);
+  assert.match(directoryMarkup, /business-ai-mascot\.png/);
+  assert.match(directoryMarkup, /class="public-directory-account-switch"/);
+  assert.match(directoryMarkup, /<h2>Search businesses<\/h2>/);
+  assert.match(directoryMarkup, /class="public-directory-hero-mascot"/);
+  assert.match(directoryMarkup, /class="public-directory-search-types"/);
+  assert.match(html, /\.public-directory-reference-hero\{[\s\S]{0,520}border:1px solid #2a6eaf/);
+  assert.match(html, /\.public-directory-reference-search input\{[\s\S]{0,260}min-height:66px[\s\S]{0,260}border:2px solid #2a8cf2/);
+});
+
 test("public directory is search-first and does not enumerate businesses on load", () => {
   const directoryMarkup = html.slice(html.indexOf('<main id="publicDirectoryScreen"'), html.indexOf('<main id="publicEnquiryScreen"'));
   const directoryScript = html.slice(html.indexOf('let publicDirectoryBusinesses=[];'), html.indexOf('const publicEnquiryMessages=[];'));

@@ -1475,6 +1475,55 @@ body.public-directory #publicDirectoryScreen{display:block}
 .public-directory-empty{padding:20px 16px;border:1px dashed #193957;border-radius:15px;background:#071522;color:#71869b;text-align:center;font-size:11px;line-height:1.5}.public-directory-footer{margin-top:auto;padding:6px 8px;text-align:center;color:#51677e;font-size:9px;line-height:1.45}.public-directory-footer a{color:#5ca7f7}
 @media(max-width:560px){.public-directory-shell{padding-left:18px;padding-right:18px}.public-directory-header{align-items:flex-start}.public-directory-actions{gap:6px}.public-directory-owner-link{min-height:33px;padding:0 9px;font-size:9px}.public-directory-brand h1{font-size:16px}.public-directory-hero{padding:20px}.public-directory-hero h2{font-size:27px}.public-directory-card{grid-template-columns:40px minmax(0,1fr)}.public-directory-mark{width:40px;height:40px}.public-directory-open{grid-column:2;justify-self:start;width:auto}.public-find-another{font-size:10px}}
 
+
+/* Approved customer directory reference design. */
+body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,255,.2),transparent 31rem),linear-gradient(165deg,#061528 0%,#030b16 62%,#02070d 100%)}
+.public-directory-reference{width:min(100%,720px);gap:22px;padding:max(28px,calc(env(safe-area-inset-top) + 22px)) 18px max(28px,calc(env(safe-area-inset-bottom) + 20px))}
+.public-directory-reference .public-directory-header{align-items:center;gap:18px}
+.public-directory-reference .public-directory-brand{gap:12px}
+.public-directory-brand-mark{width:58px;height:58px;flex:none;display:grid;place-items:center;border:1px solid #2e91fa;border-radius:18px;background:linear-gradient(145deg,#0d3762,#071421);box-shadow:0 0 26px rgba(41,143,255,.25),inset 0 1px 0 rgba(255,255,255,.04);overflow:hidden}
+.public-directory-brand-mark img{width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 0 12px rgba(38,145,255,.45))}
+.public-directory-reference .public-directory-brand h1{margin:0;color:#f9fbff;font-size:22px;line-height:1;letter-spacing:-.65px}
+.public-directory-reference .public-directory-brand p{margin:5px 0 0;color:#7992ae;font-size:12px}
+.public-directory-account-switch{margin-left:auto;display:grid;grid-template-columns:1fr 1fr;min-width:260px;padding:6px;border:1px solid #224b75;border-radius:18px;background:rgba(5,19,33,.76);box-shadow:inset 0 1px 0 rgba(255,255,255,.025);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.public-directory-account-option{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 12px;border-radius:14px;color:#dce9f7;text-decoration:none;font-size:10px;font-weight:800;line-height:1.25}
+.public-directory-account-option.active{border:1px solid #2f90f8;background:linear-gradient(135deg,#176fd9,#135cad);box-shadow:0 8px 22px rgba(22,111,226,.2)}
+.public-directory-account-icon{color:#90c8ff;font-size:16px}
+.public-directory-reference-hero{display:grid;grid-template-columns:minmax(0,1fr) 190px;grid-template-areas:"copy mascot" "search search" "hint hint";align-items:center;gap:10px 18px;min-height:330px;padding:32px 28px 24px;border:1px solid #2a6eaf;border-radius:27px;background:linear-gradient(145deg,rgba(10,37,65,.97),rgba(5,20,35,.98));box-shadow:0 24px 60px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)}
+.public-directory-reference-hero:before{inset:auto -70px -115px auto;width:360px;height:360px;background:radial-gradient(circle,rgba(47,142,255,.22),transparent 66%)}
+.public-directory-hero-copy{grid-area:copy;position:relative;z-index:2;min-width:0}
+.public-directory-reference-hero .public-directory-kicker{margin-bottom:9px;color:#67afff;font-size:10px;letter-spacing:.18em}
+.public-directory-reference-hero h2{font-size:39px;line-height:.98;letter-spacing:-1.55px}
+.public-directory-reference-hero> .public-directory-hero-copy p{max-width:430px;margin:14px 0 0;color:#8fa8c2;font-size:14px;line-height:1.55}
+.public-directory-hero-mascot{grid-area:mascot;align-self:end;justify-self:end;width:185px;height:185px;display:grid;place-items:center;overflow:visible;transform:translate(24px,22px)}
+.public-directory-hero-mascot img{width:130%;height:130%;object-fit:contain;filter:drop-shadow(0 0 24px rgba(37,141,255,.5))}
+.public-directory-reference-search{grid-area:search;z-index:3;margin-top:10px}
+.public-directory-reference-search input{min-height:66px;border:2px solid #2a8cf2;border-radius:20px;background:rgba(5,20,34,.9);padding-left:52px;color:#f8fbff;font-size:16px;box-shadow:0 0 0 1px rgba(79,166,255,.05),inset 0 1px 0 rgba(255,255,255,.02)}
+.public-directory-reference-search .public-directory-search-icon{left:18px;color:#82bfff;font-size:23px}
+.public-directory-reference-search input:focus{border-color:#43a4ff;background:#071827;box-shadow:0 0 0 4px rgba(47,141,246,.12),0 0 30px rgba(38,137,255,.12)}
+.public-directory-reference-hero .public-directory-search-hint{grid-area:hint;margin:2px 3px 0!important;color:#58718b!important;font-size:9px!important}
+.public-directory-search-types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.public-directory-search-types span{min-height:50px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #1e4770;border-radius:16px;background:rgba(6,23,39,.75);color:#9ab0c7;font-size:10px;font-weight:750;box-shadow:inset 0 1px 0 rgba(255,255,255,.02);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.public-directory-search-types b{color:#49a4ff;font-size:15px}
+.public-directory-reference-prompt{display:flex;align-items:center;justify-content:center;gap:15px;min-height:100px;padding:18px 22px;border:1px dashed #23517d;border-radius:22px;background:rgba(6,22,37,.58);text-align:left}
+.public-directory-prompt-icon{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;background:#0c2947;color:#87c1ff;font-size:22px;box-shadow:0 0 18px rgba(38,139,255,.08)}
+.public-directory-reference-prompt strong{display:block;color:#eaf4ff;font-size:12px}
+.public-directory-reference-prompt p{margin:5px 0 0;color:#6d849b;font-size:10px}
+.public-directory-reference .public-directory-results-panel{gap:12px}
+.public-directory-reference .public-directory-card{border-color:#1e4770;background:linear-gradient(145deg,rgba(10,29,48,.96),rgba(5,17,29,.98));border-radius:18px}
+@media(max-width:620px){
+  .public-directory-reference{gap:18px;padding-left:16px;padding-right:16px}
+  .public-directory-reference .public-directory-header{display:grid;grid-template-columns:1fr}
+  .public-directory-account-switch{margin:0;width:100%;min-width:0}
+  .public-directory-reference-hero{grid-template-columns:minmax(0,1fr) 112px;min-height:300px;padding:26px 20px 20px}
+  .public-directory-reference-hero h2{font-size:34px}
+  .public-directory-reference-hero> .public-directory-hero-copy p{font-size:13px}
+  .public-directory-hero-mascot{width:120px;height:120px;transform:translate(17px,18px)}
+  .public-directory-reference-search input{min-height:60px;font-size:15px}
+  .public-directory-search-types{gap:7px}
+  .public-directory-search-types span{min-height:46px;font-size:9px}
+}
+
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 <link rel="stylesheet" href="/assets/customer-portal.css">
@@ -1679,27 +1728,49 @@ body.public-directory #publicDirectoryScreen{display:block}
 </main>
 
 <main id="publicDirectoryScreen" class="auth-screen" aria-live="polite">
-<section class="public-directory-shell">
+<section class="public-directory-shell public-directory-reference">
 <header class="public-directory-header">
-<div class="public-directory-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><p class="public-eyebrow">Business AI</p><h1>Customer directory</h1></div></div>
-<nav class="public-directory-actions" aria-label="Directory account links"><a class="public-directory-owner-link" data-customer-account-link href="/customer/account">Customer sign in</a><a class="public-directory-owner-link" href="/">Business login</a></nav>
+<div class="public-directory-brand">
+<div class="public-directory-brand-mark" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
+<div><h1>Business AI</h1><p>Customer directory</p></div>
+</div>
+<nav class="public-directory-account-switch" aria-label="Directory account links">
+<a class="public-directory-account-option active" data-customer-account-link href="/customer/account"><span class="public-directory-account-icon" aria-hidden="true">◯</span><span>Customer<br>sign in</span></a>
+<a class="public-directory-account-option" href="/"><span class="public-directory-account-icon" aria-hidden="true">▣</span><span>Business<br>login</span></a>
+</nav>
 </header>
-<section class="public-directory-hero">
-<span class="public-directory-kicker">Business search</span>
-<h2>Find a business</h2>
-<p>Search by business name, service or area. Matching businesses appear as you type.</p>
-<form id="publicDirectoryForm" class="public-directory-search" role="search">
+
+<section class="public-directory-hero public-directory-reference-hero">
+<div class="public-directory-hero-copy">
+<span class="public-directory-kicker">Find a business</span>
+<h2>Search businesses</h2>
+<p>Find and message businesses on Business AI. Start typing a business name, service or area.</p>
+</div>
+<div class="public-directory-hero-mascot" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
+<form id="publicDirectoryForm" class="public-directory-search public-directory-reference-search" role="search">
 <span class="public-directory-search-icon" aria-hidden="true">⌕</span>
-<input id="publicDirectorySearch" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" placeholder="Search businesses, services or areas" aria-label="Search businesses">
+<input id="publicDirectorySearch" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" placeholder="Search businesses, services or areas…" aria-label="Search businesses">
 <button class="public-directory-search-submit" type="submit">Search</button>
 </form>
-<p class="public-directory-search-hint">Type at least 2 characters to search.</p>
+<p class="public-directory-search-hint">Search by business name, service or area.</p>
 </section>
-<div id="publicDirectoryPrompt" class="public-directory-prompt">Start typing to find a business on Business AI.</div>
+
+<div class="public-directory-search-types" aria-label="Search types">
+<span><b aria-hidden="true">⌖</b> Business name</span>
+<span><b aria-hidden="true">✦</b> Services</span>
+<span><b aria-hidden="true">◇</b> Areas</span>
+</div>
+
+<div id="publicDirectoryPrompt" class="public-directory-prompt public-directory-reference-prompt">
+<span class="public-directory-prompt-icon" aria-hidden="true">⌕</span>
+<div><strong>Start typing to find a business</strong><p>Matching businesses will appear as you type.</p></div>
+</div>
+
 <section id="publicDirectoryResultsPanel" class="public-directory-results-panel" hidden>
 <div class="public-directory-section-head"><div><h3>Search results</h3><p id="publicDirectoryStatus"></p></div></div>
 <div id="publicDirectoryResults" class="public-directory-results"></div>
 </section>
+
 <footer class="public-directory-footer">Only businesses with an active public Business AI page can appear in search. <a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a></footer>
 </section>
 </main>
