@@ -979,6 +979,76 @@ margin-top:0
 
 }
 
+
+/* Premium public customer enquiry theme. */
+body.public-enquiry{padding:0;background:radial-gradient(circle at 50% -10%,rgba(32,126,255,.18),transparent 28rem),linear-gradient(160deg,#061528 0%,#030b16 58%,#02070d 100%);color:#f5f9ff}
+body.public-enquiry #publicEnquiryScreen{background:transparent}
+body.public-enquiry .public-customer-shell{width:min(100%,720px);padding:max(24px,calc(env(safe-area-inset-top) + 18px)) 18px max(28px,calc(env(safe-area-inset-bottom) + 20px));gap:16px}
+body.public-enquiry .public-business-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 2px}
+.public-business-identity{display:flex;align-items:center;gap:12px;min-width:0}.public-business-copy{min-width:0}
+body.public-enquiry .public-business-mark{width:50px;height:50px;border:1px solid #2a78d7;border-radius:16px;background:linear-gradient(145deg,#173f70,#07182b);color:#eaf5ff;box-shadow:0 0 24px rgba(39,137,255,.2);font-size:15px}
+body.public-enquiry .public-eyebrow{margin:0 0 3px;color:#6984a4;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+body.public-enquiry .public-business-name{margin:0;color:#f8fbff;font-size:20px;line-height:1.08;letter-spacing:-.6px}
+body.public-enquiry .public-business-type{margin:4px 0 0;color:#8196ad;font-size:11px}
+.public-business-actions{display:flex;gap:7px;align-items:center;flex:none}
+body.public-enquiry .public-find-another{margin:0;min-height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid #1c3c5b;border-radius:11px;background:rgba(7,21,34,.78);color:#69adff;font-size:9px;font-weight:800;text-decoration:none}
+body.public-enquiry .public-hero{min-height:0;border:1px solid #1c4d7c;border-radius:23px;padding:22px;background:linear-gradient(145deg,rgba(12,44,76,.98),rgba(7,26,46,.98));box-shadow:0 22px 55px rgba(0,0,0,.24)}
+body.public-enquiry .public-hero:before{width:220px;height:220px;right:-95px;top:-128px;border-color:rgba(116,183,255,.13)}
+body.public-enquiry .public-hero:after{width:135px;height:135px;right:18px;bottom:-92px;border-color:rgba(116,183,255,.12)}
+body.public-enquiry .public-hero-art{opacity:.22;background:radial-gradient(circle at 82% 22%,rgba(58,151,255,.38),transparent 26%),repeating-linear-gradient(135deg,transparent 0 22px,rgba(107,175,255,.07) 22px 23px)}
+.public-hero-kicker{display:block;margin-bottom:7px;color:#65adff;font-size:9px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}
+body.public-enquiry .public-hero h2{color:#fff;font-size:29px;letter-spacing:-1px;line-height:1.04}
+body.public-enquiry .public-hero p{display:block;-webkit-line-clamp:unset;margin-top:9px;max-width:570px;color:#a9bdd2;font-size:13px;line-height:1.5}
+.public-section-label{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:0 2px}.public-section-label span{color:#eaf3fd;font-size:12px;font-weight:800}.public-section-label small{color:#607891;font-size:9px}
+body.public-enquiry .public-quick-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+body.public-enquiry .public-quick-action{position:relative;overflow:hidden;min-height:88px;border:1px solid rgba(105,173,255,.18);border-radius:17px;background:linear-gradient(145deg,rgba(21,48,75,.72),rgba(8,24,39,.66));color:#edf6ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 28px rgba(0,0,0,.14);backdrop-filter:blur(18px) saturate(135%);-webkit-backdrop-filter:blur(18px) saturate(135%);padding:12px 8px 11px;gap:8px;font-size:10px;font-weight:800;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+body.public-enquiry .public-quick-action:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(82,161,255,.08),transparent 42%);pointer-events:none}
+body.public-enquiry .public-quick-action .quick-icon{position:relative;width:30px;height:30px;border:1px solid rgba(100,171,255,.18);border-radius:10px;background:rgba(48,129,224,.14);color:#69adff;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+body.public-enquiry .public-quick-action>span:last-child{position:relative}
+body.public-enquiry .public-quick-action:active{transform:scale(.975);background:rgba(23,52,82,.82)}
+body.public-enquiry .public-business-details{gap:7px}
+body.public-enquiry .public-detail{padding:7px 10px;border:1px solid rgba(91,151,214,.18);border-radius:999px;background:rgba(10,28,45,.7);color:#8fa5bd;box-shadow:inset 0 1px 0 rgba(255,255,255,.02);font-size:9px}
+body.public-enquiry .public-detail.has-content:before{color:#58a7ff}
+body.public-enquiry .public-chat-card{flex:none;min-height:0;padding:14px;border:1px solid #173653;border-radius:22px;background:linear-gradient(145deg,rgba(9,26,43,.94),rgba(5,16,28,.96));box-shadow:0 18px 45px rgba(0,0,0,.2)}
+body.public-enquiry .public-chat-heading{display:flex;align-items:center;gap:10px;padding:1px 2px 12px;border-bottom:1px solid rgba(77,122,168,.12)}
+body.public-enquiry .public-assistant-dot{width:34px;height:34px;flex:none;border:1px solid #245b91;border-radius:12px;background:#0b2948 url('/assets/icons/business-ai-mascot.png') center/80% no-repeat;box-shadow:0 0 18px rgba(41,139,255,.14)}
+body.public-enquiry .public-chat-heading strong{display:block;color:#edf6ff;font-size:11px}
+body.public-enquiry .public-chat-heading p{margin:2px 0 0;color:#71879e;font-size:9px;line-height:1.4}
+body.public-enquiry .public-messages{min-height:190px;max-height:390px;padding:14px 1px 4px 42px}
+body.public-enquiry .public-messages .msg{max-width:min(88%,520px);padding:11px 13px;margin-bottom:10px;border-radius:15px;font-size:12px;line-height:1.48}
+body.public-enquiry .public-messages .msg.ai{border:1px solid #1b3d5b;background:rgba(12,34,54,.92);color:#dbe8f5;border-bottom-left-radius:5px}
+body.public-enquiry .public-messages .msg.ai:before{left:-39px;width:30px;height:30px;border:1px solid #245b91;background:#0b2948 url('/assets/icons/business-ai-mascot.png') center/80% no-repeat;box-shadow:0 0 16px rgba(41,139,255,.16)}
+body.public-enquiry .public-messages .msg.ai:after{display:none}
+body.public-enquiry .public-messages .msg.user{margin-left:auto;background:linear-gradient(135deg,#2585f3,#176bd6);color:#fff;box-shadow:0 9px 22px rgba(23,111,232,.16)}
+body.public-enquiry .public-typing{color:#6f849a;padding-left:42px;font-size:10px}
+body.public-enquiry .public-chat-form{position:sticky;bottom:max(8px,env(safe-area-inset-bottom));z-index:4;gap:7px;align-items:center;margin-top:8px;padding:7px;border:1px solid #1d405f;border-radius:18px;background:rgba(5,17,29,.86);box-shadow:0 14px 36px rgba(0,0,0,.28);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%)}
+body.public-enquiry .public-chat-form input{min-height:44px;padding:0 12px;border:0;border-radius:13px;background:transparent;color:#f6f9fd;box-shadow:none;font-size:14px}
+body.public-enquiry .public-chat-form input::placeholder{color:#60748b}
+body.public-enquiry .public-chat-form input:focus{border:0;box-shadow:none}
+body.public-enquiry .public-chat-form button{width:44px;height:44px;border:1px solid #3a92f7;background:linear-gradient(135deg,#2d8bf4,#176bd6);box-shadow:0 8px 20px rgba(23,111,232,.26);font-size:17px}
+body.public-enquiry .public-chat-card>.small-btn{width:100%;min-height:42px;margin-top:9px;border:1px solid #1c3f5f;border-radius:13px;background:#081725;color:#b6c8da;font-size:10px;font-weight:800}
+body.public-enquiry .public-customer-account-note{margin:10px 0 0;padding:10px 11px;border:1px solid #173958;border-radius:13px;background:rgba(7,21,34,.72);color:#72879d;font-size:9px}
+body.public-enquiry .public-customer-account-note a{color:#64aaff}
+body.public-enquiry .public-link-privacy{margin:9px 2px 0;color:#526a82;font-size:8px;line-height:1.45}
+body.public-enquiry .public-link-privacy a{color:#5b99db}
+body.public-enquiry .public-customer-error{color:#ff8f9f}
+body.public-enquiry .public-customer-footer{padding:3px 10px 0;color:#536b83;font-size:8px}
+body.public-enquiry .public-customer-footer strong{color:#7990a7}
+body.public-enquiry .public-legal-links a{color:#5b99db}
+@media(max-width:560px){
+body.public-enquiry .public-customer-shell{padding-left:16px;padding-right:16px;gap:14px}
+body.public-enquiry .public-business-header{align-items:flex-start;flex-direction:column}
+.public-business-actions{width:100%;justify-content:flex-start}
+body.public-enquiry .public-find-another{flex:1;min-height:36px}
+body.public-enquiry .public-hero{padding:20px;border-radius:21px}
+body.public-enquiry .public-hero h2{font-size:27px}
+body.public-enquiry .public-quick-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+body.public-enquiry .public-quick-action{min-height:82px}
+body.public-enquiry .public-chat-card{padding:12px}
+body.public-enquiry .public-messages{min-height:175px;padding-left:39px}
+body.public-enquiry .public-chat-form{bottom:max(6px,env(safe-area-inset-bottom))}
+}
+
 /* Owner-app visual system: kept separate from the intentionally light public customer page. */
 :root{--bg:#030b16;--panel:#081523;--panel2:#0b1b2c;--border:#193554;--text:#f6f9ff;--muted:#93a7c3;--blue:#4ba3ff;--accent-blue:#1685ff;--radius:20px}
 body.auth-ready{background:radial-gradient(circle at 85% -8%,rgba(18,102,228,.25),transparent 29rem),linear-gradient(155deg,#061323 0%,#030a13 74%)}
@@ -1408,21 +1478,25 @@ body.public-directory #publicDirectoryScreen{display:block}
 <main id="publicEnquiryScreen" class="auth-screen" aria-live="polite">
 <section class="public-customer-shell">
 <header class="public-business-header">
+<div class="public-business-identity">
 <div id="publicBusinessMark" class="public-business-mark" aria-hidden="true">B</div>
-<div>
+<div class="public-business-copy">
 <p class="public-eyebrow">AI assistant for</p>
 <h1 id="publicBusinessName" class="public-business-name">Business enquiry</h1>
 <p id="publicBusinessType" class="public-business-type">Loading business details…</p>
 </div>
-<div style="margin-left:auto;display:flex;gap:10px;align-items:center"><a class="public-find-another" data-customer-account-link href="/customer/account">Customer sign in</a><a class="public-find-another" href="/customer">Find another business</a></div>
+</div>
+<nav class="public-business-actions" aria-label="Customer links"><a class="public-find-another" data-customer-account-link href="/customer/account">My enquiries</a><a class="public-find-another" href="/customer">Find a business</a></nav>
 </header>
 <section class="public-hero" aria-label="Customer enquiry introduction">
 <div class="public-hero-art" aria-hidden="true"></div>
 <div class="public-hero-content">
+<span class="public-hero-kicker">Customer assistant</span>
 <h2>How can we help?</h2>
 <p id="publicHeroDescription">Ask a question, request a quote or tell us what you need. Our AI assistant will collect the details for the business.</p>
 </div>
 </section>
+<div class="public-section-label"><span>Popular requests</span><small>Choose one to get started</small></div>
 <div class="public-quick-actions" aria-label="Start an enquiry">
 <button class="public-quick-action" type="button" onclick="startPublicEnquiry('I have a question.')"><span class="quick-icon" aria-hidden="true">?</span><span>Ask a question</span></button>
 <button class="public-quick-action" type="button" onclick="startPublicEnquiry('I would like to request a quote.')"><span class="quick-icon" aria-hidden="true">£</span><span>Request a quote</span></button>
@@ -1433,7 +1507,7 @@ body.public-directory #publicDirectoryScreen{display:block}
 <span id="publicBusinessServices" class="public-detail"></span><span id="publicBusinessAreas" class="public-detail"></span><span id="publicBusinessHours" class="public-detail"></span><span id="publicBusinessPhone" class="public-detail"></span>
 </div>
 <section class="public-chat-card" aria-label="Customer enquiry">
-<div class="public-chat-heading"><span class="public-assistant-dot" aria-hidden="true"></span><div><p id="publicBusinessIntro">Tell us what you need. This AI assistant will pass your enquiry to the business.</p></div></div>
+<div class="public-chat-heading"><span class="public-assistant-dot" aria-hidden="true"></span><div><strong>Business AI assistant</strong><p id="publicBusinessIntro">Tell us what you need. This AI assistant will pass your enquiry to the business.</p></div></div>
 <div id="publicMessages" class="public-messages"></div>
 <div id="publicTyping" class="public-typing" role="status" aria-live="polite"><i aria-hidden="true"></i>Assistant is preparing a response…</div>
 <form id="publicEnquiryForm" class="public-chat-form">

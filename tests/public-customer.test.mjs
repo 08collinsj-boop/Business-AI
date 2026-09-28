@@ -113,6 +113,19 @@ test("public quick actions only guide the existing public conversation", () => {
   assert.match(html, /This is an AI assistant for/);
 });
 
+test("public enquiry uses the premium dark customer theme and glass quick actions", () => {
+  const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
+  assert.match(publicMarkup, /class="public-business-identity"/);
+  assert.match(publicMarkup, /class="public-business-actions"/);
+  assert.match(publicMarkup, /class="public-hero-kicker">Customer assistant/);
+  assert.match(publicMarkup, /class="public-section-label"/);
+  assert.match(publicMarkup, /Business AI assistant/);
+  assert.match(html, /body\.public-enquiry\{[\s\S]{0,240}radial-gradient/);
+  assert.match(html, /body\.public-enquiry \.public-quick-action\{[\s\S]{0,500}backdrop-filter:blur\(18px\)/);
+  assert.match(html, /body\.public-enquiry \.public-chat-form\{[\s\S]{0,500}backdrop-filter:blur\(20px\)/);
+  assert.match(html, /body\.public-enquiry \.public-quick-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+
 test("customer visual hierarchy keeps the chat near compact tenant identity and truthful action tiles", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
   assert.ok(publicMarkup.indexOf('class="public-hero"') < publicMarkup.indexOf('class="public-quick-actions"'));
