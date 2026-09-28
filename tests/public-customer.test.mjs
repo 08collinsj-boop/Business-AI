@@ -113,6 +113,21 @@ test("public quick actions only guide the existing public conversation", () => {
   assert.match(html, /This is an AI assistant for/);
 });
 
+test("approved chat-first customer layout keeps quick actions collapsed with an animated reveal", () => {
+  const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
+  assert.match(publicMarkup, /<h1>Business AI assistant<\/h1>/);
+  assert.match(publicMarkup, /id="publicQuickActionsToggle"/);
+  assert.match(publicMarkup, /aria-expanded="false"/);
+  assert.match(publicMarkup, /id="publicQuickActionsBody" class="public-quick-actions-body" aria-hidden="true"/);
+  assert.match(publicMarkup, /class="public-chat-card public-chat-primary"/);
+  assert.match(publicMarkup, /class="public-online-pill"/);
+  assert.match(publicMarkup, /class="public-composer-icon"/);
+  assert.match(html, /\.public-quick-actions-body\{[\s\S]{0,360}grid-template-rows:0fr[\s\S]{0,360}transition:grid-template-rows/);
+  assert.match(html, /\.public-quick-actions-body\.open\{[\s\S]{0,180}grid-template-rows:1fr/);
+  assert.match(html, /function setPublicQuickActions\(open\)/);
+  assert.match(html, /publicQuickActionsToggle'\)\?\.addEventListener\('click'/);
+});
+
 test("public enquiry uses the premium dark customer theme and glass quick actions", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
   assert.match(publicMarkup, /class="public-business-identity"/);
