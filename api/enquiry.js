@@ -371,6 +371,13 @@ function scopeTokens(value) {
 function looksClearlyOffTopic(message, settings, configuration) {
   const value = String(message || "").trim();
   if (!value || customerHandoverReason(value)) return false;
+
+  // Explicit unrelated subjects take priority over generic contact words. A
+  // customer adding an email address must not make "football score" or similar
+  // content look like a genuine business enquiry.
+  if (/\b(?:capital of|prime minister of|president of|population of|weather in|weather today|football score|football team|recipe for|translate\b|history of|movie|film|song|lyrics|homework|solve (?:this|the)|calculate\b)\b/i.test(value)
+    || /^\s*[-+*/().0-9 ]{3,}\s*$/.test(value)) return true;
+
   if (/\b(?:business|service|services|price|cost|quote|booking|book|appointment|reservation|menu|opening|open|closing|hours|address|location|located|area|contact|phone|email|repair|install|installation|maintenance|delivery|order|stock|availability|available|owner|team|staff)\b/i.test(value)) return false;
 
   const knowledge = [
@@ -381,8 +388,7 @@ function looksClearlyOffTopic(message, settings, configuration) {
   const approved = new Set(scopeTokens(knowledge));
   if (scopeTokens(value).some((token) => approved.has(token))) return false;
 
-  return /\b(?:capital of|prime minister of|president of|population of|weather in|weather today|football score|football team|recipe for|translate\b|history of|movie|film|song|lyrics|homework|solve (?:this|the)|calculate\b)\b/i.test(value)
-    || /^\s*[-+*/().0-9 ]{3,}\s*$/.test(value);
+  return false;
 }
 
 function modelSaysOffTopic(intent) {
