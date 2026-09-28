@@ -71,6 +71,20 @@ test("different public routes keep customer branding isolated between businesses
   assert.equal("business_id" in res.body.business, false);
 });
 
+test("public directory is search-first and does not enumerate businesses on load", () => {
+  const directoryMarkup = html.slice(html.indexOf('<main id="publicDirectoryScreen"'), html.indexOf('<main id="publicEnquiryScreen"'));
+  const directoryScript = html.slice(html.indexOf('let publicDirectoryBusinesses=[];'), html.indexOf('const publicEnquiryMessages=[];'));
+  const publicInitialisation = html.slice(html.indexOf("async function initializeApp"), html.indexOf("initializeApp();"));
+  assert.match(directoryMarkup, /id="publicDirectoryResultsPanel" class="public-directory-results-panel" hidden/);
+  assert.match(directoryMarkup, /Type at least 2 characters to search/);
+  assert.match(directoryScript, /normalized\.length<2\)\{resetPublicBusinessDirectorySearch\(\);return;\}/);
+  assert.match(html, /publicDirectorySearch'\)\?\.addEventListener\('input',queuePublicBusinessDirectorySearch\)/);
+  assert.match(directoryScript, /window\.setTimeout\(\(\)=>\{publicDirectorySearchTimer=null;loadPublicBusinessDirectory\(query\);\},220\)/);
+  assert.match(publicInitialisation, /classList\.add\('public-directory'\);resetPublicBusinessDirectorySearch\(\);return;/);
+  assert.doesNotMatch(publicInitialisation, /classList\.add\('public-directory'\);loadPublicBusinessDirectory\(\);return;/);
+  assert.match(html, /body\.public-directory\{padding:0;background:radial-gradient/);
+});
+
 test("the public customer UI is business-first, transparent and separate from owner PWA state", () => {
   assert.match(html, /id="publicBusinessName"/);
   assert.match(html, /class="public-hero"/);

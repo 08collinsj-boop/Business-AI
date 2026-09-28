@@ -1156,23 +1156,25 @@ padding-right:max(14px,env(safe-area-inset-right));
 .public-legal-links{display:flex;justify-content:center;gap:14px;margin-top:7px;font-size:10px}
 @media(max-width:430px){.legal-settings-grid{grid-template-columns:1fr}}
 
-body.public-directory{padding:0;background:#f4f7fb;color:#17212b}
+body.public-directory{padding:0;background:radial-gradient(circle at 50% 0,rgba(30,126,255,.16),transparent 24rem),#030b16;color:#f6f9fd}
 body.public-directory .app,body.public-directory .bottom-nav,body.public-directory #authScreen,body.public-directory #legalAcceptanceScreen,body.public-directory #dpaAcceptanceScreen,body.public-directory #businessSetupScreen,body.public-directory #configurationOnboardingScreen,body.public-directory #publicEnquiryScreen{display:none}
 body.public-directory #publicDirectoryScreen{display:block}
-.public-directory-shell{width:min(100%,790px);min-height:100dvh;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
-.public-directory-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:3px 1px}
-.public-directory-brand{display:flex;align-items:center;gap:10px}.public-directory-brand .brand-icon{width:43px;height:43px;border-radius:13px;background:#102842;color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800}.public-directory-brand h1{margin:0;font-size:20px;letter-spacing:-.55px}.public-directory-brand .public-eyebrow{margin-bottom:1px}
-.public-directory-owner-link,.public-find-another{color:#35699d;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}.public-find-another{margin-left:auto}
-.public-directory-hero{position:relative;overflow:hidden;border-radius:22px;padding:24px 21px;background:linear-gradient(135deg,#102842 0%,#1b5d9e 58%,#123152 100%);color:#fff;box-shadow:0 14px 30px rgba(14,45,82,.18)}
-.public-directory-kicker{display:block;margin-bottom:6px;color:#bcdcff;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.public-directory-hero h2{margin:0;font-size:28px;letter-spacing:-.9px}.public-directory-hero p{max-width:610px;margin:8px 0 16px;color:#e5f1ff;font-size:14px;line-height:1.5}
-.public-directory-search{display:flex;gap:8px}.public-directory-search input{min-width:0;flex:1;border:1px solid rgba(255,255,255,.26);border-radius:13px;background:#fff;color:#17212b;padding:13px 14px;font-size:16px;outline:none}.public-directory-search button{border:0;border-radius:13px;background:#fff;color:#133d6c;padding:0 17px;font-weight:800}
-.public-directory-section-head h3{margin:0;color:#24313d;font-size:16px}.public-directory-section-head p{margin:4px 0 0;color:#6e7d89;font-size:11px}
-.public-directory-results{display:grid;gap:10px}.public-directory-card{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:12px;border:1px solid #dfe7ef;border-radius:17px;background:#fff;padding:14px;box-shadow:0 6px 17px rgba(29,52,73,.055)}
-.public-directory-mark{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#eaf2ff;color:#185da9;font-size:14px;font-weight:850}.public-directory-copy{min-width:0}.public-directory-copy h4{margin:0;color:#24313d;font-size:15px;overflow-wrap:anywhere}.public-directory-copy p{margin:4px 0 0;color:#667684;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
-.public-directory-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.public-directory-meta span{display:inline-flex;padding:4px 7px;border:1px solid #e0e8f0;border-radius:999px;background:#f6f9fc;color:#647584;font-size:9px;font-weight:700}
-.public-directory-open{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 11px;border-radius:11px;background:#176fe8;color:#fff;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap}
-.public-directory-empty{padding:28px 18px;border:1px dashed #d5e0e9;border-radius:17px;background:#fff;color:#6d7c88;text-align:center;font-size:13px;line-height:1.5}.public-directory-footer{margin-top:auto;padding:8px;text-align:center;color:#75828d;font-size:10px;line-height:1.45}.public-directory-footer a{color:#35699d}
-@media(max-width:560px){.public-directory-card{grid-template-columns:42px minmax(0,1fr)}.public-directory-mark{width:42px;height:42px}.public-directory-open{grid-column:1/-1;width:100%}.public-directory-search{display:grid;grid-template-columns:1fr}.public-directory-search button{min-height:44px}.public-directory-owner-link{font-size:11px}.public-find-another{font-size:10px}}
+.public-directory-shell{width:min(100%,720px);min-height:100dvh;margin:0 auto;padding:max(24px,calc(env(safe-area-inset-top) + 18px)) 20px max(28px,calc(env(safe-area-inset-bottom) + 20px));display:flex;flex-direction:column;gap:18px}
+.public-directory-header{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.public-directory-brand{display:flex;align-items:center;gap:11px;min-width:0}.public-directory-brand .brand-icon{width:44px;height:44px;border:1px solid #2a78d7;border-radius:14px;background:linear-gradient(145deg,#173f70,#07182b);color:#eaf5ff;display:grid;place-items:center;font-size:13px;font-weight:850;box-shadow:0 0 24px rgba(39,137,255,.16)}.public-directory-brand h1{margin:0;color:#f8fbff;font-size:18px;letter-spacing:-.45px}.public-directory-brand .public-eyebrow{margin:0 0 2px;color:#7890ad;font-size:10px;font-weight:750;letter-spacing:.04em}
+.public-directory-actions{display:flex;gap:8px;align-items:center}.public-directory-owner-link,.public-find-another{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 11px;border:1px solid #1d3c5c;border-radius:11px;background:#071522;color:#74b8ff;font-size:10px;font-weight:800;text-decoration:none;white-space:nowrap}.public-find-another{margin-left:auto}
+.public-directory-hero{position:relative;overflow:hidden;border:1px solid #19446f;border-radius:24px;padding:22px;background:linear-gradient(145deg,rgba(10,34,59,.98),rgba(5,19,33,.98));box-shadow:0 22px 55px rgba(0,0,0,.24)}
+.public-directory-hero:before{content:"";position:absolute;inset:-40% -15% auto 45%;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(42,143,255,.22),transparent 68%);pointer-events:none}
+.public-directory-kicker{position:relative;display:block;margin-bottom:6px;color:#69adff;font-size:9px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.public-directory-hero h2{position:relative;margin:0;color:#fff;font-size:29px;line-height:1.08;letter-spacing:-1px}.public-directory-hero>p{position:relative;max-width:540px;margin:8px 0 18px;color:#92a8c0;font-size:13px;line-height:1.5}
+.public-directory-search{position:relative;display:block}.public-directory-search-icon{position:absolute;z-index:1;left:15px;top:50%;transform:translateY(-50%);color:#6b86a5;font-size:19px;pointer-events:none}.public-directory-search input{box-sizing:border-box;width:100%;min-height:54px;border:1px solid #264968;border-radius:15px;background:#061321;color:#f7fbff;padding:0 44px 0 45px;font-size:15px;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.015);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}.public-directory-search input::placeholder{color:#61758c}.public-directory-search input:focus{border-color:#2f8df6;background:#071827;box-shadow:0 0 0 3px rgba(47,141,246,.12)}.public-directory-search-submit{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.public-directory-search-hint{position:relative;margin:9px 2px 0!important;color:#637a94!important;font-size:10px!important;line-height:1.4!important}
+.public-directory-prompt{padding:22px 18px;border:1px dashed #193957;border-radius:17px;background:rgba(7,21,34,.62);color:#7288a1;text-align:center;font-size:11px;line-height:1.5}
+.public-directory-results-panel[hidden]{display:none}.public-directory-results-panel{display:grid;gap:10px}.public-directory-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.public-directory-section-head h3{margin:0;color:#eaf3fd;font-size:14px}.public-directory-section-head p{margin:3px 0 0;color:#6f849a;font-size:10px}
+.public-directory-results{display:grid;gap:9px}.public-directory-card{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;border:1px solid #173653;border-radius:16px;background:linear-gradient(145deg,#081827,#06111d);padding:12px 13px;box-shadow:0 10px 28px rgba(0,0,0,.14)}
+.public-directory-mark{width:44px;height:44px;display:grid;place-items:center;border:1px solid #23558a;border-radius:13px;background:#0b2745;color:#6eb3ff;font-size:12px;font-weight:850}.public-directory-copy{min-width:0}.public-directory-copy h4{margin:0;color:#f2f7fc;font-size:14px;overflow-wrap:anywhere}.public-directory-copy p{margin:3px 0 0;color:#879bb0;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+.public-directory-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.public-directory-meta span{display:inline-flex;padding:3px 7px;border:1px solid #1c3c59;border-radius:999px;background:#091b2b;color:#7891aa;font-size:8px;font-weight:750}
+.public-directory-open{display:inline-flex;align-items:center;justify-content:center;min-height:35px;padding:7px 11px;border:1px solid #2c85ec;border-radius:10px;background:linear-gradient(135deg,#237fe9,#176bd6);color:#fff;text-decoration:none;font-size:10px;font-weight:800;white-space:nowrap;box-shadow:0 8px 18px rgba(23,111,232,.15)}
+.public-directory-empty{padding:20px 16px;border:1px dashed #193957;border-radius:15px;background:#071522;color:#71869b;text-align:center;font-size:11px;line-height:1.5}.public-directory-footer{margin-top:auto;padding:6px 8px;text-align:center;color:#51677e;font-size:9px;line-height:1.45}.public-directory-footer a{color:#5ca7f7}
+@media(max-width:560px){.public-directory-shell{padding-left:18px;padding-right:18px}.public-directory-header{align-items:flex-start}.public-directory-actions{gap:6px}.public-directory-owner-link{min-height:33px;padding:0 9px;font-size:9px}.public-directory-brand h1{font-size:16px}.public-directory-hero{padding:20px}.public-directory-hero h2{font-size:27px}.public-directory-card{grid-template-columns:40px minmax(0,1fr)}.public-directory-mark{width:40px;height:40px}.public-directory-open{grid-column:2;justify-self:start;width:auto}.public-find-another{font-size:10px}}
 
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
@@ -1380,21 +1382,26 @@ body.public-directory #publicDirectoryScreen{display:block}
 <main id="publicDirectoryScreen" class="auth-screen" aria-live="polite">
 <section class="public-directory-shell">
 <header class="public-directory-header">
-<div class="public-directory-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><p class="public-eyebrow">Business AI</p><h1>Find a business</h1></div></div>
-<div style="display:flex;gap:12px;align-items:center"><a class="public-directory-owner-link" data-customer-account-link href="/customer/account">Customer sign in</a><a class="public-directory-owner-link" href="/">Business login</a></div>
+<div class="public-directory-brand"><div class="brand-icon" aria-hidden="true">AI</div><div><p class="public-eyebrow">Business AI</p><h1>Customer directory</h1></div></div>
+<nav class="public-directory-actions" aria-label="Directory account links"><a class="public-directory-owner-link" data-customer-account-link href="/customer/account">Customer sign in</a><a class="public-directory-owner-link" href="/">Business login</a></nav>
 </header>
 <section class="public-directory-hero">
-<span class="public-directory-kicker">Customer directory</span>
-<h2>Message a business directly</h2>
-<p>Search by business name, service or area. Choose a business to open its Business AI customer assistant.</p>
-<form id="publicDirectoryForm" class="public-directory-search">
-<input id="publicDirectorySearch" type="search" maxlength="80" autocomplete="organization" placeholder="Search businesses, services or areas" aria-label="Search businesses">
-<button type="submit">Search</button>
+<span class="public-directory-kicker">Business search</span>
+<h2>Find a business</h2>
+<p>Search by business name, service or area. Matching businesses appear as you type.</p>
+<form id="publicDirectoryForm" class="public-directory-search" role="search">
+<span class="public-directory-search-icon" aria-hidden="true">⌕</span>
+<input id="publicDirectorySearch" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" placeholder="Search businesses, services or areas" aria-label="Search businesses">
+<button class="public-directory-search-submit" type="submit">Search</button>
 </form>
+<p class="public-directory-search-hint">Type at least 2 characters to search.</p>
 </section>
-<div class="public-directory-section-head"><div><h3>Businesses on Business AI</h3><p id="publicDirectoryStatus">Loading businesses…</p></div></div>
-<div id="publicDirectoryResults" class="public-directory-results"><div class="public-directory-empty">Loading businesses…</div></div>
-<footer class="public-directory-footer">Businesses shown here have an active public Business AI customer page. <a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a></footer>
+<div id="publicDirectoryPrompt" class="public-directory-prompt">Start typing to find a business on Business AI.</div>
+<section id="publicDirectoryResultsPanel" class="public-directory-results-panel" hidden>
+<div class="public-directory-section-head"><div><h3>Search results</h3><p id="publicDirectoryStatus"></p></div></div>
+<div id="publicDirectoryResults" class="public-directory-results"></div>
+</section>
+<footer class="public-directory-footer">Only businesses with an active public Business AI page can appear in search. <a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a></footer>
 </section>
 </main>
 
@@ -2525,18 +2532,31 @@ if(supabaseClient)await supabaseClient.auth.signOut();
 });
 
 let publicDirectoryBusinesses=[];
+let publicDirectorySearchTimer=null;
+let publicDirectorySearchSequence=0;
 const directoryInitials=name=>{
 const words=String(name||'').trim().split(/\s+/).filter(Boolean).slice(0,2);
 return words.map(word=>word[0]).join('').toUpperCase().slice(0,2)||'B';
 };
+function resetPublicBusinessDirectorySearch(){
+publicDirectorySearchSequence+=1;
+if(publicDirectorySearchTimer){window.clearTimeout(publicDirectorySearchTimer);publicDirectorySearchTimer=null;}
+publicDirectoryBusinesses=[];
+const panel=$('publicDirectoryResultsPanel');const prompt=$('publicDirectoryPrompt');const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus');
+if(panel)panel.hidden=true;if(prompt)prompt.hidden=false;if(target)target.replaceChildren();if(status)status.textContent='';
+}
+function showPublicDirectorySearching(){
+const panel=$('publicDirectoryResultsPanel');const prompt=$('publicDirectoryPrompt');const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus');
+if(panel)panel.hidden=false;if(prompt)prompt.hidden=true;if(status)status.textContent='Searching…';if(target)target.innerHTML='<div class="public-directory-empty">Searching Business AI…</div>';
+}
 function renderPublicBusinessDirectory(businesses,query=''){
-const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus');if(!target||!status)return;
-target.replaceChildren();
+const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus');const panel=$('publicDirectoryResultsPanel');const prompt=$('publicDirectoryPrompt');if(!target||!status||!panel)return;
+panel.hidden=false;if(prompt)prompt.hidden=true;target.replaceChildren();
 const rows=Array.isArray(businesses)?businesses:[];
 if(!rows.length){
-const empty=document.createElement('div');empty.className='public-directory-empty';empty.textContent=query?'No businesses matched “'+query+'”. Try a business name, service or area.':'No businesses are available in the directory yet.';target.append(empty);status.textContent=query?'No matches':'No businesses available';return;
+const empty=document.createElement('div');empty.className='public-directory-empty';empty.textContent='No businesses matched “'+query+'”. Try a business name, service or area.';target.append(empty);status.textContent='No matches';return;
 }
-status.textContent=query?(String(rows.length)+' '+(rows.length===1?'match':'matches')+' for “'+query+'”'):(String(rows.length)+' '+(rows.length===1?'business':'businesses')+' available');
+status.textContent=String(rows.length)+' '+(rows.length===1?'match':'matches')+' for “'+query+'”';
 for(const business of rows){
 const card=document.createElement('article');card.className='public-directory-card';
 const mark=document.createElement('div');mark.className='public-directory-mark';mark.setAttribute('aria-hidden','true');mark.textContent=directoryInitials(business.name);
@@ -2547,22 +2567,34 @@ copy.append(title,description);
 const meta=document.createElement('div');meta.className='public-directory-meta';
 for(const value of [business.type,business.service_areas].filter(Boolean)){const tag=document.createElement('span');tag.textContent=value;meta.append(tag);}
 if(meta.childNodes.length)copy.append(meta);
-const open=document.createElement('a');open.className='public-directory-open';open.href=publicEnquiryUrl(business.slug);open.textContent='Message business';open.setAttribute('aria-label','Message '+(business.name||'business'));
+const open=document.createElement('a');open.className='public-directory-open';open.href=publicEnquiryUrl(business.slug);open.textContent='Open';open.setAttribute('aria-label','Open '+(business.name||'business'));
 card.append(mark,copy,open);target.append(card);
 }
 }
 async function loadPublicBusinessDirectory(query=''){
+const normalized=String(query||'').trim().slice(0,80);
+if(normalized.length<2){resetPublicBusinessDirectorySearch();return;}
+const requestId=++publicDirectorySearchSequence;
 const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus');if(!target||!status)return;
-status.textContent=query?'Searching…':'Loading businesses…';target.innerHTML='<div class="public-directory-empty">Loading businesses…</div>';
+showPublicDirectorySearching();
 try{
-const url=new URL('/api/public-businesses',window.location.origin);if(query)url.searchParams.set('q',query);
+const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
 const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
+if(requestId!==publicDirectorySearchSequence)return;
 if(!response.ok||!Array.isArray(result?.businesses))throw new Error('Search unavailable');
-publicDirectoryBusinesses=result.businesses;renderPublicBusinessDirectory(publicDirectoryBusinesses,query);
+publicDirectoryBusinesses=result.businesses;renderPublicBusinessDirectory(publicDirectoryBusinesses,normalized);
 }catch{
+if(requestId!==publicDirectorySearchSequence)return;
 publicDirectoryBusinesses=[];target.innerHTML='<div class="public-directory-empty">Business search is temporarily unavailable. Please try again shortly.</div>';status.textContent='Search unavailable';
 }
+}
+function queuePublicBusinessDirectorySearch(){
+const query=String($('publicDirectorySearch')?.value||'').trim().slice(0,80);
+if(publicDirectorySearchTimer)window.clearTimeout(publicDirectorySearchTimer);
+if(query.length<2){resetPublicBusinessDirectorySearch();return;}
+showPublicDirectorySearching();
+publicDirectorySearchTimer=window.setTimeout(()=>{publicDirectorySearchTimer=null;loadPublicBusinessDirectory(query);},220);
 }
 
 const publicEnquiryMessages=[];
@@ -2633,8 +2665,10 @@ input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage(
 try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 $('publicEnquiryForm').addEventListener('submit',sendPublicEnquiry);
+$('publicDirectorySearch')?.addEventListener('input',queuePublicBusinessDirectorySearch);
 $('publicDirectoryForm')?.addEventListener('submit',event=>{
 event.preventDefault();
+if(publicDirectorySearchTimer){window.clearTimeout(publicDirectorySearchTimer);publicDirectorySearchTimer=null;}
 const query=String($('publicDirectorySearch')?.value||'').trim().slice(0,80);
 loadPublicBusinessDirectory(query);
 });
@@ -3563,7 +3597,7 @@ async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
 if(publicEnquirySlug){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
 if(customerAccountFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('customer-account','customer-auth-active');return;}
-if(customerPortalFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-directory');loadPublicBusinessDirectory();return;}
+if(customerPortalFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-directory');resetPublicBusinessDirectorySearch();return;}
 try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
 const authActive=await initializeAuthentication();
 if(!authActive){setAppLoading(true);await loadAll();setAppLoading(false);}
