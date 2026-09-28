@@ -267,7 +267,11 @@ function findNameInConversation(conversationText) {
     const match = conversationText.match(pattern);
 
     if (match?.[1]) {
-      return match[1].trim();
+      const clean = match[1]
+        .split(/\s+(?:and\s+)?(?:my\s+)?(?:email|e-mail|phone|mobile|number|contact)\b/i)[0]
+        .replace(/[,.!?]+$/g, "")
+        .trim();
+      if (clean) return clean;
     }
   }
 
@@ -934,7 +938,10 @@ Your response must follow the supplied JSON schema.
     const detectedJob =
       findJobDetails(conversationText);
 
-    const offTopic = !knownHandover && (modelSaysOffTopic(result.intent) || looksClearlyOffTopic(message, settings, configuration));
+    const deterministicContact = Boolean(detectedPhone || detectedEmail || customerAccount?.email);
+    const deterministicBusinessEnquiry = Boolean(detectedJob && deterministicContact);
+    const clearlyOffTopic = looksClearlyOffTopic(message, settings, configuration);
+    const offTopic = !knownHandover && (clearlyOffTopic || (modelSaysOffTopic(result.intent) && !deterministicBusinessEnquiry));
     const decision = offTopic ? null : decideAIHandover(mode, result.intent, conversationText, Boolean(lead.handover_required));
     let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : previousHandover || decision);
     let handoverRequired = Boolean(reason);
@@ -974,7 +981,7 @@ Your response must follow the supplied JSON schema.
         null,
 
       qualified:
-        !offTopic && (result.intent?.supported === true || handoverRequired),
+        !offTopic && (result.intent?.supported === true || handoverRequired || deterministicBusinessEnquiry),
 
       priority: handoverRequired ? "High" : (lead.priority || "Normal"),
 
@@ -1027,9 +1034,11 @@ Your response must follow the supplied JSON schema.
         ? `I can help with questions and enquiries about ${businessName}. For anything unrelated, please use the appropriate service or source.`
         : handoverRequired
           ? `${reason === "emergency_or_high_risk" ? "If anyone is in immediate danger, contact the emergency services now. " : ""}${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : leadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
-          : typeof result.reply === "string"
-            ? result.reply
-            : "Thanks. I have your details.",
+          : leadCaptured
+            ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
+            : typeof result.reply === "string"
+              ? result.reply
+              : "Thanks. I have your details.",
       // Public callers only need to know whether their details were received.
       // Never expose a database row here: it can contain customer data and the
       // internal tenant identifier used by server-side routing.

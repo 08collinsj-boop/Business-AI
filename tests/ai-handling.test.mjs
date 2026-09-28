@@ -43,7 +43,7 @@ for (const mode of modes) {
 const savedEnv = { ...process.env }, savedFetch = globalThis.fetch;
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 const reply = body => ({ ok: true, text: async () => JSON.stringify(body), json: async () => body });
-async function load(mode, intent = supported) {
+async function load(mode, intent = supported, model = null) {
   process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai'; delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'false'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
@@ -52,7 +52,7 @@ async function load(mode, intent = supported) {
     if (url.includes('business_public_routes')) return reply([{ business_id: 'business-a', route_type: 'slug', route_value: 'business-a', active: true }]);
     if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', services: 'Repairs', opening_hours: 'Monday 9–5', ai_instructions: 'Always ask which appliance needs repair.' }]);
     if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode }]);
-    if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify({ reply: 'Approved answer', intent, lead: { phone: '07000000000', job_type: 'Repair', handover_required: false } }) });
+    if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify(model || { reply: 'Approved answer', intent, lead: { phone: '07000000000', job_type: 'Repair', handover_required: false } }) });
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: JSON.parse(options.body).p_reason });
     throw new Error(`Unexpected call: ${url}`);
   };
@@ -80,6 +80,41 @@ test('public API uses routed configuration, persists policy metadata and never r
   assert.match(prompt, /Electrical services/);
   assert.match(prompt, /01429 000000/);
   assert.match(prompt, /Always ask which appliance needs repair/);
+});
+
+test('realistic quote with contact details is captured even when the fallback model misclassifies it', async () => {
+  const liveMessage = 'QA-SIM-QUOTE-RETEST-928 — I would like a quote to replace two indoor sockets in Hartlepool. My name is Alex QA and my email is alex.qa@example.test.';
+  const weakIntent = { type: 'unsupported', supported: false, requires_human: false, safety_reason: 'none', unsupported_reason: 'off_topic' };
+  const model = {
+    reply: 'Please confirm your full name. You can also reach me directly at alex.qa@example.test.',
+    intent: weakIntent,
+    lead: { name: null, phone: null, email: null, location: null, job_type: null, description: null, urgency: null, qualified: false, priority: 'Normal', notes: null, handover_required: false }
+  };
+  const { handler, calls } = await load('balanced', weakIntent, model);
+  const res = response();
+  await handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.40' }, query: { business: 'business-a' }, body: { message: liveMessage } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, true);
+  assert.match(res.body.reply, /saved your enquiry for Business A/i);
+  assert.doesNotMatch(res.body.reply, /alex\.qa@example\.test|confirm your full name/i);
+
+  const saveCall = calls.find(c => c.url.includes('rpc/save_public_enquiry'));
+  assert.ok(saveCall);
+  const persisted = JSON.parse(saveCall.options.body).p_lead;
+  assert.equal(persisted.name, 'Alex QA');
+  assert.equal(persisted.email, 'alex.qa@example.test');
+  assert.match(persisted.job_type, /quote to replace two indoor sockets in Hartlepool/i);
+});
+
+test('clearly off-topic requests stay off-topic even when they contain contact details and a want phrase', async () => {
+  const { handler, calls } = await load('ai_first', supported);
+  const res = response();
+  await handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.41' }, query: { business: 'business-a' }, body: { message: 'I want the football score. My email is fan@example.test.' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, false);
+  assert.match(res.body.reply, /questions and enquiries about Business A/);
+  assert.ok(!calls.some(c => c.url.includes('rpc/save_public_enquiry')));
 });
 
 test('obvious off-topic questions never become leads or handovers even if the model misclassifies them', async () => {
