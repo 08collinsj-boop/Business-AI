@@ -41,7 +41,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260927175200_allow_cloudflare_marketing_images.sql",
     "20260927202500_add_marketing_usage_limits.sql",
     "20260927232000_add_directory_visibility.sql",
-    "20260927235000_add_customer_portal.sql"
+    "20260927235000_add_customer_portal.sql",
+    "20260928183625_refine_public_enquiry_quote_followups.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
