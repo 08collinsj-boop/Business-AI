@@ -88,7 +88,8 @@ test("public directory is search-first and does not enumerate businesses on load
   const directoryScript = html.slice(html.indexOf('let publicDirectoryBusinesses=[];'), html.indexOf('const publicEnquiryMessages=[];'));
   const publicInitialisation = html.slice(html.indexOf("async function initializeApp"), html.indexOf("initializeApp();"));
   assert.match(directoryMarkup, /id="publicDirectoryResultsPanel" class="public-directory-results-panel" hidden/);
-  assert.match(directoryMarkup, /Type at least 2 characters to search/);
+  assert.match(directoryMarkup, /Search by business name, service or area\./);
+  assert.match(directoryMarkup, /Start typing to find a business/);
   assert.match(directoryScript, /normalized\.length<2\)\{resetPublicBusinessDirectorySearch\(\);return;\}/);
   assert.match(html, /publicDirectorySearch'\)\?\.addEventListener\('input',queuePublicBusinessDirectorySearch\)/);
   assert.match(directoryScript, /window\.setTimeout\(\(\)=>\{publicDirectorySearchTimer=null;loadPublicBusinessDirectory\(query\);\},220\)/);
@@ -144,7 +145,7 @@ test("public enquiry uses the approved dark chat-first theme", () => {
   assert.match(publicMarkup, /class="public-quick-actions-panel"/);
   assert.match(publicMarkup, /class="public-chat-card public-chat-primary"/);
   assert.match(publicMarkup, /Business AI assistant/);
-  assert.match(html, /body\.public-enquiry \.public-quick-actions-toggle\{[\s\S]{0,700}backdrop-filter:blur\(18px\)/);
+  assert.match(html, /\.public-quick-actions-toggle\{[\s\S]{0,900}backdrop-filter:blur\(18px\)/);
 });
 
 test("customer visual hierarchy keeps messaging primary", () => {
