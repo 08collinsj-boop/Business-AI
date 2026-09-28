@@ -42,7 +42,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260927202500_add_marketing_usage_limits.sql",
     "20260927232000_add_directory_visibility.sql",
     "20260927235000_add_customer_portal.sql",
-    "20260928183625_refine_public_enquiry_quote_followups.sql"
+    "20260928183625_refine_public_enquiry_quote_followups.sql",
+    "20260928231500_allow_owner_uploaded_marketing_photos.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -63,6 +64,9 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(quoteFollowups, /quote_or_commitment/i);
   assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then 'normal'/i);
   assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then priority/i);
+  const ownerMarketingPhotos = contents.get("20260928231500_allow_owner_uploaded_marketing_photos.sql");
+  assert.match(ownerMarketingPhotos, /marketing_images_provider_check/i);
+  assert.match(ownerMarketingPhotos, /'upload'/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {
