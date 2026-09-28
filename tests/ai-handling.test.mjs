@@ -96,8 +96,9 @@ test('realistic quote with contact details is captured even when the fallback mo
 
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.leadCaptured, true);
-  assert.match(res.body.reply, /saved your enquiry for Business A/i);
+  assert.match(res.body.reply, /saved your enquiry for Business A|passed your enquiry/i);
   assert.doesNotMatch(res.body.reply, /alex\.qa@example\.test|confirm your full name/i);
+  assert.ok(!calls.some(c => c.url.includes('api.openai.com')), 'complete quote details should not wait on the AI provider');
 
   const saveCall = calls.find(c => c.url.includes('rpc/save_public_enquiry'));
   assert.ok(saveCall);
