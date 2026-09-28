@@ -75,6 +75,46 @@ test('public API rejects browser policy and tenant overrides before any database
   }
   assert.equal(calls.length, 0);
 });
+test('oversized customer input is rejected before tenant or provider work', async () => {
+  const { handler, calls } = await load('balanced');
+
+  let res = response();
+  await handler({
+    method: 'POST',
+    query: { business: 'business-a' },
+    body: { message: 'x'.repeat(2001) }
+  }, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.error, /too long/i);
+  assert.equal(calls.length, 0);
+
+  res = response();
+  await handler({
+    method: 'POST',
+    query: { business: 'business-a' },
+    body: {
+      message: 'Hello',
+      messages: Array.from({ length: 31 }, () => ({ role: 'user', content: 'Previous message' }))
+    }
+  }, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.error, /too long/i);
+  assert.equal(calls.length, 0);
+
+  res = response();
+  await handler({
+    method: 'POST',
+    query: { business: 'business-a' },
+    body: {
+      message: 'Hello',
+      messages: [{ role: 'user', content: 'y'.repeat(2001) }]
+    }
+  }, res);
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.error, /too long/i);
+  assert.equal(calls.length, 0);
+});
+
 test('public API uses routed configuration, persists policy metadata and never returns a lead row', async () => {
   const { handler, calls } = await load('human_first', { ...supported, type: 'quote' });
   const res = response(); await handler({ method: 'POST', body: { message: 'Quote for rewiring my kitchen' }, query: { business: 'business-a', business_id: 'other', ai_handling_mode: 'ai_first' } }, res);
