@@ -135,6 +135,129 @@ test("subscription lifecycle uses the configured Stripe Price and cannot cross a
   assert.equal(conflict.status, 400); assert.equal(events.length, 0); assert.equal(syncs.length, 0);
 });
 
+test("Checkout uses one-off Trial and recurring Starter, Pro and Business prices from server configuration", async () => {
+  process.env.STRIPE_SECRET_KEY = "sk_test_placeholder";
+  process.env.BILLING_APP_URL = "https://pilot.example.test";
+  process.env.STRIPE_PRICE_TRIAL = "price_trial";
+  process.env.STRIPE_PRICE_STARTER = "price_starter";
+  process.env.STRIPE_PRICE_PRO = "price_pro";
+  process.env.STRIPE_PRICE_BUSINESS = "price_business";
+  process.env.STRIPE_PRICE_ADDON_AI_MARKETING = "price_marketing";
+
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), options });
+    return reply({ id: "cs_test_acceptance", url: "https://checkout.stripe.test/session" });
+  };
+
+  const stripe = await import(new URL(`../lib/stripe.js?checkout-modes=${Math.random()}`, import.meta.url));
+  const cases = [
+    ["trial", "payment", "price_trial", "pay"],
+    ["starter", "subscription", "price_starter", "subscribe"],
+    ["pro", "subscription", "price_pro", "subscribe"],
+    ["business", "subscription", "price_business", "subscribe"]
+  ];
+
+  for (const [plan, mode, price, submitType] of cases) {
+    await stripe.createCheckout({
+      plan,
+      businessId: account.business_id,
+      stripeCustomerId: null,
+      customerEmail: "owner@example.test",
+      addonKeys: plan === "starter" ? ["ai_marketing"] : []
+    });
+
+    const call = calls.at(-1);
+    assert.match(call.url, /api\.stripe\.com\/v1\/checkout\/sessions$/);
+    const form = new URLSearchParams(call.options.body);
+    assert.equal(form.get("mode"), mode);
+    assert.equal(form.get("line_items[0][price]"), price);
+    assert.equal(form.get("submit_type"), submitType);
+    assert.equal(form.get("metadata[business_id]"), account.business_id);
+    assert.equal(form.get("metadata[plan]"), plan);
+
+    if (plan === "starter") {
+      assert.equal(form.get("line_items[1][price]"), "price_marketing");
+      assert.equal(form.get("line_items[1][quantity]"), "1");
+    } else {
+      assert.equal(form.get("line_items[1][price]"), null);
+    }
+
+    if (plan === "trial") {
+      assert.equal(form.get("customer_creation"), "always");
+      assert.equal(form.get("subscription_data[metadata][business_id]"), null);
+    } else {
+      assert.equal(form.get("subscription_data[metadata][business_id]"), account.business_id);
+      assert.equal(form.get("subscription_data[metadata][plan]"), plan);
+    }
+  }
+});
+
+test("owner cancellation requests Stripe cancellation at period end and persists the flag", async () => {
+  process.env.BILLING_ENABLED = "true";
+  process.env.TENANCY_AUTH_ENABLED = "true";
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key";
+  process.env.STRIPE_SECRET_KEY = "sk_test_placeholder";
+  process.env.BILLING_APP_URL = "https://pilot.example.test";
+
+  const subscribed = {
+    ...account,
+    stripe_customer_id: "cus_owned",
+    stripe_subscription_id: "sub_owned"
+  };
+  const calls = [];
+
+  globalThis.fetch = async (url, options = {}) => {
+    const href = String(url);
+    calls.push({ url: href, options });
+
+    if (href.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" });
+    if (href.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]);
+    if (href.includes("business_billing_accounts") && options.method !== "POST") return reply([subscribed]);
+
+    if (href.includes("api.stripe.com/v1/subscriptions/sub_owned") && options.method === "POST") {
+      return reply({ id: "sub_owned", cancel_at_period_end: true });
+    }
+
+    if (href.includes("business_billing_accounts?on_conflict=business_id") && options.method === "POST") {
+      return reply([{ ...subscribed, cancel_at_period_end: true }], true, 201);
+    }
+
+    if (href.includes("business_audit_events")) return reply({}, true, 201);
+    return reply({}, false);
+  };
+
+  const handler = (await import(new URL(`../lib/billing-handler.js?cancel=${Math.random()}`, import.meta.url))).default;
+  const response = res();
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: { action: "cancel" }
+  }, response);
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.body, { cancelled_at_period_end: true });
+
+  const stripeCall = calls.find(call => call.url.includes("api.stripe.com/v1/subscriptions/sub_owned"));
+  assert.ok(stripeCall);
+  assert.equal(new URLSearchParams(stripeCall.options.body).get("cancel_at_period_end"), "true");
+
+  const saveCall = calls.find(call => call.url.includes("business_billing_accounts?on_conflict=business_id"));
+  assert.ok(saveCall);
+  const savedAccount = JSON.parse(saveCall.options.body);
+  assert.equal(savedAccount.business_id, account.business_id);
+  assert.equal(savedAccount.cancel_at_period_end, true);
+  assert.ok(savedAccount.cancelled_at);
+
+  const auditCall = calls.find(call => call.url.includes("business_audit_events"));
+  assert.ok(auditCall);
+  const audit = JSON.parse(auditCall.options.body);
+  assert.equal(audit.action, "billing.cancellation_requested");
+  assert.equal(audit.resource_id, "sub_owned");
+  assert.equal(audit.metadata.at_period_end, true);
+});
+
 test("billing source keeps Stripe secret/server checks and no browser pricing trust", () => {
   assert.match(billingSource, /BILLING_ENABLED === "true"/); assert.match(billingSource, /consume_billing_ai_enquiry_allowance/);
   assert.match(handlerSource, /requireBusinessMember\(req, \["owner"\]\)/); assert.match(handlerSource, /trial_purchased/);
