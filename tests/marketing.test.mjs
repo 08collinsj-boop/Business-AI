@@ -1255,6 +1255,67 @@ for (
 }
 
 test(
+  'transient invalid provider output is retried once and then saved',
+  async () => {
+    const calls = setup();
+    const base = globalThis.fetch;
+    let providerAttempts = 0;
+
+    globalThis.fetch = async (url, options = {}) => {
+      if (url.startsWith('https://openrouter.ai')) {
+        providerAttempts += 1;
+
+        if (providerAttempts === 1) {
+          await base(url, options);
+
+          return response({
+            id: 'response-invalid',
+            model: 'openrouter/test-free',
+            choices: [
+              {
+                finish_reason: 'stop',
+                message: {
+                  content: 'not json'
+                }
+              }
+            ]
+          });
+        }
+      }
+
+      return base(url, options);
+    };
+
+    const result = await call(marketingHandler);
+
+    assert.equal(result.statusCode, 200);
+    assert.deepEqual(result.body.output, output);
+    assert.equal(providerAttempts, 2);
+    assert.equal(
+      calls.filter(call =>
+        call.url.startsWith('https://openrouter.ai')
+      ).length,
+      2
+    );
+
+    const completed = calls
+      .filter(call =>
+        call.url.includes('marketing_generations')
+      )
+      .map(call => {
+        try {
+          return JSON.parse(call.options.body || '{}');
+        } catch {
+          return {};
+        }
+      })
+      .find(body => body.status === 'completed');
+
+    assert.ok(completed);
+  }
+);
+
+test(
   'output bounds reject excessive generated text',
   () =>
     assert.throws(
