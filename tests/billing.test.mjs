@@ -29,6 +29,23 @@ test("central plan entitlements enforce trial expiry, allowance, and staff limit
   assert.equal(billing.entitlementFromAccount({ ...account, status: "past_due" }, 0, new Date("2026-09-15T00:00:00Z")).active, false);
 });
 
+test("current and grandfathered recurring Stripe prices resolve to the same plan", async () => {
+  process.env.STRIPE_PRICE_STARTER = "price_starter_new";
+  process.env.STRIPE_PRICE_PRO = "price_pro_new";
+  process.env.STRIPE_PRICE_BUSINESS = "price_business_new";
+  process.env.STRIPE_PRICE_STARTER_LEGACY = "price_starter_old";
+  process.env.STRIPE_PRICE_PRO_LEGACY = "price_pro_old, price_pro_older";
+  process.env.STRIPE_PRICE_BUSINESS_LEGACY = "price_business_old";
+  const billing = await import(new URL(`../lib/billing.js?legacy-prices=${Math.random()}`, import.meta.url));
+  assert.equal(billing.planFromStripePrice("price_starter_new"), "starter");
+  assert.equal(billing.planFromStripePrice("price_starter_old"), "starter");
+  assert.equal(billing.planFromStripePrice("price_pro_new"), "pro");
+  assert.equal(billing.planFromStripePrice("price_pro_old"), "pro");
+  assert.equal(billing.planFromStripePrice("price_pro_older"), "pro");
+  assert.equal(billing.planFromStripePrice("price_business_old"), "business");
+  assert.equal(billing.planFromStripePrice("price_unknown"), null);
+});
+
 test("allowance reservation is server-side, atomic-RPC backed, and fails closed", async () => {
   process.env.BILLING_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key";
   const calls = []; globalThis.fetch = async (url, options = {}) => { calls.push({ url, options }); if (url.includes("business_billing_accounts")) return reply([account]); if (url.includes("business_billing_usage")) return reply([{ quantity: 249 }]); if (url.includes("consume_billing_ai_enquiry_allowance")) return reply(true); return reply({}, false); };
