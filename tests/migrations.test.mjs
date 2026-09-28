@@ -59,6 +59,10 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(customerPortal, /create table if not exists public\.customer_enquiry_access/i);
   assert.match(customerPortal, /alter table public\.customer_enquiry_access enable row level security/i);
   assert.match(customerPortal, /revoke all on public\.customer_enquiry_access from anon, authenticated/i);
+  const quoteFollowups = contents.get("20260928183625_refine_public_enquiry_quote_followups.sql");
+  assert.match(quoteFollowups, /quote_or_commitment/i);
+  assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then 'normal'/i);
+  assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then priority/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {
