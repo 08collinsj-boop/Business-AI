@@ -226,6 +226,13 @@ async function bindCustomerRuntime(){
     const result=await client.auth.signInWithPassword({email:byId('customerSignInEmail').value.trim(),password:byId('customerSignInPassword').value});
     message.textContent=result.error?'Unable to sign in with those details.':'';if(!result.error)await refreshRoute();
   });
+  byId('customerForgotPassword')?.addEventListener('click',async()=>{
+    const message=byId('customerSignInMessage');const email=byId('customerSignInEmail')?.value.trim();
+    if(!email){message.textContent='Enter your email address first.';return;}
+    message.textContent='Requesting a secure reset link…';
+    const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:new URL('/',window.location.origin).toString()});
+    message.textContent=error?'We could not request a reset link. Please try again shortly.':'If this email can be used, check your inbox for a secure reset link.';
+  });
   byId('customerSignUpForm')?.addEventListener('submit',async event=>{
     event.preventDefault();const message=byId('customerSignUpMessage');const password=byId('customerSignUpPassword').value;const confirm=byId('customerSignUpConfirm').value;
     if(password.length<12||password!==confirm){message.textContent='Use matching passwords of at least 12 characters.';return;}
@@ -252,12 +259,20 @@ async function bindCustomerRuntime(){
       return;
     }
 
+    const confirmationActions=byId('customerConfirmationActions');if(confirmationActions)confirmationActions.hidden=false;
     message.textContent='If this is a new email, check your inbox to confirm it. If you already use this email for Business AI, sign in with your existing password — the same account works for Customer.';
   });
   byId('customerPortalLogout')?.addEventListener('click',async()=>{await client.auth.signOut();location.href='/customer/account';});
   document.querySelectorAll('[data-customer-tab]').forEach(button=>button.addEventListener('click',()=>showPortalTab(button.dataset.customerTab)));
   document.querySelectorAll('[data-customer-go]').forEach(button=>button.addEventListener('click',()=>showPortalTab(button.dataset.customerGo)));
   byId('customerPortalSearchForm')?.addEventListener('submit',event=>{event.preventDefault();searchBusinesses(byId('customerPortalSearchInput').value.trim().slice(0,80));});
+  byId('customerResendConfirmation')?.addEventListener('click',async()=>{
+    const message=byId('customerSignUpMessage');const email=byId('customerSignUpEmail')?.value.trim();
+    if(!email){message.textContent='Enter your email address first.';return;}
+    message.textContent='Requesting another confirmation email…';
+    const {error}=await client.auth.resend({type:'signup',email,options:{emailRedirectTo:new URL('/customer/account',window.location.origin).toString()}});
+    message.textContent=error?'We could not request another confirmation email. Please wait a moment and try again.':'If this address has an unconfirmed account, a new confirmation email will arrive shortly. Already confirmed? Sign in instead.';
+  });
   byId('customerProfileForm')?.addEventListener('submit',async event=>{
     event.preventDefault();const message=byId('customerProfileMessage');message.textContent='Saving…';
     try{await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:byId('customerProfileName').value})});message.textContent='Account updated.';await loadPortal();}catch(error){message.textContent=error.message;}

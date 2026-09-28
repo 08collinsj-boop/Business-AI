@@ -1843,6 +1843,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <form id="customerSignInForm" class="customer-auth-form">
 <label>Email<input id="customerSignInEmail" type="email" autocomplete="email" required></label>
 <label>Password<input id="customerSignInPassword" type="password" autocomplete="current-password" required></label>
+<p class="customer-auth-switch customer-auth-forgot"><button id="customerForgotPassword" type="button">Forgot password?</button></p>
 <button class="customer-auth-primary" type="submit">Sign in</button>
 <div id="customerSignInMessage" class="customer-auth-message" role="alert"></div>
 <p class="customer-auth-switch">New to Business AI? <button id="customerShowSignUp" type="button">Create a customer account</button></p>
@@ -1855,6 +1856,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>. Customer accounts are used to provide account access and enquiry tracking.</span></label>
 <button class="customer-auth-primary" type="submit">Create customer account</button>
 <div id="customerSignUpMessage" class="customer-auth-message" role="alert"></div>
+<p id="customerConfirmationActions" class="customer-auth-switch" hidden>Didn’t receive a confirmation email? <button id="customerResendConfirmation" type="button">Resend confirmation</button></p>
 <p class="customer-auth-switch">Already have an account? <button id="customerShowSignIn" type="button">Sign in</button></p>
 </form>
 <a class="customer-guest-link" href="/customer"><span>Continue as guest</span><small>Search businesses without an account</small></a>
