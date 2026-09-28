@@ -165,6 +165,19 @@ test('one customer AI session consumes one advertised enquiry allowance unit acr
   assert.equal(calls.filter(c => c.url.includes('api.openai.com')).length, 2);
 });
 
+test('OpenAI authentication failures fall back to OpenRouter when it is configured', async () => {
+  for (const providerStatus of [401, 403]) {
+    const loaded = await loadWithBilling({ providerFails: true, providerStatus, fallbackSucceeds: true });
+    const res = response();
+    await loaded.handler({ method: 'POST', headers: { 'x-forwarded-for': `203.0.113.${providerStatus === 401 ? 31 : 32}` }, query: { business: 'business-a' }, body: { message: 'Can you help with a repair?' } }, res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.reply, 'Fallback answer');
+    assert.equal(loaded.calls.filter(c => c.url.includes('api.openai.com')).length, 1);
+    assert.equal(loaded.calls.filter(c => c.url.includes('openrouter.ai')).length, 1);
+    assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 0);
+  }
+});
+
 test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowance', async () => {
   const loaded = await loadWithBilling({ providerFails: true, providerStatus: 429, fallbackSucceeds: true, fallbackFailsOnce: true });
   const res = response();

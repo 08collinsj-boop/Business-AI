@@ -884,7 +884,7 @@ Your response must follow the supplied JSON schema.
           const status = Number(primaryError?.providerStatus) || 0;
           const fallbackAllowed =
             Boolean(OPENROUTER_API_KEY) &&
-            (!OPENAI_API_KEY || status === 0 || status === 429 || status >= 500);
+            (!OPENAI_API_KEY || status === 0 || status === 401 || status === 403 || status === 429 || status >= 500);
 
           if (!fallbackAllowed) throw primaryError;
 
