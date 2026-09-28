@@ -238,7 +238,21 @@ async function bindCustomerRuntime(){
       session=result.data.session;
       if(displayName){try{await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:displayName})});}catch{}}
       await refreshRoute();
-    }else message.textContent='Check your inbox to confirm your email, then return here to sign in.';
+      return;
+    }
+
+    // Business and Customer access share one Business AI identity. If these
+    // credentials already belong to a confirmed business user, reuse that
+    // same account for the Customer portal instead of creating a duplicate.
+    const existingSignIn=await client.auth.signInWithPassword({email,password});
+    if(!existingSignIn.error&&existingSignIn.data.session){
+      session=existingSignIn.data.session;
+      if(displayName){try{await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:displayName})});}catch{}}
+      await refreshRoute();
+      return;
+    }
+
+    message.textContent='If this is a new email, check your inbox to confirm it. If you already use this email for Business AI, sign in with your existing password — the same account works for Customer.';
   });
   byId('customerPortalLogout')?.addEventListener('click',async()=>{await client.auth.signOut();location.href='/customer/account';});
   document.querySelectorAll('[data-customer-tab]').forEach(button=>button.addEventListener('click',()=>showPortalTab(button.dataset.customerTab)));

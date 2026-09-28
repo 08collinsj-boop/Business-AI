@@ -105,6 +105,8 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(script, /Awaiting business response|customer-status/);
   assert.match(script, /\/api\/customer-portal/);
   assert.match(script, /\/api\/public-businesses/);
+  assert.match(script, /const existingSignIn=await client\.auth\.signInWithPassword\(\{email,password\}\)/, 'existing Business AI credentials are reused for Customer access');
+  assert.match(script, /same account works for Customer/);
   assert.match(css, /customer-portal-hero/);
   assert.match(css, /customer-enquiry-card/);
   assert.match(css, /auth-role-slider/);
