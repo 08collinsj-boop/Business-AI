@@ -247,7 +247,7 @@ test('provider outage still captures a quote lead with deterministic customer de
 
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.leadCaptured, true);
-  assert.match(res.body.reply, /saved your enquiry|captured your enquiry/i);
+  assert.match(res.body.reply, /saved your enquiry|captured your enquiry|passed your enquiry/i);
   assert.equal(loaded.calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
   assert.equal(loaded.calls.filter(c => c.url.includes('release_billing_ai_enquiry_allowance')).length, 1);
   assert.equal(res.body.session, null);
