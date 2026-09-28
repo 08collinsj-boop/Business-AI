@@ -67,3 +67,9 @@
 .marketing-history-toggle .small-btn{min-width:160px}
 .marketing-history-expanded .work-item{animation:marketingDraftDrop .16s ease-out}
 @keyframes marketingDraftDrop{from{opacity:.45;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+/* Full add-on consistency polish. */
+.addon-card{border-color:#1f4264!important;border-radius:20px!important;background:linear-gradient(155deg,rgba(13,31,50,.98),rgba(7,20,34,.98))!important;box-shadow:0 12px 30px rgba(0,0,0,.14)}
+.addon-card .small-btn{min-height:40px;border-radius:12px}
+#addonsView .work-actions{margin:0 0 12px}
+.marketing-workspace .screen-title p{color:#98aec8}

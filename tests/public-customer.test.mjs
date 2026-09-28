@@ -225,3 +225,11 @@ test("install guidance belongs only to the authenticated owner application", () 
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); globalThis.fetch = savedFetch; });
+
+
+test("public assistant status matches actual availability", () => {
+  assert.match(html, /id="publicAssistantStatus" class="public-online-pill"/);
+  assert.match(html, /status\.classList\.toggle\('is-unavailable',!available\)/);
+  assert.match(html, /label\.textContent=available\?'Online':'Unavailable'/);
+  assert.match(html, /\.public-online-pill\.is-unavailable/);
+});

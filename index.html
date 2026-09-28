@@ -1704,6 +1704,65 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
   .public-directory-search-types span{min-height:46px;font-size:9px}
 }
 
+
+/* Full Pilot UI consistency pass: shared finish across owner, auth, onboarding and public surfaces. */
+.owner-brand-icon{overflow:hidden;background:linear-gradient(145deg,#0d3762,#071421)!important;border-color:#2b86e8!important;box-shadow:0 0 22px rgba(42,141,255,.2)!important}
+.owner-brand-icon img{width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 0 9px rgba(55,153,255,.36))}
+.auth-mark.auth-mark-brand:before{display:none}
+.auth-mark.auth-mark-brand{min-height:92px}
+.auth-mark.auth-mark-brand img{position:static!important;transform:none!important;width:92px!important;height:92px!important;margin:auto;object-fit:contain;filter:drop-shadow(0 0 20px rgba(42,142,255,.42))}
+.setup-auth-card .auth-mark{margin-bottom:8px}
+.auth-field textarea,.auth-field select{box-sizing:border-box;width:100%;border:1px solid #1b3d61;border-radius:13px;background:rgba(8,25,43,.82);color:#f5f9ff;padding:11px 13px;font:inherit;outline:none;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.auth-field textarea{resize:vertical;line-height:1.45}
+.auth-field textarea:focus,.auth-field select:focus{border-color:#318cf3;background:#091a2a;box-shadow:0 0 0 3px rgba(39,135,255,.11)}
+.onboarding-card{max-width:600px!important}
+.onboarding-brand{min-height:74px!important;margin-bottom:2px!important}
+.onboarding-brand img{width:72px!important;height:72px!important}
+.onboarding-progress{gap:7px;margin:2px 0 25px}
+.onboarding-progress i{height:4px;background:#16314d}
+.onboarding-progress i.active{background:linear-gradient(90deg,#2388ff,#5fb3ff);box-shadow:0 0 9px rgba(48,148,255,.2)}
+.wizard-step h2{margin:0;text-align:left;font-size:27px;line-height:1.08;letter-spacing:-.9px}
+.wizard-step>p{margin:8px 0 20px!important;text-align:left!important;color:#94a9c2!important;font-size:13px!important;line-height:1.5!important}
+.wizard-step .auth-field{margin:12px 0}
+.wizard-actions{align-items:center;margin-top:22px;padding-top:15px;border-top:1px solid #153653}
+.wizard-actions .btn,.wizard-actions .small-btn{min-height:48px;border-radius:14px}
+.wizard-review article{padding:14px;border-color:#1b4168;border-radius:15px;background:#081b2d}
+.onboarding-ai-options{display:grid;gap:9px;margin:14px 0 18px;padding:0;border:0}
+.onboarding-ai-options legend{margin-bottom:9px;color:#9db1c9;font-size:12px;font-weight:750}
+.onboarding-ai-option{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:11px;align-items:start;padding:13px;border:1px solid #1b4168;border-radius:16px;background:rgba(6,22,38,.8);cursor:pointer}
+.onboarding-ai-option input{position:absolute;opacity:0;pointer-events:none}
+.onboarding-ai-dot{width:20px;height:20px;margin-top:2px;border:2px solid #52708e;border-radius:50%;background:#071727;box-shadow:inset 0 0 0 4px #071727}
+.onboarding-ai-option strong{display:block;color:#f3f8ff;font-size:13px}
+.onboarding-ai-option small{display:inline-flex;margin-top:4px;padding:3px 7px;border-radius:999px;background:#102a46;color:#8dbbe8;font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.onboarding-ai-option em{display:block;margin-top:6px;color:#90a5be;font-size:11px;font-style:normal;line-height:1.45}
+.onboarding-ai-option:has(input:checked){border-color:#2e87e0;background:linear-gradient(145deg,rgba(18,60,103,.72),rgba(7,27,47,.94));box-shadow:0 0 0 1px rgba(49,141,244,.1)}
+.onboarding-ai-option:has(input:checked) .onboarding-ai-dot{border-color:#45a5ff;background:#45a5ff;box-shadow:inset 0 0 0 4px #0c2c4c}
+.onboarding-ai-option.recommended small{background:rgba(44,142,255,.18);color:#6ab5ff}
+#voiceView .voice-status-card,#voiceView>.card{border-color:#1c4268;background:linear-gradient(155deg,rgba(12,31,50,.98),rgba(6,20,34,.98));box-shadow:0 14px 34px rgba(0,0,0,.14)}
+#voiceView .settings-grid .field{padding:13px;border:1px solid #193b5d;border-radius:15px;background:#081a2b}
+#voiceView .settings-grid .field>label{color:#67afff;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.empty{border-style:dashed;border-color:#24496d;background:rgba(7,22,37,.68);border-radius:18px}
+.public-online-pill b{font:inherit;font-weight:inherit}
+.public-online-pill.is-unavailable{border-color:#4a3f42;background:rgba(48,25,31,.62);color:#bba3a9}
+.public-online-pill.is-unavailable i{background:#d08d9a;box-shadow:0 0 8px rgba(208,141,154,.25)}
+.public-directory-footer{display:grid;gap:7px}
+.public-directory-footer nav{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.public-directory-footer nav a{text-decoration:none}
+@media(max-width:560px){
+  .onboarding-card{max-width:none!important;padding-left:2px!important;padding-right:2px!important}
+  .onboarding-brand{min-height:62px!important}
+  .onboarding-brand img{width:62px!important;height:62px!important}
+  .wizard-step h2{font-size:24px}
+  .wizard-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .wizard-actions button{width:100%;min-width:0}
+  #voiceView .settings-grid{grid-template-columns:1fr}
+}
+@media(max-width:380px){
+  .public-directory-search-types{gap:5px}
+  .public-directory-search-types span{font-size:8px;gap:5px;padding:0 4px}
+  .public-directory-search-types b{font-size:13px}
+}
+
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 <link rel="stylesheet" href="/assets/customer-portal.css">
@@ -1741,21 +1800,21 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 </form>
 
 <form id="passwordResetRequestForm" class="auth-card auth-form-hidden">
-<div class="auth-mark"><div class="brand-icon">AI</div></div><h2>Reset your password</h2><p>Enter your email and, if it can be used, we’ll send a secure reset link.</p>
+<div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div><h2>Reset your password</h2><p>Enter your email and, if it can be used, we’ll send a secure reset link.</p>
 <div class="auth-field"><label for="passwordResetEmail">Email</label><input id="passwordResetEmail" type="email" autocomplete="email" required></div>
 <button id="passwordResetRequestSubmit" class="btn primary auth-submit" type="submit">Send reset link</button><div id="passwordResetRequestMessage" class="auth-message" role="alert"></div>
 <p class="auth-switch"><button class="auth-link show-login-link" type="button">Back to sign in</button></p>
 </form>
 
 <form id="passwordRecoveryForm" class="auth-card auth-form-hidden">
-<div class="auth-mark"><div class="brand-icon">AI</div></div><h2>Choose a new password</h2><p>Create a strong, unique password with at least 12 characters.</p>
+<div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div><h2>Choose a new password</h2><p>Create a strong, unique password with at least 12 characters.</p>
 <div class="auth-field"><label for="recoveryPassword">New password</label><input id="recoveryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <div class="auth-field"><label for="recoveryPasswordConfirm">Confirm new password</label><input id="recoveryPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit">Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
 </form>
 
 <form id="signUpForm" class="auth-card auth-form-hidden">
-<div class="auth-mark"><div class="brand-icon">AI</div></div>
+<div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Create your account</h2>
 <p>After confirming your email, you will set up your secure Business AI workspace.</p>
 <div class="auth-field"><label for="signUpEmail">Email</label><input id="signUpEmail" type="email" autocomplete="email" required></div>
@@ -1770,7 +1829,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 
 <main id="legalAcceptanceScreen" class="auth-screen" aria-live="polite">
 <form id="legalAcceptanceForm" class="auth-card legal-gate-card">
-<div class="auth-mark"><div class="brand-icon">AI</div></div>
+<div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <p class="legal-kicker">Business AI · Legal update</p>
 <h2>Review the Pilot terms</h2>
 <p>Before continuing, please review and accept the current Business AI Pilot terms. Your acceptance is recorded with the document versions and time.</p>
@@ -1787,7 +1846,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 
 <main id="dpaAcceptanceScreen" class="auth-screen" aria-live="polite">
 <form id="dpaAcceptanceForm" class="auth-card legal-gate-card">
-<div class="auth-mark"><div class="brand-icon">AI</div></div>
+<div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <p class="legal-kicker">Business data processing</p>
 <h2>Accept the Data Processing Agreement</h2>
 <p>Business AI processes customer enquiry data on behalf of your business. The business owner must accept the current DPA before customer-data processing is enabled.</p>
@@ -1802,8 +1861,8 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 </main>
 
 <main id="businessSetupScreen" class="auth-screen" aria-live="polite">
-<form id="businessSetupForm" class="auth-card">
-<div class="brand-icon">AI</div>
+<form id="businessSetupForm" class="auth-card setup-auth-card">
+<div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Set up your business</h2>
 <p>Create your secure Business AI workspace. You can complete the detailed business profile next.</p>
 <div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
@@ -1816,13 +1875,17 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 
 <main id="configurationOnboardingScreen" class="auth-screen" aria-live="polite">
 <form id="configurationOnboardingForm" class="auth-card onboarding-card" novalidate>
-<div class="brand-icon">AI</div>
+<div class="auth-mark auth-mark-brand onboarding-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <div class="onboarding-progress" aria-label="Setup progress"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="wizard-step" data-wizard-step="business"><h2>Tell us about your business</h2><p>These details help customers recognise your business and help the AI answer accurately.</p><div class="auth-field"><label for="o_business_name">Business name</label><input id="o_business_name" maxlength="120"></div><div class="auth-field"><label for="o_business_type">Industry or business type</label><input id="o_business_type" maxlength="120"></div><div class="auth-field"><label for="o_phone">Business phone</label><input id="o_phone" maxlength="120" inputmode="tel"></div><div class="auth-field"><label for="o_email">Business email</label><input id="o_email" maxlength="320" type="email"></div><div class="auth-field"><label for="o_website">Website <small>(optional)</small></label><input id="o_website" maxlength="2048" type="url" placeholder="https://example.co.uk"></div></div>
 <div class="wizard-step" data-wizard-step="location"><h2>Where do you work?</h2><p>Tell customers where your business is based and where you can help.</p><div class="auth-field"><label for="o_address">Primary business location</label><textarea id="o_address" maxlength="1000" rows="3"></textarea></div><div class="auth-field"><label for="o_service_areas">Service areas</label><textarea id="o_service_areas" maxlength="4000" rows="4" placeholder="Towns, postcodes or travel limits"></textarea></div><div class="auth-field"><label for="o_delivery_mode">How do you serve customers?</label><select id="o_delivery_mode"><option value="unspecified">Choose later</option><option value="premises">Customers visit our premises</option><option value="travel">We travel to customers</option><option value="both">Both</option></select></div></div>
 <div class="wizard-step" data-wizard-step="services"><h2>What do you offer?</h2><p>Use clear, factual wording. You can expand this later in Settings.</p><div class="auth-field"><label for="o_services">Services offered</label><textarea id="o_services" maxlength="4000" rows="7" placeholder="List the services your business provides"></textarea></div><div class="auth-field"><label for="o_description">Short business description</label><textarea id="o_description" maxlength="4000" rows="4" placeholder="What should customers know about your business?"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="hours"><h2>Opening hours</h2><p>Enter your usual Monday–Sunday hours. Use “Closed” for closed days. You can paste the same hours for multiple days.</p><div class="auth-field"><label for="o_hours">Opening hours</label><textarea id="o_hours" maxlength="4000" rows="9" placeholder="Monday 08:00–18:00&#10;Tuesday 08:00–18:00&#10;…&#10;Sunday Closed"></textarea></div></div>
-<div class="wizard-step" data-wizard-step="ai"><h2>Set up your AI receptionist</h2><fieldset class="field"><legend>How would you like Business AI to handle your customers?</legend><label style="display:block;margin:12px 0"><input type="radio" name="o_ai_handling_mode" value="human_first" > <strong>Human-first — Personal service first</strong><br><span class="work-meta">AI answers basic questions and captures enquiries. Your team handles important conversations personally.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="o_ai_handling_mode" value="balanced" checked> <strong>Balanced — Recommended</strong><br><span class="work-meta">AI handles everyday enquiries but hands customers over when a personal response is more appropriate.</span></label><label style="display:block;margin:12px 0"><input type="radio" name="o_ai_handling_mode" value="ai_first" > <strong>AI-first — Maximum automation</strong><br><span class="work-meta">AI handles as much as your business settings allow, while customers can still request a person at any time.</span></label></fieldset><p>Business AI’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
+<div class="wizard-step" data-wizard-step="ai"><h2>Set up your AI receptionist</h2><fieldset class="onboarding-ai-options"><legend>How would you like Business AI to handle your customers?</legend>
+<label class="onboarding-ai-option"><input type="radio" name="o_ai_handling_mode" value="human_first"><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>Human-first</strong><small>Personal service first</small><em>AI answers basic questions and captures enquiries. Your team handles important conversations personally.</em></span></label>
+<label class="onboarding-ai-option recommended"><input type="radio" name="o_ai_handling_mode" value="balanced" checked><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>Balanced</strong><small>Recommended</small><em>AI handles everyday enquiries but hands customers over when a personal response is more appropriate.</em></span></label>
+<label class="onboarding-ai-option"><input type="radio" name="o_ai_handling_mode" value="ai_first"><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>AI-first</strong><small>Maximum automation</small><em>AI handles as much as your business settings allow, while customers can still request a person at any time.</em></span></label>
+</fieldset><p>Business AI’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="knowledge"><h2>Add useful knowledge</h2><p>Optional factual information the AI may use. You can add more FAQs later.</p><div class="auth-field"><label for="o_faq_question">Frequently asked question</label><input id="o_faq_question" maxlength="500" placeholder="For example: Do you cover my area?"></div><div class="auth-field"><label for="o_faq_answer">Answer</label><textarea id="o_faq_answer" maxlength="2000" rows="4" placeholder="A short factual answer"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="review"><h2>Review your setup</h2><p>Check the information your AI receptionist will use. You can edit everything later.</p><div id="onboardingReview" class="wizard-review"></div><p class="onboarding-hint">Completing setup does not grant a trial or subscription. Billing remains separate and secure.</p></div>
 <div id="configurationOnboardingMessage" class="auth-message" role="alert"></div><div class="wizard-actions"><button id="onboardingBack" class="btn" type="button">Back</button><button id="onboardingNext" class="btn primary" type="submit">Continue</button></div>
@@ -1953,7 +2016,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <div id="publicDirectoryResults" class="public-directory-results"></div>
 </section>
 
-<footer class="public-directory-footer">Only businesses with an active public Business AI page can appear in search. <a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a></footer>
+<footer class="public-directory-footer"><span>Only businesses with an active public Business AI page can appear in search.</span><nav aria-label="Directory legal links"><a href="/legal/terms.html" target="_blank" rel="noopener">Terms</a><a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a><a href="/legal/storage.html" target="_blank" rel="noopener">Device storage</a></nav></footer>
 </section>
 </main>
 
@@ -1998,7 +2061,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <p id="publicBusinessType" class="public-business-type">Loading business details…</p>
 <p id="publicBusinessIntro" class="public-business-intro-hidden">Tell us what you need. This AI assistant will pass your enquiry to the business.</p>
 </div>
-<span class="public-online-pill"><i aria-hidden="true"></i>Online</span>
+<span id="publicAssistantStatus" class="public-online-pill"><i aria-hidden="true"></i><b>Online</b></span>
 </div>
 <div id="publicMessages" class="public-messages"></div>
 <div id="publicTyping" class="public-typing" role="status" aria-live="polite"><i aria-hidden="true"></i>Assistant is preparing a response…</div>
@@ -2022,7 +2085,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <div id="dashboardApp" class="app">
 
 <header class="topbar">
-<div class="brand"><div class="brand-icon" aria-hidden="true">AI</div><div class="brand-text"><h1 id="brandName">Business AI</h1><p>Run your business. Smarter.</p></div></div>
+<div class="brand"><div class="brand-icon owner-brand-icon" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div class="brand-text"><h1 id="brandName">Business AI</h1><p>Run your business. Smarter.</p></div></div>
 <div class="owner-tools"><span class="status-dot" title="System online"></span><span class="owner-avatar" aria-hidden="true">AI</span><button id="logoutButton" class="logout-btn" type="button">Log out</button></div>
 
 </header>
@@ -2370,13 +2433,13 @@ placeholder="Describe what you need help with…"
 
 
 <section id="voiceView" class="view">
-<div class="page-title"><h2>Voice receptionist</h2><p>Prepare for future calls without enabling a phone service.</p></div>
-<div class="card"><div class="card-head"><h3>Voice status</h3><span id="voiceStatusBadge">Checking…</span></div><div id="voiceStatusMessage" class="work-meta">Voice is disabled until a provider, number, webhook verification and explicit environment approval are configured.</div><div class="settings-grid" style="margin-top:14px"><div class="field"><label>Greeting source</label><div class="work-meta">Your business name, services, hours, FAQs, AI instructions and handover instructions from Settings are used for future voice context.</div></div><div class="field"><label>Safety</label><div class="work-meta">Emergency/high-risk calls must be escalated. Calls can create booking requests only, never confirmed appointments.</div></div></div></div>
+<div class="page-title screen-title"><span class="page-kicker">Coming soon</span><h2>Voice receptionist</h2><p>Prepare for future calls without enabling a phone service.</p></div>
+<div class="card voice-status-card"><div class="card-head"><div><span class="settings-card-kicker">Phone channel</span><h3>Voice status</h3></div><span id="voiceStatusBadge" class="settings-status-badge">Checking…</span></div><div id="voiceStatusMessage" class="work-meta">Voice is disabled until a provider, number, webhook verification and explicit environment approval are configured.</div><div class="settings-grid" style="margin-top:14px"><div class="field"><label>Greeting source</label><div class="work-meta">Your business name, services, hours, FAQs, AI instructions and handover instructions from Settings are used for future voice context.</div></div><div class="field"><label>Safety</label><div class="work-meta">Emergency/high-risk calls must be escalated. Calls can create booking requests only, never confirmed appointments.</div></div></div></div>
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Call history</h3><span>Development only</span></div><div id="voiceCallsList" class="empty">No simulated or live calls are available. Live phone answering is not active.</div></div>
 </section>
 
 <section id="addonsView" class="view marketing-workspace">
-<div class="screen-title"><h2>Additional Features</h2><p>More possibilities for your business. Add features when you need them.</p></div>
+<div class="screen-title"><span class="page-kicker">Optional features</span><h2>Additional Features</h2><p>Add capabilities when your business needs them, without cluttering the core workspace.</p></div>
 <div class="work-actions"><button class="small-btn" type="button" onclick="showView('settings')">Back to Settings</button></div>
 <p id="addonStatus" class="marketing-message" role="status"></p><div id="addonCards" class="addon-grid"></div>
 </section>
@@ -3182,8 +3245,9 @@ const words=String(name||'').trim().split(/\s+/).filter(Boolean).slice(0,2);
 return words.map(word=>word[0]).join('').toUpperCase().slice(0,2)||'B';
 };
 const setPublicEnquiryAvailable=available=>{
-const input=$('publicChatInput');const submit=$('publicEnquiryForm')?.querySelector('button');
+const input=$('publicChatInput');const submit=$('publicEnquiryForm')?.querySelector('button');const status=$('publicAssistantStatus');
 if(input)input.disabled=!available;if(submit)submit.disabled=!available;
+if(status){status.classList.toggle('is-unavailable',!available);const label=status.querySelector('b');if(label)label.textContent=available?'Online':'Unavailable';}
 };
 async function loadPublicBusinessIdentity(){
 if(!publicEnquirySlug)return;

@@ -512,3 +512,9 @@ body.customer-account.customer-portal-ready{
 @media(prefers-reduced-motion:reduce){
   .auth-role-slider,#authScreen,#customerAuthScreen,.customer-portal-pane,.customer-auth-card{transition:none!important;animation:none!important}
 }
+
+/* Shared auth polish. */
+.customer-auth-forgot{margin:-5px 0 0;text-align:right}
+.customer-auth-forgot button{color:#79b9ff;font-size:10px;font-weight:750}
+.customer-card{border-radius:18px;background:linear-gradient(155deg,#101d2c,#0a1724)}
+.customer-portal-user button:focus-visible,.customer-auth-primary:focus-visible,.customer-guest-link:focus-visible,.customer-search-result a:focus-visible{outline:2px solid #48a7ff;outline-offset:2px}
