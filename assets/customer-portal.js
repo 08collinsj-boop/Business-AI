@@ -131,7 +131,14 @@ function renderEnquiries(target,items,limit=null){
     const copy=document.createElement('div');const title=document.createElement('h4');title.textContent=item.business?.name||'Business';const meta=document.createElement('div');meta.className='meta';meta.textContent=(item.title||'Enquiry')+' · '+statusDate(item.submitted_at);copy.append(title,meta);
     const badge=document.createElement('span');badge.className='customer-status '+String(item.status_key||'received');badge.textContent=item.status||'Received';top.append(copy,badge);card.append(top);
     if(item.summary){const summary=document.createElement('p');summary.textContent=item.summary;card.append(summary);}
-    if(item.business_path){const actions=document.createElement('div');actions.className='customer-enquiry-actions';const link=document.createElement('a');link.href=item.business_path;link.textContent='Open business';actions.append(link);card.append(actions);}
+    if(item.business_path||item.review_request?.url){
+      const actions=document.createElement('div');actions.className='customer-enquiry-actions';
+      if(item.business_path){const link=document.createElement('a');link.href=item.business_path;link.textContent='Open business';actions.append(link);}
+      if(item.review_request?.url){
+        const review=document.createElement('a');review.className='customer-review-link';review.href=item.review_request.url;review.target='_blank';review.rel='noopener noreferrer';review.textContent='Leave a '+(item.review_request.label||'customer')+' review';actions.append(review);
+      }
+      card.append(actions);
+    }
     target.append(card);
   }
 }

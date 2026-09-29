@@ -33,7 +33,7 @@ async function loadHandler() {
       { id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', job_type: 'Electrical repair', description: 'Socket repair enquiry', status: 'New', created_at: '2026-09-27T20:00:00Z' }
     ]);
     if (href.includes('/rest/v1/business_settings?')) return reply([
-      { business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', business_name: 'Collins LTD', business_type: 'Electrical services' }
+      { business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', business_name: 'Collins LTD', business_type: 'Electrical services', review_requests_enabled: false, review_google_url: '', review_facebook_url: '', review_preferred_platform: 'google' }
     ]);
     if (href.includes('/rest/v1/business_public_routes?')) return reply([
       { business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', route_value: 'collins-ltd' }
@@ -41,6 +41,7 @@ async function loadHandler() {
     if (href.includes('/rest/v1/lead_handovers?')) return reply([
       { lead_id: 42, status: 'requires_attention', reason: 'human_first_mode' }
     ]);
+    if (href.includes('/rest/v1/actions?')) return reply([]);
     throw new Error('Unexpected request: ' + href);
   };
   const module = await import(new URL('../lib/customer-portal-handler.js?portal=' + Math.random(), import.meta.url));
@@ -63,6 +64,7 @@ test('customer portal returns only customer-safe tracked enquiry data', { concur
   assert.equal('lead_id' in enquiry, false);
   assert.equal('notes' in enquiry, false);
   assert.equal('email' in enquiry, false);
+  assert.equal(enquiry.review_request, null);
 });
 
 test('customer portal requires a verified server-side auth session', { concurrency: false }, async () => {

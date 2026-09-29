@@ -5,8 +5,10 @@ import { readFile } from "node:fs/promises";
 const source = await readFile(new URL("../api/bookings.js", import.meta.url), "utf8");
 const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
 const auditSource = await readFile(new URL("../lib/audit.js", import.meta.url), "utf8");
+const reviewSource = await readFile(new URL("../lib/review-requests.js", import.meta.url), "utf8");
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
+const reviewUrl = `data:text/javascript;base64,${Buffer.from(reviewSource).toString("base64")}`;
 const savedEnv = { ...process.env };
 const savedFetch = globalThis.fetch;
 
@@ -22,7 +24,7 @@ async function load(enabled, api, membership = { business_id: "business-a", role
     if (url.includes("business_memberships")) return reply(membership ? [membership] : []);
     return api(url, options);
   };
-  const moduleSource = source.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
+  const moduleSource = source.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`).replace('from "../lib/review-requests.js"', `from "${reviewUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(moduleSource).toString("base64")}#${Math.random()}`)).default;
 }
 

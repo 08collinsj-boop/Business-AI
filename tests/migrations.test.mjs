@@ -45,7 +45,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260928183625_refine_public_enquiry_quote_followups.sql",
     "20260928231500_allow_owner_uploaded_marketing_photos.sql",
     "20260929103000_add_business_referrals.sql",
-    "20260929124200_add_automatic_follow_up_settings.sql"
+    "20260929124200_add_automatic_follow_up_settings.sql",
+    "20260929144034_add_review_requests.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -80,6 +81,11 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(automaticFollowUps, /automatic_follow_up_hours integer not null default 24/i);
   assert.match(automaticFollowUps, /automatic_follow_up_hours in \(24, 48, 72\)/i);
   assert.match(automaticFollowUps, /actions_one_pending_automatic_follow_up_idx/i);
+  const reviewRequests = contents.get("20260929144034_add_review_requests.sql");
+  assert.match(reviewRequests, /review_requests_enabled boolean not null default false/i);
+  assert.match(reviewRequests, /review_preferred_platform in \('google', 'facebook'\)/i);
+  assert.match(reviewRequests, /'request_review'/i);
+  assert.match(reviewRequests, /actions_one_review_request_per_booking_idx/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {
