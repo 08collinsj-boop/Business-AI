@@ -23,7 +23,7 @@ async function load({ memberships = [], routes = [{ route_value: "hartlepool-gar
     if (url.endsWith("/auth/v1/user")) return reply(invalid ? {} : { id: "owner-user" }, !invalid, invalid ? 401 : 200);
     if (url.includes("business_memberships")) return reply(memberships);
     if (url.includes("business_public_routes")) return reply(routes);
-    if (url.includes("rpc/create_business_for_owner")) return reply(rpc);
+    if (url.includes("rpc/create_business_for_owner_with_referral")) return reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
   const source = handlerSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
@@ -55,8 +55,16 @@ test("authenticated user without a membership can atomically create one owner bu
   const created = response();
   await handler({ method: "POST", headers: { authorization: "Bearer verified", "x-role": "owner" }, body: { business_name: "Hartlepool Garage", business_type: "Garage", public_slug: "hartlepool-garage" } }, created);
   assert.equal(created.statusCode, 201); assert.deepEqual(created.body, { public_slug: "hartlepool-garage", public_path: "/customer?business=hartlepool-garage" });
-  const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner"));
-  const body = JSON.parse(rpc.options.body); assert.equal(body.p_owner_user_id, "owner-user"); assert.equal(body.p_public_slug, "hartlepool-garage"); assert.equal(body.role, undefined); assert.equal(body.business_id, undefined);
+  const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));
+  const body = JSON.parse(rpc.options.body); assert.equal(body.p_owner_user_id, "owner-user"); assert.equal(body.p_public_slug, "hartlepool-garage"); assert.equal(body.p_referral_code, null); assert.equal(body.role, undefined); assert.equal(body.business_id, undefined);
+});
+
+test("business onboarding accepts one optional normalised referral code", { concurrency: false }, async () => {
+  const { handler, calls } = await load(); const res = response();
+  await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Referred Garage", business_type: "Garage", public_slug: "referred-garage", referral_code: " bai-abcdef1234 " } }, res);
+  assert.equal(res.statusCode, 201);
+  const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));
+  assert.equal(JSON.parse(rpc.options.body).p_referral_code, "BAI-ABCDEF1234");
 });
 
 test("business onboarding rejects invalid auth, duplicate membership, and duplicate routes safely", { concurrency: false }, async () => {

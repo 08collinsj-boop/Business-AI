@@ -13,6 +13,7 @@ import publicBusinessHandler from "../lib/public-business-handler.js";
 import publicBusinessesHandler from "../lib/public-businesses-handler.js";
 import customerPortalHandler from "../lib/customer-portal-handler.js";
 import billingHandler from "../lib/billing-handler.js";
+import referralsHandler from "../lib/referrals-handler.js";
 import publicConfigHandler from "../lib/public-config-handler.js";
 import metaHandler from '../lib/meta-handler.js';
 import marketingPublicationHandler from '../lib/marketing-publication-handler.js';
@@ -36,6 +37,7 @@ const handlers = Object.freeze({
   "public-businesses": publicBusinessesHandler,
   "customer-portal": customerPortalHandler,
   billing: billingHandler,
+  referrals: referralsHandler,
   addons: addonsHandler,
   marketing: marketingHandler,
   knowledge: knowledgeHandler,

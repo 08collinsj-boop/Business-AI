@@ -1763,6 +1763,24 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
   .public-directory-search-types b{font-size:13px}
 }
 
+
+.referral-card{position:relative;overflow:hidden;border-color:#284b74;background:linear-gradient(145deg,rgba(16,40,66,.98),rgba(10,20,33,.98))}
+.referral-card:after{content:"";position:absolute;width:180px;height:180px;right:-90px;top:-105px;border-radius:50%;border:1px solid rgba(110,168,254,.18);pointer-events:none}
+.referral-head{position:relative;z-index:1;display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.referral-head h3{margin:3px 0 5px;font-size:18px;letter-spacing:-.35px}
+.referral-head p{margin:0;max-width:620px;color:var(--muted);font-size:12px;line-height:1.5}
+.referral-kicker{color:#78b6ff;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.referral-count{flex:none;display:grid;place-items:center;min-width:62px;min-height:42px;padding:8px 10px;border:1px solid #315477;border-radius:13px;background:#102943;color:#dceeff;font-size:14px;font-weight:800}
+.referral-progress-track{height:10px;margin:18px 0 9px;overflow:hidden;border:1px solid #29415d;border-radius:999px;background:#091625}
+.referral-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2787ff,#6ea8fe);transition:width .85s cubic-bezier(.22,.9,.3,1)}
+.referral-progress-copy{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#dce9f7;font-size:11px}
+.referral-progress-copy span{color:var(--muted);text-align:right}
+.referral-share-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;margin-top:15px}
+.referral-share-row code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:10px 12px;border:1px solid #29415d;border-radius:11px;background:#081522;color:#a9d3ff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.referral-reward-status{margin:10px 0 0;line-height:1.45}
+@media(max-width:640px){.referral-head{gap:10px}.referral-head h3{font-size:16px}.referral-count{min-width:56px}.referral-progress-copy{align-items:flex-start;flex-direction:column;gap:4px}.referral-progress-copy span{text-align:left}.referral-share-row{grid-template-columns:1fr 1fr}.referral-share-row code{grid-column:1/-1}.referral-share-row .small-btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.referral-progress-fill{transition:none}}
+
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 <link rel="stylesheet" href="/assets/customer-portal.css">
@@ -1820,6 +1838,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <div class="auth-field"><label for="signUpEmail">Email</label><input id="signUpEmail" type="email" autocomplete="email" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
 <div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+<div class="auth-field"><label for="signUpReferralCode">Referral code <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input id="signUpReferralCode" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="e.g. BAI-12AB34CD56"><span style="color:var(--muted);font-size:11px">Have a code from another business? Enter it here.</span></div>
 <label class="legal-consent-row"><input id="signUpLegalAccept" type="checkbox" required><span>I agree to the <a href="/legal/terms.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="/legal/acceptable-use.html" target="_blank" rel="noopener">Acceptable Use Policy</a>, and acknowledge the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
 <button id="signUpSubmit" class="btn primary auth-submit" type="submit">Create account</button>
 <div id="signUpMessage" class="auth-message" role="alert"></div>
@@ -1868,6 +1887,7 @@ body.public-directory{background:radial-gradient(circle at 50% -5%,rgba(31,126,2
 <div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
 <div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
 <div class="auth-field"><label for="newBusinessSlug">Public enquiry link</label><input id="newBusinessSlug" maxlength="63" pattern="[a-z0-9][a-z0-9-]{1,61}[a-z0-9]" placeholder="your-business" required><span style="color:var(--muted);font-size:11px">Lowercase letters, numbers and hyphens. Customers will use this link.</span></div>
+<div class="auth-field"><label for="newBusinessReferralCode">Referral code <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input id="newBusinessReferralCode" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="e.g. BAI-12AB34CD56"><span style="color:var(--muted);font-size:11px">If another business referred you, add their code before creating your workspace.</span></div>
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
 </form>
@@ -2108,6 +2128,22 @@ id="stats"
 <button class="dashboard-launch primary" type="button" onclick="showView('enquiries')"><i aria-hidden="true">◌</i><span><strong>Test your AI</strong><em>Try the receptionist as a customer.</em></span><b aria-hidden="true">›</b></button>
 <button class="dashboard-launch" type="button" onclick="showView('bookings')"><i aria-hidden="true">□</i><span><strong>Bookings</strong><em>Review requests and upcoming work.</em></span><b aria-hidden="true">›</b></button>
 <button class="dashboard-launch" type="button" onclick="showView('settings')"><i aria-hidden="true">⚙</i><span><strong>Business settings</strong><em>Manage your customer link and AI details.</em></span><b aria-hidden="true">›</b></button>
+</div>
+<div id="referralCard" class="card referral-card" data-owner-only hidden>
+  <div class="referral-head">
+    <div><span class="referral-kicker">Refer &amp; Earn</span><h3>Refer 5 businesses. Get 1 month free.</h3><p>Share your link or code. A referral counts after the new business makes its first successful subscription payment.</p></div>
+    <span id="referralCount" class="referral-count">0 / 5</span>
+  </div>
+  <div class="referral-progress-track" role="progressbar" aria-label="Referral progress" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
+    <span id="referralProgressBar" class="referral-progress-fill"></span>
+  </div>
+  <div class="referral-progress-copy"><strong id="referralProgressMessage">5 more referrals to unlock your free month.</strong><span id="referralPendingMessage"></span></div>
+  <div class="referral-share-row">
+    <code id="referralCode">Loading…</code>
+    <button class="small-btn" type="button" onclick="copyReferralLink()">Copy link</button>
+    <button class="small-btn primary-action" type="button" onclick="shareReferralLink()">Share</button>
+  </div>
+  <p id="referralRewardStatus" class="work-meta referral-reward-status"></p>
 </div>
 
 
@@ -2891,6 +2927,7 @@ let authenticatedBusinessRole=null;
 let publicEnquirySlug=null;
 let handovers=[];let teamState=null;let lifecyclePolicy=null;
 let billingState=null;
+let referralState=null;
 let knowledgeSources=[];let knowledgeCanManage=false;let knowledgeReviewSource=null;let knowledgeReplaceSourceId=null;
 let authenticationMode='login';
 let legalState=null;
@@ -2898,10 +2935,19 @@ let legalState=null;
 
 const $=id=>document.getElementById(id);
 
+const REFERRAL_STORAGE_KEY='business-ai-pending-referral-v1';
+const normaliseReferralInput=value=>{const code=String(value||'').trim().toUpperCase();return /^BAI-[A-Z0-9]{10}$/.test(code)?code:null;};
+const referralCodeFromLocation=()=>{try{return normaliseReferralInput(new URL(window.location.href).searchParams.get('ref'));}catch{return null;}};
+const pendingReferralCode=()=>{const fromUrl=referralCodeFromLocation();if(fromUrl)return fromUrl;try{return normaliseReferralInput(localStorage.getItem(REFERRAL_STORAGE_KEY));}catch{return null;}};
+const rememberReferralCode=value=>{const code=normaliseReferralInput(value);try{if(code)localStorage.setItem(REFERRAL_STORAGE_KEY,code);else localStorage.removeItem(REFERRAL_STORAGE_KEY);}catch{}return code;};
+const prefillReferralInputs=()=>{const code=pendingReferralCode();['signUpReferralCode','newBusinessReferralCode'].forEach(id=>{const input=$(id);if(input&&code&&!input.value)input.value=code;});return code;};
+const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new URL(window.location.href);url.searchParams.delete('ref');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}};
+
+
 const clearPrivateState=()=>{
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;referralState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 updateInstallAppCard?.();
 };
@@ -3058,7 +3104,7 @@ if(accountLegal?.needs_user_acceptance){setAppLoading(false);setAuthView('legal-
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 const onboarding=await api('/api/business-onboarding');
-if(onboarding?.needs_business){setAppLoading(false);setAuthView('onboarding-required');return;}
+if(onboarding?.needs_business){prefillReferralInputs();setAppLoading(false);setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
 const businessLegal=await loadLegalState();
 if(authenticatedBusinessRole==='owner'&&businessLegal?.dpa_required&&!businessLegal?.dpa_accepted){setAppLoading(false);setAuthView('dpa-acceptance-required');return;}
@@ -3072,6 +3118,7 @@ clearPrivateState();setAuthView('auth-required','Your business access is unavail
 }
 }
 setAppLoading(false);clearPrivateState();setAuthView('auth-required');
+const linkedReferral=prefillReferralInputs();if(linkedReferral)setAuthenticationMode('signup');
 };
 
 async function initializeAuthentication(){
@@ -3110,7 +3157,7 @@ if(error)throw error;
 
 $('showSignUp').addEventListener('click',()=>{
 $('loginMessage').textContent='';$('loginMessage').classList.remove('info');
-setAuthenticationMode('signup');
+prefillReferralInputs();setAuthenticationMode('signup');
 });
 $('showLogin').addEventListener('click',()=>{
 $('signUpMessage').textContent='';$('signUpMessage').classList.remove('info');
@@ -3139,17 +3186,20 @@ const email=$('signUpEmail').value.trim();
 const password=$('signUpPassword').value;
 const confirmation=$('signUpPasswordConfirm').value;
 const button=$('signUpSubmit');const message=$('signUpMessage');
+const referralRaw=$('signUpReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
 message.classList.remove('info');
 if(password.length<12||password.length>128||password!==confirmation){
 message.textContent='Use a matching password of at least 12 characters.';return;
 }
+if(referralRaw.trim()&&!referralCode){message.textContent='That referral code does not look right. Check it and try again.';return;}
 if(!$('signUpLegalAccept')?.checked){message.textContent='Please review and accept the Business AI terms to create an account.';return;}
+rememberReferralCode(referralCode);
 button.disabled=true;message.textContent='Creating your account…';
 try{
 const {data,error}=await supabaseClient.auth.signUp({
 email,
 password,
-options:{emailRedirectTo:new URL('/',window.location.origin).toString()}
+options:{emailRedirectTo:(()=>{const url=new URL('/',window.location.origin);if(referralCode)url.searchParams.set('ref',referralCode);return url.toString();})()}
 });
 if(error)throw error;
 if(data?.session){
@@ -3322,10 +3372,12 @@ loadPublicBusinessDirectory(query);
 $('businessSetupForm').addEventListener('submit',async event=>{
 event.preventDefault();
 const button=$('businessSetupSubmit');const message=$('businessSetupMessage');
-button.disabled=true;message.textContent='Creating your secure workspace…';
+const referralRaw=$('newBusinessReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
+if(referralRaw.trim()&&!referralCode){message.textContent='That referral code does not look right. Check it and try again.';return;}
+rememberReferralCode(referralCode);button.disabled=true;message.textContent='Creating your secure workspace…';
 try{
-const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,public_slug:$('newBusinessSlug').value.trim().toLowerCase()})});
-message.textContent=`Business created. Your public enquiry link is ${result.public_path}.`;
+const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,public_slug:$('newBusinessSlug').value.trim().toLowerCase(),referral_code:referralCode})});
+message.textContent='Business created. Your public enquiry link is '+result.public_path+'.';clearPendingReferralCode();
 const onboarding=await api('/api/business-onboarding');
 applyBusinessContext(onboarding);
 await beginConfigurationOnboarding();
@@ -3687,6 +3739,49 @@ step(hasProfile,'Finish your business profile','Add service areas, customer inst
 step(Boolean(authenticatedPublicBusinessSlug),'Share your customer link','Copy the safe public enquiry link from Settings. It never reveals an internal business ID.',authenticatedPublicBusinessSlug?'Open settings':null,'settings'),
 step(hasEnquiry,'Test and review an enquiry','Use AI Receptionist for a test, then check the lead, actions and any handover.',hasEnquiry?'View leads':'Test AI','enquiries')
 ].join('');
+}
+
+
+function referralShareUrl(){
+  if(!referralState?.code)return '';
+  const url=new URL('/',window.location.origin);url.searchParams.set('ref',referralState.code);return url.toString();
+}
+function renderReferralCard(){
+  const card=$('referralCard');if(!card)return;
+  if(authenticatedBusinessRole!=='owner'||!referralState?.code){card.hidden=true;return;}
+  card.hidden=false;
+  const threshold=Number(referralState.threshold)||5;
+  const progress=Math.max(0,Math.min(threshold,Number(referralState.progress)||0));
+  const pending=Math.max(0,Number(referralState.pending)||0);
+  const latest=referralState.latestReward||null;
+  $('referralCount').textContent=String(progress)+' / '+String(threshold);
+  $('referralCode').textContent=referralState.code;
+  const remaining=Math.max(0,threshold-progress);
+  $('referralProgressMessage').textContent=remaining===1?'1 more referral to unlock your free month.':String(remaining)+' more referrals to unlock your free month.';
+  $('referralPendingMessage').textContent=pending?String(pending)+' awaiting first payment':'';
+  const status=$('referralRewardStatus');
+  if(latest?.status==='scheduled')status.textContent='Free month earned — it is scheduled for your next eligible base-plan bill. Add-ons stay billed normally.';
+  else if(latest?.status==='earned')status.textContent='Free month unlocked — Business AI will apply it to your next eligible base-plan bill.';
+  else if(latest?.status==='redeemed')status.textContent='Your latest free-month reward has been used. Keep sharing to earn another.';
+  else status.textContent='Only the first successful paid subscription from each referred business counts.';
+  const track=card.querySelector('.referral-progress-track');if(track)track.setAttribute('aria-valuenow',String(progress));
+  const bar=$('referralProgressBar');if(bar){bar.style.width='0%';requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.width=String(Math.round((progress/threshold)*100))+'%';}));}
+}
+async function loadReferrals(){
+  if(authenticatedBusinessRole!=='owner'){referralState=null;renderReferralCard();return;}
+  try{referralState=await api('/api/referrals');renderReferralCard();}
+  catch{referralState=null;renderReferralCard();}
+}
+async function copyReferralLink(){
+  const link=referralShareUrl();if(!link)return;
+  try{await navigator.clipboard.writeText(link);toast('Referral link copied');}
+  catch{toast('Could not copy the referral link');}
+}
+async function shareReferralLink(){
+  const link=referralShareUrl();if(!link)return;
+  const text='Try Business AI using my referral link. Five successful referrals earns a free month for the referring business.';
+  if(navigator.share){try{await navigator.share({title:'Business AI referral',text,url:link});return;}catch(error){if(error?.name==='AbortError')return;}}
+  await copyReferralLink();
 }
 
 function renderDashboard(){
@@ -4223,6 +4318,7 @@ if(frontendAuthEnabled)loadKnowledge();
 if(frontendAuthEnabled)loadPilotOperations();
 if(frontendAuthEnabled)loadVoiceStatus();
 if(frontendAuthEnabled)loadBilling();
+if(frontendAuthEnabled)loadReferrals();
 
 if(showFeedback)toast('Dashboard refreshed');
 

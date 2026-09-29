@@ -43,7 +43,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260927232000_add_directory_visibility.sql",
     "20260927235000_add_customer_portal.sql",
     "20260928183625_refine_public_enquiry_quote_followups.sql",
-    "20260928231500_allow_owner_uploaded_marketing_photos.sql"
+    "20260928231500_allow_owner_uploaded_marketing_photos.sql",
+    "20260929103000_add_business_referrals.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -67,6 +68,12 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   const ownerMarketingPhotos = contents.get("20260928231500_allow_owner_uploaded_marketing_photos.sql");
   assert.match(ownerMarketingPhotos, /marketing_images_provider_check/i);
   assert.match(ownerMarketingPhotos, /'upload'/i);
+  const referrals = contents.get("20260929103000_add_business_referrals.sql");
+  assert.match(referrals, /create table if not exists public\.business_referrals/i);
+  assert.match(referrals, /create table if not exists public\.business_referral_rewards/i);
+  assert.match(referrals, /mod\(v_qualified_count, 5\) = 0/i);
+  assert.match(referrals, /enable row level security/i);
+  assert.match(referrals, /grant execute on function public\.qualify_business_referral/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {

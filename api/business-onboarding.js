@@ -13,18 +13,26 @@ async function request(path, options = {}) {
   const response = await fetch(endpoint(path), { ...options, headers: { "Content-Type": "application/json", apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`, ...(options.headers || {}) } });
   const raw = await response.text(); let data = null;
   try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
-  if (!response.ok) { const error = new Error("Database request failed"); error.status = response.status; throw error; }
+  if (!response.ok) {
+    const invalidReferral = typeof data?.message === "string" && /invalid referral code/i.test(data.message);
+    const error = new Error(invalidReferral ? "Invalid referral code" : "Database request failed");
+    error.status = response.status;
+    throw error;
+  }
   return data;
 }
 function parseBody(value) { try { const body = typeof value === "string" ? JSON.parse(value) : value || {}; return body && typeof body === "object" && !Array.isArray(body) ? body : null; } catch { return null; } }
 function validate(body) {
-  const allowed = new Set(["business_name", "business_type", "public_slug"]);
+  const allowed = new Set(["business_name", "business_type", "public_slug", "referral_code"]);
   if (!body || Object.keys(body).some((key) => !allowed.has(key))) throw new Error("Invalid business details");
   const businessName = typeof body.business_name === "string" ? body.business_name.trim() : "";
   const businessType = typeof body.business_type === "string" ? body.business_type.trim() : "";
   const publicSlug = normalisePublicBusinessSlug(body.public_slug);
+  const rawReferralCode = typeof body.referral_code === "string" ? body.referral_code.trim().toUpperCase() : "";
+  const referralCode = rawReferralCode || null;
   if (businessName.length < 2 || businessName.length > 120 || businessType.length > 120 || !publicSlug) throw new Error("Invalid business details");
-  return { businessName, businessType, publicSlug };
+  if (referralCode && !/^BAI-[A-Z0-9]{10}$/.test(referralCode)) throw new Error("Invalid referral code");
+  return { businessName, businessType, publicSlug, referralCode };
 }
 async function memberships(userId) {
   const rows = await request(`business_memberships?user_id=eq.${encodeURIComponent(userId)}&select=business_id,role&limit=2`);
@@ -54,16 +62,17 @@ export default async function handler(req, res) {
     if (existing.length) return res.status(409).json({ error: "This account already belongs to a business" });
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid business details" });
-    const { businessName, businessType, publicSlug } = validate(body);
-    const result = await request("rpc/create_business_for_owner", {
+    const { businessName, businessType, publicSlug, referralCode } = validate(body);
+    const result = await request("rpc/create_business_for_owner_with_referral", {
       method: "POST", headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ p_owner_user_id: auth.userId, p_business_name: businessName, p_business_type: businessType, p_public_slug: publicSlug })
+      body: JSON.stringify({ p_owner_user_id: auth.userId, p_business_name: businessName, p_business_type: businessType, p_public_slug: publicSlug, p_referral_code: referralCode })
     });
     const created = Array.isArray(result) ? result[0] : result;
     if (!created?.business_id || created.public_slug !== publicSlug) throw new Error("Database request failed");
     await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
     return res.status(201).json({ public_slug: publicSlug, public_path: `/customer?business=${encodeURIComponent(publicSlug)}` });
   } catch (error) {
+    if (/^Invalid referral code/.test(error?.message || "")) return res.status(400).json({ error: "Referral code is not valid" });
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
     if (error?.status === 409 || error?.status === 400) return res.status(409).json({ error: "That business name or public link is unavailable" });
     console.error("Business onboarding API error");

@@ -65,6 +65,10 @@
       "destination": "/api/operations?operation=billing"
     },
     {
+      "source": "/api/referrals",
+      "destination": "/api/operations?operation=referrals"
+    },
+    {
       "source": "/api/voice-calls",
       "destination": "/api/voice?operation=calls"
     },
