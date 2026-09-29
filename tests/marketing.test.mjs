@@ -1053,6 +1053,41 @@ test('marketing prompt treats saved services as a closed catalogue', () => {
   assert.match(MARKETING_SYSTEM_PROMPT, /must not invite customers to book,\s*schedule or request a service unless/i);
 });
 
+test('marketing grounding rejects self-confirmed booking wording', () => {
+  const facts = { business_name: 'Hartlepool Test Electrical', services: 'Socket replacement', service_areas: 'Hartlepool' };
+  const request = { ...input, prompt: 'Promote socket replacement enquiries in Hartlepool' };
+  assert.throws(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'Request a socket replacement in Hartlepool and confirm the time yourself.',
+    short_alternative: 'Book instantly.',
+    call_to_action: 'Confirm your appointment.'
+  }, facts, request), /booking could be confirmed without the business/i);
+});
+
+test('marketing grounding rejects invented percentages and promotions', () => {
+  const facts = { business_name: 'Hartlepool Test Electrical', services: 'Socket replacement', service_areas: 'Hartlepool' };
+  const request = { ...input, prompt: 'Promote socket replacement enquiries in Hartlepool' };
+  assert.throws(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'Get 80% off socket replacement this week.',
+    short_alternative: 'Special offer: save 80%.',
+    call_to_action: 'Request a quote.'
+  }, facts, request), /promotion or percentage/i);
+
+  assert.doesNotThrow(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'Get 20% off socket replacement this week.',
+    short_alternative: '20% off socket replacement.',
+    call_to_action: 'Request a quote.'
+  }, facts, { ...request, prompt: 'Create a 20% off socket replacement post for this week' }));
+});
+
+test('marketing prompt requires business confirmation for bookings', () => {
+  assert.match(MARKETING_SYSTEM_PROMPT, /only creates booking requests/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /business confirms availability and the final time/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /confirm the time yourself/i);
+});
+
 test(
   'rapid duplicates and quota failures return 429 before provider call',
   async () => {

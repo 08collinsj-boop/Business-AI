@@ -49,7 +49,10 @@ test('marketing image prompt uses trusted facts and asks the image model not to 
   );
   assert.match(prompt, /Example Electrical/);
   assert.match(prompt, /Electrical maintenance/);
-  assert.match(prompt, /Do not invent prices, discounts/);
+  assert.match(prompt, /Do not invent prices, discounts, percentages/);
+  assert.match(prompt, /NO READABLE TEXT OR NUMBERS OF ANY KIND/);
+  assert.match(prompt, /BS 1363 Type G sockets\/plugs/);
+  assert.match(prompt, /do not show North American NEMA outlets/i);
   assert.doesNotMatch(prompt, /guaranteed cheapest|50% off/i);
 });
 
