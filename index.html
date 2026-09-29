@@ -2503,11 +2503,15 @@ placeholder="Describe what you need help with…"
 </div>
 
 <div id="marketingImagePanel" class="marketing-publish-panel marketing-image-panel">
-<div class="marketing-panel-heading"><div><span class="marketing-eyebrow">Visual</span><h4>Post image</h4></div><div class="marketing-image-actions"><button id="marketingUploadPhoto" class="small-btn primary-action" type="button">Upload your photo</button><button id="marketingGenerateImage" class="small-btn" type="button">Generate AI image</button></div></div>
+<div class="marketing-panel-heading marketing-image-heading"><div><span class="marketing-eyebrow">Visual</span><h4>Post image</h4><p class="work-meta">Use a real business photo from your device, or let Business AI create one.</p></div><span class="marketing-step-pill">Optional</span></div>
+<div class="marketing-image-options">
+<div class="marketing-image-option marketing-image-option-owner"><div class="marketing-image-option-icon" aria-hidden="true">↥</div><div class="marketing-image-option-copy"><strong>Use your own photo</strong><small>Best for finished work, products, food, premises and real business moments.</small></div><button id="marketingUploadPhoto" class="small-btn primary-action" type="button">Upload your photo</button></div>
+<div class="marketing-image-option"><div class="marketing-image-option-icon" aria-hidden="true">✦</div><div class="marketing-image-option-copy"><strong>Create an AI image</strong><small>Generate a square visual from the approved business context and post brief.</small></div><button id="marketingGenerateImage" class="small-btn" type="button">Generate AI image</button></div>
+</div>
 <input id="marketingPhotoInput" type="file" accept="image/*" hidden>
-<p id="marketingImageStatus" class="work-meta">Upload a real business photo or generate an AI image for this draft.</p>
+<p id="marketingImageStatus" class="work-meta marketing-image-status" role="status" aria-live="polite">Upload a real business photo or generate an AI image for this draft.</p>
 <div id="marketingImagePreview" class="marketing-image-frame"></div>
-<div class="marketing-image-footer"><p class="work-meta marketing-image-upload-note">Your uploaded photo stays private until you publish the approved post. Business AI can use what is visibly in the photo to refresh the caption without treating it as trusted business facts.</p><button id="marketingRemoveImage" class="small-btn danger" type="button" hidden>Remove image</button></div>
+<div class="marketing-image-footer"><p class="work-meta marketing-image-upload-note">JPG, PNG and WebP are supported up to 10 MB. Your photo stays private until you publish the approved post. Business AI can use visible photo context to refresh the caption, but it does not treat the photo as trusted business facts.</p><button id="marketingRemoveImage" class="small-btn danger" type="button" hidden>Remove image</button></div>
 </div>
 
 <div id="marketingPublishControls" class="marketing-publish-panel marketing-publish-card" hidden>

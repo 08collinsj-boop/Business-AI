@@ -21,14 +21,18 @@ test('Marketing UI offers owner photo upload, replacement, removal and private s
   for (const id of ['marketingUploadPhoto','marketingPhotoInput','marketingRemoveImage','marketingImagePreview']) {
     assert.ok(html.includes(id), 'missing ' + id);
   }
+  assert.match(html, /Use your own photo/);
   assert.match(html, /Upload your photo/);
   assert.match(html, /Generate AI image/);
+  assert.match(html, /JPG, PNG and WebP are supported up to 10 MB/);
+  assert.match(html, /marketing-image-options/);
   assert.match(script, /uploadToSignedUrl/);
   assert.match(script, /action:'create_upload'/);
   assert.match(script, /action:'finalize_upload'/);
   assert.match(script, /action:'remove'/);
   assert.match(script, /Business AI used the visible photo context to refresh the caption/);
-  assert.match(css, /marketing-image-actions/);
+  assert.match(css, /marketing-image-options/);
+  assert.match(css, /grid-template-columns:1fr/);
 });
 
 test('Marketing photo context is explicitly non-authoritative and publish path accepts completed uploaded media', async () => {

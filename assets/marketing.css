@@ -85,12 +85,19 @@
 
 
 /* Owner-uploaded Marketing photos */
-.marketing-image-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.marketing-image-heading{align-items:flex-start}
+.marketing-image-heading .work-meta{margin:5px 0 0;max-width:560px}
+.marketing-image-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.marketing-image-option{min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 12px;align-items:start;padding:13px;border:1px solid #29405e;border-radius:14px;background:linear-gradient(180deg,rgba(12,29,47,.98),rgba(8,22,37,.98))}
+.marketing-image-option-owner{border-color:#315b84;background:linear-gradient(180deg,rgba(18,45,72,.72),rgba(8,22,37,.98))}
+.marketing-image-option-icon{width:34px;height:34px;display:grid;place-items:center;border:1px solid #315477;border-radius:11px;background:#102943;color:#79beff;font-size:18px;font-weight:800}
+.marketing-image-option-copy{min-width:0}.marketing-image-option-copy strong{display:block;color:#eaf5ff;font-size:13px}.marketing-image-option-copy small{display:block;margin-top:4px;color:#8098b2;font-size:10px;line-height:1.45}
+.marketing-image-option .small-btn{grid-column:1/-1;width:100%;margin-top:2px}
+.marketing-image-status{margin:11px 0 0;padding:10px 12px;border:1px solid rgba(49,84,119,.65);border-radius:11px;background:rgba(9,23,37,.62);line-height:1.5}
 .marketing-image-footer{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-top:10px}
 .marketing-image-upload-note{margin:0;max-width:620px;line-height:1.5}
 @media(max-width:640px){
-  .marketing-image-actions{width:100%;justify-content:stretch}
-  .marketing-image-actions .small-btn{flex:1}
+  .marketing-image-options{grid-template-columns:1fr}
   .marketing-image-footer{flex-direction:column}
   .marketing-image-footer .small-btn{width:100%}
 }
