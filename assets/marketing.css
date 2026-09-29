@@ -84,6 +84,16 @@
 .marketing-workspace .screen-title p{color:#98aec8}
 
 
+/* Marketing prompt photo attachment */
+.marketing-composer-photo{margin:-2px 0 14px;padding:12px;border:1px solid #29405e;border-radius:14px;background:linear-gradient(180deg,rgba(12,29,47,.9),rgba(8,22,37,.9))}
+.marketing-composer-photo-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.marketing-composer-photo-head>div{min-width:0}.marketing-composer-photo-head strong{display:block;margin-top:3px;color:#eaf5ff;font-size:13px}.marketing-composer-photo-head small{display:block;margin-top:3px;color:#8098b2;font-size:10px;line-height:1.45}
+.marketing-composer-photo-head .small-btn{flex:none}
+.marketing-composer-photo-state{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;margin-top:11px;padding:9px;border:1px solid #315477;border-radius:12px;background:#091827}
+.marketing-composer-photo-preview{width:52px;height:52px;overflow:hidden;border-radius:10px;background:#07111d}.marketing-composer-photo-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.marketing-composer-photo-details{min-width:0}.marketing-composer-photo-details strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dceeff;font-size:11px}.marketing-composer-photo-details small{display:block;margin-top:3px;color:#7890aa;font-size:9px;line-height:1.4}
+@media(max-width:520px){.marketing-composer-photo-head{align-items:flex-start;flex-direction:column}.marketing-composer-photo-head .small-btn{width:100%}.marketing-composer-photo-state{grid-template-columns:52px minmax(0,1fr)}.marketing-composer-photo-state>.small-btn{grid-column:1/-1;width:100%}}
+
 /* Owner-uploaded Marketing photos */
 .marketing-image-heading{align-items:flex-start}
 .marketing-image-heading .work-meta{margin:5px 0 0;max-width:560px}

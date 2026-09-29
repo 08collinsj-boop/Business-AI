@@ -18,19 +18,25 @@ test('Marketing UI offers owner photo upload, replacement, removal and private s
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const script = await readFile(new URL('../assets/marketing.js', import.meta.url), 'utf8');
   const css = await readFile(new URL('../assets/marketing.css', import.meta.url), 'utf8');
-  for (const id of ['marketingUploadPhoto','marketingPhotoInput','marketingRemoveImage','marketingImagePreview']) {
+  for (const id of ['marketingUploadPhoto','marketingPhotoInput','marketingComposerPhotoState','marketingComposerPhotoPreview','marketingReplacePhoto','marketingRemoveImage','marketingImagePreview']) {
     assert.ok(html.includes(id), 'missing ' + id);
   }
-  assert.match(html, /Use your own photo/);
-  assert.match(html, /Upload your photo/);
+  assert.match(html, /Use your own image/);
+  assert.match(html, /Add photo/);
+  assert.match(html, /Upload \/ replace photo/);
   assert.match(html, /Generate AI image/);
   assert.match(html, /JPG, PNG and WebP are supported up to 10 MB/);
+  assert.ok(html.indexOf('id="marketingUploadPhoto"') < html.indexOf('id="marketingGenerate"'), 'own-image control should be visible beside the draft brief before generation');
+  assert.match(html, /marketing-composer-photo/);
   assert.match(html, /marketing-image-options/);
+  assert.match(script, /pendingMarketingPhoto/);
+  assert.match(script, /uploadPreparedMarketingPhoto\(selectedPhoto,result\.id/);
   assert.match(script, /uploadToSignedUrl/);
   assert.match(script, /action:'create_upload'/);
   assert.match(script, /action:'finalize_upload'/);
   assert.match(script, /action:'remove'/);
   assert.match(script, /Business AI used the visible photo context to refresh the caption/);
+  assert.match(css, /marketing-composer-photo/);
   assert.match(css, /marketing-image-options/);
   assert.match(css, /grid-template-columns:1fr/);
 });

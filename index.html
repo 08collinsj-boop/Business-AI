@@ -2515,6 +2515,15 @@ placeholder="Describe what you need help with…"
 <div class="field"><label for="marketingTone">Tone</label><select id="marketingTone" name="tone"><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="casual">Casual</option><option value="promotional">Promotional</option></select></div>
 </div>
 <div class="field"><label for="marketingPrompt">What do you want to promote or talk about?</label><textarea id="marketingPrompt" name="prompt" maxlength="2000" required placeholder="e.g. Promote our electrical maintenance service for local businesses."></textarea></div>
+<div class="marketing-composer-photo">
+<div class="marketing-composer-photo-head"><div><span class="marketing-eyebrow">Optional image</span><strong>Use your own image</strong><small>Attach a real business photo and Business AI will use what is visibly in it when preparing this draft.</small></div><button id="marketingUploadPhoto" class="small-btn" type="button">Add photo</button></div>
+<input id="marketingPhotoInput" type="file" accept="image/*" hidden>
+<div id="marketingComposerPhotoState" class="marketing-composer-photo-state" hidden>
+<div id="marketingComposerPhotoPreview" class="marketing-composer-photo-preview"></div>
+<div class="marketing-composer-photo-details"><strong id="marketingComposerPhotoName">Photo selected</strong><small>It will be uploaded privately after you press Generate draft.</small></div>
+<button id="marketingComposerPhotoRemove" class="small-btn danger" type="button">Remove</button>
+</div>
+</div>
 <div class="field"><label for="marketingExtra">Extra instructions <small>(optional)</small></label><textarea id="marketingExtra" name="extra_instructions" maxlength="1000" placeholder="Include an exact offer, price, event date or anything you want the AI to avoid."></textarea></div>
 <div class="marketing-trust-note"><span>✓</span><p>Uses your business profile and approved Business Knowledge. Details typed here apply only to this generation and never overwrite trusted knowledge.</p></div>
 <div class="marketing-form-footer"><span class="work-meta">Review every factual claim before approval.</span><button id="marketingGenerate" class="small-btn primary-action marketing-primary-cta" type="submit">Generate draft</button></div>
@@ -2541,10 +2550,9 @@ placeholder="Describe what you need help with…"
 <div id="marketingImagePanel" class="marketing-publish-panel marketing-image-panel">
 <div class="marketing-panel-heading marketing-image-heading"><div><span class="marketing-eyebrow">Visual</span><h4>Post image</h4><p class="work-meta">Use a real business photo from your device, or let Business AI create one.</p></div><span class="marketing-step-pill">Optional</span></div>
 <div class="marketing-image-options">
-<div class="marketing-image-option marketing-image-option-owner"><div class="marketing-image-option-icon" aria-hidden="true">↥</div><div class="marketing-image-option-copy"><strong>Use your own photo</strong><small>Best for finished work, products, food, premises and real business moments.</small></div><button id="marketingUploadPhoto" class="small-btn primary-action" type="button">Upload your photo</button></div>
+<div class="marketing-image-option marketing-image-option-owner"><div class="marketing-image-option-icon" aria-hidden="true">↥</div><div class="marketing-image-option-copy"><strong>Change attached photo</strong><small>Replace the photo on this saved draft without starting again.</small></div><button id="marketingReplacePhoto" class="small-btn" type="button">Upload / replace photo</button></div>
 <div class="marketing-image-option"><div class="marketing-image-option-icon" aria-hidden="true">✦</div><div class="marketing-image-option-copy"><strong>Create an AI image</strong><small>Generate a square visual from the approved business context and post brief.</small></div><button id="marketingGenerateImage" class="small-btn" type="button">Generate AI image</button></div>
 </div>
-<input id="marketingPhotoInput" type="file" accept="image/*" hidden>
 <p id="marketingImageStatus" class="work-meta marketing-image-status" role="status" aria-live="polite">Upload a real business photo or generate an AI image for this draft.</p>
 <div id="marketingImagePreview" class="marketing-image-frame"></div>
 <div class="marketing-image-footer"><p class="work-meta marketing-image-upload-note">JPG, PNG and WebP are supported up to 10 MB. Your photo stays private until you publish the approved post. Business AI can use visible photo context to refresh the caption, but it does not treat the photo as trusted business facts.</p><button id="marketingRemoveImage" class="small-btn danger" type="button" hidden>Remove image</button></div>
