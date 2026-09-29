@@ -83,7 +83,7 @@ test("billing private API is owner-only and ignores browser tenant input", async
   process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key";
   const calls = []; globalThis.fetch = async (url) => { calls.push(url); if (url.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" }); if (url.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]); if (url.includes("business_billing_accounts")) return reply([account]); if (url.includes("business_billing_usage")) return reply([{ quantity: 2 }]); return reply({}, false); };
   const handler = (await import(new URL(`../lib/billing-handler.js?owner=${Math.random()}`, import.meta.url))).default; const response = res(); await handler({ method: "GET", headers: { authorization: "Bearer valid" }, query: { business_id: "other-business" } }, response);
-  assert.equal(response.statusCode, 200); assert.equal(response.body.entitlements.plan, "starter"); assert.deepEqual(response.body.account, { plan: "starter", status: "active", trial_purchased: false, cancel_at_period_end: false, has_customer: false, has_subscription: false }); assert.ok(calls.some((url) => url.includes(encodeURIComponent(account.business_id)))); assert.ok(calls.every((url) => !url.includes("other-business")));
+  assert.equal(response.statusCode, 200); assert.equal(response.body.entitlements.plan, "starter"); assert.deepEqual(response.body.account, { plan: "starter", status: "active", trial_purchased: false, cancel_at_period_end: false, has_customer: false, has_subscription: false }); assert.equal(response.body.pending_plan_change, null); assert.ok(calls.some((url) => url.includes(encodeURIComponent(account.business_id)))); assert.ok(calls.every((url) => !url.includes("other-business")));
   globalThis.fetch = async (url) => url.endsWith("/auth/v1/user") ? reply({ id: "user-a" }) : url.includes("business_memberships") ? reply([{ business_id: account.business_id, role: "member" }]) : reply({}, false);
   const denied = res(); await handler({ method: "GET", headers: { authorization: "Bearer valid" }, query: {} }, denied); assert.equal(denied.statusCode, 403);
 });
@@ -101,12 +101,12 @@ test("an active Stripe subscription is managed through the server-derived accoun
   assert.equal(response.statusCode, 200); assert.equal(response.body.portal_url, "https://billing.stripe.test/portal"); const portal = calls.find((call) => call.url.includes("billing_portal/sessions")); assert.match(String(portal.options.body), /customer=cus_owned/); assert.doesNotMatch(String(portal.options.body), /cus_other/);
 });
 
-test("active subscriptions can change the base plan without removing add-ons or starting another Checkout", async () => {
-  process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key"; process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.BILLING_APP_URL = "https://pilot.example.test"; process.env.STRIPE_PRICE_STARTER = "price_starter"; process.env.STRIPE_PRICE_PRO = "price_pro"; process.env.STRIPE_PRICE_BUSINESS = "price_business"; process.env.STRIPE_PRICE_PRO_LEGACY = "price_pro_legacy";
-  const subscribed = { ...account, plan: "pro", stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_owned" };
-  const stripeSubscription = { id: "sub_owned", metadata: { business_id: account.business_id, plan: "pro" }, items: { data: [
-    { id: "si_base", price: { id: "price_pro_legacy" } },
-    { id: "si_marketing", price: { id: "price_marketing" } }
+test("subscription upgrades are immediate, prorated and preserve add-ons", async () => {
+  process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key"; process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.BILLING_APP_URL = "https://pilot.example.test"; process.env.STRIPE_PRICE_STARTER = "price_starter"; process.env.STRIPE_PRICE_PRO = "price_pro"; process.env.STRIPE_PRICE_BUSINESS = "price_business";
+  const subscribed = { ...account, plan: "starter", stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_owned" };
+  const stripeSubscription = { id: "sub_owned", schedule: null, metadata: { business_id: account.business_id, plan: "starter" }, items: { data: [
+    { id: "si_base", price: { id: "price_starter" }, quantity: 1, current_period_start: 1780000000, current_period_end: 1782600000 },
+    { id: "si_marketing", price: { id: "price_marketing" }, quantity: 1, current_period_start: 1780000000, current_period_end: 1782600000 }
   ], has_more: false } };
   const calls = [];
   globalThis.fetch = async (url, options = {}) => {
@@ -116,37 +116,85 @@ test("active subscriptions can change the base plan without removing add-ons or 
     if (href.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]);
     if (href.includes("business_billing_accounts")) return reply([subscribed]);
     if (href.endsWith("/v1/subscriptions/sub_owned") && (!options.method || options.method === "GET")) return reply(stripeSubscription);
-    if (href.endsWith("/v1/subscriptions/sub_owned") && options.method === "POST") return reply({ ...stripeSubscription, metadata: { business_id: account.business_id, plan: "starter" }, items: { data: [
-      { id: "si_base", price: { id: "price_starter" } },
-      { id: "si_marketing", price: { id: "price_marketing" } }
+    if (href.endsWith("/v1/subscriptions/sub_owned") && options.method === "POST") return reply({ ...stripeSubscription, metadata: { business_id: account.business_id, plan: "pro" }, items: { data: [
+      { id: "si_base", price: { id: "price_pro" }, quantity: 1 },
+      { id: "si_marketing", price: { id: "price_marketing" }, quantity: 1 }
     ], has_more: false } });
     if (href.includes("business_audit_events")) return reply({}, true, 201);
     return reply({}, false);
   };
-  const handler = (await import(new URL("../lib/billing-handler.js?change-plan=" + Math.random(), import.meta.url))).default;
+  const handler = (await import(new URL("../lib/billing-handler.js?upgrade-plan=" + Math.random(), import.meta.url))).default;
   const response = res();
-  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "change_plan", plan: "starter" } }, response);
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "change_plan", plan: "pro" } }, response);
   assert.equal(response.statusCode, 200);
-  assert.equal(response.body.plan, "starter");
+  assert.equal(response.body.plan, "pro");
+  assert.equal(response.body.scheduled, false);
   const update = calls.find(call => call.url.endsWith("/v1/subscriptions/sub_owned") && call.options.method === "POST");
   assert.ok(update);
   const form = new URLSearchParams(update.options.body);
   assert.equal(form.get("items[0][id]"), "si_base");
-  assert.equal(form.get("items[0][price]"), "price_starter");
+  assert.equal(form.get("items[0][price]"), "price_pro");
   assert.equal(form.get("proration_behavior"), "always_invoice");
   assert.equal(form.get("payment_behavior"), "error_if_incomplete");
   assert.equal(form.get("metadata[business_id]"), account.business_id);
-  assert.equal(form.get("metadata[plan]"), "starter");
+  assert.equal(form.get("metadata[plan]"), "pro");
   assert.ok(calls.every(call => !call.url.includes("/checkout/sessions")));
 });
 
-test("active subscription plan cards expose real switch actions instead of disabled Manage subscription labels", () => {
+test("subscription downgrades are scheduled at renewal with no proration and preserve add-ons", async () => {
+  process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key"; process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.BILLING_APP_URL = "https://pilot.example.test"; process.env.STRIPE_PRICE_STARTER = "price_starter"; process.env.STRIPE_PRICE_PRO = "price_pro"; process.env.STRIPE_PRICE_BUSINESS = "price_business"; process.env.STRIPE_PRICE_PRO_LEGACY = "price_pro_legacy";
+  const subscribed = { ...account, plan: "pro", stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_owned" };
+  const stripeSubscription = { id: "sub_owned", schedule: null, metadata: { business_id: account.business_id, plan: "pro" }, items: { data: [
+    { id: "si_base", price: { id: "price_pro_legacy" }, quantity: 1, current_period_start: 1780000000, current_period_end: 1782600000 },
+    { id: "si_marketing", price: { id: "price_marketing" }, quantity: 1, current_period_start: 1780000000, current_period_end: 1782600000 }
+  ], has_more: false } };
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), options });
+    const href=String(url);
+    if (href.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" });
+    if (href.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]);
+    if (href.includes("business_billing_accounts")) return reply([subscribed]);
+    if (href.endsWith("/v1/subscriptions/sub_owned") && (!options.method || options.method === "GET")) return reply(stripeSubscription);
+    if (href.endsWith("/v1/subscription_schedules") && options.method === "POST") return reply({ id: "sub_sched", status: "active", current_phase: { start: 1780000000, end: 1782600000 } });
+    if (href.endsWith("/v1/subscription_schedules/sub_sched") && options.method === "POST") return reply({ id: "sub_sched", status: "active" });
+    if (href.includes("business_audit_events")) return reply({}, true, 201);
+    return reply({}, false);
+  };
+  const handler = (await import(new URL("../lib/billing-handler.js?downgrade-plan=" + Math.random(), import.meta.url))).default;
+  const response = res();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "change_plan", plan: "starter" } }, response);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.plan, "starter");
+  assert.equal(response.body.scheduled, true);
+  assert.equal(response.body.effective_at, new Date(1782600000 * 1000).toISOString());
+  const scheduleUpdate = calls.find(call => call.url.endsWith("/v1/subscription_schedules/sub_sched") && call.options.method === "POST");
+  assert.ok(scheduleUpdate);
+  const form = new URLSearchParams(scheduleUpdate.options.body);
+  assert.equal(form.get("end_behavior"), "release");
+  assert.equal(form.get("phases[0][items][0][price]"), "price_pro_legacy");
+  assert.equal(form.get("phases[0][items][1][price]"), "price_marketing");
+  assert.equal(form.get("phases[1][items][0][price]"), "price_starter");
+  assert.equal(form.get("phases[1][items][1][price]"), "price_marketing");
+  assert.equal(form.get("phases[0][proration_behavior]"), "none");
+  assert.equal(form.get("phases[1][proration_behavior]"), "none");
+  assert.equal(form.get("phases[1][start_date]"), "1782600000");
+  assert.equal(form.get("phases[1][duration][interval]"), "month");
+  assert.equal(form.get("phases[1][duration][interval_count]"), "1");
+  assert.ok(calls.every(call => !(call.url.endsWith("/v1/subscriptions/sub_owned") && call.options.method === "POST")));
+});
+
+test("billing UI explains immediate upgrades and scheduled downgrades", () => {
   const render = frontendSource.slice(frontendSource.indexOf("function renderBilling()"), frontendSource.indexOf("async function loadBilling()"));
-  assert.match(render, /Switch to ' \+ item\.name|Switch to '\+item\.name/);
-  assert.match(render, /changeBillingPlan/);
-  assert.doesNotMatch(render, /managedSubscription\?'Manage subscription'/);
+  assert.match(render, /pending_plan_change/);
+  assert.match(render, /Scheduled change to/);
+  assert.match(render, /Scheduled'/);
+  assert.match(render, /cancelPlanChangeButton/);
+  assert.match(frontendSource, /Downgrades take effect at the next renewal/);
+  assert.match(frontendSource, /no downgrade credit is created/);
   assert.match(frontendSource, /async function changeBillingPlan\(plan\)/);
-  assert.match(frontendSource, /action:'change_plan'/);
+  assert.match(frontendSource, /async function cancelScheduledPlanChange\(\)/);
+  assert.match(frontendSource, /action:'cancel_plan_change'/);
 });
 
 test("a previously used trial cannot start another Checkout and expiry does not delete business data", async () => {
@@ -281,6 +329,9 @@ test("owner cancellation requests Stripe cancellation at period end and persists
     if (href.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]);
     if (href.includes("business_billing_accounts") && options.method !== "POST") return reply([subscribed]);
 
+    if (href.includes("api.stripe.com/v1/subscriptions/sub_owned") && (!options.method || options.method === "GET")) {
+      return reply({ id: "sub_owned", schedule: null, items: { data: [{ id: "si_base", price: { id: "price_starter" }, current_period_start: 1780000000, current_period_end: 1782600000 }], has_more: false } });
+    }
     if (href.includes("api.stripe.com/v1/subscriptions/sub_owned") && options.method === "POST") {
       return reply({ id: "sub_owned", cancel_at_period_end: true });
     }
@@ -304,7 +355,7 @@ test("owner cancellation requests Stripe cancellation at period end and persists
   assert.equal(response.statusCode, 200);
   assert.deepEqual(response.body, { cancelled_at_period_end: true });
 
-  const stripeCall = calls.find(call => call.url.includes("api.stripe.com/v1/subscriptions/sub_owned"));
+  const stripeCall = calls.find(call => call.url.includes("api.stripe.com/v1/subscriptions/sub_owned") && call.options.method === "POST");
   assert.ok(stripeCall);
   assert.equal(new URLSearchParams(stripeCall.options.body).get("cancel_at_period_end"), "true");
 
