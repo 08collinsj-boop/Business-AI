@@ -1616,6 +1616,45 @@ padding-right:max(14px,env(safe-area-inset-right));
 
 
 
+/* Website assistant install card */
+.website-widget-card{overflow:hidden}
+.website-widget-intro{max-width:650px;line-height:1.55}
+.website-widget-preview-row{position:relative;min-height:112px;margin:14px 0;padding:15px;border:1px solid #1c4167;border-radius:16px;background:linear-gradient(145deg,#071525,#0a1d30);overflow:hidden}
+.website-widget-preview-page{display:grid;gap:7px;width:min(72%,420px);padding:14px;border:1px solid #18344f;border-radius:12px;background:#0b1724}
+.website-widget-preview-page i{display:block;height:7px;border-radius:999px;background:#183956}.website-widget-preview-page i:nth-child(1){width:48%}.website-widget-preview-page i:nth-child(2){width:86%}.website-widget-preview-page i:nth-child(3){width:68%}
+.website-widget-preview-bubble{position:absolute;right:16px;bottom:14px;display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 15px;border:1px solid #3c9cff;border-radius:999px;background:linear-gradient(135deg,#2589f7,#1467cf);color:#fff;font-size:11px;box-shadow:0 10px 25px rgba(25,119,233,.3)}
+.website-widget-code{min-height:104px!important;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace!important;font-size:11px!important;line-height:1.45!important;resize:none}
+.website-widget-actions{margin-top:11px}.website-widget-note{margin:10px 0 0;line-height:1.5}
+@media(max-width:520px){.website-widget-preview-page{width:82%}.website-widget-preview-bubble{right:10px;bottom:10px}.website-widget-actions .small-btn{flex:1}}
+
+/* Embedded website assistant mode */
+body.public-enquiry.public-embed{height:100dvh;min-height:100dvh;overflow:hidden;background:#06111d}
+body.public-enquiry.public-embed #publicEnquiryScreen{height:100dvh;min-height:0;overflow:hidden}
+body.public-enquiry.public-embed .public-chat-first-shell{width:100%;height:100dvh;min-height:0;margin:0;padding:0;gap:0;overflow:hidden}
+body.public-enquiry.public-embed .public-assistant-hero,
+body.public-enquiry.public-embed .public-quick-actions-panel{display:none!important}
+body.public-enquiry.public-embed .public-chat-primary{flex:1 1 0;height:auto;min-height:0;margin:0;padding:12px;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+body.public-enquiry.public-embed .public-chat-heading{flex:none;min-height:54px;padding:0 2px 10px}
+body.public-enquiry.public-embed .public-assistant-avatar{width:40px;height:40px;border-radius:13px}
+body.public-enquiry.public-embed .public-chat-heading-copy strong{font-size:12px}
+body.public-enquiry.public-embed .public-chat-heading-copy .public-business-name{font-size:9px}
+body.public-enquiry.public-embed .public-online-pill{min-height:28px;padding:0 8px;font-size:8px}
+body.public-enquiry.public-embed .public-messages{flex:1 1 0;min-height:0;max-height:none;overflow-y:auto;padding:11px 1px 6px 39px}
+body.public-enquiry.public-embed .public-messages .msg{margin-bottom:8px;padding:9px 10px;font-size:11px;line-height:1.43}
+body.public-enquiry.public-embed .public-messages .msg.ai:before{left:-37px;width:29px;height:29px}
+body.public-enquiry.public-embed .public-typing{flex:none;padding:2px 0 5px 39px;font-size:8px}
+body.public-enquiry.public-embed .public-chat-form{position:relative;bottom:auto;flex:none;min-height:54px;margin-top:4px;padding:5px 5px 5px 9px;border-radius:18px}
+body.public-enquiry.public-embed .public-composer-icon{width:21px;font-size:18px}
+body.public-enquiry.public-embed .public-chat-form input{min-height:42px;padding:0 5px;font-size:12px}
+body.public-enquiry.public-embed .public-chat-form button{width:42px;height:42px;font-size:17px}
+body.public-enquiry.public-embed .public-customer-account-note{display:none!important}
+body.public-enquiry.public-embed .public-customer-footer{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-height:24px;padding:0 8px 5px;text-align:center;font-size:7px}
+body.public-enquiry.public-embed .public-footer-lock{display:none}
+body.public-enquiry.public-embed .public-customer-footer p{max-width:58%;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.public-enquiry.public-embed .public-customer-footer p br{display:none}
+body.public-enquiry.public-embed .public-customer-footer .public-legal-links{display:flex;grid-column:auto;justify-content:center;gap:6px;margin:0}
+body.public-enquiry.public-embed .public-customer-footer .public-legal-links a{font-size:7px}
+
 /* UK compliance pack and acceptance surfaces. */
 .legal-consent-row{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;margin:15px 0;color:#a8b9ce;font-size:12px;line-height:1.45;text-align:left}
 .legal-consent-row input{width:18px;height:18px;margin:1px 0 0;accent-color:#2787ff}
@@ -2600,6 +2639,7 @@ class="view"
 <div class="settings-hub" aria-label="Settings overview">
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
+<button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('websiteWidgetCard')"><i>↗</i><span><strong>Website widget</strong><small>Add the AI assistant to your website</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span><b aria-hidden="true">›</b></button>
 </div>
 
@@ -2776,6 +2816,19 @@ onclick="saveSettings()"
 Save business settings
 </button>
 
+</div>
+
+<div id="websiteWidgetCard" class="card settings-card settings-anchor-card website-widget-card" data-admin-only style="margin-top:14px">
+<div class="card-head"><div><span class="settings-card-kicker">Growth</span><h3>Website AI widget</h3></div><span class="settings-status-badge">Ready to embed</span></div>
+<p class="work-meta website-widget-intro">Put your Business AI receptionist directly on your existing website. Customers get a floating <strong>Chat with us</strong> button and their enquiries still arrive in this Business AI workspace.</p>
+<div class="website-widget-preview-row" aria-hidden="true"><span class="website-widget-preview-page"><i></i><i></i><i></i></span><span class="website-widget-preview-bubble">✦ <b>Chat with us</b></span></div>
+<div class="field full">
+<label for="websiteWidgetCode">Install code</label>
+<textarea id="websiteWidgetCode" class="website-widget-code" rows="4" readonly spellcheck="false" aria-describedby="websiteWidgetHelp"></textarea>
+<div id="websiteWidgetHelp" class="work-meta">Copy this once into your website, ideally just before the closing body tag. It uses your public business link — never an internal business ID.</div>
+</div>
+<div class="work-actions website-widget-actions"><button class="small-btn primary-action" type="button" onclick="copyWebsiteWidgetCode()">Copy website code</button><button class="small-btn" type="button" onclick="previewWebsiteWidget()">Preview assistant</button></div>
+<p class="work-meta website-widget-note">The widget loads the customer assistant in an isolated frame, so it does not read or alter the rest of the business website. Your existing enquiry limits, human handover rules and Business Knowledge still apply.</p>
 </div>
 
 <div id="aiReceptionistSettingsCard" class="card settings-card settings-anchor-card" style="margin-top:14px">
@@ -2971,7 +3024,7 @@ const applyBusinessContext=onboarding=>{
 const publicSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
 const role=['owner','admin','member'].includes(onboarding?.role)?onboarding.role:null;
 if(!publicSlug||!role)throw new Error('Business access is unavailable');
-authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();
+authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();fillWebsiteWidgetCode();
 updateInstallAppCard();
 loadEnquiryConversation();renderEnquiryConversation();
 };
@@ -3040,6 +3093,7 @@ const publicSlugFromLocation=()=>{
 const slug=new URLSearchParams(window.location.search).get('business');
 return /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(slug||'').toLowerCase())?String(slug).toLowerCase():null;
 };
+const websiteWidgetEmbedFromLocation=()=>new URLSearchParams(window.location.search).get('embed')==='1';
 const invitationIdFromLocation=()=>{const value=new URLSearchParams(window.location.search).get('invite');return /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(value||''))?String(value):null;};
 
 const customerPortalFromLocation=()=>/^\/customer\/?$/.test(window.location.pathname);
@@ -3059,6 +3113,32 @@ async function copyPublicEnquiryLink(){
 const input=$('publicEnquiryLink');const link=input?.value||'';
 if(!link){toast('Customer enquiry link is unavailable');return;}
 try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);else{input.select();document.execCommand('copy');}toast('Customer enquiry link copied');}catch{input.select();toast('Copy the customer enquiry link from the field');}
+}
+
+
+const websiteWidgetInstallCode=slug=>{
+if(!slug)return '';
+const source=new URL('/widget.js',window.location.origin).toString();
+return '<script src="'+source+'" data-business="'+slug+'" data-label="Chat with us" defer></'+'script>';
+};
+const websiteWidgetPreviewUrl=slug=>{
+if(!slug)return '';
+const url=new URL('/customer',window.location.origin);url.searchParams.set('business',slug);url.searchParams.set('embed','1');return url.toString();
+};
+function fillWebsiteWidgetCode(){
+const input=$('websiteWidgetCode');if(!input)return;
+input.value=websiteWidgetInstallCode(authenticatedPublicBusinessSlug);
+}
+async function copyWebsiteWidgetCode(){
+const input=$('websiteWidgetCode');const code=input?.value||websiteWidgetInstallCode(authenticatedPublicBusinessSlug);
+if(!code){toast('Website widget code is unavailable');return;}
+try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(code);else{input.value=code;input.select();document.execCommand('copy');}toast('Website widget code copied');}
+catch{if(input){input.value=code;input.select();}toast('Copy the website widget code from the field');}
+}
+function previewWebsiteWidget(){
+const url=websiteWidgetPreviewUrl(authenticatedPublicBusinessSlug);
+if(!url){toast('Website widget preview is unavailable');return;}
+window.open(url,'_blank','noopener,noreferrer');
 }
 
 
@@ -4345,7 +4425,7 @@ $('leadList').innerHTML=message;
 
 async function initializeApp(){
 publicEnquirySlug=publicSlugFromLocation();
-if(publicEnquirySlug){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
+if(publicEnquirySlug){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-enquiry');if(websiteWidgetEmbedFromLocation())document.body.classList.add('public-embed');setPublicEnquiryAvailable(false);loadPublicBusinessIdentity();return;}
 if(customerAccountFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('customer-account','customer-auth-active');return;}
 if(customerPortalFromLocation()){setAppLoading(false);document.body.classList.remove('auth-pending');document.body.classList.add('public-directory');resetPublicBusinessDirectorySearch();return;}
 try{sessionStorage.removeItem('business-ai-enquiry-conversation');}catch{}
