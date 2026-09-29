@@ -1616,6 +1616,19 @@ padding-right:max(14px,env(safe-area-inset-right));
 
 
 
+/* Automatic follow-up settings */
+.automatic-follow-up-card{overflow:hidden}
+.automatic-follow-up-intro{max-width:680px;line-height:1.55}
+.automatic-follow-up-control{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:12px;align-items:stretch;margin:14px 0 10px}
+.automatic-follow-up-toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid #1d4162;border-radius:15px;background:#081b2d;cursor:pointer}
+.automatic-follow-up-toggle span{min-width:0}.automatic-follow-up-toggle strong{display:block;color:#edf7ff;font-size:13px}.automatic-follow-up-toggle small{display:block;margin-top:4px;color:#8299b3;font-size:10px;line-height:1.45}
+.automatic-follow-up-toggle .switch{flex:none}
+.automatic-follow-up-delay{margin:0!important;padding:12px;border:1px solid #1d4162;border-radius:15px;background:#081b2d}
+.automatic-follow-up-delay label{margin-bottom:7px}
+.automatic-follow-up-hint{margin:0 0 10px;color:#92b7db}
+.automatic-follow-up-safety{margin:10px 0 0;line-height:1.5}
+@media(max-width:640px){.automatic-follow-up-control{grid-template-columns:1fr}.automatic-follow-up-card .work-actions .small-btn{flex:1}}
+
 /* Website assistant install card */
 .website-widget-card{overflow:hidden}
 .website-widget-intro{max-width:650px;line-height:1.55}
@@ -1665,6 +1678,7 @@ body.public-enquiry.public-embed .public-customer-footer .public-legal-links a{f
 .value-impact-metric strong{display:block;margin-top:5px;color:#edf7ff;font-size:22px;line-height:1}
 .value-impact-metric small{display:block;margin-top:6px;color:#7790aa;font-size:9px;line-height:1.4}
 .value-dashboard-loading{grid-column:1/-1;padding:18px;text-align:center;color:#7790aa;font-size:11px}
+.value-follow-up-summary{margin-top:10px;padding:9px 11px;border:1px solid #1c4162;border-radius:12px;background:#081a2b;color:#92aac3;font-size:10px;line-height:1.45}
 .value-dashboard-section{margin-top:14px;padding:13px;border:1px solid #173955;border-radius:15px;background:rgba(5,18,31,.58)}
 .value-dashboard-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
 .value-dashboard-section-head strong{display:block;color:#e9f5ff;font-size:12px}.value-dashboard-section-head span{display:block;margin-top:3px;color:#748da8;font-size:9px}.value-dashboard-section-head b{color:#83a0bd;font-size:9px;font-weight:700}
@@ -2206,6 +2220,7 @@ id="stats"
 </div>
 <p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
 <div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
+<div id="valueFollowUpSummary" class="value-follow-up-summary">Automatic follow-ups will appear here when enabled.</div>
 <div class="value-dashboard-section">
 <div class="value-dashboard-section-head"><div><strong>Where enquiries came from</strong><span>Tracked customer entry points</span></div><b id="valueSourceTracked">0 tracked</b></div>
 <div id="valueSourceBars" class="value-source-bars"><div class="empty">Source data will appear as enquiries arrive.</div></div>
@@ -2692,6 +2707,7 @@ class="view"
 <div class="settings-hub" aria-label="Settings overview">
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
+<button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('automaticFollowUpCard')"><i>↻</i><span><strong>Lead follow-ups</strong><small>Stop new enquiries going cold</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('websiteWidgetCard')"><i>↗</i><span><strong>Website widget</strong><small>Add the AI assistant to your website</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('smartLinksCard')"><i>⌁</i><span><strong>QR &amp; smart links</strong><small>Share your assistant anywhere</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span><b aria-hidden="true">›</b></button>
@@ -2870,6 +2886,18 @@ onclick="saveSettings()"
 Save business settings
 </button>
 
+</div>
+
+<div id="automaticFollowUpCard" class="card settings-card settings-anchor-card automatic-follow-up-card" data-admin-only style="margin-top:14px">
+<div class="card-head"><div><span class="settings-card-kicker">Lead conversion</span><h3>Automatic follow-ups</h3></div><span id="automaticFollowUpBadge" class="settings-status-badge">Off</span></div>
+<p class="work-meta automatic-follow-up-intro">Help stop new AI enquiries going cold. When enabled, Business AI creates a private follow-up action for your team after the delay you choose.</p>
+<div class="automatic-follow-up-control">
+<label class="automatic-follow-up-toggle" for="s_automatic_follow_up_enabled"><span><strong>Create follow-up reminders automatically</strong><small>Only for newly captured AI leads. Marking a lead Contacted or Converted completes the reminder automatically.</small></span><input id="s_automatic_follow_up_enabled" class="switch" type="checkbox" onchange="renderAutomaticFollowUpSettings()"></label>
+<div class="field automatic-follow-up-delay"><label for="s_automatic_follow_up_hours">Reminder due after</label><select id="s_automatic_follow_up_hours" onchange="renderAutomaticFollowUpSettings()"><option value="24">24 hours</option><option value="48">48 hours</option><option value="72">72 hours</option></select></div>
+</div>
+<div id="automaticFollowUpHint" class="work-meta automatic-follow-up-hint">No customer message is sent automatically.</div>
+<div class="work-actions"><button class="small-btn primary-action" type="button" onclick="saveAutomaticFollowUpSettings()">Save follow-up settings</button><button class="small-btn" type="button" onclick="showView('actions')">View actions</button></div>
+<p class="work-meta automatic-follow-up-safety"><strong>Customer communication stays manual in this Pilot.</strong> Business AI only creates an internal action for your team; it does not email, text or call the customer.</p>
 </div>
 
 <div id="websiteWidgetCard" class="card settings-card settings-anchor-card website-widget-card" data-admin-only style="margin-top:14px">
@@ -4000,6 +4028,11 @@ metrics.innerHTML=`
 <div class="value-impact-metric"><span>Potential value added</span><strong>${money(values.period_opportunity_value)}</strong><small>${valued} of ${enquiries} new enquiries have an estimated value</small></div>`;
 $('valueOpenPipeline').textContent=money(values.open_pipeline_value);
 $('valueConverted').textContent=money(values.converted_opportunity_value);
+const followSummary=$('valueFollowUpSummary');
+if(followSummary){
+const created=Number(activity.automatic_follow_ups_created)||0,completed=Number(activity.automatic_follow_ups_completed)||0;
+followSummary.textContent=created?`Automatic follow-ups: ${created} created · ${completed} completed in this period.`:'Automatic follow-ups: none created in this period.';
+}
 const total=Math.max(0,Number(sources.total)||0);
 $('valueSourceTracked').textContent=total?`${total} enquiries`:'No tracked enquiries yet';
 const rows=['website_widget','qr','share','directory','direct','untracked'].map(key=>({key,label:VALUE_SOURCE_LABELS[key],count:Math.max(0,Number(sources[key])||0)})).filter(item=>item.count>0);
@@ -4310,6 +4343,9 @@ if(input)input.value=settings[field]||'';
 
 $('s_urgent').checked=Boolean(settings.urgent_jobs_enabled);
 if($('s_directory_search_enabled'))$('s_directory_search_enabled').checked=settings.directory_search_enabled!==false;
+if($('s_automatic_follow_up_enabled'))$('s_automatic_follow_up_enabled').checked=Boolean(settings.automatic_follow_up_enabled);
+if($('s_automatic_follow_up_hours'))$('s_automatic_follow_up_hours').value=String([24,48,72].includes(Number(settings.automatic_follow_up_hours))?Number(settings.automatic_follow_up_hours):24);
+renderAutomaticFollowUpSettings();
 
 $('brandName').textContent=settings.business_name||'Business AI';
 fillPublicEnquiryLink();
@@ -4459,6 +4495,29 @@ $('pilotFeedbackForm')?.addEventListener('submit',submitPilotFeedback);
 async function loadPilotOperations(){const results=await Promise.allSettled([api('/api/handovers'),api('/api/team'),api('/api/data-lifecycle'),api('/api/feedback').catch(()=>({feedback:[]}))]);if(results[0].status==='fulfilled'){handovers=Array.isArray(results[0].value)?results[0].value:[];renderHandovers();}if(results[1].status==='fulfilled'){teamState=results[1].value;renderTeam();}else $('teamList').innerHTML='<div class="work-meta">Team management is available to the business owner.</div>';if(results[2].status==='fulfilled'){lifecyclePolicy=results[2].value;fillLifecycle();}else $('lifecycleStatus').textContent='Retention controls are available to owners and admins.';if(results[3].status==='fulfilled')renderPilotFeedbackList(results[3].value?.feedback);renderDashboard();}
 async function loadVoiceStatus(){try{const status=await api('/api/voice-status');$('voiceStatusBadge').textContent=status.provider_connected?'Connected':'Not connected';$('voiceStatusMessage').textContent=status.message||'Voice is disabled.';}catch(error){$('voiceStatusBadge').textContent='Unavailable';$('voiceStatusMessage').textContent='Voice status is unavailable. Live calling remains disabled.';}}
 
+
+function renderAutomaticFollowUpSettings(){
+const enabled=Boolean($('s_automatic_follow_up_enabled')?.checked);
+const hours=Number($('s_automatic_follow_up_hours')?.value||24);
+const badge=$('automaticFollowUpBadge'),hint=$('automaticFollowUpHint'),delay=$('s_automatic_follow_up_hours');
+if(badge)badge.textContent=enabled?`On · ${hours}h`:'Off';
+if(hint)hint.textContent=enabled?`New AI-captured leads get a private team action due after ${hours} hours unless the lead is already marked Contacted or Converted.`:'Automatic follow-up reminders are off. No customer message is sent automatically.';
+if(delay)delay.disabled=!enabled;
+}
+
+async function saveAutomaticFollowUpSettings(){
+const button=$('automaticFollowUpCard')?.querySelector('.primary-action');
+if(button)button.disabled=true;
+try{
+settings=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+automatic_follow_up_enabled:Boolean($('s_automatic_follow_up_enabled')?.checked),
+automatic_follow_up_hours:Number($('s_automatic_follow_up_hours')?.value||24)
+})});
+fillSettings();
+toast(settings.automatic_follow_up_enabled?'Automatic follow-ups enabled':'Automatic follow-ups turned off');
+}catch(error){toast(error.message||'Could not save follow-up settings');}
+finally{if(button)button.disabled=false;}
+}
 
 async function saveSettings(){
 
