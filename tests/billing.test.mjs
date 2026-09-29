@@ -133,7 +133,8 @@ test("active subscriptions can change the base plan without removing add-ons or 
   const form = new URLSearchParams(update.options.body);
   assert.equal(form.get("items[0][id]"), "si_base");
   assert.equal(form.get("items[0][price]"), "price_starter");
-  assert.equal(form.get("proration_behavior"), "none");
+  assert.equal(form.get("proration_behavior"), "always_invoice");
+  assert.equal(form.get("payment_behavior"), "error_if_incomplete");
   assert.equal(form.get("metadata[business_id]"), account.business_id);
   assert.equal(form.get("metadata[plan]"), "starter");
   assert.ok(calls.every(call => !call.url.includes("/checkout/sessions")));

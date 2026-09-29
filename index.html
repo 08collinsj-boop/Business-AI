@@ -4896,7 +4896,7 @@ async function changeBillingPlan(plan){
 const item=billingPlanPresentation[plan];if(!item)return;
 const current=billingState?.entitlements?.plan;
 if(current===plan){toast('This plan is already active.');return;}
-const confirmed=window.confirm('Switch to '+item.name+' at '+item.price+'? In the Pilot, the change takes effect now without a mid-cycle proration; the new monthly price applies from the next renewal.');
+const confirmed=window.confirm('Switch to '+item.name+' at '+item.price+'? Stripe will calculate any immediate prorated adjustment before the plan changes.');
 if(!confirmed)return;
 try{
 const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'change_plan',plan})});
