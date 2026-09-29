@@ -12,6 +12,7 @@ import {
 import {
   validateMarketingInput,
   validateMarketingOutput,
+  validateMarketingGrounding,
   MARKETING_SYSTEM_PROMPT
 } from '../lib/marketing.js';
 
@@ -1022,6 +1023,35 @@ for (
       )
   );
 }
+
+test('marketing grounding rejects newly invented service categories', () => {
+  const facts = {
+    business_name: 'Hartlepool Test Electrical',
+    business_type: 'Electrical services',
+    services: 'Socket replacement, Lighting repairs',
+    service_areas: 'Hartlepool'
+  };
+  const request = { ...input, prompt: 'Promote our socket replacement service in Hartlepool' };
+
+  assert.doesNotThrow(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'Need a socket replacement in Hartlepool? Ask Hartlepool Test Electrical about socket replacement.',
+    short_alternative: 'Socket replacement in Hartlepool.',
+    call_to_action: 'Ask us about socket replacement.'
+  }, facts, request));
+
+  assert.throws(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'We provide comprehensive safety assessments alongside socket replacement.',
+    short_alternative: 'Book a safety assessment today.',
+    call_to_action: 'Schedule your safety assessment.'
+  }, facts, request), /not supported by saved business information/i);
+});
+
+test('marketing prompt treats saved services as a closed catalogue', () => {
+  assert.match(MARKETING_SYSTEM_PROMPT, /catalogue as CLOSED/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /must not invite customers to book,\s*schedule or request a service unless/i);
+});
 
 test(
   'rapid duplicates and quota failures return 429 before provider call',

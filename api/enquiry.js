@@ -534,6 +534,36 @@ function looksClearlyOffTopic(message, settings, configuration) {
   return false;
 }
 
+function approvedFactEntries(value) {
+  const raw = Array.isArray(value) ? value : [value];
+  return raw
+    .flatMap(item => String(item || '').split(/[\n,;|•]+/))
+    .map(item => item.trim())
+    .filter(item => item.length >= 2 && item.length <= 180);
+}
+
+function messageMatchesApprovedFact(message, fact) {
+  const messageTokens = new Set(scopeTokens(message));
+  const factTokens = scopeTokens(fact);
+  return factTokens.length > 0 && factTokens.every(token => messageTokens.has(token));
+}
+
+function trustedCoverageReply(message, settings, configuration) {
+  const value = String(message || '').trim();
+  if (!value || customerHandoverReason(value)) return null;
+  if (!/\b(?:cover|covers|serve|serves|service areas?|work in|travel to|operate in)\b/i.test(value)) return null;
+  if (/\b(?:quote|price|cost|book|booking|appointment|schedule|availability|available when|urgent|emergency|call me|speak to|person|human)\b/i.test(value)) return null;
+
+  const area = approvedFactEntries(configuration?.serviceAreas)
+    .find(entry => messageMatchesApprovedFact(value, entry));
+  const service = approvedFactEntries(settings?.services)
+    .find(entry => messageMatchesApprovedFact(value, entry));
+
+  if (!area || !service) return null;
+  const businessName = String(settings?.business_name || 'The business').trim() || 'The business';
+  return `Yes — ${businessName} lists ${service} as a service and covers ${area}.`;
+}
+
 function modelSaysOffTopic(intent) {
   return intent?.type === "unsupported" && intent?.supported === false && intent?.unsupported_reason === "off_topic";
 }
@@ -1009,6 +1039,7 @@ Your response must follow the supplied JSON schema.
 `;
 
     const knownHandover = customerHandoverReason(conversationText) || previousHandover;
+    const trustedBasicReply = trustedCoverageReply(message, settings, configuration);
     const hasAiSession = readAiSession(body.session, businessId, clientAddress);
     let aiSession = hasAiSession ? body.session : null;
     let billingReservation = null;
@@ -1017,7 +1048,7 @@ Your response must follow the supplied JSON schema.
     // A subscription must remain active throughout a conversation. A valid,
     // short-lived server-signed session means subsequent turns do not consume
     // another advertised "AI enquiry" allowance unit.
-    if (knownHandover || hasAiSession) {
+    if (knownHandover || hasAiSession || trustedBasicReply) {
       const billingAccess = await getAiEnquiryAccess(businessId);
       if (!billingAccess.allowed) return billingFailureResponse(res, billingAccess.code);
     }
@@ -1028,6 +1059,14 @@ Your response must follow the supplied JSON schema.
         intent: { type: "normal_enquiry", supported: true, requires_human: true, safety_reason: "none", unsupported_reason: "none" },
         lead: {}
       };
+    } else if (trustedBasicReply) {
+      result = {
+        reply: trustedBasicReply,
+        intent: { type: "basic_faq", supported: true, requires_human: false, safety_reason: "none", unsupported_reason: "none" },
+        lead: { qualified: false, handover_required: false }
+      };
+      aiSession = aiSession || aiSessionToken(businessId, clientAddress);
+      logOperationalEvent("enquiry.trusted_fact_answered", { businessId, fact_type: "service_area" });
     } else {
       if (!hasAiSession) {
         // Reserve atomically only when this customer session is about to use the

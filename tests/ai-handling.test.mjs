@@ -51,8 +51,8 @@ async function load(mode, intent = supported, model = null) {
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.includes('business_public_routes')) return reply([{ business_id: 'business-a', route_type: 'slug', route_value: 'business-a', active: true }]);
-    if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', services: 'Repairs', opening_hours: 'Monday 9–5', ai_instructions: 'Always ask which appliance needs repair.' }]);
-    if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode }]);
+    if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Always ask which appliance needs repair.' }]);
+    if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode, service_areas: 'Hartlepool' }]);
     if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify(model || { reply: 'Approved answer', intent, lead: { phone: '07000000000', job_type: 'Repair', handover_required: false } }) });
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: JSON.parse(options.body).p_reason });
     if (url.includes('bookings?')) return reply(requestedBooking ? [requestedBooking] : []);
@@ -113,6 +113,29 @@ test('oversized customer input is rejected before tenant or provider work', asyn
   assert.equal(res.statusCode, 400);
   assert.match(res.body.error, /too long/i);
   assert.equal(calls.length, 0);
+});
+
+test('human-first answers simple supported coverage questions without handing over', async () => {
+  const model = {
+    reply: 'I have passed this to the team.',
+    intent: { ...supported, type: 'normal_enquiry', requires_human: true },
+    lead: { phone: null, email: null, job_type: null, qualified: false, handover_required: true }
+  };
+  const { handler, calls } = await load('human_first', supported, model);
+  const res = response();
+  await handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.88' },
+    query: { business: 'business-a' },
+    body: { message: 'Do you cover Hartlepool for socket replacement?' }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, false);
+  assert.equal(res.body.continuation, null);
+  assert.match(res.body.reply, /lists Socket replacement as a service and covers Hartlepool/i);
+  assert.ok(!calls.some(call => call.url.includes('api.openai.com')), 'trusted coverage FAQ should not call the AI provider');
+  assert.ok(!calls.some(call => call.url.includes('rpc/save_public_enquiry')), 'trusted coverage FAQ should not create a handover or lead');
 });
 
 test('public API uses routed configuration, persists policy metadata and never returns a lead row', async () => {
