@@ -1655,6 +1655,31 @@ body.public-enquiry.public-embed .public-customer-footer p br{display:none}
 body.public-enquiry.public-embed .public-customer-footer .public-legal-links{display:flex;grid-column:auto;justify-content:center;gap:6px;margin:0}
 body.public-enquiry.public-embed .public-customer-footer .public-legal-links a{font-size:7px}
 
+/* Business value and ROI dashboard */
+.value-dashboard-card{overflow:hidden;border-color:#1b4167;background:linear-gradient(145deg,rgba(8,24,40,.98),rgba(7,18,31,.98))}
+.value-dashboard-head{align-items:flex-start}.value-dashboard-head h3{margin-top:3px}.value-dashboard-head>span{white-space:nowrap}
+.value-dashboard-disclaimer{max-width:760px;margin:-2px 0 14px;line-height:1.5}
+.value-dashboard-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.value-impact-metric{min-width:0;padding:13px;border:1px solid #1d3f61;border-radius:14px;background:rgba(8,28,47,.7)}
+.value-impact-metric span{display:block;color:#7895b1;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.value-impact-metric strong{display:block;margin-top:5px;color:#edf7ff;font-size:22px;line-height:1}
+.value-impact-metric small{display:block;margin-top:6px;color:#7790aa;font-size:9px;line-height:1.4}
+.value-dashboard-loading{grid-column:1/-1;padding:18px;text-align:center;color:#7790aa;font-size:11px}
+.value-dashboard-section{margin-top:14px;padding:13px;border:1px solid #173955;border-radius:15px;background:rgba(5,18,31,.58)}
+.value-dashboard-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}
+.value-dashboard-section-head strong{display:block;color:#e9f5ff;font-size:12px}.value-dashboard-section-head span{display:block;margin-top:3px;color:#748da8;font-size:9px}.value-dashboard-section-head b{color:#83a0bd;font-size:9px;font-weight:700}
+.value-source-bars{display:grid;gap:8px}
+.value-source-row{display:grid;grid-template-columns:104px minmax(0,1fr) 34px;gap:9px;align-items:center}
+.value-source-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#a7bad0;font-size:9px}
+.value-source-track{height:8px;overflow:hidden;border-radius:999px;background:#0b263e}
+.value-source-fill{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#237fe3,#45a7ff);transition:width .55s cubic-bezier(.2,.75,.25,1)}
+.value-source-count{text-align:right;color:#dceeff;font-size:10px;font-weight:750}
+.value-dashboard-values{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.value-dashboard-values>div{padding:12px;border:1px solid #173955;border-radius:14px;background:rgba(7,24,40,.65)}
+.value-dashboard-values span{display:block;color:#7895b1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.value-dashboard-values strong{display:block;margin-top:4px;color:#eff8ff;font-size:18px}.value-dashboard-values small{display:block;margin-top:4px;color:#748da8;font-size:9px;line-height:1.4}
+@media(max-width:720px){.value-dashboard-metrics{grid-template-columns:1fr 1fr}.value-source-row{grid-template-columns:86px minmax(0,1fr) 28px}.value-dashboard-values{grid-template-columns:1fr}}
+@media(max-width:390px){.value-dashboard-metrics{grid-template-columns:1fr}.value-dashboard-section-head{align-items:flex-start;flex-direction:column}}
+
 /* Smart customer links and QR codes */
 .smart-links-intro{max-width:650px;line-height:1.55}
 .smart-links-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(220px,.75fr);gap:12px;margin-top:14px}
@@ -2173,6 +2198,23 @@ class="view active"
 class="stats"
 id="stats"
 ></div>
+
+<div id="valueDashboardCard" class="card value-dashboard-card">
+<div class="card-head value-dashboard-head">
+<div><span class="settings-card-kicker">Value &amp; ROI</span><h3>Business AI impact</h3></div>
+<span id="valueDashboardPeriod">Last 30 days</span>
+</div>
+<p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
+<div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
+<div class="value-dashboard-section">
+<div class="value-dashboard-section-head"><div><strong>Where enquiries came from</strong><span>Tracked customer entry points</span></div><b id="valueSourceTracked">0 tracked</b></div>
+<div id="valueSourceBars" class="value-source-bars"><div class="empty">Source data will appear as enquiries arrive.</div></div>
+</div>
+<div class="value-dashboard-values">
+<div><span>Open pipeline</span><strong id="valueOpenPipeline">£0</strong><small>Current estimated value of leads not marked Converted</small></div>
+<div><span>Converted opportunities</span><strong id="valueConverted">£0</strong><small>Estimated value of leads currently marked Converted</small></div>
+</div>
+</div>
 
 <div class="dashboard-actions" aria-label="Quick access">
 <button class="dashboard-launch primary" type="button" onclick="showView('enquiries')"><i aria-hidden="true">◌</i><span><strong>Test your AI</strong><em>Try the receptionist as a customer.</em></span><b aria-hidden="true">›</b></button>
@@ -3023,6 +3065,7 @@ let publicEnquirySlug=null;
 let handovers=[];let teamState=null;let lifecyclePolicy=null;
 let billingState=null;
 let referralState=null;
+let valueDashboardState=null;
 let knowledgeSources=[];let knowledgeCanManage=false;let knowledgeReviewSource=null;let knowledgeReplaceSourceId=null;
 let authenticationMode='login';
 let legalState=null;
@@ -3042,8 +3085,8 @@ const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new
 const clearPrivateState=()=>{
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;referralState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];
-['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];
+['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 updateInstallAppCard?.();
 };
 
@@ -3941,6 +3984,35 @@ async function shareReferralLink(){
   await copyReferralLink();
 }
 
+const VALUE_SOURCE_LABELS={website_widget:'Website widget',qr:'QR code',share:'Shared link',directory:'Business AI directory',direct:'Direct link',untracked:'Older / untracked'};
+
+function renderValueDashboard(){
+const data=valueDashboardState,metrics=$('valueDashboardMetrics'),bars=$('valueSourceBars');
+if(!metrics||!bars)return;
+if(!data){metrics.innerHTML='<div class="value-dashboard-loading">Impact data is unavailable right now.</div>';bars.innerHTML='<div class="empty">Source data is unavailable.</div>';return;}
+$('valueDashboardPeriod').textContent=data.period?.label||'Last 30 days';
+const activity=data.activity||{},values=data.values||{},sources=data.sources||{};
+const enquiries=Number(activity.enquiries)||0,valued=Number(values.valued_leads)||0;
+metrics.innerHTML=`
+<div class="value-impact-metric"><span>Enquiries captured</span><strong>${enquiries}</strong><small>New leads captured during this period</small></div>
+<div class="value-impact-metric"><span>AI booking requests</span><strong>${Number(activity.ai_booking_requests)||0}</strong><small>Booking requests created by the receptionist</small></div>
+<div class="value-impact-metric"><span>Actions completed</span><strong>${Number(activity.actions_completed)||0}</strong><small>Customer follow-up actions completed in this period</small></div>
+<div class="value-impact-metric"><span>Potential value added</span><strong>${money(values.period_opportunity_value)}</strong><small>${valued} of ${enquiries} new enquiries have an estimated value</small></div>`;
+$('valueOpenPipeline').textContent=money(values.open_pipeline_value);
+$('valueConverted').textContent=money(values.converted_opportunity_value);
+const total=Math.max(0,Number(sources.total)||0);
+$('valueSourceTracked').textContent=total?`${total} enquiries`:'No tracked enquiries yet';
+const rows=['website_widget','qr','share','directory','direct','untracked'].map(key=>({key,label:VALUE_SOURCE_LABELS[key],count:Math.max(0,Number(sources[key])||0)})).filter(item=>item.count>0);
+bars.innerHTML=rows.length?rows.map(item=>{const pct=total?Math.round((item.count/total)*100):0;return `<div class="value-source-row"><span class="value-source-label">${esc(item.label)}</span><span class="value-source-track" aria-label="${esc(item.label)}: ${item.count}"><i class="value-source-fill" data-width="${pct}"></i></span><span class="value-source-count">${item.count}</span></div>`;}).join(''):'<div class="empty">Share your website widget, smart link or QR code to start tracking enquiry sources.</div>';
+requestAnimationFrame(()=>requestAnimationFrame(()=>bars.querySelectorAll('.value-source-fill').forEach(node=>{node.style.width=(Number(node.dataset.width)||0)+'%';})));
+}
+
+async function loadValueDashboard(){
+if(!frontendAuthEnabled){valueDashboardState=null;renderValueDashboard();return;}
+try{valueDashboardState=await api('/api/value-dashboard');renderValueDashboard();}
+catch{valueDashboardState=null;renderValueDashboard();}
+}
+
 function renderDashboard(){
 
 const data=pipeline||{};
@@ -4476,6 +4548,7 @@ if(frontendAuthEnabled)loadPilotOperations();
 if(frontendAuthEnabled)loadVoiceStatus();
 if(frontendAuthEnabled)loadBilling();
 if(frontendAuthEnabled)loadReferrals();
+if(frontendAuthEnabled)loadValueDashboard();
 
 if(showFeedback)toast('Dashboard refreshed');
 
