@@ -26,7 +26,7 @@ test('owner settings expose a simple copy-and-paste website widget install code'
   assert.match(html, /previewWebsiteWidget/);
   assert.match(html, /websiteWidgetInstallCode/);
   assert.match(html, /new URL\('\/widget\.js',window\.location\.origin\)/);
-  assert.match(html, /data-business="\+slug\+"/);
+  assert.match(html, /data-business="'\+slug\+'"/);
   assert.match(html, /never an internal business ID/i);
 });
 

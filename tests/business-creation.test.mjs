@@ -60,7 +60,7 @@ test("authenticated user without a membership can atomically create one owner bu
 });
 
 test("business onboarding accepts one optional normalised referral code", { concurrency: false }, async () => {
-  const { handler, calls } = await load(); const res = response();
+  const { handler, calls } = await load({ rpc: [{ business_id: "business-new", public_slug: "referred-garage" }] }); const res = response();
   await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Referred Garage", business_type: "Garage", public_slug: "referred-garage", referral_code: " bai-abcdef1234 " } }, res);
   assert.equal(res.statusCode, 201);
   const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));

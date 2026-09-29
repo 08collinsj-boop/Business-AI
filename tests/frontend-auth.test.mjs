@@ -103,7 +103,7 @@ test("configuration onboarding validates only the visible wizard step and report
 test("self-service signup creates only an Auth account and waits for email confirmation", () => {
   assert.match(html, /id="signUpForm"/);
   assert.match(html, /auth\.signUp\(\{/);
-  assert.match(html, /emailRedirectTo:new URL\('\/',window\.location\.origin\)\.toString\(\)/);
+  assert.match(html, /options:\{emailRedirectTo:\(\(\)=>\{const url=new URL\('\/',window\.location\.origin\);if\(referralCode\)url\.searchParams\.set\('ref',referralCode\);return url\.toString\(\);\}\)\(\)\}/);
   assert.match(html, /If this email can be used, check your inbox to confirm it, then sign in\./);
   assert.match(html, /password\.length<12/);
   assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}business_id/);
