@@ -3,6 +3,7 @@ import {
   sendAuthError
 } from "../lib/auth.js";
 import { recordAuditEvent } from "../lib/audit.js";
+import { buildReviewRequestMessage, reviewDestination } from "../lib/review-requests.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -138,6 +139,61 @@ async function recordLeadHistory(leadId, businessId, action, oldValue = "", newV
   }
 }
 
+async function getReviewSettings(businessId) {
+  const rows = await supabaseRequest(
+    `business_settings?business_id=eq.${encodeURIComponent(String(businessId))}&select=business_name,review_requests_enabled,review_google_url,review_facebook_url,review_preferred_platform&limit=1`
+  );
+  return Array.isArray(rows) ? rows[0] || null : null;
+}
+
+async function prepareReviewRequest({ businessId, booking, actorUserId }) {
+  if (!booking?.id || booking.status !== "completed") return null;
+  const settings = await getReviewSettings(businessId);
+  if (!settings?.review_requests_enabled) return null;
+  const destination = reviewDestination(settings);
+  if (!destination) return null;
+
+  const existing = await supabaseRequest(
+    `actions?business_id=eq.${encodeURIComponent(String(businessId))}&booking_id=eq.${encodeURIComponent(String(booking.id))}&action_type=eq.request_review&select=id,status&limit=1`
+  );
+  if (Array.isArray(existing) && existing[0]?.id) return existing[0];
+
+  const description = buildReviewRequestMessage({
+    businessName: settings.business_name,
+    destination
+  });
+  if (!description) return null;
+
+  const created = await supabaseRequest("actions", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      business_id: businessId,
+      lead_id: booking.lead_id || null,
+      booking_id: booking.id,
+      title: "Request customer review",
+      description,
+      action_type: "request_review",
+      due_at: new Date().toISOString(),
+      priority: "normal",
+      status: "pending"
+    })
+  });
+  const action = Array.isArray(created) ? created[0] || null : created || null;
+  if (!action?.id) return null;
+
+  await recordLeadHistory(booking.lead_id, businessId, "Review request prepared", "", destination.label);
+  await recordAuditEvent({
+    businessId,
+    actorUserId,
+    action: "review_request.prepared",
+    resourceType: "action",
+    resourceId: String(action.id),
+    metadata: { booking_id: booking.id, platform: destination.platform }
+  });
+  return action;
+}
+
 function noBookings(res) {
   return res.status(503).json({ error: "Bookings are not enabled" });
 }
@@ -211,6 +267,9 @@ export default async function handler(req, res) {
     const result = Array.isArray(updated) ? updated[0] : updated;
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
+    if (result && current.status !== "completed" && result.status === "completed") {
+      await prepareReviewRequest({ businessId, booking: result, actorUserId: auth.userId }).catch(() => null);
+    }
     return res.status(200).json(result || null);
   } catch (error) {
     if (/^(Invalid|Unsupported|No changes|End time)/.test(error?.message || "")) return res.status(400).json({ error: error.message });

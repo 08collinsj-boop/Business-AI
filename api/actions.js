@@ -8,7 +8,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const ACTION_TYPES = new Set([
-  "call_customer", "send_quote", "follow_up", "confirm_appointment", "review_enquiry", "custom"
+  "call_customer", "send_quote", "follow_up", "confirm_appointment", "review_enquiry", "request_review", "custom"
 ]);
 const ACTION_STATUSES = new Set(["pending", "completed", "cancelled"]);
 const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
@@ -143,6 +143,7 @@ export default async function handler(req, res) {
     if (!body) return res.status(400).json({ error: "Invalid request body" });
     if (req.method === "POST") {
       const updates = validateAction(body, true);
+      if (updates.action_type === "request_review") return res.status(400).json({ error: "Review requests are prepared from completed bookings" });
       if (updates.lead_id && !await existsForBusiness("leads", updates.lead_id, businessId)) return res.status(404).json({ error: "Lead not found" });
       if (updates.booking_id && !await existsForBusiness("bookings", updates.booking_id, businessId)) return res.status(404).json({ error: "Booking not found" });
       if (updates.status === "completed") updates.completed_at = new Date().toISOString();
@@ -163,6 +164,12 @@ export default async function handler(req, res) {
     );
     const current = Array.isArray(currentRows) ? currentRows[0] : null;
     if (!current) return res.status(404).json({ error: "Action not found" });
+    if (current.action_type === "request_review" && updates.action_type && updates.action_type !== "request_review") {
+      return res.status(400).json({ error: "Review request type cannot be changed" });
+    }
+    if (current.action_type !== "request_review" && updates.action_type === "request_review") {
+      return res.status(400).json({ error: "Review requests are prepared from completed bookings" });
+    }
     const leadId = updates.lead_id === undefined ? current.lead_id : updates.lead_id;
     const bookingId = updates.booking_id === undefined ? current.booking_id : updates.booking_id;
     if (leadId && !await existsForBusiness("leads", leadId, businessId)) return res.status(404).json({ error: "Lead not found" });
@@ -178,6 +185,11 @@ export default async function handler(req, res) {
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "completed" ? "action.completed" : updates.status === "cancelled" ? "action.cancelled" : "action.updated", resourceType: "action", resourceId: String(actionId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at" && key !== "completed_at").sort().join(",") } });
+    if (result && current.action_type === "request_review" && updates.status === "completed") {
+      await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "review_request.marked_sent", resourceType: "action", resourceId: String(actionId), metadata: { booking_id: bookingId || null } });
+    } else if (result && current.action_type === "request_review" && updates.status === "cancelled") {
+      await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "review_request.dismissed", resourceType: "action", resourceId: String(actionId), metadata: { booking_id: bookingId || null } });
+    }
     return res.status(200).json(result || null);
   } catch (error) {
     if (/^(Invalid|Unsupported|No changes)/.test(error?.message || "")) return res.status(400).json({ error: error.message });

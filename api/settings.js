@@ -4,6 +4,7 @@ import {
   sendAuthError
 } from "../lib/auth.js";
 import { recordAuditEvent } from "../lib/audit.js";
+import { normaliseReviewPlatform, normaliseReviewUrl, reviewDestination } from "../lib/review-requests.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
@@ -150,7 +151,7 @@ export default async function handler(req, res) {
         "services",
         "ai_instructions"
       ];
-      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled", "automatic_follow_up_enabled", "automatic_follow_up_hours"]);
+      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled", "automatic_follow_up_enabled", "automatic_follow_up_hours", "review_requests_enabled", "review_google_url", "review_facebook_url", "review_preferred_platform"]);
       if (Object.keys(body).some((field) => !allowedFields.has(field))) {
         return res.status(400).json({ error: "Unsupported settings fields" });
       }
@@ -193,6 +194,33 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: "Invalid automatic follow-up delay" });
         }
         updates.automatic_follow_up_hours = hours;
+      }
+
+      // REVIEW REQUESTS — owner/admin controlled; customer messaging remains manual.
+      if (body.review_requests_enabled !== undefined) {
+        if (typeof body.review_requests_enabled !== "boolean") {
+          return res.status(400).json({ error: "Invalid review request setting" });
+        }
+        updates.review_requests_enabled = body.review_requests_enabled;
+      }
+
+      for (const [field, platform] of [["review_google_url", "google"], ["review_facebook_url", "facebook"]]) {
+        if (body[field] === undefined) continue;
+        if (typeof body[field] !== "string") return res.status(400).json({ error: "Invalid review link" });
+        const cleaned = normaliseReviewUrl(platform, body[field]);
+        if (cleaned === null) return res.status(400).json({ error: `Enter a valid ${platform === "google" ? "Google" : "Facebook"} review link using HTTPS` });
+        updates[field] = cleaned;
+      }
+
+      if (body.review_preferred_platform !== undefined) {
+        const platform = normaliseReviewPlatform(body.review_preferred_platform);
+        if (!platform) return res.status(400).json({ error: "Invalid preferred review platform" });
+        updates.review_preferred_platform = platform;
+      }
+
+      const nextReviewSettings = { ...current, ...updates };
+      if (nextReviewSettings.review_requests_enabled && !reviewDestination(nextReviewSettings)) {
+        return res.status(400).json({ error: "Add a valid Google or Facebook review link before enabling review requests" });
       }
 
       // PUBLIC DIRECTORY DISCOVERABILITY — owner only.
