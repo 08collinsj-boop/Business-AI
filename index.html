@@ -875,7 +875,10 @@ color:#62a8ff
 position:fixed;
 left:50%;
 top:16px;
-transform:translate(-50%,-130%);
+transform:translate(-50%,-12px);
+opacity:0;
+visibility:hidden;
+pointer-events:none;
 background:#fff;
 color:#000;
 border-radius:12px;
@@ -883,13 +886,19 @@ padding:11px 15px;
 font-size:12px;
 font-weight:700;
 z-index:100;
-transition:.25s;
+transition:opacity .22s ease,transform .22s ease,visibility 0s linear .22s;
 box-shadow:0 10px 35px rgba(0,0,0,.3);
-white-space:nowrap
+width:max-content;
+max-width:calc(100vw - 32px);
+white-space:normal;
+text-align:center
 }
 
 .toast.show{
-transform:translate(-50%,0)
+transform:translate(-50%,0);
+opacity:1;
+visibility:visible;
+transition-delay:0s
 }
 
 .error{
@@ -2117,7 +2126,7 @@ input.switch,input.switch:before{transition:none}
 </div>
 </div>
 
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true"></div>
 
 <main id="authScreen" class="auth-screen" aria-live="polite">
 <form id="loginForm" class="auth-card">
@@ -4159,14 +4168,18 @@ $('knowledgeFileInput')?.addEventListener('change',uploadKnowledgeFile);
 const toast=(message)=>{
 
 const element=$('toast');
+if(!element)return;
 
 element.textContent=message;
-
+element.setAttribute('aria-hidden','false');
 element.classList.add('show');
 
 clearTimeout(toast.timer);
 
-toast.timer=setTimeout(()=>element.classList.remove('show'),2800);
+toast.timer=setTimeout(()=>{
+element.classList.remove('show');
+element.setAttribute('aria-hidden','true');
+},2800);
 
 };
 
