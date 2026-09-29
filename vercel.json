@@ -69,6 +69,10 @@
       "destination": "/api/operations?operation=referrals"
     },
     {
+      "source": "/api/qr-code",
+      "destination": "/api/operations?operation=qr-code"
+    },
+    {
       "source": "/api/voice-calls",
       "destination": "/api/voice?operation=calls"
     },

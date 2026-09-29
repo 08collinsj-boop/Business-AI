@@ -89,6 +89,7 @@
   const frameUrl = new URL('/customer', appOrigin);
   frameUrl.searchParams.set('business', slug);
   frameUrl.searchParams.set('embed', '1');
+  frameUrl.searchParams.set('source', 'website_widget');
 
   const setOpen = value => {
     open = Boolean(value);

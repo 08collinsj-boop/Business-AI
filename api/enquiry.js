@@ -791,6 +791,16 @@ export default async function handler(req, res) {
     try { body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {}; } catch { return res.status(400).json({ error: "Invalid request body" }); }
     if (!body || typeof body !== "object" || Array.isArray(body) || ["ai_handling_mode", "business_id", "tenant_id"].some(key => Object.hasOwn(body, key))) return res.status(400).json({ error: "Unsupported enquiry fields" });
 
+    const allowedSources = new Set(["direct", "share", "qr", "website_widget", "directory"]);
+    const enquirySource = allowedSources.has(body.source) ? body.source : "direct";
+    const enquirySourceLabel = {
+      direct: "Direct customer link",
+      share: "Shared smart link",
+      qr: "QR code",
+      website_widget: "Website widget",
+      directory: "Business AI directory"
+    }[enquirySource];
+
     const message =
       typeof body.message === "string"
         ? body.message.trim()
@@ -1180,9 +1190,9 @@ Your response must follow the supplied JSON schema.
       priority: handoverRequired && !ordinaryQuoteHandover ? "High" : (lead.priority || "Normal"),
 
       notes:
-        handoverRequired
+        (handoverRequired
           ? "Captured by Business AI AI receptionist. Human handover requested."
-          : (lead.notes || "Captured by Business AI AI receptionist")
+          : (lead.notes || "Captured by Business AI AI receptionist")) + " Source: " + enquirySourceLabel + "."
     };
 
     const hasContact =
@@ -1245,7 +1255,19 @@ Your response must follow the supplied JSON schema.
           }
         }
 
-        logOperationalEvent("enquiry.lead_captured", { businessId, leadId: savedLead?.id || "unknown", handover: handoverRequired });
+        if (savedLead?.id) {
+          await supabaseRequest("business_audit_events", {
+            method: "POST",
+            body: JSON.stringify({
+              business_id: businessId,
+              action: "enquiry.source_captured",
+              resource_type: "lead",
+              resource_id: String(savedLead.id),
+              metadata: { source: enquirySource, source_label: enquirySourceLabel, public_slug: publicBusiness.slug }
+            })
+          }).catch(() => null);
+        }
+        logOperationalEvent("enquiry.lead_captured", { businessId, leadId: savedLead?.id || "unknown", handover: handoverRequired, source: enquirySource });
       } catch (error) {
         logOperationalEvent("enquiry.lead_save_failed", { failure: error?.name || "unknown" });
       }
