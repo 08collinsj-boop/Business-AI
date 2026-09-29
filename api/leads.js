@@ -91,6 +91,23 @@ async function recordHistory(
   }
 }
 
+async function completeAutomaticFollowUps(leadId, businessId) {
+  const now = new Date().toISOString();
+  try {
+    const updated = await supabaseRequest(
+      `actions?business_id=eq.${encodeURIComponent(String(businessId))}&lead_id=eq.${encodeURIComponent(String(leadId))}&action_type=eq.follow_up&status=eq.pending&title=eq.${encodeURIComponent("Automatic follow-up")}`,
+      {
+        method: "PATCH",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ status: "completed", completed_at: now, updated_at: now })
+      }
+    );
+    return Array.isArray(updated) ? updated : [];
+  } catch {
+    return [];
+  }
+}
+
 function validLeadId(value) {
   return /^(?:[1-9]\d*)$/.test(String(value));
 }
@@ -401,6 +418,20 @@ export default async function handler(req, res) {
 
       if (auth.enforced && updatedLead) await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "lead.updated", resourceType: "lead", resourceId: String(id), metadata: { fields: Object.keys(updates).sort().join(",") } });
 
+      if (auth.enforced && updates.status && updates.status !== "New") {
+        const completed = await completeAutomaticFollowUps(id, auth.businessId);
+        if (completed.length) {
+          await recordHistory(id, auth.businessId, "Automatic follow-up completed", "Pending", updates.status);
+          await recordAuditEvent({
+            businessId: auth.businessId,
+            actorUserId: auth.userId,
+            action: "follow_up.automatic_completed",
+            resourceType: "lead",
+            resourceId: String(id),
+            metadata: { lead_status: updates.status, actions_completed: completed.length }
+          });
+        }
+      }
 
       return res.status(200).json(
         updatedLead

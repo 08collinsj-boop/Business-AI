@@ -150,7 +150,7 @@ export default async function handler(req, res) {
         "services",
         "ai_instructions"
       ];
-      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled"]);
+      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled", "automatic_follow_up_enabled", "automatic_follow_up_hours"]);
       if (Object.keys(body).some((field) => !allowedFields.has(field))) {
         return res.status(400).json({ error: "Unsupported settings fields" });
       }
@@ -177,6 +177,22 @@ export default async function handler(req, res) {
         }
 
         updates.urgent_jobs_enabled = body.urgent_jobs_enabled;
+      }
+
+      // AUTOMATIC FOLLOW-UP REMINDERS
+      if (body.automatic_follow_up_enabled !== undefined) {
+        if (typeof body.automatic_follow_up_enabled !== "boolean") {
+          return res.status(400).json({ error: "Invalid automatic follow-up setting" });
+        }
+        updates.automatic_follow_up_enabled = body.automatic_follow_up_enabled;
+      }
+
+      if (body.automatic_follow_up_hours !== undefined) {
+        const hours = Number(body.automatic_follow_up_hours);
+        if (!Number.isInteger(hours) || ![24, 48, 72].includes(hours)) {
+          return res.status(400).json({ error: "Invalid automatic follow-up delay" });
+        }
+        updates.automatic_follow_up_hours = hours;
       }
 
       // PUBLIC DIRECTORY DISCOVERABILITY — owner only.

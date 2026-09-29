@@ -99,7 +99,7 @@ export async function getBusinessSettings(businessId = null) {
       ? `&business_id=eq.${encodeURIComponent(String(businessId))}`
       : "";
     const rows = await supabaseRequest(
-      `business_settings?select=business_name,business_type,phone,email,address,opening_hours,services,ai_instructions,urgent_jobs_enabled&order=id.asc&limit=1${tenantFilter}`
+      `business_settings?select=business_name,business_type,phone,email,address,opening_hours,services,ai_instructions,urgent_jobs_enabled,automatic_follow_up_enabled,automatic_follow_up_hours&order=id.asc&limit=1${tenantFilter}`
     );
     const settings = rows?.[0];
     if (!settings) throw new Error("Business settings are unavailable");
@@ -257,6 +257,70 @@ async function createRequestedBooking({ businessId, leadId, lead, conversationTe
   }
 
   return booking;
+}
+
+async function createAutomaticFollowUp({ businessId, lead, settings }) {
+  if (!settings?.automatic_follow_up_enabled || !businessId || !lead?.id) return null;
+  if (String(lead.status || "New") !== "New") return null;
+
+  const configuredHours = Number(settings.automatic_follow_up_hours);
+  const delayHours = [24, 48, 72].includes(configuredHours) ? configuredHours : 24;
+  const title = "Automatic follow-up";
+
+  const existing = await supabaseRequest(
+    `actions?business_id=eq.${encodeURIComponent(String(businessId))}&lead_id=eq.${encodeURIComponent(String(lead.id))}&action_type=eq.follow_up&status=eq.pending&title=eq.${encodeURIComponent(title)}&select=id,status,due_at&limit=1`
+  );
+  if (Array.isArray(existing) && existing[0]?.id) return existing[0];
+
+  const dueAt = new Date(Date.now() + delayHours * 60 * 60 * 1000).toISOString();
+  const rows = await supabaseRequest("actions", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      business_id: businessId,
+      lead_id: lead.id,
+      title,
+      description: "Business AI created this private reminder for a new AI-captured lead. Review the enquiry and contact the customer using the details they supplied. No customer message is sent automatically.",
+      action_type: "follow_up",
+      due_at: dueAt,
+      priority: "normal",
+      status: "pending"
+    })
+  });
+
+  const action = Array.isArray(rows) ? rows[0] || null : rows || null;
+  if (!action?.id) return null;
+
+  await supabaseRequest("lead_history", {
+    method: "POST",
+    body: JSON.stringify({
+      business_id: businessId,
+      lead_id: lead.id,
+      action: "Automatic follow-up scheduled",
+      old_value: "",
+      new_value: `${delayHours} hours`
+    })
+  }).catch(() => null);
+
+  await supabaseRequest("business_audit_events", {
+    method: "POST",
+    body: JSON.stringify({
+      business_id: businessId,
+      action: "follow_up.automatic_created",
+      resource_type: "action",
+      resource_id: String(action.id),
+      metadata: { lead_id: lead.id, delay_hours: delayHours }
+    })
+  }).catch(() => null);
+
+  logOperationalEvent("follow_up.automatic_created", {
+    businessId,
+    leadId: lead.id,
+    actionId: action.id,
+    delayHours
+  });
+
+  return action;
 }
 
 function cleanMessages(messages) {
@@ -1215,11 +1279,22 @@ Your response must follow the supplied JSON schema.
 
     if (!offTopic && finalLead.qualified && hasContact && (hasJob || handoverRequired)) {
       try {
+        const existingLeadBeforeCapture = await findExistingLead(finalLead, businessId).catch(() => null);
         savedLead = await saveLead(finalLead, businessId, { mode, reason });
         leadCaptured = Boolean(savedLead?.id);
         if (savedLead?.handover_reason) {
           reason = savedLead.handover_reason;
           handoverRequired = true;
+        }
+
+        if (!existingLeadBeforeCapture?.id && savedLead?.id) {
+          await createAutomaticFollowUp({ businessId, lead: savedLead, settings }).catch((error) => {
+            logOperationalEvent("follow_up.automatic_create_failed", {
+              businessId,
+              leadId: savedLead?.id || "unknown",
+              failure: error?.name || "unknown"
+            });
+          });
         }
 
         if (customerAccount?.userId && savedLead?.id) {
