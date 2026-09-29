@@ -1655,6 +1655,17 @@ body.public-enquiry.public-embed .public-customer-footer p br{display:none}
 body.public-enquiry.public-embed .public-customer-footer .public-legal-links{display:flex;grid-column:auto;justify-content:center;gap:6px;margin:0}
 body.public-enquiry.public-embed .public-customer-footer .public-legal-links a{font-size:7px}
 
+/* Smart customer links and QR codes */
+.smart-links-intro{max-width:650px;line-height:1.55}
+.smart-links-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(220px,.75fr);gap:12px;margin-top:14px}
+.smart-link-panel,.smart-qr-panel{min-width:0;padding:14px;border:1px solid #1c4167;border-radius:16px;background:linear-gradient(145deg,#071525,#0a1d30)}
+.smart-link-panel>strong,.smart-qr-panel>strong{display:block;margin:4px 0 6px;color:#edf6ff;font-size:14px}
+.smart-link-panel>p,.smart-qr-panel>p{margin:0 0 12px;color:#839bb5;font-size:10px;line-height:1.5}
+.smart-qr-frame{width:180px;max-width:100%;aspect-ratio:1;margin:12px auto;padding:10px;border:1px solid #315477;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.smart-qr-frame img{width:100%;height:100%;display:block;object-fit:contain}
+.smart-links-note{margin:10px 0 0}
+@media(max-width:640px){.smart-links-grid{grid-template-columns:1fr}.smart-qr-frame{width:168px}.smart-links-grid .work-actions .small-btn{flex:1}}
+
 /* UK compliance pack and acceptance surfaces. */
 .legal-consent-row{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;margin:15px 0;color:#a8b9ce;font-size:12px;line-height:1.45;text-align:left}
 .legal-consent-row input{width:18px;height:18px;margin:1px 0 0;accent-color:#2787ff}
@@ -2640,6 +2651,7 @@ class="view"
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('websiteWidgetCard')"><i>↗</i><span><strong>Website widget</strong><small>Add the AI assistant to your website</small></span><b aria-hidden="true">›</b></button>
+<button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('smartLinksCard')"><i>⌁</i><span><strong>QR &amp; smart links</strong><small>Share your assistant anywhere</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span><b aria-hidden="true">›</b></button>
 </div>
 
@@ -2829,6 +2841,28 @@ Save business settings
 </div>
 <div class="work-actions website-widget-actions"><button class="small-btn primary-action" type="button" onclick="copyWebsiteWidgetCode()">Copy website code</button><button class="small-btn" type="button" onclick="previewWebsiteWidget()">Preview assistant</button></div>
 <p class="work-meta website-widget-note">The widget loads the customer assistant in an isolated frame, so it does not read or alter the rest of the business website. Your existing enquiry limits, human handover rules and Business Knowledge still apply.</p>
+</div>
+
+<div id="smartLinksCard" class="card settings-card settings-anchor-card smart-links-card" data-admin-only style="margin-top:14px">
+<div class="card-head"><div><span class="settings-card-kicker">Growth</span><h3>QR code &amp; smart link</h3></div><span class="settings-status-badge">Share anywhere</span></div>
+<p class="work-meta smart-links-intro">Send customers straight to this business's AI assistant from vans, menus, receipts, shop windows, leaflets, social posts or messages.</p>
+<div class="smart-links-grid">
+<div class="smart-link-panel">
+<span class="settings-card-kicker">Smart link</span>
+<strong>Share your assistant</strong>
+<p>Use this instead of the plain customer link when you want Business AI to recognise that the customer came from a shared link.</p>
+<div class="public-link-row"><input id="smartCustomerLink" readonly aria-label="Smart customer link"><button class="small-btn primary-action" type="button" onclick="copySmartCustomerLink()">Copy</button></div>
+<div class="work-actions"><button class="small-btn" type="button" onclick="shareSmartCustomerLink()">Share</button><button class="small-btn" type="button" onclick="previewSmartCustomerLink()">Preview</button></div>
+</div>
+<div class="smart-qr-panel">
+<span class="settings-card-kicker">QR code</span>
+<strong>Scan to start an enquiry</strong>
+<div class="smart-qr-frame"><img id="smartCustomerQr" alt="QR code for this business's Business AI assistant"></div>
+<p>Print it on signs, menus, packaging, receipts or vehicles. The QR opens the same customer assistant and records the source as QR.</p>
+<div class="work-actions"><button class="small-btn primary-action" type="button" onclick="downloadCustomerQr()">Download PNG</button><button class="small-btn" type="button" onclick="openCustomerQr()">Open QR link</button></div>
+</div>
+</div>
+<p class="work-meta smart-links-note">Source labels are stored with captured enquiries so we can build proper conversion and ROI reporting next.</p>
 </div>
 
 <div id="aiReceptionistSettingsCard" class="card settings-card settings-anchor-card" style="margin-top:14px">
@@ -3024,7 +3058,7 @@ const applyBusinessContext=onboarding=>{
 const publicSlug=typeof onboarding?.public_slug==='string'?onboarding.public_slug:null;
 const role=['owner','admin','member'].includes(onboarding?.role)?onboarding.role:null;
 if(!publicSlug||!role)throw new Error('Business access is unavailable');
-authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();fillWebsiteWidgetCode();
+authenticatedPublicBusinessSlug=publicSlug;authenticatedBusinessRole=role;applyBusinessRole();fillPublicEnquiryLink();fillWebsiteWidgetCode();fillSmartLinks();
 updateInstallAppCard();
 loadEnquiryConversation();renderEnquiryConversation();
 };
@@ -3098,9 +3132,11 @@ const invitationIdFromLocation=()=>{const value=new URLSearchParams(window.locat
 
 const customerPortalFromLocation=()=>/^\/customer\/?$/.test(window.location.pathname);
 const customerAccountFromLocation=()=>/^\/customer\/account\/?$/.test(window.location.pathname);
-const publicEnquiryUrl=slug=>{
+const PUBLIC_ENQUIRY_SOURCES=new Set(['direct','share','qr','website_widget','directory']);
+const publicEnquirySourceFromLocation=()=>{const value=new URLSearchParams(window.location.search).get('source');return PUBLIC_ENQUIRY_SOURCES.has(value)?value:'direct';};
+const publicEnquiryUrl=(slug,source='direct')=>{
 if(!slug)return new URL('/customer',window.location.origin).toString();
-const url=new URL('/customer',window.location.origin);url.searchParams.set('business',slug);return url.toString();
+const url=new URL('/customer',window.location.origin);url.searchParams.set('business',slug);if(PUBLIC_ENQUIRY_SOURCES.has(source)&&source!=='direct')url.searchParams.set('source',source);return url.toString();
 };
 
 function fillPublicEnquiryLink(){
@@ -3139,6 +3175,39 @@ function previewWebsiteWidget(){
 const url=websiteWidgetPreviewUrl(authenticatedPublicBusinessSlug);
 if(!url){toast('Website widget preview is unavailable');return;}
 window.open(url,'_blank','noopener,noreferrer');
+}
+
+
+const smartCustomerUrl=slug=>publicEnquiryUrl(slug,'share');
+const qrCustomerUrl=slug=>publicEnquiryUrl(slug,'qr');
+const qrImageUrl=(slug,format='svg')=>{
+if(!slug)return '';
+const url=new URL('/api/qr-code',window.location.origin);url.searchParams.set('business',slug);if(format==='png')url.searchParams.set('format','png');return url.toString();
+};
+function fillSmartLinks(){
+const input=$('smartCustomerLink'),image=$('smartCustomerQr');
+if(input)input.value=smartCustomerUrl(authenticatedPublicBusinessSlug);
+if(image){const src=qrImageUrl(authenticatedPublicBusinessSlug);if(src)image.src=src;else image.removeAttribute('src');}
+}
+async function copySmartCustomerLink(){
+const input=$('smartCustomerLink');const link=input?.value||smartCustomerUrl(authenticatedPublicBusinessSlug);
+if(!link){toast('Smart customer link is unavailable');return;}
+try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);else{input.value=link;input.select();document.execCommand('copy');}toast('Smart customer link copied');}
+catch{if(input){input.value=link;input.select();}toast('Copy the smart customer link from the field');}
+}
+async function shareSmartCustomerLink(){
+const link=smartCustomerUrl(authenticatedPublicBusinessSlug);if(!link)return toast('Smart customer link is unavailable');
+if(navigator.share){try{await navigator.share({title:'Business AI customer assistant',text:'Start an enquiry with our Business AI assistant.',url:link});return;}catch(error){if(error?.name==='AbortError')return;}}
+await copySmartCustomerLink();
+}
+function previewSmartCustomerLink(){const link=smartCustomerUrl(authenticatedPublicBusinessSlug);if(link)window.open(link,'_blank','noopener,noreferrer');else toast('Smart customer link is unavailable');}
+function openCustomerQr(){const link=qrCustomerUrl(authenticatedPublicBusinessSlug);if(link)window.open(link,'_blank','noopener,noreferrer');else toast('QR customer link is unavailable');}
+async function downloadCustomerQr(){
+const url=qrImageUrl(authenticatedPublicBusinessSlug,'png');if(!url)return toast('QR code is unavailable');
+try{
+const response=await fetch(url,{headers:{Accept:'image/png'}});if(!response.ok)throw new Error('QR download failed');
+const blob=await response.blob();const objectUrl=URL.createObjectURL(blob);const a=document.createElement('a');a.href=objectUrl;a.download=(authenticatedPublicBusinessSlug||'business-ai')+'-business-ai-qr.png';document.body.append(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);toast('QR code downloaded');
+}catch{toast('Could not download the QR code');}
 }
 
 
@@ -3345,7 +3414,7 @@ copy.append(title,description);
 const meta=document.createElement('div');meta.className='public-directory-meta';
 for(const value of [business.type,business.service_areas].filter(Boolean)){const tag=document.createElement('span');tag.textContent=value;meta.append(tag);}
 if(meta.childNodes.length)copy.append(meta);
-const open=document.createElement('a');open.className='public-directory-open';open.href=publicEnquiryUrl(business.slug);open.textContent='Open';open.setAttribute('aria-label','Open '+(business.name||'business'));
+const open=document.createElement('a');open.className='public-directory-open';open.href=publicEnquiryUrl(business.slug,'directory');open.textContent='Open';open.setAttribute('aria-label','Open '+(business.name||'business'));
 card.append(mark,copy,open);target.append(card);
 }
 }
@@ -3441,7 +3510,7 @@ const list=$('publicMessages');if(!list)return;const message=document.createElem
 async function sendPublicEnquiry(event){
 event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 function setPublicQuickActions(open){
 const button=$('publicQuickActionsToggle');const body=$('publicQuickActionsBody');if(!button||!body)return;
