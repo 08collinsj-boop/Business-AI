@@ -3343,6 +3343,7 @@ let referralState=null;
 let valueDashboardState=null;
 let knowledgeSources=[];let knowledgeCanManage=false;let knowledgeReviewSource=null;let knowledgeReplaceSourceId=null;
 let authenticationMode='login';
+let passwordRecoveryActive=false;
 let legalState=null;
 
 
@@ -3355,6 +3356,8 @@ const pendingReferralCode=()=>{const fromUrl=referralCodeFromLocation();if(fromU
 const rememberReferralCode=value=>{const code=normaliseReferralInput(value);try{if(code)localStorage.setItem(REFERRAL_STORAGE_KEY,code);else localStorage.removeItem(REFERRAL_STORAGE_KEY);}catch{}return code;};
 const prefillReferralInputs=()=>{const code=pendingReferralCode();['signUpReferralCode','newBusinessReferralCode'].forEach(id=>{const input=$(id);if(input&&code&&!input.value)input.value=code;});return code;};
 const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new URL(window.location.href);url.searchParams.delete('ref');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}};
+const passwordRecoveryIntentFromLocation=()=>{try{const url=new URL(window.location.href);const hash=new URLSearchParams(url.hash.startsWith('#')?url.hash.slice(1):url.hash);return url.searchParams.get('auth')==='recovery'||hash.get('type')==='recovery';}catch{return false;}};
+const clearPasswordRecoveryLocation=()=>{try{const url=new URL(window.location.href);url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search);}catch{}};
 
 
 const clearPrivateState=()=>{
@@ -3605,16 +3608,19 @@ const config=await response.json();
 if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
 if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)throw new Error('Authentication is temporarily unavailable.');
 frontendAuthEnabled=true;
+passwordRecoveryActive=passwordRecoveryIntentFromLocation();
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
-const {data:{session}}=await supabaseClient.auth.getSession();
 // Supabase holds an internal auth lock while notifying listeners. Do not call
 // asynchronous Supabase methods (via handleSession -> api -> getSession) from
 // that callback; defer the work until the callback has returned.
 supabaseClient.auth.onAuthStateChange((event,nextSession)=>{
+if(event==='PASSWORD_RECOVERY'){passwordRecoveryActive=true;setAppLoading(false);setAuthView('auth-required');setAuthenticationMode('recovery');return;}
 if(event==='INITIAL_SESSION')return;
-if(event==='PASSWORD_RECOVERY'){setAuthView('auth-required');setAuthenticationMode('recovery');return;}
+if(passwordRecoveryActive&&nextSession)return;
 window.setTimeout(()=>{handleSession(nextSession).catch(()=>{});},0);
 });
+const {data:{session}}=await supabaseClient.auth.getSession();
+if(passwordRecoveryActive&&session){setAppLoading(false);setAuthView('auth-required');setAuthenticationMode('recovery');return true;}
 await handleSession(session);
 return true;
 }catch(error){frontendAuthEnabled=true;setAppLoading(false);setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
@@ -3644,14 +3650,14 @@ $('showPasswordReset').addEventListener('click',()=>setAuthenticationMode('reset
 $('passwordResetRequestForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
 const button=$('passwordResetRequestSubmit');const message=$('passwordResetRequestMessage');button.disabled=true;message.classList.remove('info');message.textContent='Sending reset link…';
-try{const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:new URL('/',window.location.origin).toString()});if(error)throw error;message.textContent='If this email can be used, check your inbox for a secure reset link.';message.classList.add('info');}catch{message.textContent='We could not send a reset link. Please try again shortly.';}finally{button.disabled=false;}
+try{const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:redirect.toString()});if(error)throw error;message.textContent='If this email can be used, check your inbox for a secure reset link.';message.classList.add('info');}catch{message.textContent='We could not send a reset link. Please try again shortly.';}finally{button.disabled=false;}
 });
 
 $('passwordRecoveryForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
 const password=$('recoveryPassword').value;const confirmation=$('recoveryPasswordConfirm').value;const message=$('passwordRecoveryMessage');if(password.length<12||password.length>128||password!==confirmation){message.textContent='Use matching passwords of at least 12 characters.';return;}
 const button=$('passwordRecoverySubmit');button.disabled=true;message.classList.remove('info');message.textContent='Saving your new password…';
-try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';}catch{message.textContent='We could not update your password. Please use a fresh reset link and try again.';}finally{button.disabled=false;}
+try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;passwordRecoveryActive=false;clearPasswordRecoveryLocation();await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';}catch{message.textContent='We could not update your password. Please use a fresh reset link and try again.';}finally{button.disabled=false;}
 });
 
 $('signUpForm').addEventListener('submit',async event=>{

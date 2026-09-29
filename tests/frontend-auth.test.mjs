@@ -70,7 +70,7 @@ test("owner dashboard uses semantic colour presentation without inventing metric
 });
 
 test("auth-state changes defer private API work until Supabase releases its callback lock", () => {
-  assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{[\s\S]*?if\(event==='INITIAL_SESSION'\)return;[\s\S]*?window\.setTimeout\(\(\)=>\{handleSession\(nextSession\)\.catch\(\(\)=>\{\}\);\},0\);[\s\S]*?\}\);/);
+  assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{[\s\S]*?if\(event==='PASSWORD_RECOVERY'\)[\s\S]*?if\(event==='INITIAL_SESSION'\)return;[\s\S]*?window\.setTimeout\(\(\)=>\{handleSession\(nextSession\)\.catch\(\(\)=>\{\}\);\},0\);[\s\S]*?\}\);/);
   assert.doesNotMatch(html, /onAuthStateChange\(\(_event,nextSession\)=>handleSession\(nextSession\)\)/);
 });
 
@@ -117,9 +117,14 @@ test("self-service signup creates only an Auth account and waits for email confi
 
 test("password recovery stays within Supabase Auth and does not expose tenant or secret state", () => {
   assert.match(html, /id="showPasswordReset"/);
-  assert.match(html, /resetPasswordForEmail\(\$\('passwordResetEmail'\)\.value\.trim\(\),\{redirectTo:new URL\('\/',window\.location\.origin\)\.toString\(\)\}\)/);
-  assert.match(html, /event==='PASSWORD_RECOVERY'.*setAuthenticationMode\('recovery'\)/);
+  assert.match(html, /redirect\.searchParams\.set\('auth','recovery'\)/);
+  assert.match(html, /resetPasswordForEmail\(\$\('passwordResetEmail'\)\.value\.trim\(\),\{redirectTo:redirect\.toString\(\)\}\)/);
+  assert.match(html, /passwordRecoveryActive=passwordRecoveryIntentFromLocation\(\)/);
+  assert.match(html, /event==='PASSWORD_RECOVERY'\)\{passwordRecoveryActive=true;[\s\S]*setAuthenticationMode\('recovery'\)/);
+  assert.match(html, /if\(passwordRecoveryActive&&session\)\{[\s\S]*setAuthenticationMode\('recovery'\);return true;\}/);
+  assert.match(html, /if\(passwordRecoveryActive&&nextSession\)return;/);
   assert.match(html, /auth\.updateUser\(\{password\}\)/);
+  assert.match(html, /passwordRecoveryActive=false;clearPasswordRecoveryLocation\(\);await supabaseClient\.auth\.signOut\(\)/);
   assert.doesNotMatch(html, /resetPasswordForEmail[\s\S]{0,500}(?:business_id|role|SUPABASE_SERVICE_ROLE_KEY)/);
 });
 
