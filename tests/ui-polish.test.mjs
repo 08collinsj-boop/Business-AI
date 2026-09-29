@@ -46,6 +46,13 @@ test('marketing history heading matches the tab terminology', () => {
   assert.match(html, /marketingTabHistory/);
 });
 
+test('marketing schedule date and time stack safely on mobile', () => {
+  assert.match(html, /class="marketing-filters marketing-schedule-controls"/);
+  assert.match(css, /\.marketing-schedule-controls\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css, /@media\(max-width:720px\)[\s\S]*\.marketing-schedule-controls\{grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(css, /\.marketing-schedule-controls input\[type="date"\][\s\S]*min-width:0;max-width:100%/);
+});
+
 test('workspace tabs switch panes without generating', () => {
   const start = marketing.indexOf('function tab(name)');
   assert.ok(start !== -1);
