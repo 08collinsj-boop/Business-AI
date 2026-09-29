@@ -894,7 +894,7 @@ for (
 
       assert.equal(
         modelCall.max_tokens,
-        1200
+        1800
       );
 
       assert.ok(
@@ -1163,6 +1163,21 @@ test(
     );
   }
 );
+
+test('Marketing provider request is compact enough to avoid truncated draft JSON', async () => {
+  const calls = setup();
+  const result = await call(marketingHandler);
+  assert.equal(result.statusCode, 200);
+  const providerCall = calls.find(call => call.url.startsWith('https://openrouter.ai'));
+  const body = JSON.parse(providerCall.options.body);
+  assert.equal(body.max_tokens, 1800);
+  assert.equal(body.response_format.json_schema.schema.properties.main_copy.maxLength, 900);
+  assert.equal(body.response_format.json_schema.schema.properties.short_alternative.maxLength, 260);
+  assert.equal(body.response_format.json_schema.schema.properties.call_to_action.maxLength, 160);
+  assert.equal(body.response_format.json_schema.schema.properties.hashtags.maxItems, 6);
+  assert.match(body.messages[0].content, /exact service names/i);
+  assert.match(body.messages[0].content, /no more than about 700 characters/i);
+});
 
 test(
   'explicit one-generation facts stay separate and never update knowledge',

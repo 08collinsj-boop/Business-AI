@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { assertFacebookDailyPostLimit, facebookDailyPostUsage, marketingUsageLimitsForPlan } from '../lib/marketing-limits.js';
+import { assertFacebookDailyPostLimit, facebookDailyPostUsage, getMarketingUsageSummary, marketingUsageLimitsForPlan } from '../lib/marketing-limits.js';
 
 const savedEnv = { ...process.env };
 const originalFetch = globalThis.fetch;
@@ -69,6 +69,28 @@ test('Facebook daily post limit allows three slots, deduplicates linked rows and
     () => assertFacebookDailyPostLimit('business-a', '2026-09-27T12:00:00.000Z'),
     error => error?.status === 429 && error?.code === 'MARKETING_DAILY_POST_LIMIT_REACHED'
   );
+});
+
+test('Draft usage meter counts only visible successful drafts, not failed provider attempts', async () => {
+  Object.assign(process.env, {
+    SUPABASE_URL: 'https://example.test',
+    SUPABASE_SERVICE_ROLE_KEY: 'service-key'
+  });
+  const calls = [];
+  globalThis.fetch = async url => {
+    const href = String(url); calls.push(href);
+    if (href.includes('/rest/v1/business_billing_accounts')) return response([{ plan: 'pro', status: 'active' }]);
+    if (href.includes('/rest/v1/marketing_generations')) return response([{ id: 'draft-1' }]);
+    if (href.includes('/rest/v1/marketing_image_usage_events')) return response([]);
+    if (href.includes('/rest/v1/marketing_schedules')) return response([]);
+    if (href.includes('/rest/v1/marketing_publications')) return response([]);
+    throw new Error('Unexpected request: ' + href);
+  };
+  const usage = await getMarketingUsageSummary('business-a', new Date('2026-09-29T22:30:00Z'));
+  assert.equal(usage.drafts.used, 1);
+  const generationCall = calls.find(href => href.includes('/rest/v1/marketing_generations'));
+  assert.match(generationCall, /status=eq\.completed/);
+  assert.match(generationCall, /deleted_at=is\.null/);
 });
 
 test.after(() => {

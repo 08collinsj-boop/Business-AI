@@ -2951,7 +2951,7 @@ class="view"
 
 <div class="settings-section-label">Business</div>
 
-<div id="billingCard" class="card settings-card billing-card settings-anchor-card" data-owner-only hidden><div class="card-head"><div><span class="settings-card-kicker">Account</span><h3>Billing &amp; subscription</h3></div><span id="billingPlanBadge" class="settings-status-badge">Checking…</span></div><div id="billingSummary" class="work-meta billing-summary">Your plan and AI enquiry allowance are shown here.</div><div id="billingPlans" class="billing-plans" aria-live="polite"></div><p class="work-meta">Before paying, review the selected plan/add-ons, billing interval, final price and any tax treatment shown by checkout. Paid use is subject to the <a href="/legal/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</p><div class="billing-feature-head"><div><span class="settings-card-kicker">Optional</span><h4>Additional features</h4></div><button class="text-action" type="button" onclick="showView('addons')">View all add-ons</button></div><p class="work-meta">Add features to a paid plan when you need them. Trial and your base subscription remain separate.</p><div id="addonPlanOptions" class="addon-plan-options"></div><div class="billing-actions"><button id="manageBillingButton" class="billing-action primary" type="button" hidden onclick="manageBilling()">Manage subscription</button><button id="cancelBillingButton" class="billing-action danger-soft" type="button" hidden onclick="cancelBilling()">Cancel renewal</button></div></div>
+<div id="billingCard" class="card settings-card billing-card settings-anchor-card" data-owner-only hidden><div class="card-head"><div><span class="settings-card-kicker">Account</span><h3>Billing &amp; subscription</h3></div><span id="billingPlanBadge" class="settings-status-badge">Checking…</span></div><div id="billingSummary" class="work-meta billing-summary">Your plan and AI enquiry allowance are shown here.</div><div id="billingPlans" class="billing-plans" aria-live="polite"></div><p class="work-meta">Before paying, review the selected plan/add-ons, billing interval, final price and any tax treatment shown by checkout. Paid use is subject to the <a href="/legal/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</p><div class="billing-feature-head"><div><span class="settings-card-kicker">Optional</span><h4>Additional features</h4></div><button class="text-action" type="button" onclick="showView('addons')">View all add-ons</button></div><p class="work-meta">Add features to a paid plan when you need them. Trial and your base subscription remain separate.</p><div id="addonPlanOptions" class="addon-plan-options"></div><div class="billing-actions"><button id="manageBillingButton" class="billing-action primary" type="button" hidden onclick="manageBilling()">Manage billing</button><button id="cancelBillingButton" class="billing-action danger-soft" type="button" hidden onclick="cancelBilling()">Cancel renewal</button></div></div>
 
 <div id="businessDetailsCard" class="card settings-card settings-anchor-card">
 
@@ -4875,7 +4875,15 @@ const card=$('billingCard');const badge=$('billingPlanBadge');const summary=$('b
 if(authenticatedBusinessRole!=='owner'||!billingState?.entitlements?.enforced){card.hidden=true;return;}
 const entitlement=billingState.entitlements;const account=billingState.account;const managedSubscription=Boolean(account?.has_subscription&&['active','trialing','past_due'].includes(account.status));card.hidden=false;badge.textContent=entitlement.active?`${billingPlanPresentation[entitlement.plan]?.name||'Plan'} active`:entitlement.status==='past_due'?'Payment needs attention':'Choose a plan';
 summary.textContent=entitlement.active?`${entitlement.enquiriesUsed} of ${entitlement.enquiryAllowance} AI enquiries used this billing period. ${entitlement.enquiriesRemaining} remaining.${entitlement.trialExpiresAt?` Trial ends ${dateLabel(entitlement.trialExpiresAt)}.`:''}${entitlement.currentPeriodEndsAt?` Current period ends ${dateLabel(entitlement.currentPeriodEndsAt)}.`:''}${entitlement.cancelAtPeriodEnd?' Your subscription will cancel at the end of this period.':''}`:entitlement.status==='past_due'?'A payment needs attention. Use Manage billing to update your payment method.':'Choose a plan to activate AI enquiries for this business.';
-plans.innerHTML=Object.entries(billingPlanPresentation).map(([plan,item])=>{const usedTrial=plan==='trial'&&account?.trial_purchased;const disabled=usedTrial||managedSubscription;const label=usedTrial?'Trial used':managedSubscription?'Manage subscription':entitlement.plan===plan&&entitlement.active?'Current plan':plan==='pro'?'Choose Pro':'Choose plan';return `<article class="billing-plan ${plan==='pro'?'pro':''}"><h4>${esc(item.name)}</h4><strong>${esc(item.price)}</strong><p>${esc(item.detail)}${item.note?`<br>${esc(item.note)}`:''}</p><button class="small-btn ${plan==='pro'?'primary-action':''}" type="button" onclick="startBillingCheckout('${plan}')" ${disabled?'disabled':''}>${label}</button></article>`;}).join('');
+plans.innerHTML=Object.entries(billingPlanPresentation).map(([plan,item])=>{
+const usedTrial=plan==='trial'&&account?.trial_purchased;
+const currentPlan=managedSubscription&&entitlement.plan===plan;
+const unavailableTrial=managedSubscription&&plan==='trial';
+const disabled=usedTrial||currentPlan||unavailableTrial;
+const label=usedTrial?'Trial used':currentPlan?'Current plan':managedSubscription?'Switch to '+item.name:entitlement.plan===plan&&entitlement.active?'Current plan':plan==='pro'?'Choose Pro':'Choose plan';
+const action=managedSubscription&&!unavailableTrial?"changeBillingPlan('"+plan+"')":"startBillingCheckout('"+plan+"')";
+return '<article class="billing-plan '+(plan==='pro'?'pro':'')+'"><h4>'+esc(item.name)+'</h4><strong>'+esc(item.price)+'</strong><p>'+esc(item.detail)+(item.note?'<br>'+esc(item.note):'')+'</p><button class="small-btn '+(plan==='pro'?'primary-action':'')+'" type="button" onclick="'+action+'" '+(disabled?'disabled':'')+'>'+esc(label)+'</button></article>';
+}).join('');
 manage.hidden=!account?.has_subscription;cancel.hidden=!account?.has_subscription||!entitlement.active||Boolean(entitlement.cancelAtPeriodEnd);
 }
 async function loadBilling(){
@@ -4884,8 +4892,21 @@ try{billingState=await api('/api/billing');renderBilling();}catch{billingState=n
 }
 async function startBillingCheckout(plan){
 try{const addons=plan==='trial'?[]:(window.selectedCheckoutAddons?.()||[]);const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'checkout',plan,addons})});if(typeof result?.checkout_url==='string'&&result.checkout_url.startsWith('https://'))window.location.assign(result.checkout_url);else throw new Error('Could not start secure checkout');}catch(error){toast(error.message||'Billing is temporarily unavailable');}}
+async function changeBillingPlan(plan){
+const item=billingPlanPresentation[plan];if(!item)return;
+const current=billingState?.entitlements?.plan;
+if(current===plan){toast('This plan is already active.');return;}
+const confirmed=window.confirm('Switch to '+item.name+' at '+item.price+'? In the Pilot, the change takes effect now without a mid-cycle proration; the new monthly price applies from the next renewal.');
+if(!confirmed)return;
+try{
+const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'change_plan',plan})});
+toast(result?.message||'Plan updated.');
+await new Promise(resolve=>setTimeout(resolve,700));
+await loadBilling();
+}catch(error){toast(error.message||'Could not change subscription plan');}
+}
 async function manageBilling(){
-const button=$('manageBillingButton');const original=button?.textContent||'Manage subscription';
+const button=$('manageBillingButton');const original=button?.textContent||'Manage billing';
 if(button){button.disabled=true;button.textContent='Opening secure billing…';}
 try{
 const result=await api('/api/billing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'portal'})});

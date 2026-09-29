@@ -101,6 +101,53 @@ test("an active Stripe subscription is managed through the server-derived accoun
   assert.equal(response.statusCode, 200); assert.equal(response.body.portal_url, "https://billing.stripe.test/portal"); const portal = calls.find((call) => call.url.includes("billing_portal/sessions")); assert.match(String(portal.options.body), /customer=cus_owned/); assert.doesNotMatch(String(portal.options.body), /cus_other/);
 });
 
+test("active subscriptions can change the base plan without removing add-ons or starting another Checkout", async () => {
+  process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key"; process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.BILLING_APP_URL = "https://pilot.example.test"; process.env.STRIPE_PRICE_STARTER = "price_starter"; process.env.STRIPE_PRICE_PRO = "price_pro"; process.env.STRIPE_PRICE_BUSINESS = "price_business"; process.env.STRIPE_PRICE_PRO_LEGACY = "price_pro_legacy";
+  const subscribed = { ...account, plan: "pro", stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_owned" };
+  const stripeSubscription = { id: "sub_owned", metadata: { business_id: account.business_id, plan: "pro" }, items: { data: [
+    { id: "si_base", price: { id: "price_pro_legacy" } },
+    { id: "si_marketing", price: { id: "price_marketing" } }
+  ], has_more: false } };
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), options });
+    const href=String(url);
+    if (href.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" });
+    if (href.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]);
+    if (href.includes("business_billing_accounts")) return reply([subscribed]);
+    if (href.endsWith("/v1/subscriptions/sub_owned") && (!options.method || options.method === "GET")) return reply(stripeSubscription);
+    if (href.endsWith("/v1/subscriptions/sub_owned") && options.method === "POST") return reply({ ...stripeSubscription, metadata: { business_id: account.business_id, plan: "starter" }, items: { data: [
+      { id: "si_base", price: { id: "price_starter" } },
+      { id: "si_marketing", price: { id: "price_marketing" } }
+    ], has_more: false } });
+    if (href.includes("business_audit_events")) return reply({}, true, 201);
+    return reply({}, false);
+  };
+  const handler = (await import(new URL("../lib/billing-handler.js?change-plan=" + Math.random(), import.meta.url))).default;
+  const response = res();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "change_plan", plan: "starter" } }, response);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.plan, "starter");
+  const update = calls.find(call => call.url.endsWith("/v1/subscriptions/sub_owned") && call.options.method === "POST");
+  assert.ok(update);
+  const form = new URLSearchParams(update.options.body);
+  assert.equal(form.get("items[0][id]"), "si_base");
+  assert.equal(form.get("items[0][price]"), "price_starter");
+  assert.equal(form.get("proration_behavior"), "none");
+  assert.equal(form.get("metadata[business_id]"), account.business_id);
+  assert.equal(form.get("metadata[plan]"), "starter");
+  assert.ok(calls.every(call => !call.url.includes("/checkout/sessions")));
+});
+
+test("active subscription plan cards expose real switch actions instead of disabled Manage subscription labels", () => {
+  const render = frontendSource.slice(frontendSource.indexOf("function renderBilling()"), frontendSource.indexOf("async function loadBilling()"));
+  assert.match(render, /Switch to ' \+ item\.name|Switch to '\+item\.name/);
+  assert.match(render, /changeBillingPlan/);
+  assert.doesNotMatch(render, /managedSubscription\?'Manage subscription'/);
+  assert.match(frontendSource, /async function changeBillingPlan\(plan\)/);
+  assert.match(frontendSource, /action:'change_plan'/);
+});
+
 test("a previously used trial cannot start another Checkout and expiry does not delete business data", async () => {
   process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key"; process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.BILLING_APP_URL = "https://pilot.example.test";
   const usedTrial = { ...account, plan: "trial", trial_purchased: true, trial_started_at: "2026-09-01T00:00:00.000Z", trial_expires_at: "2026-09-08T00:00:00.000Z" };
