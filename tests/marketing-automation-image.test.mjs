@@ -369,7 +369,7 @@ test('Cloudflare FLUX adapter generates, stores and signs an image through the s
   assert.ok(providerCall);
   assert.equal(providerCall.options.headers.Authorization, 'Bearer ' + TOKEN);
   const providerBody = JSON.parse(providerCall.options.body);
-  assert.equal(providerBody.steps, 4);
+  assert.equal(providerBody.steps, 8);
   assert.match(providerBody.prompt, /Example Electrical/);
   assert.ok(providerBody.prompt.length <= 2048);
 });
