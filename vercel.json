@@ -73,6 +73,10 @@
       "destination": "/api/operations?operation=qr-code"
     },
     {
+      "source": "/api/value-dashboard",
+      "destination": "/api/operations?operation=value-dashboard"
+    },
+    {
       "source": "/api/voice-calls",
       "destination": "/api/voice?operation=calls"
     },
