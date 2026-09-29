@@ -407,6 +407,36 @@ body.customer-account.customer-portal-ready{
 .customer-status.awaiting_business{background:rgba(244,181,62,.12);color:#f3c76f}
 .customer-status.response_received{background:rgba(49,196,141,.12);color:#75ddb6}
 .customer-status.completed{background:rgba(136,151,168,.13);color:#a7b4c1}
+.customer-review-request{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:11px;
+  padding:11px;
+  border:1px solid #284b6c;
+  border-radius:12px;
+  background:linear-gradient(135deg,rgba(36,127,240,.10),rgba(12,29,47,.72));
+}
+.customer-review-request>div{min-width:0}
+.customer-review-request strong{display:block;color:#edf6ff;font-size:11px}
+.customer-review-request span{display:block;margin-top:3px;color:#8398ad;font-size:9px;line-height:1.4}
+.customer-review-request a{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:7px 10px;
+  border-radius:10px;
+  background:#247ff0;
+  color:#fff;
+  text-decoration:none;
+  font-size:9px;
+  font-weight:800;
+}
+@media(max-width:440px){.customer-review-request{align-items:stretch;flex-direction:column}.customer-review-request a{width:100%;box-sizing:border-box}}
+
 .customer-enquiry-actions{display:flex;gap:8px;margin-top:10px}
 .customer-enquiry-actions a{
   display:inline-flex;
@@ -518,9 +548,3 @@ body.customer-account.customer-portal-ready{
 .customer-auth-forgot button{color:#79b9ff;font-size:10px;font-weight:750}
 .customer-card{border-radius:18px;background:linear-gradient(155deg,#101d2c,#0a1724)}
 .customer-portal-user button:focus-visible,.customer-auth-primary:focus-visible,.customer-guest-link:focus-visible,.customer-search-result a:focus-visible{outline:2px solid #48a7ff;outline-offset:2px}
-
-.customer-enquiry-actions .customer-review-link{
-  background:linear-gradient(135deg,#247ff0,#2d91ff);
-  color:#fff;
-  box-shadow:0 7px 16px rgba(34,126,235,.18);
-}

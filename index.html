@@ -1629,16 +1629,17 @@ padding-right:max(14px,env(safe-area-inset-right));
 .automatic-follow-up-safety{margin:10px 0 0;line-height:1.5}
 @media(max-width:640px){.automatic-follow-up-control{grid-template-columns:1fr}.automatic-follow-up-card .work-actions .small-btn{flex:1}}
 
-/* Review request settings */
-.review-requests-card{overflow:hidden}
-.review-requests-intro{max-width:690px;line-height:1.55}
-.review-request-toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0;padding:14px;border:1px solid #1d4162;border-radius:15px;background:#081b2d;cursor:pointer}
+/* Review request settings and prepared messages */
+.review-requests-intro{max-width:700px;line-height:1.55}
+.review-request-toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 12px;padding:14px;border:1px solid #1d4162;border-radius:15px;background:#081b2d;cursor:pointer}
 .review-request-toggle span{min-width:0}.review-request-toggle strong{display:block;color:#edf7ff;font-size:13px}.review-request-toggle small{display:block;margin-top:4px;color:#8299b3;font-size:10px;line-height:1.45}.review-request-toggle .switch{flex:none}
-.review-request-fields{margin-top:10px}
-.review-request-preview{margin:12px 0;padding:12px 13px;border:1px solid #1d4162;border-radius:14px;background:#071827}
-.review-request-preview>span{display:block;color:#6daeff;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.review-request-preview p{margin:6px 0 0;color:#b4c8dc;font-size:10px;line-height:1.5;white-space:pre-wrap}
-.review-request-safety{margin:10px 0 0;line-height:1.5}
-.review-action-copy{white-space:nowrap}
+.review-request-settings-grid{margin-top:0}
+.review-requests-hint{margin:8px 0 10px;color:#92b7db}
+.review-requests-safety{margin:10px 0 0;line-height:1.5}
+.review-request-action{border-color:#284b6c;background:linear-gradient(145deg,#0a1e32,#071724)}
+.review-request-preview{margin-top:10px;padding:11px;border:1px solid #214767;border-radius:12px;background:#061522;color:#b6c9dc;font-size:10px;line-height:1.55;white-space:pre-wrap}
+.value-review-summary{margin-top:7px;padding:9px 11px;border:1px solid #1c4162;border-radius:12px;background:#081a2b;color:#92aac3;font-size:10px;line-height:1.45}
+@media(max-width:640px){.review-requests-card .work-actions .small-btn{flex:1}}
 
 /* Website assistant install card */
 .website-widget-card{overflow:hidden}
@@ -2232,7 +2233,7 @@ id="stats"
 <p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
 <div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
 <div id="valueFollowUpSummary" class="value-follow-up-summary">Automatic follow-ups will appear here when enabled.</div>
-<div id="valueReviewSummary" class="value-follow-up-summary">Review requests will appear here when used.</div>
+<div id="valueReviewSummary" class="value-review-summary">Review requests will appear here when used.</div>
 <div class="value-dashboard-section">
 <div class="value-dashboard-section-head"><div><strong>Where enquiries came from</strong><span>Tracked customer entry points</span></div><b id="valueSourceTracked">0 tracked</b></div>
 <div id="valueSourceBars" class="value-source-bars"><div class="empty">Source data will appear as enquiries arrive.</div></div>
@@ -2720,7 +2721,7 @@ class="view"
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('automaticFollowUpCard')"><i>↻</i><span><strong>Lead follow-ups</strong><small>Stop new enquiries going cold</small></span><b aria-hidden="true">›</b></button>
-<button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('reviewRequestsCard')"><i>★</i><span><strong>Review requests</strong><small>Turn completed work into more reviews</small></span><b aria-hidden="true">›</b></button>
+<button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('reviewRequestsCard')"><i>★</i><span><strong>Review requests</strong><small>Turn completed work into feedback</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('websiteWidgetCard')"><i>↗</i><span><strong>Website widget</strong><small>Add the AI assistant to your website</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('smartLinksCard')"><i>⌁</i><span><strong>QR &amp; smart links</strong><small>Share your assistant anywhere</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span><b aria-hidden="true">›</b></button>
@@ -2915,16 +2916,16 @@ Save business settings
 
 <div id="reviewRequestsCard" class="card settings-card settings-anchor-card review-requests-card" data-admin-only style="margin-top:14px">
 <div class="card-head"><div><span class="settings-card-kicker">Reputation</span><h3>Review requests</h3></div><span id="reviewRequestsBadge" class="settings-status-badge">Off</span></div>
-<p class="work-meta review-requests-intro">After a booking is marked completed, Business AI can prepare a neutral review message for your team. You review it, copy/send it yourself, then mark the action sent.</p>
-<label class="review-request-toggle" for="s_review_requests_enabled"><span><strong>Prepare a review request after completed bookings</strong><small>Creates one private action per completed booking. Nothing is sent automatically.</small></span><input id="s_review_requests_enabled" class="switch" type="checkbox" onchange="renderReviewRequestSettings()"></label>
-<div class="settings-grid review-request-fields">
-<div class="field"><label for="s_review_preferred_platform">Preferred review destination</label><select id="s_review_preferred_platform" onchange="renderReviewRequestSettings()"><option value="google">Google</option><option value="facebook">Facebook</option></select></div>
-<div class="field"><label for="s_review_google_url">Google review link</label><input id="s_review_google_url" type="url" maxlength="2048" placeholder="https://g.page/.../review" oninput="renderReviewRequestSettings()"></div>
-<div class="field full"><label for="s_review_facebook_url">Facebook review link</label><input id="s_review_facebook_url" type="url" maxlength="2048" placeholder="https://www.facebook.com/.../reviews" oninput="renderReviewRequestSettings()"></div>
+<p class="work-meta review-requests-intro">When a booking is marked completed, Business AI can prepare a neutral review message for your team to check and send. Nothing is sent automatically.</p>
+<label class="review-request-toggle" for="s_review_requests_enabled"><span><strong>Prepare review requests after completed bookings</strong><small>Creates one private Actions item per completed booking. Your team decides whether and when to send it.</small></span><input id="s_review_requests_enabled" class="switch" type="checkbox" onchange="renderReviewRequestSettings()"></label>
+<div class="settings-grid review-request-settings-grid">
+<div class="field"><label for="s_review_preferred_platform">Preferred review site</label><select id="s_review_preferred_platform" onchange="renderReviewRequestSettings()"><option value="google">Google</option><option value="facebook">Facebook</option></select></div>
+<div class="field"><label for="s_review_google_url">Google review link</label><input id="s_review_google_url" type="url" maxlength="2048" inputmode="url" placeholder="https://g.page/.../review" oninput="renderReviewRequestSettings()"></div>
+<div class="field full"><label for="s_review_facebook_url">Facebook review link</label><input id="s_review_facebook_url" type="url" maxlength="2048" inputmode="url" placeholder="https://www.facebook.com/your-page/reviews" oninput="renderReviewRequestSettings()"></div>
 </div>
-<div id="reviewRequestPreview" class="review-request-preview"><span>Prepared message preview</span><p>Add a review link to preview the message.</p></div>
-<div class="work-actions"><button class="small-btn primary-action" type="button" onclick="saveReviewRequestSettings()">Save review settings</button><button class="small-btn" type="button" onclick="showView('actions')">View review actions</button></div>
-<p class="work-meta review-request-safety"><strong>No review gating.</strong> Business AI does not ask whether a customer is happy first or hide the review option from unhappy customers. The same neutral request is used for qualifying completed bookings.</p>
+<div id="reviewRequestsHint" class="work-meta review-requests-hint">Add a Google or Facebook review link before enabling this feature.</div>
+<div class="work-actions"><button class="small-btn primary-action" type="button" onclick="saveReviewRequestSettings()">Save review settings</button><button class="small-btn" type="button" onclick="showView('actions')">View prepared requests</button></div>
+<p class="work-meta review-requests-safety"><strong>Keep requests fair.</strong> Ask genuine customers for honest feedback using the same process, rather than only inviting customers you expect to leave a positive review.</p>
 </div>
 
 <div id="websiteWidgetCard" class="card settings-card settings-anchor-card website-widget-card" data-admin-only style="margin-top:14px">
@@ -4175,12 +4176,38 @@ if(!list)return;
 list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn danger" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
 }
 
+const reviewUrlFromMessage=value=>{
+const match=String(value||'').match(/https:\/\/[^\s]+/i);
+if(!match)return '';
+try{const url=new URL(match[0]);return url.protocol==='https:'?url.toString():'';}catch{return '';}
+};
+
+async function copyReviewMessage(id){
+const action=businessActions.find(item=>String(item.id)===String(id));if(!action?.description)return toast('Review message is unavailable');
+try{await navigator.clipboard.writeText(action.description);toast('Review message copied');}
+catch{window.prompt('Copy this review message',action.description);}
+}
+
+function openReviewLink(id){
+const action=businessActions.find(item=>String(item.id)===String(id));const url=reviewUrlFromMessage(action?.description);
+if(!url)return toast('Review link is unavailable');
+window.open(url,'_blank','noopener,noreferrer');
+}
+
+async function markReviewRequestSent(id){
+try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'completed'})});toast('Review request marked as sent');await loadWorkItems();if(frontendAuthEnabled)loadValueDashboard();}
+catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
+}
+
 function renderActions(){
 const list=$('actionsList');
 if(!list)return;
 list.innerHTML=businessActions.length?businessActions.map(action=>{
-const review=action.action_type==='request_review';
-return `<article class="work-item"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'} · ${esc(review?'review request':action.action_type.replaceAll('_',' '))}</div></div><span class="tag ${esc(action.priority)}">${esc(action.priority)}</span></div>${action.description?`<div class="work-meta">${esc(action.description)}</div>`:''}<div class="work-actions">${review&&action.description?`<button class="small-btn review-action-copy" onclick="copyReviewRequestMessage('${esc(action.id)}')">Copy message</button>`:''}${action.status==='pending'?`<button class="small-btn primary-action" onclick="updateAction('${esc(action.id)}',{status:'completed'})">${review?'Mark sent':'Complete'}</button><button class="small-btn danger" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editAction('${esc(action.id)}')">Edit</button></div></article>`;
+if(action.action_type==='request_review'){
+const statusLabel=action.status==='completed'?'Marked sent':action.status==='cancelled'?'Dismissed':'Ready to review';
+return `<article class="work-item review-request-action"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'Completed customer')} · Review request · ${esc(statusLabel)}</div></div><span class="tag ${esc(action.status==='pending'?'normal':action.status)}">${esc(statusLabel)}</span></div><div class="review-request-preview">${esc(action.description||'Review message unavailable')}</div><div class="work-actions">${action.status==='pending'?`<button class="small-btn" onclick="copyReviewMessage('${esc(action.id)}')">Copy message</button><button class="small-btn" onclick="openReviewLink('${esc(action.id)}')">Open review link</button><button class="small-btn primary-action" onclick="markReviewRequestSent('${esc(action.id)}')">Mark as sent</button><button class="small-btn danger" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Dismiss</button>`:''}${action.status==='completed'?`<button class="small-btn" onclick="copyReviewMessage('${esc(action.id)}')">Copy again</button>`:''}</div></article>`;
+}
+return `<article class="work-item"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'} · ${esc(action.action_type.replaceAll('_',' '))}</div></div><span class="tag ${esc(action.priority)}">${esc(action.priority)}</span></div>${action.description?`<div class="work-meta">${esc(action.description)}</div>`:''}<div class="work-actions">${action.status==='pending'?`<button class="small-btn primary-action" onclick="updateAction('${esc(action.id)}',{status:'completed'})">Complete</button><button class="small-btn danger" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editAction('${esc(action.id)}')">Edit</button></div></article>`;
 }).join(''):'<div class="empty">No actions yet.</div>';
 }
 
@@ -4223,14 +4250,6 @@ await api('/api/actions',{method:'POST',headers:{'Content-Type':'application/jso
 ['actionTitle','actionDue','actionDescription'].forEach(id=>$(id).value='');$('actionLead').value='';$('actionType').value='call_customer';$('actionPriority').value='normal';toast('Action created');await loadWorkItems();
 $('actionsFormCard').hidden=true;
 }catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
-}
-
-async function copyReviewRequestMessage(id){
-const action=businessActions.find(item=>String(item.id)===String(id));
-const message=String(action?.description||'').trim();
-if(!message)return toast('Review message is unavailable');
-try{await navigator.clipboard.writeText(message);toast('Review message copied');}
-catch{toast('Could not copy the review message');}
 }
 
 async function updateAction(id,updates){
@@ -4390,9 +4409,9 @@ if($('s_automatic_follow_up_enabled'))$('s_automatic_follow_up_enabled').checked
 if($('s_automatic_follow_up_hours'))$('s_automatic_follow_up_hours').value=String([24,48,72].includes(Number(settings.automatic_follow_up_hours))?Number(settings.automatic_follow_up_hours):24);
 renderAutomaticFollowUpSettings();
 if($('s_review_requests_enabled'))$('s_review_requests_enabled').checked=Boolean(settings.review_requests_enabled);
-if($('s_review_preferred_platform'))$('s_review_preferred_platform').value=['google','facebook'].includes(settings.review_preferred_platform)?settings.review_preferred_platform:'google';
 if($('s_review_google_url'))$('s_review_google_url').value=settings.review_google_url||'';
 if($('s_review_facebook_url'))$('s_review_facebook_url').value=settings.review_facebook_url||'';
+if($('s_review_preferred_platform'))$('s_review_preferred_platform').value=settings.review_preferred_platform==='facebook'?'facebook':'google';
 renderReviewRequestSettings();
 
 $('brandName').textContent=settings.business_name||'Business AI';
@@ -4569,16 +4588,17 @@ finally{if(button)button.disabled=false;}
 
 function renderReviewRequestSettings(){
 const enabled=Boolean($('s_review_requests_enabled')?.checked);
-const platform=$('s_review_preferred_platform')?.value==='facebook'?'facebook':'google';
-const google=$('s_review_google_url')?.value.trim()||'';
-const facebook=$('s_review_facebook_url')?.value.trim()||'';
-const destination=platform==='facebook'?(facebook||google):(google||facebook);
-const label=platform==='facebook'&&facebook?'Facebook':platform==='google'&&google?'Google':google?'Google':facebook?'Facebook':'';
-const badge=$('reviewRequestsBadge'),preview=$('reviewRequestPreview');
-if(badge)badge.textContent=enabled?'Approval required':'Off';
-if(preview){
-const message=destination?`Thanks for choosing ${settings?.business_name||'our business'}. If you have a moment, we'd really appreciate your feedback. You can leave us a ${label} review here: ${destination}`:'Add a valid Google or Facebook review link to preview the message.';
-const p=preview.querySelector('p');if(p)p.textContent=message;
+const preferred=$('s_review_preferred_platform')?.value==='facebook'?'facebook':'google';
+const google=String($('s_review_google_url')?.value||'').trim();
+const facebook=String($('s_review_facebook_url')?.value||'').trim();
+const badge=$('reviewRequestsBadge'),hint=$('reviewRequestsHint');
+const preferredReady=preferred==='google'?Boolean(google):Boolean(facebook);
+const anyReady=Boolean(google||facebook);
+if(badge)badge.textContent=enabled?(preferredReady?'On · '+(preferred==='google'?'Google':'Facebook'):(anyReady?'On · fallback link':'Needs link')):'Off';
+if(hint){
+if(!anyReady)hint.textContent='Add a Google or Facebook review link before enabling this feature.';
+else if(enabled)hint.textContent='Completed bookings will prepare a neutral review message in Actions. Nothing is sent automatically.';
+else hint.textContent='Review links are saved, but automatic preparation is currently off.';
 }
 }
 
@@ -4588,12 +4608,12 @@ if(button)button.disabled=true;
 try{
 settings=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({
 review_requests_enabled:Boolean($('s_review_requests_enabled')?.checked),
-review_google_url:$('s_review_google_url')?.value||'',
-review_facebook_url:$('s_review_facebook_url')?.value||'',
-review_preferred_platform:$('s_review_preferred_platform')?.value||'google'
+review_google_url:String($('s_review_google_url')?.value||'').trim(),
+review_facebook_url:String($('s_review_facebook_url')?.value||'').trim(),
+review_preferred_platform:$('s_review_preferred_platform')?.value==='facebook'?'facebook':'google'
 })});
 fillSettings();
-toast(settings.review_requests_enabled?'Review requests enabled':'Review requests turned off');
+toast(settings.review_requests_enabled?'Review requests enabled':'Review request settings saved');
 }catch(error){toast(error.message||'Could not save review settings');}
 finally{if(button)button.disabled=false;}
 }

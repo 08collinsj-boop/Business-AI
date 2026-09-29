@@ -18,7 +18,7 @@ function res() {
   };
 }
 
-async function loadHandler() {
+async function loadHandler({ review = false } = {}) {
   process.env.TENANCY_AUTH_ENABLED = 'true';
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
@@ -33,7 +33,15 @@ async function loadHandler() {
       { id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', job_type: 'Electrical repair', description: 'Socket repair enquiry', status: 'New', created_at: '2026-09-27T20:00:00Z' }
     ]);
     if (href.includes('/rest/v1/business_settings?')) return reply([
-      { business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', business_name: 'Collins LTD', business_type: 'Electrical services', review_requests_enabled: false, review_google_url: '', review_facebook_url: '', review_preferred_platform: 'google' }
+      {
+        business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        business_name: 'Collins LTD',
+        business_type: 'Electrical services',
+        review_requests_enabled: review,
+        review_google_url: review ? 'https://g.page/r/example/review' : '',
+        review_facebook_url: '',
+        review_preferred_platform: 'google'
+      }
     ]);
     if (href.includes('/rest/v1/business_public_routes?')) return reply([
       { business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', route_value: 'collins-ltd' }
@@ -41,7 +49,9 @@ async function loadHandler() {
     if (href.includes('/rest/v1/lead_handovers?')) return reply([
       { lead_id: 42, status: 'requires_attention', reason: 'human_first_mode' }
     ]);
-    if (href.includes('/rest/v1/actions?')) return reply([]);
+    if (href.includes('/rest/v1/actions?')) return reply(review ? [
+      { id: 17, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', lead_id: 42, booking_id: 9, status: 'completed', completed_at: '2026-09-28T20:00:00Z' }
+    ] : []);
     throw new Error('Unexpected request: ' + href);
   };
   const module = await import(new URL('../lib/customer-portal-handler.js?portal=' + Math.random(), import.meta.url));
@@ -64,7 +74,16 @@ test('customer portal returns only customer-safe tracked enquiry data', { concur
   assert.equal('lead_id' in enquiry, false);
   assert.equal('notes' in enquiry, false);
   assert.equal('email' in enquiry, false);
-  assert.equal(enquiry.review_request, null);
+});
+
+test('customer portal exposes a neutral review link only after a review request is marked sent', { concurrency: false }, async () => {
+  const handler = await loadHandler({ review: true });
+  const response = res();
+  await handler({ method: 'GET', headers: { authorization: 'Bearer customer-token' } }, response);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.enquiries[0].review_request.platform, 'google');
+  assert.equal(response.body.enquiries[0].review_request.label, 'Google');
+  assert.match(response.body.enquiries[0].review_request.url, /^https:\/\/g\.page\//);
 });
 
 test('customer portal requires a verified server-side auth session', { concurrency: false }, async () => {
