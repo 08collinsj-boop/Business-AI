@@ -14,3 +14,28 @@
   stage.addEventListener('pointermove',event=>{const r=stage.getBoundingClientRect();const nx=Math.max(-.5,Math.min(.5,(event.clientX-r.left)/r.width-.5));const ny=Math.max(-.5,Math.min(.5,(event.clientY-r.top)/r.height-.5));stage.style.setProperty('--stage-ry',`${nx*3.2}deg`);stage.style.setProperty('--stage-rx',`${ny*-2.4}deg`);stage.style.setProperty('--stage-x',`${nx*4}px`);stage.style.setProperty('--stage-y',`${ny*3}px`);},{passive:true});
   stage.addEventListener('pointerleave',reset,{passive:true});
 })();
+
+
+(()=>{
+  const input=document.getElementById('howtoSearch');
+  const cards=[...document.querySelectorAll('[data-guide]')];
+  const count=document.getElementById('howtoResultCount');
+  const empty=document.getElementById('howtoEmpty');
+  if(input&&cards.length){
+    const filter=()=>{
+      const q=input.value.trim().toLowerCase();let visible=0;
+      for(const card of cards){const hay=(card.dataset.guide+' '+card.textContent).toLowerCase();const show=!q||hay.includes(q);card.hidden=!show;if(show)visible++;}
+      empty.hidden=visible!==0;
+      count.textContent=q?(visible===1?'1 guide found':`${visible} guides found`):'Showing all guides';
+    };
+    input.addEventListener('input',filter);
+    document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select();}});
+  }
+  const dialog=document.getElementById('shotDialog');
+  if(dialog&&typeof dialog.showModal==='function'){
+    const image=dialog.querySelector('img');
+    document.querySelectorAll('[data-shot]').forEach(button=>button.addEventListener('click',()=>{image.src=button.dataset.shot;image.alt=button.dataset.shotAlt||'Business AI screenshot';dialog.showModal();}));
+    dialog.querySelector('.shot-dialog-close')?.addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('click',e=>{const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();});
+  }
+})();
