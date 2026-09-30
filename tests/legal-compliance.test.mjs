@@ -20,7 +20,7 @@ test('UK legal pack is publicly linked and versioned', async () => {
       assert.match(text, /Version 1\.2/);
       assert.match(text, /30 September 2026/);
     } else if (path === 'legal/subprocessors.html') {
-      assert.match(text, /Version 1\.2/);
+      assert.match(text, /Version 1\.3/);
       assert.match(text, /1 October 2026/);
     } else {
       assert.match(text, /Version 1\.1/);
@@ -87,6 +87,9 @@ test('privacy and storage wording reflects current Pilot processing', async () =
   assert.match(subprocessors, /Workers AI image generation/);
   assert.match(subprocessors, /Resend/);
   assert.match(subprocessors, /Transactional authentication email/);
+  assert.match(subprocessors, /Service Providers &amp; Data Recipients/);
+  assert.match(subprocessors, /processor\/sub-processor/);
+  assert.match(subprocessors, /act as processor and\/or controller/);
 });
 
 test('terms state the Pilot refund and billing-error position clearly', async () => {
