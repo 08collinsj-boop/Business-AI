@@ -94,3 +94,10 @@ test('marketing tablist uses roving focus and arrow-key navigation', async () =>
   assert.match(marketing, /'ArrowRight','ArrowLeft','Home','End'/);
   assert.match(marketing, /setAttribute\('tabindex',selected\?'0':'-1'\)/);
 });
+
+
+test('mobile work dialogs stay fixed to the viewport instead of a transformed view', () => {
+  assert.match(html, /@keyframes viewEnter\{from\{opacity:\.58\}to\{opacity:1\}\}/);
+  assert.doesNotMatch(html, /@keyframes viewEnter\{from\{opacity:\.58;transform:translateY\(1px\)\}/);
+  assert.match(html, /@media\(max-width:560px\)\{\.work-form:not\(\[hidden\]\)\{width:calc\(100% - 16px\);max-height:calc\(100dvh - max\(24px,env\(safe-area-inset-top\)\) - max\(18px,env\(safe-area-inset-bottom\)\)\);overscroll-behavior:contain\}\}/);
+});
