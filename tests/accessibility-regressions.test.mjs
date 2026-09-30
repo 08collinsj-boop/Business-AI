@@ -69,3 +69,28 @@ test('owner receptionist send button and marketing tabs are named and related', 
     assert.match(html, new RegExp(`id="${pane}"[^>]*aria-labelledby="${tab}"`));
   }
 });
+
+test('directory helper text and Search submit remain visibly accessible', () => {
+  assert.match(html, /public-directory-reference-hero \.public-directory-search-hint\{[^}]*color:#8199b3!important/);
+  assert.match(html, /\.public-directory-search-submit\{[^}]*min-width:72px;min-height:40px/);
+  assert.match(html, /\.public-directory-search-submit:focus-visible\{outline:2px solid #8cc7ff/);
+  assert.doesNotMatch(html, /\.public-directory-search-submit\{position:absolute;width:1px;height:1px/);
+});
+
+test('customer portal exposes active navigation state and names business search', async () => {
+  const customerPortal = await readFile(new URL('../assets/customer-portal.js', import.meta.url), 'utf8');
+  assert.match(html, /data-customer-tab="home" aria-current="page"/);
+  assert.match(customerPortal, /setAttribute\('aria-current','page'\)/);
+  assert.match(customerPortal, /removeAttribute\('aria-current'\)/);
+  assert.match(html, /<label class="sr-only" for="customerPortalSearchInput">Search businesses<\/label>/);
+});
+
+test('marketing tablist uses roving focus and arrow-key navigation', async () => {
+  const marketing = await readFile(new URL('../assets/marketing.js', import.meta.url), 'utf8');
+  assert.match(html, /id="marketingTabCreate"[^>]*tabindex="0"/);
+  assert.match(html, /id="marketingTabHistory"[^>]*tabindex="-1"/);
+  assert.match(html, /id="marketingTabSchedule"[^>]*tabindex="-1"/);
+  assert.match(marketing, /handleMarketingTabKeydown/);
+  assert.match(marketing, /'ArrowRight','ArrowLeft','Home','End'/);
+  assert.match(marketing, /setAttribute\('tabindex',selected\?'0':'-1'\)/);
+});

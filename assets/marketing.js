@@ -306,9 +306,22 @@
     const current=name==='history'?'history':name==='schedule'?'schedule':'create';
     for(const [key,id] of Object.entries(panes)) if(node(id))node(id).hidden=key!==current;
     const tabs={create:'marketingTabCreate',history:'marketingTabHistory',schedule:'marketingTabSchedule'};
-    for(const [key,id] of Object.entries(tabs)) if(node(id)){node(id).setAttribute('aria-selected',String(key===current));node(id).classList.toggle('primary-action',key===current);}
+    for(const [key,id] of Object.entries(tabs)) if(node(id)){const selected=key===current;node(id).setAttribute('aria-selected',String(selected));node(id).setAttribute('tabindex',selected?'0':'-1');node(id).classList.toggle('primary-action',selected);}
     if(current==='history')renderHistory();
     if(current==='schedule')loadSchedules();
+  }
+
+  function handleMarketingTabKeydown(event){
+    const order=['marketingTabCreate','marketingTabHistory','marketingTabSchedule'];
+    const index=order.indexOf(event.currentTarget?.id);
+    if(index<0||!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
+    event.preventDefault();
+    const nextIndex=event.key==='Home'?0:event.key==='End'?order.length-1:event.key==='ArrowRight'?(index+1)%order.length:(index-1+order.length)%order.length;
+    const next=node(order[nextIndex]);
+    if(!next)return;
+    const name=next.id==='marketingTabHistory'?'history':next.id==='marketingTabSchedule'?'schedule':'create';
+    tab(name);
+    next.focus();
   }
 
   function clearPendingMarketingPhoto(){
@@ -593,6 +606,7 @@
     catch(error){if(current!==epoch)return;if(view==='marketing')message(error.message||'Could not check Marketing access.');if(view==='addons')node('addonStatus').textContent=error.message||'Could not load additional features.';}
   }
 
+  ['marketingTabCreate','marketingTabHistory','marketingTabSchedule'].forEach(id=>node(id)?.addEventListener('keydown',handleMarketingTabKeydown));
   node('marketingForm')?.addEventListener('submit',generate);node('marketingRegenerate')?.addEventListener('click',generate);node('marketingSaveDraft')?.addEventListener('click',saveDraft);node('marketingApprove')?.addEventListener('click',approveDraft);node('marketingDelete')?.addEventListener('click',deleteDraft);node('marketingEdit')?.addEventListener('click',()=>{node('marketingPrompt').focus();node('marketingForm').scrollIntoView({behavior:'smooth',block:'start'});});
   async function copyMarketingField(field){
     const value=outputFromEditor();

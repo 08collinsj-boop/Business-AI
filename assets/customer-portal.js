@@ -155,7 +155,7 @@ async function loadPortal(){
 
 function showPortalTab(name){
   document.querySelectorAll('[data-customer-pane]').forEach(p=>p.hidden=p.dataset.customerPane!==name);
-  document.querySelectorAll('[data-customer-tab]').forEach(b=>b.classList.toggle('active',b.dataset.customerTab===name));
+  document.querySelectorAll('[data-customer-tab]').forEach(b=>{const active=b.dataset.customerTab===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   if(name==='find')searchBusinesses('');
 }
 
