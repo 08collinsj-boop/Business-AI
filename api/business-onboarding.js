@@ -114,7 +114,7 @@ export default async function handler(req, res) {
     if (/^Invalid referral code/.test(error?.message || "")) return res.status(400).json({ error: "Referral code is not valid" });
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
     if (error?.code === "PUBLIC_ROUTE_CONFLICT") return res.status(409).json({ error: "Could not create a unique customer link. Please try again." });
-    if (error?.status === 409 || error?.status === 400) return res.status(409).json({ error: "That business name is unavailable" });
+    if (error?.status === 409 || error?.status === 400) { console.error("Business onboarding database request failed", { status: error.status }); return res.status(500).json({ error: "Could not create the business. Please try again." }); }
     console.error("Business onboarding API error");
     return res.status(500).json({ error: "Could not create the business" });
   }

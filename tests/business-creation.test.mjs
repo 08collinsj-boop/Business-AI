@@ -98,6 +98,7 @@ test("business onboarding rejects invalid auth, duplicate membership, and duplic
   loaded = await load({ invalid: true }); res = response(); await loaded.handler({ method: "GET", headers: { authorization: "Bearer bad" } }, res); assert.equal(res.statusCode, 401);
   loaded = await load({ memberships: [{ business_id: "business-a" }] }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "" } }, res); assert.equal(res.statusCode, 409);
   loaded = await load({ rpc: { message: "duplicate" } }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "" } }, res); assert.equal(res.statusCode, 500);
+  loaded = await load({ rpc: (_url, _options) => reply({ message: "column reference business_id is ambiguous" }, false, 400) }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Unique QA Business", business_type: "QA" } }, res); assert.equal(res.statusCode, 500); assert.deepEqual(res.body, { error: "Could not create the business. Please try again." });
 });
 
 test("an authenticated existing owner resolves to their dashboard with a server-derived role", { concurrency: false }, async () => {
