@@ -1,6 +1,6 @@
 # Privacy request and incident runbook
 
-Status: Pilot operating procedure template. The named operational owner/contact must be filled before paid public launch.
+Status: Pilot operating procedure. Responsibility is assigned to the Business AI operator; the monitored public contact route must be configured before paid public launch.
 
 ## Privacy requests
 
@@ -12,7 +12,7 @@ Status: Pilot operating procedure template. The named operational owner/contact 
 6. Record the action, decision, date and any data that could not lawfully be deleted.
 7. Escalate unusual, disputed or high-risk requests for professional advice.
 
-Operational owner: **TO BE CONFIGURED BEFORE PAID PUBLIC LAUNCH**.
+Operational owner: **Business AI operator** (or a formally designated replacement recorded in the operating log).
 Public contact route: the email configured in `LEGAL_CONTACT_EMAIL`.
 
 ## Personal-data breach response
@@ -26,6 +26,6 @@ Public contact route: the email configured in `LEGAL_CONTACT_EMAIL`.
 7. Record all breaches, including those not reported to the ICO, and the reason for the notification decision.
 8. Remediate the cause and record follow-up actions.
 
-Incident owner: **TO BE CONFIGURED BEFORE PAID PUBLIC LAUNCH**.
+Incident owner: **Business AI operator** (or a formally designated replacement recorded in the operating log).
 
 This runbook is an operating checklist, not legal advice.

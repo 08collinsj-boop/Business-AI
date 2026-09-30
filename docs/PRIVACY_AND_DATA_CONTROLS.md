@@ -1,6 +1,6 @@
 # Pilot privacy and data controls
 
-Status: the technical controls and v1.1 UK Pilot legal wording have been reviewed against current ICO guidance as of 27 September 2026. This is not legal certification. Paid public launch remains blocked until the operator identity/contact details and organisation-specific compliance decisions below are completed.
+Status: the technical controls and UK Pilot legal wording have been reviewed against current ICO guidance as of 1 October 2026. This is not legal certification. Paid public launch remains blocked until the operator identity/contact details and organisation-specific compliance decisions below are completed.
 
 ## What the Pilot stores
 
@@ -22,9 +22,18 @@ Audit metadata deliberately excludes common secret/personal-data fields. Pilot f
 
 ## Retention
 
-`business_data_lifecycle_policies` stores owner-configurable review periods for lead data and audit records. The current defaults are 365 days for lead review and 730 days for audit review. These are review settings, not automatic deletion promises.
+`business_data_lifecycle_policies` stores owner-configurable review periods for lead data and audit records. The current defaults are 365 days for lead review and 730 days for audit review. These remain review periods, not automatic deletion promises.
 
-Before paid public launch, the operator must document the operational deletion schedule, backup/deletion handling, legal-record retention and who performs periodic reviews.
+Operational procedure for the current Pilot:
+
+1. The Business AI operator reviews records that have reached their configured review period at least monthly and whenever a tenant is being closed.
+2. Lead/customer records with no continuing service, dispute, security, legal or other documented retention need are deleted or anonymised using the tenant-scoped lifecycle/data-subject controls.
+3. Where a record must be retained beyond its review date, keep only what is reasonably necessary, record the reason and set a further review point.
+4. Audit/security records are reviewed against the configured audit period and may be retained where reasonably needed to investigate incidents, demonstrate legal/contractual actions or protect the service.
+5. Managed-provider backups may retain historical copies until the provider's normal backup rotation expires. Deleted data must not be deliberately reintroduced; if a backup restore reintroduces previously deleted/anonymised records, the operator must re-apply the relevant deletion/anonymisation decision where reasonably practicable.
+6. The operator records completion of each periodic review in the operating/audit record.
+
+This is a manual operating procedure. Business AI must not tell customers that expiry automatically deletes data unless an automatic deletion mechanism is later implemented and verified.
 
 ## Data access / deletion
 
@@ -32,7 +41,7 @@ The protected data-subject API supports owner-only export/anonymisation for an i
 
 ## Providers and transfers
 
-The legal sub-processor notice now reflects Supabase, Vercel, OpenAI, OpenRouter, Cloudflare, Stripe and Meta. Provider contracts/DPAs, data locations and international-transfer safeguards still need an organisation-specific review before paid public launch. Current ICO international-transfer guidance uses a three-step assessment and the ICO states that the existing IDTA/Addendum should continue to be used until updated versions are issued.
+The legal sub-processor notice now reflects Supabase, Resend, Vercel, OpenAI, OpenRouter, Cloudflare, Stripe and Meta. Provider contracts/DPAs, data locations and international-transfer safeguards still need an organisation-specific review before paid public launch. Current ICO international-transfer guidance uses a three-step assessment and the ICO states that the existing IDTA/Addendum should continue to be used until updated versions are issued.
 
 ## Device storage / PECR
 
@@ -49,11 +58,10 @@ See `docs/PRIVACY_INCIDENT_RUNBOOK.md`.
 - Configure `LEGAL_OPERATOR_NAME`, `LEGAL_OPERATOR_ADDRESS` and `LEGAL_CONTACT_EMAIL`.
 - Configure company/register number and VAT number where applicable.
 - Complete the ICO data-protection fee self-assessment and register/pay if required.
-- Record the operator's incident owner and privacy-request contact/process.
 - Review provider DPAs and restricted-transfer arrangements.
 - Confirm tax/VAT presentation before taking real paid orders.
 - Verify checkout/order confirmation and access to the accepted terms.
-- Review retention/deletion operations with fake data.
+- Verify the rights-request and retention/deletion procedures with clearly labelled fake data.
 - Obtain professional legal review if the risk profile, customer type or processing becomes materially more complex.
 
 This document describes the current technical/compliance position and is not legal advice.
