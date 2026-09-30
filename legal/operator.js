@@ -1,5 +1,13 @@
 (() => {
   const text = (value, max = 500) => typeof value === 'string' ? value.trim().slice(0, max) : '';
+  const humanType = value => {
+    const raw = text(value, 80);
+    const normalized = raw.toLowerCase();
+    if (normalized === 'sole_trader') return 'Sole trader';
+    if (normalized === 'limited_company') return 'Limited company';
+    if (normalized === 'partnership') return 'Partnership';
+    return raw;
+  };
   const add = (parent, label, value, link = null) => {
     if (!value) return;
     const line = document.createElement('div');
@@ -21,6 +29,8 @@
     .then(data => {
       const legal = data?.legal || {};
       const name = text(legal.operator_name, 200);
+      const trading = text(legal.trading_name, 200);
+      const type = humanType(legal.operator_type);
       const address = text(legal.operator_address, 500);
       const email = text(legal.contact_email, 320);
       const company = text(legal.company_number, 80);
@@ -31,10 +41,12 @@
         const title = document.createElement('strong');
         title.textContent = 'Service provider.';
         box.appendChild(title);
-        add(box, 'Name', name);
+        add(box, 'Legal name', name);
+        add(box, 'Trading name', trading);
+        add(box, 'Business structure', type);
         add(box, 'Geographic address', address);
         add(box, 'Email', email, 'mailto:' + email);
-        add(box, 'Company/register number', company);
+        add(box, 'Company number', company);
         add(box, 'VAT number', vat);
       });
       document.querySelectorAll('[data-legal-readiness]').forEach(box => {

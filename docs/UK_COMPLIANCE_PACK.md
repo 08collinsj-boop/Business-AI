@@ -1,35 +1,40 @@
-# Business AI UK Compliance Pack v1.1
+# Business AI UK Compliance Pack v1.2
 
-Status: Pilot legal/compliance implementation updated 27 September 2026 against current ICO guidance and the Electronic Commerce (EC Directive) Regulations 2002. It is not independent legal certification.
+Status: Pilot legal/compliance implementation updated 30 September 2026 against current UK government and ICO guidance. It is not independent legal certification.
 
 ## Implemented
 
 - Public Legal centre: Terms, Privacy Notice, DPA, Acceptable Use, Storage/Cookie Notice and Sub-processor Notice.
-- All legal documents versioned at 1.1.
+- Legal documents are versioned and acceptance is recorded server-side where required.
 - Signup requires explicit Terms/AUP agreement and Privacy acknowledgement.
 - Existing users are gated when accepted versions are no longer current.
 - Business owners are gated until the current DPA is accepted.
 - Acceptance records are server-side, versioned and timestamped.
 - Customer enquiry UI links to privacy information at collection.
-- Privacy notice now states data categories/sources, purposes/lawful bases, recipients, transfers, retention, rights, complaint route and a separately highlighted right to object.
+- Privacy notice states data categories/sources, purposes/lawful bases, recipients, transfers, retention, rights, complaint route and a separately highlighted right to object.
 - Storage notice reflects the ICO's 2026 Storage and Access Technologies guidance and the Pilot's current essential-only storage posture.
 - DPA covers Article 28 processing details and minimum processor clauses.
 - Provider map includes Cloudflare Workers AI for Marketing image generation.
 - Legal operator identity is browser-safe and server-configurable through environment variables rather than hard-coded into source.
+- The public identity model supports a sole trader correctly: legal name and trading name are separate, business structure can be shown as `Sole trader`, and a Companies House number is optional rather than implied.
 - Billing UI links to Terms/Privacy and reminds users to review plan, price, interval and tax treatment before payment.
 
 ## Browser-safe legal identity configuration
 
 Required before paid public launch:
-- `LEGAL_OPERATOR_NAME`
-- `LEGAL_OPERATOR_ADDRESS`
-- `LEGAL_CONTACT_EMAIL`
+- `LEGAL_OPERATOR_NAME` — the operator's legal name.
+- `LEGAL_TRADING_NAME` — for the current service, `Business AI`.
+- `LEGAL_OPERATOR_TYPE` — for the current sole-trader structure, `sole_trader`.
+- `LEGAL_OPERATOR_ADDRESS` — an address where legal documents can be delivered.
+- `LEGAL_CONTACT_EMAIL` — a monitored business contact address.
 
-When applicable:
-- `LEGAL_COMPANY_NUMBER`
-- `LEGAL_VAT_NUMBER`
+When genuinely applicable:
+- `LEGAL_COMPANY_NUMBER` — leave blank for a sole trader unless the operator later incorporates a company and the legal documents are updated for that company.
+- `LEGAL_VAT_NUMBER` — populate only if a VAT registration number applies.
 
-The public `/api/legal-public` route exposes only these deliberately public details. It never exposes secrets.
+Do not publish a UTR, National Insurance number or other private tax identifier in these variables. The public `/api/legal-public` route exposes only the deliberately public fields above and never exposes application secrets.
+
+For a sole trader using the Business AI trading name, the public legal identity should show both the individual's legal name and `Business AI` as the trading name. The service-address requirement should be satisfied with an address the operator is prepared and legally able to publish; do not silently substitute a private address.
 
 ## Current provider map
 
@@ -54,6 +59,8 @@ The public `/api/legal-public` route exposes only these deliberately public deta
 
 ## Current official guidance checked
 
+- GOV.UK — sole trader business-name rules: a sole trader can use a trading name, and official paperwork must show the trader's name and business name.
+- GOV.UK — sole trader invoice rules: where a business name is used, invoices must show the trader's name and an address where legal documents can be delivered.
 - ICO — Right to be informed / required privacy information.
 - ICO — Right to object.
 - ICO — Contracts between controllers and processors / Article 28.

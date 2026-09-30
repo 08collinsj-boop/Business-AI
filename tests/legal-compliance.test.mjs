@@ -6,6 +6,7 @@ const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const html = await read('index.html');
 const handler = await read('lib/legal-handler.js');
 const publicHandler = await read('lib/legal-public-handler.js');
+const operatorScript = await read('legal/operator.js');
 const enquiry = await read('api/enquiry.js');
 const legalVersions = await read('lib/legal.js');
 const migration = await read('supabase/migrations/20260927110000_add_legal_acceptances.sql');
@@ -51,12 +52,21 @@ test('legal acceptance is server-owned, versioned and tenant safe', () => {
   assert.match(migration, /unique \(business_id, document_key, document_version\)/i);
 });
 
-test('public legal identity exposes only deliberately public operator fields', () => {
+test('public legal identity supports sole-trader disclosure without implying incorporation', () => {
   assert.match(publicHandler, /LEGAL_OPERATOR_NAME/);
+  assert.match(publicHandler, /LEGAL_TRADING_NAME/);
+  assert.match(publicHandler, /LEGAL_OPERATOR_TYPE/);
   assert.match(publicHandler, /LEGAL_OPERATOR_ADDRESS/);
   assert.match(publicHandler, /LEGAL_CONTACT_EMAIL/);
   assert.match(publicHandler, /LEGAL_COMPANY_NUMBER/);
   assert.match(publicHandler, /LEGAL_VAT_NUMBER/);
+  assert.match(publicHandler, /legal\.operator_name && legal\.trading_name && legal\.operator_address && legal\.contact_email/);
+  assert.match(operatorScript, /Legal name/);
+  assert.match(operatorScript, /Trading name/);
+  assert.match(operatorScript, /Business structure/);
+  assert.match(operatorScript, /Sole trader/);
+  assert.match(operatorScript, /Company number/);
+  assert.doesNotMatch(operatorScript, /Company\/register number/);
   assert.doesNotMatch(publicHandler, /SUPABASE_SERVICE_ROLE_KEY|META_APP_SECRET|STRIPE_SECRET_KEY|CLOUDFLARE_API_TOKEN/);
   assert.match(operations, /"legal-public": legalPublicHandler/);
   assert.match(vercel, /"source": "\/api\/legal-public"/);
@@ -82,4 +92,3 @@ test('terms state the Pilot refund and billing-error position clearly', async ()
   assert.match(terms, /materially unavailable/);
   assert.match(terms, /cannot lawfully be excluded/);
 });
-
