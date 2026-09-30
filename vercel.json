@@ -1,6 +1,17 @@
 {
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "getbusiness-ai.com"
+        }
+      ],
+      "destination": "/marketing.html"
+    },
+    {
       "source": "/customer/account",
       "destination": "/index.html"
     },
