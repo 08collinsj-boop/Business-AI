@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Business AI">
+  <rect width="512" height="512" rx="118" fill="#07090c"/>
+  <rect x="62" y="62" width="388" height="388" rx="96" fill="#f5f7fa"/>
+  <path d="M151 354V158h86c64 0 103 35 103 91 0 58-40 94-105 94h-39v11zm45-50h36c39 0 62-19 62-54 0-34-23-52-61-52h-37z" fill="#07090c"/>
+  <circle cx="365" cy="350" r="26" fill="#38d39f"/>
+</svg>
