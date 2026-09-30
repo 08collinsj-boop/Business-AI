@@ -101,3 +101,11 @@ test('mobile work dialogs stay fixed to the viewport instead of a transformed vi
   assert.doesNotMatch(html, /@keyframes viewEnter\{from\{opacity:\.58;transform:translateY\(1px\)\}/);
   assert.match(html, /@media\(max-width:560px\)\{\.work-form:not\(\[hidden\]\)\{width:calc\(100% - 16px\);max-height:calc\(100dvh - max\(24px,env\(safe-area-inset-top\)\) - max\(18px,env\(safe-area-inset-bottom\)\)\);overscroll-behavior:contain\}\}/);
 });
+
+
+test('mobile work dialogs hide fixed navigation and lock background scrolling', () => {
+  assert.match(html, /\.work-dialog-open\{overflow:hidden;overscroll-behavior:none\}/);
+  assert.match(html, /\.work-dialog-open \.bottom-nav\{opacity:0;visibility:hidden;pointer-events:none\}/);
+  assert.match(html, /document\.body\.classList\.add\('work-dialog-open'\)/);
+  assert.match(html, /document\.body\.classList\.remove\('work-dialog-open'\)/);
+});
