@@ -160,6 +160,44 @@
             <kbd aria-hidden="true">⌘ K</kbd>
           </div>
           <p class="howto-result-count" id="howtoResultCount" aria-live="polite">Showing all guides</p>
+
+          <aside class="pilot-access" aria-labelledby="pilotAccessTitle">
+            <div class="pilot-access-head">
+              <div>
+                <span class="pilot-badge">Temporary · Pilot testing</span>
+                <h3 id="pilotAccessTitle">Testing Business AI before public launch</h3>
+                <p>Use the Pilot environment for QA and billing tests. It is separate from the public website and should only use test data.</p>
+              </div>
+              <a class="button button-primary pilot-open" href="https://business-ai-pilot.vercel.app/" target="_blank" rel="noopener">Open Pilot app <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="pilot-test-grid">
+              <div class="pilot-test-card">
+                <span class="pilot-step">01</span>
+                <div><b>Sign in to the Pilot</b><p>Use your Pilot/test account and clearly labelled QA data. Do not use customer or live-production data.</p></div>
+              </div>
+              <div class="pilot-test-card">
+                <span class="pilot-step">02</span>
+                <div><b>Open Billing</b><p>Choose the plan you want to test. Current test prices are Trial £3.99, Starter £34.99/month, Pro £79.99/month and Business £159.99/month.</p></div>
+              </div>
+              <div class="pilot-test-card">
+                <span class="pilot-step">03</span>
+                <div><b>Complete a Stripe TEST checkout</b><p>Make sure checkout is in test mode. Never enter a real card. For a successful test payment use <code>4242 4242 4242 4242</code>, any future expiry such as <code>12/34</code>, and any 3-digit CVC. <a class="pilot-doc-link" href="https://docs.stripe.com/testing" target="_blank" rel="noopener">Stripe test-card reference ↗</a></p></div>
+              </div>
+              <div class="pilot-test-card">
+                <span class="pilot-step">04</span>
+                <div><b>Check the result in Business AI</b><p>After returning from Stripe, confirm the selected plan, allowance and entitlement are updated for the correct test business. If testing Marketing, verify its add-on entitlement separately.</p></div>
+              </div>
+              <div class="pilot-test-card">
+                <span class="pilot-step">05</span>
+                <div><b>Test Manage subscription</b><p>Open the billing portal and verify plan changes or cancellation timing. Keep every checkout and portal action in TEST mode.</p></div>
+              </div>
+              <div class="pilot-test-card">
+                <span class="pilot-step">06</span>
+                <div><b>Use care with connected actions</b><p>Marketing and Facebook publishing can trigger real external actions. Only publish a clearly intended test post and keep all other Pilot data marked as QA/test.</p></div>
+              </div>
+            </div>
+            <p class="pilot-note"><strong>Pilot rule:</strong> no real payments, no real card details, and do not use the separate Production project for testing.</p>
+          </aside>
         </div>
 
         <div class="howto-screens reveal" aria-label="Real Business AI screenshots">
