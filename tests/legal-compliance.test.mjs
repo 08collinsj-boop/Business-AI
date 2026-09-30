@@ -15,8 +15,13 @@ const vercel = await read('vercel.json');
 test('UK legal pack is publicly linked and versioned', async () => {
   for (const path of ['legal/index.html','legal/terms.html','legal/privacy.html','legal/dpa.html','legal/acceptable-use.html','legal/storage.html','legal/subprocessors.html']) {
     const text = await read(path);
-    assert.match(text, /Version 1\.1/);
-    assert.match(text, /27 September 2026/);
+    if (path === 'legal/terms.html') {
+      assert.match(text, /Version 1\.2/);
+      assert.match(text, /30 September 2026/);
+    } else {
+      assert.match(text, /Version 1\.1/);
+      assert.match(text, /27 September 2026/);
+    }
     assert.match(text, /\/legal\/operator\.js/);
   }
   assert.match(html, /id="signUpLegalAccept"[^>]*required/);
@@ -31,7 +36,7 @@ test('UK legal pack is publicly linked and versioned', async () => {
 });
 
 test('legal acceptance is server-owned, versioned and tenant safe', () => {
-  assert.match(legalVersions, /terms: '1\.1'/);
+  assert.match(legalVersions, /terms: '1\.2'/);
   assert.match(legalVersions, /privacy: '1\.1'/);
   assert.match(legalVersions, /acceptable_use: '1\.1'/);
   assert.match(legalVersions, /dpa: '1\.1'/);
@@ -68,3 +73,13 @@ test('privacy and storage wording reflects current Pilot processing', async () =
   assert.match(subprocessors, /Cloudflare/);
   assert.match(subprocessors, /Workers AI image generation/);
 });
+
+test('terms state the Pilot refund and billing-error position clearly', async () => {
+  const terms = await read('legal/terms.html');
+  assert.match(terms, /Refunds and billing errors/);
+  assert.match(terms, /duplicate charge/);
+  assert.match(terms, /charges the wrong amount/);
+  assert.match(terms, /materially unavailable/);
+  assert.match(terms, /cannot lawfully be excluded/);
+});
+
