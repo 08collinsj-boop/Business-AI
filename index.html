@@ -2228,7 +2228,7 @@ input.switch,input.switch:before{transition:none}
 <p>Create your secure Business AI workspace. You can complete the detailed business profile next.</p>
 <div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
 <div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
-<div class="auth-field"><label for="newBusinessSlug">Public enquiry link</label><input id="newBusinessSlug" maxlength="63" pattern="[a-z0-9][a-z0-9-]{1,61}[a-z0-9]" placeholder="your-business" required><span style="color:var(--muted);font-size:11px">Lowercase letters, numbers and hyphens. Customers will use this link.</span></div>
+<div style="color:var(--muted);font-size:11px;line-height:1.45">Your customer enquiry link will be created automatically from your business name.</div>
 <div class="auth-field"><label for="newBusinessReferralCode">Referral code <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input id="newBusinessReferralCode" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="e.g. BAI-12AB34CD56"><span style="color:var(--muted);font-size:11px">If another business referred you, add their code before creating your workspace.</span></div>
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
@@ -3892,7 +3892,7 @@ const referralRaw=$('newBusinessReferralCode')?.value||'';const referralCode=ref
 if(referralRaw.trim()&&!referralCode){message.textContent='That referral code does not look right. Check it and try again.';return;}
 rememberReferralCode(referralCode);button.disabled=true;message.textContent='Creating your secure workspace…';
 try{
-const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,public_slug:$('newBusinessSlug').value.trim().toLowerCase(),referral_code:referralCode})});
+const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,referral_code:referralCode})});
 message.textContent='Business created. Your public enquiry link is '+result.public_path+'.';clearPendingReferralCode();
 const onboarding=await api('/api/business-onboarding');
 applyBusinessContext(onboarding);

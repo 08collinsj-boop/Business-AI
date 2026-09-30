@@ -19,6 +19,8 @@ test("signup supports referral links and a manual referral code", async () => {
   const html = await read("index.html");
   assert.match(html, /id="signUpReferralCode"/);
   assert.match(html, /id="newBusinessReferralCode"/);
+  assert.doesNotMatch(html, /newBusinessSlug/);
+  assert.match(html, /customer enquiry link will be created automatically from your business name/i);
   assert.match(html, /searchParams\.get\('ref'\)/);
   assert.match(html, /emailRedirectTo:/);
   assert.match(html, /referral_code:referralCode/);

@@ -14,25 +14,50 @@ async function request(path, options = {}) {
   const raw = await response.text(); let data = null;
   try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
   if (!response.ok) {
-    const invalidReferral = typeof data?.message === "string" && /invalid referral code/i.test(data.message);
-    const error = new Error(invalidReferral ? "Invalid referral code" : "Database request failed");
+    const message = typeof data?.message === "string" ? data.message : "";
+    const invalidReferral = /invalid referral code/i.test(message);
+    const publicRouteConflict = /business or public route already exists/i.test(message);
+    const error = new Error(invalidReferral ? "Invalid referral code" : publicRouteConflict ? "Public route unavailable" : "Database request failed");
     error.status = response.status;
+    if (publicRouteConflict) error.code = "PUBLIC_ROUTE_CONFLICT";
     throw error;
   }
   return data;
 }
 function parseBody(value) { try { const body = typeof value === "string" ? JSON.parse(value) : value || {}; return body && typeof body === "object" && !Array.isArray(body) ? body : null; } catch { return null; } }
 function validate(body) {
+  // public_slug remains accepted only so a stale cached signup page cannot break;
+  // the server ignores it and always owns public route generation.
   const allowed = new Set(["business_name", "business_type", "public_slug", "referral_code"]);
   if (!body || Object.keys(body).some((key) => !allowed.has(key))) throw new Error("Invalid business details");
   const businessName = typeof body.business_name === "string" ? body.business_name.trim() : "";
   const businessType = typeof body.business_type === "string" ? body.business_type.trim() : "";
-  const publicSlug = normalisePublicBusinessSlug(body.public_slug);
   const rawReferralCode = typeof body.referral_code === "string" ? body.referral_code.trim().toUpperCase() : "";
   const referralCode = rawReferralCode || null;
-  if (businessName.length < 2 || businessName.length > 120 || businessType.length > 120 || !publicSlug) throw new Error("Invalid business details");
+  if (businessName.length < 2 || businessName.length > 120 || businessType.length > 120) throw new Error("Invalid business details");
   if (referralCode && !/^BAI-[A-Z0-9]{10}$/.test(referralCode)) throw new Error("Invalid referral code");
-  return { businessName, businessType, publicSlug, referralCode };
+  return { businessName, businessType, referralCode };
+}
+function slugBaseFromBusinessName(businessName) {
+  let slug = String(businessName || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-")
+    .slice(0, 63)
+    .replace(/-+$/g, "");
+  if (!slug) slug = "business";
+  if (slug.length === 2) slug = `${slug}-co`;
+  return normalisePublicBusinessSlug(slug) || "business";
+}
+function slugCandidate(base, attempt) {
+  if (attempt === 1) return base;
+  const suffix = `-${attempt}`;
+  const stem = base.slice(0, 63 - suffix.length).replace(/-+$/g, "") || "business";
+  return normalisePublicBusinessSlug(`${stem}${suffix}`) || `business-${attempt}`;
 }
 async function memberships(userId) {
   const rows = await request(`business_memberships?user_id=eq.${encodeURIComponent(userId)}&select=business_id,role&limit=2`);
@@ -62,19 +87,34 @@ export default async function handler(req, res) {
     if (existing.length) return res.status(409).json({ error: "This account already belongs to a business" });
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid business details" });
-    const { businessName, businessType, publicSlug, referralCode } = validate(body);
-    const result = await request("rpc/create_business_for_owner_with_referral", {
-      method: "POST", headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ p_owner_user_id: auth.userId, p_business_name: businessName, p_business_type: businessType, p_public_slug: publicSlug, p_referral_code: referralCode })
-    });
-    const created = Array.isArray(result) ? result[0] : result;
-    if (!created?.business_id || created.public_slug !== publicSlug) throw new Error("Database request failed");
+    const { businessName, businessType, referralCode } = validate(body);
+    const baseSlug = slugBaseFromBusinessName(businessName);
+    let created = null;
+    let publicSlug = null;
+    for (let attempt = 1; attempt <= 50; attempt += 1) {
+      const candidate = slugCandidate(baseSlug, attempt);
+      try {
+        const result = await request("rpc/create_business_for_owner_with_referral", {
+          method: "POST", headers: { Prefer: "return=representation" },
+          body: JSON.stringify({ p_owner_user_id: auth.userId, p_business_name: businessName, p_business_type: businessType, p_public_slug: candidate, p_referral_code: referralCode })
+        });
+        created = Array.isArray(result) ? result[0] : result;
+        if (!created?.business_id || created.public_slug !== candidate) throw new Error("Database request failed");
+        publicSlug = candidate;
+        break;
+      } catch (error) {
+        if (error?.code === "PUBLIC_ROUTE_CONFLICT" && attempt < 50) continue;
+        throw error;
+      }
+    }
+    if (!created?.business_id || !publicSlug) throw new Error("Database request failed");
     await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
     return res.status(201).json({ public_slug: publicSlug, public_path: `/customer?business=${encodeURIComponent(publicSlug)}` });
   } catch (error) {
     if (/^Invalid referral code/.test(error?.message || "")) return res.status(400).json({ error: "Referral code is not valid" });
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
-    if (error?.status === 409 || error?.status === 400) return res.status(409).json({ error: "That business name or public link is unavailable" });
+    if (error?.code === "PUBLIC_ROUTE_CONFLICT") return res.status(409).json({ error: "Could not create a unique customer link. Please try again." });
+    if (error?.status === 409 || error?.status === 400) return res.status(409).json({ error: "That business name is unavailable" });
     console.error("Business onboarding API error");
     return res.status(500).json({ error: "Could not create the business" });
   }

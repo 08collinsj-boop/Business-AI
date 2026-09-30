@@ -23,7 +23,7 @@ async function load({ memberships = [], routes = [{ route_value: "hartlepool-gar
     if (url.endsWith("/auth/v1/user")) return reply(invalid ? {} : { id: "owner-user" }, !invalid, invalid ? 401 : 200);
     if (url.includes("business_memberships")) return reply(memberships);
     if (url.includes("business_public_routes")) return reply(routes);
-    if (url.includes("rpc/create_business_for_owner_with_referral")) return reply(rpc);
+    if (url.includes("rpc/create_business_for_owner_with_referral")) return typeof rpc === "function" ? rpc(url, options) : reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
   const source = handlerSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
@@ -53,7 +53,7 @@ test("authenticated user without a membership can atomically create one owner bu
   await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Hartlepool Garage", business_type: "Garage", public_slug: "hartlepool-garage", role: "owner", business_id: "attacker-business" } }, res);
   assert.equal(res.statusCode, 400, "mass-assignment fields are rejected");
   const created = response();
-  await handler({ method: "POST", headers: { authorization: "Bearer verified", "x-role": "owner" }, body: { business_name: "Hartlepool Garage", business_type: "Garage", public_slug: "hartlepool-garage" } }, created);
+  await handler({ method: "POST", headers: { authorization: "Bearer verified", "x-role": "owner" }, body: { business_name: "Hartlepool Garage", business_type: "Garage" } }, created);
   assert.equal(created.statusCode, 201); assert.deepEqual(created.body, { public_slug: "hartlepool-garage", public_path: "/customer?business=hartlepool-garage" });
   const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));
   const body = JSON.parse(rpc.options.body); assert.equal(body.p_owner_user_id, "owner-user"); assert.equal(body.p_public_slug, "hartlepool-garage"); assert.equal(body.p_referral_code, null); assert.equal(body.role, undefined); assert.equal(body.business_id, undefined);
@@ -61,17 +61,43 @@ test("authenticated user without a membership can atomically create one owner bu
 
 test("business onboarding accepts one optional normalised referral code", { concurrency: false }, async () => {
   const { handler, calls } = await load({ rpc: [{ business_id: "business-new", public_slug: "referred-garage" }] }); const res = response();
-  await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Referred Garage", business_type: "Garage", public_slug: "referred-garage", referral_code: " bai-abcdef1234 " } }, res);
+  await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Referred Garage", business_type: "Garage", referral_code: " bai-abcdef1234 " } }, res);
   assert.equal(res.statusCode, 201);
   const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));
   assert.equal(JSON.parse(rpc.options.body).p_referral_code, "BAI-ABCDEF1234");
 });
 
+test("business onboarding owns public slug generation and ignores a stale client slug", { concurrency: false }, async () => {
+  const { handler, calls } = await load({ rpc: [{ business_id: "business-new", public_slug: "charity-group" }] });
+  const res = response();
+  await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Charity Group", business_type: "Charity", public_slug: "attacker-chosen-route" } }, res);
+  assert.equal(res.statusCode, 201);
+  assert.deepEqual(res.body, { public_slug: "charity-group", public_path: "/customer?business=charity-group" });
+  const rpc = calls.find((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));
+  assert.equal(JSON.parse(rpc.options.body).p_public_slug, "charity-group");
+});
+
+test("business onboarding automatically suffixes a duplicate public slug", { concurrency: false }, async () => {
+  let attempts = 0;
+  const { handler, calls } = await load({ rpc: (_url, options) => {
+    attempts += 1;
+    const slug = JSON.parse(options.body).p_public_slug;
+    if (attempts === 1) return reply({ message: "business or public route already exists" }, false, 400);
+    return reply([{ business_id: "business-new", public_slug: slug }]);
+  } });
+  const res = response();
+  await handler({ method: "POST", headers: { authorization: "Bearer verified" }, body: { business_name: "Charity Group", business_type: "Charity" } }, res);
+  assert.equal(res.statusCode, 201);
+  assert.equal(res.body.public_slug, "charity-group-2");
+  const rpcCalls = calls.filter((call) => call.url.includes("rpc/create_business_for_owner_with_referral"));
+  assert.deepEqual(rpcCalls.map((call) => JSON.parse(call.options.body).p_public_slug), ["charity-group", "charity-group-2"]);
+});
+
 test("business onboarding rejects invalid auth, duplicate membership, and duplicate routes safely", { concurrency: false }, async () => {
   let loaded = await load(); let res = response(); await loaded.handler({ method: "POST", headers: {}, body: {} }, res); assert.equal(res.statusCode, 401);
   loaded = await load({ invalid: true }); res = response(); await loaded.handler({ method: "GET", headers: { authorization: "Bearer bad" } }, res); assert.equal(res.statusCode, 401);
-  loaded = await load({ memberships: [{ business_id: "business-a" }] }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "", public_slug: "other-business" } }, res); assert.equal(res.statusCode, 409);
-  loaded = await load({ rpc: { message: "duplicate" } }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "", public_slug: "other-business" } }, res); assert.equal(res.statusCode, 500);
+  loaded = await load({ memberships: [{ business_id: "business-a" }] }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "" } }, res); assert.equal(res.statusCode, 409);
+  loaded = await load({ rpc: { message: "duplicate" } }); res = response(); await loaded.handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { business_name: "Other Business", business_type: "" } }, res); assert.equal(res.statusCode, 500);
 });
 
 test("an authenticated existing owner resolves to their dashboard with a server-derived role", { concurrency: false }, async () => {
