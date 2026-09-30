@@ -109,3 +109,9 @@ test('mobile work dialogs hide fixed navigation and lock background scrolling', 
   assert.match(html, /document\.body\.classList\.add\('work-dialog-open'\)/);
   assert.match(html, /document\.body\.classList\.remove\('work-dialog-open'\)/);
 });
+
+
+test('work dialog animation does not override horizontal centering', () => {
+  assert.match(html, /@keyframes sheet-in\{from\{opacity:\.4\}to\{opacity:1\}\}/);
+  assert.doesNotMatch(html, /@keyframes sheet-in\{[^}]*transform:/);
+});
