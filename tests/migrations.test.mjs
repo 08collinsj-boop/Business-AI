@@ -47,7 +47,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260929103000_add_business_referrals.sql",
     "20260929124200_add_automatic_follow_up_settings.sql",
     "20260929144034_add_review_requests.sql",
-    "20260930190000_fix_referral_profile_conflict_ambiguity.sql"
+    "20260930190000_fix_referral_profile_conflict_ambiguity.sql",
+    "20261001200000_add_contextual_handover_summaries.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -68,6 +69,10 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(quoteFollowups, /quote_or_commitment/i);
   assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then 'normal'/i);
   assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then priority/i);
+  const contextualHandover = contents.get("20261001200000_add_contextual_handover_summaries.sql");
+  assert.match(contextualHandover, /p_lead->>'handover_summary'/i);
+  assert.match(contextualHandover, /set summary=summary_value/i);
+  assert.match(contextualHandover, /set description=summary_value/i);
   const ownerMarketingPhotos = contents.get("20260928231500_allow_owner_uploaded_marketing_photos.sql");
   assert.match(ownerMarketingPhotos, /marketing_images_provider_check/i);
   assert.match(ownerMarketingPhotos, /'upload'/i);
