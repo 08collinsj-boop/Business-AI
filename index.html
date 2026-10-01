@@ -3391,8 +3391,13 @@ const pendingReferralCode=()=>{const fromUrl=referralCodeFromLocation();if(fromU
 const rememberReferralCode=value=>{const code=normaliseReferralInput(value);try{if(code)localStorage.setItem(REFERRAL_STORAGE_KEY,code);else localStorage.removeItem(REFERRAL_STORAGE_KEY);}catch{}return code;};
 const prefillReferralInputs=()=>{const code=pendingReferralCode();['signUpReferralCode','newBusinessReferralCode'].forEach(id=>{const input=$(id);if(input&&code&&!input.value)input.value=code;});return code;};
 const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new URL(window.location.href);url.searchParams.delete('ref');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}};
-const passwordRecoveryIntentFromLocation=()=>{try{const url=new URL(window.location.href);const hash=new URLSearchParams(url.hash.startsWith('#')?url.hash.slice(1):url.hash);return url.searchParams.get('auth')==='recovery'||hash.get('type')==='recovery';}catch{return false;}};
-const clearPasswordRecoveryLocation=()=>{try{const url=new URL(window.location.href);url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search);}catch{}};
+const PASSWORD_RECOVERY_STORAGE_KEY='business-ai-password-recovery-requested-v1';
+const PASSWORD_RECOVERY_MAX_AGE_MS=2*60*60*1000;
+const rememberPasswordRecoveryRequest=()=>{try{localStorage.setItem(PASSWORD_RECOVERY_STORAGE_KEY,String(Date.now()));}catch{}};
+const clearPasswordRecoveryRequest=()=>{try{localStorage.removeItem(PASSWORD_RECOVERY_STORAGE_KEY);}catch{}};
+const hasRecentPasswordRecoveryRequest=()=>{try{const requestedAt=Number(localStorage.getItem(PASSWORD_RECOVERY_STORAGE_KEY));return Number.isFinite(requestedAt)&&requestedAt>0&&Date.now()-requestedAt<=PASSWORD_RECOVERY_MAX_AGE_MS;}catch{return false;}};
+const passwordRecoveryIntentFromLocation=()=>{try{const url=new URL(window.location.href);const hash=new URLSearchParams(url.hash.startsWith('#')?url.hash.slice(1):url.hash);const explicitRecovery=url.searchParams.get('auth')==='recovery'||hash.get('type')==='recovery';const authCallback=url.searchParams.has('code')||hash.has('access_token')||hash.has('refresh_token');return explicitRecovery||(authCallback&&hasRecentPasswordRecoveryRequest());}catch{return false;}};
+const clearPasswordRecoveryLocation=()=>{clearPasswordRecoveryRequest();try{const url=new URL(window.location.href);url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search);}catch{}};
 
 
 const clearPrivateState=()=>{
@@ -3655,7 +3660,7 @@ if(passwordRecoveryActive&&nextSession)return;
 window.setTimeout(()=>{handleSession(nextSession).catch(()=>{});},0);
 });
 const {data:{session}}=await supabaseClient.auth.getSession();
-if(passwordRecoveryActive&&session){setAppLoading(false);setAuthView('auth-required');setAuthenticationMode('recovery');return true;}
+if(passwordRecoveryActive){setAppLoading(false);setAuthView('auth-required');setAuthenticationMode('recovery',session?'':'This reset link is invalid or expired. Request a fresh reset link.');return true;}
 await handleSession(session);
 return true;
 }catch(error){frontendAuthEnabled=true;setAppLoading(false);setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
@@ -3685,7 +3690,7 @@ $('showPasswordReset').addEventListener('click',()=>setAuthenticationMode('reset
 $('passwordResetRequestForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
 const button=$('passwordResetRequestSubmit');const message=$('passwordResetRequestMessage');button.disabled=true;message.classList.remove('info');message.textContent='Sending reset link…';
-try{const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:redirect.toString()});if(error)throw error;message.textContent='If this email can be used, check your inbox for a secure reset link.';message.classList.add('info');}catch{message.textContent='We could not send a reset link. Please try again shortly.';}finally{button.disabled=false;}
+try{const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');rememberPasswordRecoveryRequest();const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:redirect.toString()});if(error)throw error;message.textContent='If this email can be used, check your inbox for a secure reset link.';message.classList.add('info');}catch{clearPasswordRecoveryRequest();message.textContent='We could not send a reset link. Please try again shortly.';}finally{button.disabled=false;}
 });
 
 $('passwordRecoveryForm').addEventListener('submit',async event=>{

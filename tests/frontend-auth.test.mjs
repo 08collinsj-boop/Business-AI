@@ -118,10 +118,13 @@ test("self-service signup creates only an Auth account and waits for email confi
 test("password recovery stays within Supabase Auth and does not expose tenant or secret state", () => {
   assert.match(html, /id="showPasswordReset"/);
   assert.match(html, /redirect\.searchParams\.set\('auth','recovery'\)/);
+  assert.match(html, /rememberPasswordRecoveryRequest\(\);const \{error\}=await supabaseClient\.auth\.resetPasswordForEmail/);
   assert.match(html, /resetPasswordForEmail\(\$\('passwordResetEmail'\)\.value\.trim\(\),\{redirectTo:redirect\.toString\(\)\}\)/);
+  assert.match(html, /const authCallback=url\.searchParams\.has\('code'\)\|\|hash\.has\('access_token'\)\|\|hash\.has\('refresh_token'\)/);
+  assert.match(html, /return explicitRecovery\|\|\(authCallback&&hasRecentPasswordRecoveryRequest\(\)\)/);
   assert.match(html, /passwordRecoveryActive=passwordRecoveryIntentFromLocation\(\)/);
   assert.match(html, /event==='PASSWORD_RECOVERY'\)\{passwordRecoveryActive=true;[\s\S]*setAuthenticationMode\('recovery'\)/);
-  assert.match(html, /if\(passwordRecoveryActive&&session\)\{[\s\S]*setAuthenticationMode\('recovery'\);return true;\}/);
+  assert.match(html, /if\(passwordRecoveryActive\)\{[\s\S]*setAuthenticationMode\('recovery',session\?'':'This reset link is invalid or expired\. Request a fresh reset link\.'\);return true;\}/);
   assert.match(html, /if\(passwordRecoveryActive&&nextSession\)return;/);
   assert.match(html, /auth\.updateUser\(\{password\}\)/);
   assert.match(html, /passwordRecoveryActive=false;clearPasswordRecoveryLocation\(\);await supabaseClient\.auth\.signOut\(\)/);
