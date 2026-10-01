@@ -229,6 +229,12 @@ async function refreshRoute(){
   }
 }
 
+const customerPasswordPolicyIssue=password=>{
+  if(typeof password!=='string'||password.length<12||password.length>128)return 'Use 12–128 characters.';
+  if(!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)||! /[^A-Za-z0-9\s]/.test(password))return 'Include an uppercase letter, lowercase letter, number and symbol.';
+  return '';
+};
+
 async function bindCustomerRuntime(){
   if(customerRuntimeBound)return;
   customerRuntimeBound=true;
@@ -258,8 +264,8 @@ async function bindCustomerRuntime(){
     }
   });
   byId('customerSignUpForm')?.addEventListener('submit',async event=>{
-    event.preventDefault();const message=byId('customerSignUpMessage');const password=byId('customerSignUpPassword').value;const confirm=byId('customerSignUpConfirm').value;
-    if(password.length<12||password!==confirm){message.textContent='Use matching passwords of at least 12 characters.';return;}
+    event.preventDefault();const message=byId('customerSignUpMessage');const password=byId('customerSignUpPassword').value;const confirm=byId('customerSignUpConfirm').value;const policyIssue=customerPasswordPolicyIssue(password);
+    if(policyIssue||password!==confirm){message.textContent=password!==confirm?'Passwords do not match.':policyIssue;return;}
     if(!byId('customerPrivacyAcknowledgement').checked){message.textContent='Please acknowledge the Privacy Notice.';return;}
     message.textContent='Creating your customer account…';
     const email=byId('customerSignUpEmail').value.trim();const displayName=byId('customerSignUpName').value.trim();

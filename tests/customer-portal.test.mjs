@@ -127,6 +127,10 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(script, /\/api\/customer-portal/);
   assert.match(script, /\/api\/public-businesses/);
   assert.match(script, /const existingSignIn=await client\.auth\.signInWithPassword\(\{email,password\}\)/, 'existing Business AI credentials are reused for Customer access');
+  assert.match(script, /const customerPasswordPolicyIssue=password=>/);
+  assert.match(script, /password\.length<12\|\|password\.length>128/);
+  assert.match(script, /const policyIssue=customerPasswordPolicyIssue\(password\)/);
+
   assert.match(script, /same account works for Customer/);
   assert.match(html, /id="customerForgotPassword"/);
   assert.match(script, /redirect\.searchParams\.set\('auth','recovery'\)/);

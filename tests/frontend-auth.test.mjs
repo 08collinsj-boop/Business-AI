@@ -105,7 +105,10 @@ test("self-service signup creates only an Auth account and waits for email confi
   assert.match(html, /auth\.signUp\(\{/);
   assert.match(html, /options:\{emailRedirectTo:\(\(\)=>\{const url=new URL\('\/',window\.location\.origin\);if\(referralCode\)url\.searchParams\.set\('ref',referralCode\);return url\.toString\(\);\}\)\(\)\}/);
   assert.match(html, /If this email can be used, check your inbox to confirm it, then sign in\./);
-  assert.match(html, /password\.length<12/);
+  assert.match(html, /const passwordPolicyIssue=password=>/);
+  assert.match(html, /password\.length<12\|\|password\.length>128/);
+  assert.match(html, /\/\[a-z\]\/\.test\(password\).*\/\[A-Z\]\/\.test\(password\).*\/\[0-9\]\/\.test\(password\)/s);
+  assert.match(html, /const policyIssue=passwordPolicyIssue\(password\)/);
   assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}business_id/);
   assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}role:/);
   assert.doesNotMatch(html, /auth\.signUp\([\s\S]{0,800}(?:user_metadata|app_metadata|data:)\s*/);
@@ -127,6 +130,7 @@ test("password recovery stays within Supabase Auth and does not expose tenant or
   assert.match(html, /if\(passwordRecoveryActive\)\{[\s\S]*setAuthenticationMode\('recovery',session\?'':'This reset link is invalid or expired\. Request a fresh reset link\.'\);return true;\}/);
   assert.match(html, /if\(passwordRecoveryActive&&nextSession\)return;/);
   assert.match(html, /auth\.updateUser\(\{password\}\)/);
+  assert.match(html, /const policyIssue=passwordPolicyIssue\(password\)/);
   assert.match(html, /passwordRecoveryActive=false;clearPasswordRecoveryLocation\(\);await supabaseClient\.auth\.signOut\(\)/);
   assert.doesNotMatch(html, /resetPasswordForEmail[\s\S]{0,500}(?:business_id|role|SUPABASE_SERVICE_ROLE_KEY)/);
 });
