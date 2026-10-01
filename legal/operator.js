@@ -33,6 +33,8 @@
       const type = humanType(legal.operator_type);
       const address = text(legal.operator_address, 500);
       const email = text(legal.contact_email, 320);
+      const phone = text(legal.contact_phone, 80);
+      const phoneHref = phone ? 'tel:' + phone.replace(/[^\d+]/g, '') : null;
       const company = text(legal.company_number, 80);
       const vat = text(legal.vat_number, 80);
       document.querySelectorAll('[data-legal-identity]').forEach(box => {
@@ -46,6 +48,7 @@
         add(box, 'Business structure', type);
         add(box, 'Geographic address', address);
         add(box, 'Email', email, 'mailto:' + email);
+        add(box, 'Telephone', phone, phoneHref);
         add(box, 'Company number', company);
         add(box, 'VAT number', vat);
       });
