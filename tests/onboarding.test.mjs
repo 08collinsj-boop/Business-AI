@@ -12,9 +12,14 @@ const apiSource = await readFile(new URL("../api/business-configuration.js", imp
 const authSource = await readFile(new URL("../lib/auth.js", import.meta.url), "utf8");
 const configSource = await readFile(new URL("../lib/business-configuration.js", import.meta.url), "utf8");
 const auditSource = await readFile(new URL("../lib/audit.js", import.meta.url), "utf8");
+const importSource = `
+export class BusinessImportError extends Error { constructor(message, statusCode = 400) { super(message); this.name = "BusinessImportError"; this.statusCode = statusCode; } }
+export async function importBusinessWebsite(value) { return { source_url: "https://example.com/", suggestions: { business_name: "Imported Test Business" }, found_fields: ["business_name"] }; }
+`;
 const authUrl = `data:text/javascript;base64,${Buffer.from(authSource).toString("base64")}`;
 const configUrl = `data:text/javascript;base64,${Buffer.from(configSource).toString("base64")}`;
 const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
+const importUrl = `data:text/javascript;base64,${Buffer.from(importSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
@@ -31,6 +36,7 @@ async function load(role = "owner", enabled = "true", database = async () => rep
   const source = apiSource
     .replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`)
     .replace('from "../lib/business-configuration.js"', `from "${configUrl}#${Math.random()}"`)
+    .replace('from "../lib/business-import.js"', `from "${importUrl}#${Math.random()}"`)
     .replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
@@ -92,6 +98,8 @@ test("business configuration API uses membership-derived tenant and owner/admin 
   handler = await load("owner", "true", async (url, options) => { calls.push({ url, options }); return reply([{ business_id: "business-a", description: "Updated" }]); });
   res = response(); await handler({ method: "PATCH", headers: { authorization: "Bearer good", "x-role": "owner" }, body: { description: "Updated", onboarding_step: "services", service_delivery_mode: "travel", enabled_modules: { voice: true } } }, res);
   assert.equal(res.statusCode, 200); const patch = calls.find((call) => call.options.method === "PATCH"); const persisted = JSON.parse(patch.options.body); assert.match(patch.url, /business_id=eq.business-a/); assert.equal(persisted.enabled_modules.voice, false); assert.equal(persisted.onboarding_step, "services"); assert.equal(persisted.service_delivery_mode, "travel");
+  res = response(); await handler({ method: "POST", headers: { authorization: "Bearer good" }, body: { action: "import_website", website: "https://example.com" } }, res);
+  assert.equal(res.statusCode, 200); assert.equal(res.body.import.suggestions.business_name, "Imported Test Business");
 });
 
 test("completed and legacy-configured businesses bypass onboarding while blank businesses remain in setup", { concurrency: false }, async () => {
@@ -109,7 +117,7 @@ test("configuration API fails closed or safely when authentication/configuration
   let handler = await load("owner", "false"); let res = response(); await handler({ method: "GET", headers: {} }, res); assert.equal(res.statusCode, 503);
   handler = await load("owner", "true", async () => reply([], true), true); res = response(); await handler({ method: "GET", headers: { authorization: "Bearer bad" } }, res); assert.equal(res.statusCode, 401);
   handler = await load("owner", "true", async () => reply({ hidden: "internal" }, false)); res = response(); await handler({ method: "GET", headers: { authorization: "Bearer good" } }, res); assert.equal(res.statusCode, 500); assert.deepEqual(res.body, { error: "Could not process business configuration" });
-  res = response(); await handler({ method: "POST", headers: {} }, res); assert.equal(res.statusCode, 405);
+  res = response(); await handler({ method: "PUT", headers: {} }, res); assert.equal(res.statusCode, 405);
 });
 
 test.after(() => { for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key]; Object.assign(process.env, savedEnv); globalThis.fetch = savedFetch; });
