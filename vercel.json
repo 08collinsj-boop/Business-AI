@@ -159,15 +159,6 @@
           "value": "noindex, noarchive, nosnippet"
         }
       ]
-    },
-    {
-      "source": "/api/legal-public",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, noarchive, nosnippet"
-        }
-      ]
     }
   ]
 }
