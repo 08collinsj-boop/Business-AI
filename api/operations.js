@@ -24,6 +24,7 @@ import marketingSchedulerHandler from '../lib/marketing-scheduler-handler.js';
 import marketingImageHandler from '../lib/marketing-image-handler.js';
 import marketingAutomationHandler from '../lib/marketing-automation-handler.js';
 import feedbackHandler from '../lib/feedback-handler.js';
+import { observeOperation } from '../lib/operations-observability.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -61,5 +62,14 @@ export default async function handler(req, res) {
   const operation = typeof req.query?.operation === "string" ? req.query.operation : "";
   const delegated = handlers[operation];
   if (!delegated) return res.status(404).json({ error: "Not found" });
-  return delegated(req, res);
+  const observation = observeOperation(req, res, operation);
+  try {
+    return await delegated(req, res);
+  } catch (error) {
+    observation.fail(error);
+    if (!res.headersSent) return res.status(500).json({ error: "Internal server error" });
+    throw error;
+  } finally {
+    observation.complete();
+  }
 }

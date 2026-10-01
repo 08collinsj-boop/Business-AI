@@ -205,11 +205,16 @@ async function refreshRoute(){
   if(hint)hint.innerHTML=signedIn?'Signed in · qualifying enquiries will appear in <a href="/customer/account">My enquiries</a>.':'Want to track your enquiry? <a href="/customer/account">Sign in as a customer</a> before sending it.';
   if(!isCustomerAccountRoute())return;
 
-  // Never expose the portal merely because a browser has a Supabase session.
-  // The authenticated customer API must succeed before the portal is revealed.
-  setCustomerSurface(false);
-  if(!signedIn)return;
+  if(!signedIn){
+    setCustomerSurface(false);
+    if(typeof setAppLoading==='function')setAppLoading(false);
+    return;
+  }
 
+  // Keep the account route behind the shared loading screen until the
+  // authenticated customer API confirms that the portal may be shown.
+  if(typeof setAppLoading==='function')setAppLoading(true);
+  setCustomerSurface(false);
   try{
     await loadPortal();
     setCustomerSurface(true);
@@ -219,6 +224,8 @@ async function refreshRoute(){
     setCustomerSurface(false);
     const message=byId('customerSignInMessage');
     if(message)message.textContent='Your customer session could not be verified. Please sign in again.';
+  }finally{
+    if(typeof setAppLoading==='function')setAppLoading(false);
   }
 }
 
@@ -290,6 +297,7 @@ async function ensureCustomerRuntime(){
   if(!client){
     if(isCustomerAccountRoute()){
       setCustomerSurface(false);
+      if(typeof setAppLoading==='function')setAppLoading(false);
       const message=byId('customerSignInMessage');
       if(message)message.textContent='Customer sign in is temporarily unavailable. You can still continue as a guest.';
     }

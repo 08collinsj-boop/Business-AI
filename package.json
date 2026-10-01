@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "verify:local": "node scripts/verify-local.mjs",
-    "verify": "npm test && npm run verify:local"
+    "verify": "npm test && npm run verify:local",
+    "load:smoke": "node scripts/load-smoke.mjs"
   },
   "dependencies": {
     "qrcode": "1.5.4"

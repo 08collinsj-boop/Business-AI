@@ -75,7 +75,8 @@
       const description = document.createElement('p'); description.className = 'work-meta'; description.textContent = addon.description;
       const pricing = document.createElement('p'); pricing.className = 'work-meta'; pricing.textContent = addon.status === 'coming_soon' ? 'Not yet available' : money(addon.pricing);
       const actions=document.createElement('div'); actions.className='work-actions';
-      const openButton=document.createElement('button'); openButton.type='button'; openButton.className='small-btn'; openButton.textContent=addon.key==='ai_marketing'?'Open Marketing':'View'; openButton.disabled=addon.status==='coming_soon'; openButton.addEventListener('click',()=>showView(addon.key==='ai_marketing'?'marketing':'addons')); actions.append(openButton);
+      const canOpen=addon.key!=='ai_marketing'||addon.entitlement==='active'||addon.trial_included;
+      if(canOpen){const openButton=document.createElement('button'); openButton.type='button'; openButton.className='small-btn'; openButton.textContent=addon.key==='ai_marketing'?'Open Marketing':'View'; openButton.disabled=addon.status==='coming_soon'; openButton.addEventListener('click',()=>showView(addon.key==='ai_marketing'?'marketing':'addons')); actions.append(openButton);}
       if(addon.purchasable){ const b=document.createElement('button'); b.type='button'; b.className='small-btn primary-action'; b.textContent='Add to subscription'; b.addEventListener('click',()=>changeAddon('purchase',addon.key)); actions.append(b); }
       if(addon.cancellable){ const b=document.createElement('button'); b.type='button'; b.className='small-btn'; b.textContent='Remove add-on'; b.addEventListener('click',()=>changeAddon('cancel',addon.key)); actions.append(b); }
       if(addon.trial_included) { const trial=document.createElement('p'); trial.textContent='10 Marketing generations included with your trial'; article.append(trial); }
