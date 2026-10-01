@@ -1055,7 +1055,7 @@ test('marketing prompt treats saved services as a closed catalogue', () => {
 
 test('marketing grounding rejects invented qualifications and free quotes', () => {
   const facts = { services: 'Lighting installation', service_areas: 'Hartlepool' };
-  const request = { ...input, prompt: 'Promote lighting installation enquiries' };
+  const request = { ...input, prompt: 'Promote lighting installation enquiries. Do not add certified electricians or free quotes.' };
   for (const main_copy of ['Our certified electricians install lighting.', 'Ask for a free quote.']) {
     assert.throws(() => validateMarketingGrounding({ ...output, main_copy,
       short_alternative: 'Lighting installation enquiries.', call_to_action: 'Contact us.'
