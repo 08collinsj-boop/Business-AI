@@ -48,7 +48,9 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20260929124200_add_automatic_follow_up_settings.sql",
     "20260929144034_add_review_requests.sql",
     "20260930190000_fix_referral_profile_conflict_ambiguity.sql",
-    "20261001200000_add_contextual_handover_summaries.sql"
+    "20261001200000_add_contextual_handover_summaries.sql",
+    "20261001214000_remove_unused_pg_net.sql",
+    "20261001214100_document_server_only_rls_policies.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -70,6 +72,13 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then 'normal'/i);
   assert.match(quoteFollowups, /effective_reason = 'quote_or_commitment' then priority/i);
   const contextualHandover = contents.get("20261001200000_add_contextual_handover_summaries.sql");
+  const removePgNet = contents.get("20261001214000_remove_unused_pg_net.sql");
+  const serverOnlyRls = contents.get("20261001214100_document_server_only_rls_policies.sql");
+  assert.match(removePgNet, /drop extension if exists pg_net/i);
+  assert.equal((serverOnlyRls.match(/server only deny direct access/g) || []).length, 14);
+  assert.match(serverOnlyRls, /business_billing_accounts[\s\S]*using \(false\)[\s\S]*with check \(false\)/i);
+  assert.match(serverOnlyRls, /customer_profiles[\s\S]*using \(false\)[\s\S]*with check \(false\)/i);
+  assert.match(serverOnlyRls, /stripe_webhook_events[\s\S]*using \(false\)[\s\S]*with check \(false\)/i);
   assert.match(contextualHandover, /p_lead->>'handover_summary'/i);
   assert.match(contextualHandover, /set summary=summary_value/i);
   assert.match(contextualHandover, /set description=summary_value/i);
