@@ -1,5 +1,6 @@
 import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "../lib/auth.js";
 import { getIndustryTemplates, validateBusinessConfiguration } from "../lib/business-configuration.js";
+import { BusinessImportError, importBusinessWebsite } from "../lib/business-import.js";
 import { recordAuditEvent } from "../lib/audit.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -37,11 +38,28 @@ function onboardingState(configuration, settings) {
 }
 
 export default async function handler(req, res) {
-  if (!["GET", "PATCH"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
+  if (!["GET", "PATCH", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
   let auth;
-  try { auth = req.method === "PATCH" ? await requireBusinessAdmin(req) : await requireBusinessMember(req); } catch (error) { return sendAuthError(res, error); }
+  try { auth = req.method === "GET" ? await requireBusinessMember(req) : await requireBusinessAdmin(req); } catch (error) { return sendAuthError(res, error); }
   if (!auth.enforced) return res.status(503).json({ error: "Business configuration is not enabled" });
   try {
+    if (req.method === "POST") {
+      const body = parseBody(req.body);
+      if (!body || body.action !== "import_website") return res.status(400).json({ error: "Invalid import request" });
+      const imported = await importBusinessWebsite(body.website);
+      await recordAuditEvent({
+        businessId: auth.businessId,
+        actorUserId: auth.userId,
+        action: "configuration.import.preview",
+        resourceType: "business_configuration",
+        resourceId: auth.businessId,
+        metadata: {
+          source_host: new URL(imported.source_url).hostname.slice(0, 255),
+          fields: imported.found_fields.join(",")
+        }
+      });
+      return res.status(200).json({ import: imported });
+    }
     if (req.method === "GET") {
       const configuration = await getConfiguration(auth.businessId);
       if (!configuration) return res.status(404).json({ error: "Business configuration not found" });
@@ -58,6 +76,7 @@ export default async function handler(req, res) {
     await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "configuration.updated", resourceType: "business_configuration", resourceId: auth.businessId, metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
     return res.status(200).json({ configuration, templates: getIndustryTemplates() });
   } catch (error) {
+    if (error instanceof BusinessImportError) return res.status(error.statusCode || 400).json({ error: error.message });
     if (/^(Invalid|Unsupported|No changes)/.test(error?.message || "")) return res.status(400).json({ error: error.message });
     console.error("Business configuration API error");
     return res.status(500).json({ error: "Could not process business configuration" });
