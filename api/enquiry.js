@@ -51,6 +51,17 @@ function cleanHandoverSummaryValue(value, max = 420) {
   return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
+function modelReplyClaimsPersistence(value) {
+  const reply = String(value || '');
+  return /\b(?:saved|recorded|logged|submitted|passed|sent|forwarded)\b[\s\S]{0,80}\b(?:enquiry|quote|booking|request|details)\b|\b(?:enquiry|quote|booking|request|details)\b[\s\S]{0,80}\b(?:saved|recorded|logged|submitted|passed|sent|forwarded)\b|\b(?:team|business)\s+(?:will|can)\s+(?:follow up|contact|respond)\b/i.test(reply);
+}
+
+function safeUncapturedReply({ businessName, hasContact, hasJob }) {
+  if (!hasContact) return `I can help with that. If you'd like ${businessName} to follow up, please provide a phone number or email address.`;
+  if (!hasJob) return `Thanks. I have your contact details, but I haven't saved an enquiry yet. What job or service do you need help with?`;
+  return `Thanks. I have your details, but I haven't saved this as an enquiry for ${businessName} yet. Please add a little more detail about what you need, or ask to speak to the team.`;
+}
+
 function buildContextualHandoverSummary({ lead, reason, message, customerAskedToBook = false }) {
   const rows = [];
   const name = cleanHandoverSummaryValue(lead?.name, 120);
@@ -1321,6 +1332,10 @@ Your response must follow the supplied JSON schema.
 
     const deterministicContact = Boolean(detectedPhone || detectedEmail || customerAccount?.email);
     const deterministicBusinessEnquiry = Boolean(detectedJob && deterministicContact);
+    const explicitCaptureIntent =
+      ['quote', 'booking', 'commitment'].includes(result.intent?.type) ||
+      /\b(?:quote|quotation|estimate|book|booking|appointment)\b/i.test(conversationText);
+    const explicitCaptureHasJob = Boolean(lead.job_type || lead.description || detectedJob);
     const clearlyOffTopic = looksClearlyOffTopic(message, settings, configuration);
     const offTopic = !knownHandover && (clearlyOffTopic || (modelSaysOffTopic(result.intent) && !deterministicBusinessEnquiry));
     const decision = offTopic ? null : decideAIHandover(mode, result.intent, conversationText, Boolean(lead.handover_required));
@@ -1363,7 +1378,7 @@ Your response must follow the supplied JSON schema.
         null,
 
       qualified:
-        !offTopic && (result.intent?.supported === true || handoverRequired || deterministicBusinessEnquiry),
+        !offTopic && (result.intent?.supported === true || handoverRequired || deterministicBusinessEnquiry || (explicitCaptureIntent && explicitCaptureHasJob)),
 
       priority: handoverRequired && !ordinaryQuoteHandover ? "High" : (lead.priority || "Normal"),
 
@@ -1474,6 +1489,13 @@ Your response must follow the supplied JSON schema.
 
     const effectiveLeadCaptured = testMode ? wouldCaptureLead : leadCaptured;
     const effectiveBookingRequested = testMode ? wouldRequestBooking : bookingRequested;
+    const rawModelReply = typeof result.reply === 'string' ? result.reply.trim() : '';
+    const safeModelReply = !effectiveLeadCaptured && !effectiveBookingRequested && modelReplyClaimsPersistence(rawModelReply)
+      ? safeUncapturedReply({ businessName, hasContact, hasJob })
+      : rawModelReply;
+    if (safeModelReply !== rawModelReply) {
+      logOperationalEvent('enquiry.unverified_persistence_claim_suppressed', { businessId, intent: result.intent?.type || 'unknown' });
+    }
     const customerReply = offTopic
       ? `I can help with questions and enquiries about ${businessName}. For anything unrelated, please use the appropriate service or source.`
       : reason === "emergency_or_high_risk" || reason === "complaint_or_dispute"
@@ -1484,8 +1506,8 @@ Your response must follow the supplied JSON schema.
             ? `${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : effectiveLeadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
             : effectiveLeadCaptured
               ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
-              : typeof result.reply === "string"
-                ? result.reply
+              : safeModelReply
+                ? safeModelReply
                 : "Thanks. I have your details.";
 
     if (testMode) {

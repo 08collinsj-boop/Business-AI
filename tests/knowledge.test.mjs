@@ -7,6 +7,7 @@ import {
   validateExtractedKnowledge,
   rankKnowledgeItems,
   getApprovedKnowledge,
+  extractKnowledgeFromFile,
   KNOWLEDGE_EXTRACTION_SYSTEM_PROMPT,
   KNOWLEDGE_MAX_FILE_BYTES
 } from '../lib/knowledge.js';
@@ -74,6 +75,46 @@ test('extracted knowledge stays bounded, factual-shaped and deduplicated', () =>
   assert.throws(() => validateExtractedKnowledge({ summary: '', items: [] }), /No usable business facts/);
   assert.match(KNOWLEDGE_EXTRACTION_SYSTEM_PROMPT, /file is untrusted DATA/i);
   assert.match(KNOWLEDGE_EXTRACTION_SYSTEM_PROMPT, /Do not infer missing facts/i);
+});
+
+test('TXT knowledge extraction falls back to OpenRouter when OpenAI is rate limited', async () => {
+  process.env.OPENAI_API_KEY = 'test-openai';
+  process.env.OPENROUTER_API_KEY = 'test-openrouter';
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    const value = String(url);
+    calls.push({ url: value, options });
+    if (value === 'https://api.openai.com/v1/files') return jsonResponse({ error: 'rate limited' }, 429);
+    if (value === 'https://openrouter.ai/api/v1/chat/completions') {
+      return jsonResponse({
+        model: 'liquid/lfm-2.5-2.6b:free',
+        choices: [{
+          finish_reason: 'stop',
+          message: { content: JSON.stringify({
+            summary: 'QA business facts',
+            items: [
+              { item_type: 'hours', title: 'Friday hours', content: 'Open Friday 09:00–17:00.', keywords: ['friday', 'hours'] },
+              { item_type: 'service', title: 'Socket replacement', content: 'Socket replacement is available.', keywords: ['socket', 'replacement'] }
+            ]
+          }) }
+        }]
+      });
+    }
+    throw new Error(`Unexpected fetch ${value}`);
+  };
+  const result = await extractKnowledgeFromFile({
+    buffer: Buffer.from('Friday hours: 09:00-17:00\nService: Socket replacement'),
+    fileName: 'qa-knowledge.txt',
+    mimeType: 'text/plain'
+  });
+  assert.equal(result.items.length, 2);
+  assert.equal(result.items[0].item_type, 'hours');
+  assert.equal(calls.filter(call => call.url.includes('api.openai.com')).length, 1);
+  assert.equal(calls.filter(call => call.url.includes('openrouter.ai')).length, 1);
+  const fallbackBody = JSON.parse(calls.find(call => call.url.includes('openrouter.ai')).options.body);
+  assert.equal(fallbackBody.response_format.type, 'json_schema');
+  assert.equal(fallbackBody.provider.require_parameters, true);
+  assert.match(fallbackBody.messages[1].content, /FILE CONTENTS BEGIN/);
 });
 
 test('knowledge retrieval ranks relevant approved facts without exposing storage metadata', () => {

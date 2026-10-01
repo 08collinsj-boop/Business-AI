@@ -281,7 +281,7 @@ test('owner/onboarding controls save explicitly and retain draft on failure', as
   assert.match(html, /requestSubmit\(\)/);
 });
 
-async function loadWithBilling({ providerFails = false, providerStatus = 500, fallbackSucceeds = false, fallbackFailsOnce = false, configurationFails = false } = {}) {
+async function loadWithBilling({ providerFails = false, providerStatus = 500, fallbackSucceeds = false, fallbackFailsOnce = false, fallbackResult = null, configurationFails = false } = {}) {
   process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai';
   if (fallbackSucceeds) process.env.OPENROUTER_API_KEY = 'test-openrouter'; else delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'true'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
@@ -306,7 +306,8 @@ async function loadWithBilling({ providerFails = false, providerStatus = 500, fa
       openRouterAttempts++;
       if (!fallbackSucceeds) return { ok: false, status: 503, text: async () => JSON.stringify({ error: 'fallback failed' }) };
       if (fallbackFailsOnce && openRouterAttempts === 1) return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: 'not-json' }, finish_reason: 'length' }] });
-      return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify({ reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } }) }, finish_reason: 'stop' }] });
+      const result = fallbackResult || { reply: 'Fallback answer', intent: supported, lead: { phone: null, email: null, job_type: null, description: null, qualified: false, handover_required: false } };
+      return reply({ model: 'liquid/lfm-2.5-2.6b:free', choices: [{ message: { content: JSON.stringify(result) }, finish_reason: 'stop' }] });
     }
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: null });
     if (url.includes('bookings?')) return reply(requestedBooking ? [requestedBooking] : []);
@@ -366,6 +367,52 @@ test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowan
   assert.equal(firstFallbackBody.max_tokens, 1400);
   assert.equal(retryFallbackBody.max_tokens, 3200);
   assert.match(retryFallbackBody.messages[0].content, /Return compact JSON only/);
+});
+
+test('fallback quote is captured even when the model marks it unsupported and persistence wording is server-owned', async () => {
+  const fallbackResult = {
+    reply: 'Thanks, I have recorded your quote request for the team.',
+    intent: { type: 'quote', supported: false, requires_human: false, safety_reason: 'none', unsupported_reason: 'missing_knowledge' },
+    lead: {
+      name: 'Casey QA', phone: null, email: 'casey.qa@example.test', location: 'Hartlepool',
+      job_type: 'Consumer unit replacement quote', description: 'Customer wants a quote for a consumer unit replacement.',
+      urgency: null, qualified: false, priority: 'Normal', notes: null, handover_required: false
+    }
+  };
+  const loaded = await loadWithBilling({ providerFails: true, providerStatus: 429, fallbackSucceeds: true, fallbackResult });
+  const res = response();
+  await loaded.handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.34' },
+    query: { business: 'business-a' },
+    body: { message: 'Could I get a quote for a consumer unit replacement?' }
+  }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, true);
+  assert.match(res.body.reply, /saved your enquiry|passed your enquiry/i);
+  assert.notEqual(res.body.reply, fallbackResult.reply);
+  assert.ok(loaded.calls.some(c => c.url.includes('rpc/save_public_enquiry')));
+});
+
+test('model cannot claim an enquiry was recorded when no lead was persisted', async () => {
+  const fallbackResult = {
+    reply: 'I have recorded your enquiry and the team will contact you.',
+    intent: { type: 'basic_faq', supported: true, requires_human: false, safety_reason: 'none', unsupported_reason: 'none' },
+    lead: { name: null, phone: null, email: null, location: null, job_type: null, description: null, urgency: null, qualified: false, priority: 'Normal', notes: null, handover_required: false }
+  };
+  const loaded = await loadWithBilling({ providerFails: true, providerStatus: 429, fallbackSucceeds: true, fallbackResult });
+  const res = response();
+  await loaded.handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.35' },
+    query: { business: 'business-a' },
+    body: { message: 'Can you help me?' }
+  }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, false);
+  assert.doesNotMatch(res.body.reply, /recorded|saved|passed|team will contact/i);
+  assert.match(res.body.reply, /phone number|email address/i);
+  assert.ok(!loaded.calls.some(c => c.url.includes('rpc/save_public_enquiry')));
 });
 
 test('provider outage still captures a quote lead with deterministic customer details', async () => {
