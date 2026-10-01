@@ -129,7 +129,10 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(script, /const existingSignIn=await client\.auth\.signInWithPassword\(\{email,password\}\)/, 'existing Business AI credentials are reused for Customer access');
   assert.match(script, /same account works for Customer/);
   assert.match(html, /id="customerForgotPassword"/);
-  assert.match(script, /resetPasswordForEmail\(email,\{redirectTo:new URL\('\/',window\.location\.origin\)\.toString\(\)\}\)/);
+  assert.match(script, /redirect\.searchParams\.set\('auth','recovery'\)/);
+  assert.match(script, /resetPasswordForEmail\(email,\{redirectTo:redirect\.toString\(\)\}\)/);
+  assert.match(script, /rememberPasswordRecoveryRequest/);
+  assert.match(script, /setTimeout\(\(\)=>\{if\(button\)button\.disabled=false;\},60000\)/);
   assert.match(html, /id="customerResendConfirmation"/);
   assert.match(script, /client\.auth\.resend\(\{type:'signup',email,options:\{emailRedirectTo:new URL\('\/customer\/account',window\.location\.origin\)\.toString\(\)\}\}\)/);
   assert.match(script, /If this address has an unconfirmed account/);

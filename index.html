@@ -3394,6 +3394,7 @@ const rememberReferralCode=value=>{const code=normaliseReferralInput(value);try{
 const prefillReferralInputs=()=>{const code=pendingReferralCode();['signUpReferralCode','newBusinessReferralCode'].forEach(id=>{const input=$(id);if(input&&code&&!input.value)input.value=code;});return code;};
 const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new URL(window.location.href);url.searchParams.delete('ref');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}};
 const PASSWORD_RECOVERY_STORAGE_KEY='business-ai-password-recovery-requested-v1';
+const PASSWORD_RESET_REQUEST_COOLDOWN_MS=60000;
 const PASSWORD_RECOVERY_MAX_AGE_MS=2*60*60*1000;
 const rememberPasswordRecoveryRequest=()=>{try{localStorage.setItem(PASSWORD_RECOVERY_STORAGE_KEY,String(Date.now()));}catch{}};
 const clearPasswordRecoveryRequest=()=>{try{localStorage.removeItem(PASSWORD_RECOVERY_STORAGE_KEY);}catch{}};
@@ -3604,7 +3605,10 @@ if($('legalAupVersion'))$('legalAupVersion').textContent=docs.acceptable_use?.ve
 if($('legalDpaVersion'))$('legalDpaVersion').textContent=docs.dpa?.version?`v${docs.dpa.version}`:'';
 if($('legalPackVersion'))$('legalPackVersion').textContent=docs.terms?.version?`v${docs.terms.version}`:'v1.0';
 if($('legalAcceptanceSummary'))$('legalAcceptanceSummary').textContent=legalState?.needs_user_acceptance?'Account legal status: acceptance required.':`Account legal status: current versions accepted${legalState?.user_accepted_at?` · ${timeLabel(legalState.user_accepted_at)}`:''}.`;
-if($('dpaAcceptanceSummary'))$('dpaAcceptanceSummary').textContent=legalState?.dpa_required?(legalState?.dpa_accepted?`DPA status: accepted${legalState?.dpa_accepted_at?` · ${timeLabel(legalState.dpa_accepted_at)}`:''}.`:'DPA status: owner acceptance required.'):'DPA status: owner acceptance is not required for this account.';
+if($('dpaAcceptanceSummary'))$('dpaAcceptanceSummary').textContent=legalState?.dpa_required?(legalState?.dpa_accepted?`DPA status: accepted${legalState?.dpa_accepted_at?` · ${timeLabel(legalState.dpa_accepted_at)}`:''}.`:legalState?.provider_identity_configured===false?'DPA status: waiting for Business AI provider identity setup.':'DPA status: owner acceptance required.'):'DPA status: owner acceptance is not required for this account.';
+const dpaReady=legalState?.provider_identity_configured!==false;const dpaCheck=$('dpaGateAccept');const dpaButton=$('dpaAcceptanceSubmit');const dpaMessage=$('dpaAcceptanceMessage');
+if(dpaCheck)dpaCheck.disabled=!dpaReady;if(dpaButton)dpaButton.disabled=!dpaReady;
+if(dpaMessage&&!dpaReady)dpaMessage.textContent='DPA acceptance is unavailable until Business AI provider identity is fully configured. No address is being added or exposed here.';
 };
 
 async function loadLegalState(){
@@ -3626,6 +3630,7 @@ const {data:{session}}=await supabaseClient.auth.getSession();await handleSessio
 
 async function acceptBusinessDpa(){
 const message=$('dpaAcceptanceMessage');const button=$('dpaAcceptanceSubmit');
+if(legalState?.provider_identity_configured===false){message.textContent='DPA acceptance is unavailable until Business AI provider identity is fully configured.';return;}
 if(!$('dpaGateAccept')?.checked){message.textContent='Tick the box to confirm you are authorised to accept the DPA.';return;}
 button.disabled=true;message.textContent='Recording the DPA acceptance…';
 try{
@@ -3713,8 +3718,8 @@ $('showPasswordReset').addEventListener('click',()=>setAuthenticationMode('reset
 
 $('passwordResetRequestForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
-const button=$('passwordResetRequestSubmit');const message=$('passwordResetRequestMessage');button.disabled=true;message.classList.remove('info');message.textContent='Sending reset link…';
-try{const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');rememberPasswordRecoveryRequest();const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:redirect.toString()});if(error)throw error;message.textContent='If this email can be used, check your inbox for a secure reset link.';message.classList.add('info');}catch{clearPasswordRecoveryRequest();message.textContent='We could not send a reset link. Please try again shortly.';}finally{button.disabled=false;}
+const button=$('passwordResetRequestSubmit');const message=$('passwordResetRequestMessage');let sent=false;button.disabled=true;message.classList.remove('info');message.textContent='Sending reset link…';
+try{const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');rememberPasswordRecoveryRequest();const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:redirect.toString()});if(error)throw error;sent=true;message.textContent='If this email can be used, check your inbox for a secure reset link. Please wait about a minute before requesting another.';message.classList.add('info');}catch{clearPasswordRecoveryRequest();message.textContent='We could not send a reset link. Please try again shortly.';}finally{if(sent)window.setTimeout(()=>{button.disabled=false;},PASSWORD_RESET_REQUEST_COOLDOWN_MS);else button.disabled=false;}
 });
 
 $('passwordRecoveryForm').addEventListener('submit',async event=>{

@@ -240,11 +240,22 @@ async function bindCustomerRuntime(){
     message.textContent=result.error?'Unable to sign in with those details.':'';if(!result.error)await refreshRoute();
   });
   byId('customerForgotPassword')?.addEventListener('click',async()=>{
-    const message=byId('customerSignInMessage');const email=byId('customerSignInEmail')?.value.trim();
+    const button=byId('customerForgotPassword');const message=byId('customerSignInMessage');const email=byId('customerSignInEmail')?.value.trim();
     if(!email){message.textContent='Enter your email address first.';return;}
-    message.textContent='Requesting a secure reset link…';
-    const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:new URL('/',window.location.origin).toString()});
-    message.textContent=error?'We could not request a reset link. Please try again shortly.':'If this email can be used, check your inbox for a secure reset link.';
+    if(button?.disabled)return;
+    if(button)button.disabled=true;message.textContent='Requesting a secure reset link…';
+    const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');
+    try{
+      if(typeof rememberPasswordRecoveryRequest==='function')rememberPasswordRecoveryRequest();
+      const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:redirect.toString()});
+      if(error)throw error;
+      message.textContent='If this email can be used, check your inbox for a secure reset link. Please wait about a minute before requesting another.';
+      window.setTimeout(()=>{if(button)button.disabled=false;},60000);
+    }catch{
+      if(typeof clearPasswordRecoveryRequest==='function')clearPasswordRecoveryRequest();
+      if(button)button.disabled=false;
+      message.textContent='We could not request a reset link. Please try again shortly.';
+    }
   });
   byId('customerSignUpForm')?.addEventListener('submit',async event=>{
     event.preventDefault();const message=byId('customerSignUpMessage');const password=byId('customerSignUpPassword').value;const confirm=byId('customerSignUpConfirm').value;
