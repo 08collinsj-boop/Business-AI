@@ -477,7 +477,7 @@ for (const mode of modes) test(`${mode}: public API safety bypasses autonomous g
 });
 
 
-async function loadReceptionistTest(model = null) {
+async function loadReceptionistTest(model = null, role = 'owner') {
   process.env.SUPABASE_URL = 'https://test.invalid';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret';
   process.env.OPENAI_API_KEY = 'test-openai';
@@ -489,7 +489,7 @@ async function loadReceptionistTest(model = null) {
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.endsWith('/auth/v1/user')) return reply({ id: 'owner-user', email: 'owner@example.test' });
-    if (url.includes('business_memberships')) return reply([{ business_id: 'business-a', role: 'owner' }]);
+    if (url.includes('business_memberships')) return reply([{ business_id: 'business-a', role }]);
     if (url.includes('business_legal_acceptances')) return reply([{ id: 'dpa-current' }]);
     if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', address: 'Hartlepool', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Stay focused on this business.', automatic_follow_up_enabled: true, automatic_follow_up_hours: 24 }]);
     if (url.includes('business_configurations')) return reply([{ ai_handling_mode: 'balanced', description: 'Electrical repairs', service_areas: 'Hartlepool', customer_enquiry_instructions: 'Collect useful job details.', handover_instructions: 'Escalate when appropriate.', faqs: [] }]);
@@ -500,13 +500,21 @@ async function loadReceptionistTest(model = null) {
   return { handler, calls };
 }
 
-test('receptionist test mode requires an authenticated business membership', async () => {
+test('receptionist test mode requires authenticated business admin access', async () => {
   const { handler, calls } = await loadReceptionistTest();
   const res = response();
   await handler({ method: 'POST', headers: {}, query: {}, body: { test_mode: true, message: 'Test the receptionist' } }, res);
   assert.equal(res.statusCode, 401);
   assert.equal(res.body.error, 'Authentication is required');
   assert.equal(calls.length, 0);
+});
+
+test('receptionist test mode is limited to business owners and admins', async () => {
+  const { handler } = await loadReceptionistTest(null, 'member');
+  const res = response();
+  await handler({ method: 'POST', headers: { authorization: 'Bearer qa-member-token' }, query: {}, body: { test_mode: true, message: 'Test the receptionist' } }, res);
+  assert.equal(res.statusCode, 403);
+  assert.equal(res.body.error, 'You are not authorised for this action');
 });
 
 test('receptionist test mode previews workflow without consuming allowance or writing customer records', async () => {
@@ -529,6 +537,8 @@ test('receptionist test mode previews workflow without consuming allowance or wr
   assert.ok(res.body.preview.context.available.includes('Services'));
   assert.ok(!calls.some(call => call.url.includes('consume_billing_ai_enquiry_allowance')));
   assert.ok(!calls.some(call => call.url.includes('business_billing_accounts')));
+  assert.ok(!calls.some(call => call.url.includes('business_legal_acceptances')), 'owner test mode must not depend on the public DPA gate');
+  assert.doesNotMatch(JSON.stringify(res.body.preview), /owner@example\.test/, 'owner auth identity must not become simulated customer data');
   assert.ok(!calls.some(call => call.url.includes('consume_public_enquiry_quota')));
   assert.ok(!calls.some(call => call.url.includes('rpc/save_public_enquiry')));
   assert.ok(!calls.some(call => call.url.endsWith('/rest/v1/bookings') && call.options.method === 'POST'));

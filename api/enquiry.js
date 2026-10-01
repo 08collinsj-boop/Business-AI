@@ -10,7 +10,7 @@ import { logOperationalEvent } from "../lib/operational-log.js";
 import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowance } from "../lib/billing.js";
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
 import { LEGAL_VERSIONS } from "../lib/legal.js";
-import { extractBearerToken, requireAuthenticatedUser, requireBusinessMember, sendAuthError } from "../lib/auth.js";
+import { extractBearerToken, requireAuthenticatedUser, requireBusinessAdmin, sendAuthError } from "../lib/auth.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -907,7 +907,7 @@ export default async function handler(req, res) {
     const testMode = body.test_mode === true;
     let testAuth = null;
     if (testMode) {
-      try { testAuth = await requireBusinessMember(req); } catch (error) { return sendAuthError(res, error); }
+      try { testAuth = await requireBusinessAdmin(req); } catch (error) { return sendAuthError(res, error); }
       if (!testAuth?.enforced || !testAuth.businessId) return res.status(503).json({ error: "Receptionist test mode is not enabled" });
     }
 
@@ -945,7 +945,7 @@ export default async function handler(req, res) {
     if (!publicBusiness) {
       return res.status(404).json({ error: "Business not available" });
     }
-    if (!(await hasCurrentBusinessDpa(publicBusiness.businessId))) {
+    if (!testMode && !(await hasCurrentBusinessDpa(publicBusiness.businessId))) {
       logOperationalEvent("enquiry.legal_setup_required", { businessId: publicBusiness.businessId });
       return res.status(503).json({
         error: "This assistant is currently unavailable. Please contact the business directly.",
