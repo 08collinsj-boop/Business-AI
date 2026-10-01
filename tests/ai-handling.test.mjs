@@ -531,6 +531,9 @@ test('receptionist test mode previews workflow without consuming allowance or wr
   assert.equal(res.body.preview.handling_mode, 'balanced');
   assert.equal(res.body.preview.would_create.lead, true);
   assert.equal(res.body.preview.would_create.handover, true);
+  assert.match(res.body.preview.handover_summary, /Casey QA/);
+  assert.match(res.body.preview.handover_summary, /socket replacement/i);
+  assert.match(res.body.preview.handover_summary, /Why handed over:/);
   assert.equal(res.body.preview.would_create.booking_request, false);
   assert.equal(res.body.preview.automatic_follow_up_eligible, true);
   assert.equal(res.body.preview.lead.email, 'qa.customer@example.test');

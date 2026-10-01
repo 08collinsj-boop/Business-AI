@@ -37,6 +37,43 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const HANDOVER_REASON_LABELS = Object.freeze({
+  human_requested: "Customer asked to speak to a person",
+  complaint_or_dispute: "Complaint or dispute needs a personal response",
+  emergency_or_high_risk: "High-risk enquiry needs urgent human review",
+  sensitive_or_unusual: "Sensitive or unusual enquiry needs human review",
+  ai_uncertain: "AI could not confidently complete the enquiry",
+  human_first_mode: "Business is using human-first handling",
+  quote_or_commitment: "Quote or commitment needs human confirmation"
+});
+
+function cleanHandoverSummaryValue(value, max = 420) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function buildContextualHandoverSummary({ lead, reason, message, customerAskedToBook = false }) {
+  const rows = [];
+  const name = cleanHandoverSummaryValue(lead?.name, 120);
+  const phone = cleanHandoverSummaryValue(lead?.phone, 80);
+  const email = cleanHandoverSummaryValue(lead?.email, 180);
+  const jobType = cleanHandoverSummaryValue(lead?.job_type, 180);
+  const description = cleanHandoverSummaryValue(lead?.description, 520);
+  const location = cleanHandoverSummaryValue(lead?.location, 180);
+  const urgency = cleanHandoverSummaryValue(lead?.urgency, 80);
+  const latestMessage = cleanHandoverSummaryValue(message, 520);
+  if (name) rows.push(`Customer: ${name}`);
+  const contact = [phone, email].filter(Boolean).join(" · ");
+  if (contact) rows.push(`Contact: ${contact}`);
+  if (jobType) rows.push(`Request: ${jobType}`);
+  if (description && description.toLowerCase() !== jobType.toLowerCase()) rows.push(`Details: ${description}`);
+  if (location) rows.push(`Location: ${location}`);
+  if (urgency) rows.push(`Urgency: ${urgency}`);
+  if (customerAskedToBook) rows.push("Booking: customer asked to arrange a booking");
+  if (reason && HANDOVER_REASON_LABELS[reason]) rows.push(`Why handed over: ${HANDOVER_REASON_LABELS[reason]}`);
+  if (latestMessage) rows.push(`Latest customer message: ${latestMessage}`);
+  return (rows.join("\n") || "Customer requested a personal response. Review the linked lead for details.").slice(0, 1900);
+}
+
 function supabaseUrl(path) {
   if (!SUPABASE_URL) throw new Error("SUPABASE_URL is not configured");
   if (!SUPABASE_SERVICE_ROLE_KEY) {
@@ -1355,6 +1392,13 @@ Your response must follow the supplied JSON schema.
     const wouldRequestBooking = wouldCaptureLead && customerAskedToBook;
     const wouldCreateHandover = wouldCaptureLead && handoverRequired;
     const automaticFollowUpEligible = wouldCaptureLead && Boolean(settings.automatic_follow_up_enabled);
+    const handoverSummary = buildContextualHandoverSummary({
+      lead: finalLead,
+      reason,
+      message,
+      customerAskedToBook
+    });
+    const leadForPersistence = { ...finalLead, handover_summary: handoverSummary };
 
     /*
      * Real customer traffic may persist the lead and downstream workflow.
@@ -1364,7 +1408,7 @@ Your response must follow the supplied JSON schema.
     if (wouldCaptureLead && !testMode) {
       try {
         const existingLeadBeforeCapture = await findExistingLead(finalLead, businessId).catch(() => null);
-        savedLead = await saveLead(finalLead, businessId, { mode, reason });
+        savedLead = await saveLead(leadForPersistence, businessId, { mode, reason });
         leadCaptured = Boolean(savedLead?.id);
         if (savedLead?.handover_reason) {
           reason = savedLead.handover_reason;
@@ -1485,6 +1529,7 @@ Your response must follow the supplied JSON schema.
             handover: wouldCreateHandover
           },
           automatic_follow_up_eligible: automaticFollowUpEligible,
+          handover_summary: wouldCreateHandover ? handoverSummary : null,
           lead: {
             name: finalLead.name,
             phone: finalLead.phone,
