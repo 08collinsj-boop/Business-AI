@@ -1053,6 +1053,20 @@ test('marketing prompt treats saved services as a closed catalogue', () => {
   assert.match(MARKETING_SYSTEM_PROMPT, /must not invite customers to book,\s*schedule or request a service unless/i);
 });
 
+test('marketing grounding rejects invented qualifications and free quotes', () => {
+  const facts = { services: 'Lighting installation', service_areas: 'Hartlepool' };
+  const request = { ...input, prompt: 'Promote lighting installation enquiries' };
+  for (const main_copy of ['Our certified electricians install lighting.', 'Ask for a free quote.']) {
+    assert.throws(() => validateMarketingGrounding({ ...output, main_copy,
+      short_alternative: 'Lighting installation enquiries.', call_to_action: 'Contact us.'
+    }, facts, request), /qualification or free quote claim/i);
+  }
+  assert.doesNotThrow(() => validateMarketingGrounding({ ...output,
+    main_copy: 'Our certified electricians offer a free quote.',
+    short_alternative: 'Lighting installation enquiries.', call_to_action: 'Contact us.'
+  }, { ...facts, qualifications: 'certified electricians', quote_policy: 'free quote' }, request));
+});
+
 test('marketing grounding rejects self-confirmed booking wording', () => {
   const facts = { business_name: 'Hartlepool Test Electrical', services: 'Socket replacement', service_areas: 'Hartlepool' };
   const request = { ...input, prompt: 'Promote socket replacement enquiries in Hartlepool' };
