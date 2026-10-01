@@ -12,6 +12,7 @@ const legalVersions = await read('lib/legal.js');
 const migration = await read('supabase/migrations/20260927110000_add_legal_acceptances.sql');
 const operations = await read('api/operations.js');
 const vercel = await read('vercel.json');
+const envExample = await read('.env.example');
 
 test('UK legal pack is publicly linked and versioned', async () => {
   for (const path of ['legal/index.html','legal/terms.html','legal/privacy.html','legal/dpa.html','legal/acceptable-use.html','legal/storage.html','legal/subprocessors.html']) {
@@ -60,6 +61,9 @@ test('public legal identity supports sole-trader disclosure without implying inc
   assert.match(publicHandler, /LEGAL_TRADING_NAME/);
   assert.match(publicHandler, /LEGAL_OPERATOR_TYPE/);
   assert.match(publicHandler, /LEGAL_OPERATOR_ADDRESS/);
+  assert.match(publicHandler, /LEGAL_OPERATOR_ADDRESS_PUBLIC_CONFIRMED/);
+  assert.match(publicHandler, /operator_address: publicAddressConfirmed \? safe\(process\.env\.LEGAL_OPERATOR_ADDRESS, 500\) : ''/);
+  assert.match(envExample, /LEGAL_OPERATOR_ADDRESS_PUBLIC_CONFIRMED=false/);
   assert.match(publicHandler, /LEGAL_CONTACT_EMAIL/);
   assert.match(publicHandler, /LEGAL_CONTACT_PHONE/);
   assert.match(publicHandler, /LEGAL_COMPANY_NUMBER/);
