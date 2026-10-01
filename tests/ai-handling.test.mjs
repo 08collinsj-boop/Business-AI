@@ -475,3 +475,84 @@ for (const mode of modes) test(`${mode}: public API safety bypasses autonomous g
   }
   assert.ok(!calls.some(c=>c.url.includes('api.openai.com')));
 });
+
+
+async function loadReceptionistTest(model = null) {
+  process.env.SUPABASE_URL = 'https://test.invalid';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret';
+  process.env.OPENAI_API_KEY = 'test-openai';
+  delete process.env.OPENROUTER_API_KEY;
+  process.env.TENANCY_AUTH_ENABLED = 'true';
+  process.env.BILLING_ENABLED = 'true';
+  process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url, options });
+    if (url.endsWith('/auth/v1/user')) return reply({ id: 'owner-user', email: 'owner@example.test' });
+    if (url.includes('business_memberships')) return reply([{ business_id: 'business-a', role: 'owner' }]);
+    if (url.includes('business_legal_acceptances')) return reply([{ id: 'dpa-current' }]);
+    if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', address: 'Hartlepool', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Stay focused on this business.', automatic_follow_up_enabled: true, automatic_follow_up_hours: 24 }]);
+    if (url.includes('business_configurations')) return reply([{ ai_handling_mode: 'balanced', description: 'Electrical repairs', service_areas: 'Hartlepool', customer_enquiry_instructions: 'Collect useful job details.', handover_instructions: 'Escalate when appropriate.', faqs: [] }]);
+    if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify(model || { reply: 'We can help with that. What details can you share?', intent: supported, lead: { name: null, phone: null, email: null, location: null, job_type: 'Service enquiry', description: 'Customer asked about availability', urgency: null, qualified: true, priority: 'Normal', notes: null, handover_required: false } }) });
+    throw new Error(`Unexpected call: ${url}`);
+  };
+  const handler = (await import(new URL(`../api/enquiry.js?receptionist_test=${Math.random()}`, import.meta.url))).default;
+  return { handler, calls };
+}
+
+test('receptionist test mode requires an authenticated business membership', async () => {
+  const { handler, calls } = await loadReceptionistTest();
+  const res = response();
+  await handler({ method: 'POST', headers: {}, query: {}, body: { test_mode: true, message: 'Test the receptionist' } }, res);
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.error, 'Authentication is required');
+  assert.equal(calls.length, 0);
+});
+
+test('receptionist test mode previews workflow without consuming allowance or writing customer records', async () => {
+  const { handler, calls } = await loadReceptionistTest();
+  const res = response();
+  await handler({
+    method: 'POST',
+    headers: { authorization: 'Bearer qa-owner-token' },
+    query: {},
+    body: { test_mode: true, message: 'Hi, I’m Casey QA. I need a quote for a socket replacement in Hartlepool. Email qa.customer@example.test.' }
+  }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.test_mode, true);
+  assert.equal(res.body.preview.handling_mode, 'balanced');
+  assert.equal(res.body.preview.would_create.lead, true);
+  assert.equal(res.body.preview.would_create.handover, true);
+  assert.equal(res.body.preview.would_create.booking_request, false);
+  assert.equal(res.body.preview.automatic_follow_up_eligible, true);
+  assert.equal(res.body.preview.lead.email, 'qa.customer@example.test');
+  assert.ok(res.body.preview.context.available.includes('Services'));
+  assert.ok(!calls.some(call => call.url.includes('consume_billing_ai_enquiry_allowance')));
+  assert.ok(!calls.some(call => call.url.includes('business_billing_accounts')));
+  assert.ok(!calls.some(call => call.url.includes('consume_public_enquiry_quota')));
+  assert.ok(!calls.some(call => call.url.includes('rpc/save_public_enquiry')));
+  assert.ok(!calls.some(call => call.url.endsWith('/rest/v1/bookings') && call.options.method === 'POST'));
+  assert.ok(!calls.some(call => call.url.endsWith('/rest/v1/business_audit_events') && call.options.method === 'POST'));
+});
+
+test('receptionist test mode can call the real AI reasoning path without using customer allowance', async () => {
+  const { handler, calls } = await loadReceptionistTest();
+  const res = response();
+  await handler({ method: 'POST', headers: { authorization: 'Bearer qa-owner-token' }, query: {}, body: { test_mode: true, message: 'Do you have same-day availability for a service?' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.test_mode, true);
+  assert.equal(calls.filter(call => call.url.includes('api.openai.com')).length, 1);
+  assert.equal(res.body.preview.would_create.lead, false);
+  assert.ok(!calls.some(call => call.url.includes('consume_billing_ai_enquiry_allowance')));
+  assert.ok(!calls.some(call => call.url.includes('rpc/save_public_enquiry')));
+});
+
+test('owner UI uses dedicated receptionist test mode and exposes an outcome inspector', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /<h2>Test Receptionist<\/h2>/);
+  assert.match(html, /test_mode:true/);
+  assert.match(html, /No lead, booking or handover was saved/);
+  assert.match(html, /What Business AI would do/);
+  assert.match(html, /business-ai-receptionist-test:/);
+  assert.match(html, /qa\.customer@example\.test/);
+});

@@ -10,10 +10,28 @@ import { logOperationalEvent } from "../lib/operational-log.js";
 import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowance } from "../lib/billing.js";
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
 import { LEGAL_VERSIONS } from "../lib/legal.js";
-import { extractBearerToken, requireAuthenticatedUser } from "../lib/auth.js";
+import { extractBearerToken, requireAuthenticatedUser, requireBusinessMember, sendAuthError } from "../lib/auth.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
+const RECEPTIONIST_TEST_WINDOW_MS = 60 * 1000;
+const RECEPTIONIST_TEST_LIMIT = 20;
+const receptionistTestWindows = new Map();
+
+function enforceReceptionistTestRateLimit(businessId, userId) {
+  const key = `${businessId}:${userId || "unknown"}`;
+  const now = Date.now();
+  const current = receptionistTestWindows.get(key);
+  if (!current || now - current.startedAt >= RECEPTIONIST_TEST_WINDOW_MS) {
+    receptionistTestWindows.set(key, { startedAt: now, count: 1 });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+  if (current.count >= RECEPTIONIST_TEST_LIMIT) {
+    return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil((RECEPTIONIST_TEST_WINDOW_MS - (now - current.startedAt)) / 1000)) };
+  }
+  current.count += 1;
+  return { allowed: true, retryAfterSeconds: 0 };
+}
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -884,15 +902,24 @@ export default async function handler(req, res) {
     let body;
     try { body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {}; } catch { return res.status(400).json({ error: "Invalid request body" }); }
     if (!body || typeof body !== "object" || Array.isArray(body) || ["ai_handling_mode", "business_id", "tenant_id"].some(key => Object.hasOwn(body, key))) return res.status(400).json({ error: "Unsupported enquiry fields" });
+    if (Object.hasOwn(body, "test_mode") && typeof body.test_mode !== "boolean") return res.status(400).json({ error: "Invalid test mode" });
+
+    const testMode = body.test_mode === true;
+    let testAuth = null;
+    if (testMode) {
+      try { testAuth = await requireBusinessMember(req); } catch (error) { return sendAuthError(res, error); }
+      if (!testAuth?.enforced || !testAuth.businessId) return res.status(503).json({ error: "Receptionist test mode is not enabled" });
+    }
 
     const allowedSources = new Set(["direct", "share", "qr", "website_widget", "directory"]);
-    const enquirySource = allowedSources.has(body.source) ? body.source : "direct";
+    const enquirySource = testMode ? "test" : (allowedSources.has(body.source) ? body.source : "direct");
     const enquirySourceLabel = {
       direct: "Direct customer link",
       share: "Shared smart link",
       qr: "QR code",
       website_widget: "Website widget",
-      directory: "Business AI directory"
+      directory: "Business AI directory",
+      test: "Receptionist test"
     }[enquirySource];
 
     const message =
@@ -912,7 +939,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Message is too long" });
     }
 
-    const publicBusiness = await resolvePublicBusiness(req);
+    const publicBusiness = testMode
+      ? { businessId: testAuth.businessId, slug: "receptionist-test" }
+      : await resolvePublicBusiness(req);
     if (!publicBusiness) {
       return res.status(404).json({ error: "Business not available" });
     }
@@ -923,27 +952,35 @@ export default async function handler(req, res) {
         code: "LEGAL_SETUP_REQUIRED"
       });
     }
-    const clientAddress = getPublicClientAddress(req);
-    const rateLimit = await enforcePublicEnquiryRateLimit({
-      businessId: publicBusiness.businessId,
-      slug: publicBusiness.slug,
-      clientAddress,
-      repository: {
-        consumeQuota: async ({ businessId, sourceFingerprint, windowStartedAt, sourceLimit, businessLimit }) => {
-          const rows = await supabaseRequest("rpc/consume_public_enquiry_quota", {
-            method: "POST",
-            body: JSON.stringify({ p_business_id: businessId, p_source_fingerprint: sourceFingerprint, p_window_started_at: windowStartedAt, p_source_limit: sourceLimit, p_business_limit: businessLimit })
-          });
-          return rows === true;
-        }
+    const clientAddress = testMode ? `receptionist-test:${testAuth.userId}` : getPublicClientAddress(req);
+    if (testMode) {
+      const rateLimit = enforceReceptionistTestRateLimit(publicBusiness.businessId, testAuth.userId);
+      if (!rateLimit.allowed) {
+        res.setHeader?.("Retry-After", String(rateLimit.retryAfterSeconds));
+        return res.status(429).json({ error: "Please wait a moment before running more receptionist tests" });
       }
-    });
-    if (!rateLimit.allowed) {
-      res.setHeader?.("Retry-After", String(rateLimit.retryAfterSeconds));
-      return res.status(429).json({ error: "Please try again shortly" });
+    } else {
+      const rateLimit = await enforcePublicEnquiryRateLimit({
+        businessId: publicBusiness.businessId,
+        slug: publicBusiness.slug,
+        clientAddress,
+        repository: {
+          consumeQuota: async ({ businessId, sourceFingerprint, windowStartedAt, sourceLimit, businessLimit }) => {
+            const rows = await supabaseRequest("rpc/consume_public_enquiry_quota", {
+              method: "POST",
+              body: JSON.stringify({ p_business_id: businessId, p_source_fingerprint: sourceFingerprint, p_window_started_at: windowStartedAt, p_source_limit: sourceLimit, p_business_limit: businessLimit })
+            });
+            return rows === true;
+          }
+        }
+      });
+      if (!rateLimit.allowed) {
+        res.setHeader?.("Retry-After", String(rateLimit.retryAfterSeconds));
+        return res.status(429).json({ error: "Please try again shortly" });
+      }
     }
     const businessId = publicBusiness.businessId;
-    const customerAccount = await optionalCustomerAccount(req);
+    const customerAccount = testMode ? null : await optionalCustomerAccount(req);
 
     // Load and validate tenant configuration before consuming paid AI allowance.
     // Configuration/storage failures must never reduce the customer's plan usage.
@@ -1048,7 +1085,7 @@ Your response must follow the supplied JSON schema.
     // A subscription must remain active throughout a conversation. A valid,
     // short-lived server-signed session means subsequent turns do not consume
     // another advertised "AI enquiry" allowance unit.
-    if (knownHandover || hasAiSession || trustedBasicReply) {
+    if (!testMode && (knownHandover || hasAiSession || trustedBasicReply)) {
       const billingAccess = await getAiEnquiryAccess(businessId);
       if (!billingAccess.allowed) return billingFailureResponse(res, billingAccess.code);
     }
@@ -1068,9 +1105,10 @@ Your response must follow the supplied JSON schema.
       aiSession = aiSession || aiSessionToken(businessId, clientAddress);
       logOperationalEvent("enquiry.trusted_fact_answered", { businessId, fact_type: "service_area" });
     } else {
-      if (!hasAiSession) {
-        // Reserve atomically only when this customer session is about to use the
-        // AI provider. Direct human/safety handovers do not spend AI allowance.
+      if (!hasAiSession && !testMode) {
+        // Reserve atomically only when a real customer session is about to use
+        // the AI provider. Authenticated receptionist tests never spend the
+        // business's advertised customer enquiry allowance.
         const billingAllowance = await reserveAiEnquiryAllowance(businessId);
         if (!billingAllowance.allowed) return billingFailureResponse(res, billingAllowance.code);
         billingReservation = billingAllowance.reservation;
@@ -1310,13 +1348,20 @@ Your response must follow the supplied JSON schema.
     let savedLead = null;
     let trackingAvailable = false;
     let bookingRequested = false;
+    const customerAskedToBook =
+      result.intent?.type === "booking" ||
+      /\b(?:book|booking|appointment|schedule|arrange)\b/i.test(message);
+    const wouldCaptureLead = !offTopic && finalLead.qualified && hasContact && (hasJob || handoverRequired);
+    const wouldRequestBooking = wouldCaptureLead && customerAskedToBook;
+    const wouldCreateHandover = wouldCaptureLead && handoverRequired;
+    const automaticFollowUpEligible = wouldCaptureLead && Boolean(settings.automatic_follow_up_enabled);
 
     /*
-     * If the customer has contact information and
-     * a genuine job enquiry, SAVE THE LEAD.
+     * Real customer traffic may persist the lead and downstream workflow.
+     * Authenticated test mode stops here and only reports the preview below.
      */
 
-    if (!offTopic && finalLead.qualified && hasContact && (hasJob || handoverRequired)) {
+    if (wouldCaptureLead && !testMode) {
       try {
         const existingLeadBeforeCapture = await findExistingLead(finalLead, businessId).catch(() => null);
         savedLead = await saveLead(finalLead, businessId, { mode, reason });
@@ -1339,10 +1384,6 @@ Your response must follow the supplied JSON schema.
         if (customerAccount?.userId && savedLead?.id) {
           trackingAvailable = await linkCustomerEnquiry(customerAccount.userId, businessId, savedLead.id).catch(() => false);
         }
-
-        const customerAskedToBook =
-          result.intent?.type === "booking" ||
-          /\b(?:book|booking|appointment|schedule|arrange)\b/i.test(message);
 
         if (customerAskedToBook && savedLead?.id) {
           try {
@@ -1387,22 +1428,87 @@ Your response must follow the supplied JSON schema.
       }
     }
 
+    const effectiveLeadCaptured = testMode ? wouldCaptureLead : leadCaptured;
+    const effectiveBookingRequested = testMode ? wouldRequestBooking : bookingRequested;
+    const customerReply = offTopic
+      ? `I can help with questions and enquiries about ${businessName}. For anything unrelated, please use the appropriate service or source.`
+      : reason === "emergency_or_high_risk" || reason === "complaint_or_dispute"
+        ? `${reason === "emergency_or_high_risk" ? "If anyone is in immediate danger, contact the emergency services now. " : ""}${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : effectiveLeadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
+        : effectiveBookingRequested
+          ? `Thanks. I've saved your booking request for ${businessName}. The business still needs to confirm availability and a time.`
+          : handoverRequired
+            ? `${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : effectiveLeadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
+            : effectiveLeadCaptured
+              ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
+              : typeof result.reply === "string"
+                ? result.reply
+                : "Thanks. I have your details.";
+
+    if (testMode) {
+      const contextAvailable = [
+        settings.business_name && "Business name",
+        settings.business_type && "Business type",
+        settings.services && "Services",
+        settings.opening_hours && "Opening hours",
+        settings.address && "Address",
+        configuration.description && "Business description",
+        configuration.serviceAreas && "Service areas",
+        configuration.faqs?.length && "FAQs",
+        settings.ai_instructions && "Owner receptionist instructions",
+        configuration.enquiryInstructions && "Customer enquiry instructions",
+        configuration.handoverInstructions && "Handover instructions",
+        approvedUploadedKnowledge.length && "Approved Business Knowledge"
+      ].filter(Boolean);
+
+      return res.status(200).json({
+        test_mode: true,
+        continuation: reason ? continuationToken(businessId, reason) : null,
+        session: aiSession || null,
+        reply: customerReply,
+        preview: {
+          handling_mode: mode,
+          intent: {
+            type: result.intent?.type || "unsupported",
+            supported: result.intent?.supported === true,
+            requires_human: result.intent?.requires_human === true,
+            safety_reason: result.intent?.safety_reason || "none",
+            unsupported_reason: result.intent?.unsupported_reason || "none"
+          },
+          decision: {
+            off_topic: offTopic,
+            handover_required: handoverRequired,
+            handover_reason: reason || null
+          },
+          would_create: {
+            lead: wouldCaptureLead,
+            booking_request: wouldRequestBooking,
+            handover: wouldCreateHandover
+          },
+          automatic_follow_up_eligible: automaticFollowUpEligible,
+          lead: {
+            name: finalLead.name,
+            phone: finalLead.phone,
+            email: finalLead.email,
+            location: finalLead.location,
+            job_type: finalLead.job_type,
+            description: finalLead.description,
+            urgency: finalLead.urgency,
+            qualified: finalLead.qualified,
+            priority: finalLead.priority
+          },
+          context: {
+            available: contextAvailable,
+            approved_knowledge_items: approvedUploadedKnowledge.length,
+            conversation_turns: conversation.length
+          }
+        }
+      });
+    }
+
     return res.status(200).json({
       continuation: reason ? continuationToken(businessId, reason) : null,
       session: aiSession || null,
-      reply: offTopic
-        ? `I can help with questions and enquiries about ${businessName}. For anything unrelated, please use the appropriate service or source.`
-        : reason === "emergency_or_high_risk" || reason === "complaint_or_dispute"
-          ? `${reason === "emergency_or_high_risk" ? "If anyone is in immediate danger, contact the emergency services now. " : ""}${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : leadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
-          : bookingRequested
-            ? `Thanks. I've saved your booking request for ${businessName}. The business still needs to confirm availability and a time.`
-            : handoverRequired
-              ? `${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : leadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
-              : leadCaptured
-                ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
-                : typeof result.reply === "string"
-                  ? result.reply
-                  : "Thanks. I have your details.",
+      reply: customerReply,
       // Public callers only need booleans showing what was received.
       // Never expose database rows or internal tenant identifiers.
       leadCaptured,

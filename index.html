@@ -812,6 +812,9 @@ color:#000;
 font-weight:800
 }
 
+.receptionist-test-banner{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-color:#245b8f;background:linear-gradient(145deg,rgba(13,43,72,.98),rgba(7,24,41,.98))}.receptionist-test-banner h3{margin:9px 0 5px}.receptionist-test-banner p{margin:0;max-width:580px;line-height:1.5}.receptionist-test-scenarios .work-actions{margin-top:2px}.receptionist-test-chat{min-height:430px}.receptionist-test-inspector{border-color:#1d4b76}.receptionist-test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.receptionist-test-grid article{padding:12px;border:1px solid #1b4167;border-radius:14px;background:#081b2d}.receptionist-test-grid article span{display:block;color:#7892ad;font-size:9px;font-weight:750;letter-spacing:.05em;text-transform:uppercase}.receptionist-test-grid article strong{display:block;margin-top:5px;color:#eef7ff;font-size:13px;overflow-wrap:anywhere}.receptionist-test-detail{margin-top:13px;padding:13px;border:1px solid #173a5c;border-radius:14px;background:rgba(6,21,36,.72)}.receptionist-test-detail>strong{display:block;margin-bottom:9px;font-size:12px}.receptionist-test-detail>div{display:grid;grid-template-columns:100px minmax(0,1fr);gap:9px;padding:6px 0;border-top:1px solid rgba(76,119,160,.14)}.receptionist-test-detail>div:first-of-type{border-top:0}.receptionist-test-detail>div span{color:#7f96ae;font-size:10px}.receptionist-test-detail>div b{font-size:11px;font-weight:650;overflow-wrap:anywhere}.receptionist-test-note{margin:11px 0 0;color:#9fc9f5}.receptionist-test-inspector .settings-status-badge{white-space:nowrap}
+@media(max-width:560px){.receptionist-test-banner{flex-direction:column}.receptionist-test-banner .small-btn{width:100%}.receptionist-test-grid{grid-template-columns:1fr}.receptionist-test-detail>div{grid-template-columns:86px minmax(0,1fr)}.receptionist-test-scenarios .work-actions .small-btn{flex:1 1 140px}}
+
 .activity{
 display:flex;
 gap:11px;
@@ -2789,39 +2792,38 @@ id="enquiriesView"
 class="view"
 >
 
-<div class="page-title screen-title ai-screen-title"><span class="page-kicker">AI receptionist</span><h2>AI Receptionist</h2><p>Test the customer enquiry experience.</p></div>
+<div class="page-title screen-title ai-screen-title"><span class="page-kicker">Safe simulation</span><h2>Test Receptionist</h2><p>See how your AI handles customers without creating real leads, bookings or handovers.</p></div>
 
-
-<div class="card chat">
-
-<div
-id="messages"
-class="messages"
->
-
-<div class="msg ai">
-Hi! I'm the AI receptionist. Send a customer enquiry to test the system.
+<div class="card receptionist-test-banner">
+<div><span class="tag new">TEST MODE</span><h3>Safe customer simulation</h3><p class="work-meta">This uses your current business profile, AI handling mode and approved Business Knowledge. Test messages are not saved as customer records and do not use your customer enquiry allowance.</p></div>
+<button class="small-btn" type="button" onclick="resetReceptionistTest()">Reset test</button>
 </div>
 
+<div class="card receptionist-test-scenarios">
+<div class="card-head"><div><h3>Try a realistic scenario</h3><span>QA details only</span></div></div>
+<div class="work-actions">
+<button class="small-btn" type="button" onclick="runReceptionistScenario('question')">Basic question</button>
+<button class="small-btn" type="button" onclick="runReceptionistScenario('quote')">Quote request</button>
+<button class="small-btn" type="button" onclick="runReceptionistScenario('booking')">Booking request</button>
+<button class="small-btn" type="button" onclick="runReceptionistScenario('human')">Ask for a person</button>
+<button class="small-btn" type="button" onclick="runReceptionistScenario('offtopic')">Off-topic</button>
+</div>
+<p id="receptionistTestStatus" class="work-meta" role="status" aria-live="polite">Choose a scenario or type your own test message below.</p>
 </div>
 
-
-<form
-class="chat-form"
-onsubmit="sendEnquiry(event)"
->
-
-<input
-id="chatInput"
-placeholder="Describe what you need help with…"
->
-
-<button type="submit" aria-label="Send message">
-↑
-</button>
-
+<div class="card chat receptionist-test-chat">
+<div id="messages" class="messages">
+<div class="msg ai">Test mode is ready. Send a customer-style message to see the reply and predicted workflow.</div>
+</div>
+<form class="chat-form" onsubmit="sendEnquiry(event)">
+<input id="chatInput" maxlength="2000" autocomplete="off" placeholder="Type a test customer message…" aria-label="Test customer message">
+<button type="submit" aria-label="Send test message">↑</button>
 </form>
+</div>
 
+<div id="receptionistTestInspector" class="card receptionist-test-inspector" aria-live="polite">
+<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">Waiting for test</span></div>
+<div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>
 </div>
 
 </section>
@@ -3403,7 +3405,7 @@ const clearPasswordRecoveryLocation=()=>{clearPasswordRecoveryRequest();try{cons
 const clearPrivateState=()=>{
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 updateInstallAppCard?.();
 };
@@ -3989,162 +3991,123 @@ return [y,m,d].filter(Boolean).join('-');
 };
 
 
-const enquiryStorageKey=slug=>`business-ai-enquiry-conversation:${slug}`;
+const enquiryStorageKey=slug=>`business-ai-receptionist-test:${slug}`;
 
 let enquiryMessages=[];
-
+let receptionistTestContinuation=null;
+let receptionistTestSession=null;
+let receptionistTestLastPreview=null;
 
 const loadEnquiryConversation=()=>{
-
-try{
-
-const saved=authenticatedPublicBusinessSlug?JSON.parse(sessionStorage.getItem(enquiryStorageKey(authenticatedPublicBusinessSlug))||'[]'):[];
-
-if(Array.isArray(saved)){
-
-enquiryMessages=saved.filter(message=>
-message&&
-(message.role==='user'||message.role==='assistant')&&
-typeof message.content==='string'&&
-message.content.trim()
-);
-
-}
-
-}catch{
-
-enquiryMessages=[];
-
-}
-
+  try{
+    const raw=authenticatedPublicBusinessSlug?sessionStorage.getItem(enquiryStorageKey(authenticatedPublicBusinessSlug)):null;
+    const parsed=raw?JSON.parse(raw):null;
+    const saved=Array.isArray(parsed)?{messages:parsed}:(parsed&&typeof parsed==='object'?parsed:{});
+    const rows=Array.isArray(saved.messages)?saved.messages:[];
+    enquiryMessages=rows.filter(message=>message&&(message.role==='user'||message.role==='assistant')&&typeof message.content==='string'&&message.content.trim());
+    receptionistTestContinuation=typeof saved.continuation==='string'&&saved.continuation?saved.continuation:null;
+    receptionistTestSession=typeof saved.session==='string'&&saved.session?saved.session:null;
+  }catch{
+    enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;
+  }
 };
-
 
 const saveEnquiryConversation=()=>{
-
-try{
-
-if(authenticatedPublicBusinessSlug)sessionStorage.setItem(enquiryStorageKey(authenticatedPublicBusinessSlug),JSON.stringify(enquiryMessages));
-
-}catch{
-
-// A chat can still continue if browser storage is unavailable.
-
-}
-
+  try{
+    if(authenticatedPublicBusinessSlug)sessionStorage.setItem(enquiryStorageKey(authenticatedPublicBusinessSlug),JSON.stringify({messages:enquiryMessages,continuation:receptionistTestContinuation,session:receptionistTestSession}));
+  }catch{}
 };
-
 
 const addEnquiryMessage=(role,content)=>{
-
-const message=document.createElement('div');
-
-message.className=`msg ${role==='user'?'user':'ai'}`;
-
-message.textContent=content;
-
-$('messages').appendChild(message);
-
-$('messages').scrollTop=$('messages').scrollHeight;
-
+  const message=document.createElement('div');
+  message.className=`msg ${role==='user'?'user':'ai'}`;
+  message.textContent=content;
+  $('messages').appendChild(message);
+  $('messages').scrollTop=$('messages').scrollHeight;
 };
-
 
 const renderEnquiryConversation=()=>{
-
-const messages=$('messages');
-
-messages.replaceChildren();
-
-if(!enquiryMessages.length){
-
-addEnquiryMessage('assistant',"Hi! I'm the AI receptionist. Send a customer enquiry to test the system.");
-
-return;
-
-}
-
-enquiryMessages.forEach(message=>addEnquiryMessage(message.role,message.content));
-
+  const messages=$('messages');
+  if(!messages)return;
+  messages.replaceChildren();
+  if(!enquiryMessages.length){
+    addEnquiryMessage('assistant','Test mode is ready. Send a customer-style message to see the reply and predicted workflow.');
+    return;
+  }
+  enquiryMessages.forEach(message=>addEnquiryMessage(message.role,message.content));
 };
 
+const RECEPTIONIST_TEST_SCENARIOS=Object.freeze({
+  question:'What are your opening hours?',
+  quote:'Hi, I’m Casey QA. I need a quote for a socket replacement in Hartlepool. You can contact me at qa.customer@example.test.',
+  booking:'Hi, I’m Casey QA. I would like to request a booking for a service visit in Hartlepool. You can contact me at qa.customer@example.test.',
+  human:'I would like to speak to someone from the team. You can contact me at qa.customer@example.test.',
+  offtopic:'What is the capital of France?'
+});
+
+function runReceptionistScenario(name){
+  const input=$('chatInput');const status=$('receptionistTestStatus');const value=RECEPTIONIST_TEST_SCENARIOS[name];
+  if(!input||!value)return;
+  input.value=value;input.focus();
+  if(status)status.textContent='Scenario loaded. Press send when you are ready to run the simulation.';
+}
+
+function renderReceptionistTestInspector(preview){
+  const target=$('receptionistTestInspector');if(!target)return;
+  receptionistTestLastPreview=preview||null;
+  if(!preview){
+    target.innerHTML='<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">Waiting for test</span></div><div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>';
+    return;
+  }
+  const outcomes=[];
+  if(preview.would_create?.lead)outcomes.push('Lead');
+  if(preview.would_create?.booking_request)outcomes.push('Booking request');
+  if(preview.would_create?.handover)outcomes.push('Human handover');
+  const context=Array.isArray(preview.context?.available)?preview.context.available:[];
+  const lead=preview.lead||{};
+  const leadRows=[['Name',lead.name],['Contact',lead.phone||lead.email],['Location',lead.location],['Job / service',lead.job_type],['Urgency',lead.urgency],['Priority',lead.priority]].filter(([,value])=>value);
+  target.innerHTML=`<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">${outcomes.length?'Would create workflow':'No record action'}</span></div>
+  <div class="receptionist-test-grid">
+    <article><span>Handling mode</span><strong>${esc(String(preview.handling_mode||'balanced').replaceAll('_',' '))}</strong></article>
+    <article><span>Detected intent</span><strong>${esc(String(preview.intent?.type||'unknown').replaceAll('_',' '))}</strong></article>
+    <article><span>Handover</span><strong>${preview.decision?.handover_required?esc(String(preview.decision?.handover_reason||'required').replaceAll('_',' ')):'No'}</strong></article>
+    <article><span>Predicted records</span><strong>${esc(outcomes.join(', ')||'None')}</strong></article>
+  </div>
+  ${preview.automatic_follow_up_eligible?'<p class="work-meta receptionist-test-note">A new captured lead would also be eligible for your automatic follow-up reminder setting.</p>':''}
+  <div class="receptionist-test-detail"><strong>Lead preview</strong>${leadRows.length?leadRows.map(([label,value])=>`<div><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join(''):'<p class="work-meta">No qualified lead details yet.</p>'}</div>
+  <div class="receptionist-test-detail"><strong>Context available to the receptionist</strong><p class="work-meta">${esc(context.join(' · ')||'Business profile only')} · ${Number(preview.context?.approved_knowledge_items)||0} approved knowledge item${Number(preview.context?.approved_knowledge_items)===1?'':'s'} · ${Number(preview.context?.conversation_turns)||0} conversation turn${Number(preview.context?.conversation_turns)===1?'':'s'}.</p></div>`;
+}
+
+function resetReceptionistTest(){
+  enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
+  try{if(authenticatedPublicBusinessSlug)sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}
+  renderEnquiryConversation();renderReceptionistTestInspector(null);
+  const status=$('receptionistTestStatus');if(status)status.textContent='Test reset. No customer records were changed.';
+  const input=$('chatInput');if(input){input.value='';input.focus();}
+}
 
 async function sendEnquiry(event){
-
-event.preventDefault();
-
-const input=$('chatInput');
-
-const message=input.value.trim();
-
-if(!message)return;
-
-const submit=event.currentTarget.querySelector('button');
-
-input.value='';
-
-input.disabled=true;
-
-submit.disabled=true;
-
-enquiryMessages.push({role:'user',content:message});
-
-saveEnquiryConversation();
-
-addEnquiryMessage('user',message);
-
-try{
-
-const enquiryUrl=new URL('/api/enquiry',window.location.origin);
-const publicBusinessSlug=frontendAuthEnabled?authenticatedPublicBusinessSlug:new URLSearchParams(window.location.search).get('business');
-if(/^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(String(publicBusinessSlug||'').toLowerCase()))enquiryUrl.searchParams.set('business',publicBusinessSlug.toLowerCase());
-const response=await fetch(`${enquiryUrl.pathname}${enquiryUrl.search}`,{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-// The API receives every previous turn, including customer details already supplied.
-body:JSON.stringify({message,messages:enquiryMessages.slice(0,-1)})
-});
-
-const result=await response.json();
-
-if(!response.ok)throw new Error(result.error||'Unable to send enquiry');
-
-const reply=typeof result.reply==='string'&&result.reply.trim()
-?result.reply.trim()
-:'Thanks. I have your details.';
-
-enquiryMessages.push({role:'assistant',content:reply});
-
-saveEnquiryConversation();
-
-addEnquiryMessage('assistant',reply);
-
-// A qualifying enquiry may have created or updated a lead. Refresh the
-// dashboard in the background so the customer-facing chat stays responsive.
-if(result.leadCaptured){
-
-loadAll().then(()=>toast('Lead captured and dashboard refreshed')).catch(error=>{
-
-console.error('Could not refresh dashboard after lead capture:',error);
-
-});
-
-}
-
-}catch(error){
-
-addEnquiryMessage('assistant',error.message||'Sorry, I could not process that enquiry.');
-
-}finally{
-
-input.disabled=false;
-
-submit.disabled=false;
-
-input.focus();
-
-}
-
+  event.preventDefault();
+  const input=$('chatInput');const message=input.value.trim();if(!message)return;
+  const submit=event.currentTarget.querySelector('button');const status=$('receptionistTestStatus');
+  input.value='';input.disabled=true;submit.disabled=true;
+  enquiryMessages.push({role:'user',content:message});saveEnquiryConversation();addEnquiryMessage('user',message);
+  if(status)status.textContent='Running safe simulation…';
+  try{
+    const result=await api('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({test_mode:true,message,messages:enquiryMessages.slice(0,-1),continuation:receptionistTestContinuation,session:receptionistTestSession})});
+    if(result?.test_mode!==true)throw new Error('Test mode was not confirmed by the server.');
+    receptionistTestContinuation=typeof result.continuation==='string'?result.continuation:null;
+    receptionistTestSession=typeof result.session==='string'?result.session:null;
+    const reply=typeof result.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. I have your details.';
+    enquiryMessages.push({role:'assistant',content:reply});saveEnquiryConversation();addEnquiryMessage('assistant',reply);
+    renderReceptionistTestInspector(result.preview||null);
+    if(status)status.textContent='Simulation complete. No lead, booking or handover was saved and no customer enquiry allowance was used.';
+  }catch(error){
+    addEnquiryMessage('assistant',error.message||'Sorry, I could not run that test.');
+    if(status)status.textContent=error.message||'The receptionist test could not be completed.';
+  }finally{
+    input.disabled=false;submit.disabled=false;input.focus();
+  }
 }
 
 
