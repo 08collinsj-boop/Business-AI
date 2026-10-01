@@ -20,9 +20,9 @@ test("public config is gated and exposes only browser-safe Supabase config", { c
 test("frontend auth uses Supabase sessions only for private API requests", () => {
   assert.match(html, /signInWithPassword/); assert.match(html, /onAuthStateChange/); assert.match(html, /auth\.signOut/);
   assert.match(html, /headers\.set\('Authorization',`Bearer \$\{session\.access_token\}`\)/);
-  assert.match(html, /new URL\('\/api\/enquiry',window\.location\.origin\)/);
+  assert.match(html, /api\('\/api\/enquiry',\{method:'POST'/, "owner receptionist tests use the authenticated private API helper");
+  assert.match(html, /test_mode:true/, "owner receptionist requests are explicitly marked as safe test traffic");
   assert.match(html, /api\('\/api\/business-onboarding'\)/);
-  assert.match(html, /const publicBusinessSlug=frontendAuthEnabled\?authenticatedPublicBusinessSlug:new URLSearchParams\(window\.location\.search\)\.get\('business'\)/);
   assert.doesNotMatch(html, /SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY/);
   assert.doesNotMatch(html, /localStorage\.setItem\([^)]*token/i);
   assert.match(html, /response\.status===401&&supabaseClient/); assert.match(html, /response\.status===403/);
@@ -77,9 +77,9 @@ test("auth-state changes defer private API work until Supabase releases its call
 test("dashboard context uses a server-returned role and keeps test conversations tenant-scoped", () => {
   assert.match(html, /const applyBusinessContext=onboarding=>\{/);
   assert.match(html, /\['owner','admin','member'\]\.includes\(onboarding\?\.role\)/);
-  assert.match(html, /const enquiryStorageKey=slug=>`business-ai-enquiry-conversation:\$\{slug\}`/);
+  assert.match(html, /const enquiryStorageKey=slug=>`business-ai-receptionist-test:\$\{slug\}`/);
   assert.match(html, /sessionStorage\.removeItem\(enquiryStorageKey\(authenticatedPublicBusinessSlug\)\)/);
-  assert.doesNotMatch(html, /const enquiryStorageKey='business-ai-enquiry-conversation'/);
+  assert.doesNotMatch(html, /const enquiryStorageKey='business-ai-receptionist-test'/);
   assert.match(html, /const onboarding=await api\('\/api\/business-onboarding'\);\s*applyBusinessContext\(onboarding\);\s*await beginConfigurationOnboarding\(\);/s, "new owners continue into the secure configuration wizard");
   assert.match(html, /data-owner-only/, "owner-only operations are separated in the UI as well as by the API");
 });
