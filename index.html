@@ -2873,14 +2873,61 @@ class="view"
 </div>
 
 <div class="marketing-tabs" role="tablist" aria-label="Marketing workspace">
-<button id="marketingTabCreate" class="small-btn primary-action" type="button" role="tab" aria-selected="true" aria-controls="marketingCreatePane" tabindex="0" onclick="marketingWorkspace.tab('create')">Create</button>
-<button id="marketingTabHistory" class="small-btn" type="button" role="tab" aria-selected="false" aria-controls="marketingHistoryPane" tabindex="-1" onclick="marketingWorkspace.tab('history')">Drafts &amp; History</button>
-<button id="marketingTabSchedule" class="small-btn" type="button" role="tab" aria-selected="false" aria-controls="marketingSchedulePane" tabindex="-1" onclick="marketingWorkspace.tab('schedule')">Schedule</button>
+<button id="marketingTabOverview" class="small-btn primary-action" type="button" role="tab" aria-selected="true" aria-controls="marketingOverviewPane" tabindex="0" onclick="marketingWorkspace.tab('overview')">Overview</button>
+<button id="marketingTabCreate" class="small-btn" type="button" role="tab" aria-selected="false" aria-controls="marketingCreatePane" tabindex="-1" onclick="marketingWorkspace.tab('create')">Create</button>
+<button id="marketingTabHistory" class="small-btn" type="button" role="tab" aria-selected="false" aria-controls="marketingHistoryPane" tabindex="-1" onclick="marketingWorkspace.tab('history')">Library</button>
+<button id="marketingTabSchedule" class="small-btn" type="button" role="tab" aria-selected="false" aria-controls="marketingSchedulePane" tabindex="-1" onclick="marketingWorkspace.tab('schedule')">Calendar</button>
 </div>
 
-<div id="marketingCreatePane" role="tabpanel" aria-labelledby="marketingTabCreate">
+<div id="marketingOverviewPane" role="tabpanel" aria-labelledby="marketingTabOverview">
+<section class="marketing-overview-grid" aria-label="Marketing overview">
+<article class="card marketing-overview-card"><span>Published</span><strong id="marketingOverviewPublished">0</strong><small>successful posts</small></article>
+<article class="card marketing-overview-card"><span>Scheduled</span><strong id="marketingOverviewScheduled">0</strong><small>upcoming posts</small></article>
+<article class="card marketing-overview-card"><span>Needs review</span><strong id="marketingOverviewReview">0</strong><small>drafts awaiting approval</small></article>
+<article class="card marketing-overview-card"><span>Automation</span><strong id="marketingOverviewAutomation">Off</strong><small id="marketingOverviewAutomationDetail">owner controlled</small></article>
+</section>
+
+<section class="marketing-overview-main">
+<article class="card marketing-command-card">
+<div class="marketing-section-heading"><div><span class="marketing-eyebrow">Marketing plan</span><h3>Plan the week in one click</h3><p class="work-meta">Business AI uses your content mix, business knowledge and brand voice to prepare a balanced plan. Nothing is published by planning it.</p></div><button id="marketingPlanWeek" class="small-btn primary-action" type="button">Plan my week</button></div>
+<div id="marketingWeekPlan" class="marketing-week-plan"><div class="empty">Set your strategy below, then plan your week.</div></div>
+</article>
+
+<article class="card marketing-strategy-card">
+<div class="marketing-section-heading"><div><span class="marketing-eyebrow">Strategy</span><h3>Content mix</h3><p class="work-meta">Choose what Marketing should prioritise. Percentages must total 100%.</p></div><span id="marketingStrategyTotal" class="marketing-step-pill">100%</span></div>
+<div class="marketing-strategy-controls">
+<div class="field"><label for="marketingStrategyGoal">Primary goal</label><select id="marketingStrategyGoal"><option value="more_enquiries">Get more enquiries</option><option value="promote_service">Promote services</option><option value="show_work">Show completed work</option><option value="build_trust">Build trust</option><option value="helpful_advice">Share useful advice</option><option value="share_offer">Promote offers</option></select></div>
+<div class="field"><label for="marketingStrategyFrequency">Posts per week</label><select id="marketingStrategyFrequency"><option value="2">2 posts</option><option value="3">3 posts</option><option value="4" selected>4 posts</option><option value="5">5 posts</option><option value="6">6 posts</option><option value="7">7 posts</option></select></div>
+<div class="field"><label for="marketingStrategyTime">Preferred time</label><input id="marketingStrategyTime" type="time" value="18:30"></div>
+</div>
+<div class="marketing-pillars">
+<label><span><strong>Services</strong><small>Promote real services and products</small></span><input id="marketingPillarServices" type="number" min="0" max="100" step="5" value="30"><b>%</b></label>
+<label><span><strong>Completed work</strong><small>Show real work and outcomes</small></span><input id="marketingPillarWork" type="number" min="0" max="100" step="5" value="25"><b>%</b></label>
+<label><span><strong>Advice</strong><small>Helpful, grounded customer tips</small></span><input id="marketingPillarAdvice" type="number" min="0" max="100" step="5" value="20"><b>%</b></label>
+<label><span><strong>Trust</strong><small>Reviews, reassurance and expertise</small></span><input id="marketingPillarTrust" type="number" min="0" max="100" step="5" value="15"><b>%</b></label>
+<label><span><strong>Offers</strong><small>Offers only when supplied or approved</small></span><input id="marketingPillarOffers" type="number" min="0" max="100" step="5" value="10"><b>%</b></label>
+</div>
+<div class="marketing-form-footer"><span id="marketingStrategyStatus" class="work-meta">Saved per business.</span><button id="marketingSaveStrategy" class="small-btn" type="button">Save strategy</button></div>
+</article>
+</section>
+
+<section class="card marketing-performance-card">
+<div class="marketing-section-heading"><div><span class="marketing-eyebrow">Performance</span><h3>Marketing activity</h3><p class="work-meta">Delivery metrics are live now. Reach, engagement and enquiry attribution will appear once Meta Insights and tracked campaign links are connected.</p></div><button class="small-btn" type="button" onclick="marketingWorkspace.tab('history')">View activity</button></div>
+<div class="marketing-performance-grid"><div><span>Published</span><strong id="marketingPerformancePublished">0</strong></div><div><span>Failed</span><strong id="marketingPerformanceFailed">0</strong></div><div><span>Scheduled</span><strong id="marketingPerformanceScheduled">0</strong></div><div><span>Draft library</span><strong id="marketingPerformanceDrafts">0</strong></div></div>
+</section>
+</div>
+
+<div id="marketingCreatePane" role="tabpanel" aria-labelledby="marketingTabCreate" hidden>
 <form id="marketingForm" class="card marketing-form marketing-create-card">
-<div class="marketing-section-heading"><div><span class="marketing-eyebrow">Create</span><h3>What should we post about?</h3></div><span class="marketing-step-pill">1 · Brief</span></div>
+<div class="marketing-section-heading"><div><span class="marketing-eyebrow">Create</span><h3>What should we achieve?</h3><p class="work-meta">Choose a goal or write your own brief. Business AI builds the detailed prompt for you.</p></div><span class="marketing-step-pill">1 · Brief</span></div>
+<div class="marketing-goal-grid" role="group" aria-label="Marketing goal">
+<button type="button" data-marketing-goal="more_enquiries"><span>↗</span><strong>Get enquiries</strong><small>Create demand for a real service</small></button>
+<button type="button" data-marketing-goal="promote_service"><span>◆</span><strong>Promote a service</strong><small>Highlight one approved service</small></button>
+<button type="button" data-marketing-goal="show_work"><span>▧</span><strong>Show completed work</strong><small>Pair a real photo with useful context</small></button>
+<button type="button" data-marketing-goal="build_trust"><span>✓</span><strong>Build trust</strong><small>Reassure customers without invented claims</small></button>
+<button type="button" data-marketing-goal="helpful_advice"><span>i</span><strong>Share advice</strong><small>Helpful content from approved knowledge</small></button>
+<button type="button" data-marketing-goal="share_offer"><span>£</span><strong>Share an offer</strong><small>Use only offer details you provide</small></button>
+</div>
 <div class="settings-grid">
 <div class="field"><label for="marketingType">Content type</label><select id="marketingType" name="content_type"><option value="social_post">Social media post</option><option value="caption">Caption</option><option value="promotional_post">Promotional post</option><option value="announcement">Product/service announcement</option><option value="offer">Offer / sale</option><option value="event">Event announcement</option><option value="update">General business update</option></select></div>
 <div class="field"><label for="marketingPlatform">Platform</label><select id="marketingPlatform" name="platform"><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="linkedin">LinkedIn</option><option value="general">General</option></select></div>
@@ -2945,7 +2992,8 @@ class="view"
 </div>
 
 <div id="marketingSchedulePane" role="tabpanel" aria-labelledby="marketingTabSchedule" hidden>
-<section class="card marketing-scheduler-card"><div class="card-head"><div><span class="marketing-eyebrow">Calendar</span><h3>Schedule an approved post</h3></div><span class="marketing-step-pill">Facebook</span></div><p class="work-meta">Choose an approved draft and future time. When Meta publishing is enabled, Business AI creates the scheduled Facebook post with Meta and tracks its status here.</p><div id="marketingScheduleDraftSummary" class="marketing-selected-draft"></div><div class="marketing-filters marketing-schedule-controls"><div class="field"><label for="marketingScheduleDate">Date</label><input id="marketingScheduleDate" type="date"></div><div class="field"><label for="marketingScheduleTime">Time</label><input id="marketingScheduleTime" type="time"></div><div class="field"><label for="marketingSchedulePlatform">Platform</label><select id="marketingSchedulePlatform"><option value="facebook">Facebook Page</option></select></div></div><p id="marketingScheduleMessage" class="marketing-message" role="status" aria-live="polite"></p><div class="work-actions"><button id="marketingScheduleConfirm" class="small-btn primary-action" type="button">Schedule post</button><button id="marketingScheduleClear" class="small-btn" type="button">Clear</button></div></section>
+<section class="card marketing-calendar-card"><div class="card-head"><div><span class="marketing-eyebrow">Calendar</span><h3>Next 7 days</h3></div><span class="marketing-step-pill">Live schedule</span></div><p class="work-meta">A clear view of what is planned. Select a scheduled item below to change or cancel its time.</p><div id="marketingCalendar" class="marketing-calendar-week"><div class="empty">Loading calendar…</div></div></section>
+<section class="card marketing-scheduler-card" style="margin-top:14px"><div class="card-head"><div><span class="marketing-eyebrow">Calendar</span><h3>Schedule an approved post</h3></div><span class="marketing-step-pill">Facebook</span></div><p class="work-meta">Choose an approved draft and future time. When Meta publishing is enabled, Business AI creates the scheduled Facebook post with Meta and tracks its status here.</p><div id="marketingScheduleDraftSummary" class="marketing-selected-draft"></div><div class="marketing-filters marketing-schedule-controls"><div class="field"><label for="marketingScheduleDate">Date</label><input id="marketingScheduleDate" type="date"></div><div class="field"><label for="marketingScheduleTime">Time</label><input id="marketingScheduleTime" type="time"></div><div class="field"><label for="marketingSchedulePlatform">Platform</label><select id="marketingSchedulePlatform"><option value="facebook">Facebook Page</option></select></div></div><p id="marketingScheduleMessage" class="marketing-message" role="status" aria-live="polite"></p><div class="work-actions"><button id="marketingScheduleConfirm" class="small-btn primary-action" type="button">Schedule post</button><button id="marketingScheduleClear" class="small-btn" type="button">Clear</button></div></section>
 <section class="card marketing-scheduler-card" style="margin-top:14px"><div class="card-head"><div><span class="marketing-eyebrow">Queue</span><h3>Scheduled posts</h3></div><button id="marketingRefreshSchedules" class="small-btn" type="button">Refresh</button></div><p id="marketingScheduleStatus" class="work-meta" role="status" aria-live="polite"></p><div id="marketingScheduleList" class="work-list marketing-schedule-list"><div class="empty">Loading scheduled posts…</div></div></section>
 </div>
 
