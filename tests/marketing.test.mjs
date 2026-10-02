@@ -1089,7 +1089,7 @@ test('marketing prompt uses previous posts as style only and improves caption qu
   assert.match(MARKETING_SYSTEM_PROMPT, /Match the style, not the facts/i);
   assert.match(MARKETING_SYSTEM_PROMPT, /Start with a clear, relevant hook/i);
   assert.match(MARKETING_SYSTEM_PROMPT, /2–5 short readable paragraphs/i);
-  assert.match(MARKETING_SYSTEM_PROMPT, /avoid repeating the same topic or opening/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /avoid repeating the\s+same topic or opening/i);
 });
 
 test('style examples never authorise an unsupported factual claim', () => {
