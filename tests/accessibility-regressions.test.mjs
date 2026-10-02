@@ -64,7 +64,7 @@ test('owner navigation, lead filters and sort expose state and names', () => {
 
 test('owner receptionist send button and marketing tabs are named and related', () => {
   assert.match(html, /<button type="submit" aria-label="Send message">\s*↑\s*<\/button>/);
-  for (const [tab,pane] of [['marketingTabCreate','marketingCreatePane'],['marketingTabHistory','marketingHistoryPane'],['marketingTabSchedule','marketingSchedulePane']]) {
+  for (const [tab,pane] of [['marketingTabOverview','marketingOverviewPane'],['marketingTabCreate','marketingCreatePane'],['marketingTabHistory','marketingHistoryPane'],['marketingTabSchedule','marketingSchedulePane']]) {
     assert.match(html, new RegExp(`id="${tab}"[^>]*aria-controls="${pane}"`));
     assert.match(html, new RegExp(`id="${pane}"[^>]*aria-labelledby="${tab}"`));
   }
@@ -87,7 +87,8 @@ test('customer portal exposes active navigation state and names business search'
 
 test('marketing tablist uses roving focus and arrow-key navigation', async () => {
   const marketing = await readFile(new URL('../assets/marketing.js', import.meta.url), 'utf8');
-  assert.match(html, /id="marketingTabCreate"[^>]*tabindex="0"/);
+  assert.match(html, /id="marketingTabOverview"[^>]*tabindex="0"/);
+  assert.match(html, /id="marketingTabCreate"[^>]*tabindex="-1"/);
   assert.match(html, /id="marketingTabHistory"[^>]*tabindex="-1"/);
   assert.match(html, /id="marketingTabSchedule"[^>]*tabindex="-1"/);
   assert.match(marketing, /handleMarketingTabKeydown/);

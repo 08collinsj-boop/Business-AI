@@ -56,9 +56,10 @@ test('marketing schedule date and time stack safely on mobile', () => {
 test('workspace tabs switch panes without generating', () => {
   const start = marketing.indexOf('function tab(name)');
   assert.ok(start !== -1);
-  const close = marketing.indexOf("if(current==='schedule')loadSchedules();");
+  const close = marketing.indexOf('function handleMarketingTabKeydown', start);
   assert.ok(close !== -1);
-  const body = marketing.slice(start, marketing.indexOf('}', close) + 1);
+  const body = marketing.slice(start, close);
+  assert.match(body, /marketingOverviewPane/);
   assert.match(body, /marketingCreatePane/);
   assert.match(body, /marketingHistoryPane/);
   assert.match(body, /marketingSchedulePane/);
