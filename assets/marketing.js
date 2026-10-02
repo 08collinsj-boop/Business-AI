@@ -1,5 +1,5 @@
 (() => {
-  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], historyExpanded = false, metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, pendingMarketingPhoto = null, pendingMarketingPhotoUrl = '', photoSelectionTarget = 'composer', automationState = null, usageState = null, imageGenerationMode = 'simulate';
+  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], historyExpanded = false, metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, pendingMarketingPhoto = null, pendingMarketingPhotoUrl = '', photoSelectionTarget = 'composer', automationState = null, automationMedia = [], automationMediaUploadRole = 'post', usageState = null, imageGenerationMode = 'simulate';
   const node = id => document.getElementById(id);
   const message = text => { const target=node('marketingMessage'); if(target) target.textContent = text || ''; };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
@@ -86,7 +86,7 @@
 
   function setBusy(value) {
     busy=value;
-    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingReplacePhoto','marketingComposerPhotoRemove','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun']) if(node(id)) node(id).disabled=value;
+    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingReplacePhoto','marketingComposerPhotoRemove','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun','marketingAutomationPostPhotoAdd','marketingAutomationInspirationAdd','marketingAutomationAdvancedToggle']) if(node(id)) node(id).disabled=value;
     if(node('marketingGenerate')) node('marketingGenerate').textContent=value?'Working…':'Generate draft';
     node('marketingForm')?.setAttribute('aria-busy',String(value));
   }
@@ -516,6 +516,76 @@
     finally{setBusy(false);}
   }
 
+  function renderAutomationMedia(){
+    const owner=authenticatedBusinessRole==='owner';
+    const renderRole=(role,targetId)=>{
+      const target=node(targetId);if(!target)return;
+      const rows=(Array.isArray(automationMedia)?automationMedia:[]).filter(item=>item?.role===role);
+      target.replaceChildren();
+      if(!rows.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=role==='post'?'No post photos added.':'No inspiration photos added.';target.append(empty);return;}
+      for(const item of rows){
+        const card=document.createElement('article');card.className='marketing-automation-media-card';
+        const thumb=document.createElement('div');thumb.className='marketing-automation-media-thumb';
+        if(item.image_url){const img=document.createElement('img');img.src=item.image_url;img.alt=role==='post'?'Approved automated post photo':'Automation inspiration photo';img.loading='lazy';thumb.append(img);}else{const fallback=document.createElement('span');fallback.textContent='Preview unavailable';thumb.append(fallback);}
+        const meta=document.createElement('div');meta.className='marketing-automation-media-meta';
+        const name=document.createElement('strong');name.textContent=item.file_name||'Photo';
+        const detail=document.createElement('small');detail.textContent=role==='post'?(item.last_used_at?'Last used '+when(item.last_used_at):'Ready for rotation'):(item.analysed?'Visual style analysed':'Stored as inspiration');
+        const remove=document.createElement('button');remove.type='button';remove.className='small-btn danger';remove.textContent='Remove';remove.disabled=!owner||busy;remove.addEventListener('click',()=>deleteAutomationMedia(item.id));
+        meta.append(name,detail,remove);card.append(thumb,meta);target.append(card);
+      }
+    };
+    renderRole('post','marketingAutomationPostPhotos');
+    renderRole('inspiration','marketingAutomationInspirationPhotos');
+    if(node('marketingAutomationPostPhotoAdd'))node('marketingAutomationPostPhotoAdd').hidden=!owner;
+    if(node('marketingAutomationInspirationAdd'))node('marketingAutomationInspirationAdd').hidden=!owner;
+    const postCount=(automationMedia||[]).filter(item=>item?.role==='post').length;
+    const inspirationCount=(automationMedia||[]).filter(item=>item?.role==='inspiration').length;
+    if(node('marketingAutomationMediaStatus'))node('marketingAutomationMediaStatus').textContent=`${postCount}/12 post photos · ${inspirationCount}/12 inspiration photos. Post photos can be published; inspiration photos never are.`;
+  }
+
+  function toggleAutomationAdvanced(force){
+    const panel=node('marketingAutomationAdvanced'),button=node('marketingAutomationAdvancedToggle');if(!panel||!button)return;
+    const open=typeof force==='boolean'?force:panel.hidden;
+    panel.hidden=!open;button.setAttribute('aria-expanded',String(open));
+  }
+
+  function chooseAutomationMedia(role){
+    if(authenticatedBusinessRole!=='owner'||busy)return;
+    automationMediaUploadRole=role==='inspiration'?'inspiration':'post';
+    const input=node('marketingAutomationMediaInput');if(input){input.value='';input.click();}
+  }
+
+  async function uploadAutomationMedia(event){
+    const input=event?.target,file=input?.files?.[0];if(!file)return;
+    if(authenticatedBusinessRole!=='owner'||busy){input.value='';return;}
+    setBusy(true);message(automationMediaUploadRole==='post'?'Adding approved post photo…':'Adding inspiration photo…');
+    try{
+      const photo=await normaliseMarketingPhoto(file);
+      const prepared=await api('/api/marketing-automation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'media_create_upload',role:automationMediaUploadRole,file_name:photo.fileName,mime_type:photo.mimeType,size_bytes:photo.blob.size})});
+      if(!supabaseClient)throw new Error('Secure photo upload is unavailable.');
+      const {error}=await supabaseClient.storage.from(prepared.upload.bucket).uploadToSignedUrl(prepared.upload.path,prepared.upload.token,photo.blob,{contentType:photo.mimeType});
+      if(error)throw new Error('The private photo upload could not be completed.');
+      const data=await api('/api/marketing-automation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'media_finalize_upload',role:automationMediaUploadRole,path:prepared.upload.path,file_name:photo.fileName,mime_type:photo.mimeType,size_bytes:photo.blob.size})});
+      automationMedia=Array.isArray(data.library)?data.library:automationMedia;
+      renderAutomationMedia();toggleAutomationAdvanced(true);
+      message(automationMediaUploadRole==='post'?'Post photo added. Automation may use it on a future post.':'Inspiration photo added. It can guide AI visuals but will never be published directly.');
+    }catch(error){message(error?.message||'Could not add that automation photo.');}
+    finally{input.value='';setBusy(false);renderAutomationMedia();}
+  }
+
+  async function deleteAutomationMedia(mediaId){
+    if(authenticatedBusinessRole!=='owner'||busy||!mediaId)return;
+    const item=(automationMedia||[]).find(row=>row?.id===mediaId);
+    const label=item?.role==='inspiration'?'inspiration photo':'post photo';
+    if(!confirm('Remove this '+label+' from Marketing automation?'))return;
+    setBusy(true);
+    try{
+      const data=await api('/api/marketing-automation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'media_delete',media_id:mediaId})});
+      automationMedia=Array.isArray(data.library)?data.library:(automationMedia||[]).filter(row=>row?.id!==mediaId);renderAutomationMedia();message('Automation '+label+' removed.');
+    }catch(error){message(error?.message||'Could not remove that automation photo.');}
+    finally{setBusy(false);renderAutomationMedia();}
+  }
+
   function renderAutomation(){
     const settings=automationState||{enabled:false,mode:'approval_required',tone:'friendly',image_enabled:false};
     const owner=authenticatedBusinessRole==='owner';
@@ -527,11 +597,13 @@
     if(node('marketingAutomationImage')){node('marketingAutomationImage').checked=settings.image_enabled===true;node('marketingAutomationImage').disabled=!owner;}
     if(node('marketingAutomationSave'))node('marketingAutomationSave').hidden=!owner;
     if(node('marketingAutomationRun'))node('marketingAutomationRun').hidden=!owner;
+    if(node('marketingAutomationAdvancedToggle'))node('marketingAutomationAdvancedToggle').hidden=!owner;
+    renderAutomationMedia();
     if(node('marketingAutomationBadge'))node('marketingAutomationBadge').textContent=settings.mode==='fully_automated'?'Fully automated':'Approval required';
     const last=settings.last_status?('Last run: '+settings.last_status.replaceAll('_',' ')+(settings.last_run_at?' · '+when(settings.last_run_at):'')):'No automated run yet.';
     if(node('marketingAutomationStatus'))node('marketingAutomationStatus').textContent=last+(settings.last_error_code?' · '+settings.last_error_code:'');
     if(node('marketingAutomationHint')){
-      const imageNote=imageGenerationMode==='simulate'?'Image generation is currently simulated, so automated Facebook posts remain text-only until live image generation is enabled.':'Generated images can be attached to Facebook posts.';
+      const imageNote=(automationMedia||[]).some(item=>item?.role==='post')?'Approved post photos will be rotated before AI image generation is used. ':imageGenerationMode==='simulate'?'No approved post photos are available and AI image generation is currently simulated. ':'If no approved post photo is available, Business AI can generate an image; inspiration photos guide visual style only. ';
       node('marketingAutomationHint').textContent=(settings.mode==='fully_automated'?'Fully automated mode can generate, approve and publish a daily Facebook post without asking first. ':'Approval required mode creates a daily draft and waits for the owner. ')+imageNote;
     }
   }
@@ -540,9 +612,10 @@
     try{
       const data=await api('/api/marketing-automation');
       automationState=data.settings||null;
+      automationMedia=Array.isArray(data.media)?data.media:[];
       usageState=data.usage||usageState;
       imageGenerationMode=data.image_generation_mode||imageGenerationMode;
-    }catch{automationState=null;}
+    }catch{automationState=null;automationMedia=[];}
     renderUsage();
     renderAutomation();
   }
@@ -617,7 +690,7 @@
     try{await navigator.clipboard.writeText(text);message(label);}
     catch{message('Copy is unavailable. Select the draft text to copy it manually.');}
   }
-  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',()=>chooseMarketingPhoto('composer'));node('marketingReplacePhoto')?.addEventListener('click',()=>chooseMarketingPhoto('current'));node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingComposerPhotoRemove')?.addEventListener('click',()=>{clearPendingMarketingPhoto();message('Photo removed from this draft brief.');});node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
+  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',()=>chooseMarketingPhoto('composer'));node('marketingReplacePhoto')?.addEventListener('click',()=>chooseMarketingPhoto('current'));node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingComposerPhotoRemove')?.addEventListener('click',()=>{clearPendingMarketingPhoto();message('Photo removed from this draft brief.');});node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingAutomationAdvancedToggle')?.addEventListener('click',()=>toggleAutomationAdvanced());node('marketingAutomationPostPhotoAdd')?.addEventListener('click',()=>chooseAutomationMedia('post'));node('marketingAutomationInspirationAdd')?.addEventListener('click',()=>chooseAutomationMedia('inspiration'));node('marketingAutomationMediaInput')?.addEventListener('change',uploadAutomationMedia);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();clearPendingMarketingPhoto();photoSelectionTarget='composer';if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;automationMedia=[];automationMediaUploadRole='post';usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();clearPendingMarketingPhoto();photoSelectionTarget='composer';if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();toggleAutomationAdvanced(false);renderAutomationMedia();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
 })();
