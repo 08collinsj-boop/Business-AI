@@ -215,11 +215,12 @@ test('deleting an unknown draft returns not found', async () => {
   assert.equal(response.statusCode, 404);
 });
 
-test('workspace has Create and Drafts & History tabs', async () => {
+test('workspace has Overview, Create and Library tabs', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /marketingTabOverview/);
   assert.match(html, /marketingTabCreate/);
   assert.match(html, /marketingTabHistory/);
-  assert.match(html, /Drafts &amp; History/);
+  assert.match(html, />Library</);
   assert.match(html, /marketingCreatePane/);
   assert.match(html, /marketingHistoryPane/);
   assert.match(html, /marketingWorkspace\.tab\('create'\)/);
