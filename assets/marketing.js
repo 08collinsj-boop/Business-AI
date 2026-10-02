@@ -1,11 +1,187 @@
 (() => {
-  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], historyExpanded = false, metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, pendingMarketingPhoto = null, pendingMarketingPhotoUrl = '', photoSelectionTarget = 'composer', automationState = null, automationMedia = [], automationMediaUploadRole = 'post', usageState = null, imageGenerationMode = 'simulate';
+  let epoch = 0, busy = false, output = null, currentGenerationId = null, currentGeneration = null, addons = null, history = [], historyExpanded = false, metaState = null, publications = [], pendingPublicationRequests = new Map(), schedules = [], scheduleDraftId = null, editingScheduleId = null, imageState = null, pendingMarketingPhoto = null, pendingMarketingPhotoUrl = '', photoSelectionTarget = 'composer', automationState = null, automationMedia = [], automationMediaUploadRole = 'post', usageState = null, imageGenerationMode = 'simulate', strategyState = null, weeklyPlan = [];
   const node = id => document.getElementById(id);
   const message = text => { const target=node('marketingMessage'); if(target) target.textContent = text || ''; };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   const money = price => ['configured','approved'].includes(price?.state) && Number.isFinite(Number(price.amount)) ? `£${(Number(price.amount)/100).toFixed(2)}/${price.interval || 'month'}` : 'Pricing not configured';
   const when = value => { const d=new Date(value); return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}); };
   const planLabel = value => ({trial:'Trial',starter:'Starter',pro:'Pro',business:'Business',pilot:'Pilot'})[value] || 'Plan';
+
+
+  const defaultMarketingStrategy = Object.freeze({
+    primary_goal:'more_enquiries', posts_per_week:4, preferred_time:'18:30',
+    pillars:Object.freeze({services:30,completed_work:25,advice:20,trust:15,offers:10})
+  });
+  const marketingGoalBriefs = Object.freeze({
+    more_enquiries:{type:'social_post',prompt:'Create a customer-focused post designed to generate genuine enquiries for one real service or product supported by our approved business information. Keep it useful and specific without inventing urgency, prices or claims.'},
+    promote_service:{type:'promotional_post',prompt:'Promote one real service or product from our approved business information. Explain the customer value clearly and use only supported facts.'},
+    show_work:{type:'social_post',prompt:'Create a post suitable for showing genuine completed work. Use an attached real business photo when available and never invent job details, locations, customer quotes or outcomes.'},
+    build_trust:{type:'social_post',prompt:'Create a trust-building post using only approved business facts. Reassure potential customers without inventing reviews, awards, qualifications, guarantees or reputation claims.'},
+    helpful_advice:{type:'social_post',prompt:'Create a useful customer tip or educational post using approved Business Knowledge. Keep advice practical, accurate and relevant to the services this business actually provides.'},
+    share_offer:{type:'offer',prompt:'Promote a current offer only when the exact offer details are supplied here or exist in approved business information. If no offer is available, explain what information is needed instead of inventing one.'}
+  });
+  const marketingPillarConfig = Object.freeze({
+    services:{label:'Services',goal:'promote_service',title:'Service spotlight',prompt:'Promote one real service or product supported by approved Business Knowledge. Explain why it may help a customer without inventing prices, availability or urgency.'},
+    completed_work:{label:'Completed work',goal:'show_work',title:'Show the work',prompt:'Prepare a post suitable for a genuine completed-work photo. Do not claim a specific job happened unless a real attached photo or approved knowledge supports it. Keep unsupported project details out.'},
+    advice:{label:'Advice',goal:'helpful_advice',title:'Helpful advice',prompt:'Share one useful, customer-friendly tip grounded in approved Business Knowledge and services this business actually provides.'},
+    trust:{label:'Trust',goal:'build_trust',title:'Build trust',prompt:'Create a reassuring post using approved business facts only. Do not invent reviews, awards, qualifications, guarantees or popularity claims.'},
+    offers:{label:'Offers',goal:'share_offer',title:'Offer or value',prompt:'Use an exact current offer only when it exists in approved knowledge or is supplied by the owner. Otherwise create a factual value-led service post and identify any missing offer information.'}
+  });
+  const localYmd = date => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  const shortDay = date => date.toLocaleDateString('en-GB',{weekday:'short'});
+  const shortDate = date => date.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+  function normalizedStrategy(value){
+    const source=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+    const sourcePillars=source.pillars&&typeof source.pillars==='object'?source.pillars:{};
+    return {
+      primary_goal:Object.hasOwn(marketingGoalBriefs,source.primary_goal)?source.primary_goal:defaultMarketingStrategy.primary_goal,
+      posts_per_week:Math.max(2,Math.min(7,Number(source.posts_per_week)||defaultMarketingStrategy.posts_per_week)),
+      preferred_time:/^([01]\d|2[0-3]):[0-5]\d$/.test(String(source.preferred_time||''))?String(source.preferred_time):defaultMarketingStrategy.preferred_time,
+      pillars:{
+        services:Number.isFinite(Number(sourcePillars.services))?Number(sourcePillars.services):30,
+        completed_work:Number.isFinite(Number(sourcePillars.completed_work))?Number(sourcePillars.completed_work):25,
+        advice:Number.isFinite(Number(sourcePillars.advice))?Number(sourcePillars.advice):20,
+        trust:Number.isFinite(Number(sourcePillars.trust))?Number(sourcePillars.trust):15,
+        offers:Number.isFinite(Number(sourcePillars.offers))?Number(sourcePillars.offers):10
+      }
+    };
+  }
+
+  function strategyFromControls(){
+    return normalizedStrategy({
+      primary_goal:node('marketingStrategyGoal')?.value,
+      posts_per_week:Number(node('marketingStrategyFrequency')?.value||4),
+      preferred_time:node('marketingStrategyTime')?.value||'18:30',
+      pillars:{
+        services:Number(node('marketingPillarServices')?.value||0),completed_work:Number(node('marketingPillarWork')?.value||0),
+        advice:Number(node('marketingPillarAdvice')?.value||0),trust:Number(node('marketingPillarTrust')?.value||0),offers:Number(node('marketingPillarOffers')?.value||0)
+      }
+    });
+  }
+
+  function strategyTotal(){
+    const strategy=strategyFromControls();
+    return Object.values(strategy.pillars).reduce((sum,value)=>sum+Number(value||0),0);
+  }
+
+  function updateStrategyTotal(){
+    const total=strategyTotal();
+    const badge=node('marketingStrategyTotal');if(!badge)return total;
+    badge.textContent=`${total}%`;badge.classList.toggle('is-invalid',total!==100);
+    return total;
+  }
+
+  function renderStrategy(){
+    const strategy=normalizedStrategy(strategyState);
+    strategyState=strategy;
+    if(node('marketingStrategyGoal'))node('marketingStrategyGoal').value=strategy.primary_goal;
+    if(node('marketingStrategyFrequency'))node('marketingStrategyFrequency').value=String(strategy.posts_per_week);
+    if(node('marketingStrategyTime'))node('marketingStrategyTime').value=strategy.preferred_time;
+    const values={marketingPillarServices:strategy.pillars.services,marketingPillarWork:strategy.pillars.completed_work,marketingPillarAdvice:strategy.pillars.advice,marketingPillarTrust:strategy.pillars.trust,marketingPillarOffers:strategy.pillars.offers};
+    for(const [id,value] of Object.entries(values))if(node(id))node(id).value=String(value);
+    updateStrategyTotal();
+  }
+
+  function weightedPillars(strategy,count){
+    const entries=Object.entries(strategy.pillars).filter(([,weight])=>Number(weight)>0);
+    if(!entries.length)return Array(count).fill('services');
+    const total=entries.reduce((sum,[,weight])=>sum+Number(weight),0);
+    return Array.from({length:count},(_,index)=>{
+      const target=((index+.5)/count)*total;let cursor=0;
+      for(const [key,weight] of entries){cursor+=Number(weight);if(target<=cursor)return key;}
+      return entries[entries.length-1][0];
+    });
+  }
+
+  function buildWeekPlan(strategy){
+    const count=strategy.posts_per_week;
+    const pillars=weightedPillars(strategy,count);
+    const now=new Date();
+    return pillars.map((pillar,index)=>{
+      const offset=Math.max(1,Math.round(((index+1)*7)/(count+1)));
+      const date=new Date(now);date.setDate(now.getDate()+offset);
+      const config=marketingPillarConfig[pillar]||marketingPillarConfig.services;
+      return {date:localYmd(date),time:strategy.preferred_time,pillar,goal:config.goal,title:config.title,prompt:config.prompt};
+    });
+  }
+
+  function renderWeekPlan(){
+    const target=node('marketingWeekPlan');if(!target)return;
+    if(!Array.isArray(weeklyPlan)||!weeklyPlan.length){target.innerHTML='<div class="empty">Set your strategy, then choose Plan my week.</div>';return;}
+    target.innerHTML=weeklyPlan.map((item,index)=>{
+      const d=new Date(`${item.date}T12:00:00`);const config=marketingPillarConfig[item.pillar]||marketingPillarConfig.services;
+      return `<article class="marketing-plan-item"><div class="marketing-plan-date"><strong>${esc(shortDay(d))}</strong><span>${esc(shortDate(d))}</span></div><div class="marketing-plan-copy"><span>${esc(config.label)} · ${esc(item.time)}</span><h4>${esc(item.title)}</h4><p>${esc(previewText(item.prompt))}</p></div><button class="small-btn" type="button" data-plan-use="${index}">Create draft</button></article>`;
+    }).join('');
+    target.querySelectorAll('[data-plan-use]').forEach(button=>button.addEventListener('click',()=>useWeekPlanItem(Number(button.dataset.planUse))));
+  }
+
+  function useWeekPlanItem(index){
+    const item=weeklyPlan?.[index];if(!item)return;
+    applyGoal(item.goal,false);
+    if(node('marketingPrompt'))node('marketingPrompt').value=item.prompt;
+    if(node('marketingExtra'))node('marketingExtra').value=`Planned for ${item.date} at ${item.time}. Keep the post aligned with the ${marketingPillarConfig[item.pillar]?.label||'planned'} content pillar.`;
+    tab('create');node('marketingForm')?.scrollIntoView({behavior:'smooth',block:'start'});node('marketingPrompt')?.focus();
+    message('Weekly plan brief loaded. Review it, add a real photo if useful, then generate the draft.');
+  }
+
+  async function savePlanning(strategy,plan,statusText){
+    const data=await api('/api/marketing-automation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'planning_save',strategy,weekly_plan:plan})});
+    automationState=data.settings||automationState;strategyState=normalizedStrategy(automationState?.strategy||strategy);weeklyPlan=Array.isArray(automationState?.weekly_plan)?automationState.weekly_plan:plan;
+    renderStrategy();renderWeekPlan();renderOverview();
+    if(node('marketingStrategyStatus'))node('marketingStrategyStatus').textContent=statusText||'Strategy saved.';
+  }
+
+  async function saveStrategy(){
+    if(authenticatedBusinessRole!=='owner'||busy)return;
+    const strategy=strategyFromControls();
+    if(updateStrategyTotal()!==100){if(node('marketingStrategyStatus'))node('marketingStrategyStatus').textContent='Content pillars must total 100%.';return;}
+    setBusy(true);
+    try{await savePlanning(strategy,weeklyPlan,'Strategy saved for this business.');}
+    catch(error){if(node('marketingStrategyStatus'))node('marketingStrategyStatus').textContent=error?.message||'Could not save Marketing strategy.';}
+    finally{setBusy(false);}
+  }
+
+  async function planMyWeek(){
+    if(authenticatedBusinessRole!=='owner'||busy)return;
+    const strategy=strategyFromControls();
+    if(updateStrategyTotal()!==100){if(node('marketingStrategyStatus'))node('marketingStrategyStatus').textContent='Content pillars must total 100% before planning.';return;}
+    const plan=buildWeekPlan(strategy);setBusy(true);
+    try{await savePlanning(strategy,plan,`${plan.length} post briefs planned. Nothing has been generated or published.`);message('Week planned. Open any brief to create its draft when you are ready.');}
+    catch(error){message(error?.message||'Could not plan this week.');}
+    finally{setBusy(false);}
+  }
+
+  function applyGoal(goal,announce=true){
+    const config=marketingGoalBriefs[goal];if(!config)return;
+    document.querySelectorAll('[data-marketing-goal]').forEach(button=>button.classList.toggle('is-active',button.dataset.marketingGoal===goal));
+    if(node('marketingType'))node('marketingType').value=config.type;
+    if(node('marketingPrompt'))node('marketingPrompt').value=config.prompt;
+    if(announce)message('Goal selected. Adjust the brief if needed, then generate your draft.');
+  }
+
+  function renderOverview(){
+    const published=publications.filter(item=>item.status==='published').length;
+    const failed=publications.filter(item=>item.status==='failed').length;
+    const activeSchedules=schedules.filter(item=>['scheduled','processing'].includes(item.status)&&Date.parse(item.scheduled_for)>Date.now()).length;
+    const review=history.filter(item=>item.approval_status!=='approved').length;
+    const set=(id,value)=>{if(node(id))node(id).textContent=String(value);};
+    set('marketingOverviewPublished',published);set('marketingOverviewScheduled',activeSchedules);set('marketingOverviewReview',review);
+    set('marketingPerformancePublished',published);set('marketingPerformanceFailed',failed);set('marketingPerformanceScheduled',activeSchedules);set('marketingPerformanceDrafts',history.length);
+    if(node('marketingOverviewAutomation'))node('marketingOverviewAutomation').textContent=automationState?.enabled?'On':'Off';
+    if(node('marketingOverviewAutomationDetail'))node('marketingOverviewAutomationDetail').textContent=automationState?.enabled?(automationState.mode==='fully_automated'?'fully automated':'approval required'):'owner controlled';
+  }
+
+  function renderCalendar(){
+    const target=node('marketingCalendar');if(!target)return;
+    const today=new Date();today.setHours(12,0,0,0);
+    const days=Array.from({length:7},(_,index)=>{const d=new Date(today);d.setDate(today.getDate()+index);return d;});
+    target.innerHTML=days.map(day=>{
+      const key=localYmd(day);
+      const items=schedules.filter(item=>localYmd(new Date(item.scheduled_for))===key&&['scheduled','processing'].includes(item.status));
+      return `<article class="marketing-calendar-day${items.length?' has-post':''}"><div class="marketing-calendar-date"><span>${esc(shortDay(day))}</span><strong>${day.getDate()}</strong></div><div class="marketing-calendar-items">${items.length?items.slice(0,3).map(item=>`<div><b>${esc(new Date(item.scheduled_for).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))}</b><span>${esc(previewText(item.generation?.main_copy||'Scheduled Facebook post'))}</span></div>`).join(''):'<small>No post planned</small>'}</div></article>`;
+    }).join('');
+  }
 
   function renderUsage(){
     const usage=usageState;
@@ -86,7 +262,7 @@
 
   function setBusy(value) {
     busy=value;
-    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingReplacePhoto','marketingComposerPhotoRemove','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun','marketingAutomationPostPhotoAdd','marketingAutomationInspirationAdd','marketingAutomationAdvancedToggle']) if(node(id)) node(id).disabled=value;
+    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingReplacePhoto','marketingComposerPhotoRemove','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun','marketingAutomationPostPhotoAdd','marketingAutomationInspirationAdd','marketingAutomationAdvancedToggle','marketingPlanWeek','marketingSaveStrategy']) if(node(id)) node(id).disabled=value;
     if(node('marketingGenerate')) node('marketingGenerate').textContent=value?'Working…':'Generate draft';
     node('marketingForm')?.setAttribute('aria-busy',String(value));
   }
@@ -176,6 +352,7 @@
     try { const data=await api('/api/marketing?limit=30'); history=Array.isArray(data.generations)?data.generations:[]; }
     catch(error){ history=[]; if(target)target.innerHTML='<div class="empty">Could not load your drafts. Check your connection and press Refresh.</div>'; historyStatus(error?.message||'Drafts are unavailable right now.'); return; }
     renderHistory();
+    renderOverview();
   }
 
   function fillFormFromGeneration(generation){
@@ -259,6 +436,8 @@
     try{const data=await api('/api/marketing-schedules');schedules=Array.isArray(data.schedules)?data.schedules:[];}
     catch(error){schedules=[];if(target)target.innerHTML='<div class="empty">Could not load scheduled posts. Check your connection and press Refresh.</div>';scheduleStatus(error?.message||'Scheduled posts are unavailable right now.');return;}
     renderSchedules();
+    renderCalendar();
+    renderOverview();
   }
 
   function renderSchedules(){
@@ -303,24 +482,25 @@
   }
 
   function tab(name){
-    const panes={create:'marketingCreatePane',history:'marketingHistoryPane',schedule:'marketingSchedulePane'};
-    const current=name==='history'?'history':name==='schedule'?'schedule':'create';
+    const panes={overview:'marketingOverviewPane',create:'marketingCreatePane',history:'marketingHistoryPane',schedule:'marketingSchedulePane'};
+    const current=['overview','create','history','schedule'].includes(name)?name:'overview';
     for(const [key,id] of Object.entries(panes)) if(node(id))node(id).hidden=key!==current;
-    const tabs={create:'marketingTabCreate',history:'marketingTabHistory',schedule:'marketingTabSchedule'};
+    const tabs={overview:'marketingTabOverview',create:'marketingTabCreate',history:'marketingTabHistory',schedule:'marketingTabSchedule'};
     for(const [key,id] of Object.entries(tabs)) if(node(id)){const selected=key===current;node(id).setAttribute('aria-selected',String(selected));node(id).setAttribute('tabindex',selected?'0':'-1');node(id).classList.toggle('primary-action',selected);}
+    if(current==='overview'){renderOverview();renderWeekPlan();}
     if(current==='history')renderHistory();
-    if(current==='schedule')loadSchedules();
+    if(current==='schedule'){renderCalendar();loadSchedules();}
   }
 
   function handleMarketingTabKeydown(event){
-    const order=['marketingTabCreate','marketingTabHistory','marketingTabSchedule'];
+    const order=['marketingTabOverview','marketingTabCreate','marketingTabHistory','marketingTabSchedule'];
     const index=order.indexOf(event.currentTarget?.id);
     if(index<0||!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
     event.preventDefault();
     const nextIndex=event.key==='Home'?0:event.key==='End'?order.length-1:event.key==='ArrowRight'?(index+1)%order.length:(index-1+order.length)%order.length;
     const next=node(order[nextIndex]);
     if(!next)return;
-    const name=next.id==='marketingTabHistory'?'history':next.id==='marketingTabSchedule'?'schedule':'create';
+    const name=next.id==='marketingTabOverview'?'overview':next.id==='marketingTabHistory'?'history':next.id==='marketingTabSchedule'?'schedule':'create';
     tab(name);
     next.focus();
   }
@@ -616,8 +796,13 @@
       usageState=data.usage||usageState;
       imageGenerationMode=data.image_generation_mode||imageGenerationMode;
     }catch{automationState=null;automationMedia=[];}
+    strategyState=normalizedStrategy(automationState?.strategy);
+    weeklyPlan=Array.isArray(automationState?.weekly_plan)?automationState.weekly_plan:[];
     renderUsage();
     renderAutomation();
+    renderStrategy();
+    renderWeekPlan();
+    renderOverview();
   }
 
   async function saveAutomation(){
@@ -631,7 +816,7 @@
     setBusy(true);
     try{
       const data=await api('/api/marketing-automation',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      automationState=data.settings||body;imageGenerationMode=data.image_generation_mode||imageGenerationMode;renderAutomation();
+      automationState=data.settings||body;imageGenerationMode=data.image_generation_mode||imageGenerationMode;renderAutomation();renderOverview();
       message(body.enabled?(body.mode==='fully_automated'?'Fully automated Facebook Marketing enabled.':'Daily Marketing drafts enabled with owner approval required.'):'Marketing automation disabled.');
     }catch(error){message(error?.message||'Could not save Marketing automation settings.');}
     finally{setBusy(false);}
@@ -665,6 +850,7 @@
 
   async function loadPublications(){
     try{const data=await api('/api/marketing-publications');publications=Array.isArray(data.publications)?data.publications:[];}catch{publications=[];}
+    renderOverview();
     const target=node('marketingPublications');if(!target)return;if(!publications.length){target.innerHTML='<div class="empty">No publishing activity yet.</div>';return;}
     target.innerHTML=publications.map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.platform)} · ${esc(item.status)}</h4><div class="work-meta">${item.status==='scheduled'?`Scheduled ${esc(when(item.scheduled_for))}`:item.status==='published'?`Published ${esc(when(item.published_at))}`:item.failure_message?esc(item.failure_message):esc(when(item.created_at))}</div></div><span class="tag">${esc(item.status)}</span></div><div class="work-actions">${item.status==='scheduled'?`<button class="small-btn danger" type="button" data-pub-action="cancel" data-pub-id="${esc(item.id)}">Cancel</button>`:''}${item.status==='failed'&&item.failure_code!=='META_AMBIGUOUS_RESULT'?`<button class="small-btn" type="button" data-pub-action="retry" data-pub-id="${esc(item.id)}">Retry</button>`:''}</div></article>`).join('');
     target.querySelectorAll('[data-pub-action]').forEach(button=>button.addEventListener('click',()=>publicationAction(button.dataset.pubAction,button.dataset.pubId)));
@@ -680,7 +866,11 @@
     catch(error){if(current!==epoch)return;if(view==='marketing')message(error.message||'Could not check Marketing access.');if(view==='addons')node('addonStatus').textContent=error.message||'Could not load additional features.';}
   }
 
-  ['marketingTabCreate','marketingTabHistory','marketingTabSchedule'].forEach(id=>node(id)?.addEventListener('keydown',handleMarketingTabKeydown));
+  ['marketingTabOverview','marketingTabCreate','marketingTabHistory','marketingTabSchedule'].forEach(id=>node(id)?.addEventListener('keydown',handleMarketingTabKeydown));
+  node('marketingPlanWeek')?.addEventListener('click',planMyWeek);
+  node('marketingSaveStrategy')?.addEventListener('click',saveStrategy);
+  ['marketingPillarServices','marketingPillarWork','marketingPillarAdvice','marketingPillarTrust','marketingPillarOffers'].forEach(id=>node(id)?.addEventListener('input',updateStrategyTotal));
+  document.querySelectorAll('[data-marketing-goal]').forEach(button=>button.addEventListener('click',()=>applyGoal(button.dataset.marketingGoal)));
   node('marketingForm')?.addEventListener('submit',generate);node('marketingRegenerate')?.addEventListener('click',generate);node('marketingSaveDraft')?.addEventListener('click',saveDraft);node('marketingApprove')?.addEventListener('click',approveDraft);node('marketingDelete')?.addEventListener('click',deleteDraft);node('marketingEdit')?.addEventListener('click',()=>{node('marketingPrompt').focus();node('marketingForm').scrollIntoView({behavior:'smooth',block:'start'});});
   async function copyMarketingField(field){
     const value=outputFromEditor();
@@ -692,5 +882,5 @@
   }
   node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',()=>chooseMarketingPhoto('composer'));node('marketingReplacePhoto')?.addEventListener('click',()=>chooseMarketingPhoto('current'));node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingComposerPhotoRemove')?.addEventListener('click',()=>{clearPendingMarketingPhoto();message('Photo removed from this draft brief.');});node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingAutomationAdvancedToggle')?.addEventListener('click',()=>toggleAutomationAdvanced());node('marketingAutomationPostPhotoAdd')?.addEventListener('click',()=>chooseAutomationMedia('post'));node('marketingAutomationInspirationAdd')?.addEventListener('click',()=>chooseAutomationMedia('inspiration'));node('marketingAutomationMediaInput')?.addEventListener('change',uploadAutomationMedia);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
-  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;automationMedia=[];automationMediaUploadRole='post';usageState=null;imageGenerationMode='simulate';renderUsage();setBusy(false);node('marketingForm')?.reset();clearPendingMarketingPhoto();photoSelectionTarget='composer';if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();toggleAutomationAdvanced(false);renderAutomationMedia();tab('create');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
+  window.marketingWorkspace={open,tab,renderPricing,reset(){epoch+=1;addons=null;output=null;currentGeneration=null;currentGenerationId=null;history=[];historyExpanded=false;metaState=null;publications=[];pendingPublicationRequests.clear();schedules=[];scheduleDraftId=null;editingScheduleId=null;imageState=null;automationState=null;automationMedia=[];automationMediaUploadRole='post';usageState=null;imageGenerationMode='simulate';strategyState=normalizedStrategy(null);weeklyPlan=[];renderUsage();setBusy(false);node('marketingForm')?.reset();clearPendingMarketingPhoto();photoSelectionTarget='composer';if(node('marketingFilterPlatform'))node('marketingFilterPlatform').value='';if(node('marketingFilterType'))node('marketingFilterType').value='';if(node('marketingFilterSort'))node('marketingFilterSort').value='newest';clearScheduleForm();toggleAutomationAdvanced(false);renderAutomationMedia();renderStrategy();renderWeekPlan();renderOverview();tab('overview');renderCurrent(null);for(const id of ['addonCards','addonStatus','addonPlanOptions','marketingHistory','metaAccounts','marketingPublications','marketingMessage','marketingHistoryStatus','marketingScheduleList','marketingScheduleStatus','marketingScheduleMessage'])node(id)?.replaceChildren();}};
 })();
