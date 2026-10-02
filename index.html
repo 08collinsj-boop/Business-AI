@@ -2856,6 +2856,12 @@ class="view"
 <div class="work-actions marketing-top-actions"><button class="small-btn" type="button" onclick="showView('addons')">Additional Features</button><button class="small-btn" type="button" onclick="showView('settings')">Back to Settings</button></div>
 <p id="marketingMessage" class="marketing-message" role="status" aria-live="polite"></p>
 
+<div id="marketingAccessState" class="card marketing-access-state" role="status" aria-live="polite" hidden>
+<div class="marketing-access-spinner" aria-hidden="true"><span></span></div>
+<div class="marketing-access-copy"><span class="marketing-eyebrow">AI Marketing</span><h3 id="marketingAccessTitle">Checking your Marketing access</h3><p id="marketingAccessCopy" class="work-meta">Confirming your plan and Marketing entitlement. This should only take a moment.</p></div>
+<button id="marketingAccessRetry" class="small-btn primary-action" type="button" hidden>Try again</button>
+</div>
+
 <div id="marketingLocked" class="card marketing-locked-card" hidden>
 <div class="marketing-locked-icon">✦</div><span class="addon-badge">AI Marketing · Locked</span><h3>Turn your business knowledge into ready-to-review content</h3><p class="work-meta">Create posts, captions, offers and announcements using approved business information. Core Business AI continues to work without this add-on.</p><button class="small-btn primary-action" type="button" onclick="showView('addons')">View Additional Features</button>
 </div>
