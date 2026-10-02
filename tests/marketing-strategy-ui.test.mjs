@@ -4,13 +4,12 @@ import { readFile } from 'node:fs/promises';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('Marketing strategy UI uses the dedicated tenant strategy API', async () => {
+test('Marketing strategy UI uses the validated tenant planning backend', async () => {
   const js = await read('assets/marketing.js');
-  assert.match(js, /api\('\/api\/marketing-strategy'/);
-  assert.match(js, /action:'plan_week'/);
-  assert.match(js, /action:'link_generation'/);
-  assert.match(js, /loadStrategy\(\)/);
-  assert.doesNotMatch(js, /planning_save/);
+  assert.match(js, /action:'planning_save'/);
+  assert.match(js, /buildWeekPlan/);
+  assert.match(js, /automationState\?\.strategy/);
+  assert.doesNotMatch(js, /\/api\/marketing-strategy/);
 });
 
 test('Marketing command centre exposes professional goal, planning and calendar controls', async () => {
