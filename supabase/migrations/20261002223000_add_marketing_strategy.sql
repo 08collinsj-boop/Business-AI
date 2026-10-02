@@ -14,6 +14,9 @@ create table if not exists public.marketing_strategy_settings (
   constraint marketing_strategy_plan_array check (jsonb_typeof(weekly_plan) = 'array')
 );
 
+create index if not exists marketing_strategy_settings_updated_by_idx
+  on public.marketing_strategy_settings (updated_by) where updated_by is not null;
+
 alter table public.marketing_strategy_settings enable row level security;
 revoke all on public.marketing_strategy_settings from anon, authenticated;
 grant select on public.marketing_strategy_settings to authenticated;
