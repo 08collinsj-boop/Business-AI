@@ -1083,6 +1083,26 @@ test('marketing grounding rejects unsupported hype and business claims', () => {
   }, facts, { ...request, prompt: 'Promote our family-run burger business using fresh locally sourced ingredients.' }));
 });
 
+test('marketing prompt uses previous posts as style only and improves caption quality', () => {
+  assert.match(MARKETING_SYSTEM_PROMPT, /BRAND STYLE EXAMPLES/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /NOT trusted facts/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /Match the style, not the facts/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /Start with a clear, relevant hook/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /2–5 short readable paragraphs/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /avoid repeating the same topic or opening/i);
+});
+
+test('style examples never authorise an unsupported factual claim', () => {
+  const facts = { business_name: 'The Smashed Burger Co.', services: 'Burgers', service_areas: 'Hartlepool' };
+  const request = { ...input, prompt: 'Write a Facebook caption about our burgers' };
+  assert.throws(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'Try our award-winning burgers made with fresh locally sourced ingredients.',
+    short_alternative: 'Burgers in Hartlepool.',
+    call_to_action: 'Get in touch.'
+  }, facts, request), /unsupported marketing claim/i);
+});
+
 test('marketing prompt treats saved services as a closed catalogue', () => {
   assert.match(MARKETING_SYSTEM_PROMPT, /catalogue as CLOSED/i);
   assert.match(MARKETING_SYSTEM_PROMPT, /must not invite customers to book,\s*schedule or request a service unless/i);
