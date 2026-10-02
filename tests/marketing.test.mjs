@@ -1048,6 +1048,41 @@ test('marketing grounding rejects newly invented service categories', () => {
   }, facts, request), /not supported by saved business information/i);
 });
 
+
+
+test('marketing prompt requires a hidden factuality and quality preflight', () => {
+  assert.match(MARKETING_SYSTEM_PROMPT, /Every factual, measurable or reputation claim/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /silently check every factual claim/i);
+  assert.match(MARKETING_SYSTEM_PROMPT, /Avoid fake urgency, clickbait, generic hype/i);
+});
+
+test('marketing grounding rejects unsupported hype and business claims', () => {
+  const facts = { business_name: 'The Smashed Burger Co.', services: 'Burgers', service_areas: 'Hartlepool' };
+  const request = { ...input, prompt: 'Promote our burgers in Hartlepool' };
+
+  for (const main_copy of [
+    'Try Hartlepool’s best burgers.',
+    'Enjoy our award-winning burgers.',
+    'Made with fresh locally sourced ingredients.',
+    'A family-run burger business you can trust.',
+    'Serving burgers with 20 years of experience.'
+  ]) {
+    assert.throws(() => validateMarketingGrounding({
+      ...output,
+      main_copy,
+      short_alternative: 'Burgers in Hartlepool.',
+      call_to_action: 'Get in touch.'
+    }, facts, request), /unsupported marketing claim/i);
+  }
+
+  assert.doesNotThrow(() => validateMarketingGrounding({
+    ...output,
+    main_copy: 'Our family-run burger business uses fresh locally sourced ingredients.',
+    short_alternative: 'Fresh locally sourced ingredients.',
+    call_to_action: 'Get in touch.'
+  }, facts, { ...request, prompt: 'Promote our family-run burger business using fresh locally sourced ingredients.' }));
+});
+
 test('marketing prompt treats saved services as a closed catalogue', () => {
   assert.match(MARKETING_SYSTEM_PROMPT, /catalogue as CLOSED/i);
   assert.match(MARKETING_SYSTEM_PROMPT, /must not invite customers to book,\s*schedule or request a service unless/i);
