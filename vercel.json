@@ -127,10 +127,6 @@
       "destination": "/api/operations?operation=marketing-automation"
     },
     {
-      "source": "/api/marketing-strategy",
-      "destination": "/api/operations?operation=marketing-strategy"
-    },
-    {
       "source": "/api/feedback",
       "destination": "/api/operations?operation=feedback"
     },
