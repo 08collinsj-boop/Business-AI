@@ -323,3 +323,198 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
   .mock-add-lead{width:100%!important;justify-content:center!important}
 }
 
+/* Screenshot regression fixes — 2026-10-03 */
+.mock-settings-launchers,
+#settingsView > .work-actions{display:none!important}
+
+#leadsView > .screen-title > p,
+#actionsView > .screen-title > p,
+#bookingsView > .screen-title > p,
+#settingsView > .screen-title > p,
+#billingView > .screen-title > p,
+#teamView > .screen-title > p,
+#enquiriesView > .screen-title > p,
+#marketingView > .screen-title > p{display:none!important}
+
+#settingsView .settings-hub-card small{display:none!important}
+#settingsView .settings-hub-card:nth-child(5) small,
+#settingsView .settings-hub-card:nth-child(6) small,
+#settingsView .settings-hub-card:nth-child(7) small{display:block!important}
+
+.marketing-command-card .marketing-eyebrow{display:none!important}
+#billingView > .mock-back,
+#teamView > .mock-back{display:none!important}
+
+@media(max-width:600px){
+  body.final-showcase-ui.auth-ready .bottom-nav{
+    position:fixed!important;
+    left:12px!important;
+    right:12px!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    transform:none!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    box-sizing:border-box!important;
+  }
+  .bottom-nav .nav-btn{min-width:0!important}
+
+  #leadsView{position:relative}
+  #leadsView > .screen-title{
+    padding-right:124px!important;
+    min-height:44px!important;
+  }
+  #leadsView > .mock-add-lead{
+    position:absolute!important;
+    top:0!important;
+    right:0!important;
+    float:none!important;
+    width:auto!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0 14px!important;
+  }
+
+  #billingView .mock-billing-mount .billing-plans.fplans.open{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  #billingView .mock-billing-mount .billing-plan{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"name action" "price action" "detail action";
+    align-items:center!important;
+    column-gap:12px!important;
+    row-gap:2px!important;
+    min-height:0!important;
+    padding:12px 13px!important;
+  }
+  #billingView .mock-billing-mount .billing-plan.pro{grid-column:auto!important}
+  #billingView .mock-billing-mount .billing-plan h4{grid-area:name;font-size:13px!important}
+  #billingView .mock-billing-mount .billing-plan strong{grid-area:price;font-size:18px!important}
+  #billingView .mock-billing-mount .billing-plan p{
+    grid-area:detail;
+    margin:3px 0 0!important;
+    font-size:10px!important;
+    line-height:1.35!important;
+  }
+  #billingView .mock-billing-mount .billing-plan .small-btn{
+    grid-area:action;
+    width:auto!important;
+    min-width:118px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0 12px!important;
+    font-size:12px!important;
+  }
+}
+
+@media(max-width:380px){
+  #leadsView > .screen-title{padding-right:110px!important}
+  #leadsView > .mock-add-lead{
+    width:auto!important;
+    padding:0 11px!important;
+    font-size:12px!important;
+  }
+  #billingView .mock-billing-mount .billing-plan{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"name" "price" "detail" "action";
+  }
+  #billingView .mock-billing-mount .billing-plan .small-btn{
+    width:100%!important;
+    margin-top:8px!important;
+  }
+}
+
+/* Mobile polish pass — fixes from 2026-10-03 device screenshots. */
+@media (max-width:600px){
+  /* The legacy nav was still translated -50% after switching to left/right positioning.
+     Lock the bar to the viewport; only the indicator is allowed to move. */
+  body.final-showcase-ui.auth-ready .bottom-nav{
+    left:12px!important;
+    right:12px!important;
+    width:auto!important;
+    max-width:none!important;
+    transform:none!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  body.final-showcase-ui.auth-ready .bottom-nav .nav-btn{
+    min-width:0!important;
+    width:100%!important;
+  }
+
+  /* Keep page titles clean. The page name is enough on routine operational screens. */
+  #leadsView .screen-title>p,
+  #actionsView .screen-title>p,
+  #bookingsView .screen-title>p,
+  #settingsView .screen-title>p,
+  #billingView .screen-title>p,
+  #teamView .screen-title>p{display:none!important}
+
+  /* Settings: one navigation system, not legacy launchers plus the new hub. */
+  #settingsView>.work-actions,
+  #settingsView .mock-settings-launchers{display:none!important}
+  #settingsView .settings-hub{margin-top:12px!important;gap:9px!important}
+  #settingsView .settings-hub-card{
+    min-height:66px!important;
+    padding:10px 12px!important;
+    grid-template-columns:42px minmax(0,1fr) 20px!important;
+    gap:12px!important;
+  }
+  #settingsView .settings-hub-card i{width:42px!important;height:42px!important}
+  #settingsView .settings-hub-card strong{font-size:14px!important;line-height:1.2!important}
+  #settingsView .settings-hub-card small{display:none!important}
+  #settingsView .settings-hub-card b{font-size:22px!important}
+
+  /* Leads: align the real Add Lead action with the title instead of leaving a blank row. */
+  #leadsView{position:relative!important}
+  #leadsView .screen-title{padding-right:132px!important;min-height:48px!important;margin-bottom:16px!important}
+  #leadsView .mock-add-lead{
+    position:absolute!important;
+    top:0!important;
+    right:0!important;
+    float:none!important;
+    width:auto!important;
+    min-width:118px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0 14px!important;
+    justify-content:center!important;
+    font-size:13px!important;
+  }
+  #leadsView .reference-summary-grid article p,
+  #leadsView .reference-summary-grid article small:last-child{
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  /* Billing: keep the plan chooser balanced on phone and clear of the fixed nav. */
+  #billingView .billing-plans,
+  #billingView .mock-billing-mount .billing-plans{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  #billingView .billing-plan{min-width:0!important}
+  #billingView .billing-plan:nth-child(3),
+  #billingView .billing-plan:nth-child(4){grid-column:1/-1!important}
+  #billingView .billing-plan h4{font-size:15px!important}
+  #billingView .billing-plan strong{font-size:17px!important;line-height:1.15!important}
+  #billingView .billing-plan p{font-size:11px!important;line-height:1.4!important}
+  #billingView .billing-plan .small-btn{min-height:44px!important;font-size:12px!important}
+  #billingView .settings-card{padding-bottom:22px!important}
+
+  /* Marketing: avoid duplicate eyebrow/heading treatment and tighten the overview. */
+  #marketingView .marketing-command-card .marketing-eyebrow{display:none!important}
+  #marketingView .marketing-command-card h3{margin-top:0!important}
+}
+
+@media (max-width:380px){
+  #leadsView .screen-title{padding-right:0!important;margin-bottom:70px!important}
+  #leadsView .mock-add-lead{top:48px!important;left:0!important;right:auto!important;width:100%!important}
+  #billingView .billing-plans,
+  #billingView .mock-billing-mount .billing-plans{grid-template-columns:1fr!important}
+  #billingView .billing-plan:nth-child(n){grid-column:1!important}
+}

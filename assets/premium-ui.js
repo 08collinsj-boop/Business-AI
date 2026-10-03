@@ -26,7 +26,7 @@
   if(!document.querySelector('link[data-business-ai-final-showcase]')){
     const finalLink=document.createElement('link');
     finalLink.rel='stylesheet';
-    finalLink.href='/assets/final-showcase.css?v=20261003-mobile-2';
+    finalLink.href='/assets/final-showcase.css?v=20261003-mobile-4';
     finalLink.dataset.businessAiFinalShowcase='true';
     document.head.appendChild(finalLink);
   }
@@ -78,7 +78,7 @@
 
   if(!document.querySelector('script[data-business-ai-final-showcase]')){
     const finalScript=document.createElement('script');
-    finalScript.src='/assets/final-showcase.js?v=20261003-final-1';
+    finalScript.src='/assets/final-showcase.js?v=20261003-final-2';
     finalScript.dataset.businessAiFinalShowcase='true';
     finalScript.async=false;
     document.body.appendChild(finalScript);
