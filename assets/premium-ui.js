@@ -104,7 +104,7 @@
     const summary=byId('billingSummary');
     const plans=byId('billingPlans');
     const manage=byId('manageBillingButton');
-    const cancelChange=byId('cancelScheduledPlanChangeButton')||byId('cancelPlanChangeButton');
+    const cancelChange=byId('cancelPlanChangeButton');
     const cancel=byId('cancelBillingButton');
     if(!card||!badge||!summary||!plans||!manage||!cancelChange||!cancel)return;
     if(authenticatedBusinessRole!=='owner'){
@@ -127,4 +127,12 @@
     cancelChange.hidden=true;
     cancel.hidden=true;
   };
+
+  const refreshBillingPlans=()=>{
+    if(!document.body.classList.contains('auth-ready'))return;
+    try{window.renderBilling();}catch{}
+  };
+  const billingReadyObserver=new MutationObserver(refreshBillingPlans);
+  billingReadyObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+  refreshBillingPlans();
 })();
