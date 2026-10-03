@@ -534,3 +534,106 @@ body.final-showcase-ui.auth-ready .topbar{
     margin-top:0!important;
   }
 }
+
+
+/* Desktop visual QA remediation — 2026-10-03 */
+/* Authentication: one centred shell and consistent sizing for every auth state. */
+body.auth-required #authScreen,
+body.auth-required #authScreen.auth-screen,
+body.legal-acceptance-required #legalAcceptanceScreen,
+body.dpa-acceptance-required #dpaAcceptanceScreen{
+  width:100%!important;
+  min-height:100dvh!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:max(24px,calc(env(safe-area-inset-top) + 18px)) 20px max(24px,calc(env(safe-area-inset-bottom) + 18px))!important;
+}
+#authScreen>.auth-card,
+#authScreen .auth-shared-shell,
+#passwordResetRequestForm,
+#passwordRecoveryForm,
+#signUpForm{
+  width:min(100%,430px)!important;
+  max-width:430px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+#authScreen .auth-role-footer,
+#authScreen .customer-auth-switch,
+#authScreen .auth-switch{font-size:12px!important;line-height:1.45!important}
+#authScreen .auth-role-footer button,
+#authScreen .customer-auth-switch button,
+#authScreen .auth-link{min-height:36px!important;padding:6px!important;font-size:12px!important}
+#authScreen .auth-role-description p{font-size:11px!important}
+#authScreen .auth-role-option{font-size:12px!important}
+
+/* Settings: hidden role-gated headings must actually stay hidden; all shortcut targets clear the sticky header. */
+#settingsView .settings-section-label[hidden]{display:none!important}
+#settingsView .settings-card,#settingsView .settings-anchor-card,#settingsView .settings-section-label{scroll-margin-top:96px!important}
+
+/* Marketing: readable secondary labels and consistent desktop control targets. */
+#marketingView .fsection button{min-height:36px!important;padding:0 8px!important;font-size:11px!important}
+#marketingView .fmarketing-create label{font-size:12px!important;line-height:1.35!important}
+#marketingView .fmarketing-create select,
+#marketingView .fmarketing-create textarea{min-height:44px!important;padding:10px 11px!important;font-size:13px!important;line-height:1.4!important}
+#marketingView .fmarketing-create textarea{min-height:92px!important}
+#marketingView .fmarketing-create>.primary-action{min-height:44px!important;padding:0 14px!important;font-size:13px!important}
+#marketingView .fmarketing-calendar button small{font-size:10px!important}
+#marketingView .fmarketing-calendar button strong{font-size:14px!important}
+#marketingView .marketing-library-list .work-meta,
+#marketingView .marketing-schedule-list .work-meta,
+#marketingView #marketingHistoryStatus{font-size:11px!important;line-height:1.45!important}
+#marketingView .marketing-library-list .small-btn,
+#marketingView .marketing-schedule-list .small-btn,
+#marketingView .marketing-history-toggle .small-btn{min-height:38px!important;font-size:11px!important}
+#marketingView .marketing-command-card .marketing-section-heading{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+#marketingView .marketing-command-card #marketingPlanWeek{width:100%!important;min-height:44px!important;margin-top:0!important;font-size:13px!important}
+
+/* Billing: consistent two-column desktop cards, aligned actions, readable legal links. */
+#billingView .billing-plans.fplans.open,
+#billingView .mock-billing-mount .billing-plans.fplans.open{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+#billingView .billing-plan,
+#billingView .mock-billing-mount .billing-plan{display:flex!important;flex-direction:column!important;height:100%!important;min-height:170px!important;padding:14px!important}
+#billingView .billing-plan.pro{grid-column:auto!important}
+#billingView .billing-plan .small-btn{width:100%!important;min-height:42px!important;margin-top:auto!important;padding:9px 11px!important;font-size:12px!important}
+#billingView .work-meta a{color:#6fc0ff!important;text-decoration:underline!important;text-underline-offset:2px!important;font-weight:700!important}
+#billingView .work-meta a:hover,#billingView .work-meta a:focus-visible{color:#a5d9ff!important}
+
+/* Team: dark controls, proper sizing and explicit read-only presentation. */
+#teamView .mock-invite-grid input,
+#teamView .mock-invite-grid select{
+  width:100%!important;
+  min-height:44px!important;
+  padding:0 12px!important;
+  border:1px solid #21445f!important;
+  border-radius:12px!important;
+  background:#071522!important;
+  color:#eef7ff!important;
+  font-size:13px!important;
+  color-scheme:dark!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+}
+#teamView .mock-invite-grid button{min-height:44px!important;font-size:12px!important}
+#teamView .final-team-access-note{display:flex!important;min-height:92px!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;margin-bottom:12px!important}
+#teamView .final-team-access-note strong{font-size:14px!important;color:#dceaf6!important}
+#teamView .final-team-access-note span{font-size:11px!important;color:#8197aa!important}
+body.final-team-readonly #teamView .mock-invite-card{display:none!important}
+
+/* Receptionist: readable controls and shared rounded-card language. */
+#enquiriesView .reference-receptionist-status{border-radius:18px!important}
+#enquiriesView .receptionist-summary .reference-summary-card{min-height:68px!important;border-radius:14px!important}
+#enquiriesView .receptionist-summary .reference-summary-card strong{font-size:18px!important}
+#enquiriesView .receptionist-summary .reference-summary-card small{font-size:10px!important;line-height:1.25!important}
+#enquiriesView .reference-control-grid button{min-height:70px!important;padding:9px!important;border-radius:14px!important}
+#enquiriesView .reference-control-grid button strong{font-size:12px!important;line-height:1.2!important}
+#enquiriesView .reference-control-grid button small{font-size:10px!important;line-height:1.25!important}
+#enquiriesView .receptionist-test-scenarios .small-btn{min-height:42px!important;padding:8px 11px!important;font-size:11px!important}
+#enquiriesView .receptionist-test-scenarios .work-meta,
+#enquiriesView .receptionist-test-banner .work-meta{font-size:11px!important;line-height:1.45!important}
+
+@media(max-width:600px){
+  #billingView .billing-plans.fplans.open,#billingView .mock-billing-mount .billing-plans.fplans.open{grid-template-columns:1fr!important}
+  #billingView .billing-plan,#billingView .mock-billing-mount .billing-plan{min-height:0!important}
+  #authScreen>.auth-card,#authScreen .auth-shared-shell,#passwordResetRequestForm,#passwordRecoveryForm,#signUpForm{width:100%!important;max-width:430px!important}
+}

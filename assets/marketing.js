@@ -313,6 +313,10 @@
   const historyFilter=()=>({platform:node('marketingFilterPlatform')?.value||'',contentType:node('marketingFilterType')?.value||'',sort:node('marketingFilterSort')?.value||'newest'});
   const historyStatus=text=>{const target=node('marketingHistoryStatus');if(target)target.textContent=text||'';};
   const previewText=value=>{const text=String(value||'').trim();return text.length>140?`${text.slice(0,140)}…`:text;};
+  const platformLabel=value=>({facebook:'Facebook',instagram:'Instagram',linkedin:'LinkedIn',general:'General'})[String(value||'').toLowerCase()]||String(value||'General').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const contentTypeLabel=value=>({social_post:'Social post',promotional_post:'Promotional post',caption:'Caption',announcement:'Announcement',offer:'Offer',event:'Event',update:'Business update'})[String(value||'').toLowerCase()]||String(value||'Post').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const toneLabel=value=>String(value||'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const publicationStatusLabel=value=>({published:'Published',scheduled:'Scheduled',processing:'Processing',failed:'Failed',cancelled:'Cancelled',posted:'Posted'})[String(value||'').toLowerCase()]||String(value||'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 
   function filteredHistory(){
     const filter=historyFilter();
@@ -342,8 +346,8 @@
       const article=document.createElement('article');article.className='work-item'+(item.id===currentGenerationId?' marketing-history-active':'');
       const top=document.createElement('div');top.className='work-item-top';
       const titleWrap=document.createElement('div');
-      const title=document.createElement('h4');title.textContent=String(item.platform||'general')+' · '+String(item.content_type||'post');
-      const meta=document.createElement('div');meta.className='work-meta';meta.textContent=String(item.tone||'')+' · '+when(item.created_at)+' · '+(item.approval_status==='approved'?'Approved':'Draft');
+      const title=document.createElement('h4');title.textContent=platformLabel(item.platform)+' · '+contentTypeLabel(item.content_type);
+      const meta=document.createElement('div');meta.className='work-meta';meta.textContent=[toneLabel(item.tone),when(item.created_at)].filter(Boolean).join(' · ');
       titleWrap.append(title,meta);
       const tag=document.createElement('span');tag.className='tag';tag.textContent=item.approval_status==='approved'?'Approved':'Draft';
       top.append(titleWrap,tag);
@@ -414,7 +418,7 @@
     scheduleDraftId=cached.id||id;
     if(node('marketingSchedulePlatform'))node('marketingSchedulePlatform').value=platform||cached.platform||'facebook';
     const summary=node('marketingScheduleDraftSummary');
-    if(summary)summary.textContent=`Scheduling: ${(cached.platform||'general')} · ${(cached.content_type||'post').replaceAll('_',' ')} — ${(cached.request_text||'saved draft').slice(0,120)}`;
+    if(summary)summary.textContent=`Scheduling: ${platformLabel(cached.platform)} · ${contentTypeLabel(cached.content_type)} — ${(cached.request_text||'saved draft').slice(0,120)}`;
     scheduleMessage('Choose a future date and time, then press Schedule post. Business AI will publish it automatically at that time.');
     tab('schedule');
     node('marketingScheduleDate')?.focus();
@@ -871,7 +875,7 @@
     try{const data=await api('/api/marketing-publications');publications=Array.isArray(data.publications)?data.publications:[];}catch{publications=[];}
     renderOverview();
     const target=node('marketingPublications');if(!target)return;if(!publications.length){target.innerHTML='<div class="empty">No publishing activity yet.</div>';return;}
-    target.innerHTML=publications.map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.platform)} · ${esc(item.status)}</h4><div class="work-meta">${item.status==='scheduled'?`Scheduled ${esc(when(item.scheduled_for))}`:item.status==='published'?`Published ${esc(when(item.published_at))}`:item.failure_message?esc(item.failure_message):esc(when(item.created_at))}</div></div><span class="tag">${esc(item.status)}</span></div><div class="work-actions">${item.status==='scheduled'?`<button class="small-btn danger" type="button" data-pub-action="cancel" data-pub-id="${esc(item.id)}">Cancel</button>`:''}${item.status==='failed'&&item.failure_code!=='META_AMBIGUOUS_RESULT'?`<button class="small-btn" type="button" data-pub-action="retry" data-pub-id="${esc(item.id)}">Retry</button>`:''}</div></article>`).join('');
+    target.innerHTML=publications.map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(platformLabel(item.platform))} publication</h4><div class="work-meta">${item.failure_message?esc(item.failure_message):esc(when(item.published_at||item.scheduled_for||item.created_at))}</div></div><span class="tag">${esc(publicationStatusLabel(item.status))}</span></div><div class="work-actions">${item.status==='scheduled'?`<button class="small-btn danger" type="button" data-pub-action="cancel" data-pub-id="${esc(item.id)}">Cancel</button>`:''}${item.status==='failed'&&item.failure_code!=='META_AMBIGUOUS_RESULT'?`<button class="small-btn" type="button" data-pub-action="retry" data-pub-id="${esc(item.id)}">Retry</button>`:''}</div></article>`).join('');
     target.querySelectorAll('[data-pub-action]').forEach(button=>button.addEventListener('click',()=>publicationAction(button.dataset.pubAction,button.dataset.pubId)));
   }
   async function publicationAction(action,id){try{await api('/api/marketing-publications',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,publication_id:id})});message(action==='cancel'?'Scheduled publication cancelled.':'Publication retry completed.');await loadPublications();}catch(error){message(error.message||'Could not update publication.');}}
