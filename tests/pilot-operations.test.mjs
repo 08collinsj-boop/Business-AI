@@ -9,6 +9,8 @@ const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
 test("team invitations are owner-authorised and cannot grant owner access", () => {
   assert.match(team, /requireBusinessMember\(req, \["owner"\]\)/);
+  assert.match(team, /requireAal2\(req\)/);
+  assert.match(team, /req\.method !== "GET"/);
   assert.match(team, /\["admin", "member"\]/);
   assert.doesNotMatch(team, /role[^\n]{0,80}"owner"/);
   assert.match(team, /accept_business_team_invitation/);

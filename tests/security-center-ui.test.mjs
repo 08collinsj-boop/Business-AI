@@ -15,6 +15,11 @@ test('security centre exposes incident controls, MFA and security activity', asy
   assert.match(script, /getAuthenticatorAssuranceLevel/);
   assert.match(script, /mfa\.enroll/);
   assert.match(script, /mfa\.verify/);
+  assert.match(script, /mfa\.unenroll/);
+  const removeFactor = script.indexOf('async function removeMfaFactor');
+  const aal2BeforeRemove = script.indexOf('ensureAal2ForAction()', removeFactor);
+  const unenroll = script.indexOf('mfa.unenroll', removeFactor);
+  assert.ok(removeFactor >= 0 && aal2BeforeRemove > removeFactor && unenroll > aal2BeforeRemove, 'verified MFA removal must require AAL2 first');
   assert.match(script, /MFA_REQUIRED/);
   assert.match(script, /securityPauseBanner/);
   assert.match(styles, /security-mfa-gate/);

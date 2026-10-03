@@ -12,6 +12,7 @@ const fetchWebhookSource = await readFile(new URL("../lib/stripe-webhook-fetch-h
 const frontendSource = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const saved = { ...process.env }; const originalFetch = globalThis.fetch;
 const reply = (body, ok = true, status = ok ? 200 : 500) => ({ ok, status, text: async () => typeof body === "string" ? body : JSON.stringify(body), json: async () => body });
+const aal2Token = `test.${Buffer.from(JSON.stringify({ aal: "aal2" })).toString("base64url")}.signature`;
 const res = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 const account = { business_id: "11111111-1111-4111-8111-111111111111", plan: "starter", status: "active", current_period_started_at: "2026-09-01T00:00:00.000Z", current_period_ends_at: "2026-10-01T00:00:00.000Z", trial_purchased: false, cancel_at_period_end: false };
 
@@ -82,10 +83,10 @@ test("AI enquiry access reports subscription, payment, configuration, allowance 
 test("billing private API is owner-only and ignores browser tenant input", async () => {
   process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key";
   const calls = []; globalThis.fetch = async (url) => { calls.push(url); if (url.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" }); if (url.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]); if (url.includes("business_billing_accounts")) return reply([account]); if (url.includes("business_billing_usage")) return reply([{ quantity: 2 }]); return reply({}, false); };
-  const handler = (await import(new URL(`../lib/billing-handler.js?owner=${Math.random()}`, import.meta.url))).default; const response = res(); await handler({ method: "GET", headers: { authorization: "Bearer valid" }, query: { business_id: "other-business" } }, response);
+  const handler = (await import(new URL(`../lib/billing-handler.js?owner=${Math.random()}`, import.meta.url))).default; const response = res(); await handler({ method: "GET", headers: { authorization: `Bearer ${aal2Token}` }, query: { business_id: "other-business" } }, response);
   assert.equal(response.statusCode, 200); assert.equal(response.body.entitlements.plan, "starter"); assert.deepEqual(response.body.account, { plan: "starter", status: "active", trial_purchased: false, cancel_at_period_end: false, has_customer: false, has_subscription: false }); assert.equal(response.body.pending_plan_change, null); assert.ok(calls.some((url) => url.includes(encodeURIComponent(account.business_id)))); assert.ok(calls.every((url) => !url.includes("other-business")));
   globalThis.fetch = async (url) => url.endsWith("/auth/v1/user") ? reply({ id: "user-a" }) : url.includes("business_memberships") ? reply([{ business_id: account.business_id, role: "member" }]) : reply({}, false);
-  const denied = res(); await handler({ method: "GET", headers: { authorization: "Bearer valid" }, query: {} }, denied); assert.equal(denied.statusCode, 403);
+  const denied = res(); await handler({ method: "GET", headers: { authorization: `Bearer ${aal2Token}` }, query: {} }, denied); assert.equal(denied.statusCode, 403);
 });
 
 test("an active Stripe subscription is managed through the server-derived account, not another Checkout", async () => {
@@ -93,11 +94,11 @@ test("an active Stripe subscription is managed through the server-derived accoun
   const subscribed = { ...account, stripe_customer_id: "cus_owned", stripe_subscription_id: "sub_owned" };
   const calls = []; globalThis.fetch = async (url, options = {}) => { calls.push({ url, options }); if (url.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" }); if (url.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]); if (url.includes("business_billing_accounts")) return reply([subscribed]); if (url.includes("billing_portal/sessions")) return reply({ url: "https://billing.stripe.test/portal" }); return reply({}, false); };
   const handler = (await import(new URL(`../lib/billing-handler.js?subscription=${Math.random()}`, import.meta.url))).default;
-  let response = res(); await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "checkout", plan: "pro" } }, response);
+  let response = res(); await handler({ method: "POST", headers: { authorization: `Bearer ${aal2Token}` }, body: { action: "checkout", plan: "pro" } }, response);
   assert.equal(response.statusCode, 409); assert.match(response.body.error, /manage the existing subscription/i); assert.ok(calls.every((call) => !call.url.includes("/checkout/sessions")));
-  response = res(); await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "portal", customer: "cus_other" } }, response);
+  response = res(); await handler({ method: "POST", headers: { authorization: `Bearer ${aal2Token}` }, body: { action: "portal", customer: "cus_other" } }, response);
   assert.equal(response.statusCode, 400, "browser-supplied customer identifiers are rejected");
-  response = res(); await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "portal" } }, response);
+  response = res(); await handler({ method: "POST", headers: { authorization: `Bearer ${aal2Token}` }, body: { action: "portal" } }, response);
   assert.equal(response.statusCode, 200); assert.equal(response.body.portal_url, "https://billing.stripe.test/portal"); const portal = calls.find((call) => call.url.includes("billing_portal/sessions")); assert.match(String(portal.options.body), /customer=cus_owned/); assert.doesNotMatch(String(portal.options.body), /cus_other/);
 });
 
@@ -125,7 +126,7 @@ test("subscription upgrades are immediate, prorated and preserve add-ons", async
   };
   const handler = (await import(new URL("../lib/billing-handler.js?upgrade-plan=" + Math.random(), import.meta.url))).default;
   const response = res();
-  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "change_plan", plan: "pro" } }, response);
+  await handler({ method: "POST", headers: { authorization: `Bearer ${aal2Token}` }, body: { action: "change_plan", plan: "pro" } }, response);
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.plan, "pro");
   assert.equal(response.body.scheduled, false);
@@ -163,7 +164,7 @@ test("subscription downgrades are scheduled at renewal with no proration and pre
   };
   const handler = (await import(new URL("../lib/billing-handler.js?downgrade-plan=" + Math.random(), import.meta.url))).default;
   const response = res();
-  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "change_plan", plan: "starter" } }, response);
+  await handler({ method: "POST", headers: { authorization: `Bearer ${aal2Token}` }, body: { action: "change_plan", plan: "starter" } }, response);
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.plan, "starter");
   assert.equal(response.body.scheduled, true);
@@ -201,7 +202,7 @@ test("a previously used trial cannot start another Checkout and expiry does not 
   process.env.BILLING_ENABLED = "true"; process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-key"; process.env.STRIPE_SECRET_KEY = "sk_test_placeholder"; process.env.BILLING_APP_URL = "https://pilot.example.test";
   const usedTrial = { ...account, plan: "trial", trial_purchased: true, trial_started_at: "2026-09-01T00:00:00.000Z", trial_expires_at: "2026-09-08T00:00:00.000Z" };
   globalThis.fetch = async (url) => { if (url.endsWith("/auth/v1/user")) return reply({ id: "user-a", email: "owner@example.test" }); if (url.includes("business_memberships")) return reply([{ business_id: account.business_id, role: "owner" }]); if (url.includes("business_billing_accounts")) return reply([usedTrial]); return reply({}, false); };
-  const handler = (await import(new URL(`../lib/billing-handler.js?trial=${Math.random()}`, import.meta.url))).default; const response = res(); await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { action: "checkout", plan: "trial" } }, response);
+  const handler = (await import(new URL(`../lib/billing-handler.js?trial=${Math.random()}`, import.meta.url))).default; const response = res(); await handler({ method: "POST", headers: { authorization: `Bearer ${aal2Token}` }, body: { action: "checkout", plan: "trial" } }, response);
   assert.equal(response.statusCode, 409); assert.match(response.body.error, /already used/i);
   const billing = await import(new URL(`../lib/billing.js?expiry=${Math.random()}`, import.meta.url)); const expired = billing.entitlementFromAccount(usedTrial, 3, new Date("2026-09-10T00:00:00Z")); assert.equal(expired.active, false);
   assert.doesNotMatch(billingSource, /delete from public\.leads|delete from public\.businesses/i, "subscription expiry only restricts access; it never deletes existing data");
@@ -348,7 +349,7 @@ test("owner cancellation requests Stripe cancellation at period end and persists
   const response = res();
   await handler({
     method: "POST",
-    headers: { authorization: "Bearer valid" },
+    headers: { authorization: `Bearer ${aal2Token}` },
     body: { action: "cancel" }
   }, response);
 
