@@ -119,12 +119,17 @@ function validFollowUpDate(value) {
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
+function ownerText(value, maximum) {
+  return typeof value === "string" ? value.trim().slice(0, maximum) : "";
+}
+
+
 
 export default async function handler(req, res) {
   try {
 
     let auth;
-    if (req.method === "GET" || req.method === "PATCH") {
+    if (req.method === "GET" || req.method === "POST" || req.method === "PATCH") {
       try {
         auth = await requireBusinessMember(req);
       } catch (error) {
@@ -148,6 +153,75 @@ export default async function handler(req, res) {
           ? leads
           : []
       );
+    }
+
+
+    // CREATE LEAD FROM OWNER WORKSPACE
+    if (req.method === "POST") {
+      if (!auth?.enforced || !auth.businessId) {
+        return res.status(403).json({ error: "Authentication is required" });
+      }
+
+      let body;
+      try {
+        body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      } catch {
+        return res.status(400).json({ error: "Invalid request body" });
+      }
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return res.status(400).json({ error: "Invalid request body" });
+      }
+
+      const allowedFields = new Set(["name", "phone", "email", "location", "job_type", "description", "priority", "estimated_value"]);
+      if (Object.keys(body).some((key) => !allowedFields.has(key))) {
+        return res.status(400).json({ error: "Unsupported lead fields" });
+      }
+
+      const name = ownerText(body.name, 200);
+      const phone = ownerText(body.phone, 80);
+      const email = ownerText(body.email, 320);
+      if (!name && !phone && !email) {
+        return res.status(400).json({ error: "Add a name, phone number or email" });
+      }
+
+      const priority = body.priority === "High" ? "High" : "Normal";
+      const estimatedValue = Number(body.estimated_value || 0);
+      if (!Number.isFinite(estimatedValue) || estimatedValue < 0) {
+        return res.status(400).json({ error: "Invalid estimated value" });
+      }
+
+      const lead = {
+        business_id: auth.businessId,
+        name: name || null,
+        phone: phone || null,
+        email: email || null,
+        location: ownerText(body.location, 300) || null,
+        job_type: ownerText(body.job_type, 200) || null,
+        description: ownerText(body.description, 5000) || null,
+        urgency: "Normal",
+        qualified: false,
+        status: "New",
+        estimated_value: estimatedValue,
+        notes: "",
+        priority,
+        follow_up_date: null
+      };
+
+      const rows = await supabaseRequest("leads", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify(lead)
+      });
+      const created = Array.isArray(rows) ? rows[0] : rows;
+      await recordAuditEvent({
+        businessId: auth.businessId,
+        actorUserId: auth.userId,
+        action: "lead.manual_created",
+        resourceType: "lead",
+        resourceId: created?.id ? String(created.id) : null,
+        metadata: { source: "owner_dashboard" }
+      });
+      return res.status(201).json(created || lead);
     }
 
 

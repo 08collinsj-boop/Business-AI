@@ -17,7 +17,8 @@ test('mock layer keeps five real bottom navigation destinations',()=>{
 });
 
 test('new mock controls remain functional and data-backed',()=>{
-  assert.match(js,/api\('\/api\/manual-leads'/);
+  assert.match(js,/api\('\/api\/leads'/);
+  assert.doesNotMatch(js,/manual-leads/);
   assert.match(js,/showView\('billing'\)/);
   assert.match(js,/showView\('team'\)/);
   assert.match(js,/stateList\('leads'\)/);
