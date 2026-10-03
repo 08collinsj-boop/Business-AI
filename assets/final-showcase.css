@@ -637,3 +637,42 @@ body.final-team-readonly #teamView .mock-invite-card{display:none!important}
   #billingView .billing-plan,#billingView .mock-billing-mount .billing-plan{min-height:0!important}
   #authScreen>.auth-card,#authScreen .auth-shared-shell,#passwordResetRequestForm,#passwordRecoveryForm,#signUpForm{width:100%!important;max-width:430px!important}
 }
+
+
+/* Final desktop regression fixes — 2026-10-03 */
+/* Marketing: finish sizing the controls that live outside the main composer. */
+#marketingView #marketingScheduleConfirm,
+#marketingView #marketingScheduleClear,
+#marketingView #marketingRefreshSchedules,
+#marketingView #metaConnect,
+#marketingView #metaDisconnect{
+  min-height:42px!important;
+  padding:8px 12px!important;
+  font-size:12px!important;
+  line-height:1.2!important;
+}
+#marketingView .fmarketing-strategy .fsection strong{font-size:16px!important;line-height:1.25!important}
+#marketingView .fmarketing-strategy article small,
+#marketingView .fmarketing-strategy article em{font-size:11px!important;line-height:1.35!important}
+#marketingView .fmarketing-strategy article strong{font-size:13px!important;line-height:1.3!important}
+#marketingView .fmarketing-strategy article:last-child strong{font-size:22px!important}
+#marketingView .marketing-strategy-card .marketing-section-heading h3{font-size:16px!important;line-height:1.25!important}
+#marketingView .marketing-strategy-card .marketing-section-heading p{font-size:11px!important;line-height:1.45!important}
+#marketingView .marketing-strategy-controls .field>label,
+#marketingView .marketing-pillars label>span>small{font-size:11px!important;line-height:1.35!important}
+#marketingView .marketing-pillars strong{font-size:12px!important;line-height:1.3!important}
+
+/* Team: when the rendered API state says owner-only, no invite affordance remains usable. */
+body.final-team-readonly #teamView .mock-invite-card,
+body.final-team-readonly #teamView .final-title-row>button{display:none!important}
+
+/* Customer signup uses the same readable labels as the rest of authentication. */
+#customerSignUpForm .auth-input>span{font-size:12px!important;line-height:1.3!important}
+
+/* Receptionist: finish the test-mode action sizing. */
+#enquiriesView .receptionist-test-banner>.small-btn{
+  min-height:42px!important;
+  padding:8px 12px!important;
+  font-size:11px!important;
+  line-height:1.2!important;
+}
