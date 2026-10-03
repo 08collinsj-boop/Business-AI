@@ -160,6 +160,14 @@ function setup({
       );
     }
 
+    if (url.includes('business_incident_controls')) {
+      return response([]);
+    }
+
+    if (url.includes('platform_incident_controls')) {
+      return response([{ id: 'global' }]);
+    }
+
     if (
       url.includes(
         'business_settings'

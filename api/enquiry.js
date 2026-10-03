@@ -11,6 +11,7 @@ import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowanc
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
 import { LEGAL_VERSIONS } from "../lib/legal.js";
 import { extractBearerToken, requireAuthenticatedUser, requireBusinessAdmin, sendAuthError } from "../lib/auth.js";
+import { assertIncidentFeatureAvailable, isIncidentFeaturePaused } from "../lib/incident-controls.js";
 
 const SUPABASE_TIMEOUT_MS = 8000;
 const SUPABASE_RETRIES = 3;
@@ -327,6 +328,7 @@ async function createRequestedBooking({ businessId, leadId, lead, conversationTe
 
 async function createAutomaticFollowUp({ businessId, lead, settings }) {
   if (!settings?.automatic_follow_up_enabled || !businessId || !lead?.id) return null;
+  if (await isIncidentFeaturePaused(businessId, "automatic_followups")) return null;
   if (String(lead.status || "New") !== "New") return null;
 
   const configuredHours = Number(settings.automatic_follow_up_hours);
@@ -1028,6 +1030,8 @@ export default async function handler(req, res) {
       }
     }
     const businessId = publicBusiness.businessId;
+    if (!testMode) await assertIncidentFeatureAvailable(businessId, "customer_submissions");
+    await assertIncidentFeatureAvailable(businessId, "ai_receptionist");
     const customerAccount = testMode ? null : await optionalCustomerAccount(req);
 
     // Load and validate tenant configuration before consuming paid AI allowance.

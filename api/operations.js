@@ -24,6 +24,7 @@ import marketingSchedulerHandler from '../lib/marketing-scheduler-handler.js';
 import marketingImageHandler from '../lib/marketing-image-handler.js';
 import marketingAutomationHandler from '../lib/marketing-automation-handler.js';
 import feedbackHandler from '../lib/feedback-handler.js';
+import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
@@ -54,6 +55,7 @@ const handlers = Object.freeze({
   "marketing-images": marketingImageHandler,
   "marketing-automation": marketingAutomationHandler,
   feedback: feedbackHandler,
+  "incident-controls": incidentControlsHandler,
   legal: legalHandler,
   "legal-public": legalPublicHandler
 });

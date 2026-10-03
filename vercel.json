@@ -131,6 +131,10 @@
       "destination": "/api/operations?operation=feedback"
     },
     {
+      "source": "/api/incident-controls",
+      "destination": "/api/operations?operation=incident-controls"
+    },
+    {
       "source": "/api/legal-public",
       "destination": "/api/operations?operation=legal-public"
     },
