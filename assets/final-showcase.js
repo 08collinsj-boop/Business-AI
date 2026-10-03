@@ -2,6 +2,7 @@
 (()=>{
 'use strict';
 const q=(s,r=document)=>r.querySelector(s),qa=(s,r=document)=>[...r.querySelectorAll(s)];
+const E=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
 const publicRoute=location.pathname.startsWith('/customer')||new URL(location.href).searchParams.has('business');
 
 function customerPortal(){
@@ -33,7 +34,6 @@ function customerPortal(){
   const observer=new MutationObserver(enhance);observer.observe(document.body,{childList:true,subtree:true});
 }
 document.body.classList.add('final-showcase-ui');if(publicRoute){customerPortal();return;}
-const E=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const I=v=>String(v||'AI').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'AI';
 const D=v=>{const d=new Date(v||0);return Number.isNaN(d.getTime())?'':d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})};
 const T=v=>{const d=new Date(v||0);return Number.isNaN(d.getTime())?'':d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})};
