@@ -3,7 +3,36 @@
 'use strict';
 const q=(s,r=document)=>r.querySelector(s),qa=(s,r=document)=>[...r.querySelectorAll(s)];
 const publicRoute=location.pathname.startsWith('/customer')||new URL(location.href).searchParams.has('business');
-document.body.classList.add('final-showcase-ui');if(publicRoute)return;
+
+function customerPortal(){
+  document.body.classList.add('final-customer-showcase');
+  const enhanceCard=card=>{
+    if(!card||card.dataset.finalShowcase==='1')return;
+    card.dataset.finalShowcase='1';
+    const title=card.querySelector('h4')?.textContent?.trim()||'Business';
+    const meta=card.querySelector('.meta')?.textContent?.trim()||'Enquiry';
+    const badge=card.querySelector('.customer-status');
+    const status=(badge?.textContent||'Received').trim();
+    const summary=[...card.querySelectorAll('p')].map(x=>x.textContent.trim()).find(Boolean)||'';
+    const open=card.querySelector('.customer-enquiry-actions a');
+    const key=String(badge?.className||'').toLowerCase();
+    const step=key.includes('completed')?4:key.includes('response')?3:key.includes('awaiting')?2:1;
+    const wrap=document.createElement('div');wrap.className='fportal-enquiry';
+    wrap.innerHTML=`<div class="fportal-enquiry-head"><div><small>Your enquiry</small><strong>${E(title)}</strong><span>${E(meta)}</span></div><i>${E(status)}</i></div><div class="fportal-progress">${['Received','Reviewing','Responded','Completed'].map((label,i)=>`<b class="${i<step?'done':''}"><i></i><small>${label}</small></b>`).join('')}</div>${summary?`<p>${E(summary)}</p>`:''}<div class="fportal-actions"></div>`;
+    if(open){open.textContent='Send a message';wrap.querySelector('.fportal-actions').append(open)}
+    card.replaceChildren(wrap);
+    const brand=document.querySelector('.customer-portal-brand strong');if(brand&&brand.textContent==='Business AI')brand.textContent=title;
+  };
+  const enhance=()=>{
+    document.querySelectorAll('.customer-enquiry-card').forEach(enhanceCard);
+    const hero=document.querySelector('.customer-portal-hero');if(hero){hero.querySelector('span')?.replaceChildren(document.createTextNode('Customer Portal'));const p=hero.querySelector('p');if(p)p.textContent='Track enquiries and contact businesses from one place.'}
+    const labels={home:'Overview',find:'Find',enquiries:'My enquiries',account:'Account'};
+    document.querySelectorAll('[data-customer-tab]').forEach(b=>{const s=b.querySelector('small');if(s&&labels[b.dataset.customerTab])s.textContent=labels[b.dataset.customerTab]});
+  };
+  enhance();
+  const observer=new MutationObserver(enhance);observer.observe(document.body,{childList:true,subtree:true});
+}
+document.body.classList.add('final-showcase-ui');if(publicRoute){customerPortal();return;}
 const E=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const I=v=>String(v||'AI').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'AI';
 const D=v=>{const d=new Date(v||0);return Number.isNaN(d.getTime())?'':d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})};
@@ -17,7 +46,7 @@ window.openFinalSetting=id=>{showView('settings');requestAnimationFrame(()=>{con
 
 function secondaryViews(){const app=document.getElementById('dashboardApp'),nav=q('.bottom-nav');if(!app||!nav)return;if(!document.getElementById('billingView')){const s=document.createElement('section');s.id='billingView';s.className='view final-subview';s.innerHTML='<div class="screen-title"><h2>Billing</h2><p>Manage your plan, usage and payments.</p></div><div id="finalBillingMount"></div>';app.insertBefore(s,nav);const c=document.getElementById('billingCard');if(c)document.getElementById('finalBillingMount').append(c)}if(!document.getElementById('teamView')){const s=document.createElement('section');s.id='teamView';s.className='view final-subview';s.innerHTML='<div class="final-title-row"><div class="screen-title"><h2>Team</h2><p>Manage team members and access.</p></div><button type="button" onclick="document.getElementById(\'teamInviteEmail\')?.focus()">＋ Invite</button></div><div id="finalTeamMount"></div>';app.insertBefore(s,nav);const c=document.getElementById('teamPrivacyCard');if(c)document.getElementById('finalTeamMount').append(c)}}
 
-function settingsHub(){const h=q('.settings-hub');if(!h)return;h.innerHTML=`<button class="settings-hub-card blue" onclick="openFinalSetting('s_business_name')"><i>▣</i><span><strong>Business Profile</strong><small>Business details, contact information and branding.</small></span><b>›</b></button><button class="settings-hub-card purple" onclick="openFinalSetting('s_services')"><i>☷</i><span><strong>Services</strong><small>Services, pricing and descriptions.</small></span><b>›</b></button><button class="settings-hub-card green" onclick="openFinalSetting('s_opening_hours')"><i>◷</i><span><strong>Opening Hours</strong><small>Business hours and availability.</small></span><b>›</b></button><button class="settings-hub-card purple" data-owner-only onclick="showView('team')"><i>♙</i><span><strong>Team</strong><small>Members and access permissions.</small></span><b>›</b></button><button class="settings-hub-card cyan" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>◫</i><span><strong>AI Handling Mode</strong><small>How the AI handles enquiries and bookings.</small></span><b>›</b></button><button class="settings-hub-card purple" onclick="openSettingsSection('businessKnowledgeCard')"><i>▤</i><span><strong>Knowledge</strong><small>Information your AI uses to answer questions.</small></span><b>›</b></button><button class="settings-hub-card orange" data-admin-only onclick="openSettingsSection('automaticFollowUpCard')"><i>↻</i><span><strong>Automations</strong><small>Follow-ups, reviews and workflows.</small></span><b>›</b></button><button class="settings-hub-card blue" data-owner-only onclick="showView('billing')"><i>£</i><span><strong>Billing</strong><small>Plan, usage and secure Stripe billing.</small></span><b>›</b></button>`}
+function settingsHub(){const h=q('.settings-hub');if(!h)return;h.innerHTML=`<button class="settings-hub-card blue" onclick="openFinalSetting('s_business_name')"><i>▣</i><span><strong>Business Profile</strong><small>Business details, contact information and branding.</small></span><b>›</b></button><button class="settings-hub-card purple" onclick="openFinalSetting('s_services')"><i>☷</i><span><strong>Services</strong><small>Services, pricing and descriptions.</small></span><b>›</b></button><button class="settings-hub-card green" onclick="openFinalSetting('s_opening_hours')"><i>◷</i><span><strong>Opening Hours</strong><small>Business hours and availability.</small></span><b>›</b></button><button class="settings-hub-card purple" data-owner-only onclick="showView('team')"><i>♙</i><span><strong>Team</strong><small>Members and access permissions.</small></span><b>›</b></button><button class="settings-hub-card cyan" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>◫</i><span><strong>AI Handling Mode</strong><small>How the AI handles enquiries and bookings.</small></span><b>›</b></button><button class="settings-hub-card purple" onclick="openSettingsSection('businessKnowledgeCard')"><i>▤</i><span><strong>Knowledge</strong><small>Information your AI uses to answer questions.</small></span><b>›</b></button><button class="settings-hub-card orange" data-admin-only onclick="openSettingsSection('automaticFollowUpCard')"><i>↻</i><span><strong>Automations</strong><small>Follow-ups, reviews and workflows.</small></span><b>›</b></button><button class="settings-hub-card blue" data-owner-only onclick="showView('billing')"><i>£</i><span><strong>Billing</strong><small>Plan, usage and secure Stripe billing.</small></span><b>›</b></button>`;if(typeof applyBusinessRole==='function')applyBusinessRole()}
 
 const oldShow=showView;showView=function(v){oldShow(v);const m=q('.bottom-nav .nav-btn[data-view="settings"]');if(!m)return;const l=m.querySelector('span:last-child');let target='settings';if(v==='marketing'){l.textContent='Marketing';target='marketing'}else if(v==='enquiries'){l.textContent='Receptionist';target='enquiries'}else l.textContent='More';m.onclick=()=>showView(target);if(['settings','billing','team','addons','marketing','enquiries'].includes(v)){qa('.bottom-nav .nav-btn').forEach(b=>{const a=b===m;b.classList.toggle('active',a);a?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});requestAnimationFrame(()=>positionBottomNavIndicator?.('settings'))}if(v==='billing')loadBilling?.();if(v==='team')loadPilotOperations?.()};
 
