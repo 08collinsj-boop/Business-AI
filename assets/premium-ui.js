@@ -4,7 +4,7 @@
   if(!document.querySelector('link[data-business-ai-premium-v2]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='/assets/premium-v2.css?v=20261003-reference-build-2';
+    link.href='/assets/premium-v2.css?v=20261003-reference-build-3';
     link.dataset.businessAiPremiumV2='true';
     document.head.appendChild(link);
   }
