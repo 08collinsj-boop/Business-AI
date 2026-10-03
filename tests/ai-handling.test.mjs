@@ -541,6 +541,8 @@ async function loadReceptionistTest(model = null, role = 'owner') {
     calls.push({ url, options });
     if (url.endsWith('/auth/v1/user')) return reply({ id: 'owner-user', email: 'owner@example.test' });
     if (url.includes('business_memberships')) return reply([{ business_id: 'business-a', role }]);
+    if (url.includes('business_incident_controls')) return reply([]);
+    if (url.includes('platform_incident_controls')) return reply([{ id: 'global' }]);
     if (url.includes('business_legal_acceptances')) return reply([{ id: 'dpa-current' }]);
     if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', address: 'Hartlepool', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Stay focused on this business.', automatic_follow_up_enabled: true, automatic_follow_up_hours: 24 }]);
     if (url.includes('business_configurations')) return reply([{ ai_handling_mode: 'balanced', description: 'Electrical repairs', service_areas: 'Hartlepool', customer_enquiry_instructions: 'Collect useful job details.', handover_instructions: 'Escalate when appropriate.', faqs: [] }]);
