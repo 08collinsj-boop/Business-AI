@@ -15,6 +15,13 @@
     finalLink.dataset.businessAiFinal='true';
     document.head.appendChild(finalLink);
   }
+  if(!document.querySelector('link[data-business-ai-security]')){
+    const securityLink=document.createElement('link');
+    securityLink.rel='stylesheet';
+    securityLink.href='/assets/security-center.css?v=20261003-security-1';
+    securityLink.dataset.businessAiSecurity='true';
+    document.head.appendChild(securityLink);
+  }
   if(!document.querySelector('script[data-business-ai-final]')){
     const finalScript=document.createElement('script');
     finalScript.src='/assets/premium-final.js?v=20261003-final-1';
@@ -90,6 +97,14 @@
     finalScript.dataset.businessAiFinalShowcase='true';
     finalScript.async=false;
     document.body.appendChild(finalScript);
+  }
+
+  if(!document.querySelector('script[data-business-ai-security]')){
+    const securityScript=document.createElement('script');
+    securityScript.src='/assets/security-center.js?v=20261003-security-1';
+    securityScript.dataset.businessAiSecurity='true';
+    securityScript.async=false;
+    document.body.appendChild(securityScript);
   }
 
 })();

@@ -30,6 +30,11 @@ function verifiedUserAndMembership(membership) {
   };
 }
 
+function jwtWithAal(aal) {
+  const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
+  return `${encode({ alg: 'none', typ: 'JWT' })}.${encode({ sub: 'user-a', aal })}.signature`;
+}
+
 test("shared auth module gate, verification, membership, and roles", { concurrency: false }, async () => {
   let auth = await loadAuth({ enabled: "TRUE" });
   assert.equal(auth.isTenancyAuthEnabled(), false);
@@ -61,6 +66,30 @@ test("shared auth module gate, verification, membership, and roles", { concurren
   assert.equal((await auth.requireBusinessMember({ headers: { authorization: "Bearer good-token" } })).role, "member");
   await assert.rejects(() => auth.requireBusinessAdmin({ headers: { authorization: "Bearer good-token" } }), { status: 403 });
   await assert.rejects(() => auth.requireBusinessMember({ headers: { authorization: "Bearer good-token" } }, ["superuser"]), { status: 500 });
+});
+
+test("protected actions require a Supabase-verified aal2 session", { concurrency: false }, async () => {
+  const aal1Token = jwtWithAal('aal1');
+  let auth = await loadAuth({ fetchImpl: async (url, options) => {
+    assert.ok(url.endsWith('/auth/v1/user'));
+    assert.equal(options.headers.Authorization, `Bearer ${aal1Token}`);
+    return response({ body: { id: 'user-a', email: 'owner@example.test' } });
+  }});
+  await assert.rejects(
+    () => auth.requireAal2({ headers: { authorization: `Bearer ${aal1Token}` } }),
+    error => error?.status === 403 && error?.code === 'MFA_REQUIRED'
+  );
+
+  const aal2Token = jwtWithAal('aal2');
+  auth = await loadAuth({ fetchImpl: async (url, options) => {
+    assert.ok(url.endsWith('/auth/v1/user'));
+    assert.equal(options.headers.Authorization, `Bearer ${aal2Token}`);
+    return response({ body: { id: 'user-a', email: 'OWNER@EXAMPLE.TEST' } });
+  }});
+  assert.deepEqual(
+    await auth.requireAal2({ headers: { authorization: `Bearer ${aal2Token}` } }),
+    { enforced: true, userId: 'user-a', email: 'owner@example.test' }
+  );
 });
 
 test.after(() => {
