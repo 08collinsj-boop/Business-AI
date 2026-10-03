@@ -609,7 +609,8 @@ test('receptionist test mode can call the real AI reasoning path without using c
 
 test('owner UI uses dedicated receptionist test mode and exposes an outcome inspector', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  assert.match(html, /<h2>Test Receptionist<\/h2>/);
+  assert.match(html, /<h2>AI Receptionist<\/h2>/);
+  assert.match(html, /Safe customer simulation/);
   assert.match(html, /test_mode:true/);
   assert.match(html, /No lead, booking or handover was saved/);
   assert.match(html, /What Business AI would do/);

@@ -48,11 +48,12 @@ test("owner navigation is focused while AI and bookings remain reachable from au
   assert.match(nav, /data-view="dashboard"[\s\S]*Home/);
   assert.match(nav, /data-view="leads"[\s\S]*Leads/);
   assert.match(nav, /data-view="actions"[\s\S]*Actions/);
-  assert.match(nav, /data-view="settings"[\s\S]*Settings/);
-  assert.doesNotMatch(nav, /data-view="(?:voice|bookings|enquiries)"/);
+  assert.match(nav, /data-view="bookings"[\s\S]*Bookings/);
+  assert.match(nav, /data-view="settings"[\s\S]*More/);
+  assert.doesNotMatch(nav, /data-view="(?:voice|enquiries)"/);
   assert.match(html, /showView\('enquiries'\)[\s\S]{0,200}Test your AI/);
-  assert.match(html, /showView\('bookings'\)[\s\S]{0,200}Bookings/);
-  assert.match(html, /const navContext=\['addons','marketing'\]\.includes\(view\)\?'settings':\(view==='enquiries'\|\|view==='bookings'\)\?'dashboard':view;/, "internal owner tools retain a truthful Home navigation context");
+  assert.match(html, /showView\('bookings'\)/);
+  assert.match(html, /const navContext=\['addons','marketing'\]\.includes\(view\)\?'settings':view==='enquiries'\?'dashboard':view;/, "the AI test retains a truthful Home context while Bookings has its own primary tab");
   assert.match(html, /id="actionsFormCard" class="card work-form" hidden role="dialog"/, "new actions open in a focused sheet rather than permanently occupying the list");
   assert.match(html, /id="bookingsFormCard" class="card work-form" hidden role="dialog"/, "new bookings open in a focused sheet rather than permanently occupying the list");
 });

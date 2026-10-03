@@ -2462,7 +2462,7 @@ input.switch,input.switch:before{transition:none}
 <div id="dashboardApp" class="app">
 
 <header class="topbar">
-<div class="brand"><div class="brand-icon owner-brand-icon" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div class="brand-text"><h1 id="brandName">Business AI</h1><p>Run your business. Smarter.</p></div></div>
+<div class="brand"><div class="brand-icon owner-brand-icon" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div class="brand-text"><h1 id="brandName">Business <span>AI</span></h1><p id="brandBusinessName">Your workspace</p></div></div>
 <div class="owner-tools"><span class="status-dot" title="System online"></span><span class="owner-avatar" aria-hidden="true">AI</span><button id="logoutButton" class="logout-btn" type="button" aria-label="Log out"><span class="logout-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M10 5H6.8A1.8 1.8 0 0 0 5 6.8v10.4A1.8 1.8 0 0 0 6.8 19H10M14.5 8.5 18 12l-3.5 3.5M18 12H9"></path></svg></span><span class="logout-label">Log out</span></button></div>
 
 </header>
@@ -2473,177 +2473,96 @@ id="dashboardView"
 class="view active"
 >
 
-<div class="dashboard-hero"><div class="dashboard-welcome"><p class="eyebrow">Business AI</p><h2 id="dashboardGreeting">Welcome back.</h2><p>Here’s what’s happening today.</p></div><img class="dashboard-mascot" src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
-
-
-<div
-class="stats"
-id="stats"
-></div>
-
-<div id="valueDashboardCard" class="card value-dashboard-card">
-<div class="card-head value-dashboard-head">
-<div><span class="settings-card-kicker">Value &amp; ROI</span><h3>Business AI impact</h3></div>
-<span id="valueDashboardPeriod">Last 30 days</span>
-</div>
-<p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
-<div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
-<div id="valueFollowUpSummary" class="value-follow-up-summary">Automatic follow-ups will appear here when enabled.</div>
-<div id="valueReviewSummary" class="value-review-summary">Review requests will appear here when used.</div>
-<div class="value-dashboard-section">
-<div class="value-dashboard-section-head"><div><strong>Where enquiries came from</strong><span>Tracked customer entry points</span></div><b id="valueSourceTracked">0 tracked</b></div>
-<div id="valueSourceBars" class="value-source-bars"><div class="empty">Source data will appear as enquiries arrive.</div></div>
-</div>
-<div class="value-dashboard-values">
-<div><span>Open pipeline</span><strong id="valueOpenPipeline">£0</strong><small>Current estimated value of leads not marked Converted</small></div>
-<div><span>Converted opportunities</span><strong id="valueConverted">£0</strong><small>Estimated value of leads currently marked Converted</small></div>
-</div>
+<div class="dashboard-reference-head">
+  <div class="dashboard-reference-copy">
+    <span class="dashboard-reference-brand">Business <b>AI</b></span>
+    <h2 id="dashboardGreeting">Welcome back.</h2>
+    <p id="dashboardBusinessLabel">Your business overview</p>
+  </div>
+  <div id="dashboardDateLabel" class="dashboard-date-chip" aria-label="Today">Today</div>
 </div>
 
+<div class="stats" id="stats"></div>
+
+<button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
+  <span class="dashboard-ai-orb" aria-hidden="true"><i></i><b>✦</b></span>
+  <span class="dashboard-ai-copy"><strong>AI Receptionist</strong><small>Let AI handle the enquiries</small></span>
+  <span id="dashboardAiStatus" class="ai-status is-checking"><i></i><span>Checking receptionist…</span></span>
+  <span class="dashboard-ai-chevron" aria-hidden="true">›</span>
+</button>
+
+<div class="dashboard-section-label"><span>Quick actions</span></div>
 <div class="dashboard-actions" aria-label="Quick access">
-<button class="dashboard-launch primary" type="button" onclick="showView('enquiries')"><i aria-hidden="true">◌</i><span><strong>Test your AI</strong><em>Try the receptionist as a customer.</em></span><b aria-hidden="true">›</b></button>
-<button class="dashboard-launch" type="button" onclick="showView('bookings')"><i aria-hidden="true">□</i><span><strong>Bookings</strong><em>Review requests and upcoming work.</em></span><b aria-hidden="true">›</b></button>
-<button class="dashboard-launch" type="button" onclick="showView('settings')"><i aria-hidden="true">⚙</i><span><strong>Business settings</strong><em>Manage your customer link and AI details.</em></span><b aria-hidden="true">›</b></button>
+  <button class="dashboard-launch primary" type="button" onclick="showView('enquiries')"><i aria-hidden="true">✦</i><span><strong>Test your AI</strong><em>Run a safe conversation.</em></span><b aria-hidden="true">›</b></button>
+  <button class="dashboard-launch" type="button" onclick="showView('leads')"><i aria-hidden="true">◉</i><span><strong>Leads</strong><em>Review new enquiries.</em></span><b aria-hidden="true">›</b></button>
+  <button class="dashboard-launch" type="button" onclick="showView('actions');requestAnimationFrame(()=>toggleWorkForm('actions'))"><i aria-hidden="true">✓</i><span><strong>New action</strong><em>Add a follow-up task.</em></span><b aria-hidden="true">›</b></button>
+  <button class="dashboard-launch" type="button" onclick="showView('bookings');requestAnimationFrame(()=>toggleWorkForm('bookings'))"><i aria-hidden="true">□</i><span><strong>New booking</strong><em>Add an appointment.</em></span><b aria-hidden="true">›</b></button>
 </div>
+
+<div id="valueDashboardCard" class="card value-dashboard-card dashboard-performance-card">
+  <div class="card-head value-dashboard-head">
+    <div><span class="settings-card-kicker">Value &amp; ROI · Performance overview</span><h3>Business AI impact</h3></div>
+    <span id="valueDashboardPeriod">Last 30 days</span>
+  </div>
+  <p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
+  <div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
+  <div id="valueFollowUpSummary" class="value-follow-up-summary">Automatic follow-ups will appear here when enabled.</div>
+  <div id="valueReviewSummary" class="value-review-summary">Review requests will appear here when used.</div>
+  <div class="value-dashboard-section">
+    <div class="value-dashboard-section-head"><div><strong>Where enquiries came from</strong><span>Tracked customer entry points</span></div><b id="valueSourceTracked">0 tracked</b></div>
+    <div id="valueSourceBars" class="value-source-bars"><div class="empty">Source data will appear as enquiries arrive.</div></div>
+  </div>
+  <div class="value-dashboard-values">
+    <div><span>Open pipeline</span><strong id="valueOpenPipeline">£0</strong><small>Current estimated value of leads not marked Converted</small></div>
+    <div><span>Converted opportunities</span><strong id="valueConverted">£0</strong><small>Estimated value of leads currently marked Converted</small></div>
+  </div>
+</div>
+
+<div class="card dashboard-activity-card">
+  <div class="card-head"><h3>Recent activity</h3><span>Live</span></div>
+  <div id="activity"></div>
+</div>
+
 <div id="referralCard" class="card referral-card" data-owner-only hidden>
   <div class="referral-head">
     <div><span class="referral-kicker">Refer &amp; Earn</span><h3>Refer 5 businesses. Get 1 month free.</h3><p>Share your link or code. A referral counts after the new business makes its first successful subscription payment.</p></div>
     <span id="referralCount" class="referral-count">0 / 5</span>
   </div>
-  <div class="referral-progress-track" role="progressbar" aria-label="Referral progress" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
-    <span id="referralProgressBar" class="referral-progress-fill"></span>
-  </div>
+  <div class="referral-progress-track" role="progressbar" aria-label="Referral progress" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><span id="referralProgressBar" class="referral-progress-fill"></span></div>
   <div class="referral-progress-copy"><strong id="referralProgressMessage">5 more referrals to unlock your free month.</strong><span id="referralPendingMessage"></span></div>
-  <div class="referral-share-row">
-    <code id="referralCode">Loading…</code>
-    <button class="small-btn" type="button" onclick="copyReferralLink()">Copy link</button>
-    <button class="small-btn primary-action" type="button" onclick="shareReferralLink()">Share</button>
-  </div>
+  <div class="referral-share-row"><code id="referralCode">Loading…</code><button class="small-btn" type="button" onclick="copyReferralLink()">Copy link</button><button class="small-btn primary-action" type="button" onclick="shareReferralLink()">Share</button></div>
   <p id="referralRewardStatus" class="work-meta referral-reward-status"></p>
 </div>
 
-
-<div class="card">
-
-<div class="card-head">
-
-<h3>
-Pipeline
-</h3>
-
-<span id="pipelineSummary">
-Loading…
-</span>
-
-</div>
-
-<div
-class="pipeline"
-id="pipeline"
-></div>
-
-</div>
-
-
-<div class="card receptionist ai-feature-card">
-
-<div id="dashboardAiStatus" class="ai-status is-checking">
-<i></i><span>Checking receptionist…</span>
-</div>
-
-<div class="ai-feature-icon" aria-hidden="true">✦</div>
-
-<h3>Let AI handle the enquiries</h3>
-
-<p>
-Use the existing AI receptionist to capture customer details and save useful leads for your business.
-</p>
-
-<div class="actions">
-
-<button
-class="btn primary"
-onclick="showView('enquiries')"
->
-Open AI receptionist
-</button>
-
-<button
-class="btn"
-onclick="showView('settings')"
->
-Business settings
-</button>
-
-</div>
-
+<div class="card dashboard-secondary-card">
+  <div class="card-head"><h3>Pipeline</h3><span id="pipelineSummary">Loading…</span></div>
+  <div class="pipeline" id="pipeline"></div>
 </div>
 
 <div class="card" id="firstRunGuide">
-<div class="card-head"><h3>Get your business ready</h3><span>First steps</span></div>
-<p class="work-meta">Complete these steps before sharing Business AI with customers. The AI only uses the information you save for this business.</p>
-<div id="firstRunSteps" class="first-run-list"></div>
+  <div class="card-head"><h3>Get your business ready</h3><span>First steps</span></div>
+  <p class="work-meta">Complete these steps before sharing Business AI with customers. The AI only uses the information you save for this business.</p>
+  <div id="firstRunSteps" class="first-run-list"></div>
 </div>
 
-
-<div class="card">
-
-<div class="card-head">
-
-<h3>Recent leads</h3>
-
-<button class="card-head-action" type="button" onclick="showView('leads')">View all</button>
-
+<div class="card dashboard-secondary-card">
+  <div class="card-head"><h3>Recent leads</h3><button class="card-head-action" type="button" onclick="showView('leads')">View all</button></div>
+  <div id="recentLeads"></div>
 </div>
 
-<div id="recentLeads"></div>
-
+<div class="card dashboard-secondary-card">
+  <div class="card-head"><h3>Follow-ups</h3><span id="followCount">0 needing attention</span></div>
+  <div id="followUps"></div>
 </div>
 
-
-<div class="card">
-
-<div class="card-head">
-
-<h3>
-Follow-ups
-</h3>
-
-<span id="followCount">
-0 needing attention
-</span>
-
+<div class="card dashboard-secondary-card">
+  <div class="card-head"><h3>Upcoming bookings</h3><button class="card-head-action" type="button" onclick="showView('bookings')">Manage</button></div>
+  <div id="upcomingBookings"><div class="empty">Loading bookings…</div></div>
 </div>
 
-<div id="followUps"></div>
-
-</div>
-
-
-<div class="card">
-
-<div class="card-head">
-
-<h3>Recent activity</h3>
-
-<span>
-Live
-</span>
-
-</div>
-
-<div id="activity"></div>
-
-</div>
-
-<div class="card">
-<div class="card-head"><h3>Upcoming bookings</h3><button class="card-head-action" type="button" onclick="showView('bookings')">Manage</button></div>
-<div id="upcomingBookings"><div class="empty">Loading bookings…</div></div>
-</div>
-
-<div class="card">
-<div class="card-head"><h3>Actions to complete</h3><button class="card-head-action" type="button" onclick="showView('actions')">Manage</button></div>
-<div id="dashboardActions"><div class="empty">Loading actions…</div></div>
+<div class="card dashboard-secondary-card">
+  <div class="card-head"><h3>Actions to complete</h3><button class="card-head-action" type="button" onclick="showView('actions')">Manage</button></div>
+  <div id="dashboardActions"><div class="empty">Loading actions…</div></div>
 </div>
 
 </section>
@@ -2655,7 +2574,7 @@ class="view"
 >
 
 <div class="page-title screen-title"><span class="page-kicker">Leads</span><h2>Leads</h2><p>Manage every opportunity from enquiry to conversion.</p></div>
-
+<div id="leadsSummary" class="reference-summary-grid reference-summary-grid-four" aria-label="Lead summary"></div>
 
 <div class="toolbar">
 
@@ -2759,6 +2678,8 @@ Follow-up date
 
 <section id="bookingsView" class="view">
 <div class="page-title screen-title"><span class="page-kicker">Operations</span><h2>Bookings</h2><p>Organise appointment requests and confirmed visits.</p></div>
+<div id="bookingsSummary" class="reference-summary-grid reference-summary-grid-three" aria-label="Booking summary"></div>
+<div id="bookingsCalendarStrip" class="reference-calendar-strip" aria-label="Current week"></div>
 <div id="bookingsStatus" role="alert" aria-live="assertive" aria-atomic="true"></div>
 <button id="newBookingButton" class="new-work-button" type="button" aria-haspopup="dialog" aria-controls="bookingsFormCard" aria-expanded="false" onclick="toggleWorkForm('bookings')">+ New booking</button>
 <div id="bookingsFormCard" class="card work-form" hidden role="dialog" aria-modal="true" aria-label="Create booking" tabindex="-1">
@@ -2780,6 +2701,7 @@ Follow-up date
 
 <section id="actionsView" class="view">
 <div class="page-title screen-title"><span class="page-kicker">Actions</span><h2>Actions</h2><p>Keep every customer follow-up moving.</p></div>
+<div id="actionsSummary" class="reference-status-tabs" aria-label="Action summary"></div>
 <div id="actionsStatus" role="alert" aria-live="assertive" aria-atomic="true"></div>
 <button id="newActionButton" class="new-work-button" type="button" aria-haspopup="dialog" aria-controls="actionsFormCard" aria-expanded="false" onclick="toggleWorkForm('actions')">+ New action</button>
 <div id="actionsFormCard" class="card work-form" hidden role="dialog" aria-modal="true" aria-label="Create action" tabindex="-1">
@@ -2804,7 +2726,19 @@ id="enquiriesView"
 class="view"
 >
 
-<div class="page-title screen-title ai-screen-title"><span class="page-kicker">Safe simulation</span><h2>Test Receptionist</h2><p>See how your AI handles customers without creating real leads, bookings or handovers.</p></div>
+<div class="page-title screen-title ai-screen-title"><span class="page-kicker">AI Receptionist</span><h2>AI Receptionist</h2><p>See the current status, controls and safe test conversation in one place.</p></div>
+<div class="reference-receptionist-status">
+  <span class="reference-receptionist-orb" aria-hidden="true">✦</span>
+  <span class="reference-receptionist-copy"><strong>AI Receptionist</strong><small>Customer enquiry assistant</small></span>
+  <span id="receptionistPageStatus" class="ai-status is-checking"><i></i><span>Checking…</span></span>
+</div>
+<div id="receptionistSummary" class="reference-summary-grid reference-summary-grid-four receptionist-summary" aria-label="Receptionist summary"></div>
+<div class="reference-control-grid" aria-label="Receptionist controls">
+  <button type="button" onclick="document.getElementById('messages')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>◌</i><span><strong>Run test</strong><small>Safe customer simulation</small></span></button>
+  <button type="button" onclick="showView('settings');requestAnimationFrame(()=>openSettingsSection('aiReceptionistSettingsCard'))"><i>⚙</i><span><strong>Handling mode</strong><small>Human-first, balanced or AI-first</small></span></button>
+  <button type="button" onclick="showView('settings');requestAnimationFrame(()=>openSettingsSection('businessKnowledgeCard'))"><i>▤</i><span><strong>Knowledge</strong><small>Approved business facts</small></span></button>
+  <button type="button" onclick="showView('settings');requestAnimationFrame(()=>document.getElementById('handoverList')?.scrollIntoView({behavior:'smooth',block:'center'}))"><i>↗</i><span><strong>Handovers</strong><small>Items needing a person</small></span></button>
+</div>
 
 <div class="card receptionist-test-banner">
 <div><span class="tag new">TEST MODE</span><h3>Safe customer simulation</h3><p class="work-meta">This uses your current business profile, AI handling mode and approved Business Knowledge. Test messages are not saved as customer records and do not use your customer enquiry allowance.</p></div>
@@ -3031,6 +2965,7 @@ class="view"
 >
 
 <div class="page-title screen-title"><span class="page-kicker">Your workspace</span><h2>Settings</h2><p>Manage your business, AI and account.</p></div>
+<div class="reference-profile-summary"><div class="reference-profile-mark" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div><strong id="settingsProfileName">Your business</strong><span id="settingsProfileMeta">Business profile</span></div><span class="reference-profile-badge">Active</span></div>
 
 <div class="work-actions" style="margin-bottom:18px"><button class="small-btn" type="button" onclick="showView('addons')">✦ Additional Features</button><button class="small-btn" type="button" onclick="showView('marketing')">Marketing workspace</button></div>
 <div class="settings-hub" aria-label="Settings overview">
@@ -3405,15 +3340,12 @@ Save business settings
 </div>
 
 
-<nav class="bottom-nav">
-
-<button class="nav-btn active" data-view="dashboard" aria-current="page" onclick="showView('dashboard')">⌂<br>Home</button>
-
-
-<button class="nav-btn" data-view="leads" onclick="showView('leads')">◉<br>Leads</button>
-<button class="nav-btn" data-view="actions" onclick="showView('actions')">✓<br>Actions</button>
-<button class="nav-btn" data-view="settings" onclick="showView('settings')">⚙<br>Settings</button>
-
+<nav class="bottom-nav" aria-label="Primary navigation">
+<button class="nav-btn active" data-view="dashboard" aria-current="page" onclick="showView('dashboard')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg></span><span>Home</span></button>
+<button class="nav-btn" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c.3-4 2.1-6 5.5-6s5.2 2 5.5 6M16 8h4M18 6v4"/></svg></span><span>Leads</span></button>
+<button class="nav-btn" data-view="actions" onclick="showView('actions')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9 16l10-10M5 5h6M5 19h14"/></svg></span><span>Actions</span></button>
+<button class="nav-btn" data-view="bookings" onclick="showView('bookings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7 3v4M17 3v4M3.5 10h17"/></svg></span><span>Bookings</span></button>
+<button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg></span><span>More</span></button>
 </nav>
 
 
@@ -4230,7 +4162,7 @@ if(!target)return;
 window.scrollTo({top:0,left:0,behavior:'auto'});
 document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item===target));
 
-const navContext=['addons','marketing'].includes(view)?'settings':(view==='enquiries'||view==='bookings')?'dashboard':view;
+const navContext=['addons','marketing'].includes(view)?'settings':view==='enquiries'?'dashboard':view;
 document.querySelectorAll('.nav-btn').forEach(item=>{const active=item.dataset.view===navContext;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current');});
 requestAnimationFrame(()=>positionBottomNavIndicator(navContext));
 
@@ -4486,11 +4418,26 @@ catch{valueDashboardState=null;renderValueDashboard();}
 }
 
 function renderReceptionistAvailability(){
-const status=$('dashboardAiStatus');if(!status)return;
+['dashboardAiStatus','receptionistPageStatus'].forEach(id=>{
+const status=$(id);if(!status)return;
 const label=status.querySelector('span')||status;
 status.classList.toggle('is-checking',ownerAssistantAvailable===null);
 status.classList.toggle('is-unavailable',ownerAssistantAvailable===false);
-label.textContent=ownerAssistantAvailable===null?'Checking receptionist…':ownerAssistantAvailable?'AI receptionist online':'AI receptionist unavailable';
+label.textContent=ownerAssistantAvailable===null?'Checking…':ownerAssistantAvailable?'Online':'Unavailable';
+});
+renderReceptionistPageSummary();
+}
+
+function renderReceptionistPageSummary(){
+const target=$('receptionistSummary');if(!target)return;
+const attention=handovers.filter(item=>String(item.status||'').toLowerCase()==='requires_attention').length;
+const activeBookings=bookings.filter(item=>!['cancelled'].includes(String(item.status||'').toLowerCase())).length;
+const mode=String(businessConfiguration?.ai_handling_mode||'balanced').replaceAll('_',' ');
+target.innerHTML=`
+<div class="reference-summary-card"><span>Enquiries</span><strong>${leads.length}</strong><small>captured</small></div>
+<div class="reference-summary-card attention"><span>Handovers</span><strong>${attention}</strong><small>need attention</small></div>
+<div class="reference-summary-card success"><span>Bookings</span><strong>${activeBookings}</strong><small>active / completed</small></div>
+<div class="reference-summary-card"><span>Mode</span><strong class="reference-summary-word">${esc(mode)}</strong><small>current handling</small></div>`;
 }
 
 async function loadOwnerReceptionistAvailability(){
@@ -4514,7 +4461,9 @@ const hour=new Date().getHours();
 const salutation=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
 const businessName=String(settings?.business_name||businessConfiguration?.business_name||'').trim();
 const greeting=$('dashboardGreeting');
-if(greeting)greeting.textContent=businessName?`${salutation}, ${businessName}.`:`${salutation}.`;
+if(greeting)greeting.textContent=`${salutation}.`;
+const dashboardBusinessLabel=$('dashboardBusinessLabel');if(dashboardBusinessLabel)dashboardBusinessLabel.textContent=businessName||'Your business';
+const dashboardDateLabel=$('dashboardDateLabel');if(dashboardDateLabel){const dateText=new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short'}).format(new Date());dashboardDateLabel.textContent=dateText;dashboardDateLabel.setAttribute('aria-label',`Today, ${dateText}`);}
 
 const newLeads=leads.filter(lead=>String(lead.status||'New')==='New').length;
 const pendingActions=businessActions.filter(action=>action.status==='pending');
@@ -4529,10 +4478,11 @@ const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0)
 renderFirstRunGuide();
 
 $('stats').innerHTML=`
-<div class="stat"><div class="stat-top"><span class="metric-icon blue" aria-hidden="true">◉</span><div><div class="stat-value">${newLeads}</div><div class="stat-label">New leads</div></div></div><div class="stat-sub">Awaiting your first response</div></div>
-<div class="stat"><div class="stat-top"><span class="metric-icon red" aria-hidden="true">!</span><div><div class="stat-value">${attentionCount}</div><div class="stat-label">Needs attention</div></div></div><div class="stat-sub">High priority, handovers or overdue follow-ups</div></div>
-<div class="stat"><div class="stat-top"><span class="metric-icon orange" aria-hidden="true">✓</span><div><div class="stat-value">${dueActions}</div><div class="stat-label">Actions due</div></div></div><div class="stat-sub">Pending actions due today or earlier</div></div>
-<div class="stat"><div class="stat-top"><span class="metric-icon green" aria-hidden="true">✦</span><div><div class="stat-value">${leads.length}</div><div class="stat-label">Total enquiries</div></div></div><div class="stat-sub">Captured for this business</div></div>`;
+<div class="stat"><div class="stat-top"><span class="metric-icon blue" aria-hidden="true">◉</span><span class="stat-label">New leads</span></div><div class="stat-value">${newLeads}</div><div class="stat-sub">Awaiting response</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon red" aria-hidden="true">!</span><span class="stat-label">Needs attention</span></div><div class="stat-value">${attentionCount}</div><div class="stat-sub">Priority / overdue</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon orange" aria-hidden="true">✓</span><span class="stat-label">Actions due</span></div><div class="stat-value">${dueActions}</div><div class="stat-sub">Today or overdue</div></div>
+<div class="stat"><div class="stat-top"><span class="metric-icon green" aria-hidden="true">✦</span><span class="stat-label">Total enquiries</span></div><div class="stat-value">${leads.length}</div><div class="stat-sub">All captured</div></div>`;
+renderReceptionistPageSummary();
 
 const stages=data.stages||{};
 
@@ -4597,10 +4547,43 @@ const options=['<option value="">No related lead</option>',...leads.map(lead=>`<
 ['bookingLead','actionLead'].forEach(id=>{const input=$(id);if(input)input.innerHTML=options;});
 }
 
+function renderLeadsSummary(){
+const target=$('leadsSummary');if(!target)return;
+const count=status=>leads.filter(item=>String(item.status||'New')===status).length;
+const high=leads.filter(item=>item.status!=='Converted'&&item.priority==='High').length;
+target.innerHTML=`
+<div class="reference-summary-card"><span>New</span><strong>${count('New')}</strong><small>awaiting response</small></div>
+<div class="reference-summary-card"><span>Contacted</span><strong>${count('Contacted')}</strong><small>in progress</small></div>
+<div class="reference-summary-card success"><span>Converted</span><strong>${count('Converted')}</strong><small>won opportunities</small></div>
+<div class="reference-summary-card attention"><span>High priority</span><strong>${high}</strong><small>open leads</small></div>`;
+}
+
+function renderBookingsSummary(){
+const target=$('bookingsSummary');if(target){
+const count=status=>bookings.filter(item=>String(item.status||'').toLowerCase()===status).length;
+target.innerHTML=`<div class="reference-summary-card attention"><span>Pending</span><strong>${count('requested')}</strong><small>requests</small></div><div class="reference-summary-card success"><span>Confirmed</span><strong>${count('confirmed')}</strong><small>upcoming</small></div><div class="reference-summary-card"><span>Completed</span><strong>${count('completed')}</strong><small>finished</small></div>`;
+}
+const calendar=$('bookingsCalendarStrip');if(calendar){
+const today=new Date();const start=new Date(today);const day=(today.getDay()+6)%7;start.setDate(today.getDate()-day);
+calendar.innerHTML=Array.from({length:7},(_,index)=>{const date=new Date(start);date.setDate(start.getDate()+index);const active=date.toDateString()===today.toDateString();return `<div class="reference-calendar-day ${active?'active':''}"><span>${date.toLocaleDateString('en-GB',{weekday:'short'})}</span><strong>${date.getDate()}</strong></div>`;}).join('');
+}
+}
+
+function renderActionsSummary(){
+const target=$('actionsSummary');if(!target)return;
+const today=localKey();
+const pending=businessActions.filter(item=>item.status==='pending');
+const dueToday=pending.filter(item=>dateOnly(item.due_at)===today).length;
+const upcoming=pending.filter(item=>{const due=dateOnly(item.due_at);return due&&due>today;}).length;
+const completed=businessActions.filter(item=>item.status==='completed').length;
+target.innerHTML=`<span class="active">Due today <b>${dueToday}</b></span><span>Upcoming <b>${upcoming}</b></span><span>Completed <b>${completed}</b></span><span>All <b>${businessActions.length}</b></span>`;
+}
+
 function renderBookings(){
+renderBookingsSummary();
 const list=$('bookingsList');
 if(!list)return;
-list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn danger" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
+list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item booking-reference-card"><div class="work-item-top"><div class="reference-list-main"><span class="reference-list-icon" aria-hidden="true">□</span><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta reference-list-note">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn danger" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
 }
 
 const reviewUrlFromMessage=value=>{
@@ -4627,6 +4610,7 @@ catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.messag
 }
 
 function renderActions(){
+renderActionsSummary();
 const list=$('actionsList');
 if(!list)return;
 list.innerHTML=businessActions.length?businessActions.map(action=>{
@@ -4635,7 +4619,7 @@ const statusLabel=action.status==='completed'?'Marked sent':action.status==='can
 return `<article class="work-item review-request-action"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'Completed customer')} · Review request · ${esc(statusLabel)}</div></div><span class="tag ${esc(action.status==='pending'?'normal':action.status)}">${esc(statusLabel)}</span></div><div class="review-request-preview">${esc(action.description||'Review message unavailable')}</div><div class="work-actions">${action.status==='pending'?`<button class="small-btn" onclick="copyReviewMessage('${esc(action.id)}')">Copy message</button><button class="small-btn" onclick="openReviewLink('${esc(action.id)}')">Open review link</button><button class="small-btn primary-action" onclick="markReviewRequestSent('${esc(action.id)}')">Mark as sent</button><button class="small-btn danger" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Dismiss</button>`:''}${action.status==='completed'?`<button class="small-btn" onclick="copyReviewMessage('${esc(action.id)}')">Copy again</button>`:''}</div></article>`;
 }
 const statusLabel=action.status==='completed'?'Completed':action.status==='cancelled'?'Cancelled':'Pending';
-return `<article class="work-item"><div class="work-item-top"><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'} · ${esc(action.action_type.replaceAll('_',' '))} · ${esc(action.priority)} priority</div></div><span class="tag ${esc(action.status==='pending'?'normal':action.status)}">${esc(statusLabel)}</span></div>${action.description?`<div class="work-meta">${esc(action.description)}</div>`:''}<div class="work-actions">${action.status==='pending'?`<button class="small-btn primary-action" onclick="updateAction('${esc(action.id)}',{status:'completed'})">Complete</button><button class="small-btn danger" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editAction('${esc(action.id)}')">Edit</button></div></article>`;
+return `<article class="work-item action-reference-card ${['high','urgent'].includes(String(action.priority||'').toLowerCase())?'priority-action':''}"><div class="work-item-top"><div class="reference-list-main"><span class="reference-list-icon" aria-hidden="true">✓</span><div><h4>${esc(action.title)}</h4><div class="work-meta">${esc(leadName(action.lead_id)||'No lead linked')} · ${timeLabel(action.due_at)||'No due date'} · ${esc(action.action_type.replaceAll('_',' '))} · ${esc(action.priority)} priority</div></div></div><span class="tag ${esc(action.status==='pending'?'normal':action.status)}">${esc(statusLabel)}</span></div>${action.description?`<div class="work-meta">${esc(action.description)}</div>`:''}<div class="work-actions">${action.status==='pending'?`<button class="small-btn primary-action" onclick="updateAction('${esc(action.id)}',{status:'completed'})">Complete</button><button class="small-btn danger" onclick="updateAction('${esc(action.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editAction('${esc(action.id)}')">Edit</button></div></article>`;
 }).join(''):'<div class="empty">No actions yet.</div>';
 }
 
@@ -4695,6 +4679,7 @@ updateAction(id,{title,description});
 
 function renderLeads(){
 
+renderLeadsSummary();
 const query=$('search').value.trim().toLowerCase();
 
 const sort=$('sort').value;
@@ -4739,7 +4724,7 @@ const id=esc(lead.id);
 const state=followUpState(lead);
 
 return `<article class="lead-card ${lead.priority==='High'?'high':''} ${state==='overdue'?'overdue-card':''} ${state==='today'?'today-card':''}">
-<div class="lead-top"><div><h3>${esc(lead.name||'New enquiry')}</h3><div class="lead-meta">${esc(lead.job_type||'General enquiry')} · ${esc(lead.location||'Location not supplied')}</div></div><span class="pill ${statusClass(lead.status)}">${esc(lead.status||'New')}</span></div>
+<div class="lead-top"><div class="reference-list-main"><span class="reference-lead-avatar" aria-hidden="true">${esc(String(lead.name||'N').trim().slice(0,1).toUpperCase())}</span><div><h3>${esc(lead.name||'New enquiry')}</h3><div class="lead-meta">${esc(lead.job_type||'General enquiry')} · ${esc(lead.location||'Location not supplied')}</div></div></div><span class="pill ${statusClass(lead.status)}">${esc(lead.status||'New')}</span></div>
 ${lead.description?`<div class="description">${esc(lead.description)}</div>`:''}
 <div class="lead-tags">${lead.priority==='High'?'<span class="tag high">High priority</span>':''}<span class="tag money">${money(lead.estimated_value)}</span>${state?`<span class="tag ${state}">${state==='overdue'?'Overdue':state==='today'?'Follow up today':`Follow up ${dateLabel(lead.follow_up_date)}`}</span>`:''}</div>
 <div class="lead-actions"><button class="small-btn" onclick="toggleDetails('${id}')">Details & edit</button>${lead.status!=='Contacted'?`<button class="small-btn" onclick="updateLead('${id}',{status:'Contacted'})">Mark contacted</button>`:''}${lead.status!=='Converted'?`<button class="small-btn primary-action" onclick="updateLead('${id}',{status:'Converted'})">Mark converted</button>`:''}</div>
@@ -4844,7 +4829,10 @@ if($('s_review_facebook_url'))$('s_review_facebook_url').value=settings.review_f
 if($('s_review_preferred_platform'))$('s_review_preferred_platform').value=settings.review_preferred_platform==='facebook'?'facebook':'google';
 renderReviewRequestSettings();
 
-$('brandName').textContent=settings.business_name||'Business AI';
+$('brandName').innerHTML='Business <span>AI</span>';
+if($('brandBusinessName'))$('brandBusinessName').textContent=settings.business_name||'Your workspace';
+if($('settingsProfileName'))$('settingsProfileName').textContent=settings.business_name||'Your business';
+if($('settingsProfileMeta'))$('settingsProfileMeta').textContent=[settings.business_type,settings.address].filter(Boolean).join(' · ')||'Business profile';
 fillPublicEnquiryLink();
 
 }
