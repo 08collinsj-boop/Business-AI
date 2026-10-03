@@ -512,7 +512,7 @@
   }
 
   function handleMarketingTabKeydown(event){
-    const order=['marketingTabOverview','marketingTabCreate','marketingTabHistory','marketingTabSchedule'];
+    const order=['marketingTabOverview','marketingTabCreate','marketingTabSchedule','marketingTabHistory'];
     const index=order.indexOf(event.currentTarget?.id);
     if(index<0||!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
     event.preventDefault();

@@ -8,6 +8,19 @@
     link.dataset.businessAiPremiumV2='true';
     document.head.appendChild(link);
   }
+  if(!document.querySelector('link[data-business-ai-final]')){
+    const finalLink=document.createElement('link');
+    finalLink.rel='stylesheet';
+    finalLink.href='/assets/premium-final.css?v=20261003-final-2';
+    finalLink.dataset.businessAiFinal='true';
+    document.head.appendChild(finalLink);
+  }
+  if(!document.querySelector('script[data-business-ai-final]')){
+    const finalScript=document.createElement('script');
+    finalScript.src='/assets/premium-final.js?v=20261003-final-2';
+    finalScript.dataset.businessAiFinal='true';
+    document.body.appendChild(finalScript);
+  }
   document.documentElement.dataset.businessAiUi='premium-v2';
 
   document.querySelectorAll('[data-password-toggle]').forEach(button=>{
@@ -61,77 +74,17 @@
   const byId=id=>document.getElementById(id);
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 
-  function ensureMarketingPerformanceTab(){
+  function ensureMarketingTabOrder(){
     const tabs=document.querySelector('#marketingView .marketing-tabs');
+    if(!tabs)return;
+    const performanceButton=byId('marketingTabPerformance');
+    const performancePane=byId('marketingPerformancePane');
+    const performanceCard=performancePane?.querySelector('.marketing-performance-card');
     const overview=byId('marketingOverviewPane');
-    const create=byId('marketingCreatePane');
-    const library=byId('marketingHistoryPane');
-    const calendar=byId('marketingSchedulePane');
-    const performanceCard=document.querySelector('#marketingView .marketing-performance-card');
-    if(!tabs||!overview||!create||!library||!calendar||!performanceCard)return;
-
-    let performance=byId('marketingPerformancePane');
-    if(!performance){
-      performance=document.createElement('div');
-      performance.id='marketingPerformancePane';
-      performance.setAttribute('role','tabpanel');
-      performance.setAttribute('aria-labelledby','marketingTabPerformance');
-      performance.hidden=true;
-      overview.after(performance);
-      performance.appendChild(performanceCard);
-    }
-
-    let button=byId('marketingTabPerformance');
-    if(!button){
-      button=document.createElement('button');
-      button.id='marketingTabPerformance';
-      button.className='small-btn';
-      button.type='button';
-      button.setAttribute('role','tab');
-      button.setAttribute('aria-selected','false');
-      button.setAttribute('aria-controls','marketingPerformancePane');
-      button.setAttribute('tabindex','-1');
-      button.textContent='Performance';
-      button.addEventListener('click',()=>window.marketingWorkspace?.tab?.('performance'));
-      button.addEventListener('keydown',event=>{
-        if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-        event.preventDefault();
-        const target=event.key==='ArrowLeft'?byId('marketingTabHistory'):byId('marketingTabOverview');
-        if(event.key==='Home')byId('marketingTabOverview')?.focus();
-        else if(event.key==='End')button.focus();
-        else { target?.click(); target?.focus(); }
-      });
-    }
-
-    const overviewButton=byId('marketingTabOverview');
-    const createButton=byId('marketingTabCreate');
-    const calendarButton=byId('marketingTabSchedule');
-    const libraryButton=byId('marketingTabHistory');
-    [overviewButton,createButton,calendarButton,libraryButton,button].filter(Boolean).forEach(item=>tabs.appendChild(item));
-
-    if(window.marketingWorkspace?.tab&&!window.marketingWorkspace.__mockupParityWrapped){
-      const original=window.marketingWorkspace.tab.bind(window.marketingWorkspace);
-      window.marketingWorkspace.tab=function(name){
-        if(name==='performance'){
-          [overview,create,library,calendar].forEach(pane=>{pane.hidden=true;});
-          performance.hidden=false;
-          tabs.querySelectorAll('[role="tab"]').forEach(tab=>{
-            const selected=tab===button;
-            tab.setAttribute('aria-selected',String(selected));
-            tab.setAttribute('tabindex',selected?'0':'-1');
-            tab.classList.toggle('primary-action',selected);
-          });
-          performance.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-          return;
-        }
-        original(name);
-        performance.hidden=true;
-        button.setAttribute('aria-selected','false');
-        button.setAttribute('tabindex','-1');
-        button.classList.remove('primary-action');
-      };
-      window.marketingWorkspace.__mockupParityWrapped=true;
-    }
+    if(performanceCard&&overview)overview.appendChild(performanceCard);
+    performancePane?.remove();
+    performanceButton?.remove();
+    [byId('marketingTabOverview'),byId('marketingTabCreate'),byId('marketingTabSchedule'),byId('marketingTabHistory')].filter(Boolean).forEach(item=>tabs.appendChild(item));
   }
 
   window.startLeadBooking=function(id){
@@ -161,7 +114,7 @@
       const email=String(lead?.email||'').trim();
       const actions=[];
       if(phone)actions.push(`<a class="small-btn mockup-contact-btn" href="tel:${esc(phone.replace(/[^+0-9]/g,''))}">Call</a>`);
-      if(email)actions.push(`<a class="small-btn mockup-contact-btn" href="mailto:${esc(email)}">Email</a>`);
+      if(email)actions.push(`<a class="small-btn mockup-contact-btn" href="mailto:${esc(email)}">Message</a>`);
       if(lead?.status!=='Converted')actions.push(`<button class="small-btn mockup-book-btn" type="button" onclick="startLeadBooking('${id}')">Book</button>`);
       if(actions.length){
         const quick=`<div class="mockup-lead-quick" aria-label="Lead quick actions">${actions.join('')}</div>`;
@@ -201,10 +154,10 @@
     renderBookings.__mockupParityWrapped=true;
   }
 
-  ensureMarketingPerformanceTab();
+  ensureMarketingTabOrder();
   enhanceOperationalCards();
   const parityObserver=new MutationObserver(()=>{
-    ensureMarketingPerformanceTab();
+    ensureMarketingTabOrder();
     enhanceOperationalCards();
   });
   ['marketingView','actionsList','bookingsList'].forEach(id=>{const target=byId(id);if(target)parityObserver.observe(target,{childList:true,subtree:true});});
