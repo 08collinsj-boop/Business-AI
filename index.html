@@ -2140,6 +2140,7 @@ input.switch,input.switch:before{transition:none}
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
 <link rel="stylesheet" href="/assets/customer-portal.css">
+<link rel="stylesheet" href="/assets/premium-ui.css">
 </head>
 
 <body class="auth-pending app-loading" aria-busy="true">
@@ -2156,22 +2157,55 @@ input.switch,input.switch:before{transition:none}
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true"></div>
 
 <main id="authScreen" class="auth-screen" aria-live="polite">
-<form id="loginForm" class="auth-card">
-<div class="auth-mark"><div class="brand-icon">AI</div><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
-<h2>Welcome to Business AI</h2>
-<p>Run your business. Smarter.</p>
-<div class="auth-role-switch business-active" data-auth-role-switch aria-label="Choose account type">
-<span class="auth-role-slider" aria-hidden="true"></span>
-<a class="auth-role-option active" href="/" data-auth-role-target="business" aria-current="page">Business</a>
-<a class="auth-role-option" href="/customer/account" data-auth-role-target="customer">Customer</a>
-</div>
-<div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
-<div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
-<p class="auth-forgot"><button id="showPasswordReset" class="auth-link" type="button">Forgot password?</button></p>
-<button id="loginSubmit" class="btn primary auth-submit" type="submit">Sign in</button>
-<div id="loginMessage" class="auth-message" role="alert"></div>
-<p class="auth-switch">New to Business AI? <button id="showSignUp" class="auth-link" type="button">Create an account</button></p>
-</form>
+<section id="sharedAuthShell" class="auth-card auth-shared-shell" data-auth-role="business">
+  <div class="auth-shared-brand">
+    <div class="auth-shared-mascot" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
+    <h1><span>Business</span> <span>AI</span></h1>
+    <p>Smarter business. Happier customers.</p>
+  </div>
+  <div class="auth-role-switch business-active" data-auth-role-switch aria-label="Choose account type">
+    <span class="auth-role-slider" aria-hidden="true"></span>
+    <a class="auth-role-option active" href="/" data-auth-role-target="business" aria-current="page"><span class="auth-role-option-icon" aria-hidden="true">▣</span>Business owner</a>
+    <a class="auth-role-option" href="/customer/account" data-auth-role-target="customer"><span class="auth-role-option-icon" aria-hidden="true">♙</span>Customer</a>
+  </div>
+  <div class="auth-role-description" aria-live="polite">
+    <p class="auth-business-copy">Access your dashboard, manage enquiries, bookings and AI assistant settings.</p>
+    <p class="auth-customer-copy">Message businesses, track your enquiries and manage your bookings.</p>
+  </div>
+  <div class="auth-role-stage">
+    <form id="loginForm" class="auth-role-form auth-role-form-business">
+      <label class="auth-input" for="loginEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="loginEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></label>
+      <label class="auth-input" for="loginPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="auth-password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Show password">◉</button></label>
+      <div class="auth-utility-row"><span class="auth-remember"><input type="checkbox" checked disabled aria-label="Session stays signed in on this device">Keep me signed in</span><button id="showPasswordReset" type="button">Forgot password?</button></div>
+      <button id="loginSubmit" class="auth-main-action" type="submit">Sign in&nbsp;&nbsp;→</button>
+      <div id="loginMessage" class="auth-role-message" role="alert"></div>
+      <div class="auth-divider">or</div>
+      <button id="showSignUp" class="auth-secondary-action" type="button"><strong>Create business account</strong>&nbsp;→</button>
+      <div class="auth-role-footer">Secure access to your Business AI workspace.</div>
+    </form>
+    <form id="customerSignInForm" class="customer-auth-form auth-role-form auth-role-form-customer">
+      <label class="auth-input" for="customerSignInEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="customerSignInEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+      <label class="auth-input" for="customerSignInPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="customerSignInPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="auth-password-toggle" type="button" data-password-toggle="customerSignInPassword" aria-label="Show password">◉</button></label>
+      <div class="auth-utility-row"><span class="auth-remember"><input type="checkbox" checked disabled aria-label="Session stays signed in on this device">Keep me signed in</span><button id="customerForgotPassword" type="button">Forgot password?</button></div>
+      <button class="auth-main-action" type="submit">Sign in&nbsp;&nbsp;→</button>
+      <div id="customerSignInMessage" class="auth-role-message customer-auth-message" role="alert"></div>
+      <div class="auth-divider">or</div>
+      <a class="auth-secondary-action" href="/customer"><strong>Continue as guest</strong>&nbsp;→</a>
+      <div class="auth-role-footer">Don’t have an account? <button id="customerShowSignUp" type="button">Create account&nbsp;→</button></div>
+    </form>
+    <form id="customerSignUpForm" class="customer-auth-form auth-role-form auth-role-form-customer" hidden>
+      <label class="auth-input" for="customerSignUpName"><i aria-hidden="true">♙</i><span>Your name</span><input id="customerSignUpName" maxlength="120" autocomplete="name" placeholder="Enter your name" required></label>
+      <label class="auth-input" for="customerSignUpEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="customerSignUpEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+      <label class="auth-input" for="customerSignUpPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="customerSignUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="Create a strong password" required><button class="auth-password-toggle" type="button" data-password-toggle="customerSignUpPassword" aria-label="Show password">◉</button></label>
+      <label class="auth-input" for="customerSignUpConfirm"><i aria-hidden="true">⌑</i><span>Confirm password</span><input id="customerSignUpConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="Confirm your password" required></label>
+      <label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>. Customer accounts are used to provide account access and enquiry tracking.</span></label>
+      <button class="auth-main-action" type="submit">Create account&nbsp;&nbsp;→</button>
+      <div id="customerSignUpMessage" class="auth-role-message customer-auth-message" role="alert"></div>
+      <p id="customerConfirmationActions" class="customer-auth-switch" hidden>Didn’t receive a confirmation email? <button id="customerResendConfirmation" type="button">Resend confirmation</button></p>
+      <div class="auth-role-footer">Already have an account? <button id="customerShowSignIn" type="button">Sign in&nbsp;→</button></div>
+    </form>
+  </div>
+</section>
 
 <form id="passwordResetRequestForm" class="auth-card auth-form-hidden">
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div><h2>Reset your password</h2><p>Enter your email and, if it can be used, we’ll send a secure reset link.</p>
@@ -2191,7 +2225,7 @@ input.switch,input.switch:before{transition:none}
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Create your account</h2>
 <p>After confirming your email, you will set up your secure Business AI workspace.</p>
-<div class="auth-field"><label for="signUpEmail">Email</label><input id="signUpEmail" type="email" autocomplete="email" required></div>
+<div class="auth-field"><label for="signUpEmail">Business email</label><input id="signUpEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
 <div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <div class="auth-field"><label for="signUpReferralCode">Referral code <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input id="signUpReferralCode" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="e.g. BAI-12AB34CD56"><span style="color:var(--muted);font-size:11px">Have a code from another business? Enter it here.</span></div>
@@ -2268,40 +2302,7 @@ input.switch,input.switch:before{transition:none}
 </form>
 </main>
 
-<main id="customerAuthScreen" class="auth-screen" hidden inert aria-live="polite">
-<section class="customer-auth-shell">
-<div class="customer-auth-card">
-<div class="customer-auth-mascot" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
-<h1>Welcome to Business AI</h1>
-<p>Find businesses, track enquiries and stay updated when a business responds.</p>
-<div class="auth-role-switch customer-active" data-auth-role-switch aria-label="Choose account type">
-<span class="auth-role-slider" aria-hidden="true"></span>
-<a class="auth-role-option" href="/" data-auth-role-target="business">Business</a>
-<a class="auth-role-option active" href="/customer/account" data-auth-role-target="customer" aria-current="page">Customer</a>
-</div>
-<form id="customerSignInForm" class="customer-auth-form">
-<label>Email<input id="customerSignInEmail" type="email" autocomplete="email" required></label>
-<label>Password<input id="customerSignInPassword" type="password" autocomplete="current-password" required></label>
-<p class="customer-auth-switch customer-auth-forgot"><button id="customerForgotPassword" type="button">Forgot password?</button></p>
-<button class="customer-auth-primary" type="submit">Sign in</button>
-<div id="customerSignInMessage" class="customer-auth-message" role="alert"></div>
-<p class="customer-auth-switch">New to Business AI? <button id="customerShowSignUp" type="button">Create a customer account</button></p>
-</form>
-<form id="customerSignUpForm" class="customer-auth-form" hidden>
-<label>Your name<input id="customerSignUpName" maxlength="120" autocomplete="name" required></label>
-<label>Email<input id="customerSignUpEmail" type="email" autocomplete="email" required></label>
-<label>Password<input id="customerSignUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
-<label>Confirm password<input id="customerSignUpConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
-<label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>. Customer accounts are used to provide account access and enquiry tracking.</span></label>
-<button class="customer-auth-primary" type="submit">Create customer account</button>
-<div id="customerSignUpMessage" class="customer-auth-message" role="alert"></div>
-<p id="customerConfirmationActions" class="customer-auth-switch" hidden>Didn’t receive a confirmation email? <button id="customerResendConfirmation" type="button">Resend confirmation</button></p>
-<p class="customer-auth-switch">Already have an account? <button id="customerShowSignIn" type="button">Sign in</button></p>
-</form>
-<a class="customer-guest-link" href="/customer"><span>Continue as guest</span><small>Search businesses without an account</small></a>
-</div>
-</section>
-</main>
+<main id="customerAuthScreen" class="auth-screen" hidden inert aria-hidden="true"></main>
 
 <main id="customerPortalScreen" hidden inert aria-hidden="true">
 <section class="customer-portal-shell">
@@ -3520,6 +3521,7 @@ $('loginMessage').textContent=message;
 
 const setAuthenticationMode=(mode,message='')=>{
 authenticationMode=['signup','reset-request','recovery'].includes(mode)?mode:'login';
+$('sharedAuthShell')?.classList.toggle('auth-form-hidden',authenticationMode!=='login');
 $('loginForm').classList.toggle('auth-form-hidden',authenticationMode!=='login');
 $('signUpForm').classList.toggle('auth-form-hidden',authenticationMode!=='signup');
 $('passwordResetRequestForm').classList.toggle('auth-form-hidden',authenticationMode!=='reset-request');
@@ -5211,6 +5213,7 @@ initializeApp();
 
 <script src="/assets/marketing.js"></script>
 <script src="/assets/customer-portal.js"></script>
+<script src="/assets/premium-ui.js"></script>
 </body>
 
 </html>

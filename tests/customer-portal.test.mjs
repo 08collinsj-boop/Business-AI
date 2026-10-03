@@ -111,6 +111,8 @@ test('customer portal UI is separate from business sign in and preserves guest a
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const script = await readFile(new URL('../assets/customer-portal.js', import.meta.url), 'utf8');
   const css = await readFile(new URL('../assets/customer-portal.css', import.meta.url), 'utf8');
+  const premiumCss = await readFile(new URL('../assets/premium-ui.css', import.meta.url), 'utf8');
+  const premiumScript = await readFile(new URL('../assets/premium-ui.js', import.meta.url), 'utf8');
   const vercel = await readFile(new URL('../vercel.json', import.meta.url), 'utf8');
 
   assert.match(html, /data-auth-role-switch/);
@@ -154,14 +156,22 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(script, /showCustomerAuthSurface/);
   assert.match(script, /showBusinessAuthSurface/);
   assert.match(script, /setAppLoading==='function'\)setAppLoading\(false\)/);
+  const sharedAuth = html.match(/<section id="sharedAuthShell"[\s\S]*?<\/section>/)?.[0] || '';
   const businessLogin = html.match(/<form id="loginForm"[\s\S]*?<\/form>/)?.[0] || '';
-  const customerLogin = html.match(/<main id="customerAuthScreen"[\s\S]*?<\/main>/)?.[0] || '';
-  assert.match(businessLogin, /business-active/);
+  const customerLogin = html.match(/<form id="customerSignInForm"[\s\S]*?<\/form>/)?.[0] || '';
+  assert.match(sharedAuth, /data-auth-role="business"/);
+  assert.match(sharedAuth, /class=\"auth-role-switch business-active\"/);
+  assert.match(sharedAuth, /data-auth-role-target="business"/);
+  assert.match(sharedAuth, /data-auth-role-target="customer"/);
+  assert.match(sharedAuth, /auth-shared-mascot/);
   assert.doesNotMatch(businessLogin, /Continue as guest/);
-  assert.match(customerLogin, /customer-active/);
   assert.match(customerLogin, /Continue as guest/);
-  assert.doesNotMatch(customerLogin, /customerAuthTabSignIn|customerAuthTabSignUp/);
-  assert.match(customerLogin, /customer-auth-mascot/);
+  assert.doesNotMatch(sharedAuth, /customerAuthTabSignIn|customerAuthTabSignUp/);
+  assert.match(premiumCss, /\.auth-role-description\{height:48px/);
+  assert.match(premiumCss, /\.auth-role-stage\{position:relative;min-height:278px/);
+  assert.match(premiumCss, /body\.auth-role-transitioning #authScreen\{opacity:1!important;transform:none!important\}/);
+  assert.match(premiumCss, /body\.customer-account\.customer-auth-active #authScreen\{display:flex!important\}/);
+  assert.match(premiumScript, /shell\.dataset\.authRole/);
   assert.match(html, /id="customerPortalScreen" hidden inert aria-hidden="true"/);
   assert.match(css, /#customerPortalScreen\[hidden\][\s\S]{0,180}display:none!important/);
   assert.match(css, /customer-portal-ready/);
