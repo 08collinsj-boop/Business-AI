@@ -2,7 +2,7 @@ import legalHandler from '../lib/legal-handler.js';
 import legalPublicHandler from '../lib/legal-public-handler.js';
 import addonsHandler from '../lib/addons-handler.js';
 import marketingHandler from '../lib/marketing-handler.js';
-import knowledgeHandler from '../lib/knowledge-handler.js';
+import knowledgeHandler from '../lib/knowledge-verified-handler.js';
 import auditLogHandler from "../lib/audit-log-handler.js";
 import dataLifecycleHandler from "../lib/data-lifecycle-handler.js";
 import dataSubjectsHandler from "../lib/data-subjects-handler.js";

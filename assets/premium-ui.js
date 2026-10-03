@@ -76,6 +76,14 @@
   observer.observe(document.body,{attributes:true,attributeFilter:['class']});
   document.documentElement.classList.toggle('business-ai-v2-ready',document.body.classList.contains('auth-ready'));
 
+  if(!document.querySelector('script[data-business-ai-knowledge-verification]')){
+    const knowledgeScript=document.createElement('script');
+    knowledgeScript.src='/assets/knowledge-verification.js?v=20261003-1';
+    knowledgeScript.dataset.businessAiKnowledgeVerification='true';
+    knowledgeScript.async=false;
+    document.body.appendChild(knowledgeScript);
+  }
+
   if(!document.querySelector('script[data-business-ai-final-showcase]')){
     const finalScript=document.createElement('script');
     finalScript.src='/assets/final-showcase.js?v=20261003-final-2';
