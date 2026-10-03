@@ -167,3 +167,35 @@ body.auth-ready .bottom-nav{display:grid!important}
   .settings-hub{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+
+/* Screenshot regression fixes — 2026-10-03 */
+/* Keep work dialogs anchored to the iPhone viewport instead of an animated page container. */
+body.work-dialog-open::before{content:"";position:fixed;inset:0;z-index:80;background:rgba(1,7,14,.80);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+body.work-dialog-open .view.active{transform:none!important;animation:none!important;filter:none!important}
+body.work-dialog-open .work-form:not([hidden]){position:fixed!important;z-index:90!important;left:50%!important;right:auto!important;top:auto!important;bottom:max(10px,env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(calc(100% - 20px),600px)!important;max-height:calc(100dvh - max(84px,calc(env(safe-area-inset-top) + 60px)) - max(18px,env(safe-area-inset-bottom)))!important;overflow:auto!important;overscroll-behavior:contain!important}
+body.work-dialog-open .work-form:not([hidden])::after{display:none!important}
+body.work-dialog-open .topbar{z-index:35!important}
+
+/* Owner UI: distinguish public-customer availability from the Test Receptionist itself. */
+.dashboard-ai-strip .ai-status.is-limited,.reference-receptionist-status .ai-status.is-limited{color:#f0bd72!important}
+.dashboard-ai-strip .ai-status.is-limited>i,.reference-receptionist-status .ai-status.is-limited i{background:#e6a74d!important;box-shadow:none!important}
+
+/* Marketing: normalise iOS time/number inputs and leave usable space above the fixed dock. */
+#marketingView{padding-bottom:110px!important;scroll-padding-bottom:120px!important}
+#marketingView .marketing-strategy-card{overflow:hidden!important}
+#marketingView .marketing-strategy-controls{align-items:end!important}
+#marketingView #marketingStrategyTime{box-sizing:border-box!important;width:100%!important;height:48px!important;min-height:48px!important;padding:0 13px!important;border:1px solid var(--r-border)!important;border-radius:12px!important;background:#071522!important;color:#f4f9fd!important;font-size:16px!important;line-height:48px!important;color-scheme:dark!important;text-align:left!important;-webkit-appearance:none!important;appearance:none!important}
+#marketingView .marketing-pillars input[type="number"]{box-sizing:border-box!important;width:58px!important;height:38px!important;min-height:38px!important;padding:0 8px!important;border:1px solid rgba(92,137,178,.22)!important;border-radius:10px!important;background:#0b2032!important;color:#eef7ff!important;font-size:14px!important;font-weight:700!important;text-align:right!important;appearance:textfield!important;-moz-appearance:textfield!important}
+#marketingView .marketing-pillars input[type="number"]::-webkit-outer-spin-button,#marketingView .marketing-pillars input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none!important;margin:0!important}
+#marketingView .marketing-pillars label{grid-template-columns:minmax(0,1fr) 58px 14px!important;min-height:66px!important}
+#marketingView .marketing-form-footer .small-btn{min-height:44px!important}
+#marketingView .marketing-performance-card{scroll-margin-bottom:120px!important}
+
+@media(max-width:620px){
+  #marketingView .marketing-strategy-controls{grid-template-columns:1fr!important;gap:12px!important}
+  #marketingView .marketing-strategy-controls .field{gap:6px!important}
+  #marketingView .marketing-strategy-controls select,#marketingView #marketingStrategyTime{height:48px!important;min-height:48px!important}
+  #marketingView .marketing-pillars label{padding:10px 12px!important}
+  body.work-dialog-open .work-form:not([hidden]){width:calc(100% - 18px)!important;border-radius:22px!important;padding:16px!important}
+}

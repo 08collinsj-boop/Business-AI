@@ -2141,7 +2141,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/marketing.css">
 <link rel="stylesheet" href="/assets/customer-portal.css">
 <link rel="stylesheet" href="/assets/premium-ui.css">
-<link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-reference-build-3">
+<link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-ui-fixes-1">
 </head>
 
 <body class="auth-pending app-loading" aria-busy="true">
@@ -4423,8 +4423,9 @@ function renderReceptionistAvailability(){
 const status=$(id);if(!status)return;
 const label=status.querySelector('span')||status;
 status.classList.toggle('is-checking',ownerAssistantAvailable===null);
-status.classList.toggle('is-unavailable',ownerAssistantAvailable===false);
-label.textContent=ownerAssistantAvailable===null?'Checking…':ownerAssistantAvailable?'Online':'Unavailable';
+status.classList.toggle('is-unavailable',false);
+status.classList.toggle('is-limited',ownerAssistantAvailable===false);
+label.textContent=ownerAssistantAvailable===null?'Checking…':ownerAssistantAvailable?'Online':'Public access off';
 });
 renderReceptionistPageSummary();
 }
