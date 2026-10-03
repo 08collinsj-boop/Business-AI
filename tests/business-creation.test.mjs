@@ -135,6 +135,8 @@ test("public enquiry maps a slug to its server-resolved business and scopes lead
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.includes("business_public_routes")) return reply([{ business_id: "business-b", route_type: "slug", route_value: "garage-b", active: true }]);
+    if (url.includes("business_incident_controls")) return reply([]);
+    if (url.includes("platform_incident_controls")) return reply([{ id: "global" }]);
     if (url.includes("business_legal_acceptances")) return reply([{ id: 1 }]);
     if (url.includes("business_settings")) return reply([{ business_name: "Garage B", business_type: "Garage" }]);
     if (url.includes("business_configurations")) return reply([{ business_id: "business-b", industry_template_id: "automotive" }]);

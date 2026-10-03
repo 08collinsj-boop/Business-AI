@@ -51,6 +51,8 @@ async function load(mode, intent = supported, model = null) {
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.includes('business_public_routes')) return reply([{ business_id: 'business-a', route_type: 'slug', route_value: 'business-a', active: true }]);
+    if (url.includes('business_incident_controls')) return reply([]);
+    if (url.includes('platform_incident_controls')) return reply([{ id: 'global' }]);
     if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Always ask which appliance needs repair.' }]);
     if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode, service_areas: 'Hartlepool' }]);
     if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify(model || { reply: 'Approved answer', intent, lead: { phone: '07000000000', job_type: 'Repair', handover_required: false } }) });
@@ -292,6 +294,8 @@ async function loadWithBilling({ providerFails = false, providerStatus = 500, fa
   globalThis.fetch = async (url, options = {}) => {
     calls.push({ url, options });
     if (url.includes('business_public_routes')) return reply([{ business_id: 'business-a', route_type: 'slug', route_value: 'business-a', active: true }]);
+    if (url.includes('business_incident_controls')) return reply([]);
+    if (url.includes('platform_incident_controls')) return reply([{ id: 'global' }]);
     if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', services: 'Repairs', opening_hours: 'Monday 9–5', ai_instructions: 'Stay focused on this business.' }]);
     if (url.includes('business_configurations')) return configurationFails ? { ok: false, status: 400, text: async () => JSON.stringify({ message: 'configuration unavailable' }) } : reply([{ ai_handling_mode: 'ai_first', description: 'Electrical repairs' }]);
     if (url.includes('business_billing_accounts')) return reply([account]);

@@ -53,7 +53,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20261001214100_document_server_only_rls_policies.sql",
     "20261002193000_add_marketing_automation_media.sql",
     "20261002194000_harden_marketing_automation_media.sql",
-    "20261002223000_add_marketing_strategy_planning.sql"
+    "20261002223000_add_marketing_strategy_planning.sql",
+    "20261003212959_add_incident_controls.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -80,6 +81,7 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   const automationMedia = contents.get("20261002193000_add_marketing_automation_media.sql");
   const automationMediaHardening = contents.get("20261002194000_harden_marketing_automation_media.sql");
   const marketingStrategyPlanning = contents.get("20261002223000_add_marketing_strategy_planning.sql");
+  const incidentControls = contents.get("20261003212959_add_incident_controls.sql");
   assert.match(removePgNet, /drop extension if exists pg_net/i);
   assert.equal((serverOnlyRls.match(/server only deny direct access/g) || []).length, 14);
   assert.match(serverOnlyRls, /business_billing_accounts[\s\S]*using \(false\)[\s\S]*with check \(false\)/i);
@@ -94,6 +96,11 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(automationMediaHardening, /to anon, authenticated[\s\S]*using \(false\)[\s\S]*with check \(false\)/i);
   assert.match(marketingStrategyPlanning, /add column if not exists strategy jsonb/i);
   assert.match(marketingStrategyPlanning, /add column if not exists weekly_plan jsonb/i);
+  assert.match(incidentControls, /create table if not exists public\.business_incident_controls/i);
+  assert.match(incidentControls, /create table if not exists public\.platform_incident_controls/i);
+  assert.equal((incidentControls.match(/enable row level security/g) || []).length, 2);
+  assert.match(incidentControls, /revoke all on table public\.platform_incident_controls from anon, authenticated/i);
+  assert.match(incidentControls, /values \('global'\) on conflict \(id\) do nothing/i);
   assert.match(contextualHandover, /p_lead->>'handover_summary'/i);
   assert.match(contextualHandover, /set summary=summary_value/i);
   assert.match(contextualHandover, /set description=summary_value/i);
