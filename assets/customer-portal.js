@@ -182,9 +182,9 @@ async function searchBusinesses(query){
     if(!rows.length){target.innerHTML='<div class="customer-empty">No matching businesses found.</div>';return;}
     for(const business of rows){
       const card=document.createElement('article');card.className='customer-search-result';
-      const mark=document.createElement('div');mark.className='customer-search-result-mark';mark.setAttribute('aria-hidden','true');mark.textContent=String(business.name||'B').trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase().slice(0,2)||'B';
+      const mark=document.createElement('div');mark.className='customer-search-result-mark';mark.setAttribute('aria-hidden','true');if(business.profile_image_url){const image=document.createElement('img');image.src=business.profile_image_url;image.alt='';mark.append(image);}else mark.textContent=String(business.name||'B').trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase().slice(0,2)||'B';
       const copy=document.createElement('div');copy.className='customer-search-result-copy';const h=document.createElement('h4');h.textContent=business.name||'Business';const p=document.createElement('p');p.textContent=business.description||business.services||business.type||'Customer enquiries';copy.append(h,p);
-      const link=document.createElement('a');link.href=business.message_path||('/customer?business='+encodeURIComponent(business.slug||''));link.textContent='Message';
+      const link=document.createElement('a');link.href=business.profile_path||business.message_path||('/customer?business='+encodeURIComponent(business.slug||'')+'&view=profile');link.textContent='View profile';
       card.append(mark,copy,link);target.append(card);
     }
   }catch{target.innerHTML='<div class="customer-empty">Business search is temporarily unavailable.</div>';}

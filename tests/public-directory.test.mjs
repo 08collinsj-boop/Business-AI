@@ -47,7 +47,9 @@ test('public directory searches public business-facing fields without exposing t
     description: 'Local electrical services',
     services: 'Electrical repairs and maintenance',
     service_areas: 'Hartlepool',
-    message_path: '/customer?business=collins-ltd'
+    profile_image_url: '',
+    message_path: '/customer?business=collins-ltd',
+    profile_path: '/customer?business=collins-ltd&view=profile'
   });
   assert.equal('business_id' in res.body.businesses[0], false);
   assert.ok(calls.every(url => !url.includes('attacker-business')));

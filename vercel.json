@@ -39,6 +39,10 @@
       "destination": "/api/operations?operation=handovers"
     },
     {
+      "source": "/api/business-profile",
+      "destination": "/api/operations?operation=business-profile"
+    },
+    {
       "source": "/api/public-business",
       "destination": "/api/operations?operation=public-business"
     },

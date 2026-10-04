@@ -33,7 +33,7 @@
   if(!document.querySelector('link[data-business-ai-final-showcase]')){
     const finalLink=document.createElement('link');
     finalLink.rel='stylesheet';
-    finalLink.href='/assets/final-showcase.css?v=20261004-customer-redesign-1';
+    finalLink.href='/assets/final-showcase.css?v=20261004-business-profile-1';
     finalLink.dataset.businessAiFinalShowcase='true';
     document.head.appendChild(finalLink);
   }

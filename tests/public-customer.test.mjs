@@ -46,7 +46,7 @@ test("a verified public slug returns only its business-facing identity", { concu
   const res = response();
   await handler({ method: "GET", query: { business: "collins-ltd", business_id: "business-b" } }, res);
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(res.body, { business: { name: "Collins LTD.", type: "Electrical services", description: "Local electrical services", services: "Electrical repairs", service_areas: "Hartlepool", opening_hours: "Mon–Fri 08:00–18:00", phone: "01234 567890", assistant_available: true } });
+  assert.deepEqual(res.body, { business: { name: "Collins LTD.", type: "Electrical services", description: "Local electrical services", services: "Electrical repairs", service_areas: "Hartlepool", opening_hours: "Mon–Fri 08:00–18:00", phone: "01234 567890", website: "", profile_image_url: "", profile_banner_url: "", assistant_available: true } });
   assert.equal("business_id" in res.body.business, false);
   assert.equal(res.headers["Cache-Control"], "no-store");
   assert.ok(calls.some((url) => url.includes("business_id=eq.business-a")));
