@@ -29,3 +29,11 @@ test('trial-included Marketing access is not rendered as locked or purchasable',
   assert.match(marketing, /Included in trial/);
   assert.match(marketing, /addon\.purchasable && addon\.entitlement !== 'active' && !addon\.trial_included/);
 });
+
+
+test('five-tab iPhone bottom navigation centres each icon and label', () => {
+  assert.match(css, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/);
+  assert.match(css, /align-items:center!important/);
+  assert.match(css, /justify-content:center!important/);
+  assert.match(css, /nav-btn > span:last-child\{[\s\S]*text-align:center!important/);
+});

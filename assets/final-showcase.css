@@ -368,6 +368,23 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
   body.final-showcase-ui.auth-ready .bottom-nav .nav-btn{
     min-width:0!important;
     width:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    padding-left:0!important;
+    padding-right:0!important;
+  }
+  body.final-showcase-ui.auth-ready .bottom-nav .nav-btn .nav-icon{
+    flex:none!important;
+    margin:0 auto!important;
+  }
+  body.final-showcase-ui.auth-ready .bottom-nav .nav-btn > span:last-child{
+    width:100%!important;
+    text-align:center!important;
+    margin-left:0!important;
+    margin-right:0!important;
   }
 
   /* Leads: keep the real Add Lead action in the title row. */

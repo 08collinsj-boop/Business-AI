@@ -33,7 +33,7 @@
   if(!document.querySelector('link[data-business-ai-final-showcase]')){
     const finalLink=document.createElement('link');
     finalLink.rel='stylesheet';
-    finalLink.href='/assets/final-showcase.css?v=20261003-mobile-4';
+    finalLink.href='/assets/final-showcase.css?v=20261004-phone-nav-2';
     finalLink.dataset.businessAiFinalShowcase='true';
     document.head.appendChild(finalLink);
   }
@@ -93,7 +93,7 @@
 
   if(!document.querySelector('script[data-business-ai-final-showcase]')){
     const finalScript=document.createElement('script');
-    finalScript.src='/assets/final-showcase.js?v=20261004-phone-dial-1';
+    finalScript.src='/assets/final-showcase.js?v=20261004-phone-nav-2';
     finalScript.dataset.businessAiFinalShowcase='true';
     finalScript.async=false;
     document.body.appendChild(finalScript);

@@ -31,3 +31,17 @@ test('documented UK mobile example maps to the intended international dial strin
   assert.equal(normalise('+44 7849 243242'), '+447849243242');
   assert.equal(normalise('0044 7849 243242'), '+447849243242');
 });
+
+
+test('customer transcript phone wins over AI-extracted phone and malformed 00 values are not persisted', () => {
+  assert.match(index, /detectedPhone \|\|\s*normalisePhone\(lead\.phone\)/);
+  assert.match(index, /if \(digits\.startsWith\(\"00\"\)\) return null/);
+  assert.match(index, /digits\.startsWith\(\"0044\"\)/);
+});
+
+test('legacy malformed lead phone can recover the valid UK number from enquiry details', () => {
+  assert.match(finalShowcase, /const leadPhoneNumber=value=>normaliseUkDisplayNumber\(value\?\.phone\)\|\|findUkPhoneInText/);
+  assert.match(finalShowcase, /const phone=leadPhoneNumber\(x\)/);
+  assert.match(finalShowcase, /☎ \${E\(phone\)}/);
+  assert.match(finalShowcase, /if\(\/\^00\/\.test\(dial\)\)return ''/);
+});

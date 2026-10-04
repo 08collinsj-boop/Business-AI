@@ -430,12 +430,17 @@ function normalisePhone(value) {
   if (!value) return null;
 
   const digits = String(value).replace(/\D/g, "");
-
   if (!digits) return null;
 
+  // Store UK numbers in domestic form. Reject ambiguous malformed 00-prefixed
+  // values rather than persisting a number that iOS may dial incorrectly.
+  if (digits.startsWith("0044") && digits.length === 14) {
+    return `0${digits.slice(4)}`;
+  }
   if (digits.startsWith("44") && digits.length === 12) {
     return `0${digits.slice(2)}`;
   }
+  if (digits.startsWith("00")) return null;
 
   return digits;
 }
@@ -1353,8 +1358,8 @@ Your response must follow the supplied JSON schema.
         null,
 
       phone:
-        normalisePhone(lead.phone) ||
         detectedPhone ||
+        normalisePhone(lead.phone) ||
         null,
 
       email:
