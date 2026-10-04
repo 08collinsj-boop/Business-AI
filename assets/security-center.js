@@ -367,6 +367,11 @@
     catch(error){notify(error.message||'Two-step verification is unavailable');return false;}
   }
 
+  window.businessAiVerifyProtectedAction=async()=>{
+    try{return await challengeForAal2({blocking:false,reason:'Verify with your authenticator app to continue this protected owner action.'});}
+    catch(error){notify(error.message||'Two-step verification is unavailable');return false;}
+  };
+
   async function enforceExistingMfa(){
     if(authReadyCheckRunning||!document.body.classList.contains('auth-ready'))return;
     authReadyCheckRunning=true;

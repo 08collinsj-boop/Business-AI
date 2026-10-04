@@ -4251,7 +4251,7 @@ else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();f
 });
 
 
-const api=async(url,options={})=>{
+const api=async(url,options={},mfaRetried=false)=>{
 
 const requestUrl=new URL(url,window.location.origin);
 const headers=new Headers(options.headers||{});
@@ -4269,6 +4269,14 @@ let result=null;
 try{result=await response.json()}catch{}
 
 if(response.status===401&&supabaseClient){await supabaseClient.auth.signOut();throw new Error('Your session has expired.');}
+if(response.status===403&&result?.code==='MFA_REQUIRED'){
+if(!mfaRetried&&typeof window.businessAiVerifyProtectedAction==='function'){
+const verified=await window.businessAiVerifyProtectedAction();
+if(verified)return api(url,options,true);
+throw new Error('Complete two-step verification in Account security, then try this action again.');
+}
+throw new Error('Two-step verification is required. Open Account security to verify your session.');
+}
 if(!response.ok)throw new Error(response.status===403?'You do not have permission for this action.':result?.error||'Something went wrong');
 
 return result;
