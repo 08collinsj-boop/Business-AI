@@ -259,30 +259,32 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
 @media (max-width:600px){
   .marketing-schedule-controls .field{position:relative!important}
   #marketingScheduleDate,#marketingScheduleTime{
-    min-height:52px!important;
-    padding-right:122px!important;
+    display:block!important;
+    width:100%!important;
+    height:46px!important;
+    min-height:46px!important;
+    max-height:46px!important;
+    padding:0 42px 0 14px!important;
+    border:1px solid #234b69!important;
+    border-radius:12px!important;
+    background:#081827!important;
+    color:#eaf5ff!important;
+    font-size:16px!important;
+    line-height:46px!important;
+    box-sizing:border-box!important;
     cursor:pointer!important;
   }
   .marketing-schedule-controls .field:has(#marketingScheduleDate)::after,
-  .marketing-schedule-controls .field:has(#marketingScheduleTime)::after{
-    position:absolute;
-    right:12px;
-    bottom:10px;
-    z-index:2;
-    pointer-events:none;
-    padding:6px 9px;
-    border:1px solid #24577c;
-    border-radius:9px;
-    background:#0b263d;
-    color:#8fc9f5;
-    font-size:11px;
-    font-weight:750;
-    line-height:1;
-  }
-  .marketing-schedule-controls .field:has(#marketingScheduleDate)::after{content:"Select date"}
-  .marketing-schedule-controls .field:has(#marketingScheduleTime)::after{content:"Select time"}
+  .marketing-schedule-controls .field:has(#marketingScheduleTime)::after{display:none!important}
   #marketingScheduleDate::-webkit-calendar-picker-indicator,
-  #marketingScheduleTime::-webkit-calendar-picker-indicator{opacity:0!important}
+  #marketingScheduleTime::-webkit-calendar-picker-indicator{
+    opacity:.9!important;
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+    cursor:pointer!important;
+    filter:invert(1)!important;
+  }
 
   .bottom-nav{isolation:isolate!important}
   .bottom-nav::before{
