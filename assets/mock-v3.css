@@ -302,3 +302,15 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
   }
   .marketing-workspace{padding-bottom:calc(var(--iphone-nav-reserve) + 18px)!important}
 }
+
+
+/* iPhone Calendar field width alignment — 2026-10-04e */
+@media (max-width:600px){
+  #marketingScheduleDate,
+  #marketingScheduleTime{
+    box-sizing:border-box!important;
+    width:calc(100% - 14px)!important;
+    max-width:calc(100% - 14px)!important;
+    justify-self:start!important;
+  }
+}
