@@ -254,3 +254,49 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
   body.auth-ready #dashboardApp>.topbar,body.final-showcase-ui.auth-ready #dashboardApp>.topbar{position:relative!important;top:auto!important;min-height:54px!important;padding:5px 0 9px!important}
   #stats .mock-trend{bottom:32px!important}
 }
+
+/* iPhone calendar affordance + bottom-nav backdrop — 2026-10-04c */
+@media (max-width:600px){
+  .marketing-schedule-controls .field{position:relative!important}
+  #marketingScheduleDate,#marketingScheduleTime{
+    min-height:52px!important;
+    padding-right:122px!important;
+    cursor:pointer!important;
+  }
+  .marketing-schedule-controls .field:has(#marketingScheduleDate)::after,
+  .marketing-schedule-controls .field:has(#marketingScheduleTime)::after{
+    position:absolute;
+    right:12px;
+    bottom:10px;
+    z-index:2;
+    pointer-events:none;
+    padding:6px 9px;
+    border:1px solid #24577c;
+    border-radius:9px;
+    background:#0b263d;
+    color:#8fc9f5;
+    font-size:11px;
+    font-weight:750;
+    line-height:1;
+  }
+  .marketing-schedule-controls .field:has(#marketingScheduleDate)::after{content:"Select date"}
+  .marketing-schedule-controls .field:has(#marketingScheduleTime)::after{content:"Select time"}
+  #marketingScheduleDate::-webkit-calendar-picker-indicator,
+  #marketingScheduleTime::-webkit-calendar-picker-indicator{opacity:0!important}
+
+  .bottom-nav{isolation:isolate!important}
+  .bottom-nav::before{
+    display:block!important;
+    content:"";
+    position:absolute;
+    z-index:-1;
+    left:50%;
+    bottom:0;
+    width:100vw;
+    height:calc(100% + 24px);
+    transform:translateX(-50%);
+    background:linear-gradient(180deg,rgba(2,10,19,0) 0,#020a13 24px,#020a13 100%);
+    pointer-events:none;
+  }
+  .marketing-workspace{padding-bottom:calc(var(--iphone-nav-reserve) + 18px)!important}
+}
