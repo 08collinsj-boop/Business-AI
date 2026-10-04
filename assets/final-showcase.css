@@ -221,10 +221,10 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
   .chat-form input{min-height:48px!important;font-size:16px!important}.chat-form button{width:44px!important;height:44px!important}
 
   /* Settings */
-  #settingsView .reference-profile-summary{min-height:72px!important;padding:12px 13px!important;margin-bottom:10px!important;border-radius:17px!important}
-  #settingsView .reference-profile-summary-button{grid-template-columns:42px minmax(0,1fr) auto 14px!important;gap:11px!important;align-items:center!important}
-  .reference-profile-mark{width:42px!important;height:42px!important;border-radius:13px!important}
-  .reference-profile-summary strong{font-size:14px!important;line-height:1.2!important}.reference-profile-summary span{font-size:10px!important;line-height:1.25!important}.reference-profile-badge{font-size:10px!important}
+  #settingsView .reference-profile-summary{width:100%!important;max-width:none!important;padding:14px!important;margin-bottom:10px!important;border-radius:18px!important}
+  #settingsView .reference-profile-summary-button{grid-template-columns:52px minmax(0,1fr) auto 18px!important;gap:12px!important;align-items:center!important}
+  .reference-profile-mark{width:52px!important;height:52px!important;border-radius:14px!important}
+  .reference-profile-summary strong{font-size:15px!important;line-height:1.2!important}.reference-profile-summary span{font-size:10px!important;line-height:1.25!important}.reference-profile-badge{font-size:10px!important}
   .settings-hub{gap:9px!important;margin-bottom:14px!important}
   .settings-hub-card{min-height:72px!important;grid-template-columns:42px minmax(0,1fr) 14px!important;gap:11px!important;padding:12px 13px!important;border-radius:17px!important}
   .settings-hub-card i{width:42px!important;height:42px!important;border-radius:13px!important;font-size:16px!important}

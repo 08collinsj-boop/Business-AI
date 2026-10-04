@@ -31,6 +31,6 @@ test('guest and signed-in customer surfaces share the redesigned mobile visual s
   assert.match(showcaseCss, /Customer experience redesign/);
   assert.match(showcaseCss, /\.customer-home-actions\{display:grid/);
   assert.match(showcaseCss, /\.public-directory-reference-hero\{grid-template-columns:minmax\(0,1fr\) 112px!important/);
-  assert.match(premiumUi, /final-showcase\.css\?v=20261005-settings-profile-row-1/);
+  assert.match(premiumUi, /final-showcase\.css\?v=20261005-settings-profile-width-1/);
   assert.match(premiumUi, /final-showcase\.js\?v=20261004-customer-redesign-1/);
 });
