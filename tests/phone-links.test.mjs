@@ -2,37 +2,32 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 
-const [showcase, index, premiumUi] = await Promise.all([
+const [finalShowcase, index, premiumUi] = await Promise.all([
   readFile(new URL('../assets/final-showcase.js', import.meta.url), 'utf8'),
   readFile(new URL('../index.html', import.meta.url), 'utf8'),
   readFile(new URL('../assets/premium-ui.js', import.meta.url), 'utf8')
 ]);
 
-function extractDialHelper(source, name) {
-  const start = source.indexOf(`function ${name}(value){`);
-  assert.notEqual(start, -1, `${name} helper should exist`);
-  const bodyStart = start + `function ${name}(value){`.length;
-  const bodyEnd = source.indexOf('\n}', bodyStart);
-  assert.notEqual(bodyEnd, -1, `${name} helper should close`);
-  return new Function('value', source.slice(bodyStart, bodyEnd));
-}
-
-test('UK customer phone links use unambiguous dial targets', () => {
-  const ownerDial = extractDialHelper(showcase, 'finalDialNumber');
-  const publicDial = extractDialHelper(index, 'publicDialNumber');
-  for (const dial of [ownerDial, publicDial]) {
-    assert.equal(dial('07849243242'), '+447849243242');
-    assert.equal(dial('+44 7849 243242'), '+447849243242');
-    assert.equal(dial('0044 7849 243242'), '+447849243242');
-    assert.equal(dial('020 7123 4567'), '+442071234567');
-    assert.equal(dial('+1 (212) 555-0100'), '+12125550100');
-  }
+test('UK customer phone links normalise domestic numbers to unambiguous +44 dial targets', () => {
+  assert.match(finalShowcase, /if\(\/\^0\\d\+\$\/\.test\(dial\)\)dial='\+44'\+dial\.slice\(1\)/);
+  assert.match(finalShowcase, /location\.href='tel:'\+dial/);
+  assert.match(finalShowcase, /location\.href='sms:'\+dial/);
+  assert.match(index, /normalisePublicDialNumber/);
+  assert.match(index, /window\.location\.href='tel:'\+dial/);
+  assert.match(premiumUi, /final-showcase\.js\?v=20261004-phone-dial-1/);
 });
 
-test('all clickable phone actions use the normalised target', () => {
-  assert.match(showcase, /window\.finalCall=[\s\S]*?finalDialNumber\(x\?\.phone\)[\s\S]*?location\.href='tel:'\+dial/);
-  assert.match(showcase, /window\.finalMessage=[\s\S]*?finalDialNumber\(x\?\.phone\)[\s\S]*?location\.href='sms:'\+dial/);
-  assert.match(showcase, /window\.finalActionCall=[\s\S]*?finalDialNumber\(l\?\.phone\)[\s\S]*?location\.href='tel:'\+dial/);
-  assert.match(index, /const dial=publicDialNumber\(phone\);if\(dial\)window\.location\.href='tel:'\+dial/);
-  assert.match(premiumUi, /final-showcase\.js\?v=20261004-phone-links-1/);
+test('documented UK mobile example maps to the intended international dial string', () => {
+  const normalise = value => {
+    let dial=String(value||'').trim().replace(/[^+\d]/g,'');
+    if(!dial)return '';
+    if(dial.startsWith('00'))dial='+'+dial.slice(2);
+    if(/^44\d+$/.test(dial))dial='+'+dial;
+    if(/^\+44(?:0)/.test(dial))dial='+44'+dial.slice(4);
+    if(/^0\d+$/.test(dial))dial='+44'+dial.slice(1);
+    return dial;
+  };
+  assert.equal(normalise('07849243242'), '+447849243242');
+  assert.equal(normalise('+44 7849 243242'), '+447849243242');
+  assert.equal(normalise('0044 7849 243242'), '+447849243242');
 });

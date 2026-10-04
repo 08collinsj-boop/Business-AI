@@ -3917,16 +3917,14 @@ $('publicHeroDescription').textContent='Please check the link or contact the bus
 publicBusinessPhoneNumber='';publicAssistantAvailable=false;$('publicEnquiryMessage').textContent='This customer enquiry link is unavailable.';setPublicEnquiryAvailable(false);
 }
 }
-function publicDialNumber(value){
-const raw=String(value??'').trim();
-if(!raw)return '';
-if(raw.startsWith('+'))return '+'+raw.slice(1).replace(/\D/g,'');
-const digits=raw.replace(/\D/g,'');
-if(!digits)return '';
-if(digits.startsWith('00')&&digits.length>2)return '+'+digits.slice(2);
-if(digits.startsWith('44')&&digits.length>=10)return '+'+digits;
-if(digits.startsWith('0'))return '+44'+digits.slice(1);
-return digits;
+function normalisePublicDialNumber(value){
+let dial=String(value||'').trim().replace(/[^+\d]/g,'');
+if(!dial)return '';
+if(dial.startsWith('00'))dial='+'+dial.slice(2);
+if(/^44\d+$/.test(dial))dial='+'+dial;
+if(/^\+44(?:0)/.test(dial))dial='+44'+dial.slice(4);
+if(/^0\d+$/.test(dial))dial='+44'+dial.slice(1);
+return dial;
 }
 function requestPublicHuman(){
 const input=$('publicChatInput');
@@ -3934,7 +3932,7 @@ if(publicAssistantAvailable&&input&&!input.disabled){startPublicEnquiry('I would
 const phone=String(publicBusinessPhoneNumber||'').trim();
 if(phone){
 addPublicEnquiryMessage('assistant',`The AI assistant is unavailable, but you can call the business directly on ${phone}.`);
-const dial=publicDialNumber(phone);if(dial)window.location.href='tel:'+dial;
+const dial=normalisePublicDialNumber(phone);if(dial)window.location.href='tel:'+dial;
 return;
 }
 addPublicEnquiryMessage('assistant','The AI assistant is unavailable. Please use the business contact details shown above to speak to the team.');
@@ -5242,7 +5240,7 @@ initializeApp();
 
 <script src="/assets/marketing.js?v=20261004-calendar-true-centre-1"></script>
 <script src="/assets/customer-portal.js"></script>
-<script src="/assets/premium-ui.js"></script>
+<script src="/assets/premium-ui.js?v=20261004-phone-dial-1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
 </body>
 

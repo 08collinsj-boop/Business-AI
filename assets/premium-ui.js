@@ -93,7 +93,7 @@
 
   if(!document.querySelector('script[data-business-ai-final-showcase]')){
     const finalScript=document.createElement('script');
-    finalScript.src='/assets/final-showcase.js?v=20261004-phone-links-1';
+    finalScript.src='/assets/final-showcase.js?v=20261004-phone-dial-1';
     finalScript.dataset.businessAiFinalShowcase='true';
     finalScript.async=false;
     document.body.appendChild(finalScript);
