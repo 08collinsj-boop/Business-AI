@@ -53,7 +53,7 @@ test("owner navigation is focused while AI and bookings remain reachable from au
   assert.doesNotMatch(nav, /data-view="(?:voice|enquiries)"/);
   assert.match(html, /showView\('enquiries'\)[\s\S]{0,200}Test your AI/);
   assert.match(html, /showView\('bookings'\)/);
-  assert.match(html, /const navContext=\['addons','marketing'\]\.includes\(view\)\?'settings':view==='enquiries'\?'dashboard':view;/, "the AI test retains a truthful Home context while Bookings has its own primary tab");
+  assert.match(html, /const navContext=\['addons','marketing','businessProfile'\]\.includes\(view\)\?'settings':view==='enquiries'\?'dashboard':view;/, "nested owner tools keep More active while the AI test retains a truthful Home context and Bookings has its own primary tab");
   assert.match(html, /id="actionsFormCard" class="card work-form" hidden role="dialog"/, "new actions open in a focused sheet rather than permanently occupying the list");
   assert.match(html, /id="bookingsFormCard" class="card work-form" hidden role="dialog"/, "new bookings open in a focused sheet rather than permanently occupying the list");
 });
