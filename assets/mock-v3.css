@@ -311,3 +311,35 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
   }
   .marketing-workspace{padding-bottom:calc(var(--iphone-nav-reserve) + 18px)!important}
 }
+
+/* iPhone Calendar value centring — 2026-10-04i */
+@media (max-width:600px){
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime{
+    text-align:center!important;
+    text-align-last:center!important;
+    padding-left:36px!important;
+    padding-right:36px!important;
+  }
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate::-webkit-date-and-time-value,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime::-webkit-date-and-time-value{
+    width:100%!important;
+    height:44px!important;
+    margin:0!important;
+    padding:0!important;
+    line-height:44px!important;
+    text-align:center!important;
+  }
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate::-webkit-datetime-edit,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime::-webkit-datetime-edit{
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    text-align:center!important;
+  }
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate::-webkit-datetime-edit-fields-wrapper,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime::-webkit-datetime-edit-fields-wrapper{
+    width:100%!important;
+    text-align:center!important;
+  }
+}
