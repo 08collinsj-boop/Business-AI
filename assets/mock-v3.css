@@ -240,6 +240,9 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
   .addon-choice>div:last-child,.addon-choice-status,.addon-inline-action{grid-column:2!important;justify-self:start!important}
   .addon-choice-copy small{font-size:10px!important;line-height:1.4!important}
 
+  /* Settings profile: give the business identity text more breathing room from the logo. */
+  .reference-profile-summary>div:nth-child(2){margin-left:10px!important;min-width:0!important}
+
   /* Long generated links should truncate cleanly instead of looking chopped. */
   .smart-link-panel input,.smart-link-panel textarea,input[readonly][type="url"]{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 }
