@@ -255,79 +255,59 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
   #stats .mock-trend{bottom:32px!important}
 }
 
-/* iPhone calendar affordance + bottom-nav backdrop — 2026-10-04c */
+/* iPhone Calendar contained native pickers — 2026-10-04h */
 @media (max-width:600px){
-  .marketing-schedule-controls .field{position:relative!important}
-  #marketingScheduleDate,#marketingScheduleTime{
+  .marketing-schedule-controls .calendar-picker-field{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    justify-self:stretch!important;
+  }
+  .marketing-schedule-controls .calendar-input-shell{
     display:block!important;
     width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
     height:46px!important;
-    min-height:46px!important;
-    max-height:46px!important;
-    padding:0 42px 0 14px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
     border:1px solid #234b69!important;
     border-radius:12px!important;
     background:#081827!important;
+  }
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime{
+    display:block!important;
+    inline-size:100%!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:44px!important;
+    min-height:44px!important;
+    max-height:44px!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:0 12px!important;
+    border:0!important;
+    border-radius:0!important;
+    outline:0!important;
+    background:transparent!important;
     color:#eaf5ff!important;
     font-size:16px!important;
-    line-height:46px!important;
-    box-sizing:border-box!important;
-    cursor:pointer!important;
+    line-height:44px!important;
   }
-  .marketing-schedule-controls .field:has(#marketingScheduleDate)::after,
-  .marketing-schedule-controls .field:has(#marketingScheduleTime)::after{display:none!important}
-  #marketingScheduleDate::-webkit-calendar-picker-indicator,
-  #marketingScheduleTime::-webkit-calendar-picker-indicator{
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate::-webkit-calendar-picker-indicator,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime::-webkit-calendar-picker-indicator{
     opacity:.9!important;
-    display:block!important;
     margin:0!important;
     padding:0!important;
-    cursor:pointer!important;
     filter:invert(1)!important;
   }
-
   .bottom-nav{isolation:isolate!important}
   .bottom-nav::before{
-    display:block!important;
-    content:"";
-    position:absolute;
-    z-index:-1;
-    left:50%;
-    bottom:0;
-    width:100vw;
-    height:calc(100% + 24px);
-    transform:translateX(-50%);
-    background:linear-gradient(180deg,rgba(2,10,19,0) 0,#020a13 24px,#020a13 100%);
-    pointer-events:none;
+    display:block!important;content:"";position:absolute;z-index:-1;left:50%;bottom:0;
+    width:100vw;height:calc(100% + 24px);transform:translateX(-50%);
+    background:linear-gradient(180deg,rgba(2,10,19,0) 0,#020a13 24px,#020a13 100%);pointer-events:none;
   }
   .marketing-workspace{padding-bottom:calc(var(--iphone-nav-reserve) + 18px)!important}
-}
-/* iPhone Calendar equal side gaps — 2026-10-04g */
-@media (max-width:600px){
-  .marketing-schedule-controls{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    box-sizing:border-box!important;
-  }
-  .marketing-schedule-controls .field:has(#marketingScheduleDate),
-  .marketing-schedule-controls .field:has(#marketingScheduleTime){
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    padding:0!important;
-    justify-self:stretch!important;
-    box-sizing:border-box!important;
-  }
-  #marketingScheduleDate,
-  #marketingScheduleTime{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    inline-size:100%!important;
-    max-inline-size:100%!important;
-    margin:0!important;
-    box-sizing:border-box!important;
-  }
 }
