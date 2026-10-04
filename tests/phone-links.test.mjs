@@ -16,7 +16,7 @@ test('UK customer phone links use unambiguous +44 dial targets', () => {
   assert.match(finalShowcase, /location\.href='sms:'\+dial/);
   assert.match(index, /normalisePublicDialNumber/);
   assert.match(index, /window\.location\.href='tel:'\+dial/);
-  assert.match(premiumUi, /final-showcase\.js\?v=20261004-phone-nav-2/);
+  assert.match(premiumUi, /final-showcase\.js\?v=20261004-customer-redesign-1/);
 });
 
 test('documented UK mobile example maps to the intended international dial string', () => {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 
-test('customer showcase observer settles without rewriting unchanged text',async()=>{
+test('customer showcase observer settles without rewriting customer copy',async()=>{
   const source=await readFile(new URL('../assets/final-showcase.js',import.meta.url),'utf8');
   let mutations=0;let observer;
   const textNode=initial=>{let text=initial;return {get textContent(){return text;},set textContent(value){text=value;mutations++;}};};
@@ -14,8 +14,8 @@ test('customer showcase observer settles without rewriting unchanged text',async
     querySelectorAll:selector=>selector==='[data-customer-tab]'?tabs:[]};
   vm.runInNewContext(source,{document,location:{pathname:'/customer',href:'https://pilot.example/customer'},URL,
     MutationObserver:class {constructor(callback){observer=callback;}observe(){}}});
-  assert.equal(title.textContent,'Customer Portal');assert.ok(mutations>0);
+  assert.equal(title.textContent,'Welcome');assert.ok(mutations>0);
   mutations=0;observer();assert.equal(mutations,0,'observer must not create new childList mutations when text is unchanged');
-  title.textContent='Refreshed';mutations=0;observer();assert.equal(mutations,1);
-  mutations=0;observer();assert.equal(mutations,0,'dynamic updates must also settle');
+  title.textContent='Refreshed';mutations=0;observer();assert.equal(mutations,0,'customer copy must remain owned by the customer portal runtime');
+  assert.equal(title.textContent,'Refreshed');
 });
