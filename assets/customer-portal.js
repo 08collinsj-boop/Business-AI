@@ -144,8 +144,12 @@ function renderEnquiries(target,items,limit=null){
 
 async function loadPortal(){
   portalState=await portalApi('/api/customer-portal');
-  const name=portalState.customer?.display_name||portalState.customer?.email||'Customer';
-  if(byId('customerPortalGreeting'))byId('customerPortalGreeting').textContent='Welcome, '+name.split('@')[0];
+  const displayName=String(portalState.customer?.display_name||'').trim();
+  const email=String(portalState.customer?.email||'').trim();
+  const greeting=displayName?'Welcome, '+displayName:'Welcome back';
+  if(byId('customerPortalGreeting'))byId('customerPortalGreeting').textContent=greeting;
+  const initial=(displayName||email||'Customer').trim().charAt(0).toUpperCase()||'C';
+  if(byId('customerAccountInitial'))byId('customerAccountInitial').textContent=initial;
   if(byId('customerPortalEmail'))byId('customerPortalEmail').textContent=portalState.customer?.email||'';
   if(byId('customerProfileName'))byId('customerProfileName').value=portalState.customer?.display_name||'';
   if(byId('customerProfileEmail'))byId('customerProfileEmail').value=portalState.customer?.email||'';
@@ -154,25 +158,34 @@ async function loadPortal(){
 }
 
 function showPortalTab(name){
+  const shell=document.querySelector('.customer-portal-shell');if(shell)shell.dataset.customerActiveTab=name;
   document.querySelectorAll('[data-customer-pane]').forEach(p=>p.hidden=p.dataset.customerPane!==name);
   document.querySelectorAll('[data-customer-tab]').forEach(b=>{const active=b.dataset.customerTab===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
-  if(name==='find')searchBusinesses('');
+  if(name==='find'){const input=byId('customerPortalSearchInput');if(input&&!input.value.trim())resetCustomerBusinessSearch();}
+}
+
+function resetCustomerBusinessSearch(){
+  const target=byId('customerPortalSearchResults');if(!target)return;
+  target.innerHTML='<div class="customer-empty customer-search-prompt">Start typing to find a business.</div>';
 }
 
 async function searchBusinesses(query){
   const target=byId('customerPortalSearchResults');if(!target)return;
+  const normalized=String(query||'').trim().slice(0,80);
+  if(normalized.length<2){resetCustomerBusinessSearch();return;}
   target.innerHTML='<div class="customer-empty">Searching businesses…</div>';
   try{
-    const url=new URL('/api/public-businesses',window.location.origin);if(query)url.searchParams.set('q',query);
+    const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
     const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
     const data=await response.json();target.replaceChildren();
     const rows=Array.isArray(data.businesses)?data.businesses:[];
     if(!rows.length){target.innerHTML='<div class="customer-empty">No matching businesses found.</div>';return;}
     for(const business of rows){
       const card=document.createElement('article');card.className='customer-search-result';
-      const copy=document.createElement('div');const h=document.createElement('h4');h.textContent=business.name||'Business';const p=document.createElement('p');p.textContent=business.description||business.services||business.type||'Customer enquiries';copy.append(h,p);
+      const mark=document.createElement('div');mark.className='customer-search-result-mark';mark.setAttribute('aria-hidden','true');mark.textContent=String(business.name||'B').trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase().slice(0,2)||'B';
+      const copy=document.createElement('div');copy.className='customer-search-result-copy';const h=document.createElement('h4');h.textContent=business.name||'Business';const p=document.createElement('p');p.textContent=business.description||business.services||business.type||'Customer enquiries';copy.append(h,p);
       const link=document.createElement('a');link.href=business.message_path||('/customer?business='+encodeURIComponent(business.slug||''));link.textContent='Message';
-      card.append(copy,link);target.append(card);
+      card.append(mark,copy,link);target.append(card);
     }
   }catch{target.innerHTML='<div class="customer-empty">Business search is temporarily unavailable.</div>';}
 }
@@ -200,7 +213,7 @@ function setCustomerSurface(portalReady){
 async function refreshRoute(){
   if(!isCustomerRoute())return;
   const signedIn=Boolean(session);
-  document.querySelectorAll('[data-customer-account-link]').forEach(link=>{link.textContent=signedIn?'My enquiries':'Customer sign in';link.href='/customer/account';});
+  document.querySelectorAll('[data-customer-account-link]').forEach(link=>{const label=link.querySelector('[data-customer-account-label]');if(label)label.textContent=signedIn?'My enquiries':'Customer sign in';else link.textContent=signedIn?'My enquiries':'Customer sign in';link.href='/customer/account';});
   const hint=byId('publicCustomerAccountHint');
   if(hint)hint.innerHTML=signedIn?'Signed in · qualifying enquiries will appear in <a href="/customer/account">My enquiries</a>.':'Want to track your enquiry? <a href="/customer/account">Sign in as a customer</a> before sending it.';
   if(!isCustomerAccountRoute())return;

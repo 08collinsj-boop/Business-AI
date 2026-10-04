@@ -67,8 +67,8 @@ test('customer portal keeps owner login separate and supports search then direct
   const vercel = await readFile(new URL('../vercel.json', import.meta.url), 'utf8');
   assert.match(html, /id="publicDirectoryScreen"/);
   assert.match(html, /id="publicDirectorySearch"/);
-  assert.match(html, /<h2>Search businesses<\/h2>/);
-  assert.match(html, /Customer<br>sign in/);
+  assert.match(html, /<h2>Find the right business<\/h2>/);
+  assert.match(html, /data-customer-account-label>Customer sign in/);
   assert.match(html, /Continue as guest/);
   assert.match(html, /new URL\('\/api\/public-businesses'/);
   assert.match(html, /new URL\('\/customer'/);

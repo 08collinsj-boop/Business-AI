@@ -2139,7 +2139,7 @@ input.switch,input.switch:before{transition:none}
 
 </style>
 <link rel="stylesheet" href="/assets/marketing.css">
-<link rel="stylesheet" href="/assets/customer-portal.css">
+<link rel="stylesheet" href="/assets/customer-portal.css?v=20261004-customer-redesign-1">
 <link rel="stylesheet" href="/assets/premium-ui.css">
 <link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-ui-fixes-1">
 <link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-add-lead-1">
@@ -2307,46 +2307,59 @@ input.switch,input.switch:before{transition:none}
 <main id="customerAuthScreen" class="auth-screen" hidden inert aria-hidden="true"></main>
 
 <main id="customerPortalScreen" hidden inert aria-hidden="true">
-<section class="customer-portal-shell">
+<section class="customer-portal-shell" data-customer-active-tab="home">
 <header class="customer-portal-top">
 <div class="customer-portal-brand"><div class="customer-portal-mark" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div><strong>Business AI</strong><div>Customer Portal</div></div></div>
-<div class="customer-portal-user"><span id="customerPortalEmail" style="color:#697b89;font-size:10px"></span><button id="customerPortalLogout" type="button">Sign out</button></div>
+<div class="customer-portal-user"><span id="customerPortalEmail"></span><button id="customerPortalLogout" type="button">Sign out</button></div>
 </header>
-<section class="customer-portal-hero"><span>Customer Portal</span><h1 id="customerPortalGreeting">Welcome</h1><p>Find businesses, track your enquiries and see when a business has responded.</p></section>
+
 <nav class="customer-portal-nav" aria-label="Customer portal">
-<button class="active" type="button" data-customer-tab="home" aria-current="page"><span aria-hidden="true">⌂</span><small>Home</small></button>
+<button class="active" type="button" data-customer-tab="home" aria-current="page"><span aria-hidden="true">⌂</span><small>Overview</small></button>
 <button type="button" data-customer-tab="find"><span aria-hidden="true">⌕</span><small>Find</small></button>
-<button type="button" data-customer-tab="enquiries"><span aria-hidden="true">◉</span><small>Enquiries</small></button>
+<button type="button" data-customer-tab="enquiries"><span aria-hidden="true">◉</span><small>My enquiries</small></button>
 <button type="button" data-customer-tab="account"><span aria-hidden="true">○</span><small>Account</small></button>
 </nav>
 
 <section class="customer-portal-pane" data-customer-pane="home">
-<div class="customer-portal-grid">
-<button class="customer-card customer-quick-card" type="button" data-customer-go="find"><i aria-hidden="true">⌕</i><div><strong>Find a business</strong><span>Search by name, service or area and start an enquiry.</span></div><b aria-hidden="true">›</b></button>
-<button class="customer-card customer-quick-card" type="button" data-customer-go="enquiries"><i aria-hidden="true">◉</i><div><strong>My enquiries</strong><span>Track the latest status of enquiries sent while signed in.</span></div><b aria-hidden="true">›</b></button>
+<section class="customer-portal-hero customer-home-hero"><span>Customer Portal</span><h1 id="customerPortalGreeting">Welcome back</h1><p>Search businesses, send enquiries and keep track of replies from one place.</p></section>
+<div class="customer-home-actions">
+<button class="customer-quick-card customer-quick-card-primary" type="button" data-customer-go="find"><i aria-hidden="true">⌕</i><div><strong>Find a business</strong><span>Search by name, service or area.</span></div><b aria-hidden="true">›</b></button>
+<button class="customer-quick-card" type="button" data-customer-go="enquiries"><i aria-hidden="true">◉</i><div><strong>My enquiries</strong><span>See the latest status and replies.</span></div><b aria-hidden="true">›</b></button>
 </div>
-<div class="customer-card" style="margin-top:12px"><h3>Recent enquiries</h3><p>Your latest tracked enquiries appear here.</p><div id="customerRecentEnquiries" class="customer-enquiry-list"></div></div>
+<section class="customer-section-card customer-recent-card">
+<div class="customer-section-head"><div><span>Activity</span><h2>Recent enquiries</h2><p>Your latest tracked enquiries appear here.</p></div><button type="button" data-customer-go="enquiries">View all</button></div>
+<div id="customerRecentEnquiries" class="customer-enquiry-list"></div>
+</section>
 </section>
 
 <section class="customer-portal-pane" data-customer-pane="find" hidden>
-<div class="customer-card"><h2>Find a business</h2><p>Search businesses that have chosen to appear in the Business AI customer directory.</p>
-<label class="sr-only" for="customerPortalSearchInput">Search businesses</label><form id="customerPortalSearchForm" class="customer-search-box"><input id="customerPortalSearchInput" type="search" maxlength="80" placeholder="Business, service or area"><button type="submit">Search</button></form>
-<div id="customerPortalSearchResults" class="customer-search-results"></div></div>
+<section class="customer-section-card customer-find-card">
+<div class="customer-pane-heading"><span>Directory</span><h2>Find a business</h2><p>Search by business name, service or area, then message the business directly.</p></div>
+<label class="sr-only" for="customerPortalSearchInput">Search businesses</label>
+<form id="customerPortalSearchForm" class="customer-search-box customer-search-box-premium"><span aria-hidden="true">⌕</span><input id="customerPortalSearchInput" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" placeholder="Business, service or area"><button type="submit">Search</button></form>
+<div class="customer-search-hints" aria-hidden="true"><span>Business name</span><span>Services</span><span>Areas</span></div>
+<div id="customerPortalSearchResults" class="customer-search-results"><div class="customer-empty customer-search-prompt">Start typing to find a business.</div></div>
+</section>
 </section>
 
 <section class="customer-portal-pane" data-customer-pane="enquiries" hidden>
-<div class="customer-card"><h2>My enquiries</h2><p>Statuses are simplified for customers. Internal business notes, actions and private workflow details are never shown here.</p><div id="customerAllEnquiries" class="customer-enquiry-list"></div></div>
+<section class="customer-section-card customer-enquiries-card">
+<div class="customer-pane-heading"><span>Tracking</span><h2>My enquiries</h2><p>See what you sent, whether the business has replied and what happens next.</p></div>
+<div class="customer-privacy-note"><i aria-hidden="true">✓</i><span>Only customer-facing updates are shown here. Private business notes and internal actions stay private.</span></div>
+<div id="customerAllEnquiries" class="customer-enquiry-list"></div>
+</section>
 </section>
 
 <section class="customer-portal-pane" data-customer-pane="account" hidden>
-<div class="customer-card"><h2>Account</h2><p>Update the name shown in your customer account.</p>
+<section class="customer-section-card customer-account-card">
+<div class="customer-account-intro"><div id="customerAccountInitial" class="customer-account-avatar" aria-hidden="true">C</div><div><span>Account</span><h2>Your details</h2><p>Keep the name shown on your customer account up to date.</p></div></div>
 <form id="customerProfileForm" class="customer-profile-form">
-<label>Name<input id="customerProfileName" maxlength="120" autocomplete="name" required></label>
-<label>Email<input id="customerProfileEmail" type="email" readonly></label>
-<button type="submit">Save account</button><div id="customerProfileMessage" class="customer-auth-message" role="status"></div>
+<label><span>Name</span><input id="customerProfileName" maxlength="120" autocomplete="name" required></label>
+<label><span>Email</span><input id="customerProfileEmail" type="email" readonly></label>
+<div class="customer-profile-actions"><button type="submit">Save changes</button><div id="customerProfileMessage" class="customer-auth-message" role="status"></div></div>
 </form>
-<p style="margin-top:16px"><a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a> · <a href="/customer">Customer directory</a></p>
-</div>
+<div class="customer-account-links"><a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy notice</a><a href="/customer">Customer directory</a></div>
+</section>
 </section>
 </section>
 </main>
@@ -2359,16 +2372,16 @@ input.switch,input.switch:before{transition:none}
 <div><h1>Business AI</h1><p>Customer directory</p></div>
 </div>
 <nav class="public-directory-account-switch" aria-label="Directory account links">
-<a class="public-directory-account-option active" data-customer-account-link href="/customer/account"><span class="public-directory-account-icon" aria-hidden="true">◯</span><span>Customer<br>sign in</span></a>
-<a class="public-directory-account-option" href="/"><span class="public-directory-account-icon" aria-hidden="true">▣</span><span>Business<br>login</span></a>
+<a class="public-directory-account-option active" data-customer-account-link href="/customer/account"><span class="public-directory-account-icon" aria-hidden="true">◯</span><span data-customer-account-label>Customer sign in</span></a>
+<a class="public-directory-account-option" href="/"><span class="public-directory-account-icon" aria-hidden="true">▣</span><span>Business login</span></a>
 </nav>
 </header>
 
 <section class="public-directory-hero public-directory-reference-hero">
 <div class="public-directory-hero-copy">
-<span class="public-directory-kicker">Find a business</span>
-<h2>Search businesses</h2>
-<p>Find and message businesses on Business AI. Start typing a business name, service or area.</p>
+<span class="public-directory-kicker">Business directory</span>
+<h2>Find the right business</h2>
+<p>Search by business name, service or area, then message them directly through Business AI.</p>
 </div>
 <div class="public-directory-hero-mascot" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
 <form id="publicDirectoryForm" class="public-directory-search public-directory-reference-search" role="search">
@@ -2376,7 +2389,7 @@ input.switch,input.switch:before{transition:none}
 <input id="publicDirectorySearch" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" placeholder="Search businesses, services or areas…" aria-label="Search businesses">
 <button class="public-directory-search-submit" type="submit">Search</button>
 </form>
-<p class="public-directory-search-hint">Search by business name, service or area.</p>
+<p class="public-directory-search-hint">Search is private and only returns businesses matching what you type.</p>
 </section>
 
 <div class="public-directory-search-types" aria-label="Search types">
@@ -2387,7 +2400,7 @@ input.switch,input.switch:before{transition:none}
 
 <div id="publicDirectoryPrompt" class="public-directory-prompt public-directory-reference-prompt">
 <span class="public-directory-prompt-icon" aria-hidden="true">⌕</span>
-<div><strong>Start typing to find a business</strong><p>Matching businesses will appear as you type.</p></div>
+<div><strong>Search the directory</strong><p>Enter at least two characters to find matching businesses.</p></div>
 </div>
 
 <section id="publicDirectoryResultsPanel" class="public-directory-results-panel" hidden>
@@ -5239,7 +5252,7 @@ initializeApp();
 </script>
 
 <script src="/assets/marketing.js?v=20261004-calendar-true-centre-1"></script>
-<script src="/assets/customer-portal.js"></script>
+<script src="/assets/customer-portal.js?v=20261004-customer-redesign-1"></script>
 <script src="/assets/premium-ui.js?v=20261004-phone-dial-1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
 </body>

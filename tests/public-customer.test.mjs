@@ -94,7 +94,7 @@ test("public directory matches the approved mascot-led reference while keeping s
   assert.match(directoryMarkup, /class="public-directory-brand-mark"/);
   assert.match(directoryMarkup, /business-ai-mascot\.png/);
   assert.match(directoryMarkup, /class="public-directory-account-switch"/);
-  assert.match(directoryMarkup, /<h2>Search businesses<\/h2>/);
+  assert.match(directoryMarkup, /<h2>Find the right business<\/h2>/);
   assert.match(directoryMarkup, /class="public-directory-hero-mascot"/);
   assert.match(directoryMarkup, /class="public-directory-search-types"/);
   assert.match(html, /\.public-directory-reference-hero\{[\s\S]{0,520}border:1px solid #2a6eaf/);
@@ -106,8 +106,8 @@ test("public directory is search-first and does not enumerate businesses on load
   const directoryScript = html.slice(html.indexOf('let publicDirectoryBusinesses=[];'), html.indexOf('const publicEnquiryMessages=[];'));
   const publicInitialisation = html.slice(html.indexOf("async function initializeApp"), html.indexOf("initializeApp();"));
   assert.match(directoryMarkup, /id="publicDirectoryResultsPanel" class="public-directory-results-panel" hidden/);
-  assert.match(directoryMarkup, /Search by business name, service or area\./);
-  assert.match(directoryMarkup, /Start typing to find a business/);
+  assert.match(directoryMarkup, /Search is private and only returns businesses matching what you type\./);
+  assert.match(directoryMarkup, /Search the directory/);
   assert.match(directoryScript, /normalized\.length<2\)\{resetPublicBusinessDirectorySearch\(\);return;\}/);
   assert.match(html, /publicDirectorySearch'\)\?\.addEventListener\('input',queuePublicBusinessDirectorySearch\)/);
   assert.match(directoryScript, /window\.setTimeout\(\(\)=>\{publicDirectorySearchTimer=null;loadPublicBusinessDirectory\(query\);\},220\)/);

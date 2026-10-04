@@ -22,11 +22,9 @@ function customerPortal(){
     wrap.innerHTML=`<div class="fportal-enquiry-head"><div><small>Your enquiry</small><strong>${E(title)}</strong><span>${E(meta)}</span></div><i>${E(status)}</i></div><div class="fportal-progress">${['Received','Reviewing','Responded','Completed'].map((label,i)=>`<b class="${i<step?'done':''}"><i></i><small>${label}</small></b>`).join('')}</div>${summary?`<p>${E(summary)}</p>`:''}<div class="fportal-actions"></div>`;
     if(open){open.textContent='Send a message';wrap.querySelector('.fportal-actions').append(open)}
     card.replaceChildren(wrap);
-    const brand=document.querySelector('.customer-portal-brand strong');if(brand&&brand.textContent==='Business AI')brand.textContent=title;
   };
   const enhance=()=>{
     document.querySelectorAll('.customer-enquiry-card').forEach(enhanceCard);
-    const hero=document.querySelector('.customer-portal-hero');if(hero){const title=hero.querySelector('span');if(title&&title.textContent!=='Customer Portal')title.textContent='Customer Portal';const p=hero.querySelector('p');const copy='Track enquiries and contact businesses from one place.';if(p&&p.textContent!==copy)p.textContent=copy;}
     const labels={home:'Overview',find:'Find',enquiries:'My enquiries',account:'Account'};
     document.querySelectorAll('[data-customer-tab]').forEach(b=>{const s=b.querySelector('small');const label=labels[b.dataset.customerTab];if(s&&label&&s.textContent!==label)s.textContent=label;});
   };
