@@ -9,7 +9,9 @@ const [css, marketing] = await Promise.all([
 
 test('iPhone shell reserves safe areas and bottom navigation space', () => {
   assert.match(css, /Business AI iPhone release guard/);
-  assert.match(css, /top:env\(safe-area-inset-top\)!important/);
+  assert.match(css, /top:0!important/);
+  assert.match(css, /min-height:calc\(54px \+ env\(safe-area-inset-top\)\)!important/);
+  assert.match(css, /padding:calc\(env\(safe-area-inset-top\) \+ 5px\) 0 9px!important/);
   assert.match(css, /padding-top:var\(--iphone-header-gap\)!important/);
   assert.match(css, /mock-trend\{position:absolute;right:12px;bottom:20px/);
   assert.match(css, /--iphone-nav-reserve:132px/);
