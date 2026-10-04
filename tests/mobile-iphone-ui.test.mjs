@@ -33,7 +33,6 @@ test('trial-included Marketing access is not rendered as locked or purchasable',
 
 test('five-tab iPhone bottom navigation centres each icon and label', () => {
   assert.match(css, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\)!important/);
-  assert.match(css, /align-items:center!important/);
-  assert.match(css, /justify-content:center!important/);
-  assert.match(css, /nav-btn > span:last-child\{[\s\S]*text-align:center!important/);
+  assert.match(css, /display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important/);
+  assert.match(css, /nav-btn>span:last-child\{[^}]*text-align:center!important/);
 });
