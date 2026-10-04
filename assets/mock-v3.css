@@ -302,28 +302,23 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
   }
   .marketing-workspace{padding-bottom:calc(var(--iphone-nav-reserve) + 18px)!important}
 }
-
-
-/* iPhone Calendar field width alignment — 2026-10-04e */
+/* iPhone Calendar equal side gaps — 2026-10-04g */
 @media (max-width:600px){
-  #marketingScheduleDate,
-  #marketingScheduleTime{
+  .marketing-schedule-controls{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
     box-sizing:border-box!important;
-    width:calc(100% - 14px)!important;
-    max-width:calc(100% - 14px)!important;
-    justify-self:start!important;
   }
-}
-
-
-/* iPhone Calendar marked-width lock — 2026-10-04f */
-@media (max-width:600px){
   .marketing-schedule-controls .field:has(#marketingScheduleDate),
   .marketing-schedule-controls .field:has(#marketingScheduleTime){
-    width:calc(100% - 36px)!important;
-    max-width:calc(100% - 36px)!important;
+    width:100%!important;
+    max-width:100%!important;
     min-width:0!important;
-    justify-self:start!important;
+    margin:0!important;
+    padding:0!important;
+    justify-self:stretch!important;
+    box-sizing:border-box!important;
   }
   #marketingScheduleDate,
   #marketingScheduleTime{
@@ -331,6 +326,8 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
     max-width:100%!important;
     min-width:0!important;
     inline-size:100%!important;
+    max-inline-size:100%!important;
+    margin:0!important;
     box-sizing:border-box!important;
   }
 }
