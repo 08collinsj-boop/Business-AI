@@ -314,3 +314,23 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
     justify-self:start!important;
   }
 }
+
+
+/* iPhone Calendar marked-width lock — 2026-10-04f */
+@media (max-width:600px){
+  .marketing-schedule-controls .field:has(#marketingScheduleDate),
+  .marketing-schedule-controls .field:has(#marketingScheduleTime){
+    width:calc(100% - 36px)!important;
+    max-width:calc(100% - 36px)!important;
+    min-width:0!important;
+    justify-self:start!important;
+  }
+  #marketingScheduleDate,
+  #marketingScheduleTime{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    inline-size:100%!important;
+    box-sizing:border-box!important;
+  }
+}
