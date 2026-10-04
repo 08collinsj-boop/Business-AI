@@ -36,3 +36,12 @@ test('five-tab iPhone bottom navigation centres each icon and label', () => {
   assert.match(css, /display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important/);
   assert.match(css, /nav-btn>span:last-child\{[^}]*text-align:center!important/);
 });
+
+
+test('mobile Add Lead action stays compact and aligned with the Leads heading', () => {
+  assert.match(css, /Mobile Leads header action/);
+  assert.match(css, /#leadsView > \.screen-title\{[\s\S]*padding-right:116px!important/);
+  assert.match(css, /#leadsView > \.mock-add-lead\{[\s\S]*height:40px!important/);
+  assert.match(css, /#leadsView > \.mock-add-lead\{[\s\S]*min-width:104px!important/);
+  assert.match(css, /@media \(max-width:380px\)\{[\s\S]*min-width:96px!important/);
+});

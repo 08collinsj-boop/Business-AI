@@ -395,3 +395,55 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
     box-shadow:0 0 0 3px rgba(72,167,255,.1)!important;
   }
 }
+
+
+/* Mobile Leads header action — 2026-10-04 */
+@media (max-width:600px){
+  #leadsView{position:relative!important}
+  #leadsView > .screen-title{
+    min-height:44px!important;
+    margin-bottom:14px!important;
+    padding-right:116px!important;
+  }
+  #leadsView > .mock-add-lead{
+    position:absolute!important;
+    top:2px!important;
+    right:0!important;
+    left:auto!important;
+    float:none!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:auto!important;
+    min-width:104px!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    margin:0!important;
+    padding:0 12px!important;
+    border-radius:12px!important;
+    font-size:13px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    box-shadow:0 5px 14px rgba(18,126,240,.22)!important;
+  }
+}
+@media (max-width:380px){
+  #leadsView > .screen-title{
+    min-height:42px!important;
+    margin-bottom:14px!important;
+    padding-right:106px!important;
+  }
+  #leadsView > .mock-add-lead{
+    top:1px!important;
+    right:0!important;
+    left:auto!important;
+    width:auto!important;
+    min-width:96px!important;
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    padding:0 10px!important;
+    font-size:12px!important;
+  }
+}
