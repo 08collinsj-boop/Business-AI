@@ -26,9 +26,9 @@ function customerPortal(){
   };
   const enhance=()=>{
     document.querySelectorAll('.customer-enquiry-card').forEach(enhanceCard);
-    const hero=document.querySelector('.customer-portal-hero');if(hero){hero.querySelector('span')?.replaceChildren(document.createTextNode('Customer Portal'));const p=hero.querySelector('p');if(p)p.textContent='Track enquiries and contact businesses from one place.'}
+    const hero=document.querySelector('.customer-portal-hero');if(hero){const title=hero.querySelector('span');if(title&&title.textContent!=='Customer Portal')title.textContent='Customer Portal';const p=hero.querySelector('p');const copy='Track enquiries and contact businesses from one place.';if(p&&p.textContent!==copy)p.textContent=copy;}
     const labels={home:'Overview',find:'Find',enquiries:'My enquiries',account:'Account'};
-    document.querySelectorAll('[data-customer-tab]').forEach(b=>{const s=b.querySelector('small');if(s&&labels[b.dataset.customerTab])s.textContent=labels[b.dataset.customerTab]});
+    document.querySelectorAll('[data-customer-tab]').forEach(b=>{const s=b.querySelector('small');const label=labels[b.dataset.customerTab];if(s&&label&&s.textContent!==label)s.textContent=label;});
   };
   enhance();
   const observer=new MutationObserver(enhance);observer.observe(document.body,{childList:true,subtree:true});
