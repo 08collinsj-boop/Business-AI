@@ -2142,7 +2142,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/customer-portal.css">
 <link rel="stylesheet" href="/assets/premium-ui.css">
 <link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-ui-fixes-1">
-<link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-calendar-centre-1">
+<link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-calendar-true-centre-1">
 </head>
 
 <body class="auth-pending app-loading" aria-busy="true">
@@ -2936,7 +2936,7 @@ class="view"
 
 <div id="marketingSchedulePane" role="tabpanel" aria-labelledby="marketingTabSchedule" hidden>
 <section class="card marketing-calendar-card"><div class="card-head"><div><span class="marketing-eyebrow">Calendar</span><h3>Next 7 days</h3></div><span class="marketing-step-pill">Live schedule</span></div><p class="work-meta">A clear view of what is planned. Select a scheduled item below to change or cancel its time.</p><div id="marketingCalendar" class="marketing-calendar-week"><div class="empty">Loading calendar…</div></div></section>
-<section class="card marketing-scheduler-card" style="margin-top:14px"><div class="card-head"><div><span class="marketing-eyebrow">Calendar</span><h3>Schedule an approved post</h3></div><span class="marketing-step-pill">Facebook</span></div><p class="work-meta">Choose an approved draft and future time. When Meta publishing is enabled, Business AI creates the scheduled Facebook post with Meta and tracks its status here.</p><div id="marketingScheduleDraftSummary" class="marketing-selected-draft"></div><div class="marketing-filters marketing-schedule-controls"><div class="field calendar-picker-field"><label for="marketingScheduleDate">Date</label><div class="calendar-input-shell"><input id="marketingScheduleDate" type="date"></div></div><div class="field calendar-picker-field"><label for="marketingScheduleTime">Time</label><div class="calendar-input-shell"><input id="marketingScheduleTime" type="time"></div></div><div class="field"><label for="marketingSchedulePlatform">Platform</label><select id="marketingSchedulePlatform"><option value="facebook">Facebook Page</option></select></div></div><p id="marketingScheduleMessage" class="marketing-message" role="status" aria-live="polite"></p><div class="work-actions"><button id="marketingScheduleConfirm" class="small-btn primary-action" type="button">Schedule post</button><button id="marketingScheduleClear" class="small-btn" type="button">Clear</button></div></section>
+<section class="card marketing-scheduler-card" style="margin-top:14px"><div class="card-head"><div><span class="marketing-eyebrow">Calendar</span><h3>Schedule an approved post</h3></div><span class="marketing-step-pill">Facebook</span></div><p class="work-meta">Choose an approved draft and future time. When Meta publishing is enabled, Business AI creates the scheduled Facebook post with Meta and tracks its status here.</p><div id="marketingScheduleDraftSummary" class="marketing-selected-draft"></div><div class="marketing-filters marketing-schedule-controls"><div class="field calendar-picker-field"><label for="marketingScheduleDate">Date</label><div class="calendar-input-shell"><input id="marketingScheduleDate" type="date"><span id="marketingScheduleDateDisplay" class="calendar-centred-value" aria-hidden="true">Select date</span></div></div><div class="field calendar-picker-field"><label for="marketingScheduleTime">Time</label><div class="calendar-input-shell"><input id="marketingScheduleTime" type="time"><span id="marketingScheduleTimeDisplay" class="calendar-centred-value" aria-hidden="true">Select time</span></div></div><div class="field"><label for="marketingSchedulePlatform">Platform</label><select id="marketingSchedulePlatform"><option value="facebook">Facebook Page</option></select></div></div><p id="marketingScheduleMessage" class="marketing-message" role="status" aria-live="polite"></p><div class="work-actions"><button id="marketingScheduleConfirm" class="small-btn primary-action" type="button">Schedule post</button><button id="marketingScheduleClear" class="small-btn" type="button">Clear</button></div></section>
 <section class="card marketing-scheduler-card" style="margin-top:14px"><div class="card-head"><div><span class="marketing-eyebrow">Queue</span><h3>Scheduled posts</h3></div><button id="marketingRefreshSchedules" class="small-btn" type="button">Refresh</button></div><p id="marketingScheduleStatus" class="work-meta" role="status" aria-live="polite"></p><div id="marketingScheduleList" class="work-list marketing-schedule-list"><div class="empty">Loading scheduled posts…</div></div></section>
 </div>
 
@@ -5229,7 +5229,7 @@ initializeApp();
 
 </script>
 
-<script src="/assets/marketing.js"></script>
+<script src="/assets/marketing.js?v=20261004-calendar-true-centre-1"></script>
 <script src="/assets/customer-portal.js"></script>
 <script src="/assets/premium-ui.js"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>

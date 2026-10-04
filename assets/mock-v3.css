@@ -343,3 +343,55 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
     text-align:center!important;
   }
 }
+
+
+/* True visual centring for iPhone Calendar values — 2026-10-04j */
+.calendar-centred-value{display:none}
+@media (max-width:600px){
+  .marketing-schedule-controls .calendar-input-shell{
+    position:relative!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  .marketing-schedule-controls .calendar-centred-value{
+    display:flex!important;
+    position:absolute!important;
+    inset:0!important;
+    z-index:1!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+    padding:0 44px!important;
+    color:#eaf5ff!important;
+    font-size:16px!important;
+    font-weight:400!important;
+    line-height:1!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    pointer-events:none!important;
+  }
+  .marketing-schedule-controls .calendar-centred-value.is-placeholder{color:#7890aa!important}
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleDate,
+  .marketing-schedule-controls .calendar-input-shell #marketingScheduleTime{
+    position:absolute!important;
+    inset:0!important;
+    z-index:2!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0!important;
+    opacity:.001!important;
+    border:0!important;
+    background:transparent!important;
+    color:transparent!important;
+    cursor:pointer!important;
+  }
+  .marketing-schedule-controls .calendar-input-shell:focus-within{
+    border-color:#397bb9!important;
+    box-shadow:0 0 0 3px rgba(72,167,255,.1)!important;
+  }
+}
