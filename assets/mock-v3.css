@@ -126,3 +126,121 @@ body.customer-account,body.public-directory{background:radial-gradient(800px 500
 @media(prefers-reduced-motion:reduce){.view.active{animation:none!important}}
 
 .mock-source-hidden{display:none!important}
+
+/* Business AI iPhone release guard — 2026-10-04 */
+@media (max-width:600px){
+  :root{--iphone-header-gap:8px;--iphone-nav-reserve:132px}
+  html,body{max-width:100%!important;overflow-x:hidden!important}
+
+  /* One authoritative safe-area model for the signed-in owner shell. */
+  body.auth-ready .app,
+  body.final-showcase-ui.auth-ready .app{
+    width:100%!important;
+    max-width:100%!important;
+    padding-top:calc(env(safe-area-inset-top) + var(--iphone-header-gap))!important;
+    padding-right:16px!important;
+    padding-bottom:calc(var(--iphone-nav-reserve) + env(safe-area-inset-bottom))!important;
+    padding-left:16px!important;
+    overflow-x:hidden!important;
+  }
+  body.auth-ready .topbar,
+  body.final-showcase-ui.auth-ready .topbar{
+    position:sticky!important;
+    top:env(safe-area-inset-top)!important;
+    z-index:35!important;
+    min-height:54px!important;
+    margin:0 0 14px!important;
+    padding:5px 0 9px!important;
+    background:linear-gradient(180deg,rgba(4,10,18,.99),rgba(4,10,18,.93) 78%,rgba(4,10,18,0))!important;
+    transform:none!important;
+  }
+  .screen-title,.page-title,.dashboard-reference-head,
+  #dashboardView .screen-title,#dashboardView .page-title{margin-top:0!important}
+  .view{padding-bottom:34px!important;scroll-margin-bottom:calc(var(--iphone-nav-reserve) + env(safe-area-inset-bottom))!important}
+  .view.active{transform:none!important;animation:iphoneViewFade .16s ease both!important}
+  @keyframes iphoneViewFade{from{opacity:.72}to{opacity:1}}
+
+  /* Bottom nav must never cover the final form control/card. */
+  .bottom-nav{
+    left:12px!important;
+    right:12px!important;
+    width:auto!important;
+    transform:none!important;
+    bottom:0!important;
+    min-height:68px!important;
+    padding:6px 8px calc(7px + env(safe-area-inset-bottom))!important;
+    border-radius:20px 20px 0 0!important;
+  }
+  .view>*:last-child,.settings-card:last-child,.marketing-workspace>*:last-child{margin-bottom:28px!important}
+  .app input,.app select,.app textarea,.app button{scroll-margin-bottom:calc(var(--iphone-nav-reserve) + 8px)}
+
+  /* Keep auth scrolling inside the auth surface when the iOS keyboard opens. */
+  body.auth-required,body.auth-pending{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;padding-bottom:0!important}
+  .auth-screen{
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    height:100dvh!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch;
+    justify-content:flex-start!important;
+    padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 20px)!important;
+    scroll-padding-top:calc(env(safe-area-inset-top) + 12px);
+    scroll-padding-bottom:28px;
+  }
+  .auth-shared-shell{width:100%!important;max-width:410px!important;margin:0 auto!important;padding-bottom:22px!important}
+  .auth-role-stage,.auth-role-form,.auth-input{width:100%!important;min-width:0!important}
+  .auth-input input{min-width:0!important;font-size:16px!important}
+  .auth-utility-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:8px!important;width:100%!important}
+  .auth-utility-row>*{min-width:0!important}
+  .auth-utility-row button{justify-self:end!important;max-width:100%!important;white-space:nowrap!important}
+  .auth-role-form input:focus{scroll-margin-top:calc(env(safe-area-inset-top) + 18px);scroll-margin-bottom:24px}
+
+  /* Notifications belong below the iPhone safe area/header and match the app theme. */
+  .toast{
+    top:calc(env(safe-area-inset-top) + 62px)!important;
+    max-width:calc(100vw - 28px)!important;
+    padding:10px 13px!important;
+    border:1px solid #214866!important;
+    border-radius:13px!important;
+    background:rgba(7,22,35,.98)!important;
+    color:#e9f5ff!important;
+    box-shadow:0 14px 34px rgba(0,0,0,.38)!important;
+    backdrop-filter:blur(18px)!important;
+    -webkit-backdrop-filter:blur(18px)!important;
+  }
+
+  /* Marketing: give mobile controls real breathing room. */
+  .marketing-goal-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .marketing-goal-grid button{min-height:92px!important;padding:10px!important}
+  .marketing-goal-grid strong{font-size:11px!important;line-height:1.25!important}
+  .marketing-goal-grid small{font-size:9px!important;line-height:1.35!important}
+  .marketing-pillars{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .marketing-pillars>label:last-child:nth-child(odd){grid-column:1/-1!important}
+  .marketing-workspace input[type="date"],.marketing-workspace input[type="time"]{
+    min-height:44px!important;
+    padding:10px 12px!important;
+    border:1px solid #234b69!important;
+    border-radius:12px!important;
+    background:#081827!important;
+    color:#eaf5ff!important;
+    color-scheme:dark;
+    font-size:16px!important;
+  }
+  .marketing-workspace input[type="date"]::-webkit-calendar-picker-indicator,
+  .marketing-workspace input[type="time"]::-webkit-calendar-picker-indicator{opacity:.82!important;filter:invert(1)!important}
+  #addonStatus:not(:empty){display:block!important;margin:8px 0 12px!important;padding:9px 11px!important;border:1px solid #214866!important;border-radius:12px!important;background:#081827!important;color:#a9c7e4!important;font-size:11px!important;line-height:1.4!important}
+
+  /* Billing/add-ons: stop mobile rows from fighting for horizontal space. */
+  .billing-card .work-meta,.billing-plan p,.billing-plan small,#billingSummary{font-size:11px!important;line-height:1.45!important}
+  .addon-choice{grid-template-columns:24px minmax(0,1fr)!important;align-items:start!important;gap:8px 10px!important}
+  .addon-choice>div:last-child,.addon-choice-status,.addon-inline-action{grid-column:2!important;justify-self:start!important}
+  .addon-choice-copy small{font-size:10px!important;line-height:1.4!important}
+
+  /* Long generated links should truncate cleanly instead of looking chopped. */
+  .smart-link-panel input,.smart-link-panel textarea,input[readonly][type="url"]{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+}
+@media (max-width:360px){.marketing-goal-grid{grid-template-columns:1fr!important}}
+

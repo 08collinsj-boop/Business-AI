@@ -229,18 +229,19 @@
     if (!addons) { target.textContent = 'Optional features: view Additional Features for availability.'; return; }
     for (const addon of addons) {
       const active = addon.entitlement === 'active' && !addon.trial_included;
+      const hasAccess = addon.entitlement === 'active' || addon.trial_included;
       const coming = addon.status === 'coming_soon';
       const row = document.createElement('div'); row.className = `addon-choice${active?' is-active':''}${coming?' is-coming':''}`;
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox'; checkbox.value = addon.key; checkbox.dataset.addonCheckout='1';
       checkbox.id = `billing-addon-${addon.key}`;
       checkbox.checked = active;
-      checkbox.disabled = coming || active || addon.pricing?.state !== 'configured';
+      checkbox.disabled = coming || hasAccess || addon.pricing?.state !== 'configured';
 
       const copy = document.createElement('label'); copy.className='addon-choice-copy'; copy.htmlFor=checkbox.id;
       const title = document.createElement('strong'); title.textContent=addon.name;
       const detail = document.createElement('small');
-      detail.textContent = coming ? 'Not available yet' : active ? 'Included on your current subscription' : `Add to your next plan checkout · ${money(addon.pricing)}`;
+      detail.textContent = coming ? 'Not available yet' : addon.trial_included ? 'Included with your current trial' : active ? 'Included on your current subscription' : `Add to your next plan checkout · ${money(addon.pricing)}`;
       copy.append(title,detail);
 
       const side = document.createElement('div');
@@ -249,7 +250,7 @@
         openButton.addEventListener('click',()=>showView('marketing')); side.append(openButton);
       } else {
         const status=document.createElement('span'); status.className='addon-choice-status';
-        status.textContent=coming?'Coming soon':active?'Active':money(addon.pricing); side.append(status);
+        status.textContent=coming?'Coming soon':addon.trial_included?'Trial included':active?'Active':money(addon.pricing); side.append(status);
       }
       row.append(checkbox,copy,side); target.append(row);
     }
@@ -265,14 +266,14 @@
     const target = node('addonCards'); if(!target) return; target.replaceChildren();
     for (const addon of addons || []) {
       const article = document.createElement('article'); article.className = 'card addon-card';
-      const badge = document.createElement('span'); badge.className = 'addon-badge'; badge.textContent = addon.status === 'coming_soon' ? 'Coming soon' : addon.entitlement === 'active' ? 'Active' : 'Available · Locked';
+      const badge = document.createElement('span'); badge.className = 'addon-badge'; badge.textContent = addon.status === 'coming_soon' ? 'Coming soon' : addon.trial_included ? 'Included in trial' : addon.entitlement === 'active' ? 'Active' : 'Available · Locked';
       const title = document.createElement('h3'); title.textContent = addon.name;
       const description = document.createElement('p'); description.className = 'work-meta'; description.textContent = addon.description;
       const pricing = document.createElement('p'); pricing.className = 'work-meta'; pricing.textContent = addon.status === 'coming_soon' ? 'Not yet available' : money(addon.pricing);
       const actions=document.createElement('div'); actions.className='work-actions';
       const canOpen=addon.key!=='ai_marketing'||addon.entitlement==='active'||addon.trial_included;
       if(canOpen){const openButton=document.createElement('button'); openButton.type='button'; openButton.className='small-btn'; openButton.textContent=addon.key==='ai_marketing'?'Open Marketing':'View'; openButton.disabled=addon.status==='coming_soon'; openButton.addEventListener('click',()=>showView(addon.key==='ai_marketing'?'marketing':'addons')); actions.append(openButton);}
-      if(addon.purchasable){ const b=document.createElement('button'); b.type='button'; b.className='small-btn primary-action'; b.textContent='Add to subscription'; b.addEventListener('click',()=>changeAddon('purchase',addon.key)); actions.append(b); }
+      if(addon.purchasable && addon.entitlement !== 'active' && !addon.trial_included){ const b=document.createElement('button'); b.type='button'; b.className='small-btn primary-action'; b.textContent='Add to subscription'; b.addEventListener('click',()=>changeAddon('purchase',addon.key)); actions.append(b); }
       if(addon.cancellable){ const b=document.createElement('button'); b.type='button'; b.className='small-btn'; b.textContent='Remove add-on'; b.addEventListener('click',()=>changeAddon('cancel',addon.key)); actions.append(b); }
       if(addon.trial_included) { const trial=document.createElement('p'); trial.textContent='10 Marketing generations included with your trial'; article.append(trial); }
       article.append(badge,title,description,pricing,actions); target.append(article);
@@ -890,7 +891,7 @@
       message('');
       setMarketingAccessState('loading');
     }
-    if(view==='addons')node('addonStatus').textContent='Loading additional features…';
+    if(view==='addons'&&node('addonStatus'))node('addonStatus').textContent='';
     try{
       const request=api('/api/addons');
       const result=view==='marketing'?await withMarketingTimeout(request):await request;
