@@ -1,4 +1,4 @@
-/* Business AI — approved final showcase visual layer */
+/* Business AI â approved final showcase visual layer */
 :root{--f-bg:#020910;--f-panel:#071522;--f-panel2:#0a1b2b;--f-border:#15324b;--f-blue:#168ff5;--f-cyan:#28cfe6;--f-green:#28d99a;--f-purple:#8a56f0;--f-orange:#efaa3e;--f-red:#f06468;--f-muted:#8195a8}
 body.final-showcase-ui.auth-ready{background:radial-gradient(circle at 50% -10%,rgba(25,117,202,.14),transparent 28rem),linear-gradient(180deg,#06111c,#02070d)!important}
 body.final-showcase-ui.auth-ready .app{width:min(100%,610px)!important;padding:max(14px,calc(env(safe-area-inset-top) + 7px)) 12px max(100px,calc(env(safe-area-inset-bottom) + 84px))!important}
@@ -34,7 +34,7 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
 @media(max-width:420px){body.final-showcase-ui.auth-ready .app{padding-left:9px!important;padding-right:9px!important}.screen-title h2{font-size:22px!important}.flead-actions{gap:3px}.reference-control-grid{gap:3px!important}}
 @media(prefers-reduced-motion:reduce){.bottom-nav::before{transition:none!important}}
 
-/* Business AI phone-first optimisation — 2026-10-03 */
+/* Business AI phone-first optimisation â 2026-10-03 */
 /* Keep the approved visual identity, but remove overlapping legacy presentation layers. */
 .final-bell,
 .mock-ai-metrics,
@@ -221,9 +221,10 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
   .chat-form input{min-height:48px!important;font-size:16px!important}.chat-form button{width:44px!important;height:44px!important}
 
   /* Settings */
-  #settingsView .reference-profile-summary{padding:14px!important;margin-bottom:10px!important;border-radius:18px!important}
-  .reference-profile-mark{width:52px!important;height:52px!important;border-radius:14px!important}
-  .reference-profile-summary strong{font-size:15px!important}.reference-profile-summary span{font-size:11px!important}.reference-profile-badge{font-size:11px!important}
+  #settingsView .reference-profile-summary{min-height:72px!important;padding:12px 13px!important;margin-bottom:10px!important;border-radius:17px!important}
+  #settingsView .reference-profile-summary-button{grid-template-columns:42px minmax(0,1fr) auto 14px!important;gap:11px!important;align-items:center!important}
+  .reference-profile-mark{width:42px!important;height:42px!important;border-radius:13px!important}
+  .reference-profile-summary strong{font-size:14px!important;line-height:1.2!important}.reference-profile-summary span{font-size:10px!important;line-height:1.25!important}.reference-profile-badge{font-size:10px!important}
   .settings-hub{gap:9px!important;margin-bottom:14px!important}
   .settings-hub-card{min-height:72px!important;grid-template-columns:42px minmax(0,1fr) 14px!important;gap:11px!important;padding:12px 13px!important;border-radius:17px!important}
   .settings-hub-card i{width:42px!important;height:42px!important;border-radius:13px!important;font-size:16px!important}
@@ -323,7 +324,7 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
   .mock-add-lead{width:100%!important;justify-content:center!important}
 }
 
-/* Device screenshot fixes — 2026-10-03 */
+/* Device screenshot fixes â 2026-10-03 */
 /* Remove legacy duplicate Settings launchers. */
 .mock-settings-launchers,
 #settingsView > .work-actions{display:none!important}
@@ -494,7 +495,7 @@ body.customer-account.customer-portal-ready,body.public-directory,body.public-en
 }
 
 
-/* Launch visual QA fixes — 2026-10-03 */
+/* Launch visual QA fixes â 2026-10-03 */
 /* Keep the shared header readable and prevent shortcut scrolling underneath it. */
 body.final-showcase-ui.auth-ready .topbar{
   position:sticky!important;
@@ -553,7 +554,7 @@ body.final-showcase-ui.auth-ready .topbar{
 }
 
 
-/* Desktop visual QA remediation — 2026-10-03 */
+/* Desktop visual QA remediation â 2026-10-03 */
 /* Authentication: one centred shell and consistent sizing for every auth state. */
 body.auth-required #authScreen,
 body.auth-required #authScreen.auth-screen,
@@ -656,7 +657,7 @@ body.final-team-readonly #teamView .mock-invite-card{display:none!important}
 }
 
 
-/* Final desktop regression fixes — 2026-10-03 */
+/* Final desktop regression fixes â 2026-10-03 */
 /* Marketing: finish sizing the controls that live outside the main composer. */
 #marketingView #marketingScheduleConfirm,
 #marketingView #marketingScheduleClear,
@@ -695,7 +696,7 @@ body.final-team-readonly #teamView .final-title-row>button{display:none!importan
 }
 
 
-/* Mobile Leads header action — 2026-10-04 */
+/* Mobile Leads header action â 2026-10-04 */
 @media (max-width:600px){
   #leadsView{position:relative!important}
   #leadsView > .screen-title{
@@ -746,7 +747,7 @@ body.final-team-readonly #teamView .final-title-row>button{display:none!importan
   }
 }
 
-/* Customer experience redesign — 2026-10-04 */
+/* Customer experience redesign â 2026-10-04 */
 body.customer-account.customer-portal-ready,
 body.public-directory{
   background:
@@ -898,7 +899,7 @@ body.public-directory{
 }
 
 
-/* Business Profile — owner editor and customer-facing profile. */
+/* Business Profile â owner editor and customer-facing profile. */
 .reference-profile-summary-button{font:inherit;cursor:pointer;text-align:left;appearance:none;-webkit-appearance:none;color:inherit;grid-template-columns:auto minmax(0,1fr) auto 18px!important;transition:transform .16s ease,border-color .18s ease,box-shadow .18s ease}
 .reference-profile-summary-button:active{transform:scale(.99)}.reference-profile-summary-button:focus-visible{outline:2px solid #4da9ff;outline-offset:3px}.reference-profile-chevron{color:#4f8fc9;font-size:27px;font-weight:400}
 .business-profile-editor-view{padding-bottom:24px}.business-profile-editor-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:start;gap:12px;margin-bottom:16px}.business-profile-editor-head .screen-title{margin:0}.business-profile-back{width:42px;height:42px;border:1px solid #21496f;border-radius:14px;background:#071827;color:#82bfff;font-size:28px;line-height:1}

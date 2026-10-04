@@ -24,6 +24,12 @@ test('owner Settings card opens the dedicated Business Profile editor', () => {
   assert.match(html, /uploadToSignedUrl\(prepared\.path,prepared\.token,file/);
 });
 
+test('Settings Business Profile row matches the mobile Settings card geometry', () => {
+  assert.match(css, /#settingsView \.reference-profile-summary\{min-height:72px!important;padding:12px 13px!important/);
+  assert.match(css, /#settingsView \.reference-profile-summary-button\{grid-template-columns:42px minmax\(0,1fr\) auto 14px!important;gap:11px!important;align-items:center!important/);
+  assert.match(css, /\.reference-profile-mark\{width:42px!important;height:42px!important;border-radius:13px!important/);
+});
+
 test('profile media uploads are tenant-scoped server-prepared and verified before publication', () => {
   assert.match(handler, /requireBusinessMember/);
   assert.match(handler, /requireBusinessAdmin/);
