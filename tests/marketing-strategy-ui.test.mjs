@@ -29,12 +29,12 @@ test('Marketing command centre stylesheet has no known malformed declarations', 
 });
 
 
-test('Marketing automation exposes real frequency controls and hourly scheduler', async () => {
+test('Marketing automation exposes real frequency controls with a Vercel daily fallback', async () => {
   const [html, js, vercel] = await Promise.all([read('index.html'), read('assets/marketing.js'), read('vercel.json')]);
   assert.match(html, /id="marketingAutomationFrequency"/);
   assert.match(html, /1 post \/ day/);
   assert.match(html, /2 posts \/ day/);
   assert.match(html, /3 posts \/ day/);
   assert.match(js, /posts_per_day/);
-  assert.equal(JSON.parse(vercel).crons.find(item => item.path === '/api/marketing-scheduler')?.schedule, '0 * * * *');
+  assert.equal(JSON.parse(vercel).crons.find(item => item.path === '/api/marketing-scheduler')?.schedule, '0 8 * * *');
 });
