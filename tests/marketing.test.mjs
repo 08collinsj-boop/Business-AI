@@ -13,6 +13,8 @@ import {
   validateMarketingInput,
   validateMarketingOutput,
   validateMarketingGrounding,
+  marketingCopySimilarity,
+  isNearDuplicateMarketingCopy,
   MARKETING_SYSTEM_PROMPT
 } from '../lib/marketing.js';
 
@@ -1469,6 +1471,19 @@ test(
       .find(body => body.status === 'completed');
 
     assert.ok(completed);
+  }
+);
+
+test(
+  'near-duplicate marketing copy is detected without blocking a genuinely different caption',
+  () => {
+    const previous = 'We are testing Business AI with local businesses and would love honest feedback on the AI receptionist and marketing tools during the pilot.';
+    const repeated = 'We are testing Business AI with local businesses and would love honest feedback on our AI receptionist and marketing tools during this pilot.';
+    const different = 'Need help keeping up with customer enquiries? Business AI can capture new leads and organise follow-ups so your team can stay focused on the work.';
+
+    assert.ok(marketingCopySimilarity(previous, repeated) >= 0.72);
+    assert.equal(isNearDuplicateMarketingCopy({ main_copy: repeated }, [{ main_copy: previous }]), true);
+    assert.equal(isNearDuplicateMarketingCopy({ main_copy: different }, [{ main_copy: previous }]), false);
   }
 );
 
