@@ -1,6 +1,6 @@
 # Pilot privacy and data controls
 
-Status: the technical controls and UK Pilot legal wording have been reviewed against current ICO guidance as of 1 October 2026. This is not legal certification. Paid public launch remains blocked until the operator identity/contact details and organisation-specific compliance decisions below are completed.
+Status: the technical controls and UK Pilot legal wording have been reviewed against current ICO guidance as of 1 October 2026. The Pilot service-provider identity/contact configuration is now populated and current legal versions are being accepted, including DPA v1.1. This is not legal certification. Paid public launch remains subject to the organisation-specific compliance and recovery decisions below.
 
 ## What the Pilot stores
 
@@ -53,15 +53,19 @@ Maintain an incident log for all personal-data breaches. If a breach is notifiab
 
 See `docs/PRIVACY_INCIDENT_RUNBOOK.md`.
 
+## Backup and recovery
+
+The Pilot recovery procedure is documented in `docs/PILOT_DISASTER_RECOVERY.md`. As of 5 October 2026, the provider management API reports no managed backup entries for the Pilot and PITR is disabled. Paid public Production launch must not be marked backup-ready until a provider-supported backup configuration and an isolated restore drill have been verified.
+
 ## Remaining paid-public-launch decisions
 
-- Configure `LEGAL_OPERATOR_NAME`, `LEGAL_OPERATOR_ADDRESS` and `LEGAL_CONTACT_EMAIL`.
 - Configure company/register number and VAT number where applicable.
 - Complete the ICO data-protection fee self-assessment and register/pay if required.
 - Review provider DPAs and restricted-transfer arrangements.
 - Confirm tax/VAT presentation before taking real paid orders.
 - Verify checkout/order confirmation and access to the accepted terms.
 - Verify the rights-request and retention/deletion procedures with clearly labelled fake data.
+- Enable and verify provider-supported backups/PITR for Production and complete the isolated restore drill.
 - Obtain professional legal review if the risk profile, customer type or processing becomes materially more complex.
 
 This document describes the current technical/compliance position and is not legal advice.
