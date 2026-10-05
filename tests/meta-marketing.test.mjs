@@ -145,6 +145,37 @@ test('Meta OAuth start stores only a hash of one-time state and never returns pr
   assert.doesNotMatch(JSON.stringify(out.body), /app-secret|server-key|token_ciphertext|access_token/i);
 });
 
+test('Meta reconnect auto-selects the only available Facebook Page', async () => {
+  baseEnv();
+  const inserted = [];
+  globalThis.fetch = async (url, options = {}) => {
+    const href = String(url);
+    if (href.includes('marketing_meta_connections?on_conflict=business_id') && options.method === 'POST') {
+      return response([{ id: '77777777-7777-4777-8777-777777777777' }], true, 201);
+    }
+    if (href.includes('marketing_social_accounts?business_id=eq.') && options.method === 'DELETE') return response([], true, 200);
+    if (href.endsWith('/rest/v1/marketing_social_accounts') && options.method === 'POST') {
+      inserted.push(JSON.parse(options.body));
+      return response({}, true, 201);
+    }
+    return response({}, false);
+  };
+  const meta = await import(new URL(`../lib/meta.js?single-page=${Math.random()}`, import.meta.url));
+  await meta.storeMetaConnection({
+    businessId,
+    actorUserId: userId,
+    accessToken: 'EAAB-user-token-value',
+    expiresIn: 3600,
+    providerUserId: 'meta-user-1',
+    accounts: [{ platform: 'facebook', providerAccountId: 'page-1', displayName: 'Business.AI', linkedPageProviderId: null, token: 'EAAB-page-token-value' }],
+    scopes: ['pages_show_list','pages_read_engagement','pages_manage_posts']
+  });
+  assert.equal(inserted.length, 1);
+  assert.equal(inserted[0].platform, 'facebook');
+  assert.equal(inserted[0].selected, true);
+  assert.equal(inserted[0].status, 'selected');
+});
+
 test('Meta account selection is business scoped and rejects browser-supplied unknown fields', async () => {
   baseEnv();
   const calls = [];
