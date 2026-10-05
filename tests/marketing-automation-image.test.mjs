@@ -63,13 +63,15 @@ test('automation settings accept only owner-controlled supported values', async 
       enabled: true,
       mode: 'approval_required',
       tone: 'friendly',
-      image_enabled: true
+      image_enabled: true,
+      posts_per_day: 2
     }),
     {
       enabled: true,
       mode: 'approval_required',
       tone: 'friendly',
-      image_enabled: true
+      image_enabled: true,
+      posts_per_day: 2
     }
   );
   assert.throws(
@@ -78,6 +80,7 @@ test('automation settings accept only owner-controlled supported values', async 
       mode: 'fully_automated',
       tone: 'friendly',
       image_enabled: false,
+      posts_per_day: 1,
       business_id: 'attacker-controlled'
     }),
     /Invalid automation settings/
@@ -87,9 +90,20 @@ test('automation settings accept only owner-controlled supported values', async 
       enabled: true,
       mode: 'anything_goes',
       tone: 'friendly',
-      image_enabled: false
+      image_enabled: false,
+      posts_per_day: 1
     }),
     /Invalid automation settings/
+  );
+  assert.throws(
+    () => automation.validateMarketingAutomationUpdate({
+      enabled: true,
+      mode: 'approval_required',
+      tone: 'friendly',
+      image_enabled: false,
+      posts_per_day: 4
+    }),
+    /between 1 and 3/
   );
 });
 

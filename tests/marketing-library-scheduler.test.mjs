@@ -15,4 +15,20 @@ test('only the owner can approve Marketing content for publishing',async()=>{env
 
 test('Marketing scheduler requires a strong bearer secret before claiming jobs',async()=>{process.env.MARKETING_SCHEDULER_SECRET='s'.repeat(40);process.env.SUPABASE_URL='https://example.supabase.co';process.env.SUPABASE_SERVICE_ROLE_KEY='server';let called=false;globalThis.fetch=async()=>{called=true;return reply([]);};const handler=(await import(new URL(`../lib/marketing-scheduler-handler.js?auth=${Math.random()}`,import.meta.url))).default;let out=res();await handler({method:'POST',headers:{authorization:'Bearer wrong'}},out);assert.equal(out.statusCode,401);assert.equal(called,false);out=res();await handler({method:'POST',headers:{authorization:`Bearer ${'s'.repeat(40)}`}},out);assert.equal(out.statusCode,200);assert.equal(out.body.processed,0);assert.equal(out.body.schedules_processed,0);assert.equal(called,true);});
 
+
+
+test('Marketing automation frequency spaces runs and rotates content angles',async()=>{
+  const automation=await import(new URL(`../lib/marketing-automation.js?frequency=${Math.random()}`,import.meta.url));
+  assert.equal(automation.marketingAutomationIntervalMs(1),24*60*60*1000);
+  assert.equal(automation.marketingAutomationIntervalMs(2),12*60*60*1000);
+  assert.equal(automation.marketingAutomationIntervalMs(3),8*60*60*1000);
+  const first=automation.nextMarketingAutomationAngle(null);
+  const second=automation.nextMarketingAutomationAngle(first.key);
+  assert.equal(first.key,'services');
+  assert.notEqual(second.key,first.key);
+  const now=Date.now();
+  assert.equal(automation.isMarketingAutomationDue({enabled:true,posts_per_day:3,last_run_at:new Date(now-9*60*60*1000).toISOString()},now),true);
+  assert.equal(automation.isMarketingAutomationDue({enabled:true,posts_per_day:3,last_run_at:new Date(now-7*60*60*1000).toISOString()},now),false);
+});
+
 test.after(()=>{for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);globalThis.fetch=originalFetch;});
