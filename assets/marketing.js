@@ -210,6 +210,9 @@
       {key:'facebook_posts',value:'marketingPostUsageValue',bar:'marketingPostUsageBar'}
     ];
     if(node('marketingPlanLabel'))node('marketingPlanLabel').textContent='Plan · '+(usage?planLabel(usage.plan):'—');
+    const dailyPosts=usage?.facebook_posts||null;
+    if(node('marketingAutomationDailyLimit'))node('marketingAutomationDailyLimit').textContent=dailyPosts?`${dailyPosts.limit} posts / day`:'3 posts / day';
+    if(node('marketingAutomationDailyUsage'))node('marketingAutomationDailyUsage').textContent=dailyPosts?`${dailyPosts.used} used today · ${dailyPosts.remaining} remaining`:'Safety limit for Facebook publishing.';
     for(const row of rows){
       const item=usage?.[row.key]||null;
       if(node(row.value))node(row.value).textContent=item?(String(item.remaining)+' / '+String(item.limit)):'—';
@@ -847,6 +850,14 @@
     renderOverview();
   }
 
+  function previewAutomationControls(){
+    const enabled=Boolean(node('marketingAutomationEnabled')?.checked);
+    const mode=node('marketingAutomationMode')?.value||'approval_required';
+    if(node('marketingAutomationEnabledLabel'))node('marketingAutomationEnabledLabel').textContent=enabled?'Enabled':'Paused';
+    if(node('marketingAutomationBadge'))node('marketingAutomationBadge').textContent=mode==='fully_automated'?'Fully automated':'Approval required';
+    message('Automation change ready. Choose Save automation to apply it.');
+  }
+
   async function saveAutomation(){
     if(authenticatedBusinessRole!=='owner'||busy)return;
     const body={
@@ -859,7 +870,7 @@
     try{
       const data=await api('/api/marketing-automation',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       automationState=data.settings||body;imageGenerationMode=data.image_generation_mode||imageGenerationMode;renderAutomation();renderOverview();
-      message(body.enabled?(body.mode==='fully_automated'?'Fully automated Facebook Marketing enabled.':'Daily Marketing drafts enabled with owner approval required.'):'Marketing automation disabled.');
+      message(body.enabled?(body.mode==='fully_automated'?'Fully automated Facebook Marketing enabled.':'Daily Marketing drafts enabled with owner approval required.'):'Daily Marketing paused.');
     }catch(error){message(error?.message||'Could not save Marketing automation settings.');}
     finally{setBusy(false);}
   }
@@ -960,7 +971,7 @@
     try{await navigator.clipboard.writeText(text);message(label);}
     catch{message('Copy is unavailable. Select the draft text to copy it manually.');}
   }
-  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',()=>chooseMarketingPhoto('composer'));node('marketingReplacePhoto')?.addEventListener('click',()=>chooseMarketingPhoto('current'));node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingComposerPhotoRemove')?.addEventListener('click',()=>{clearPendingMarketingPhoto();message('Photo removed from this draft brief.');});node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingAutomationAdvancedToggle')?.addEventListener('click',()=>toggleAutomationAdvanced());node('marketingAutomationPostPhotoAdd')?.addEventListener('click',()=>chooseAutomationMedia('post'));node('marketingAutomationInspirationAdd')?.addEventListener('click',()=>chooseAutomationMedia('inspiration'));node('marketingAutomationMediaInput')?.addEventListener('change',uploadAutomationMedia);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleDate')?.addEventListener('input',syncSchedulePickerDisplay);node('marketingScheduleDate')?.addEventListener('change',syncSchedulePickerDisplay);node('marketingScheduleTime')?.addEventListener('input',syncSchedulePickerDisplay);node('marketingScheduleTime')?.addEventListener('change',syncSchedulePickerDisplay);node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
+  node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',()=>chooseMarketingPhoto('composer'));node('marketingReplacePhoto')?.addEventListener('click',()=>chooseMarketingPhoto('current'));node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingComposerPhotoRemove')?.addEventListener('click',()=>{clearPendingMarketingPhoto();message('Photo removed from this draft brief.');});node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationEnabled')?.addEventListener('change',previewAutomationControls);node('marketingAutomationMode')?.addEventListener('change',previewAutomationControls);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingAutomationAdvancedToggle')?.addEventListener('click',()=>toggleAutomationAdvanced());node('marketingAutomationPostPhotoAdd')?.addEventListener('click',()=>chooseAutomationMedia('post'));node('marketingAutomationInspirationAdd')?.addEventListener('click',()=>chooseAutomationMedia('inspiration'));node('marketingAutomationMediaInput')?.addEventListener('change',uploadAutomationMedia);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleDate')?.addEventListener('input',syncSchedulePickerDisplay);node('marketingScheduleDate')?.addEventListener('change',syncSchedulePickerDisplay);node('marketingScheduleTime')?.addEventListener('input',syncSchedulePickerDisplay);node('marketingScheduleTime')?.addEventListener('change',syncSchedulePickerDisplay);node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
   window.addEventListener('pageshow',syncSchedulePickerDisplay);setTimeout(syncSchedulePickerDisplay,0);
 
