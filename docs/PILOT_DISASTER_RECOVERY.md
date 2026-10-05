@@ -8,11 +8,15 @@ The Pilot database and application services are healthy. Supabase's management b
 
 This means the Pilot does **not** yet have a verified provider-managed restore point. A destructive restore drill must not be run against the live Pilot.
 
-## Launch gate
+## Controlled soft-launch risk decision
 
-Before paid public Production launch, Business AI must have a documented, provider-supported backup configuration and one successful restore drill into an isolated recovery target. Production and Pilot remain separate environments.
+On 5 October 2026 the operator chose to defer paid managed backups/PITR until revenue supports the additional infrastructure cost. This changes the item from an immediate soft-launch blocker to an explicitly accepted temporary risk. It does not turn backup/recovery into a PASS.
 
-The restore test must prove both database recovery and application usability. Supabase database backups do not by themselves guarantee recovery of uploaded Storage objects, so private Knowledge and Marketing media need a separate recovery/retention decision before Production launch.
+While deferred:
+- keep the initial cohort small and supervised;
+- do not claim verified disaster recovery or point-in-time recovery;
+- pause risky writes/automation if data integrity is in doubt;
+- prioritise managed backups/PITR and an isolated restore drill once paying usage/revenue begins and before significant scale.
 
 ## Recovery procedure
 
@@ -36,5 +40,3 @@ Do not add an unconditional cron hard-delete to satisfy retention. Several lead-
 ## Restore drill acceptance criteria
 
 A recovery drill is PASS only when: the restore completes into an isolated target; authentication works; tenant boundaries remain intact; the core owner/customer smoke tests pass; required Storage objects are accounted for; previously deleted/anonymised data is handled correctly; and the result, recovery point and recovery duration are recorded.
-
-Until managed backups/PITR and an isolated restore drill are available, backup/DR remains a public-Production launch blocker rather than something the Pilot should pretend has passed.
