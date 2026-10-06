@@ -32,3 +32,8 @@ Support: support@getbusiness-ai.com
 - Public support email: support@getbusiness-ai.com
 - Business AI is UK-focused. The public site does not claim a company number, VAT registration, postal address or public telephone number.
 
+
+## Pilot
+- Pilot recruitment: https://getbusiness-ai.com/pilot/
+- The pilot is for a small number of businesses using Business AI in normal day-to-day workflows and giving honest feedback.
+- Public pilot messaging does not claim live phone answering, guaranteed results, free access, company registration or VAT registration.
