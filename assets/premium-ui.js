@@ -78,18 +78,27 @@
     password:iconSvg('<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'),
     eye:iconSvg('<path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/>')
   };
+  const setAuthSvgIcon=(element,markup,key)=>{
+    if(!element)return;
+    if(element.dataset.businessAiSvgIcon===key&&element.querySelector('svg'))return;
+    element.innerHTML=markup;
+    element.dataset.businessAiSvgIcon=key;
+  };
   const applyAuthSvgIcons=()=>{
     const businessIcon=document.querySelector('[data-auth-role-target="business"] .auth-role-option-icon');
     const customerIcon=document.querySelector('[data-auth-role-target="customer"] .auth-role-option-icon');
-    if(businessIcon)businessIcon.innerHTML=authIcons.business;
-    if(customerIcon)customerIcon.innerHTML=authIcons.customer;
+    setAuthSvgIcon(businessIcon,authIcons.business,'business');
+    setAuthSvgIcon(customerIcon,authIcons.customer,'customer');
     document.querySelectorAll('.auth-input').forEach(label=>{
       const icon=label.querySelector('i');
       const input=label.querySelector('input');
       if(!icon||!input)return;
-      icon.innerHTML=input.type==='email'?authIcons.email:(input.type==='password'?authIcons.password:authIcons.customer);
+      const key=input.type==='email'?'email':(input.type==='password'?'password':'customer');
+      setAuthSvgIcon(icon,authIcons[key],key);
     });
-    document.querySelectorAll('[data-password-toggle]').forEach(button=>{button.innerHTML=authIcons.eye;});
+    document.querySelectorAll('[data-password-toggle]').forEach(button=>{
+      setAuthSvgIcon(button,authIcons.eye,'eye');
+    });
   };
 
   repairTree(document.body);
