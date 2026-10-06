@@ -1,0 +1,20 @@
+# Business AI
+
+Business AI is a UK-focused small-business software platform for website enquiries, lead capture, bookings, business knowledge and optional AI-assisted marketing.
+
+Canonical website: https://getbusiness-ai.com/
+App: https://app.getbusiness-ai.com/
+
+## Main product pages
+- AI Receptionist: https://getbusiness-ai.com/ai-receptionist/
+- Small Business AI: https://getbusiness-ai.com/small-business-ai/
+- AI Marketing: https://getbusiness-ai.com/ai-marketing/
+
+## Product scope
+- AI Receptionist currently focuses on web enquiries.
+- Business owners can choose human-first, balanced or AI-first handling.
+- Business Knowledge can provide context such as services, FAQs and pricing.
+- AI Marketing is an optional add-on for content drafts and planning.
+- Human review and handover remain part of the product design.
+
+Support: support@getbusiness-ai.com
