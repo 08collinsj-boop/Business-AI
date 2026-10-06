@@ -30,6 +30,97 @@
   }
   document.documentElement.dataset.businessAiUi='premium-v2';
 
+
+  // Repair legacy UTF-8 mojibake in visible app chrome and use SVGs for the
+  // authentication icons so rendering no longer depends on text encoding.
+  const mojibakePattern=/(?:\u00e2[\u0080-\u00ff]{2}|\u00c3[\u0080-\u00ff]|\u00c2[\u0080-\u00ff])/g;
+  const utf8Decoder=typeof TextDecoder==='function'?new TextDecoder('utf-8',{fatal:true}):null;
+  const repairMojibake=value=>{
+    if(!value||!utf8Decoder)return value;
+    return String(value).replace(mojibakePattern,chunk=>{
+      try{
+        const bytes=Uint8Array.from(Array.from(chunk),character=>character.charCodeAt(0));
+        return utf8Decoder.decode(bytes);
+      }catch(_error){
+        return chunk;
+      }
+    });
+  };
+  const repairAttributes=element=>{
+    ['placeholder','title','aria-label'].forEach(name=>{
+      if(!element.hasAttribute||!element.hasAttribute(name))return;
+      const before=element.getAttribute(name);
+      const after=repairMojibake(before);
+      if(after!==before)element.setAttribute(name,after);
+    });
+  };
+  const repairTree=node=>{
+    if(!node)return;
+    if(node.nodeType===Node.TEXT_NODE){
+      const before=node.nodeValue;
+      const after=repairMojibake(before);
+      if(after!==before)node.nodeValue=after;
+      return;
+    }
+    if(node.nodeType!==Node.ELEMENT_NODE&&node.nodeType!==Node.DOCUMENT_FRAGMENT_NODE)return;
+    if(node.nodeType===Node.ELEMENT_NODE){
+      if(/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(node.tagName))return;
+      repairAttributes(node);
+    }
+    Array.from(node.childNodes||[]).forEach(repairTree);
+  };
+
+  const iconSvg=body=>'<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+body+'</svg>';
+  const authIcons={
+    business:iconSvg('<path d="M4 21V6.5A1.5 1.5 0 0 1 5.5 5h8A1.5 1.5 0 0 1 15 6.5V21"/><path d="M15 9h3.5A1.5 1.5 0 0 1 20 10.5V21M8 9h3M8 13h3M8 17h3M3 21h18"/>'),
+    customer:iconSvg('<circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c.7-4 2.8-6 6.5-6s5.8 2 6.5 6"/>'),
+    email:iconSvg('<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m4.5 7 7.5 6 7.5-6"/>'),
+    password:iconSvg('<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'),
+    eye:iconSvg('<path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/>')
+  };
+  const applyAuthSvgIcons=()=>{
+    const businessIcon=document.querySelector('[data-auth-role-target="business"] .auth-role-option-icon');
+    const customerIcon=document.querySelector('[data-auth-role-target="customer"] .auth-role-option-icon');
+    if(businessIcon)businessIcon.innerHTML=authIcons.business;
+    if(customerIcon)customerIcon.innerHTML=authIcons.customer;
+    document.querySelectorAll('.auth-input').forEach(label=>{
+      const icon=label.querySelector('i');
+      const input=label.querySelector('input');
+      if(!icon||!input)return;
+      icon.innerHTML=input.type==='email'?authIcons.email:(input.type==='password'?authIcons.password:authIcons.customer);
+    });
+    document.querySelectorAll('[data-password-toggle]').forEach(button=>{button.innerHTML=authIcons.eye;});
+  };
+
+  repairTree(document.body);
+  applyAuthSvgIcons();
+
+  const glyph=code=>String.fromCodePoint(code);
+  if(!document.querySelector('style[data-business-ai-encoding-fix]')){
+    const style=document.createElement('style');
+    style.dataset.businessAiEncodingFix='true';
+    style.textContent=`
+      .auth-role-option-icon svg,.auth-input>i svg,.auth-password-toggle svg{display:block;margin:auto}
+      .public-detail.has-content:before{content:"${glyph(0x2022)}"!important}
+      .public-detail#publicBusinessAreas:before{content:"${glyph(0x2316)}"!important}
+      .public-detail#publicBusinessHours:before{content:"${glyph(0x25f7)}"!important}
+      .public-detail#publicBusinessPhone:before{content:"${glyph(0x260e)}"!important}
+      .dashboard-launch:before{content:"${glyph(0x203a)}"!important}
+      .ai-screen-title:after{content:"${glyph(0x2726)}"!important}
+    `;
+    document.head.appendChild(style);
+  }
+
+  const encodingObserver=new MutationObserver(mutations=>{
+    mutations.forEach(mutation=>{
+      if(mutation.type==='characterData')repairTree(mutation.target);
+      if(mutation.type==='attributes')repairAttributes(mutation.target);
+      if(mutation.addedNodes)mutation.addedNodes.forEach(node=>repairTree(node));
+    });
+    applyAuthSvgIcons();
+  });
+  encodingObserver.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','title','aria-label']});
+
   if(!document.querySelector('link[data-business-ai-final-showcase]')){
     const finalLink=document.createElement('link');
     finalLink.rel='stylesheet';
