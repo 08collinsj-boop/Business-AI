@@ -9,6 +9,8 @@ App: https://app.getbusiness-ai.com/
 - AI Receptionist: https://getbusiness-ai.com/ai-receptionist/
 - Small Business AI: https://getbusiness-ai.com/small-business-ai/
 - AI Marketing: https://getbusiness-ai.com/ai-marketing/
+- AI for Trades: https://getbusiness-ai.com/ai-for-trades/
+- Teesside small-business AI: https://getbusiness-ai.com/teesside/
 
 ## Product scope
 - AI Receptionist currently focuses on web enquiries.
