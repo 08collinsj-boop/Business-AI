@@ -29,7 +29,8 @@
 
   const defaultMarketingStrategy = Object.freeze({
     primary_goal:'more_enquiries', posts_per_week:4, preferred_time:'18:30',
-    pillars:Object.freeze({services:30,completed_work:25,advice:20,trust:15,offers:10})
+    pillars:Object.freeze({services:30,completed_work:25,advice:20,trust:15,offers:10}),
+    brand_voice:Object.freeze({tone:'friendly',length:'balanced',emojis:'sometimes',hashtags:'light',sales_style:'balanced',perspective:'we',local_mentions:'when_relevant',avoid_phrases:''})
   });
   const marketingGoalBriefs = Object.freeze({
     more_enquiries:{type:'social_post',prompt:'Create a customer-focused post designed to generate genuine enquiries for one real service or product supported by our approved business information. Keep it useful and specific without inventing urgency, prices or claims.'},
@@ -53,6 +54,8 @@
   function normalizedStrategy(value){
     const source=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
     const sourcePillars=source.pillars&&typeof source.pillars==='object'?source.pillars:{};
+    const sourceVoice=source.brand_voice&&typeof source.brand_voice==='object'&&!Array.isArray(source.brand_voice)?source.brand_voice:{};
+    const oneOf=(value,choices,fallback)=>choices.includes(value)?value:fallback;
     return {
       primary_goal:Object.hasOwn(marketingGoalBriefs,source.primary_goal)?source.primary_goal:defaultMarketingStrategy.primary_goal,
       posts_per_week:Math.max(2,Math.min(7,Number(source.posts_per_week)||defaultMarketingStrategy.posts_per_week)),
@@ -63,6 +66,16 @@
         advice:Number.isFinite(Number(sourcePillars.advice))?Number(sourcePillars.advice):20,
         trust:Number.isFinite(Number(sourcePillars.trust))?Number(sourcePillars.trust):15,
         offers:Number.isFinite(Number(sourcePillars.offers))?Number(sourcePillars.offers):10
+      },
+      brand_voice:{
+        tone:oneOf(sourceVoice.tone,['professional','friendly','casual'],'friendly'),
+        length:oneOf(sourceVoice.length,['short','balanced','detailed'],'balanced'),
+        emojis:oneOf(sourceVoice.emojis,['never','sometimes','often'],'sometimes'),
+        hashtags:oneOf(sourceVoice.hashtags,['none','light','standard'],'light'),
+        sales_style:oneOf(sourceVoice.sales_style,['subtle','balanced','promotional'],'balanced'),
+        perspective:oneOf(sourceVoice.perspective,['we','i','business_name'],'we'),
+        local_mentions:oneOf(sourceVoice.local_mentions,['when_relevant','avoid'],'when_relevant'),
+        avoid_phrases:String(sourceVoice.avoid_phrases||'').slice(0,500)
       }
     };
   }
@@ -75,6 +88,12 @@
       pillars:{
         services:Number(node('marketingPillarServices')?.value||0),completed_work:Number(node('marketingPillarWork')?.value||0),
         advice:Number(node('marketingPillarAdvice')?.value||0),trust:Number(node('marketingPillarTrust')?.value||0),offers:Number(node('marketingPillarOffers')?.value||0)
+      },
+      brand_voice:{
+        tone:node('marketingBrandTone')?.value||'friendly',length:node('marketingBrandLength')?.value||'balanced',
+        emojis:node('marketingBrandEmojis')?.value||'sometimes',hashtags:node('marketingBrandHashtags')?.value||'light',
+        sales_style:node('marketingBrandSales')?.value||'balanced',perspective:node('marketingBrandPerspective')?.value||'we',
+        local_mentions:node('marketingBrandLocal')?.value||'when_relevant',avoid_phrases:node('marketingBrandAvoid')?.value||''
       }
     });
   }
@@ -99,6 +118,8 @@
     if(node('marketingStrategyTime'))node('marketingStrategyTime').value=strategy.preferred_time;
     const values={marketingPillarServices:strategy.pillars.services,marketingPillarWork:strategy.pillars.completed_work,marketingPillarAdvice:strategy.pillars.advice,marketingPillarTrust:strategy.pillars.trust,marketingPillarOffers:strategy.pillars.offers};
     for(const [id,value] of Object.entries(values))if(node(id))node(id).value=String(value);
+    const voiceValues={marketingBrandTone:strategy.brand_voice.tone,marketingBrandLength:strategy.brand_voice.length,marketingBrandEmojis:strategy.brand_voice.emojis,marketingBrandHashtags:strategy.brand_voice.hashtags,marketingBrandSales:strategy.brand_voice.sales_style,marketingBrandPerspective:strategy.brand_voice.perspective,marketingBrandLocal:strategy.brand_voice.local_mentions,marketingBrandAvoid:strategy.brand_voice.avoid_phrases};
+    for(const [id,value] of Object.entries(voiceValues))if(node(id))node(id).value=String(value||'');
     updateStrategyTotal();
   }
 

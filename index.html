@@ -2883,6 +2883,19 @@ class="view"
 <div class="field"><label for="marketingStrategyFrequency">Posts per week</label><select id="marketingStrategyFrequency"><option value="2">2 posts</option><option value="3">3 posts</option><option value="4" selected>4 posts</option><option value="5">5 posts</option><option value="6">6 posts</option><option value="7">7 posts</option></select></div>
 <div class="field"><label for="marketingStrategyTime">Preferred time</label><input id="marketingStrategyTime" type="time" value="18:30"></div>
 </div>
+<div class="marketing-brand-voice">
+<div class="marketing-section-heading"><div><span class="marketing-eyebrow">Brand voice</span><h3>How your business should sound</h3><p class="work-meta">Saved per business and used for manual drafts and Marketing automation. Recent published posts still help Business AI learn your style.</p></div></div>
+<div class="marketing-brand-voice-grid">
+<div class="field"><label for="marketingBrandTone">Default voice</label><select id="marketingBrandTone"><option value="professional">Professional</option><option value="friendly" selected>Friendly</option><option value="casual">Casual</option></select></div>
+<div class="field"><label for="marketingBrandLength">Caption length</label><select id="marketingBrandLength"><option value="short">Short</option><option value="balanced" selected>Balanced</option><option value="detailed">Detailed</option></select></div>
+<div class="field"><label for="marketingBrandEmojis">Emojis</label><select id="marketingBrandEmojis"><option value="never">Never</option><option value="sometimes" selected>Sometimes</option><option value="often">Often</option></select></div>
+<div class="field"><label for="marketingBrandHashtags">Hashtags</label><select id="marketingBrandHashtags"><option value="none">None</option><option value="light" selected>Light · up to 3</option><option value="standard">Standard · up to 6</option></select></div>
+<div class="field"><label for="marketingBrandSales">Sales style</label><select id="marketingBrandSales"><option value="subtle">Subtle</option><option value="balanced" selected>Balanced</option><option value="promotional">Promotional</option></select></div>
+<div class="field"><label for="marketingBrandPerspective">Point of view</label><select id="marketingBrandPerspective"><option value="we" selected>We / our</option><option value="i">I / my</option><option value="business_name">Use business name</option></select></div>
+<div class="field"><label for="marketingBrandLocal">Local mentions</label><select id="marketingBrandLocal"><option value="when_relevant" selected>When relevant</option><option value="avoid">Avoid unless requested</option></select></div>
+</div>
+<div class="field marketing-brand-avoid"><label for="marketingBrandAvoid">Words or phrases to avoid <small>(optional)</small></label><textarea id="marketingBrandAvoid" maxlength="500" placeholder="e.g. game-changer, level up, we’ve got you covered"></textarea></div>
+</div>
 <div class="marketing-pillars">
 <label><span><strong>Services</strong><small>Promote real services and products</small></span><input id="marketingPillarServices" type="number" min="0" max="100" step="5" value="30"><b>%</b></label>
 <label><span><strong>Completed work</strong><small>Show real work and outcomes</small></span><input id="marketingPillarWork" type="number" min="0" max="100" step="5" value="25"><b>%</b></label>

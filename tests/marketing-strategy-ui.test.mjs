@@ -14,7 +14,7 @@ test('Marketing strategy UI uses the validated tenant planning backend', async (
 
 test('Marketing command centre exposes professional goal, planning and calendar controls', async () => {
   const html = await read('index.html');
-  for (const id of ['marketingTabOverview','marketingTabCreate','marketingTabHistory','marketingTabSchedule','marketingPlanWeek','marketingSaveStrategy','marketingCalendar']) {
+  for (const id of ['marketingTabOverview','marketingTabCreate','marketingTabHistory','marketingTabSchedule','marketingPlanWeek','marketingSaveStrategy','marketingCalendar','marketingBrandTone','marketingBrandLength','marketingBrandEmojis','marketingBrandHashtags','marketingBrandSales','marketingBrandPerspective','marketingBrandLocal','marketingBrandAvoid']) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(html, /data-marketing-goal="more_enquiries"/);
@@ -37,4 +37,18 @@ test('Marketing automation exposes real frequency controls with a Vercel daily f
   assert.match(html, /3 posts \/ day/);
   assert.match(js, /posts_per_day/);
   assert.equal(JSON.parse(vercel).crons.find(item => item.path === '/api/marketing-scheduler')?.schedule, '0 8 * * *');
+});
+
+
+test('Marketing Brand Voice is stored inside the tenant strategy and wired into generation', async () => {
+  const [ui, marketing, automation, handler] = await Promise.all([
+    read('assets/marketing.js'), read('lib/marketing.js'), read('lib/marketing-automation.js'), read('lib/marketing-handler.js')
+  ]);
+  assert.match(ui, /brand_voice/);
+  assert.match(ui, /marketingBrandAvoid/);
+  assert.match(marketing, /BRAND VOICE SETTINGS/);
+  assert.match(marketing, /marketingBrandVoiceContext/);
+  assert.match(automation, /brand_voice/);
+  assert.match(automation, /brandVoice/);
+  assert.match(handler, /brandVoice/);
 });
