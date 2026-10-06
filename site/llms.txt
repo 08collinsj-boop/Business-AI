@@ -26,3 +26,9 @@ App: https://app.getbusiness-ai.com/
 - Human review and handover remain part of the product design.
 
 Support: support@getbusiness-ai.com
+## About and contact
+- About: https://getbusiness-ai.com/about/
+- Contact: https://getbusiness-ai.com/contact/
+- Public support email: support@getbusiness-ai.com
+- Business AI is UK-focused. The public site does not claim a company number, VAT registration, postal address or public telephone number.
+
