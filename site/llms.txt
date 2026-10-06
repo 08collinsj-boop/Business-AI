@@ -12,6 +12,12 @@ App: https://app.getbusiness-ai.com/
 - AI for Trades: https://getbusiness-ai.com/ai-for-trades/
 - Teesside small-business AI: https://getbusiness-ai.com/teesside/
 
+## Resources and guides
+- Resources hub: https://getbusiness-ai.com/resources/
+- AI website receptionist guide: https://getbusiness-ai.com/resources/ai-website-receptionist-small-business/
+- Website enquiry automation guide: https://getbusiness-ai.com/resources/automate-website-enquiries-small-business/
+- AI lead capture for trades guide: https://getbusiness-ai.com/resources/ai-lead-capture-trades/
+
 ## Product scope
 - AI Receptionist currently focuses on web enquiries.
 - Business owners can choose human-first, balanced or AI-first handling.
