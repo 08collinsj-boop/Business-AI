@@ -1619,6 +1619,25 @@ button:disabled{cursor:wait;opacity:.58;transform:none!important}
 
 /* Mobile viewport fit: let the authenticated app use the full screen width and contain decorative overflow. */
 body.auth-ready{overflow-x:hidden;overflow-x:clip}
+
+/* iOS/WebKit bottom-nav stability: keep root viewport stationary and scroll owner content instead. */
+@supports (-webkit-touch-callout:none){
+body.auth-ready{
+height:100dvh;
+min-height:100dvh;
+padding-bottom:0;
+overflow:hidden
+}
+body.auth-ready .app{
+height:100dvh;
+min-height:0;
+overflow-x:clip;
+overflow-y:auto;
+overscroll-behavior-y:contain;
+-webkit-overflow-scrolling:touch
+}
+body.auth-ready.work-dialog-open .app{overflow:hidden}
+}
 @media(max-width:800px){
 body.auth-ready .app{
 width:100%;
@@ -4260,7 +4279,9 @@ function showView(view){
 const target=document.getElementById(`${view}View`);
 if(!target)return;
 
-window.scrollTo({top:0,left:0,behavior:'auto'});
+const ownerScroller=document.querySelector('body.auth-ready .app');
+if(ownerScroller)ownerScroller.scrollTo({top:0,left:0,behavior:'auto'});
+else window.scrollTo({top:0,left:0,behavior:'auto'});
 document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item===target));
 
 const navContext=['addons','marketing','businessProfile'].includes(view)?'settings':view==='enquiries'?'dashboard':view;
