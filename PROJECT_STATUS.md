@@ -7,7 +7,7 @@ This status applies to the isolated Business AI Pilot and Business-AI-Dev enviro
 ## Current verified source
 
 - Active Pilot branch: `pilot-progress-20261007`.
-- Current verified source head: `895f80260e71780278cf7641bde5bf0e96c0f9af`.
+- Final full verification was run after the status refresh on 7 October 2026; use the branch history for the current documentation-only head.
 - Full source gate: **513 / 513 automated tests passing**, 0 failed, 0 skipped.
 - `npm run verify:local`: **159 JavaScript files verified**, with secret-pattern and temporary-marker checks passing.
 - Tenant authentication, single-business membership resolution, owner/admin/member permissions and AAL2 owner step-up are implemented.
