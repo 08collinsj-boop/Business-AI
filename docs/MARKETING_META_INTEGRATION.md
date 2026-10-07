@@ -1,18 +1,41 @@
 # AI Marketing, Facebook and Instagram Pilot foundation
 
-Status: implemented locally; live Meta credentials are not present and no external account has been connected.
+Status: Facebook publishing is live in the Pilot and has been smoke-tested on the connected Business.AI Facebook Page. Public use by unrelated businesses is still limited by Meta App Review / Advanced Access and any verification Meta requires.
+
+## Current Pilot state
+
+- Meta app: `Business-AI Pages`.
+- App ID: `1619985466370367`.
+- Pilot callback: `https://business-ai-pilot.vercel.app/api/meta-callback`.
+- Facebook Page publishing is enabled in the Pilot.
+- `My Business` currently has a connected and selected `Business.AI` Facebook Page.
+- `Hartlepool Test Electrical` also has a connected and selected `Business.AI` Facebook Page.
+- A real owner-directed Pilot Facebook publish has completed successfully.
+- Fully automated Marketing exists, but the owner must enable it and the stronger owner/AAL2 path applies.
+- Instagram discovery remains present for linked professional accounts, but Instagram publishing is deliberately not enabled until a media workflow is separately certified.
+- The Meta app is Published, but access for unrelated normal Facebook accounts is not yet treated as approved.
+- Do not accept the Tech Provider designation unless Business AI deliberately chooses that operating model after reviewing the consequences.
 
 ## Product flow
 
-1. Business generates a private Marketing draft.
-2. Draft is saved in the tenant library and can be edited/regenerated.
-3. Only the business owner can approve a completed draft for publishing.
-4. Owner/admin connects Meta through OAuth and selects a server-discovered Facebook Page / linked professional Instagram account.
-5. An approved draft can be published now or scheduled.
-6. Scheduled work is stored in `marketing_publications` and must be claimed by the protected server scheduler endpoint.
-7. Status is shown as scheduled, publishing, published, failed or cancelled.
+1. Business generates a private Marketing draft, or an enabled automation generates one.
+2. Drafts are tenant-scoped and grounded in the business profile plus approved Business Knowledge.
+3. In approval-required mode, an owner reviews and approves before external publishing.
+4. In fully automated mode, owner configuration authorises the automation to approve and publish within the configured safety limits.
+5. Owner/admin connects Meta through OAuth and selects a server-discovered Facebook Page.
+6. An approved post can be published now, natively scheduled on Facebook where supported, or processed by the protected Business AI scheduler.
+7. Publication state is stored durably and shown as scheduled, publishing, published, failed or cancelled.
 
-Business AI never silently auto-approves AI copy.
+## Meta permission use
+
+The implemented Facebook flow needs only permissions that correspond to features actually used.
+
+- `public_profile`: identify the person completing OAuth.
+- `pages_show_list`: discover Facebook Pages the authorised person can use so Business AI can present a server-discovered Page list.
+- `pages_read_engagement`: read a small set of recent posts from the selected Page for repetition / recent-content context.
+- `pages_manage_posts`: create text or photo Page posts and manage supported scheduled Page posts.
+
+The currently stored Pilot connection reports `business_management` as well. Before public App Review submission, confirm whether the active Meta configuration genuinely requires that permission. If it is not required for the implemented flow, remove it rather than requesting unnecessary access.
 
 ## Meta security model
 
@@ -26,40 +49,40 @@ Required server-only configuration:
 - `META_TOKEN_ENCRYPTION_KEY`
 - `META_PUBLISH_ENABLED`
 
-The exact Graph API version and scopes are intentionally environment configuration and must be verified against the current Meta developer documentation during Pilot setup rather than frozen into source.
+OAuth uses a random 256-bit state value. Only its SHA-256 hash is stored, it expires after ten minutes, and the callback atomically marks it used before exchanging the code.
 
-OAuth uses a random 256-bit state value. Only its SHA-256 hash is stored, it expires after ten minutes, and the callback atomically marks it used before exchanging the code. Provider tokens are encrypted using AES-256-GCM with a server-only 32-byte key. Token-bearing tables have no authenticated browser read policy.
+Provider and Page tokens are encrypted with AES-256-GCM using a server-only key. Token-bearing tables do not have browser read access.
 
-Page/account IDs used for publishing are resolved from `marketing_social_accounts`, which was populated from Meta using the connected user's token. A browser cannot prove Page ownership by submitting a Page ID.
+Page/account IDs used for publishing are resolved from `marketing_social_accounts`, populated from Meta using the authorised person's token. The browser cannot prove Page ownership merely by submitting a Page ID.
 
-Disconnecting deletes the Meta connection and cascades discovered social accounts, removing recoverable provider tokens from application storage.
+Disconnecting removes the Meta connection and cascades discovered social accounts, so recoverable provider tokens are removed from Business AI application storage.
 
 ## Publishing support
 
-Facebook Page text publishing is implemented behind `META_PUBLISH_ENABLED=true` and must be smoke-tested with a Pilot Page before enabling it.
+Facebook Page text and photo publishing are implemented. Native Facebook scheduling is also implemented within Meta's supported time window.
 
-Instagram is deliberately **not** presented as live text-only publishing. The connection model records a linked professional account, but actual Instagram publishing remains blocked with `META_MEDIA_REQUIRED` until a media-asset/container workflow is implemented and verified. This avoids a fake integration.
+Provider/network results that cannot confirm whether a Facebook post was created are treated conservatively. Business AI keeps durable publication records and uses request-level idempotency to reduce duplicate-post risk.
 
-Provider/network results which cannot confirm whether a Facebook post was created are marked `META_AMBIGUOUS_RESULT`. Business AI tells the owner to check the Page before retrying; automatic retry is blocked to reduce duplicate-post risk.
+Instagram remains blocked until a complete media container / publication workflow has been implemented and separately verified.
 
-Each browser publish/schedule operation carries a random request ID. The server hashes that together with the verified tenant and stores it behind a unique constraint, so retrying the same operation reuses the durable publication job. If the original publish succeeded but the response was lost, a retry returns the existing published job instead of posting a second time.
+## Automation and scheduling
 
-## Scheduling
+`POST /api/marketing-scheduler` is server-to-server only and requires `Authorization: Bearer <MARKETING_SCHEDULER_SECRET>` using a server-only secret.
 
-`POST /api/marketing-scheduler` is server-to-server only and requires `Authorization: Bearer <MARKETING_SCHEDULER_SECRET>` with a secret of at least 32 characters.
+Publication and automation claiming use database locking / durable claim functions so browser actions and scheduled workers cannot safely publish the same job twice.
 
-`claim_due_marketing_publications()` atomically claims due jobs using row locking. `claim_marketing_publication()` atomically claims a specific publish-now/retry job so the browser path does not race the scheduler. Both functions are service-role-only.
+The Pilot Vercel cron calls the Marketing scheduler daily. The current fully automated `My Business` setting is one Facebook post per day.
 
-The repository intentionally does not pretend a browser timer is a scheduler. During Pilot deployment, configure a supported server cron/scheduler to call this endpoint frequently enough for the promised scheduling precision.
+## Remaining Meta work
 
-## Remaining live work
+- Complete App Review / Advanced Access for permissions required by unrelated businesses.
+- Complete any Access Verification or business/individual verification Meta requires for the chosen operating model.
+- Record the current Meta Platform / Developer terms during final browser certification.
+- Provide reviewer access through Meta's secure reviewer fields, never in source control.
+- Record a reviewer demonstration showing connect, Page discovery/selection, draft generation, approval and a harmless test-Page publish or schedule.
+- Confirm least privilege for `business_management` before submission.
+- Retest with an unrelated normal Facebook account after approval.
+- Keep Tech Provider onboarding unaccepted unless deliberately chosen.
+- Keep Instagram publishing disabled until separately certified.
 
-- Create/configure the Meta Pilot app.
-- Verify the current Graph API version and required Page/Instagram permissions.
-- Configure the Pilot callback URL exactly.
-- Complete any Meta app review/business verification required for the intended permissions.
-- Connect a harmless Pilot Page and verify account discovery/select/disconnect.
-- Verify one owner-approved Facebook test post.
-- Confirm token expiry/re-auth behaviour.
-- Choose and configure the server scheduler.
-- Add a real media workflow before enabling Instagram publishing.
+See `META_APP_REVIEW_PACKET.md` for the prepared reviewer submission material.
