@@ -59,7 +59,7 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 - The former DPA provider-identity blocker is resolved for configured Pilot businesses.
 - Supabase Security Advisor currently has no HIGH/ERROR finding.
 - The two RLS-without-policy INFO findings are intentional service-role-only incident-control tables with no browser grants.
-- Supabase leaked-password protection is still disabled and should be enabled before wider public signup.
+- Supabase leaked-password protection is still disabled. Operator decision: defer enabling it until there is clear commercial validation from prospects confirming they would pay. Keep the Pilot limited/supervised in the meantime, and enable it before wider public signup or real customer onboarding.
 - Managed backups/PITR and an isolated restore drill remain an accepted temporary soft-launch risk, not a technical PASS.
 
 ## Live Pilot
@@ -72,10 +72,10 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 ## Remaining launch gates
 
 1. **Meta public access** - complete App Review / Advanced Access, required verification and an unrelated-account retest.
-2. **Commercial hosting** - the Business AI Vercel team is currently on Hobby. Paid/commercial launch remains blocked until the operator approves a suitable commercial hosting plan or another suitable host.
-3. **Authentication hardening** - enable Supabase leaked-password protection.
+2. **Commercial hosting** - the Business AI Vercel team is currently on Hobby. Operator decision: do not upgrade or purchase hosting until prospects have confirmed they would pay. Resolve this before taking real paid customers.
+3. **Authentication hardening** - operator decision: defer Supabase leaked-password protection until commercial validation, while keeping the Pilot limited/supervised. Enable it before wider public signup or real customer onboarding.
 4. **Browser certification** - complete the remaining authenticated owner/customer, rendered legal, recovery, Stripe TEST and Meta-console checks in `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md`.
-5. **ICO registration/payment** - the self-assessment result has been recorded, but any registration, declaration or payment requires explicit operator approval.
+5. **ICO registration/payment** - operator decision: do not register or pay until there is clear commercial validation from prospects confirming they would pay. The existing self-assessment result remains recorded. This commercial decision does not itself establish a legal exemption, so the ICO position must be rechecked before expanding the Pilot or taking real customers.
 6. **Backups/PITR** - retained as the documented post-launch P1 risk for the small supervised Pilot.
 
 ## Production

@@ -22,11 +22,11 @@ Status: refreshed 7 October 2026. This checklist covers the isolated Business AI
 
 ### ICO data-protection fee
 
-The ICO self-assessment was completed on 5 October 2026 and returned Tier 1: £52 per year, or £47 when paid by Direct Debit. Registration/payment has not been completed. Do not register, declare or pay without the operator's explicit approval.
+The ICO self-assessment was completed on 5 October 2026 and returned Tier 1: £52 per year, or £47 when paid by Direct Debit. Operator decision: do not register, declare or pay until prospects provide clear commercial validation by confirming they would pay for Business AI. This decision does not itself establish a legal exemption, so the ICO position must be rechecked before expanding the Pilot or taking real customers.
 
 ### Commercial hosting
 
-The Vercel team is currently on Hobby. The current Hobby terms are for personal/non-commercial use. Paid/commercial launch remains blocked until the operator approves a suitable commercial Vercel plan or another suitable host.
+The Vercel team is currently on Hobby. Operator decision: do not upgrade or purchase commercial hosting until prospects confirm they would pay for Business AI. Continue only with the limited Pilot in the meantime, and resolve hosting before taking real paid customers.
 
 ### Meta public access
 
@@ -34,7 +34,7 @@ The Pilot Page connection and Page publishing work for the current authorised ac
 
 ### Authentication hardening
 
-Supabase leaked-password protection is currently disabled. Enable it in the Auth dashboard before wider public signup.
+Supabase leaked-password protection is currently disabled. Operator decision: defer enabling it until prospects confirm they would pay. Keep the Pilot limited/supervised in the meantime, and enable it before wider public signup or real customer onboarding.
 
 ### Browser certification
 

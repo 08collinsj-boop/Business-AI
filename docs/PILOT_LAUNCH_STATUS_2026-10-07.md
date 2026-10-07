@@ -40,7 +40,15 @@ Do not accept Tech Provider onboarding automatically.
 
 Vercel deployment context currently reports the `Buisness-AI` team plan as `hobby`.
 
-Keep real paid-customer launch blocked until Business AI is moved to a Vercel plan / hosting arrangement that permits the intended commercial use. Do not purchase or upgrade without explicit operator approval.
+Operator decision: do not purchase or upgrade hosting until prospects confirm they would pay for Business AI. Keep real paid-customer launch blocked until a suitable commercial hosting arrangement is approved.
+
+### Supabase leaked-password protection
+
+Operator decision: defer enabling leaked-password protection until prospects confirm they would pay for Business AI. Keep the Pilot limited/supervised in the meantime, and enable it before wider public signup or real customer onboarding.
+
+### ICO registration/payment
+
+Operator decision: do not register or pay until prospects provide clear commercial validation by confirming they would pay. The prior self-assessment remains recorded. This decision does not itself establish a legal exemption, so recheck the ICO position before expanding the Pilot or taking real customers.
 
 ### Browser-only certification
 
