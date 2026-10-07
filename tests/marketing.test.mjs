@@ -889,7 +889,7 @@ for (
 
       assert.equal(
         modelCall.model,
-        'liquid/lfm-2.5-2.6b:free'
+        'openrouter/free'
       );
 
       assert.equal(

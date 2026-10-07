@@ -1,4 +1,4 @@
-/* Optional feature workspaces â aligned with the premium Business AI owner UI. */
+/* Optional feature workspaces - aligned with the premium Business AI owner UI. */
 .addon-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
 .addon-card h3{margin:12px 0 8px}.addon-card p{line-height:1.6}
 .addon-badge{display:inline-flex;align-items:center;width:max-content;padding:5px 10px;border:1px solid #315477;border-radius:999px;background:rgba(44,111,177,.08);color:#b5d9ff;font-size:11px;font-weight:750;letter-spacing:.01em}

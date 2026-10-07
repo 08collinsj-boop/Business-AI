@@ -272,12 +272,14 @@ test('past, invalid and distant times are rejected', () => {
 });
 
 test('timezone offsets round-trip to the same instant', () => {
-  const instant = Date.parse('2026-10-05T18:30:00.000Z');
-  const asOffset = new Date(instant).toISOString();
+  const date = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  date.setUTCHours(18, 30, 0, 0);
+  const instant = date.getTime();
+  const asOffset = date.toISOString();
   assert.equal(Date.parse(parseScheduledFor(asOffset)), instant);
   assert.ok(parseScheduledFor(asOffset).endsWith('Z'));
-  const localForm = '2026-10-05T19:30';
-  assert.equal(typeof parseScheduledFor(`${localForm}:00+01:00`), 'string');
+  const localForm = date.toISOString().slice(0, 10) + 'T19:30';
+  assert.equal(Date.parse(parseScheduledFor(`${localForm}:00+01:00`)), instant);
 });
 
 test('empty schedule list and UI states', async () => {

@@ -25,7 +25,7 @@ test('Marketing command centre stylesheet has no known malformed declarations', 
   const css = await read('assets/marketing.css');
   for (const bad of ['adisplay:', 'amargin-', '!mportant', '33width', '1fr=']) assert.equal(css.includes(bad), false, bad);
   assert.match(css, /@media\(max-width:900px\)[\s\S]*?\.marketing-overview-main\{grid-template-columns:1fr\}/);
-  assert.match(css, /@media\(max-width:620px\)[\s\S]*?\.marketing-strategy-controls\{grid-template-columns:1fr\}/);
+  assert.match(css, /@media\(max-width:620px\)[\s\S]*?\.marketing-strategy-controls,\.marketing-brand-voice-grid\{grid-template-columns:1fr\}/);
 });
 
 

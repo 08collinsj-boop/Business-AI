@@ -72,7 +72,7 @@ test('tester feedback form is mobile-friendly, escaped and has a success state',
   assert.match(html, /pilotFeedbackArea/);
   assert.match(html, /pilotFeedbackMessage/);
   assert.match(html, /pilotFeedbackStatus/);
-  assert.match(html, /Thanks — your feedback has been sent\./);
+  assert.match(html, /Thanks - your feedback has been sent\./);
   assert.match(html, /pilotFeedbackList/);
   assert.ok(html.includes('esc(item.title'));
   assert.ok(html.includes('esc(item.message'));
