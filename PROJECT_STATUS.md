@@ -1,53 +1,82 @@
 # Business AI Pilot source status
 
-Last local audit: 2026-09-23
+Last verified: 7 October 2026
 
-## Source-complete / locally verified
+This status applies to the isolated Business AI Pilot and Business-AI-Dev environment. The separate Business AI Production environment remains untouched.
 
-- Server-verified Supabase authentication, single-membership tenant resolution and owner/admin/member role checks.
-- Tenant-scoped leads, history, pipeline, settings, bookings, actions, handovers, team and audit/lifecycle operations.
-- Public slug-to-business routing without exposing or accepting an internal tenant ID.
-- Resumable owner onboarding and mobile-first owner/public experiences.
-- AI receptionist reliability pass: business instructions/context, approved Knowledge retrieval, off-topic handling, safer human/emergency detection, enquiry-session allowance semantics, reservation release on provider failure and distinct billing denial reasons.
-- Private Business Knowledge upload/review/approval/replacement system for PDF/JPG/PNG/WebP/TXT/CSV.
-- Stripe base-plan architecture for paid Trial (£3.99 / 7 days / 100 enquiries), Starter (£29/month / 250), Pro (£69/month / 1,000) and Business (£149/month / 3,000), including signed idempotent webhooks and stale-event protection.
-- Server-owned add-on catalogue. AI Marketing is available as an entitlement; AI Phone Calls remains Coming Soon.
-- AI Marketing generation using profile + approved Knowledge, saved draft library, editing/regeneration/deletion and owner-only approval for publishing.
-- Stripe add-on purchase/cancel architecture using a server-configured Marketing Price. The Marketing add-on cannot be charged until its price is explicitly configured/approved.
-- Meta foundation: OAuth state/CSRF protection, encrypted server-only tokens, server-discovered Facebook/Instagram account records, account selection, disconnect/revoke path, Facebook Page text-publish adapter and Instagram fail-closed media requirement.
-- Marketing publication/scheduling records, atomic claim functions, protected server scheduler endpoint, status/failure reporting and duplicate-risk handling for ambiguous provider results.
-- Lightweight Pilot feedback without automatic customer-conversation attachment.
-- Retention controls plus owner data export/anonymisation foundations and a public data-use notice.
-- Provider-neutral Voice data/adapter foundation remains disabled.
-- Final source includes `.env.example`, architecture/security/integration docs and a Codex Pilot deployment handoff.
-- Final local quality gate: **174/174 automated tests passing**, all JS/MJS syntax checks passing, inline app script parsing, no obvious secret patterns, and no temporary-code markers.
+## Current verified source
 
-## Newest migration files not to apply to Production as part of this task
+- Active Pilot branch: `pilot-progress-20261007`.
+- Current verified source head: `895f80260e71780278cf7641bde5bf0e96c0f9af`.
+- Full source gate: **513 / 513 automated tests passing**, 0 failed, 0 skipped.
+- `npm run verify:local`: **159 JavaScript files verified**, with secret-pattern and temporary-marker checks passing.
+- Tenant authentication, single-business membership resolution, owner/admin/member permissions and AAL2 owner step-up are implemented.
+- Leads, history, pipeline, bookings, actions, handovers, team, audit/lifecycle, customer portal and public business routing remain tenant-scoped.
+- Business Knowledge supports private upload, extraction, owner review/approval and trusted retrieval.
+- Public/customer routing does not accept a browser-supplied internal tenant ID.
+- Customer account routing stays behind the shared loading screen until the customer session is verified.
+- AI Phone Calls remains disabled for the Pilot.
 
-- `20260923190000_add_ai_enquiry_reservation_release.sql`
-- `20260923193000_add_business_knowledge_uploads.sql`
-- `20260923200000_add_marketing_publishing_and_feedback.sql`
+## Billing and product
 
-Codex must inspect live Business-AI-Dev migration history and apply only outstanding migrations to Pilot/Dev in filename order.
+Current Pilot pricing:
 
-## Deliberately requires live Pilot verification
+- Paid Trial: £3.99 for 7 days, 100 AI enquiries.
+- Starter: £34.99/month, 250 AI enquiries.
+- Pro: £79.99/month, 1,000 AI enquiries.
+- Business: £159.99/month, 3,000 AI enquiries.
+- AI Marketing add-on: £19.99/month.
 
-- Supabase migration execution, RLS/Storage behaviour and security advisors.
-- OpenAI live extraction/generation behaviour, latency and actual usage costs.
-- Stripe Test checkout/portal/webhooks, renewal, cancellation, payment failure, out-of-order webhook delivery and eventual Marketing add-on Price.
-- Meta app creation/review, current Graph API version/scopes, OAuth callback, Page discovery, token expiry and one harmless owner-approved Facebook Page post.
-- Selection/configuration of a server scheduler for `/api/marketing-scheduler`.
-- Authenticated mobile/browser smoke tests against the deployed Pilot.
+The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhooks, portal/subscription controls and stale-event protections are implemented. The Marketing add-on is available only through server-approved configuration.
 
-## Product decisions still required
+## AI Marketing
 
-1. Final monthly price/allowance (if any) for the AI Marketing add-on.
-2. Whether the Marketing add-on should be available to Starter, Pro and Business equally or have plan-specific limits.
-3. The server scheduler provider/cadence and the scheduling precision Business AI will promise customers.
-4. Final legal/privacy wording and support/incident ownership for real Pilot businesses.
-5. Future Meta scope: media generation/upload for Instagram, analytics, campaigns/content calendar and automated suggestions. Publishing must remain owner-approved.
-6. Future telephony provider/number/call-recording policy before AI Phone Calls can leave Coming Soon.
+- Marketing generation is grounded in the business profile plus approved Business Knowledge.
+- The reliability fix is permanent in source: Marketing uses `openrouter/free` and may make up to three attempts for retryable provider, validation, grounding or repetition failures.
+- Draft history, editing, approval, deletion, copy controls, scheduling and Facebook publication records are implemented.
+- Owner-uploaded JPG/PNG/WebP Marketing photos are implemented, including Add photo and Upload / replace photo flows.
+- Fully automated Marketing is owner-controlled and protected by the stronger owner/AAL2 path.
+- `My Business` remains enabled in fully automated mode at one post per day.
+- The live Supabase cron job `business-ai-marketing-scheduler-hourly` is active at `0 * * * *` and calls the protected Pilot Marketing scheduler.
+- Vercel also retains the 08:00 UTC daily Marketing scheduler cron as fallback protection.
+
+## Meta / Facebook
+
+- Meta app: `Business-AI Pages`.
+- Pilot Facebook Page connection is live and the selected Page is `Business.AI`.
+- A real owner-directed Pilot Facebook publication has completed successfully.
+- OAuth state protection, encrypted server-side provider tokens, server-discovered Page IDs, disconnect and publication idempotency are implemented.
+- Public access for unrelated businesses is not yet certified. Meta App Review / Advanced Access and any verification Meta requires remain external launch work.
+- Do not accept Tech Provider onboarding automatically.
+- Instagram publishing remains disabled until a real media publication workflow is separately implemented and certified.
+- Reviewer material is prepared in `docs/META_APP_REVIEW_PACKET.md`.
+
+## Legal, privacy and security
+
+- The public legal identity endpoint is configured and reports provider identity ready.
+- The current DPA is v1.1. Acceptance remains owner-controlled and must never be recorded on another business's behalf.
+- The former DPA provider-identity blocker is resolved for configured Pilot businesses.
+- Supabase Security Advisor currently has no HIGH/ERROR finding.
+- The two RLS-without-policy INFO findings are intentional service-role-only incident-control tables with no browser grants.
+- Supabase leaked-password protection is still disabled and should be enabled before wider public signup.
+- Managed backups/PITR and an isolated restore drill remain an accepted temporary soft-launch risk, not a technical PASS.
+
+## Live Pilot
+
+- `https://business-ai-pilot.vercel.app/api/health` returns HTTP 200 with `{"status":"ok"}`.
+- The live Marketing source contains `openrouter/free`, the three-attempt loop and the third-attempt retry guard.
+- The current live Pilot Vercel production deployment is based on source commit `367e61c0e80bfa039d41a5f5fd4273331a424883`. Later branch commits are documentation and regression-test hardening only.
+- Recent runtime inspection found no fresh functional 5xx group after the Marketing repair. A Node `url.parse()` deprecation warning remains in runtime telemetry and is not directly referenced by Business AI source.
+
+## Remaining launch gates
+
+1. **Meta public access** - complete App Review / Advanced Access, required verification and an unrelated-account retest.
+2. **Commercial hosting** - the Business AI Vercel team is currently on Hobby. Paid/commercial launch remains blocked until the operator approves a suitable commercial hosting plan or another suitable host.
+3. **Authentication hardening** - enable Supabase leaked-password protection.
+4. **Browser certification** - complete the remaining authenticated owner/customer, rendered legal, recovery, Stripe TEST and Meta-console checks in `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md`.
+5. **ICO registration/payment** - the self-assessment result has been recorded, but any registration, declaration or payment requires explicit operator approval.
+6. **Backups/PITR** - retained as the documented post-launch P1 risk for the small supervised Pilot.
 
 ## Production
 
-Production is intentionally unchanged. A Production rollout requires a separate explicit decision and the existing production rollout checklist.
+The separate Business AI Production environment is intentionally unchanged. Do not promote Pilot changes or apply Pilot migrations to Production without explicit approval and the Production rollout checklist.
