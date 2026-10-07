@@ -51,6 +51,6 @@ test("QR endpoint stays inside the shared dispatcher", async () => {
   const operations = await read("api/operations.js");
   const vercel = await read("vercel.json");
   assert.match(operations, /"qr-code": qrCodeHandler/);
-  assert.match(vercel, /"source": "\/api\/qr-code"/);
-  assert.match(vercel, /operation=qr-code/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/api/qr-code" && route.destination === "/api/operations?operation=qr-code"));
 });

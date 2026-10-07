@@ -29,5 +29,6 @@ test("value endpoint uses shared dispatcher route", async () => {
   const operations = await read("api/operations.js");
   const vercel = await read("vercel.json");
   assert.match(operations, /"value-dashboard": valueDashboardHandler/);
-  assert.match(vercel, /"source": "\/api\/value-dashboard"/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/api/value-dashboard" && route.destination === "/api/operations?operation=value-dashboard"));
 });

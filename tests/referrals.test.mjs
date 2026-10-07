@@ -51,6 +51,6 @@ test("referrals use the shared operations dispatcher and Vercel rewrite", async 
   const operations = await read("api/operations.js");
   const vercel = await read("vercel.json");
   assert.match(operations, /referrals: referralsHandler/);
-  assert.match(vercel, /"source": "\/api\/referrals"/);
-  assert.match(vercel, /operation=referrals/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/api/referrals" && route.destination === "/api/operations?operation=referrals"));
 });
