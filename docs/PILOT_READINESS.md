@@ -1,50 +1,49 @@
 # Controlled Pilot / soft-launch readiness
 
-The repository is designed for an isolated, supervised Pilot and a small controlled public soft launch. Source completion does not equal live-service verification.
+Status: refreshed 7 October 2026. This checklist covers the isolated Business AI Pilot only. The separate Production environment remains untouched.
 
-## Ready in source
+## Verified tonight
 
-- tenant authentication/authorization and private API scoping;
-- public slug routing and enquiry abuse protection;
-- receptionist/lead/handover path and reliability safeguards;
-- bookings/actions/team foundations;
-- resumable onboarding;
-- retention, audit and data export/anonymisation foundations;
-- Stripe billing architecture;
-- Business Knowledge uploads/review/retrieval;
-- AI Marketing history/approval;
-- Meta/Facebook publishing architecture and server scheduling endpoint;
-- Pilot feedback;
-- conservative PWA;
-- disabled provider-neutral voice foundation;
-- privacy-safe operational monitoring and aggregate launch metrics;
-- documented data-subject-rights and disaster-recovery procedures.
+- The Pilot branch is `pilot-progress-20261007`.
+- Marketing generation now uses `openrouter/free` and may retry up to three times after retryable provider, validation, grounding or repetition failures.
+- The source test suite passes 513 / 513 tests.
+- `npm run verify:local` checked 159 JavaScript files with no secret-pattern or temporary-marker failures.
+- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}`.
+- The stale legal-identity warning and the owner/Marketing mojibake text were repaired.
+- Public service-provider identity and direct contact details are configured.
+- The current DPA is v1.1.
+- The Meta connection is live for the Pilot: a Facebook Page is selected and a real Page post has already published successfully.
+- Marketing automation for `My Business` remains enabled in fully automated mode at one post per day.
+- The live Supabase scheduler calls `/api/marketing-scheduler` hourly. Vercel retains the 08:00 UTC daily cron as a fallback. See `MARKETING_SCHEDULER_OPERATIONS.md`.
+- Supabase migration source now includes the already-applied `pg_net` scheduler migration, so fresh source reflects the live extension requirement.
+- Supabase Security Advisor reports no HIGH/ERROR finding. The remaining WARN is leaked-password protection being disabled in Auth. Two RLS INFO findings are intentional service-role-only incident-control tables.
 
-Automated tests must remain green and the consolidated live checks in `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md` must pass before opening the service more widely.
+## External / operator gates still open
 
-## Required before a controlled public soft launch
+### ICO data-protection fee
 
-1. Confirm Business-AI-Dev and `business-ai-pilot` identities; Production unchanged.
-2. Apply only outstanding migrations to Dev/Pilot and run Supabase advisors.
-3. Configure strong Pilot-only environment values. Never copy secrets into source/browser configuration.
-4. Keep the current legal identity/contact route configured and current legal versions available.
-5. Complete the ICO data-protection fee self-assessment. Do not guess the operator's factual answers; register/pay only if the assessment says it is required.
-6. Resolve the Vercel commercial-use plan issue before taking real paid customers. Current Hobby terms are for personal/non-commercial use; use a commercial plan or another suitable host for commercial service.
-7. Complete one consolidated fake-data owner/customer browser certification using `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md`.
-8. Keep AI Phone Calls disabled until a real provider is connected and separately certified.
-9. Use a small supervised cohort first and review feedback/AI inaccuracies before wider rollout.
+The ICO self-assessment was completed on 5 October 2026 and returned Tier 1: £52 per year, or £47 when paid by Direct Debit. Registration/payment has not been completed. Do not register, declare or pay without the operator's explicit approval.
 
-## Explicit backup risk decision — 5 October 2026
+### Commercial hosting
 
-The operator has chosen to defer paid managed backups/PITR until revenue supports the additional infrastructure cost. This is an accepted temporary soft-launch risk, not a technical PASS.
+The Vercel team is currently on Hobby. Paid/commercial launch remains blocked until the operator approves a suitable commercial Vercel plan or another suitable host.
 
-Until managed backups and an isolated restore drill are in place:
-- keep the initial public cohort small and supervised;
-- do not claim verified disaster recovery or point-in-time restore capability;
-- treat any material data-integrity incident as grounds to pause risky writes using the Incident Centre;
-- retain `PILOT_DISASTER_RECOVERY.md` as the recovery runbook;
-- make managed backups/PITR plus an isolated restore drill a priority once paying usage/revenue begins and before significant scale.
+### Meta public access
+
+The Pilot Page connection and Page publishing work for the current authorised account. Public access for unrelated businesses is not certified. Meta App Review / advanced access, any required business/access verification and the current applicable platform terms must be checked in the Meta Developer console before wider use.
+
+### Authentication hardening
+
+Supabase leaked-password protection is currently disabled. Enable it in the Auth dashboard before wider public signup.
+
+### Browser certification
+
+Run the remaining browser-only checks in `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md`, especially fresh signup/recovery email, fake-data rights workflow, Stripe TEST checkout, mobile owner/customer journeys and the Meta Developer-console checkpoint.
+
+## Deliberately deferred P1
+
+Managed backups/PITR and an isolated restore drill remain an accepted temporary risk for the small supervised Pilot. Do not claim verified disaster recovery until the restore drill actually passes.
 
 ## Production
 
-Production rollout is separate. Do not promote the Pilot deployment or apply Pilot migrations to Production without explicit approval and the Production rollout checklist.
+Production rollout is separate. Do not promote Pilot changes or apply Pilot migrations to the separate Production environment without explicit approval and its rollout checklist.

@@ -1,43 +1,57 @@
-# Production readiness — Pilot
+# Production readiness - Pilot
 
 ## Scope
 
-This checklist covers the controlled Business AI Pilot. Production remains a separate deployment and is not changed by Pilot readiness work.
+This checklist covers the controlled Business AI Pilot. The separate Production environment is not changed by Pilot readiness work.
+
+## Current verification - 7 October 2026
+
+- source test suite: 513 / 513 passing;
+- local verification: 159 JavaScript files checked, with no secret-pattern or temporary-marker failures;
+- live Pilot `/api/health`: HTTP 200;
+- current live Pilot is Git-backed and no longer depends on the temporary one-off Marketing build patch;
+- broad owner/Marketing text mojibake was repaired and regression-tested;
+- Marketing generation uses `openrouter/free` with up to three attempts;
+- provider identity/contact state is configured and the stale Settings blocker was removed;
+- the applied `pg_net` scheduler migration is present in source control.
 
 ## Operational visibility
 
-- The shared operations dispatcher records structured Vercel log events for unhandled server errors, HTTP 5xx responses and slow requests.
-- Logged fields are limited to operation name, HTTP method, status, duration, slow-request flag and error class. Request bodies, query values, headers, customer content and credentials are not logged by this layer.
-- `/api/health` remains deliberately shallow and unauthenticated.
-- `npm run load:smoke` provides a bounded, read-only smoke load against `/api/health` and optionally one public business route.
+The shared operations dispatcher records structured events for unhandled server errors, HTTP 5xx responses and slow requests. It does not intentionally log request bodies, customer content or credentials.
 
-## Pilot UX regressions closed
+`/api/health` remains deliberately shallow and unauthenticated.
 
-- Dashboard receptionist status is obtained from the same public availability endpoint customers use.
-- “Speak to someone” falls back to the business telephone route when the AI assistant is unavailable.
-- Completed/cancelled Actions show an explicit status.
-- A signed-in Customer account stays behind the loading surface until its authenticated portal request succeeds.
-- An inactive Marketing add-on no longer offers an “Open Marketing” action that returns to the locked workspace.
+`npm run load:smoke` is the bounded, read-only smoke-load tool for the Pilot.
 
-## Database performance audit — 1 October 2026
+## Scheduler
 
-The Pilot database is still very small, so current scan statistics do not represent future production traffic. A read-only Supabase audit found:
+The Marketing scheduler has two triggers for resilience:
 
-- `business_audit_events` is currently the largest application table by storage in Pilot, with only hundreds of rows.
-- Supabase Performance Advisor reports 29 foreign-key constraints without a covering index.
-- Several indexes are currently reported as unused, which is expected to be noisy with such a small Pilot dataset. They should not be removed solely from Pilot usage statistics.
-- Core tenant lookups already show substantial index use on memberships, public routes, billing accounts, bookings and leads.
+- Supabase `pg_cron`: hourly at minute 0;
+- Vercel cron: daily at 08:00 UTC fallback.
 
-Before higher-volume public rollout, review the advisor’s unindexed foreign-key findings as a dedicated schema migration and validate them against realistic seeded data and query plans. Do not add or remove indexes merely to make the advisor count zero; measure the hot queries first.
+Both call the same authenticated endpoint. Due selection and durable claims remain inside Business AI. See `MARKETING_SCHEDULER_OPERATIONS.md`.
 
-## Load progression
+## Database/security review
 
-1. Run the bounded smoke tool against Pilot after each readiness deployment.
-2. Seed a non-production database with realistic tenant, lead, action, booking, audit and Marketing volumes.
-3. Measure the actual list/filter/dashboard queries with `EXPLAIN (ANALYZE, BUFFERS)` on that non-production dataset.
-4. Add covering indexes for demonstrated hot paths and foreign-key maintenance, then re-run Supabase Performance Advisor.
-5. Increase concurrency gradually and stop on elevated 5xx rates or sustained latency rather than stress-testing the live customer Pilot.
+Supabase Security Advisor on 7 October 2026 reported:
 
-## External monitoring
+- no HIGH/ERROR findings;
+- WARN: leaked-password protection disabled in Supabase Auth;
+- INFO: RLS enabled with no client policy on two incident-control tables. These are intentionally service-role-only and should not receive permissive browser policies merely to silence the advisor.
 
-The repository now has safe server-side operational logging, but full browser crash monitoring and alert delivery still require an external monitoring destination. When a provider is selected, connect it without placing DSNs/tokens in source and keep personal/customer content out of error metadata.
+Performance Advisor still reports unindexed foreign keys and currently unused indexes. The Pilot dataset is too small to use those counts alone as a migration plan. Measure real hot paths against realistic non-production data first.
+
+## Known technical debt
+
+- Node runtime logs contain a `DEP0169` warning involving legacy `url.parse()` behaviour. No direct Business AI source use has been established yet; trace it to the responsible runtime/dependency before treating it as an application security defect.
+- Browser crash monitoring/alert delivery still needs an external monitoring destination if required for wider rollout.
+- Managed backups/PITR and an isolated restore drill remain post-launch P1 for the supervised Pilot.
+
+## Commercial gate
+
+The Vercel team is currently Hobby. Paid/commercial launch is blocked until a suitable commercial hosting plan or provider is explicitly approved.
+
+## Production
+
+Do not promote the Pilot deployment, Pilot migrations or Pilot credentials into the separate Production environment without explicit approval and the Production rollout checklist.

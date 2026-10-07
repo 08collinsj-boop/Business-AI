@@ -2,6 +2,25 @@
 
 Use this as the single browser/Work task after the non-browser launch hardening has passed.
 
+## Evidence already captured - 7 October 2026
+
+These checks are complete and should not be repeated unless the related configuration changes:
+
+- repository test suite: 513 / 513 passing;
+- local source verification: 159 JavaScript files checked with no secret-pattern or temporary-marker failures;
+- live Pilot `/api/health`: HTTP 200 / `{"status":"ok"}`;
+- public legal identity configuration: configured, including the direct contact route;
+- DPA v1.1 is available; do not accept it on another person's behalf;
+- ICO fee self-assessment result: Tier 1 fee required, £52 per year or £47 by Direct Debit; registration/payment was not completed;
+- Vercel team plan: Hobby, so paid/commercial launch remains blocked until a suitable commercial plan or host is approved;
+- Facebook Page connection: a Pilot Page is connected and a real Page post has already published successfully;
+- Meta public App Review / advanced-access status for unrelated users is still unverified;
+- Marketing generation reliability: `openrouter/free` with up to three attempts;
+- scheduler: Supabase cron calls the protected scheduler hourly; Vercel has an 08:00 UTC daily fallback;
+- Supabase Security Advisor: no HIGH/ERROR findings. Leaked-password protection is disabled and must be enabled in Auth settings before wider launch. The two RLS-without-policy INFO findings are intentional service-role-only incident-control tables.
+
+The browser certification below still applies to checks that require a signed-in browser session, fresh emails, Meta Developer console access, Stripe TEST browser flow or destructive fake-data verification.
+
 ## Safety and scope
 
 - Pilot only: `https://business-ai-pilot.vercel.app`.

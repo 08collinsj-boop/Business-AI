@@ -1,62 +1,54 @@
-# Business AI UK Compliance Pack v1.4
+# Business AI UK Compliance Pack v1.5
 
-Status: technical/legal implementation reviewed 5 October 2026 against current UK/ICO guidance. This is not independent legal certification.
+Status: technical/legal implementation refreshed 7 October 2026. This is not independent legal certification.
 
-## Implemented
+## Implemented and verified
 
-- Public Legal centre: Terms, Privacy Notice, DPA, Acceptable Use, Storage/Cookie Notice and Sub-processor Notice.
-- Legal documents are versioned and acceptance is recorded server-side where required.
+- Public Legal Centre: Terms, Privacy Notice, DPA, Acceptable Use, Storage/Cookie Notice, Sub-processor Notice and Data Deletion Instructions.
+- Legal documents are versioned and required acceptance is recorded server-side.
 - Signup requires explicit Terms/AUP agreement and Privacy acknowledgement.
 - Existing users are gated when accepted versions are no longer current.
-- Business owners are gated until the current DPA is accepted.
-- Acceptance records are server-side, versioned and timestamped.
+- Business owners are gated until the current DPA is accepted where required.
+- Public service-provider identity, geographic address and direct contact routes are configured on Pilot.
+- DPA v1.1 is available.
 - Customer enquiry UI links to privacy information at collection.
-- Privacy notice states data categories/sources, purposes/lawful bases, recipients, transfers, retention, rights, complaint route and right to object.
-- DPA covers Article 28 processing details and minimum processor clauses.
-- Public service-provider identity/contact configuration is populated on Pilot.
-- Supabase Auth uses custom Resend SMTP for confirmation/recovery email.
 - Owner-only tenant-scoped lead export/anonymisation exists and records audit events.
-- `DATA_SUBJECT_RIGHTS_RUNBOOK.md` now documents intake, timing, identity checks, export, erasure, restriction/objection and processor assistance.
-- `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md` consolidates all remaining live/browser acceptance work into one task.
+- Data-subject-rights and disaster-recovery runbooks exist.
+- Supabase Auth uses custom transactional SMTP.
+- Meta data-deletion instructions are publicly available and the authenticated disconnect deletes stored Meta connection/account records.
+
+## ICO data-protection fee
+
+The ICO self-assessment was completed on 5 October 2026. The result was Tier 1: a £52 annual fee, or £47 with Direct Debit.
+
+The assessment stopped before registration, declaration or payment. Those actions require operator approval and must not be completed automatically.
 
 ## Current provider map
 
-- Supabase — database, authentication and private file storage.
-- Resend — transactional authentication email.
-- Vercel — application hosting/serverless runtime.
-- OpenAI — AI enquiry processing and configured AI features.
-- OpenRouter — AI Marketing text generation/model routing.
-- Cloudflare — Workers AI image generation.
-- Stripe — checkout/subscription billing.
-- Meta Platforms — optional Facebook connection/publishing.
+- Supabase - database, authentication and private file storage.
+- Resend - transactional authentication email.
+- Vercel - application hosting/serverless runtime.
+- OpenAI - AI enquiry processing and configured AI features.
+- OpenRouter - AI Marketing text generation/model routing.
+- Cloudflare - Marketing image generation.
+- Stripe - checkout/subscription billing.
+- Meta Platforms - optional Facebook connection/publishing.
 
 ## Current launch decisions / remaining actions
 
-### Can be completed only with operator/browser input
+### Operator/browser input required
 
-- Complete the ICO data-protection fee self-assessment. Sole traders/organisations processing personal information may need to pay unless an exemption applies; do not infer the result without the operator's factual answers.
-- Vercel commercial hosting: the current Hobby terms restrict use to personal/non-commercial use. Resolve this before taking real paid customers by moving to a suitable commercial plan/host.
-- Record the final Meta Developer/Platform terms applying to the connected app.
-- Confirm VAT/tax presentation before accepting real paid orders.
-- Run the consolidated live browser certification, including checkout/legal-document access and fake-data rights-request exercise.
+- Complete ICO registration/payment if the operator approves proceeding with the Tier 1 result.
+- Resolve commercial hosting before accepting real paid customers. The current Vercel team is Hobby and current terms restrict Hobby to personal/non-commercial use.
+- Enable Supabase leaked-password protection in Auth settings.
+- Complete the Meta Developer-console checkpoint: current App Review/advanced-access state, any required verification for unrelated businesses, data-deletion setting and current Developer/Platform terms.
+- Run the remaining signed-in browser certification, including fresh signup/recovery, fake-data rights request and Stripe TEST commercial journey.
+- Confirm VAT/tax presentation before accepting real paid orders if/when that becomes applicable.
 
 ### Deliberately deferred
 
-Managed backups/PITR and the isolated restore drill are a documented post-launch P1. The operator accepted the temporary risk for a small supervised soft launch on 5 October 2026. Do not represent disaster recovery as verified until the restore drill actually passes.
+Managed backups/PITR and the isolated restore drill remain a documented post-launch P1 for the small supervised Pilot. Do not represent disaster recovery as verified until that drill actually passes.
 
-## ICO rights timing used operationally
+## Operational rights timing
 
-Current ICO right-of-access guidance requires compliance without undue delay and normally within one month, with a possible further two-month extension in qualifying complex/multiple-request cases where the person is told within the initial month. The rights runbook uses this as the operational deadline framework.
-
-## Current official guidance checked
-
-- ICO — data protection fee self-assessment.
-- ICO — right of access guidance (updated December 2025).
-- ICO — international transfers guidance (updated January 2026).
-- ICO — UK IDTA/Addendum guidance.
-- ICO — contracts between controllers and processors / Article 28.
-- ICO — Storage and Access Technologies guidance.
-- GOV.UK — sole-trader business-name/invoice disclosure rules.
-- Electronic Commerce (EC Directive) Regulations 2002.
-
-Because UK data-protection guidance is continuing to change following the Data (Use and Access) Act 2025, review this pack again before a materially larger launch or material processing change.
+Continue to use the documented current ICO right-of-access response timetable in `DATA_SUBJECT_RIGHTS_RUNBOOK.md`. Recheck ICO guidance before materially larger launch or processing changes.
