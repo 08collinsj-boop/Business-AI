@@ -84,7 +84,8 @@ test('public legal identity supports sole-trader disclosure without implying inc
   assert.doesNotMatch(operatorScript, /Company\/register number/);
   assert.doesNotMatch(publicHandler, /SUPABASE_SERVICE_ROLE_KEY|META_APP_SECRET|STRIPE_SECRET_KEY|CLOUDFLARE_API_TOKEN/);
   assert.match(operations, /"legal-public": legalPublicHandler/);
-  assert.match(vercel, /"source": "\/api\/legal-public"/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/api/legal-public" && route.destination === "/api/operations?operation=legal-public"));
   assert.match(publicHandler, /private, no-store/);
   assert.match(publicHandler, /X-Robots-Tag/);
   assert.match(vercel, /X-Robots-Tag/);

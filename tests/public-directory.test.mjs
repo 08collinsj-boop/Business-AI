@@ -76,8 +76,9 @@ test('customer portal keeps owner login separate and supports search then direct
   assert.match(html, /new URL\('\/customer'/);
   assert.match(html, /customerPortalFromLocation/);
   assert.match(html, /Find a business/);
-  assert.match(vercel, /"source": "\/customer"/);
-  assert.match(vercel, /"source": "\/api\/public-businesses"/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/customer" && route.destination === "/index.html"));
+  assert.ok(config.rewrites.some(route => route.source === "/api/public-businesses" && route.destination === "/api/operations?operation=public-businesses"));
 });
 
 test.after(() => {

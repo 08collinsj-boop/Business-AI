@@ -179,8 +179,9 @@ test('customer portal UI is separate from business sign in and preserves guest a
   assert.match(script, /function setCustomerSurface\(portalReady\)/);
   assert.match(script, /portal\.inert=!portalReady/);
   assert.match(script, /setCustomerSurface\(false\);[\s\S]{0,500}await loadPortal\(\);[\s\S]{0,180}setCustomerSurface\(true\)/);
-  assert.match(vercel, /"source": "\/customer\/account"/);
-  assert.match(vercel, /"source": "\/api\/customer-portal"/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/customer/account" && route.destination === "/index.html"));
+  assert.ok(config.rewrites.some(route => route.source === "/api/customer-portal" && route.destination === "/api/operations?operation=customer-portal"));
 });
 
 test.after(() => {
