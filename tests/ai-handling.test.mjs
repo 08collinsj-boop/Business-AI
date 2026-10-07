@@ -366,6 +366,7 @@ test('OpenAI 429 falls back to OpenRouter without releasing the reserved allowan
   const fallbackCalls = loaded.calls.filter(c => c.url.includes('openrouter.ai'));
   const firstFallbackBody = JSON.parse(fallbackCalls[0].options.body);
   const retryFallbackBody = JSON.parse(fallbackCalls[1].options.body);
+  assert.equal(firstFallbackBody.model, 'openrouter/free');
   assert.equal(firstFallbackBody.response_format.type, 'json_schema');
   assert.equal(firstFallbackBody.provider.require_parameters, true);
   assert.equal(firstFallbackBody.max_tokens, 1400);

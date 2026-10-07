@@ -853,7 +853,7 @@ async function callOpenAIEnquiryModel(systemPrompt, conversation) {
 }
 
 async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
-  const requestedModel = "liquid/lfm-2.5-2.6b:free";
+  const requestedModel = "openrouter/free";
   let lastError = null;
 
   for (let attempt = 1; attempt <= 2; attempt++) {
