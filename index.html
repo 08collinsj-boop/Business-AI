@@ -3461,7 +3461,7 @@ Save business settings
 </div>
 <div id="legalAcceptanceSummary" class="work-meta legal-status-line">Account legal status: checkingâ¦</div>
 <div id="dpaAcceptanceSummary" class="work-meta legal-status-line" data-owner-only>DPA status: checkingâ¦</div>
-<p class="legal-launch-warning"><strong>Paid public launch blocker:</strong> the service provider's final legal/trading name, geographic address and direct contact email must be published before Business AI is offered as a paid public service.</p>
+<p id="legalLaunchWarning" class="legal-launch-warning"><strong>Legal identity:</strong> checking service-provider configuration...</p>
 </div>
 
 <div class="settings-section-label">Support</div>
@@ -3760,6 +3760,12 @@ if($('legalDpaVersion'))$('legalDpaVersion').textContent=docs.dpa?.version?`v${d
 if($('legalPackVersion'))$('legalPackVersion').textContent=docs.terms?.version?`v${docs.terms.version}`:'v1.0';
 if($('legalAcceptanceSummary'))$('legalAcceptanceSummary').textContent=legalState?.needs_user_acceptance?'Account legal status: acceptance required.':`Account legal status: current versions accepted${legalState?.user_accepted_at?` Â· ${timeLabel(legalState.user_accepted_at)}`:''}.`;
 if($('dpaAcceptanceSummary'))$('dpaAcceptanceSummary').textContent=legalState?.dpa_required?(legalState?.dpa_accepted?`DPA status: accepted${legalState?.dpa_accepted_at?` Â· ${timeLabel(legalState.dpa_accepted_at)}`:''}.`:legalState?.provider_identity_configured===false?'DPA status: waiting for Business AI provider identity setup.':'DPA status: owner acceptance required.'):'DPA status: owner acceptance is not required for this account.';
+const legalLaunchWarning=$('legalLaunchWarning');
+if(legalLaunchWarning){
+  legalLaunchWarning.innerHTML=legalState?.provider_identity_configured===false
+    ? '<strong>Paid public launch blocker:</strong> service-provider identity and direct contact details must be configured before paid public use.'
+    : '<strong>Legal identity:</strong> service-provider identity and direct contact details are configured. Other launch checks still apply.';
+}
 const dpaReady=legalState?.provider_identity_configured!==false;const dpaCheck=$('dpaGateAccept');const dpaButton=$('dpaAcceptanceSubmit');const dpaMessage=$('dpaAcceptanceMessage');
 if(dpaCheck)dpaCheck.disabled=!dpaReady;if(dpaButton)dpaButton.disabled=!dpaReady;
 if(dpaMessage&&!dpaReady)dpaMessage.textContent='DPA acceptance is unavailable until Business AI provider identity is fully configured. No address is being added or exposed here.';
