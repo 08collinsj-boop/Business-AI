@@ -15,6 +15,7 @@ This status applies to the isolated Business AI Pilot and Business-AI-Dev enviro
 - Business Knowledge supports private upload, extraction, owner review/approval and trusted retrieval.
 - Public/customer routing does not accept a browser-supplied internal tenant ID.
 - Customer account routing stays behind the shared loading screen until the customer session is verified.
+- AI Receptionist keeps OpenAI as its primary provider and now uses `openrouter/free` for its OpenRouter fallback, with the existing two-attempt interactive latency bound.
 - AI Phone Calls remains disabled for the Pilot.
 
 ## Billing and product
@@ -65,7 +66,7 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 
 - `https://business-ai-pilot.vercel.app/api/health` returns HTTP 200 with `{"status":"ok"}`.
 - The live Marketing source contains `openrouter/free`, the three-attempt loop and the third-attempt retry guard.
-- The current live Pilot Vercel production deployment is based on source commit `367e61c0e80bfa039d41a5f5fd4273331a424883`. Later branch commits are documentation and regression-test hardening only.
+- The current live Pilot Vercel production deployment is based on source commit `b20230dfd88e29204951b32ae5467a12d9fb2210`, including both the Marketing router fix and the AI Receptionist fallback-router hardening.
 - Recent runtime inspection found no fresh functional 5xx group after the Marketing repair. A Node `url.parse()` deprecation warning remains in runtime telemetry and is not directly referenced by Business AI source.
 
 ## Remaining launch gates
