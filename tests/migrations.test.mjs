@@ -57,6 +57,7 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20261003212959_add_incident_controls.sql",
     "20261004231500_add_business_public_profile_media.sql",
     "20261005090954_add_platform_ops_snapshot.sql",
+    "20261005221447_enable_pg_net_for_marketing_scheduler.sql",
     "20261005221500_add_marketing_automation_frequency.sql"
   ]);
   const baseline = contents.get(names[0]);
