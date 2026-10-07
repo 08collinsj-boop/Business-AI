@@ -961,6 +961,27 @@ border-radius:16px
 .work-item-top{display:flex;justify-content:space-between;gap:10px}.work-item h4{margin:0;font-size:14px}.work-meta{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}.work-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.work-form{margin-bottom:16px}
 .first-run-list{display:grid;gap:10px;margin-top:12px}.first-run-step{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}.first-run-mark{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:11px;background:#27303a;color:var(--muted)}.first-run-mark.done{background:rgba(56,211,159,.16);color:var(--green)}.first-run-step strong{display:block;font-size:12px}.first-run-step .work-meta{margin-top:2px}.first-run-step button{margin-left:auto;align-self:center;flex:none}
 
+
+.pilot-progress-card{position:relative;overflow:hidden;border-color:#235985;background:linear-gradient(145deg,rgba(9,30,51,.96),rgba(5,19,33,.94))}
+.pilot-progress-card:after{content:"";position:absolute;right:-58px;top:-72px;width:190px;height:190px;border-radius:50%;border:1px solid rgba(69,158,255,.12);pointer-events:none}
+.pilot-progress-head{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.pilot-progress-head .settings-card-kicker{display:block;margin-bottom:3px}
+.pilot-progress-head h3{margin:0;font-size:19px;letter-spacing:-.35px}
+.pilot-progress-count{flex:none;min-width:54px;padding:7px 9px;border:1px solid #2d648f;border-radius:999px;background:#091c2e;color:#b9dcff;font-size:11px;font-weight:800;text-align:center}
+.pilot-progress-copy{position:relative;z-index:1;margin:7px 0 12px;color:#8fa9c1;font-size:11px;line-height:1.45}
+.pilot-progress-track{position:relative;z-index:1;height:7px;border-radius:999px;background:#0a1a29;overflow:hidden;border:1px solid #173b59}
+.pilot-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#208cff,#58b8ff);transition:width .35s ease}
+.pilot-progress-list{position:relative;z-index:1;display:grid;gap:7px;margin-top:12px}
+.pilot-progress-step{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:58px;padding:9px 10px;border:1px solid #173c5b;border-radius:13px;background:rgba(4,17,30,.62)}
+.pilot-progress-step.done{border-color:rgba(66,190,146,.32);background:rgba(10,39,38,.45)}
+.pilot-progress-mark{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#13283b;color:#7995ad;font-size:12px;font-weight:850}
+.pilot-progress-step.done .pilot-progress-mark{background:rgba(56,211,159,.15);color:#6de0b4}
+.pilot-progress-step strong{display:block;color:#eaf5ff;font-size:12px}
+.pilot-progress-step p{margin:2px 0 0;color:#7690a7;font-size:9.5px;line-height:1.35}
+.pilot-progress-step .small-btn{min-height:34px;white-space:nowrap}
+.pilot-progress-complete{margin-top:11px;padding:10px 12px;border:1px solid rgba(56,211,159,.28);border-radius:12px;background:rgba(56,211,159,.08);color:#aee9d2;font-size:10px;line-height:1.4}
+@media(max-width:560px){.pilot-progress-step{grid-template-columns:28px minmax(0,1fr)}.pilot-progress-step .small-btn{grid-column:2;width:100%;margin-top:2px}.pilot-progress-head h3{font-size:17px}}
+
 @media(min-width:700px){
 
 .stats{
@@ -2560,6 +2581,18 @@ class="view active"
   <button class="dashboard-launch" type="button" onclick="showView('bookings');requestAnimationFrame(()=>toggleWorkForm('bookings'))"><i aria-hidden="true">â¡</i><span><strong>New booking</strong><em>Add an appointment.</em></span><b aria-hidden="true">âº</b></button>
 </div>
 
+
+<div id="pilotProgressCard" class="card pilot-progress-card">
+  <div class="pilot-progress-head">
+    <div><span class="settings-card-kicker">Pilot checklist</span><h3>Test Business AI properly</h3></div>
+    <span id="pilotProgressCount" class="pilot-progress-count">0 / 6</span>
+  </div>
+  <p class="pilot-progress-copy">These are real-use checks, not setup chores. Progress updates from what you actually do in the Pilot.</p>
+  <div class="pilot-progress-track" role="progressbar" aria-label="Pilot testing progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0"><span id="pilotProgressBar" class="pilot-progress-fill"></span></div>
+  <div id="pilotProgressList" class="pilot-progress-list"></div>
+  <div id="pilotProgressComplete" class="pilot-progress-complete" hidden>Checklist complete — thanks. Keep using Business AI normally and send feedback whenever something feels wrong or unnecessary.</div>
+</div>
+
 <div id="valueDashboardCard" class="card value-dashboard-card dashboard-performance-card">
   <div class="card-head value-dashboard-head">
     <div><span class="settings-card-kicker">Value &amp; ROI Â· Performance overview</span><h3>Business AI impact</h3></div>
@@ -3481,6 +3514,9 @@ let knowledgeSources=[];let knowledgeCanManage=false;let knowledgeReviewSource=n
 let authenticationMode='login';
 let passwordRecoveryActive=false;
 let legalState=null;
+let pilotFeedbackItems=[];
+let pilotMarketingDraftCount=0;
+let pilotMarketingAvailable=null;
 
 
 const $=id=>document.getElementById(id);
@@ -3521,7 +3557,7 @@ const clearPasswordRecoveryLocation=()=>{clearPasswordRecoveryRequest();try{cons
 const clearPrivateState=()=>{
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;pilotFeedbackItems=[];pilotMarketingDraftCount=0;pilotMarketingAvailable=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 updateInstallAppCard?.();
 };
@@ -4240,7 +4276,7 @@ async function sendEnquiry(event){
     const reply=typeof result.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. I have your details.';
     enquiryMessages.push({role:'assistant',content:reply});saveEnquiryConversation();addEnquiryMessage('assistant',reply);
     renderReceptionistTestInspector(result.preview||null);
-    if(status)status.textContent='Simulation complete. No lead, booking or handover was saved and no customer enquiry allowance was used.';
+    markPilotReceptionistTested();if(status)status.textContent='Simulation complete. No lead, booking or handover was saved and no customer enquiry allowance was used.';
   }catch(error){
     addEnquiryMessage('assistant',error.message||'Sorry, I could not run that test.');
     if(status)status.textContent=error.message||'The receptionist test could not be completed.';
@@ -4291,6 +4327,7 @@ requestAnimationFrame(()=>positionBottomNavIndicator(navContext));
 if(view==='bookings'||view==='actions')loadWorkItems();
 if(view==='voice')loadVoiceStatus();
 if(view==='businessProfile'&&!businessProfileState)loadBusinessProfile();
+if(view==='dashboard'&&frontendAuthEnabled)loadPilotMarketingProgress();
 window.marketingWorkspace?.open(view);
 
 }
@@ -4452,6 +4489,73 @@ return date<today?'overdue':date===today?'today':'upcoming';
 
 const statusClass=status=>String(status||'New').toLowerCase();
 
+
+const PILOT_PROGRESS_STORAGE_KEY='business-ai-pilot-progress-v1';
+function pilotLocalProgress(){
+  const slug=authenticatedPublicBusinessSlug||'unknown';
+  try{
+    const all=JSON.parse(localStorage.getItem(PILOT_PROGRESS_STORAGE_KEY)||'{}');
+    return all&&typeof all==='object'&&all[slug]&&typeof all[slug]==='object'?all[slug]:{};
+  }catch{return {};}
+}
+function markPilotReceptionistTested(){
+  const slug=authenticatedPublicBusinessSlug;
+  if(!slug)return;
+  try{
+    const all=JSON.parse(localStorage.getItem(PILOT_PROGRESS_STORAGE_KEY)||'{}');
+    const safe=all&&typeof all==='object'&&!Array.isArray(all)?all:{};
+    safe[slug]={...(safe[slug]&&typeof safe[slug]==='object'?safe[slug]:{}),receptionist_tested_at:new Date().toISOString()};
+    localStorage.setItem(PILOT_PROGRESS_STORAGE_KEY,JSON.stringify(safe));
+  }catch{}
+  renderPilotProgress();
+}
+function pilotProgressGo(key){
+  if(key==='knowledge'){showView('settings');requestAnimationFrame(()=>openSettingsSection('businessKnowledgeCard'));return;}
+  if(key==='receptionist'){showView('enquiries');return;}
+  if(key==='lead_action'){showView(leads.length?'leads':'actions');return;}
+  if(key==='booking'){showView('bookings');return;}
+  if(key==='marketing'){showView('marketing');return;}
+  if(key==='feedback'){showView('settings');requestAnimationFrame(()=>document.getElementById('pilotFeedbackForm')?.scrollIntoView({behavior:'smooth',block:'center'}));}
+}
+function renderPilotProgress(){
+  const list=$('pilotProgressList'),count=$('pilotProgressCount'),bar=$('pilotProgressBar'),complete=$('pilotProgressComplete');
+  if(!list||!count||!bar)return;
+  const local=pilotLocalProgress();
+  const approvedKnowledge=knowledgeSources.some(source=>source?.status==='active'&&Number(source?.item_counts?.active||0)>0);
+  const receptionistUsed=leads.length>0||Boolean(local.receptionist_tested_at);
+  const leadOrActionReviewed=leads.some(lead=>['Contacted','Converted'].includes(String(lead?.status||'')))||businessActions.some(action=>String(action?.status||'').toLowerCase()==='completed');
+  const bookingTried=bookings.length>0;
+  const marketingTried=pilotMarketingDraftCount>0;
+  const feedbackSent=pilotFeedbackItems.length>0;
+  const steps=[
+    {key:'knowledge',done:approvedKnowledge,title:'Complete Business Knowledge',description:approvedKnowledge?'Approved knowledge is ready for the assistant.':'Upload a useful business document and approve at least one fact.',action:approvedKnowledge?'Review':'Add knowledge'},
+    {key:'receptionist',done:receptionistUsed,title:'Test your AI Receptionist',description:receptionistUsed?'You have tested the receptionist or captured an enquiry.':'Run the safe test chat, or receive your first real enquiry.',action:receptionistUsed?'Retest':'Test AI'},
+    {key:'lead_action',done:leadOrActionReviewed,title:'Review a lead or action',description:leadOrActionReviewed?'A lead or action has been moved forward.':'Open a lead and mark it Contacted, or complete an action.',action:'Open'},
+    {key:'booking',done:bookingTried,title:'Try a booking',description:bookingTried?'A booking has been created in this business.':'Create or receive a booking request and check the workflow.',action:bookingTried?'Manage':'Try booking'},
+    {key:'marketing',done:marketingTried,title:'Try AI Marketing',description:marketingTried?'At least one Marketing draft exists.':pilotMarketingAvailable===false?'Marketing is not active for this account right now.':'Generate and review one real business-aware draft.',action:marketingTried?'Open drafts':'Try Marketing'},
+    {key:'feedback',done:feedbackSent,title:'Give us feedback',description:feedbackSent?'Thanks — feedback has been submitted.':'Tell us one thing that worked, confused you or needs improving.',action:feedbackSent?'View':'Give feedback'}
+  ];
+  const done=steps.filter(step=>step.done).length;
+  count.textContent=`${done} / ${steps.length}`;
+  const track=bar.parentElement;
+  if(track)track.setAttribute('aria-valuenow',String(done));
+  requestAnimationFrame(()=>{bar.style.width=`${Math.round((done/steps.length)*100)}%`;});
+  list.innerHTML=steps.map(step=>`<div class="pilot-progress-step ${step.done?'done':''}"><span class="pilot-progress-mark" aria-hidden="true">${step.done?'✓':'○'}</span><div><strong>${esc(step.title)}</strong><p>${esc(step.description)}</p></div><button class="small-btn ${step.done?'':'primary-action'}" type="button" onclick="pilotProgressGo('${step.key}')">${esc(step.action)}</button></div>`).join('');
+  if(complete)complete.hidden=done!==steps.length;
+}
+async function loadPilotMarketingProgress(){
+  if(!frontendAuthEnabled){pilotMarketingAvailable=null;pilotMarketingDraftCount=0;renderPilotProgress();return;}
+  try{
+    const data=await api('/api/marketing?limit=1');
+    pilotMarketingAvailable=true;
+    pilotMarketingDraftCount=Array.isArray(data?.generations)?data.generations.length:0;
+  }catch{
+    pilotMarketingAvailable=false;
+    pilotMarketingDraftCount=0;
+  }
+  renderPilotProgress();
+}
+
 function renderFirstRunGuide(){
 const target=$('firstRunSteps');if(!target)return;
 const hasBasics=Boolean(settings?.business_name&&settings?.services&&settings?.opening_hours);
@@ -4608,6 +4712,7 @@ const handoverAttention=handovers.filter(item=>String(item.status||'').toLowerCa
 const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0);
 
 renderFirstRunGuide();
+renderPilotProgress();
 
 $('stats').innerHTML=`
 <div class="stat"><div class="stat-top"><span class="metric-icon blue" aria-hidden="true">â</span><span class="stat-label">New leads</span></div><div class="stat-value">${newLeads}</div><div class="stat-sub">Awaiting response</div></div>
@@ -5074,7 +5179,7 @@ if(!knowledgeSources.length){list.innerHTML='<div class="empty">No files uploade
 list.innerHTML=knowledgeSources.map(source=>{const counts=source.item_counts||{};const active=Number(counts.active)||0;const review=Number(counts.needs_review)||0;const details=source.status==='active'?`${active} approved fact${active===1?'':'s'}`:source.status==='needs_review'?`${review} fact${review===1?'':'s'} ready to review`:source.status==='failed'?(source.error_message||'Extraction failed'):source.status==='superseded'?'Previous version retained for history':knowledgeStatusLabel(source.status);const actions=[];if(['needs_review','active','superseded'].includes(source.status))actions.push(`<button class="small-btn" type="button" onclick="openKnowledgeReview('${source.id}')">${source.status==='needs_review'?'Review':'View knowledge'}</button>`);if(knowledgeCanManage&&source.status==='active')actions.push(`<button class="small-btn" type="button" onclick="chooseKnowledgeFile('${source.id}')">Replace</button>`);if(knowledgeCanManage&&source.status==='failed')actions.push(`<button class="small-btn" type="button" onclick="retryKnowledgeExtraction('${source.id}')">Retry</button>`);if(knowledgeCanManage&&!['processing','pending_upload'].includes(source.status))actions.push(`<button class="small-btn danger" type="button" onclick="removeKnowledgeSource('${source.id}')">Remove</button>`);return `<article class="work-item"><div class="work-item-top"><div><h4>${esc(source.file_name)}</h4><div class="work-meta">${esc(knowledgeBytes(source.size_bytes))} Â· ${esc(source.mime_type || 'file')} Â· Uploaded ${esc(timeLabel(source.created_at) || 'recently')} Â· ${esc(details)}</div></div><span class="tag">${esc(knowledgeStatusLabel(source.status))}</span></div>${source.extracted_summary?`<div class="work-meta" style="margin-top:8px">${esc(source.extracted_summary)}</div>`:''}${actions.length?`<div class="work-actions">${actions.join('')}</div>`:''}</article>`;}).join('');
 }
 async function loadKnowledge(){
-const status=$('knowledgeStatus');try{const data=await api('/api/knowledge');knowledgeSources=Array.isArray(data?.sources)?data.sources:[];knowledgeCanManage=Boolean(data?.can_manage);renderKnowledgeSources();if(status)status.textContent='';}catch(error){knowledgeSources=[];knowledgeCanManage=false;if($('knowledgeList'))$('knowledgeList').innerHTML='<div class="empty">Business knowledge uploads are not available in this environment yet.</div>';if(status)status.textContent=error.message||'Business knowledge is unavailable.';}
+const status=$('knowledgeStatus');try{const data=await api('/api/knowledge');knowledgeSources=Array.isArray(data?.sources)?data.sources:[];knowledgeCanManage=Boolean(data?.can_manage);renderKnowledgeSources();renderPilotProgress();if(status)status.textContent='';}catch(error){knowledgeSources=[];knowledgeCanManage=false;renderPilotProgress();if($('knowledgeList'))$('knowledgeList').innerHTML='<div class="empty">Business knowledge uploads are not available in this environment yet.</div>';if(status)status.textContent=error.message||'Business knowledge is unavailable.';}
 }
 function chooseKnowledgeFile(replaceSourceId=null){if(!knowledgeCanManage){toast('Only an owner or admin can manage knowledge files.');return;}knowledgeReplaceSourceId=replaceSourceId||null;const input=$('knowledgeFileInput');if(input){input.value='';input.click();}}
 async function uploadKnowledgeFile(event){
@@ -5116,7 +5221,7 @@ async function revokeTeamInvitation(invitation_id){try{await api('/api/team',{me
 function fillLifecycle(){if(!lifecyclePolicy)return;$('leadRetentionDays').value=lifecyclePolicy.lead_retention_days||365;$('auditRetentionDays').value=lifecyclePolicy.audit_retention_days||730;}
 async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)})});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 function pilotFeedbackVersion(){return document.querySelector('meta[name="app-version"]')?.content||'';}
-function renderPilotFeedbackList(items){const list=$('pilotFeedbackList');if(!list)return;const rows=Array.isArray(items)?items:[];if(!rows.length){list.innerHTML='';return;}list.innerHTML=rows.slice(0,10).map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.title||item.category||'Feedback')}</h4><div class="work-meta">${esc(item.category||'')} Â· ${esc(item.page||'')} Â· ${timeLabel(item.created_at)||'Recently sent'} Â· ${esc(item.status||'new')}</div></div><span class="tag">${esc(item.status||'new')}</span></div>${item.message?`<div class="work-meta">${esc(item.message.slice(0,280))}</div>`:''}</article>`).join('');}
+function renderPilotFeedbackList(items){const rows=Array.isArray(items)?items:[];pilotFeedbackItems=rows;renderPilotProgress();const list=$('pilotFeedbackList');if(!list)return;if(!rows.length){list.innerHTML='';return;}list.innerHTML=rows.slice(0,10).map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.title||item.category||'Feedback')}</h4><div class="work-meta">${esc(item.category||'')} Â· ${esc(item.page||'')} Â· ${timeLabel(item.created_at)||'Recently sent'} Â· ${esc(item.status||'new')}</div></div><span class="tag">${esc(item.status||'new')}</span></div>${item.message?`<div class="work-meta">${esc(item.message.slice(0,280))}</div>`:''}</article>`).join('');}
 async function loadPilotFeedback(){const list=$('pilotFeedbackList');if(!list)return;try{const data=await api('/api/feedback');renderPilotFeedbackList(data?.feedback);}catch{renderPilotFeedbackList([]);}}
 async function submitPilotFeedback(event){event?.preventDefault();const status=$('pilotFeedbackStatus');const message=($('pilotFeedbackMessage')?.value||'').trim();if(message.length<3){if(status)status.textContent='Please add a few words about the issue.';return;}if(message.length>3000){if(status)status.textContent='Please keep feedback under 3,000 characters.';return;}if(status)status.textContent='Sendingâ¦';try{await api('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category:$('pilotFeedbackCategory')?.value||'other',title:($('pilotFeedbackTitle')?.value||'').trim().slice(0,120),page:$('pilotFeedbackArea')?.value||'other',message:message.slice(0,3000),app_version:pilotFeedbackVersion()})});if($('pilotFeedbackForm'))$('pilotFeedbackForm').reset();if(status)status.textContent='Thanks â your feedback has been sent.';await loadPilotFeedback();toast('Feedback sent');}catch(error){if(status)status.innerHTML=`<div class="error">${esc(error.message||'Could not send feedback right now.')}</div>`;}}
 $('pilotFeedbackForm')?.addEventListener('submit',submitPilotFeedback);
@@ -5315,6 +5420,7 @@ if(frontendAuthEnabled)loadBusinessConfiguration();
 if(frontendAuthEnabled)loadBusinessProfile();
 if(frontendAuthEnabled)loadKnowledge();
 if(frontendAuthEnabled)loadPilotOperations();
+if(frontendAuthEnabled)loadPilotMarketingProgress();
 if(frontendAuthEnabled)loadVoiceStatus();
 if(frontendAuthEnabled)loadBilling();
 if(frontendAuthEnabled)loadOwnerReceptionistAvailability();
