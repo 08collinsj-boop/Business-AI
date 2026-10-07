@@ -76,6 +76,6 @@ test('directory and signed-in customer search route through the business profile
 test('Business Profile API stays in the consolidated operations function', () => {
   assert.match(operations, /businessProfileHandler/);
   assert.match(operations, /"business-profile": businessProfileHandler/);
-  assert.match(vercel, /"source": "\/api\/business-profile"/);
-  assert.match(vercel, /"destination": "\/api\/operations\?operation=business-profile"/);
+  const config = JSON.parse(vercel);
+  assert.ok(config.rewrites.some(route => route.source === "/api/business-profile" && route.destination === "/api/operations?operation=business-profile"));
 });
