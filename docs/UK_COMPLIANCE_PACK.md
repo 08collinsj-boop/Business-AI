@@ -39,7 +39,7 @@ The assessment stopped before registration, declaration or payment. Those action
 ### Operator/browser input required
 
 - Complete ICO registration/payment if the operator approves proceeding with the Tier 1 result.
-- Resolve commercial hosting before accepting real paid customers. The current Vercel team is Hobby and current terms restrict Hobby to personal/non-commercial use.
+- Resolve commercial hosting before taking real paid customers. The current Vercel team is Hobby and current terms restrict Hobby to personal/non-commercial use.
 - Enable Supabase leaked-password protection in Auth settings.
 - Complete the Meta Developer-console checkpoint: current App Review/advanced-access state, any required verification for unrelated businesses, data-deletion setting and current Developer/Platform terms.
 - Run the remaining signed-in browser certification, including fresh signup/recovery, fake-data rights request and Stripe TEST commercial journey.

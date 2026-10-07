@@ -26,7 +26,7 @@ The ICO self-assessment was completed on 5 October 2026 and returned Tier 1: £5
 
 ### Commercial hosting
 
-The Vercel team is currently on Hobby. Paid/commercial launch remains blocked until the operator approves a suitable commercial Vercel plan or another suitable host.
+The Vercel team is currently on Hobby. The current Hobby terms are for personal/non-commercial use. Paid/commercial launch remains blocked until the operator approves a suitable commercial Vercel plan or another suitable host.
 
 ### Meta public access
 
@@ -42,7 +42,7 @@ Run the remaining browser-only checks in `PUBLIC_LAUNCH_BROWSER_CERTIFICATION.md
 
 ## Deliberately deferred P1
 
-Managed backups/PITR and an isolated restore drill remain an accepted temporary risk for the small supervised Pilot. Do not claim verified disaster recovery until the restore drill actually passes.
+Managed backups/PITR and an isolated restore drill remain an accepted temporary soft-launch risk, not a technical PASS, for the small supervised Pilot. Do not claim verified disaster recovery until the restore drill actually passes.
 
 ## Production
 
