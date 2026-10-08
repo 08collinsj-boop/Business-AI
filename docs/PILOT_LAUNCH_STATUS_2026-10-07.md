@@ -5,9 +5,10 @@ This is an internal snapshot of what was re-verified on 7 October 2026. Producti
 ## PASS
 
 - The original Marketing generation reliability hotfix is live, but the natural 8 October automation run exposed a remaining provider-latency/reliability failure before draft creation.
-- The 8 October Marketing hardening now rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each attempt to 25 seconds. The full source gate passed 516 / 516 and the change is live on Pilot deployment `dpl_BJhTF9uWUWWJfrv5UZdLk61Ghc4u` at commit `01d91a98acb8302a35880e9b789584ce506cb8fc`.
-- A real provider generation on the new live code still needs confirmation before Marketing automation is called fully re-certified.
+- The 8 October Marketing hardening now rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each attempt to 25 seconds. The full source gate passed 516 / 516 and the functional live code is on Pilot deployment `dpl_GE4AYr2etiAQr7dY3JA4hqGdN4zN` at commit `3209874295b52f6bcb10fb919ad7242da4e96c96`.
+- All three configured free Marketing fallback models currently exist on OpenRouter, advertise `response_format` and structured outputs, and report zero prompt/completion pricing. A real authenticated Marketing draft generation on the live deployment still needs confirmation before Marketing automation is called fully end-to-end re-certified.
 - The clean Git-backed deployment is live on `business-ai-pilot.vercel.app`.
+- Live public receptionist smoke testing against hidden `Hartlepool Test Electrical` passed: provider fallback recovered from an OpenAI 429, no-contact enquiries did not create leads, and a labelled fake-data enquiry persisted a New lead plus a `requested` booking while keeping business confirmation explicit.
 - Vercel project build overrides were restored to normal after the temporary hotfix deployment.
 - `My Business` Marketing automation remains enabled, `fully_automated`, one post per day.
 - Existing scheduled publications were not altered by the reliability repair.

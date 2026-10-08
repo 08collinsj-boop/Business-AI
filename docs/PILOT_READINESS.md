@@ -18,10 +18,11 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 - Supabase migration source now includes the already-applied `pg_net` scheduler migration, so fresh source reflects the live extension requirement.
 - Supabase Security Advisor reports no HIGH/ERROR finding. The remaining WARN is leaked-password protection being disabled in Auth. Two RLS INFO findings are intentional service-role-only incident-control tables.
 - Five explicitly labelled QA/test/fake businesses are hidden from public directory search while their direct test routes remain available.
+- Live public receptionist smoke testing passed against hidden `Hartlepool Test Electrical`: OpenAI 429 recovered through OpenRouter, a no-contact quote enquiry did not persist a lead, and a labelled fake-data enquiry persisted a New lead plus a `requested` booking without claiming confirmation.
 
 ## Verification still open
 
-- The new live Marketing failover code has passed the full automated gate, but a real provider generation on that exact live deployment still needs confirmation before fully automated Marketing is called end-to-end re-certified.
+- The new live Marketing failover code has passed the full automated gate. Its three configured free fallback models currently exist on OpenRouter, support `response_format` and structured outputs, and report zero prompt/completion pricing. A real authenticated Marketing draft generation on the live deployment still needs confirmation before fully automated Marketing is called end-to-end re-certified.
 - Two scheduled Facebook publications for 11 October 2026 at 22:00 UTC reference the same generation and identical content. Treat this as an accidental duplicate schedule and remove one only with explicit operator approval before it becomes due.
 
 ## External / operator gates still open
