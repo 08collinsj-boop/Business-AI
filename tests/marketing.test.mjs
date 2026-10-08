@@ -881,7 +881,7 @@ for (
         undefined
       );
 
-      // Marketing no longer uses the old 2,200 token cap.
+      // Marketing uses a compact output budget suitable for the constrained caption schema.
       assert.equal(
         modelCall.max_output_tokens,
         undefined
@@ -889,7 +889,7 @@ for (
 
       assert.equal(
         modelCall.model,
-        'liquid/lfm-2.5-2.6b:free'
+        'google/gemma-4-26b-a4b-it:free'
       );
 
       assert.equal(
@@ -904,12 +904,17 @@ for (
 
       assert.equal(
         modelCall.provider.sort,
-        'throughput'
+        'latency'
       );
 
       assert.equal(
         modelCall.provider.data_collection,
         'deny'
+      );
+
+      assert.equal(
+        modelCall.include_reasoning,
+        false
       );
 
       assert.equal(
@@ -1282,8 +1287,8 @@ test('Marketing rotates to another free model when a provider route returns 400'
     .map(call => JSON.parse(call.options.body).model);
 
   assert.deepEqual(models, [
-    'liquid/lfm-2.5-2.6b:free',
-    'nvidia/nemotron-3-super-120b-a12b:free'
+    'google/gemma-4-26b-a4b-it:free',
+    'dots-studio/dots-3-note-preview:free'
   ]);
 });
 
@@ -1311,9 +1316,9 @@ test('Marketing retries rotate across independent free models', async () => {
     .map(call => JSON.parse(call.options.body).model);
 
   assert.deepEqual(models, [
-    'liquid/lfm-2.5-2.6b:free',
-    'nvidia/nemotron-3-super-120b-a12b:free',
-    'dots-studio/dots-3-note-preview:free'
+    'google/gemma-4-26b-a4b-it:free',
+    'dots-studio/dots-3-note-preview:free',
+    'openrouter/free'
   ]);
 });
 
@@ -1323,7 +1328,7 @@ test('Marketing provider request is compact enough to avoid truncated draft JSON
   assert.equal(result.statusCode, 200);
   const providerCall = calls.find(call => call.url.startsWith('https://openrouter.ai'));
   const body = JSON.parse(providerCall.options.body);
-  assert.equal(body.max_tokens, 1800);
+  assert.equal(body.max_tokens, 1200);
   assert.equal(body.response_format.json_schema.schema.properties.main_copy.maxLength, 900);
   assert.equal(body.response_format.json_schema.schema.properties.short_alternative.maxLength, 260);
   assert.equal(body.response_format.json_schema.schema.properties.call_to_action.maxLength, 160);
