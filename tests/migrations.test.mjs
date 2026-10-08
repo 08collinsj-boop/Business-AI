@@ -58,7 +58,11 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20261004231500_add_business_public_profile_media.sql",
     "20261005090954_add_platform_ops_snapshot.sql",
     "20261005221447_enable_pg_net_for_marketing_scheduler.sql",
-    "20261005221500_add_marketing_automation_frequency.sql"
+    "20261005221500_add_marketing_automation_frequency.sql",
+    "20261008214459_pilot_block_unattended_marketing_publishing.sql",
+    "20261008214658_pilot_prevent_duplicate_marketing_scheduled_slots.sql",
+    "20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots.sql",
+    "20261008215744_pilot_identify_and_block_automatic_marketing_publications.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
