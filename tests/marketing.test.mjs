@@ -908,6 +908,11 @@ for (
       );
 
       assert.equal(
+        modelCall.provider.data_collection,
+        'deny'
+      );
+
+      assert.equal(
         modelCall.response_format.type,
         'json_schema'
       );
@@ -1278,8 +1283,8 @@ test('Marketing retries rotate across independent free models', async () => {
 
   assert.deepEqual(models, [
     'apodex/apodex-1.1-mini:free',
-    'liquid/lfm-2.5-2.6b:free',
-    'nex-agi/nex-n2.5-mini:free'
+    'nex-agi/nex-n2.5-mini:free',
+    'qwen/qwen3.8-27b:free'
   ]);
 });
 
