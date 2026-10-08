@@ -1,14 +1,14 @@
 # Business AI Pilot source status
 
-Last verified: 7 October 2026
+Last verified: 8 October 2026
 
 This status applies to the isolated Business AI Pilot and Business-AI-Dev environment. The separate Business AI Production environment remains untouched.
 
 ## Current verified source
 
 - Active Pilot branch: `pilot-progress-20261007`.
-- Final full verification was run after the status refresh on 7 October 2026; use the branch history for the current documentation-only head.
-- Full source gate: **513 / 513 automated tests passing**, 0 failed, 0 skipped.
+- The 8 October Marketing reliability candidate is committed and is undergoing the full source gate before deployment.
+- The current suite contains **514 automated tests**; the first gate run reached 513 pass / 1 documentation-contract failure, which is being repaired and rerun.
 - `npm run verify:local`: **159 JavaScript files verified**, with secret-pattern and temporary-marker checks passing.
 - Tenant authentication, single-business membership resolution, owner/admin/member permissions and AAL2 owner step-up are implemented.
 - Leads, history, pipeline, bookings, actions, handovers, team, audit/lifecycle, customer portal and public business routing remain tenant-scoped.
@@ -33,7 +33,7 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 ## AI Marketing
 
 - Marketing generation is grounded in the business profile plus approved Business Knowledge.
-- The reliability fix is permanent in source: Marketing uses `openrouter/free` and may make up to three attempts for retryable provider, validation, grounding or repetition failures.
+- The 8 October reliability candidate rotates Marketing across three structured-output-capable free OpenRouter models, keeps three retryable attempts, enables provider fallback, prioritises throughput and bounds each provider request to 25 seconds.
 - Draft history, editing, approval, deletion, copy controls, scheduling and Facebook publication records are implemented.
 - Owner-uploaded JPG/PNG/WebP Marketing photos are implemented, including Add photo and Upload / replace photo flows.
 - Fully automated Marketing is owner-controlled and protected by the stronger owner/AAL2 path.
@@ -65,9 +65,9 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 ## Live Pilot
 
 - `https://business-ai-pilot.vercel.app/api/health` returns HTTP 200 with `{"status":"ok"}`.
-- The live Marketing source contains `openrouter/free`, the three-attempt loop and the third-attempt retry guard.
-- The current live Pilot Vercel production deployment is based on source commit `b20230dfd88e29204951b32ae5467a12d9fb2210`, including both the Marketing router fix and the AI Receptionist fallback-router hardening.
-- Recent runtime inspection found no fresh functional 5xx group after the Marketing repair. A Node `url.parse()` deprecation warning remains in runtime telemetry and is not directly referenced by Business AI source.
+- The current live Pilot still runs the previous `openrouter/free` Marketing implementation from source commit `b20230dfd88e29204951b32ae5467a12d9fb2210`; the 8 October failover candidate is not live until verification passes.
+- The natural `My Business` automation run at 01:00 UTC on 8 October reached the AI generation stage but failed after roughly 104 seconds before creating a draft. The hourly scheduler itself remained healthy and Facebook publication of an existing scheduled post succeeded separately.
+- A Node `url.parse()` deprecation warning remains in runtime telemetry and is not directly referenced by Business AI source.
 
 ## Remaining launch gates
 

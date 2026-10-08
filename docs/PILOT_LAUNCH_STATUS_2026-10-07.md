@@ -4,8 +4,8 @@ This is an internal snapshot of what was re-verified on 7 October 2026. Producti
 
 ## PASS
 
-- Marketing generation reliability hotfix is committed to GitHub on `pilot-progress-20261007`.
-- Live Pilot uses `openrouter/free` routing with three generation attempts and the third-attempt retry guard.
+- The original Marketing generation reliability hotfix is live, but the natural 8 October automation run exposed a remaining provider-latency/reliability failure before draft creation.
+- A new source candidate on `pilot-progress-20261007` rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each attempt to 25 seconds. It must pass the full verification gate before deployment.
 - The clean Git-backed deployment is live on `business-ai-pilot.vercel.app`.
 - Vercel project build overrides were restored to normal after the temporary hotfix deployment.
 - `My Business` Marketing automation remains enabled, `fully_automated`, one post per day.
@@ -38,7 +38,7 @@ Do not accept Tech Provider onboarding automatically.
 
 ### Vercel commercial hosting
 
-Vercel deployment context currently reports the `Buisness-AI` team plan as `hobby`.
+Vercel deployment context currently reports the `Buisness-AI` team plan as `hobby`. Hobby terms are for personal/non-commercial use.
 
 Operator decision: do not purchase or upgrade hosting until prospects confirm they would pay for Business AI. Keep real paid-customer launch blocked until a suitable commercial hosting arrangement is approved.
 

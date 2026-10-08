@@ -1,12 +1,12 @@
 # Controlled Pilot / soft-launch readiness
 
-Status: refreshed 7 October 2026. This checklist covers the isolated Business AI Pilot only. The separate Production environment remains untouched.
+Status: refreshed 8 October 2026. This checklist covers the isolated Business AI Pilot only. The separate Production environment remains untouched.
 
 ## Verified tonight
 
 - The Pilot branch is `pilot-progress-20261007`.
-- Marketing generation now uses `openrouter/free` and may retry up to three times after retryable provider, validation, grounding or repetition failures.
-- The source test suite passes 513 / 513 tests.
+- The 8 October source candidate hardens Marketing generation after the natural overnight automation failure: it rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each provider attempt to 25 seconds.
+- The current verification candidate contains 514 automated tests. The full gate is being rerun after the documentation contract repair.
 - `npm run verify:local` checked 159 JavaScript files with no secret-pattern or temporary-marker failures.
 - The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}`.
 - The stale legal-identity warning and the owner/Marketing mojibake text were repaired.
@@ -26,7 +26,7 @@ The ICO self-assessment was completed on 5 October 2026 and returned Tier 1: £5
 
 ### Commercial hosting
 
-The Vercel team is currently on Hobby. Operator decision: do not upgrade or purchase commercial hosting until prospects confirm they would pay for Business AI. Continue only with the limited Pilot in the meantime, and resolve hosting before taking real paid customers.
+The Vercel team is currently on Hobby. Hobby terms are for personal/non-commercial use. Operator decision: do not upgrade or purchase commercial hosting until prospects confirm they would pay for Business AI. Continue only with the limited Pilot in the meantime, and resolve hosting before taking real paid customers.
 
 ### Meta public access
 
