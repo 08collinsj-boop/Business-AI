@@ -84,7 +84,8 @@ test('TXT knowledge extraction falls back to OpenRouter when OpenAI is rate limi
   globalThis.fetch = async (url, options = {}) => {
     const value = String(url);
     calls.push({ url: value, options });
-    if (value === 'https://api.openai.com/v1/files') return jsonResponse({ error: 'rate limited' }, 429);
+    if (value === 'https://api.openai.com/v1/files') return jsonResponse({ error: { code: 'insufficient_quota', message: 'Quota exhausted' } }, 429);
+    if (value === 'https://openrouter.ai/api/v1/key') return jsonResponse({data:{free_model_daily_requests:{remaining:43}}});
     if (value === 'https://openrouter.ai/api/v1/chat/completions') {
       return jsonResponse({
         model: 'liquid/lfm-2.5-2.6b:free',
@@ -110,9 +111,13 @@ test('TXT knowledge extraction falls back to OpenRouter when OpenAI is rate limi
   assert.equal(result.items.length, 2);
   assert.equal(result.items[0].item_type, 'hours');
   assert.equal(calls.filter(call => call.url.includes('api.openai.com')).length, 1);
-  assert.equal(calls.filter(call => call.url.includes('openrouter.ai')).length, 1);
-  const fallbackBody = JSON.parse(calls.find(call => call.url.includes('openrouter.ai')).options.body);
-  assert.equal(fallbackBody.response_format.type, 'json_schema');
+  assert.equal(calls.filter(call => call.url.endsWith('/chat/completions')).length, 1);
+  const fallbackBody = JSON.parse(calls.find(call => call.url.endsWith('/chat/completions')).options.body);
+  assert.equal(fallbackBody.response_format.type, 'json_object');
+  assert.equal(fallbackBody.provider.zdr, true);
+  assert.equal(fallbackBody.provider.data_collection, 'deny');
+  assert.deepEqual(fallbackBody.provider.max_price, {prompt:0,completion:0});
+  assert.equal(fallbackBody.reasoning.enabled, false);
   assert.equal(fallbackBody.provider.require_parameters, true);
   assert.match(fallbackBody.messages[1].content, /FILE CONTENTS BEGIN/);
 });
