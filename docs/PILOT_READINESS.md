@@ -6,9 +6,9 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 
 - The Pilot branch is `pilot-progress-20261007`.
 - The 8 October Marketing hardening is live after the natural overnight automation failure: it rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each provider attempt to 25 seconds.
-- The source test suite passes 514 / 514 tests.
+- The source test suite passes 516 / 516 tests.
 - `npm run verify:local` checked 159 JavaScript files with no secret-pattern or temporary-marker failures.
-- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}` on deployment `dpl_HogkxWGfw3Tjs1UUdu9F5zanw362`.
+- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}` on deployment `dpl_BJhTF9uWUWWJfrv5UZdLk61Ghc4u`.
 - The stale legal-identity warning and the owner/Marketing mojibake text were repaired.
 - Public service-provider identity and direct contact details are configured.
 - The current DPA is v1.1.
@@ -22,6 +22,7 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 ## Verification still open
 
 - The new live Marketing failover code has passed the full automated gate, but a real provider generation on that exact live deployment still needs confirmation before fully automated Marketing is called end-to-end re-certified.
+- Two scheduled Facebook publications for 11 October 2026 at 22:00 UTC reference the same generation and identical content. Treat this as an accidental duplicate schedule and remove one only with explicit operator approval before it becomes due.
 
 ## External / operator gates still open
 

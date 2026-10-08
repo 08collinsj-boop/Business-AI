@@ -5,12 +5,13 @@ This is an internal snapshot of what was re-verified on 7 October 2026. Producti
 ## PASS
 
 - The original Marketing generation reliability hotfix is live, but the natural 8 October automation run exposed a remaining provider-latency/reliability failure before draft creation.
-- The 8 October Marketing hardening now rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each attempt to 25 seconds. The full source gate passed 514 / 514 and the change is live on Pilot deployment `dpl_HogkxWGfw3Tjs1UUdu9F5zanw362`.
+- The 8 October Marketing hardening now rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each attempt to 25 seconds. The full source gate passed 516 / 516 and the change is live on Pilot deployment `dpl_BJhTF9uWUWWJfrv5UZdLk61Ghc4u` at commit `01d91a98acb8302a35880e9b789584ce506cb8fc`.
 - A real provider generation on the new live code still needs confirmation before Marketing automation is called fully re-certified.
 - The clean Git-backed deployment is live on `business-ai-pilot.vercel.app`.
 - Vercel project build overrides were restored to normal after the temporary hotfix deployment.
 - `My Business` Marketing automation remains enabled, `fully_automated`, one post per day.
 - Existing scheduled publications were not altered by the reliability repair.
+- Two 11 October publications are an accidental duplicate of the same Marketing generation at the same scheduled time. No deletion has been performed; one requires explicit operator approval to cancel.
 - Five explicitly labelled QA/test/fake businesses were removed from public directory search while preserving their direct test routes.
 - Service-provider legal identity endpoint returns `identity_configured: true`.
 - Legal identity fields include operator/trading identity, sole-trader type, geographic address, support email and telephone.
