@@ -5,10 +5,10 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 ## Verified tonight
 
 - The Pilot branch is `pilot-progress-20261007`.
-- The 8 October Marketing hardening is live after the natural overnight automation failure: it rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each provider attempt to 25 seconds.
+- The 8 October Marketing hardening is live after both the natural overnight automation failure and a later authenticated draft failure exposed incompatible free-model routes. Marketing now uses only the two current free zero-data-retention OpenRouter models advertising `response_format` and structured outputs, across three 20-second attempts, with a 1,800-token structured output budget.
 - The source test suite passes 516 / 516 tests.
 - `npm run verify:local` checked 159 JavaScript files with no secret-pattern or temporary-marker failures.
-- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}` on deployment `dpl_BJhTF9uWUWWJfrv5UZdLk61Ghc4u`.
+- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}` on deployment `dpl_2BHqwXehGUPYmj9TBxMfnom91eWi` at commit `6e887617486808850dc7e19c6a9a338f8f9873c0`.
 - The stale legal-identity warning and the owner/Marketing mojibake text were repaired.
 - Public service-provider identity and direct contact details are configured.
 - The current DPA is v1.1.
@@ -22,7 +22,7 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 
 ## Verification still open
 
-- The new live Marketing failover code has passed the full automated gate. Its three configured free fallback models currently exist on OpenRouter, support `response_format` and structured outputs, and report zero prompt/completion pricing. A real authenticated Marketing draft generation on the live deployment still needs confirmation before fully automated Marketing is called end-to-end re-certified.
+- The corrected live Marketing failover code has passed the full automated gate: 516 / 516 tests and `verify:local` across 159 JavaScript files. A fresh authenticated Marketing draft generation on deployment `dpl_2BHqwXehGUPYmj9TBxMfnom91eWi` is still required before fully automated Marketing is called end-to-end re-certified.
 - Two scheduled Facebook publications for 11 October 2026 at 22:00 UTC reference the same generation and identical content. Treat this as an accidental duplicate schedule and remove one only with explicit operator approval before it becomes due.
 
 ## External / operator gates still open

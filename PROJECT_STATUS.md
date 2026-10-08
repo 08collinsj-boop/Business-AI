@@ -33,7 +33,7 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 ## AI Marketing
 
 - Marketing generation is grounded in the business profile plus approved Business Knowledge.
-- The 8 October reliability candidate rotates Marketing across three structured-output-capable free OpenRouter models, keeps three retryable attempts, enables provider fallback, prioritises throughput and bounds each provider request to 25 seconds.
+- Marketing now uses three retryable attempts across the two current free OpenRouter models that the live model catalogue returns when filtering for zero-data-retention, zero price, `response_format` and structured-output support: Apodex 1.1 Mini and NVIDIA Nemotron 3 Super. Each attempt is bounded to 20 seconds, privacy routing remains `data_collection: deny`, and the structured output budget is 1,800 tokens.
 - Draft history, editing, approval, deletion, copy controls, scheduling and Facebook publication records are implemented.
 - Owner-uploaded JPG/PNG/WebP Marketing photos are implemented, including Add photo and Upload / replace photo flows.
 - Fully automated Marketing is owner-controlled and protected by the stronger owner/AAL2 path.
@@ -65,8 +65,8 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 ## Live Pilot
 
 - `https://business-ai-pilot.vercel.app/api/health` returns HTTP 200 with `{"status":"ok"}`.
-- The live Pilot Vercel deployment is `dpl_BJhTF9uWUWWJfrv5UZdLk61Ghc4u`, based on source commit `01d91a98acb8302a35880e9b789584ce506cb8fc`; `/api/health` returns HTTP 200 with `{"status":"ok"}`.
-- The natural `My Business` automation run at 01:00 UTC on 8 October failed in the old AI generation path after roughly 104 seconds before creating a draft. The replacement failover code is now live. All three configured free Marketing models currently exist on OpenRouter, support `response_format` and structured outputs, and report zero prompt/completion pricing. A real authenticated Marketing draft generation on the live deployment still needs browser confirmation before Marketing automation is called fully end-to-end re-certified.
+- The live Pilot Vercel deployment is `dpl_2BHqwXehGUPYmj9TBxMfnom91eWi`, based on source commit `6e887617486808850dc7e19c6a9a338f8f9873c0`; `/api/health` returns HTTP 200 with `{"status":"ok"}`.
+- A real authenticated Marketing draft test on the previous live build failed at 18:53 UTC on 8 October. Runtime evidence showed Gemma free returned 404 because no endpoint could satisfy the requested parameters, Dots returned an empty output with `finish_reason:length` at the 1,200-token budget, and the generic free router also returned no compatible endpoint. The corrected live build now uses only the two free zero-data-retention models currently advertising the required structured-output parameters and restores the output budget to 1,800 tokens. A fresh authenticated draft generation on this exact deployment is still required before Marketing automation is called fully end-to-end re-certified.
 - The hourly scheduler remains healthy and Facebook publication of an existing scheduled post succeeded separately.
 - Live public receptionist smoke testing on 8 October passed against hidden `Hartlepool Test Electrical`: OpenAI 429 fell back successfully to OpenRouter, a no-contact quote enquiry created no lead, and a labelled fake-data enquiry created a New lead plus a `requested` booking without falsely claiming confirmation. Automatic follow-up remained Off and no follow-up Action was created.
 - Two publications scheduled for 11 October 2026 at 22:00 UTC point to the same Marketing generation and identical content. One should be cancelled before publication, but no scheduled post is altered without explicit operator approval.
