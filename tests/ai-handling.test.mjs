@@ -140,6 +140,29 @@ test('human-first answers simple supported coverage questions without handing ov
   assert.ok(!calls.some(call => call.url.includes('rpc/save_public_enquiry')), 'trusted coverage FAQ should not create a handover or lead');
 });
 
+test('generic coverage questions use the saved service area without calling the AI provider', async () => {
+  const model = {
+    reply: 'I have passed this to the team.',
+    intent: { ...supported, type: 'normal_enquiry', requires_human: true },
+    lead: { phone: null, email: null, job_type: null, qualified: false, handover_required: true }
+  };
+  const { handler, calls } = await load('balanced', supported, model);
+  const res = response();
+  await handler({
+    method: 'POST',
+    headers: { 'x-forwarded-for': '203.0.113.89' },
+    query: { business: 'business-a' },
+    body: { message: 'What areas do you cover?' }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.leadCaptured, false);
+  assert.equal(res.body.continuation, null);
+  assert.match(res.body.reply, /service area as Hartlepool/i);
+  assert.ok(!calls.some(call => call.url.includes('api.openai.com')), 'generic coverage question should not call the AI provider');
+  assert.ok(!calls.some(call => call.url.includes('rpc/save_public_enquiry')), 'generic coverage question should not create a handover or lead');
+});
+
 test('public API uses routed configuration, persists policy metadata and never returns a lead row', async () => {
   const { handler, calls } = await load('human_first', { ...supported, type: 'quote' });
   const res = response(); await handler({ method: 'POST', body: { message: 'Quote for rewiring my kitchen' }, query: { business: 'business-a', business_id: 'other', ai_handling_mode: 'ai_first' } }, res);

@@ -627,14 +627,39 @@ function trustedCoverageReply(message, settings, configuration) {
   if (!/\b(?:cover|covers|serve|serves|service areas?|work in|travel to|operate in)\b/i.test(value)) return null;
   if (/\b(?:quote|price|cost|book|booking|appointment|schedule|availability|available when|urgent|emergency|call me|speak to|person|human)\b/i.test(value)) return null;
 
-  const area = approvedFactEntries(configuration?.serviceAreas)
-    .find(entry => messageMatchesApprovedFact(value, entry));
-  const service = approvedFactEntries(settings?.services)
-    .find(entry => messageMatchesApprovedFact(value, entry));
+  const areas = approvedFactEntries(configuration?.serviceAreas);
+  if (!areas.length) return null;
 
-  if (!area || !service) return null;
   const businessName = String(settings?.business_name || 'The business').trim() || 'The business';
-  return `Yes — ${businessName} lists ${service} as a service and covers ${area}.`;
+  const genericCoverageQuestion =
+    /\b(?:what|which)\s+(?:service\s+)?areas?\b/i.test(value) ||
+    /\bwhere\s+(?:do|does)\s+(?:you|the business|it)\s+(?:work|operate|travel|serve)\b/i.test(value);
+
+  if (genericCoverageQuestion) {
+    return `${businessName} lists its service area as ${areas.join(', ')}.`;
+  }
+
+  const messageTokens = new Set(scopeTokens(value));
+  const ignoredAreaTokens = new Set([
+    'area', 'areas', 'surrounding', 'local', 'nearby',
+    'north', 'south', 'east', 'west', 'central', 'greater'
+  ]);
+  const area = areas.find(entry =>
+    scopeTokens(entry)
+      .filter(token => token.length >= 4 && !ignoredAreaTokens.has(token))
+      .some(token => messageTokens.has(token))
+  );
+
+  if (area) {
+    const service = approvedFactEntries(settings?.services)
+      .find(entry => messageMatchesApprovedFact(value, entry));
+
+    return service
+      ? `Yes — ${businessName} lists ${service} as a service and covers ${area}.`
+      : `${businessName} lists its service area as ${area}.`;
+  }
+
+  return `${businessName} lists its service area as ${areas.join(', ')}. For that specific location, the business would need to confirm.`;
 }
 
 function modelSaysOffTopic(intent) {
