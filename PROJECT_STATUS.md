@@ -32,6 +32,8 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 
 ## AI Marketing
 
+Latest 8 October diagnosis: see [MARKETING_PROVIDER_DIAGNOSIS_2026-10-08.md](docs/MARKETING_PROVIDER_DIAGNOSIS_2026-10-08.md). Novita rejects json_schema for free Apodex; the provider compatibility fix uses verified JSON-object mode, explicit reasoning disable, local schema enforcement, explicit ZDR and zero-price routing. Source gate is now 520/520 tests. Authenticated certification remains blocked by 0 approved uploaded Knowledge facts in Business AI (my-business). Historical deployment evidence below records the earlier failing build.
+
 - Marketing generation is grounded in the business profile plus approved Business Knowledge.
 - Marketing now uses three retryable attempts across the two current free OpenRouter models that the live model catalogue returns when filtering for zero-data-retention, zero price, `response_format` and structured-output support: Apodex 1.1 Mini and NVIDIA Nemotron 3 Super. Each attempt is bounded to 20 seconds, privacy routing remains `data_collection: deny`, and the structured output budget is 1,800 tokens.
 - Draft history, editing, approval, deletion, copy controls, scheduling and Facebook publication records are implemented.

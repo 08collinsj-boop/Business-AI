@@ -15,7 +15,8 @@ import {
   validateMarketingGrounding,
   marketingCopySimilarity,
   isNearDuplicateMarketingCopy,
-  MARKETING_SYSTEM_PROMPT
+  MARKETING_SYSTEM_PROMPT,
+  MARKETING_SCHEMA
 } from '../lib/marketing.js';
 
 const savedEnv = { ...process.env };
@@ -912,6 +913,10 @@ for (
         'deny'
       );
 
+      assert.equal(modelCall.provider.zdr, true);
+      assert.deepEqual(modelCall.reasoning, { enabled: false, exclude: true });
+      assert.deepEqual(modelCall.provider.max_price, { prompt: 0, completion: 0 });
+
       assert.equal(
         modelCall.include_reasoning,
         false
@@ -919,7 +924,7 @@ for (
 
       assert.equal(
         modelCall.response_format.type,
-        'json_schema'
+        'json_object'
       );
 
       assert.equal(
@@ -1263,7 +1268,7 @@ test(
   }
 );
 
-test('Marketing rotates to another free model when a provider route returns 400', async () => {
+test('Marketing retries a free route when the provider returns 400', async () => {
   const calls = setup();
   const baseFetch = globalThis.fetch;
   let providerAttempts = 0;
@@ -1288,11 +1293,11 @@ test('Marketing rotates to another free model when a provider route returns 400'
 
   assert.deepEqual(models, [
     'apodex/apodex-1.1-mini:free',
-    'nvidia/nemotron-3-super-120b-a12b:free'
+    'apodex/apodex-1.1-mini:free'
   ]);
 });
 
-test('Marketing retries rotate across independent free models', async () => {
+test('Marketing retries remain on the verified free route', async () => {
   const calls = setup();
   const baseFetch = globalThis.fetch;
   let providerAttempts = 0;
@@ -1317,7 +1322,7 @@ test('Marketing retries rotate across independent free models', async () => {
 
   assert.deepEqual(models, [
     'apodex/apodex-1.1-mini:free',
-    'nvidia/nemotron-3-super-120b-a12b:free',
+    'apodex/apodex-1.1-mini:free',
     'apodex/apodex-1.1-mini:free'
   ]);
 });
@@ -1329,10 +1334,12 @@ test('Marketing provider request is compact enough to avoid truncated draft JSON
   const providerCall = calls.find(call => call.url.startsWith('https://openrouter.ai'));
   const body = JSON.parse(providerCall.options.body);
   assert.equal(body.max_tokens, 1800);
-  assert.equal(body.response_format.json_schema.schema.properties.main_copy.maxLength, 900);
-  assert.equal(body.response_format.json_schema.schema.properties.short_alternative.maxLength, 260);
-  assert.equal(body.response_format.json_schema.schema.properties.call_to_action.maxLength, 160);
-  assert.equal(body.response_format.json_schema.schema.properties.hashtags.maxItems, 6);
+  assert.deepEqual(body.response_format, { type: 'json_object' });
+  assert.ok(body.messages[0].content.endsWith(JSON.stringify(MARKETING_SCHEMA)));
+  assert.equal(MARKETING_SCHEMA.properties.main_copy.maxLength, 900);
+  assert.equal(MARKETING_SCHEMA.properties.short_alternative.maxLength, 260);
+  assert.equal(MARKETING_SCHEMA.properties.call_to_action.maxLength, 160);
+  assert.equal(MARKETING_SCHEMA.properties.hashtags.maxItems, 6);
   assert.match(body.messages[0].content, /exact service names/i);
   assert.match(body.messages[0].content, /no more than about 700 characters/i);
 });
