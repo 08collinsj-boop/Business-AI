@@ -889,7 +889,7 @@ for (
 
       assert.equal(
         modelCall.model,
-        'google/gemma-4-26b-a4b-it:free'
+        'apodex/apodex-1.1-mini:free'
       );
 
       assert.equal(
@@ -924,7 +924,7 @@ for (
 
       assert.equal(
         modelCall.max_tokens,
-        1200
+        1800
       );
 
       assert.ok(
@@ -1287,8 +1287,8 @@ test('Marketing rotates to another free model when a provider route returns 400'
     .map(call => JSON.parse(call.options.body).model);
 
   assert.deepEqual(models, [
-    'google/gemma-4-26b-a4b-it:free',
-    'dots-studio/dots-3-note-preview:free'
+    'apodex/apodex-1.1-mini:free',
+    'nvidia/nemotron-3-super-120b-a12b:free'
   ]);
 });
 
@@ -1316,9 +1316,9 @@ test('Marketing retries rotate across independent free models', async () => {
     .map(call => JSON.parse(call.options.body).model);
 
   assert.deepEqual(models, [
-    'google/gemma-4-26b-a4b-it:free',
-    'dots-studio/dots-3-note-preview:free',
-    'openrouter/free'
+    'apodex/apodex-1.1-mini:free',
+    'nvidia/nemotron-3-super-120b-a12b:free',
+    'apodex/apodex-1.1-mini:free'
   ]);
 });
 
@@ -1328,7 +1328,7 @@ test('Marketing provider request is compact enough to avoid truncated draft JSON
   assert.equal(result.statusCode, 200);
   const providerCall = calls.find(call => call.url.startsWith('https://openrouter.ai'));
   const body = JSON.parse(providerCall.options.body);
-  assert.equal(body.max_tokens, 1200);
+  assert.equal(body.max_tokens, 1800);
   assert.equal(body.response_format.json_schema.schema.properties.main_copy.maxLength, 900);
   assert.equal(body.response_format.json_schema.schema.properties.short_alternative.maxLength, 260);
   assert.equal(body.response_format.json_schema.schema.properties.call_to_action.maxLength, 160);
