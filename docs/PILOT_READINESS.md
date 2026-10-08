@@ -5,10 +5,10 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 ## Verified tonight
 
 - The Pilot branch is `pilot-progress-20261007`.
-- The 8 October source candidate hardens Marketing generation after the natural overnight automation failure: it rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each provider attempt to 25 seconds.
-- The current verification candidate contains 514 automated tests. The full gate is being rerun after the documentation contract repair.
+- The 8 October Marketing hardening is live after the natural overnight automation failure: it rotates across three structured-output-capable free OpenRouter models, permits provider fallback, prioritises throughput and limits each provider attempt to 25 seconds.
+- The source test suite passes 514 / 514 tests.
 - `npm run verify:local` checked 159 JavaScript files with no secret-pattern or temporary-marker failures.
-- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}`.
+- The live Pilot `/api/health` endpoint returns HTTP 200 with `{"status":"ok"}` on deployment `dpl_HogkxWGfw3Tjs1UUdu9F5zanw362`.
 - The stale legal-identity warning and the owner/Marketing mojibake text were repaired.
 - Public service-provider identity and direct contact details are configured.
 - The current DPA is v1.1.
@@ -17,6 +17,11 @@ Status: refreshed 8 October 2026. This checklist covers the isolated Business AI
 - The live Supabase scheduler calls `/api/marketing-scheduler` hourly. Vercel retains the 08:00 UTC daily cron as a fallback. See `MARKETING_SCHEDULER_OPERATIONS.md`.
 - Supabase migration source now includes the already-applied `pg_net` scheduler migration, so fresh source reflects the live extension requirement.
 - Supabase Security Advisor reports no HIGH/ERROR finding. The remaining WARN is leaked-password protection being disabled in Auth. Two RLS INFO findings are intentional service-role-only incident-control tables.
+- Five explicitly labelled QA/test/fake businesses are hidden from public directory search while their direct test routes remain available.
+
+## Verification still open
+
+- The new live Marketing failover code has passed the full automated gate, but a real provider generation on that exact live deployment still needs confirmation before fully automated Marketing is called end-to-end re-certified.
 
 ## External / operator gates still open
 

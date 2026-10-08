@@ -7,8 +7,8 @@ This status applies to the isolated Business AI Pilot and Business-AI-Dev enviro
 ## Current verified source
 
 - Active Pilot branch: `pilot-progress-20261007`.
-- The 8 October Marketing reliability candidate is committed and is undergoing the full source gate before deployment.
-- The current suite contains **514 automated tests**; the first gate run reached 513 pass / 1 documentation-contract failure, which is being repaired and rerun.
+- The 8 October Marketing reliability hardening is committed and deployed to the live Pilot.
+- Full source gate: **514 / 514 automated tests passing**, 0 failed, 0 skipped.
 - `npm run verify:local`: **159 JavaScript files verified**, with secret-pattern and temporary-marker checks passing.
 - Tenant authentication, single-business membership resolution, owner/admin/member permissions and AAL2 owner step-up are implemented.
 - Leads, history, pipeline, bookings, actions, handovers, team, audit/lifecycle, customer portal and public business routing remain tenant-scoped.
@@ -65,8 +65,10 @@ The server owns plan/add-on Price IDs and billing rules. Stripe checkout, webhoo
 ## Live Pilot
 
 - `https://business-ai-pilot.vercel.app/api/health` returns HTTP 200 with `{"status":"ok"}`.
-- The current live Pilot still runs the previous `openrouter/free` Marketing implementation from source commit `b20230dfd88e29204951b32ae5467a12d9fb2210`; the 8 October failover candidate is not live until verification passes.
-- The natural `My Business` automation run at 01:00 UTC on 8 October reached the AI generation stage but failed after roughly 104 seconds before creating a draft. The hourly scheduler itself remained healthy and Facebook publication of an existing scheduled post succeeded separately.
+- The live Pilot Vercel deployment is `dpl_HogkxWGfw3Tjs1UUdu9F5zanw362`, based on source commit `158da80e05e159f5a999e5ae4a9b7fffb297e904`; `/api/health` returns HTTP 200 with `{"status":"ok"}`.
+- The natural `My Business` automation run at 01:00 UTC on 8 October failed in the old AI generation path after roughly 104 seconds before creating a draft. The replacement failover code is now live, but a real provider generation on the new live code still needs runtime/browser confirmation before Marketing automation is called fully re-certified.
+- The hourly scheduler remains healthy and Facebook publication of an existing scheduled post succeeded separately.
+- Five unambiguously labelled QA/test/fake businesses were removed from public directory search without deleting them or disabling their direct test routes.
 - A Node `url.parse()` deprecation warning remains in runtime telemetry and is not directly referenced by Business AI source.
 
 ## Remaining launch gates
