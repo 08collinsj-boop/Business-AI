@@ -3833,6 +3833,22 @@ setAppLoading(false);clearPrivateState();setAuthView('auth-required');
 const linkedReferral=prefillReferralInputs();if(linkedReferral)setAuthenticationMode('signup');
 };
 
+let readyAuthUserId=null;
+let authBootstrapInFlight=null;
+async function bootstrapAuthSession(session){
+  const userId=session?.user?.id||null;
+  if(userId&&userId===readyAuthUserId&&document.body.classList.contains('auth-ready'))return;
+  if(authBootstrapInFlight?.userId===userId)return authBootstrapInFlight.promise;
+  const promise=(async()=>{
+    await handleSession(session);
+    if(!session)readyAuthUserId=null;
+    else if(document.body.classList.contains('auth-ready'))readyAuthUserId=userId;
+  })();
+  authBootstrapInFlight={userId,promise};
+  try{return await promise;}
+  finally{if(authBootstrapInFlight?.promise===promise)authBootstrapInFlight=null;}
+}
+
 async function initializeAuthentication(){
 try{
 const response=await fetch('/api/public-config');
@@ -3844,18 +3860,19 @@ if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)
 frontendAuthEnabled=true;
 passwordRecoveryActive=passwordRecoveryIntentFromLocation();
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
-// Supabase holds an internal auth lock while notifying listeners. Do not call
-// asynchronous Supabase methods (via handleSession -> api -> getSession) from
-// that callback; defer the work until the callback has returned.
+// Supabase holds an internal auth lock while notifying listeners. Defer
+// bootstrap to the next task and do not reload the dashboard on token refresh,
+// MFA changes or repeated same-user sign-in notifications.
 supabaseClient.auth.onAuthStateChange((event,nextSession)=>{
 if(event==='PASSWORD_RECOVERY'){passwordRecoveryActive=true;setAppLoading(false);setAuthView('auth-required');setAuthenticationMode('recovery');return;}
 if(event==='INITIAL_SESSION')return;
 if(passwordRecoveryActive&&nextSession)return;
-window.setTimeout(()=>{handleSession(nextSession).catch(()=>{});},0);
+if(event!=='SIGNED_IN'&&event!=='SIGNED_OUT')return;
+window.setTimeout(()=>{bootstrapAuthSession(event==='SIGNED_OUT'?null:nextSession).catch(()=>{});},0);
 });
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(passwordRecoveryActive){setAppLoading(false);setAuthView('auth-required');setAuthenticationMode('recovery',session?'':'This reset link is invalid or expired. Request a fresh reset link.');return true;}
-await handleSession(session);
+await bootstrapAuthSession(session);
 return true;
 }catch(error){frontendAuthEnabled=true;setAppLoading(false);setAuthView('auth-required','Authentication is temporarily unavailable.');return true;}
 }
@@ -4426,7 +4443,24 @@ let result=null;
 
 try{result=await response.json()}catch{}
 
-if(response.status===401&&supabaseClient){await supabaseClient.auth.signOut();throw new Error('Your session has expired.');}
+if(response.status===401&&supabaseClient){
+  // An application 401 is not proof that the Supabase login has expired.
+  // Only sign out locally when Supabase Auth itself rejects the session.
+  let verificationError=null;
+  try{
+    const verification=await supabaseClient.auth.getUser();
+    if(verification?.data?.user)throw new Error('The application rejected a valid sign-in. Please retry or contact support.');
+    verificationError=verification?.error||null;
+  }catch(error){
+    if(error?.message==='The application rejected a valid sign-in. Please retry or contact support.')throw error;
+    throw new Error('Could not verify this request. Your sign-in has been preserved; please retry.');
+  }
+  if([401,403].includes(Number(verificationError?.status))){
+    await supabaseClient.auth.signOut({scope:'local'});
+    throw new Error('Your session has expired.');
+  }
+  throw new Error('Could not verify this request. Your sign-in has been preserved; please retry.');
+}
 if(response.status===403&&result?.code==='MFA_REQUIRED'){
 if(!mfaRetried&&typeof window.businessAiVerifyProtectedAction==='function'){
 const verified=await window.businessAiVerifyProtectedAction();
