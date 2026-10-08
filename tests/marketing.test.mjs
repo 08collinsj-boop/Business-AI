@@ -924,7 +924,7 @@ for (
 
       assert.equal(
         modelCall.max_tokens,
-        1800
+        1200
       );
 
       assert.ok(
