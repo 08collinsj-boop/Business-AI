@@ -889,12 +889,22 @@ for (
 
       assert.equal(
         modelCall.model,
-        'openrouter/free'
+        'apodex/apodex-1.1-mini:free'
       );
 
       assert.equal(
         modelCall.provider.require_parameters,
         true
+      );
+
+      assert.equal(
+        modelCall.provider.allow_fallbacks,
+        true
+      );
+
+      assert.equal(
+        modelCall.provider.sort,
+        'throughput'
       );
 
       assert.equal(
@@ -1242,6 +1252,36 @@ test(
     );
   }
 );
+
+test('Marketing retries rotate across independent free models', async () => {
+  const calls = setup();
+  const baseFetch = globalThis.fetch;
+  let providerAttempts = 0;
+
+  globalThis.fetch = async (url, options = {}) => {
+    if (url.startsWith('https://openrouter.ai')) {
+      providerAttempts++;
+      if (providerAttempts < 3) {
+        await baseFetch(url, options);
+        return response({ error: { message: 'temporary provider failure' } }, false, 503);
+      }
+    }
+    return baseFetch(url, options);
+  };
+
+  const result = await call(marketingHandler);
+  assert.equal(result.statusCode, 200);
+
+  const models = calls
+    .filter(call => call.url.startsWith('https://openrouter.ai'))
+    .map(call => JSON.parse(call.options.body).model);
+
+  assert.deepEqual(models, [
+    'apodex/apodex-1.1-mini:free',
+    'liquid/lfm-2.5-2.6b:free',
+    'nex-agi/nex-n2.5-mini:free'
+  ]);
+});
 
 test('Marketing provider request is compact enough to avoid truncated draft JSON', async () => {
   const calls = setup();
