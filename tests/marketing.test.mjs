@@ -889,7 +889,7 @@ for (
 
       assert.equal(
         modelCall.model,
-        'apodex/apodex-1.1-mini:free'
+        'liquid/lfm-2.5-2.6b:free'
       );
 
       assert.equal(
@@ -1258,6 +1258,35 @@ test(
   }
 );
 
+test('Marketing rotates to another free model when a provider route returns 400', async () => {
+  const calls = setup();
+  const baseFetch = globalThis.fetch;
+  let providerAttempts = 0;
+
+  globalThis.fetch = async (url, options = {}) => {
+    if (url.startsWith('https://openrouter.ai')) {
+      providerAttempts++;
+      if (providerAttempts === 1) {
+        await baseFetch(url, options);
+        return response({ error: { message: 'Provider returned error' } }, false, 400);
+      }
+    }
+    return baseFetch(url, options);
+  };
+
+  const result = await call(marketingHandler);
+  assert.equal(result.statusCode, 200);
+
+  const models = calls
+    .filter(call => call.url.startsWith('https://openrouter.ai'))
+    .map(call => JSON.parse(call.options.body).model);
+
+  assert.deepEqual(models, [
+    'liquid/lfm-2.5-2.6b:free',
+    'nvidia/nemotron-3-super-120b-a12b:free'
+  ]);
+});
+
 test('Marketing retries rotate across independent free models', async () => {
   const calls = setup();
   const baseFetch = globalThis.fetch;
@@ -1282,9 +1311,9 @@ test('Marketing retries rotate across independent free models', async () => {
     .map(call => JSON.parse(call.options.body).model);
 
   assert.deepEqual(models, [
-    'apodex/apodex-1.1-mini:free',
-    'nex-agi/nex-n2.5-mini:free',
-    'qwen/qwen3.8-27b:free'
+    'liquid/lfm-2.5-2.6b:free',
+    'nvidia/nemotron-3-super-120b-a12b:free',
+    'dots-studio/dots-3-note-preview:free'
   ]);
 });
 
