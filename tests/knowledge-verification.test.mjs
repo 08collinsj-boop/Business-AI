@@ -49,3 +49,13 @@ test('owner UI loads the knowledge verification layer and submits the versioned 
   assert.match(client, /Review required/);
   assert.match(operations, /knowledge-verified-handler\.js/);
 });
+
+
+test('knowledge approval preserves the original request object when delegating auth', async () => {
+  const source = await readFile(new URL('../lib/knowledge-verified-handler.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /knowledgeHandler\(\{\s*\.\.\.req/);
+  assert.match(source, /const originalBody = req\.body/);
+  assert.match(source, /req\.body = delegatedBody/);
+  assert.match(source, /knowledgeHandler\(req, res\)/);
+  assert.match(source, /finally[\s\S]*req\.body = originalBody/);
+});
