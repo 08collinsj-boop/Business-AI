@@ -71,7 +71,7 @@ test("owner dashboard uses semantic colour presentation without inventing metric
 });
 
 test("auth-state changes defer private API work until Supabase releases its callback lock", () => {
-  assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{[\s\S]*?if\(event==='PASSWORD_RECOVERY'\)[\s\S]*?if\(event==='INITIAL_SESSION'\)return;[\s\S]*?window\.setTimeout\(\(\)=>\{handleSession\(nextSession\)\.catch\(\(\)=>\{\}\);\},0\);[\s\S]*?\}\);/);
+  assert.match(html, /onAuthStateChange\(\(event,nextSession\)=>\{[\s\S]*?if\(event==='PASSWORD_RECOVERY'\)[\s\S]*?if\(event==='INITIAL_SESSION'\)return;[\s\S]*?if\(event!=='SIGNED_IN'&&event!=='SIGNED_OUT'\)return;[\s\S]*?window\.setTimeout\(\(\)=>\{bootstrapAuthSession\([\s\S]*?\},0\);[\s\S]*?\}\);/);
   assert.doesNotMatch(html, /onAuthStateChange\(\(_event,nextSession\)=>handleSession\(nextSession\)\)/);
 });
 
