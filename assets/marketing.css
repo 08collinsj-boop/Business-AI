@@ -149,3 +149,5 @@
 .marketing-facebook-review input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:#58b5fd}
 .marketing-facebook-review:has(input:disabled){opacity:.65}
 @media(max-width:480px){.marketing-facebook-panel{padding:12px}.marketing-facebook-head button{width:100%;min-height:42px}.marketing-facebook-caption{font-size:13px;max-height:320px}}
+
+.marketing-facebook-review[hidden]{display:none}
