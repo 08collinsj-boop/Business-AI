@@ -306,9 +306,10 @@
 
   function setBusy(value) {
     busy=value;
-    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingReplacePhoto','marketingComposerPhotoRemove','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun','marketingAutomationPostPhotoAdd','marketingAutomationInspirationAdd','marketingAutomationAdvancedToggle','marketingPlanWeek','marketingSaveStrategy']) if(node(id)) node(id).disabled=value;
+    for(const id of ['marketingGenerate','marketingRegenerate','marketingSaveDraft','marketingApprove','marketingDelete','marketingPublishNow','marketingSchedule','marketingCopyMain','marketingCopyShort','marketingCopyCta','marketingCopyTags','marketingCopy','marketingCopyCaption','marketingScheduleConfirm','marketingScheduleDraft','marketingGenerateImage','marketingUploadPhoto','marketingReplacePhoto','marketingComposerPhotoRemove','marketingRemoveImage','marketingAutomationSave','marketingAutomationRun','marketingAutomationPostPhotoAdd','marketingAutomationInspirationAdd','marketingAutomationAdvancedToggle','marketingPlanWeek','marketingSaveStrategy']) if(node(id)) node(id).disabled=value;
     if(node('marketingGenerate')) node('marketingGenerate').textContent=value?'Working…':'Generate draft';
     node('marketingForm')?.setAttribute('aria-busy',String(value));
+    updateCaptionReviewGate();
   }
 
   function outputFromEditor(){
@@ -321,9 +322,72 @@
     };
   }
 
+
+  // Only the server may compose the Facebook payload; preview POST never generates or saves.
+  let finalCaptionText = '', finalCaptionHash = '', finalCaptionSaved = false, finalCaptionVersion = 0, finalCaptionTimer = null;
+  function captionMatchesSavedDraft(editor) {
+    const saved = currentGeneration?.output;
+    return !!saved && editor.main_copy === (saved.main_copy||'')
+      && editor.short_alternative === (saved.short_alternative||'')
+      && editor.call_to_action === (saved.call_to_action||'')
+      && JSON.stringify(editor.hashtags) === JSON.stringify(saved.hashtags||[]);
+  }
+  function updateCaptionReviewGate() {
+    const owner = authenticatedBusinessRole === 'owner', facebook = currentGeneration?.platform === 'facebook';
+    const checked = node('marketingFacebookReviewed')?.checked === true;
+    if(node('marketingFacebookReviewed')) node('marketingFacebookReviewed').disabled = !owner || !facebook || !finalCaptionHash || !finalCaptionSaved || currentGeneration?.approval_status === 'approved' || busy;
+    if(node('marketingApprove')) node('marketingApprove').disabled = busy || (facebook && (!owner || !checked || !finalCaptionHash || !finalCaptionSaved));
+  }
+  function resetFacebookPreview() {
+    ++finalCaptionVersion;
+    if(finalCaptionTimer){clearTimeout(finalCaptionTimer);finalCaptionTimer=null;}
+    finalCaptionText='';finalCaptionHash='';finalCaptionSaved=false;
+    if(node('marketingFacebookReviewed')) node('marketingFacebookReviewed').checked=false;
+    if(node('marketingCopyCaption')) node('marketingCopyCaption').disabled=true;
+    updateCaptionReviewGate();
+  }
+  async function requestFacebookPreview(version, generationId) {
+    const editor=outputFromEditor(), saved=captionMatchesSavedDraft(editor);
+    try {
+      const result=await api('/api/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'preview',generation_id:generationId,output:{main_copy:editor.main_copy,call_to_action:editor.call_to_action,hashtags:editor.hashtags}})});
+      if(version!==finalCaptionVersion || currentGenerationId!==generationId)return;
+      if(typeof result.caption!=='string' || !/^[a-f0-9]{64}$/.test(String(result.caption_sha256||'')))throw new Error('The final caption could not be verified.');
+      finalCaptionText=result.caption;finalCaptionHash=result.caption_sha256;finalCaptionSaved=saved;
+      if(node('marketingFacebookCaption'))node('marketingFacebookCaption').textContent=finalCaptionText;
+      if(node('marketingFacebookCount'))node('marketingFacebookCount').textContent=result.characters+' characters';
+      if(node('marketingFacebookPreviewStatus'))node('marketingFacebookPreviewStatus').textContent=saved
+        ? 'Exact saved publishing text. No post has been created.'
+        : 'Unsaved changes - save the draft before approval. Nothing has been published.';
+      if(node('marketingCopyCaption'))node('marketingCopyCaption').disabled=busy;
+    }catch(error) {
+      if(version!==finalCaptionVersion || currentGenerationId!==generationId)return;
+      finalCaptionText='';finalCaptionHash='';finalCaptionSaved=false;
+      if(node('marketingFacebookCaption'))node('marketingFacebookCaption').textContent='Preview unavailable.';
+      if(node('marketingFacebookCount'))node('marketingFacebookCount').textContent='0 characters';
+      if(node('marketingFacebookPreviewStatus'))node('marketingFacebookPreviewStatus').textContent=error?.message||'Could not verify the caption.';
+    }
+    updateCaptionReviewGate();
+  }
+  function queueFacebookPreview() {
+    resetFacebookPreview();
+    const facebook=currentGeneration?.platform==='facebook',panel=node('marketingFacebookPreviewPanel');
+    if(panel)panel.hidden=!facebook;
+    if(!facebook || !currentGenerationId)return;
+    if(node('marketingFacebookCaption'))node('marketingFacebookCaption').textContent='Preparing exact caption preview…';
+    if(node('marketingFacebookCount'))node('marketingFacebookCount').textContent='0 characters';
+    if(node('marketingFacebookPreviewStatus'))node('marketingFacebookPreviewStatus').textContent='Read-only preview. Nothing will be published.';
+    const version=finalCaptionVersion, generationId=currentGenerationId;
+    finalCaptionTimer=setTimeout(()=>{finalCaptionTimer=null;void requestFacebookPreview(version,generationId);},300);
+  }
+  async function copyFinalFacebookCaption(){
+    if(!finalCaptionText)return message('Wait for the verified Facebook preview before copying.');
+    try{await navigator.clipboard.writeText(finalCaptionText);message('Exact Facebook caption copied. No shorter alternative or duplicate hashtags included.');}
+    catch{message('Copy is unavailable. Select the preview text to copy it manually.');}
+  }
+
   function renderCurrent(generation){
     currentGeneration=generation||null; currentGenerationId=generation?.id||null; output=generation?.output||null;
-    if(!generation||!output){ node('marketingResult').hidden=true; node('marketingResult')?.classList.remove('is-approved'); node('marketingEmpty').hidden=false; if(node('marketingReviewState'))node('marketingReviewState').textContent='Check the wording, facts and offer details before approval.'; return; }
+    if(!generation||!output){ resetFacebookPreview(); if(node('marketingFacebookPreviewPanel'))node('marketingFacebookPreviewPanel').hidden=true; node('marketingResult').hidden=true; node('marketingResult')?.classList.remove('is-approved'); node('marketingEmpty').hidden=false; if(node('marketingReviewState'))node('marketingReviewState').textContent='Check the wording, facts and offer details before approval.'; return; }
     node('marketing_main_copy').value=output.main_copy||''; node('marketing_short_alternative').value=output.short_alternative||''; node('marketing_call_to_action').value=output.call_to_action||''; node('marketing_hashtags').value=(output.hashtags||[]).join(' ');
     node('marketing_missing').textContent=(output.missing_information||[]).length?`Information to check: ${output.missing_information.join('; ')}`:'';
     const approved=generation.approval_status==='approved'; node('marketingApprovalBadge').textContent=approved?'Approved · Ready to publish':'Draft · Review required'; node('marketingDraftDate').textContent=when(generation.updated_at||generation.created_at);
@@ -332,6 +396,8 @@
     node('marketingApprove').hidden=authenticatedBusinessRole!=='owner'||approved; node('marketingSaveDraft').hidden=approved; node('marketingDelete').hidden=!['owner','admin'].includes(authenticatedBusinessRole); node('marketingPublishControls').hidden=!approved;
     for(const id of ['marketing_main_copy','marketing_short_alternative','marketing_call_to_action','marketing_hashtags']) node(id).disabled=approved;
     node('marketingResult').hidden=false; node('marketingEmpty').hidden=true;
+    if(node('marketingFacebookReviewRow'))node('marketingFacebookReviewRow').hidden=approved || authenticatedBusinessRole!=='owner';
+    queueFacebookPreview();
     void loadImageForCurrent();
   }
 
@@ -620,7 +686,7 @@
   }
 
   async function saveDraft(){ if(!currentGenerationId||busy)return; setBusy(true); try{const result=await api('/api/marketing',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'edit',generation_id:currentGenerationId,output:outputFromEditor()})}); renderCurrent(result.generation); message('Edits saved. Owner approval is still required before publishing.'); await loadHistory();}catch(error){message(error.message||'Could not save this draft.');}finally{setBusy(false);} }
-  async function approveDraft(){ if(!currentGenerationId||busy)return; setBusy(true); try{const result=await api('/api/marketing',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',generation_id:currentGenerationId})}); renderCurrent(result.generation); message('Approved. You can now publish or schedule this exact reviewed version.'); await Promise.all([loadHistory(),loadMeta(),loadPublications()]);}catch(error){message(error.message||'Could not approve this draft.');}finally{setBusy(false);} }
+  async function approveDraft(){ if(!currentGenerationId||busy)return; const facebook=currentGeneration?.platform==='facebook'; if(facebook && (!finalCaptionHash || !finalCaptionSaved || node('marketingFacebookReviewed')?.checked!==true))return message('Review the exact saved Facebook caption and tick the confirmation before approving.'); const reviewedHash=facebook?finalCaptionHash:undefined; setBusy(true); try{const result=await api('/api/marketing',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',generation_id:currentGenerationId,...(facebook?{preview_sha256:reviewedHash}:{})})}); renderCurrent(result.generation); message('Approved. You can now publish or schedule this exact reviewed version.'); await Promise.all([loadHistory(),loadMeta(),loadPublications()]);}catch(error){message(error.message||'Could not approve this draft.');}finally{setBusy(false);} }
   async function deleteDraft(){ if(!currentGenerationId||busy)return; if(!confirm('Delete this Marketing draft from your library?'))return; setBusy(true); try{await api('/api/marketing',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete',generation_id:currentGenerationId})}); currentGenerationId=null;currentGeneration=null;output=null;renderCurrent(null);message('Draft deleted.');await loadHistory();}catch(error){message(error.message||'Could not delete this draft.');}finally{setBusy(false);} }
 
 
@@ -998,6 +1064,9 @@
     try{await navigator.clipboard.writeText(text);message(label);}
     catch{message('Copy is unavailable. Select the draft text to copy it manually.');}
   }
+  for(const id of ['marketing_main_copy','marketing_short_alternative','marketing_call_to_action','marketing_hashtags'])node(id)?.addEventListener('input',queueFacebookPreview);
+  node('marketingFacebookReviewed')?.addEventListener('change',updateCaptionReviewGate);
+  node('marketingCopyCaption')?.addEventListener('click',copyFinalFacebookCaption);
   node('marketingGenerateImage')?.addEventListener('click',generateImage);node('marketingUploadPhoto')?.addEventListener('click',()=>chooseMarketingPhoto('composer'));node('marketingReplacePhoto')?.addEventListener('click',()=>chooseMarketingPhoto('current'));node('marketingPhotoInput')?.addEventListener('change',uploadMarketingPhoto);node('marketingComposerPhotoRemove')?.addEventListener('click',()=>{clearPendingMarketingPhoto();message('Photo removed from this draft brief.');});node('marketingRemoveImage')?.addEventListener('click',removeCurrentImage);node('marketingAutomationEnabled')?.addEventListener('change',previewAutomationControls);node('marketingAutomationMode')?.addEventListener('change',previewAutomationControls);node('marketingAutomationFrequency')?.addEventListener('change',previewAutomationControls);node('marketingAutomationSave')?.addEventListener('click',saveAutomation);node('marketingAutomationRun')?.addEventListener('click',runAutomationNow);node('marketingAutomationAdvancedToggle')?.addEventListener('click',()=>toggleAutomationAdvanced());node('marketingAutomationPostPhotoAdd')?.addEventListener('click',()=>chooseAutomationMedia('post'));node('marketingAutomationInspirationAdd')?.addEventListener('click',()=>chooseAutomationMedia('inspiration'));node('marketingAutomationMediaInput')?.addEventListener('change',uploadAutomationMedia);node('marketingRefreshHistory')?.addEventListener('click',loadHistory);node('marketingScheduleDraft')?.addEventListener('click',()=>startSchedule(currentGenerationId,currentGeneration?.platform));node('marketingScheduleDate')?.addEventListener('input',syncSchedulePickerDisplay);node('marketingScheduleDate')?.addEventListener('change',syncSchedulePickerDisplay);node('marketingScheduleTime')?.addEventListener('input',syncSchedulePickerDisplay);node('marketingScheduleTime')?.addEventListener('change',syncSchedulePickerDisplay);node('marketingScheduleConfirm')?.addEventListener('click',confirmSchedule);node('marketingScheduleClear')?.addEventListener('click',clearScheduleForm);node('marketingRefreshSchedules')?.addEventListener('click',loadSchedules);node('marketingFilterPlatform')?.addEventListener('change',renderHistory);node('marketingFilterType')?.addEventListener('change',renderHistory);node('marketingFilterSort')?.addEventListener('change',renderHistory);node('marketingCopyMain')?.addEventListener('click',()=>copyMarketingField('main'));node('marketingCopyShort')?.addEventListener('click',()=>copyMarketingField('short'));node('marketingCopyCta')?.addEventListener('click',()=>copyMarketingField('cta'));node('marketingCopyTags')?.addEventListener('click',()=>copyMarketingField('tags'));node('marketingCopy')?.addEventListener('click',()=>copyMarketingField('all'));node('metaConnect')?.addEventListener('click',connectMeta);node('metaDisconnect')?.addEventListener('click',disconnectMeta);node('marketingRefreshPublications')?.addEventListener('click',loadPublications);node('marketingPublishNow')?.addEventListener('click',()=>publish(false));node('marketingSchedule')?.addEventListener('click',()=>publish(true));
 
   window.addEventListener('pageshow',syncSchedulePickerDisplay);setTimeout(syncSchedulePickerDisplay,0);

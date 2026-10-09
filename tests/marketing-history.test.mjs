@@ -324,3 +324,56 @@ test('saved drafts show only the newest item until expanded', async () => {
   const css = await readFile(new URL('../assets/marketing.css', import.meta.url), 'utf8');
   assert.match(css, /marketing-history-toggle/);
 });
+
+
+test('Facebook preview uses canonical publisher formatting without generation or writing', async () => {
+  const calls=setup();
+  const response=res();
+  await marketingHandler({method:'POST',query:{},headers:{authorization:'Bearer verified'},body:{
+    action:'preview',generation_id:generations[0].id,
+    output:{main_copy:'Hello\\n\\nMessage us today. #York',call_to_action:'Message us today.',hashtags:['#York','#Repairs']}
+  }},response);
+  assert.equal(response.statusCode,200);
+  assert.equal(response.body.caption,'Hello\n\nMessage us today. #York\n\n#Repairs');
+  assert.match(response.body.caption_sha256,/^[a-f0-9]{64}$/);
+  assert.equal(response.body.characters,response.body.caption.length);
+  assert.ok(calls.every(call=>(call.options.method||'GET')==='GET'),'Preview must never perform a write');
+});
+test('Facebook preview validates access, tenant and fields before returning text', async()=>{
+  setup({role:'member'});
+  let response=res();
+  await marketingHandler({method:'POST',query:{},headers:{},body:{action:'preview',generation_id:generations[0].id,output:{main_copy:'A',call_to_action:'',hashtags:[]}}},response);
+  assert.equal(response.statusCode,401);
+  response=res();
+  await marketingHandler({method:'POST',query:{},headers:{authorization:'Bearer verified'},body:{action:'preview',generation_id:'33333333-3333-4333-8333-333333333333',output:{main_copy:'A',call_to_action:'',hashtags:[]}}},response);
+  assert.equal(response.statusCode,404);
+  response=res();
+  await marketingHandler({method:'POST',query:{},headers:{authorization:'Bearer verified'},body:{action:'preview',generation_id:generations[0].id,output:{main_copy:'A',call_to_action:'',hashtags:[],unsafe_extra:'x'}}},response);
+  assert.equal(response.statusCode,400);
+});
+test('Facebook owner approval requires a matching saved preview fingerprint', async()=>{
+  setup();
+  const request=(preview_sha256)=>({method:'PATCH',query:{},headers:{authorization:'Bearer verified'},body:{action:'approve',generation_id:generations[0].id,...(preview_sha256?{preview_sha256}:{})}});
+  let response=res();
+  await marketingHandler(request(),response);
+  assert.equal(response.statusCode,409);
+  response=res();
+  await marketingHandler(request('0'.repeat(64)),response);
+  assert.equal(response.statusCode,409);
+  const {composeMarketingCaption, marketingCaptionReviewHash}=await import('../lib/marketing-caption.js');
+  const caption=composeMarketingCaption(generations[0].output);
+  response=res();
+  await marketingHandler(request(marketingCaptionReviewHash(generations[0].id,caption)),response);
+  assert.equal(response.statusCode,200);
+  assert.equal(response.body.generation.approval_status,'approved');
+});
+test('final Facebook preview UI is server-backed, read-only and invalidates edited review', async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const js=await readFile(new URL('../assets/marketing.js',import.meta.url),'utf8');
+  for(const id of ['marketingFacebookPreviewPanel','marketingFacebookCaption','marketingFacebookReviewed','marketingCopyCaption','marketingFacebookCount'])assert.match(html,new RegExp(id));
+  assert.match(js,/action:'preview'/);
+  assert.match(js,/preview_sha256:reviewedHash/);
+  assert.match(js,/addEventListener\('input',queueFacebookPreview\)/);
+  assert.match(js,/resetFacebookPreview\(\)/);
+  assert.match(js,/navigator\.clipboard\.writeText\(finalCaptionText\)/);
+});

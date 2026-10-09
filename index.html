@@ -3009,9 +3009,20 @@ class="view"
 </div>
 <p id="marketing_missing" class="marketing-message"></p>
 
+<section id="marketingFacebookPreviewPanel" class="marketing-facebook-panel" aria-labelledby="marketingFacebookPreviewTitle" hidden>
+  <div class="marketing-facebook-head">
+    <div><span class="marketing-eyebrow">Facebook Page</span><h4 id="marketingFacebookPreviewTitle">Exact publishing caption</h4><p class="work-meta">The text below comes from the same server formatter used for Facebook publishing. Images appear separately.</p></div>
+    <button id="marketingCopyCaption" class="small-btn" type="button" disabled>Copy final caption</button>
+  </div>
+  <div id="marketingFacebookCaption" class="marketing-facebook-caption" role="region" aria-label="Final Facebook caption" aria-live="polite">Preparing preview…</div>
+  <div class="marketing-facebook-footer"><small id="marketingFacebookCount">0 characters</small><small id="marketingFacebookPreviewStatus" role="status" aria-live="polite">Preview only. Nothing has been posted.</small></div>
+  <label id="marketingFacebookReviewRow" class="marketing-facebook-review"><input id="marketingFacebookReviewed" type="checkbox" disabled><span>I have checked the final Facebook caption, including claims, wording and hashtags.</span></label>
+</section>
+
+
 <div class="marketing-review-actions">
 <div class="marketing-action-group"><span>Review</span><button id="marketingSaveDraft" class="small-btn" type="button">Save edits</button><button id="marketingApprove" class="small-btn primary-action" type="button">Approve for publishing</button><button id="marketingRegenerate" class="small-btn" type="button">Regenerate copy</button><button id="marketingEdit" class="small-btn" type="button">Edit brief</button></div>
-<div class="marketing-action-group secondary"><span>More</span><button id="marketingCopy" class="small-btn" type="button">Copy all</button><button id="marketingDelete" class="small-btn danger" type="button">Delete draft</button></div>
+<div class="marketing-action-group secondary"><span>More</span><button id="marketingCopy" class="small-btn" type="button">Copy draft fields</button><button id="marketingDelete" class="small-btn danger" type="button">Delete draft</button></div>
 </div>
 
 <div id="marketingImagePanel" class="marketing-publish-panel marketing-image-panel">
