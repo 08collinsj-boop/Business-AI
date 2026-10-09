@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { composeMarketingCaption, normaliseMarketingLineBreaks } from '../lib/marketing-caption.js';
+import { composeMarketingCaption, normaliseMarketingLineBreaks, marketingCaptionReviewHash } from '../lib/marketing-caption.js';
 
 test('converts escaped newlines and keeps real paragraph breaks', () => {
   assert.equal(normaliseMarketingLineBreaks('First\\n\\nSecond\r\nThird'), 'First\n\nSecond\nThird');
@@ -39,4 +39,54 @@ test('handles missing and malformed output without inventing text', () => {
   assert.equal(composeMarketingCaption(null), '');
   assert.equal(composeMarketingCaption({main_copy:' Hello.\n\nWorld. ',call_to_action:'',hashtags:[]}), 'Hello.\n\nWorld.');
   assert.equal(composeMarketingCaption({main_copy:'',call_to_action:'Contact us.',hashtags:['#Hartlepool','#hartlepool']}), 'Contact us.\n\n#Hartlepool');
+});
+
+
+test('removes repeated hashtags within main caption, preserving first spelling and order', () => {
+  assert.equal(
+    composeMarketingCaption({
+      main_copy: 'A local update.\\n\\n#BusinessAI #Hartlepool #businessai #Teesside #HARTLEPOOL',
+      call_to_action: '',
+      hashtags: ['#BusinessAI','#Teesside','#SmallBusiness','#smallbusiness']
+    }),
+    'A local update.\n\n#BusinessAI #Hartlepool #Teesside\n\n#SmallBusiness'
+  );
+});
+
+test('deduplicates tags across main paragraphs, CTA and hashtag field', () => {
+  assert.equal(
+    composeMarketingCaption({
+      main_copy: 'We are open. #Local\n\nVisit us. #LOCAL #NorthEast',
+      call_to_action: 'Message us for details. #northeast #New',
+      hashtags: ['#local','#new','#Different']
+    }),
+    'We are open. #Local\n\nVisit us. #NorthEast\n\nMessage us for details. #New\n\n#Different'
+  );
+});
+
+test('removes duplicate-only hashtag paragraphs without creating blank gaps', () => {
+  assert.equal(
+    composeMarketingCaption({ main_copy:'Welcome! #Local\\n\\n#LOCAL\\n\\nThanks.',call_to_action:'',hashtags:[] }),
+    'Welcome! #Local\n\nThanks.'
+  );
+});
+
+test('tidies spacing and punctuation around removed duplicate inline tags', () => {
+  assert.equal(
+    composeMarketingCaption({ main_copy:'We help #BusinessAI users.\n\nFind out about #businessai today.',call_to_action:'',hashtags:[] }),
+    'We help #BusinessAI users.\n\nFind out about today.'
+  );
+  assert.equal(
+    composeMarketingCaption({ main_copy:'Visit us. #Local. Join #LOCAL.',call_to_action:'',hashtags:[] }),
+    'Visit us. #Local. Join.'
+  );
+});
+
+test('hashtag deduplication is stable and approval hash derives from final caption', () => {
+  const original = { main_copy:'Hello #Local #LOCAL', call_to_action:'', hashtags:['#Local'] };
+  const caption = composeMarketingCaption(original);
+  assert.equal(caption, 'Hello #Local');
+  assert.equal(composeMarketingCaption({...original,main_copy:caption}), caption);
+  assert.equal(marketingCaptionReviewHash('draft-1',caption),marketingCaptionReviewHash('draft-1',composeMarketingCaption(original)));
+  assert.notEqual(marketingCaptionReviewHash('draft-1',caption),marketingCaptionReviewHash('draft-1',caption+' #Another'));
 });
