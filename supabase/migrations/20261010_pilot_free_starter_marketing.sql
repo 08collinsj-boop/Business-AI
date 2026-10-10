@@ -153,5 +153,4 @@ begin
     'id', generation_id,
     'daily_limit', daily_limit
   );
-end $function$
-
+end $function$;
