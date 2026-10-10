@@ -1616,7 +1616,7 @@ button:disabled{cursor:wait;opacity:.58;transform:none!important}
 .ai-mode-copy small{display:inline-flex;margin-left:8px;padding:3px 7px;border-radius:999px;background:#102a46;color:#8dbbe8;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:2px}
 .ai-mode-option.recommended .ai-mode-copy small{background:rgba(44,142,255,.18);color:#6ab5ff}
 .ai-mode-copy em{display:block;margin-top:6px;color:#92a7c2;font-size:12px;font-style:normal;line-height:1.45}
-.billing-card .billing-summary{margin:-3px 0 16px;line-height:1.5}
+.billing-card .billing-summary{margin:-3px 0 16px;line-height:1.5}.billing-card.pilot-free-billing > p.work-meta,.billing-card.pilot-free-billing .billing-feature-head,.billing-card.pilot-free-billing #addonPlanOptions{display:none}
 .billing-feature-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:22px 0 4px;padding-top:18px;border-top:1px solid #183c60}
 .billing-feature-head h4{margin:0;font-size:17px}
 .text-action{border:0;background:transparent;color:#5cabff;padding:7px 0;font-size:12px;font-weight:750}
@@ -5380,6 +5380,10 @@ card.hidden=false;
 if(!isOwner){
 badge.textContent='View only';summary.textContent='Only the business owner can purchase, change or cancel a subscription. You can compare the available plans below.';plans.innerHTML=Object.entries(billingPlanPresentation).map(([plan,item])=>'<article class="billing-plan '+(plan==='pro'?'pro':'')+'"><h4>'+esc(item.name)+'</h4><strong>'+esc(item.price)+'</strong><p>'+esc(item.detail)+(item.note?'<br>'+esc(item.note):'')+'</p><button class="small-btn" type="button" disabled>Owner only</button></article>').join('');manage.hidden=true;cancelChange.hidden=true;cancel.hidden=true;return;
 }
+if(billingState?.pilot_free_access){
+card.classList.add('pilot-free-billing');card.querySelector('h3').textContent='Pilot access';badge.textContent='Starter + Marketing';const e=billingState.entitlements;summary.textContent='Included at no charge during the Pilot. '+e.enquiriesUsed+' of '+e.enquiryAllowance+' AI enquiries used this month, '+e.enquiriesRemaining+' remaining.';plans.innerHTML='<article class="billing-plan"><h4>Starter + AI Marketing</h4><strong>Included during Pilot - £0</strong><p>250 AI enquiries and 2 staff accounts, plus up to 100 Marketing drafts per month. No checkout required.</p></article>';manage.hidden=true;cancelChange.hidden=true;cancel.hidden=true;return;
+}
+card.classList.remove('pilot-free-billing');
 if(!billingState?.entitlements?.enforced){
 badge.textContent='Plans';summary.textContent='Compare the available Business AI plans below. Subscription actions are temporarily unavailable while billing status loads.';plans.innerHTML=Object.entries(billingPlanPresentation).map(([plan,item])=>'<article class="billing-plan '+(plan==='pro'?'pro':'')+'"><h4>'+esc(item.name)+'</h4><strong>'+esc(item.price)+'</strong><p>'+esc(item.detail)+(item.note?'<br>'+esc(item.note):'')+'</p><button class="small-btn" type="button" disabled>Temporarily unavailable</button></article>').join('');manage.hidden=true;cancelChange.hidden=true;cancel.hidden=true;return;
 }
