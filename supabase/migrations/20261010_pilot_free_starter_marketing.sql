@@ -5,7 +5,8 @@ create table if not exists public.pilot_free_access_config (
   updated_at timestamptz not null default now()
 );
 alter table public.pilot_free_access_config enable row level security;
-revoke all on public.pilot_free_access_config from anon, authenticated;
+revoke all on public.pilot_free_access_config from public, anon, authenticated;
+grant select on public.pilot_free_access_config to service_role;
 insert into public.pilot_free_access_config(id, enabled) values (true, false) on conflict (id) do nothing;
 CREATE OR REPLACE FUNCTION public.reserve_marketing_generation(p_business_id uuid, p_actor_user_id uuid, p_request jsonb, p_request_hash text)
  RETURNS jsonb
