@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { parsePilotCapacity, default as handler } from '../api/pilot-capacity.js';
+import { parsePilotCapacity, default as handler } from '../lib/pilot-capacity-handler.js';
 
 function run(method, host) {
   const res = { code: 200, headers: {}, setHeader(k,v){ this.headers[k]=v; }, status(code){ this.code=code; return this; }, json(body){ this.body=body; return this; } };
@@ -37,4 +37,15 @@ test('Pilot sign-up copy is gated to Pilot hosts and includes a disclosure', () 
   assert.match(html,/Pilot participation figures are being verified/);
   assert.match(js,/business-ai-pilot/);
   assert.match(js,/status !== 'verified'/);
+});
+
+test('Pilot recruitment route reuses existing operations function', () => {
+  const dispatcher=fs.readFileSync(new URL('../api/operations.js',import.meta.url),'utf8');
+  const config=JSON.parse(fs.readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+  assert.match(dispatcher, /"pilot-capacity": pilotCapacityHandler/);
+  assert.deepEqual(config.rewrites.find(item => item.source === '/api/pilot-capacity'), {
+    source: '/api/pilot-capacity',
+    destination: '/api/operations?operation=pilot-capacity'
+  });
+  assert.equal(fs.existsSync(new URL('../api/pilot-capacity.js',import.meta.url)),false);
 });

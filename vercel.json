@@ -59,6 +59,10 @@
       "destination": "/api/operations?operation=public-config"
     },
     {
+      "source": "/api/pilot-capacity",
+      "destination": "/api/operations?operation=pilot-capacity"
+    },
+    {
       "source": "/api/health",
       "destination": "/api/operations?operation=health"
     },
