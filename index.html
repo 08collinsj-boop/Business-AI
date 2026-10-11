@@ -2267,6 +2267,7 @@ input.switch,input.switch:before{transition:none}
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Create your account</h2>
 <p>After confirming your email, you will set up your secure Business AI workspace.</p>
+<p id="pilotFreeSignUpOffer" class="auth-switch" hidden><strong>Free Pilot:</strong> Starter and AI Marketing are included at no charge during testing. No subscription or payment details are required.</p>
 <div class="auth-field"><label for="signUpEmail">Business email</label><input id="signUpEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
 <div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
@@ -2339,7 +2340,7 @@ input.switch,input.switch:before{transition:none}
 <label class="onboarding-ai-option"><input type="radio" name="o_ai_handling_mode" value="ai_first"><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>AI-first</strong><small>Maximum automation</small><em>AI handles as much as your business settings allow, while customers can still request a person at any time.</em></span></label>
 </fieldset><p>Business AI’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="knowledge"><h2>Add useful knowledge</h2><p>Optional factual information the AI may use. You can add more FAQs later.</p><div class="auth-field"><label for="o_faq_question">Frequently asked question</label><input id="o_faq_question" maxlength="500" placeholder="For example: Do you cover my area?"></div><div class="auth-field"><label for="o_faq_answer">Answer</label><textarea id="o_faq_answer" maxlength="2000" rows="4" placeholder="A short factual answer"></textarea></div></div>
-<div class="wizard-step" data-wizard-step="review"><h2>Review your setup</h2><p>Check the information your AI receptionist will use. You can edit everything later.</p><div id="onboardingReview" class="wizard-review"></div><p class="onboarding-hint">Completing setup does not grant a trial or subscription. Billing remains separate and secure.</p></div>
+<div class="wizard-step" data-wizard-step="review"><h2>Review your setup</h2><p>Check the information your AI receptionist will use. You can edit everything later.</p><div id="onboardingReview" class="wizard-review"></div><p class="onboarding-hint" id="onboardingPilotHint">Completing setup does not grant a trial or subscription. Billing remains separate and secure.</p></div>
 <div id="configurationOnboardingMessage" class="auth-message" role="alert"></div><div class="wizard-actions"><button id="onboardingBack" class="btn" type="button">Back</button><button id="onboardingNext" class="btn primary" type="submit">Continue</button></div>
 </form>
 </main>
@@ -3866,6 +3867,12 @@ const response=await fetch('/api/public-config');
 if(response.status===404){setAuthView('auth-ready');return false;}
 if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
 const config=await response.json();
+const pilotFree=Boolean(config?.pilotFreeAccess);
+const pilotOffer=$('pilotFreeSignUpOffer');
+if(pilotOffer){pilotOffer.hidden=!pilotFree;pilotOffer.style.display=pilotFree?'':'none';}
+const onboardingPilotHint=$('onboardingPilotHint');
+if(onboardingPilotHint&&pilotFree)onboardingPilotHint.textContent='Free Pilot access includes Starter and AI Marketing at no charge. No plan, paid trial or checkout is required during testing.';
+document.documentElement.classList.toggle('pilot-free-access',pilotFree);
 if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
 if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)throw new Error('Authentication is temporarily unavailable.');
 frontendAuthEnabled=true;
@@ -4155,7 +4162,7 @@ await beginConfigurationOnboarding();
 });
 
 $('onboardingBack')?.addEventListener('click',()=>{if(onboardingWizardIndex>0){onboardingWizardIndex-=1;renderOnboardingWizard();}});
-$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent='Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
+$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent=document.documentElement.classList.contains('pilot-free-access')?'Setup complete. Starter and AI Marketing are included free during the Pilot. No checkout is required.':'Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
 
 
 const money=n=>
