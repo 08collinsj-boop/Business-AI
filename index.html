@@ -3317,11 +3317,12 @@ Save business settings
 <p class="work-meta review-requests-intro">When a booking is marked completed, Business AI can prepare a neutral review message for your team to check and send. Nothing is sent automatically.</p>
 <label class="review-request-toggle" for="s_review_requests_enabled"><span><strong>Prepare review requests after completed bookings</strong><small>Creates one private Actions item per completed booking. Your team decides whether and when to send it.</small></span><input id="s_review_requests_enabled" class="switch" type="checkbox" onchange="renderReviewRequestSettings()"></label>
 <div class="settings-grid review-request-settings-grid">
-<div class="field"><label for="s_review_preferred_platform">Preferred review site</label><select id="s_review_preferred_platform" onchange="renderReviewRequestSettings()"><option value="google">Google</option><option value="facebook">Facebook</option></select></div>
+<div class="field"><label for="s_review_preferred_platform">Preferred review site</label><select id="s_review_preferred_platform" onchange="renderReviewRequestSettings()"><option value="google">Google</option><option value="facebook">Facebook</option><option value="trustpilot">Trustpilot</option></select></div>
 <div class="field"><label for="s_review_google_url">Google review link</label><input id="s_review_google_url" type="url" maxlength="2048" inputmode="url" placeholder="https://g.page/.../review" oninput="renderReviewRequestSettings()"></div>
 <div class="field full"><label for="s_review_facebook_url">Facebook review link</label><input id="s_review_facebook_url" type="url" maxlength="2048" inputmode="url" placeholder="https://www.facebook.com/your-page/reviews" oninput="renderReviewRequestSettings()"></div>
+<div class="field full"><label for="s_review_trustpilot_url">Trustpilot review link</label><input id="s_review_trustpilot_url" type="url" maxlength="2048" inputmode="url" placeholder="https://www.trustpilot.com/evaluate/your-business.co.uk" oninput="renderReviewRequestSettings()"></div>
 </div>
-<div id="reviewRequestsHint" class="work-meta review-requests-hint">Add a Google or Facebook review link before enabling this feature.</div>
+<div id="reviewRequestsHint" class="work-meta review-requests-hint">Add a Google, Facebook or Trustpilot review link before enabling this feature.</div>
 <div class="work-actions"><button class="small-btn primary-action" type="button" onclick="saveReviewRequestSettings()">Save review settings</button><button class="small-btn" type="button" onclick="showView('actions')">View prepared requests</button></div>
 <p class="work-meta review-requests-safety"><strong>Keep requests fair.</strong> Ask genuine customers for honest feedback using the same process, rather than only inviting customers you expect to leave a positive review.</p>
 </div>
@@ -5136,7 +5137,8 @@ renderAutomaticFollowUpSettings();
 if($('s_review_requests_enabled'))$('s_review_requests_enabled').checked=Boolean(settings.review_requests_enabled);
 if($('s_review_google_url'))$('s_review_google_url').value=settings.review_google_url||'';
 if($('s_review_facebook_url'))$('s_review_facebook_url').value=settings.review_facebook_url||'';
-if($('s_review_preferred_platform'))$('s_review_preferred_platform').value=settings.review_preferred_platform==='facebook'?'facebook':'google';
+if($('s_review_trustpilot_url'))$('s_review_trustpilot_url').value=settings.review_trustpilot_url||'';
+if($('s_review_preferred_platform'))$('s_review_preferred_platform').value=['google','facebook','trustpilot'].includes(settings.review_preferred_platform)?settings.review_preferred_platform:'google';
 renderReviewRequestSettings();
 
 $('brandName').innerHTML='Business <span>AI</span>';
@@ -5323,15 +5325,16 @@ finally{if(button)button.disabled=false;}
 
 function renderReviewRequestSettings(){
 const enabled=Boolean($('s_review_requests_enabled')?.checked);
-const preferred=$('s_review_preferred_platform')?.value==='facebook'?'facebook':'google';
+const preferred=['google','facebook','trustpilot'].includes($('s_review_preferred_platform')?.value)?$('s_review_preferred_platform').value:'google';
 const google=String($('s_review_google_url')?.value||'').trim();
 const facebook=String($('s_review_facebook_url')?.value||'').trim();
+const trustpilot=String($('s_review_trustpilot_url')?.value||'').trim();
 const badge=$('reviewRequestsBadge'),hint=$('reviewRequestsHint');
-const preferredReady=preferred==='google'?Boolean(google):Boolean(facebook);
-const anyReady=Boolean(google||facebook);
-if(badge)badge.textContent=enabled?(preferredReady?'On · '+(preferred==='google'?'Google':'Facebook'):(anyReady?'On · fallback link':'Needs link')):'Off';
+const preferredReady=Boolean({google,facebook,trustpilot}[preferred]);
+const anyReady=Boolean(google||facebook||trustpilot);
+if(badge)badge.textContent=enabled?(preferredReady?'On · '+({google:'Google',facebook:'Facebook',trustpilot:'Trustpilot'}[preferred]):(anyReady?'On · fallback link':'Needs link')):'Off';
 if(hint){
-if(!anyReady)hint.textContent='Add a Google or Facebook review link before enabling this feature.';
+if(!anyReady)hint.textContent='Add a Google, Facebook or Trustpilot review link before enabling this feature.';
 else if(enabled)hint.textContent='Completed bookings will prepare a neutral review message in Actions. Nothing is sent automatically.';
 else hint.textContent='Review links are saved, but automatic preparation is currently off.';
 }
@@ -5345,7 +5348,8 @@ settings=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'appl
 review_requests_enabled:Boolean($('s_review_requests_enabled')?.checked),
 review_google_url:String($('s_review_google_url')?.value||'').trim(),
 review_facebook_url:String($('s_review_facebook_url')?.value||'').trim(),
-review_preferred_platform:$('s_review_preferred_platform')?.value==='facebook'?'facebook':'google'
+review_trustpilot_url:String($('s_review_trustpilot_url')?.value||'').trim(),
+review_preferred_platform:['google','facebook','trustpilot'].includes($('s_review_preferred_platform')?.value)?$('s_review_preferred_platform').value:'google'
 })});
 fillSettings();
 toast(settings.review_requests_enabled?'Review requests enabled':'Review request settings saved');

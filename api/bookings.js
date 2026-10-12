@@ -141,7 +141,7 @@ async function recordLeadHistory(leadId, businessId, action, oldValue = "", newV
 
 async function getReviewSettings(businessId) {
   const rows = await supabaseRequest(
-    `business_settings?business_id=eq.${encodeURIComponent(String(businessId))}&select=business_name,review_requests_enabled,review_google_url,review_facebook_url,review_preferred_platform&limit=1`
+    `business_settings?business_id=eq.${encodeURIComponent(String(businessId))}&select=business_name,review_requests_enabled,review_google_url,review_facebook_url,review_trustpilot_url,review_preferred_platform&limit=1`
   );
   return Array.isArray(rows) ? rows[0] || null : null;
 }
