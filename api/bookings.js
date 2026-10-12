@@ -4,7 +4,7 @@ import {
 } from "../lib/auth.js";
 import { recordAuditEvent } from "../lib/audit.js";
 import { buildReviewRequestMessage, reviewDestination } from "../lib/review-requests.js";
-import { eligibleReviewEmail, queueReviewEmail } from "../lib/review-email-automation.js";
+import { eligibleReviewEmail, queueReviewEmail, reviewEmailDeliveryReady } from "../lib/review-email-automation.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -155,7 +155,7 @@ async function prepareReviewRequest({ businessId, booking, actorUserId }) {
   if (!booking?.id || booking.status !== "completed") return null;
   const settings = await getReviewSettings(businessId);
   if (!settings?.review_requests_enabled) return null;
-  if (eligibleReviewEmail({booking,settings})) {
+  if (reviewEmailDeliveryReady() && eligibleReviewEmail({booking,settings})) {
     await queueReviewEmail({booking,settings,businessId,actorUserId});
     return null; // Do not also create a manual action for a queued email.
   }

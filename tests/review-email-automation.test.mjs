@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import scheduler,{eligibleReviewEmail, queueReviewEmail} from '../lib/review-email-automation.js';
+import scheduler,{eligibleReviewEmail, queueReviewEmail, reviewEmailDeliveryReady} from '../lib/review-email-automation.js';
 import {readFile} from 'node:fs/promises';
 const booking={id:7,status:'completed',customer_email:'User@Example.org',review_email_allowed:true};
 const settings={review_requests_enabled:true,review_email_auto_enabled:true,review_email_delay_hours:24,review_trustpilot_url:'https://www.trustpilot.com/evaluate/example.org',review_preferred_platform:'trustpilot',business_name:'Example'};
@@ -38,4 +38,10 @@ test('delivery worker refuses all calls without a valid scheduler credential or 
   globalThis.fetch=prev.fetch;
   for(const [key,value] of [['REVIEW_EMAIL_SCHEDULER_SECRET',prev.secret],['REVIEW_EMAIL_DELIVERY_ENABLED',prev.flag]]){if(value===undefined)delete process.env[key];else process.env[key]=value;}
  }
+});
+
+test('sender kill switch and credentials prevent silently queued email',()=>{
+  assert.equal(reviewEmailDeliveryReady({REVIEW_EMAIL_DELIVERY_ENABLED:'true'}),false);
+  assert.equal(reviewEmailDeliveryReady({REVIEW_EMAIL_DELIVERY_ENABLED:'false',RESEND_API_KEY:'test',REVIEW_EMAIL_SCHEDULER_SECRET:'test',REVIEW_EMAIL_FROM:'Team <reviews@example.org>'}),false);
+  assert.equal(reviewEmailDeliveryReady({REVIEW_EMAIL_DELIVERY_ENABLED:'true',RESEND_API_KEY:'test',REVIEW_EMAIL_SCHEDULER_SECRET:'test',REVIEW_EMAIL_FROM:'Team <reviews@example.org>'}),true);
 });

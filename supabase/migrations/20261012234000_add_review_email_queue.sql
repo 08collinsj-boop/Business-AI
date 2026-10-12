@@ -32,7 +32,7 @@ grant all on public.review_email_outbox to service_role;
 -- Atomic, at-most-once claim. Ambiguous send attempts remain 'unknown' for manual reconciliation.
 create or replace function public.claim_due_review_emails(p_limit integer default 10)
 returns setof public.review_email_outbox
-language plpgsql security definer set search_path = public, pg_temp as $$
+language plpgsql security invoker set search_path = '' as $$
 begin
   return query
   with claimed as (
