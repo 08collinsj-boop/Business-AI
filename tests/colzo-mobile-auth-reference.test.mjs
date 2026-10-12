@@ -28,7 +28,8 @@ test('preview explicitly warns about authentication configuration without resett
  assert.match(html,/id="colzoPreviewAuthNotice"/);
  assert.match(ui,/preview authentication configuration|preview.*authentication/i);
  assert.match(html,/window\.location\.hostname\.endsWith\('\.vercel\.app'\)/);
- assert.match(html,/Your existing Business AI account has not been changed/);
+ assert.match(ui,/Your account and data have not been changed/);
+ assert.match(html,/different authentication project from the original app/);
  assert.match(html,/signInWithPassword\(\{email:\$\('loginEmail'\)\.value\.trim\(\),password:\$\('loginPassword'\)\.value\}\)/);
  assert.doesNotMatch(ui,/resetPasswordForEmail|deleteUser|auth\.admin/);
 });

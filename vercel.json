@@ -55,6 +55,10 @@
       "destination": "/api/operations?operation=customer-portal"
     },
     {
+      "source": "/api/colzo-preview-auth",
+      "destination": "/api/operations?operation=colzo-preview-auth"
+    },
+    {
       "source": "/api/public-config",
       "destination": "/api/operations?operation=public-config"
     },

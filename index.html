@@ -3985,7 +3985,19 @@ const button=$('loginSubmit');button.disabled=true;$('loginMessage').textContent
 try{
 const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
 if(error)throw error;
-}catch{ $('loginMessage').textContent=window.location.hostname.endsWith('.vercel.app')?'Sign-in failed on this development preview. Your existing Business AI account has not been changed. The preview may be connected to a different authentication environment.':'Unable to sign in with those details.'; }finally{button.disabled=false;}
+}catch(error){
+ const code=String(error?.code||'');
+ const preview=window.location.hostname.endsWith('.vercel.app');
+ const different=preview&&window.colzoPreviewAuthStatus==='different_project';
+ const authMessage=code==='email_not_confirmed'?'Please verify your email address before signing in.':
+   code==='over_request_rate_limit'||code==='over_email_send_rate_limit'?'Too many attempts. Please wait before trying again.':
+   code==='invalid_credentials'||Number(error?.status)===400?'The sign-in details were not accepted.':
+   code==='request_timeout'||String(error?.name||'').includes('Fetch')?'The authentication service could not be reached. Try again shortly.':
+   'Sign-in could not be completed. Try again shortly.';
+ $('loginMessage').textContent=different
+   ?'This preview uses a different authentication project from the original app. Your existing account has not been changed.'
+   :preview?authMessage+' If your usual details work in the original app, the preview connection still needs checking.':authMessage;
+}finally{button.disabled=false;}
 });
 
 $('showSignUp').addEventListener('click',()=>{

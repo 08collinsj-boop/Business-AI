@@ -404,3 +404,5 @@ body.colzo-interface .colzo-welcome-customer{font-size:11px;text-align:center;co
 body.colzo-interface #colzoWelcomeMessage{font-size:11px;color:#aab4bb;text-align:center;margin:0;min-height:0}
 @media(max-width:390px){body.colzo-interface.auth-required #authScreen.auth-screen{padding:10px 10px 20px!important}body.colzo-interface.auth-required #authScreen .auth-shared-shell{padding:15px 12px 18px!important}body.colzo-interface .colzo-welcome-content h1{font-size:52px}}
 @media(max-height:720px){body.colzo-interface.auth-required.colzo-welcome-active #colzoWelcome{padding-top:20px;padding-bottom:18px}body.colzo-interface .colzo-welcome-content{min-height:220px;padding-bottom:10px}body.colzo-interface .colzo-welcome-content img{width:110px;height:110px}body.colzo-interface .colzo-welcome-actions>button{min-height:44px}}
+body.colzo-interface #authScreen .colzo-preview-auth-notice{background:#29332a;color:#d4e1c5;border-color:#607941!important}
+body.colzo-interface #authScreen .colzo-preview-auth-notice.colzo-preview-warning{background:#322b20;color:#f0d3a7;border-color:#8a703d!important}

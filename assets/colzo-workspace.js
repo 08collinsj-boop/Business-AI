@@ -172,7 +172,29 @@
   const welcome=$('colzoWelcome');
   const preview=window.location.hostname.endsWith('.vercel.app');
   const previewNote='Development preview: existing Business AI accounts and data remain on the original application. If sign-in fails here, check the preview authentication configuration rather than resetting your account.';
-  if(preview){const notice=$('colzoPreviewAuthNotice');if(notice){notice.hidden=false;notice.textContent=previewNote;}}
+  if(preview){
+    const notice=$('colzoPreviewAuthNotice');
+    if(notice){notice.hidden=false;notice.textContent='Checking that this preview uses your existing Business AI account system…';}
+    window.colzoPreviewAuthStatus='checking';
+    fetch('/api/colzo-preview-auth',{cache:'no-store',headers:{Accept:'application/json'}})
+      .then(async response=>response.ok?response.json():{status:'unknown'})
+      .then(info=>{
+        const status=['same_project','different_project','unknown','unconfigured'].includes(info?.status)?info.status:'unknown';
+        window.colzoPreviewAuthStatus=status;
+        if(!notice)return;
+        notice.classList.toggle('colzo-preview-warning',status!=='same_project');
+        notice.textContent=status==='different_project'
+          ?'This preview is connected to a DIFFERENT Supabase authentication project from your original Business AI app. Your existing login may not work here. Your account and data have not been changed.'
+          :status==='same_project'
+          ?'This preview uses the SAME Supabase project as the original app. That does not yet verify its API key, membership permissions or complete application setup.'
+          :status==='unconfigured'
+          ?'Authentication is not fully configured on this preview. Your original account has not been changed.'
+          :previewNote;
+      }).catch(()=>{
+        window.colzoPreviewAuthStatus='unknown';
+        if(notice)notice.textContent=previewNote;
+      });
+  }
   let dismissed=false;
   try{dismissed=sessionStorage.getItem('colzo-welcome-dismissed-v1')==='1';}catch{}
   const isNormalEntry=window.location.pathname==='/'&&!new URLSearchParams(window.location.search).has('auth')&&!new URLSearchParams(window.location.search).has('ref');
