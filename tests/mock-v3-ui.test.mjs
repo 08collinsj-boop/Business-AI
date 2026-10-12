@@ -13,7 +13,9 @@ test('approved mock layer loads after the existing premium UI',()=>{
 
 test('mock layer keeps five real bottom navigation destinations',()=>{
   assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
-  for(const view of ['dashboard','leads','actions','bookings','settings']) assert.ok(html.includes(`data-view="${view}"`));
+  for(const view of ['dashboard','leads','colzoProjects','settings']) assert.ok(html.includes(`data-view="${view}"`));
+  assert.match(html,/onclick="showView\('actions'\)"/);
+  assert.match(html,/onclick="showView\('bookings'\)"/);
 });
 
 test('new mock controls remain functional and data-backed',()=>{

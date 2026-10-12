@@ -2229,6 +2229,13 @@ input.switch,input.switch:before{transition:none}
       <div id="loginMessage" class="auth-role-message" role="alert"></div>
       <div class="auth-divider">or</div>
       <button id="showSignUp" class="auth-secondary-action" type="button"><strong>Create business account</strong>&nbsp;→</button>
+      <div class="colzo-social-heading">or continue with</div>
+      <div class="colzo-social-providers" role="group" aria-label="Other sign-in providers">
+        <button type="button" data-colzo-oauth="apple" aria-label="Sign in with Apple" title="Available when connected">Apple</button>
+        <button type="button" data-colzo-oauth="google" aria-label="Sign in with Google" title="Available when connected"><strong class="colzo-google-g">G</strong> Google</button>
+        <button type="button" data-colzo-oauth="azure" aria-label="Sign in with Microsoft" title="Available when connected">▦ Microsoft</button>
+      </div>
+      <p id="colzoSocialStatus" class="colzo-social-note" role="status" aria-live="polite">Other sign-in providers require their connection to be enabled.</p>
       <div class="auth-role-footer">Secure access to your Colzo workspace.</div>
     </form>
     <form id="customerSignInForm" class="customer-auth-form auth-role-form auth-role-form-customer">
@@ -2582,6 +2589,7 @@ class="view active"
 </section>
 <div class="colzo-dashboard-section-title"><div><span class="colzo-section-kicker">PERFORMANCE</span><h3>At a glance</h3></div><span class="colzo-section-aside">Live business activity</span></div>
 <div class="stats" id="stats"></div>
+<div id="colzoLiveTrend" class="colzo-trend-card" aria-live="polite"><div class="colzo-trend-top"><h3>Enquiry trend</h3><span>Last 6 months</span></div><p>Loading recorded enquiries…</p></div>
 
 <button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
   <span class="dashboard-ai-orb" aria-hidden="true"><i></i><b>✦</b></span>
@@ -2684,7 +2692,8 @@ id="leadsView"
 class="view"
 >
 
-<div class="page-title screen-title"><span class="page-kicker">Leads</span><h2>Leads</h2><p>Manage every opportunity from enquiry to conversion.</p></div>
+<div class="colzo-screen-heading"><div><span class="colzo-screen-kicker">CUSTOMER RELATIONSHIPS</span><h2>Enquiries</h2></div><button id="colzoNewEnquiry" class="colzo-round-add" type="button" aria-label="New enquiry">+</button></div>
+<div class="colzo-enquiry-tabs" role="group" aria-label="Filter enquiries"><button type="button" data-colzo-enquiry-filter="All" aria-pressed="true">All</button><button type="button" data-colzo-enquiry-filter="New" aria-pressed="false">New</button><button type="button" data-colzo-enquiry-filter="In Progress" aria-pressed="false">In Progress</button><button type="button" data-colzo-enquiry-filter="Won" aria-pressed="false">Won</button></div>
 <div id="leadsSummary" class="reference-summary-grid reference-summary-grid-four" aria-label="Lead summary"></div>
 
 <div class="toolbar">
@@ -2701,7 +2710,7 @@ oninput="renderLeads()"
 </div>
 
 
-<div class="filters">
+<div class="filters colzo-legacy-filters">
 
 <button
 class="filter active"
@@ -2742,6 +2751,7 @@ Converted
 </div>
 
 
+<div id="colzoEnquiriesList" class="colzo-enquiries-list" aria-live="polite"></div>
 <div class="sortbar">
 
 <span id="leadCount">
@@ -3510,6 +3520,8 @@ Save business settings
 <p id="legalLaunchWarning" class="legal-launch-warning"><strong>Legal identity:</strong> checking service-provider configuration...</p>
 </div>
 
+<div class="settings-section-label">Workspace</div><div class="colzo-legacy-shortcuts"><button type="button" onclick="showView('actions')">✓ Actions and complaints ›</button><button type="button" onclick="showView('bookings')">▣ Bookings and calendar ›</button><button type="button" onclick="showView('marketing')">✦ Marketing ›</button><button type="button" onclick="showView('businessProfile')">▤ Business profile ›</button></div><div class="settings-section-label">Clients</div>
+<div class="card colzo-clients-panel"><div class="card-head"><h3>Client contacts</h3><button type="button" id="colzoAddClient" class="small-btn primary-action">+ Add client</button></div><p id="colzoClientsStatus" class="work-meta" role="status">Your business contacts are private to this workspace.</p><div id="colzoClientsList"></div></div>
 <div class="settings-section-label">Support</div>
 
 <div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention - it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Colzo does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls remain Coming Soon. Marketing publishing is available only after the owner connects an eligible account and explicitly approves a draft; billing availability is shown in the Billing section. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
@@ -3517,15 +3529,27 @@ Save business settings
 <div id="installAppCard" class="card install-app-card" hidden><div class="install-app-row"><div class="install-app-symbol" aria-hidden="true">↓</div><div class="install-app-copy"><h3>Install Colzo</h3><div class="work-meta">Add Colzo to your Home Screen for quick access.</div></div></div><div class="install-app-actions"><button id="installAppButton" class="small-btn primary-action" type="button" hidden>Install app</button></div><ol id="installAppIosInstructions" class="install-ios-steps" hidden><li>Tap Share in Safari.</li><li>Choose <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>.</li></ol></div>
 
 </section>
+<section id="colzoLeadDetailView" class="view colzo-screen" aria-label="Enquiry details">
+ <div class="colzo-detail-top"><button id="colzoDetailBack" type="button" aria-label="Back to enquiries">‹</button><strong>Enquiry details</strong><span>•••</span></div>
+ <div id="colzoLeadDetailContent" class="colzo-detail-content"></div>
+ <p id="colzoLeadDetailStatus" class="colzo-inline-status" role="status" aria-live="polite"></p>
+</section>
+<section id="colzoProjectsView" class="view colzo-screen" aria-label="Projects">
+ <div class="colzo-screen-heading"><div><span class="colzo-screen-kicker">YOUR WORK</span><h2>Projects</h2></div><button type="button" id="colzoNewProject" class="colzo-round-add" aria-label="New project">+</button></div>
+ <div class="colzo-project-tabs" role="group" aria-label="Filter projects"><button type="button" data-colzo-project-filter="All" aria-pressed="true">All</button><button type="button" data-colzo-project-filter="Active" aria-pressed="false">Active</button><button type="button" data-colzo-project-filter="Completed" aria-pressed="false">Completed</button></div>
+ <p id="colzoProjectsStatus" class="colzo-inline-status" role="status"></p>
+ <div id="colzoProjectsList" class="colzo-projects-list"></div>
+ <div class="colzo-progress-banner"><strong>Turn enquiries<br>into real progress.</strong><p>Track work from the first message to the finished project.</p><button type="button" id="colzoProjectsToLeads" aria-label="View enquiries">➜</button></div>
+</section>
+<div id="colzoWorkspaceDialog" class="colzo-workspace-dialog" hidden><div class="colzo-workspace-sheet" role="dialog" aria-modal="true" aria-labelledby="colzoWorkspaceDialogTitle"><div class="colzo-sheet-head"><h3 id="colzoWorkspaceDialogTitle">Create project</h3><button type="button" id="colzoDialogClose" aria-label="Close">×</button></div><form id="colzoWorkspaceForm"><div id="colzoWorkspaceFields"></div><div id="colzoWorkspaceFormMessage" role="status" aria-live="polite"></div><button type="submit" class="colzo-submit">Save</button></form></div></div>
 
 </div>
 
 
 <nav class="bottom-nav" aria-label="Primary navigation">
 <button class="nav-btn active" data-view="dashboard" aria-current="page" onclick="showView('dashboard')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg></span><span>Home</span></button>
-<button class="nav-btn" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c.3-4 2.1-6 5.5-6s5.2 2 5.5 6M16 8h4M18 6v4"/></svg></span><span>Leads</span></button>
-<button class="nav-btn" data-view="actions" onclick="showView('actions')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9 16l10-10M5 5h6M5 19h14"/></svg></span><span>Actions</span></button>
-<button class="nav-btn" data-view="bookings" onclick="showView('bookings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7 3v4M17 3v4M3.5 10h17"/></svg></span><span>Bookings</span></button>
+<button class="nav-btn" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5h10M7 9.5h10M7 14.5h8M7 19.5h5"/><rect x="3" y="2" width="18" height="20" rx="2"/></svg></span><span>Enquiries</span></button>
+<button class="nav-btn" data-view="colzoProjects" onclick="showView('colzoProjects')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7h7l2.2 2H21v11H3.5zM3.5 7V5h8"/></svg></span><span>Projects</span></button>
 <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg></span><span>More</span></button>
 </nav>
 
@@ -3907,6 +3931,7 @@ if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)
 frontendAuthEnabled=true;
 passwordRecoveryActive=passwordRecoveryIntentFromLocation();
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+window.colzoOauthProviders=Object.freeze(config.oauthProviders||{});
 // Supabase holds an internal auth lock while notifying listeners. Defer
 // bootstrap to the next task and do not reload the dashboard on token refresh,
 // MFA changes or repeated same-user sign-in notifications.
@@ -4395,11 +4420,13 @@ if(ownerScroller)ownerScroller.scrollTo({top:0,left:0,behavior:'auto'});
 else window.scrollTo({top:0,left:0,behavior:'auto'});
 document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item===target));
 
-const navContext=['addons','marketing','businessProfile'].includes(view)?'settings':view==='enquiries'?'dashboard':view;
+const navContext=['addons','marketing','businessProfile'].includes(view)?'settings':view==='colzoLeadDetail'?'leads':view==='enquiries'?'dashboard':view;
 document.querySelectorAll('.nav-btn').forEach(item=>{const active=item.dataset.view===navContext;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current');});
 requestAnimationFrame(()=>positionBottomNavIndicator(navContext));
 
 if(view==='bookings'||view==='actions')loadWorkItems();
+if(view==='colzoProjects')window.ColzoWorkspace?.refreshProjects();
+if(view==='settings')window.ColzoWorkspace?.refreshClients();
 if(view==='actions'&&['owner','admin'].includes(authenticatedBusinessRole))loadComplaints();
 if(view==='voice')loadVoiceStatus();
 if(view==='businessProfile'&&!businessProfileState)loadBusinessProfile();
@@ -5569,6 +5596,9 @@ fillWorkLeadOptions();
 renderDashboard();
 
 renderLeads();
+window.ColzoWorkspace?.syncLeads();
+window.ColzoWorkspace?.refreshProjects();
+window.ColzoWorkspace?.refreshClients();
 
 if(frontendAuthEnabled)loadWorkItems();
 if(frontendAuthEnabled)loadBusinessConfiguration();
@@ -5618,6 +5648,7 @@ initializeApp();
 <script src="/assets/premium-ui.js?v=20261005-settings-profile-row-1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
 <script src="/assets/colzo-interface.js?v=20261012-dashboard-v1"></script>
+<script src="/assets/colzo-workspace.js?v=20261012-workspace-v1"></script>
 </body>
 
 </html>

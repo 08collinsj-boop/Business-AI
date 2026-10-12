@@ -135,6 +135,18 @@
       "destination": "/api/operations?operation=review-email-scheduler"
     },
     {
+      "source": "/api/colzo/clients",
+      "destination": "/api/operations?operation=colzo-clients"
+    },
+    {
+      "source": "/api/colzo/projects",
+      "destination": "/api/operations?operation=colzo-work&kind=projects"
+    },
+    {
+      "source": "/api/colzo/quotes",
+      "destination": "/api/operations?operation=colzo-work&kind=quotes"
+    },
+    {
       "source": "/api/complaints",
       "destination": "/api/operations?operation=complaints"
     },

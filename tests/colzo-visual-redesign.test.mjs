@@ -14,7 +14,9 @@ test('Colzo is a genuinely new dashboard layout, not a palette-only skin',async(
   assert.match(html,/onclick="showView\('enquiries'\)"/);
   assert.match(html,/id="stats"/);
   assert.match(html,/id="dashboardAiStatus"/);
-  for (const section of ['leads','actions','bookings','settings']) assert.match(html,new RegExp(`data-view="${section}"`));
+  for (const section of ['leads','colzoProjects','settings']) assert.match(html,new RegExp(`data-view="${section}"`));
+  assert.match(html,/onclick="showView\('actions'\)"/);
+  assert.match(html,/onclick="showView\('bookings'\)"/);
   assert.match(html,/class="auth-pending app-loading colzo-interface"/);
   assert.match(html,/<h1><span>Colzo<\/span><\/h1>/);
 });

@@ -25,6 +25,8 @@ import marketingImageHandler from '../lib/marketing-image-handler.js';
 import marketingAutomationHandler from '../lib/marketing-automation-handler.js';
 import feedbackHandler from '../lib/feedback-handler.js';
 import complaintsHandler from '../lib/complaints-handler.js';
+import colzoWorkHandler from '../lib/colzo-workflow-handler.js';
+import colzoClientsHandler from '../lib/colzo-clients-handler.js';
 import customerComplaintsHandler from '../lib/customer-complaints-handler.js';
 import reviewEmailScheduler from '../lib/review-email-automation.js';
 import incidentControlsHandler from '../lib/incident-controls-handler.js';
@@ -60,6 +62,8 @@ const handlers = Object.freeze({
   "marketing-automation": marketingAutomationHandler,
   feedback: feedbackHandler,
   complaints: complaintsHandler,
+  "colzo-work": colzoWorkHandler,
+  "colzo-clients": colzoClientsHandler,
   "customer-complaints": customerComplaintsHandler,
   "review-email-scheduler": reviewEmailScheduler,
   "incident-controls": incidentControlsHandler,
