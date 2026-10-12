@@ -2191,7 +2191,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-theme.css?v=20261012-brand-1">
 </head>
 
-<body class="auth-pending app-loading" aria-busy="true">
+<body class="auth-pending app-loading colzo-interface" aria-busy="true">
 
 <div id="appSplash" class="app-splash" role="status" aria-live="polite" aria-label="Colzo is loading">
 <div class="app-splash-inner">
@@ -2208,7 +2208,7 @@ input.switch,input.switch:before{transition:none}
 <section id="sharedAuthShell" class="auth-card auth-shared-shell" data-auth-role="business">
   <div class="auth-shared-brand">
     <div class="auth-shared-mascot" aria-hidden="true"><img src="/assets/icons/colzo-mark.svg" alt=""></div>
-    <h1><span>Business</span> <span>AI</span></h1>
+    <h1><span>Colzo</span></h1>
     <p>Smarter business. Happier customers.</p>
   </div>
   <div class="auth-role-switch business-active" data-auth-role-switch aria-label="Choose account type">
@@ -2562,15 +2562,25 @@ id="dashboardView"
 class="view active"
 >
 
+<section class="colzo-command-hero" aria-label="Your Colzo workspace">
+<div class="colzo-hero-eyebrow"><span class="colzo-hero-square" aria-hidden="true"></span> YOUR WORKSPACE <span class="colzo-hero-separator">/</span> DAILY OVERVIEW</div>
+<div class="colzo-hero-content">
+<div class="colzo-hero-main">
 <div class="dashboard-reference-head">
   <div class="dashboard-reference-copy">
-    <span class="dashboard-reference-brand">Business <b>AI</b></span>
+    <span class="dashboard-reference-brand">COLZO <b>COMMAND CENTRE</b></span>
     <h2 id="dashboardGreeting">Welcome back.</h2>
     <p id="dashboardBusinessLabel">Your business overview</p>
   </div>
   <div id="dashboardDateLabel" class="dashboard-date-chip" aria-label="Today">Today</div>
 </div>
-
+<p class="colzo-hero-description">One place for your enquiries, customers, bookings and what comes next.</p>
+<div class="colzo-hero-buttons"><button type="button" onclick="showView('leads')" class="colzo-hero-primary">View leads <span aria-hidden="true">↗</span></button><button type="button" onclick="showView('enquiries')" class="colzo-hero-secondary">AI Receptionist <span aria-hidden="true">→</span></button></div>
+</div>
+<div class="colzo-hero-art" aria-hidden="true"><span class="colzo-hero-ring ring-one"></span><span class="colzo-hero-ring ring-two"></span><img src="/assets/icons/colzo-mark.svg" alt=""><span class="colzo-hero-art-caption">BUSINESS MADE SMARTER.</span></div>
+</div>
+</section>
+<div class="colzo-dashboard-section-title"><div><span class="colzo-section-kicker">PERFORMANCE</span><h3>At a glance</h3></div><span class="colzo-section-aside">Live business activity</span></div>
 <div class="stats" id="stats"></div>
 
 <button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
@@ -5607,6 +5617,7 @@ initializeApp();
 <script src="/assets/customer-portal.js?v=20261004-business-profile-1"></script>
 <script src="/assets/premium-ui.js?v=20261005-settings-profile-row-1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
+<script src="/assets/colzo-interface.js?v=20261012-dashboard-v1"></script>
 </body>
 
 </html>
