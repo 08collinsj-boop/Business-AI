@@ -127,8 +127,8 @@
     const launches=document.querySelectorAll('#dashboardView .dashboard-launch');
     if(launches.length>=4){
       const setup=(node,label,icon,action)=>{const title=node.querySelector('strong');if(title)title.textContent=label;const glyph=node.querySelector('i');if(glyph)glyph.textContent=icon;node.onclick=action;};
-      setup(launches[0],'New enquiry','+',()=>document.querySelector('#leadsView .mock-add-lead')?.click());
-      setup(launches[1],'Create quote','▤',()=>{if(!allLeads().length){toast('Add an enquiry before creating a quote');return;}openModal('quote',null,allLeads()[0].id);});
+      setup(launches[0],'New enquiry','+',()=>openModal('enquiry'));
+      setup(launches[1],'Create quote','▤',()=>{if(!allLeads().length){toast('Add an enquiry before creating a quote');return;}openModal('quote');});
       setup(launches[2],'Add client','♧',()=>openModal('client'));
       setup(launches[3],'View reports','▥',()=>{const el=$('valueDashboardCard');el?.scrollIntoView({behavior:'smooth',block:'start'});});
     }
@@ -142,25 +142,27 @@
   function field(label,name,value='',type='text',extra='') {return `<label>${label}<input name="${name}" type="${type}" ${extra} value="${escape(value)}"></label>`;}
   function openModal(kind,id=null,leadId=null){
     const modal=$('colzoWorkspaceDialog'),sheet=$('colzoWorkspaceFields');if(!modal||!sheet)return;
-    const project=kind==='project',client=kind==='client',existing=project?state.projects.find(p=>p.id===id):client?state.clients.find(c=>c.id===id):null;
+    const project=kind==='project',client=kind==='client',enquiry=kind==='enquiry',existing=project?state.projects.find(p=>p.id===id):client?state.clients.find(c=>c.id===id):null;
     state.modalKind=kind;state.modalId=id;state.leadId=leadId;state.lastModalFocus=document.activeElement;
-    $('colzoWorkspaceDialogTitle').textContent=project?(existing?'Edit project':'New project'):client?(existing?'Edit client':'Add client'):'Create quote';
+    $('colzoWorkspaceDialogTitle').textContent=enquiry?'New enquiry':project?(existing?'Edit project':'New project'):client?(existing?'Edit client':'Add client'):'Create quote';
     const leadsOptions=['<option value="">No linked enquiry</option>',...allLeads().map(l=>`<option value="${escape(l.id)}" ${String(l.id)===String(existing?.lead_id||leadId)?'selected':''}>${escape(l.name||'Enquiry')} · ${escape(l.job_type||'General')}</option>`)].join('');
-    const linked=`<label>Related enquiry<select name="lead_id" ${project?'':'required'}>${project?leadsOptions:leadsOptions.replace('<option value="">No linked enquiry</option>','')}</select></label>`;
-    sheet.innerHTML=client?`${field('Full name','full_name',existing?.full_name||'','text','minlength="2" maxlength="160" required')}${field('Email address','email',existing?.email||'','email','maxlength="320"')}${field('Phone','phone',existing?.phone||'','tel','maxlength="80"')}<label>Notes<textarea name="notes" maxlength="4000">${escape(existing?.notes||'')}</textarea></label>`:project?`${field('Project title','title',existing?.title||'', 'text','minlength="3" maxlength="160" required')}${field('Client name','client_name',existing?.client_name||'','text','maxlength="160"')}${linked}<label>Status<select name="status">${['planned','active','paused','completed'].map(x=>`<option ${existing?.status===x?'selected':''}>${x}</option>`).join('')}</select></label>${field('Progress %','progress',existing?.progress??0,'number','min="0" max="100" step="1"')}<label>Notes<textarea name="notes" maxlength="4000">${escape(existing?.notes||'')}</textarea></label>`:`${field('Quote title','title',byId(leadId)?.job_type||'New quote','text','minlength="3" maxlength="160" required')}${linked}${field('Amount GBP','amount_gbp','','number','min="0" step="0.01" required')}<label>Scope and notes<textarea name="notes" maxlength="4000"></textarea></label><p class="colzo-form-hint">This creates a private draft. Colzo will not automatically send an email or request payment.</p>`;
+    const linked=`<label>Related enquiry<select name="lead_id" ${project?'':'required'}>${project?leadsOptions:leadsOptions.replace('<option value="">No linked enquiry</option>','<option value="" selected disabled>Choose an enquiry</option>')}</select></label>`;
+    sheet.innerHTML=enquiry?`${field('Customer name','name','','text','maxlength="200"')}${field('Phone number','phone','','tel','maxlength="80"')}${field('Email address','email','','email','maxlength="320"')}${field('Service / job type','job_type','','text','maxlength="200"')}${field('Location','location','','text','maxlength="300"')}${field('Estimated value (£)','estimated_value','0','number','min="0" step="0.01"')}<label>Details<textarea name="description" maxlength="5000"></textarea></label><p class="colzo-form-hint">Add a name, phone or email address. This creates a real enquiry in your business workspace.</p>`:client?`${field('Full name','full_name',existing?.full_name||'','text','minlength="2" maxlength="160" required')}${field('Email address','email',existing?.email||'','email','maxlength="320"')}${field('Phone','phone',existing?.phone||'','tel','maxlength="80"')}<label>Notes<textarea name="notes" maxlength="4000">${escape(existing?.notes||'')}</textarea></label>`:project?`${field('Project title','title',existing?.title||'', 'text','minlength="3" maxlength="160" required')}${field('Client name','client_name',existing?.client_name||'','text','maxlength="160"')}${linked}<label>Status<select name="status">${['planned','active','paused','completed'].map(x=>`<option ${existing?.status===x?'selected':''}>${x}</option>`).join('')}</select></label>${field('Progress %','progress',existing?.progress??0,'number','min="0" max="100" step="1"')}<label>Notes<textarea name="notes" maxlength="4000">${escape(existing?.notes||'')}</textarea></label>`:`${field('Quote title','title',byId(leadId)?.job_type||'New quote','text','minlength="3" maxlength="160" required')}${linked}${field('Amount GBP','amount_gbp','','number','min="0" step="0.01" required')}<label>Scope and notes<textarea name="notes" maxlength="4000"></textarea></label><p class="colzo-form-hint">This creates a private draft. Colzo will not automatically send an email or request payment.</p>`;
     report('colzoWorkspaceFormMessage','');modal.hidden=false;document.body.style.overflow='hidden';sheet.querySelector('input')?.focus();
   }
   function closeModal(){const modal=$('colzoWorkspaceDialog');if(modal)modal.hidden=true;document.body.style.overflow='';state.lastModalFocus?.focus?.();}
   async function submitModal(event){
     event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type=submit]'),raw=Object.fromEntries(new FormData(form).entries());
-    const project=state.modalKind==='project',client=state.modalKind==='client';
-    const body=client?{full_name:raw.full_name.trim(),email:raw.email.trim(),phone:raw.phone.trim(),notes:raw.notes}:project?{title:raw.title.trim(),client_name:raw.client_name.trim(),lead_id:raw.lead_id?Number(raw.lead_id):null,status:raw.status,progress:Number(raw.progress),notes:raw.notes}:{title:raw.title.trim(),lead_id:Number(raw.lead_id),amount_gbp:Number(raw.amount_gbp),notes:raw.notes};
+    const project=state.modalKind==='project',client=state.modalKind==='client',enquiry=state.modalKind==='enquiry';
+    const body=enquiry?{name:raw.name.trim(),phone:raw.phone.trim(),email:raw.email.trim(),job_type:raw.job_type.trim(),location:raw.location.trim(),estimated_value:Number(raw.estimated_value),description:raw.description.trim()}:client?{full_name:raw.full_name.trim(),email:raw.email.trim(),phone:raw.phone.trim(),notes:raw.notes}:project?{title:raw.title.trim(),client_name:raw.client_name.trim(),lead_id:raw.lead_id?Number(raw.lead_id):null,status:raw.status,progress:Number(raw.progress),notes:raw.notes}:{title:raw.title.trim(),lead_id:Number(raw.lead_id),amount_gbp:Number(raw.amount_gbp),notes:raw.notes};
+    if(enquiry&&!body.name&&!body.phone&&!body.email){report('colzoWorkspaceFormMessage','Enter a name, phone number or email address.');return;}
+    if(enquiry&&(!Number.isFinite(body.estimated_value)||body.estimated_value<0)){report('colzoWorkspaceFormMessage','Enter a valid estimated value.');return;}
     button.disabled=true;report('colzoWorkspaceFormMessage','Saving…');
     try{
-      const url=client?'/api/colzo/clients':project?'/api/colzo/projects':'/api/colzo/quotes';
-      await request(url,{method:state.modalId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.modalId?{id:state.modalId,...body}:body)});
-      const leadId=state.leadId;closeModal();
-      if(client){await refreshClients();}else if(project){await refreshProjects();}else if(leadId){await openLead(leadId);}
+      const url=enquiry?'/api/leads':client?'/api/colzo/clients':project?'/api/colzo/projects':'/api/colzo/quotes';
+      const saved=await request(url,{method:state.modalId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.modalId?{id:state.modalId,...body}:body)});
+      const leadId=state.leadId||(!enquiry&&!client&&!project?saved?.item?.lead_id:null);closeModal();
+      if(enquiry){await loadAll(false);showView('leads');toast('Enquiry created');}else if(client){await refreshClients();toast('Client saved');}else if(project){await refreshProjects();toast('Project saved');}else if(leadId){await openLead(leadId);toast('Quote draft saved');}else{showView('leads');toast('Quote draft saved');}
     }catch(e){report('colzoWorkspaceFormMessage',e.message||'Could not save this record.');}
     finally{button.disabled=false;}
   }
@@ -182,7 +184,7 @@
   }));
   $('search')?.addEventListener('input',renderEnquiries);
   $('colzoDetailBack')?.addEventListener('click',()=>showView('leads'));
-  $('colzoNewEnquiry')?.addEventListener('click',()=>document.querySelector('#leadsView .mock-add-lead')?.click());
+  $('colzoNewEnquiry')?.addEventListener('click',()=>openModal('enquiry'));
   $('colzoNewProject')?.addEventListener('click',()=>openModal('project'));
   $('colzoAddClient')?.addEventListener('click',()=>openModal('client'));
   $('colzoHighContrast')?.addEventListener('change',saveAppearance);
@@ -192,6 +194,15 @@
   $('colzoDialogClose')?.addEventListener('click',closeModal);
   $('colzoWorkspaceDialog')?.addEventListener('click',e=>{if(e.target.id==='colzoWorkspaceDialog')closeModal();});
   $('colzoWorkspaceForm')?.addEventListener('submit',submitModal);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('colzoWorkspaceDialog')?.hidden)closeModal();});
+  document.addEventListener('keydown',e=>{
+    const modal=$('colzoWorkspaceDialog');if(!modal||modal.hidden)return;
+    if(e.key==='Escape'){e.preventDefault();closeModal();return;}
+    if(e.key!=='Tab')return;
+    const focusable=[...modal.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')].filter(el=>el.getClientRects().length>0);
+    if(!focusable.length)return;
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  });
   window.ColzoWorkspace={syncLeads(){renderEnquiries();renderDashboardExtras();},refreshProjects,refreshClients,renderProjects,renderEnquiries,renderNotifications,openLead};
 })();
