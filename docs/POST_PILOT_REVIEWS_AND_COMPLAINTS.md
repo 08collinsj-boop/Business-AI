@@ -48,3 +48,20 @@ These links illustrate the current platform, not features still being planned.
 - Deployment requires applying `20261012220000`, `20261012233000` and `20261012234000` in migration order to a reviewed isolated dev database, then full end-to-end UI and backend checks; leave Pilot/Production untouched until approved.
 
 **Fail-safe manual fallback:** With sending disabled or provider configuration missing, completed bookings continue producing manual review actions; emails cannot sit silently in an unsent queue. The database claim function uses security-invoker and service-role-only execution.
+
+
+## Development database integration — 12 October 2026
+
+**Environment:** Business-AI-Dev only. The three existing GitHub migrations were applied through the Supabase migration tool. No customer records were directly edited and no test messages were sent.
+
+| Change | Applied migration history version | Result |
+|---|---|---|
+| Trustpilot review links | `20261012215816_post_pilot_trustpilot_review_destinations` | Applied |
+| Authenticated customer complaints | `20261012215824_post_pilot_customer_complaints` | Applied |
+| Review email outbox and service worker | `20261012215830_post_pilot_review_email_queue` | Applied |
+
+**Verified in Dev:** complaint and outbox tables exist; review URL/settings and booking permission columns exist; both new tables have RLS enabled. The claim function is callable by `service_role` and not `anon` or `authenticated`. Supabase advisors found no additional warning-level findings from the new schema; the existing leaked-password protection warning remains.
+
+**Preview:** The Vercel `business-ai` project automatically built commit `73dc1c2` as READY preview without assigning public production domains. Preview browser acceptance with authenticated test accounts is still outstanding.
+
+**Release status:** Not merged into main; not deployed to `app.getbusiness-ai.com`. The existing public application, billing and marketing infrastructure have not been changed by this release procedure. Review email delivery remains disabled. Do not enable automatic email sending before compliance checks, end-to-end QA and a controlled sender verification.
