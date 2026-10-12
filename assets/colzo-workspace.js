@@ -168,6 +168,30 @@
   }
   document.querySelectorAll('[data-colzo-enquiry-filter]').forEach(b=>b.addEventListener('click',()=>{state.enquiryFilter=b.dataset.colzoEnquiryFilter;renderEnquiries();}));
   document.querySelectorAll('[data-colzo-project-filter]').forEach(b=>b.addEventListener('click',()=>{state.projectFilter=b.dataset.colzoProjectFilter;renderProjects();}));
+  // Welcome is a public UX step, NOT a separate account or authentication database.
+  const welcome=$('colzoWelcome');
+  const preview=window.location.hostname.endsWith('.vercel.app');
+  const previewNote='Development preview: existing Business AI accounts and data remain on the original application. If sign-in fails here, check the preview authentication configuration rather than resetting your account.';
+  if(preview){const notice=$('colzoPreviewAuthNotice');if(notice){notice.hidden=false;notice.textContent=previewNote;}}
+  let dismissed=false;
+  try{dismissed=sessionStorage.getItem('colzo-welcome-dismissed-v1')==='1';}catch{}
+  const isNormalEntry=window.location.pathname==='/'&&!new URLSearchParams(window.location.search).has('auth')&&!new URLSearchParams(window.location.search).has('ref');
+  if(welcome&&isNormalEntry&&!dismissed){welcome.hidden=false;document.body.classList.add('colzo-welcome-active');}
+  const dismissWelcome=(screen='login')=>{
+    if(welcome)welcome.hidden=true;
+    document.body.classList.remove('colzo-welcome-active');
+    try{sessionStorage.setItem('colzo-welcome-dismissed-v1','1');}catch{}
+    if(screen==='signup')$('showSignUp')?.click();
+    else if(typeof setAuthenticationMode==='function')setAuthenticationMode('login');
+  };
+  $('colzoWelcomeStart')?.addEventListener('click',()=>dismissWelcome('signup'));
+  $('colzoWelcomeSignIn')?.addEventListener('click',()=>dismissWelcome('login'));
+  document.querySelectorAll('[data-colzo-welcome-provider]').forEach(button=>button.addEventListener('click',()=>{
+    const provider=button.dataset.colzoWelcomeProvider;
+    dismissWelcome('login');
+    const target=document.querySelector(`[data-colzo-oauth="${provider}"]`);
+    if(target)target.click();
+  }));
   document.querySelectorAll('[data-colzo-oauth]').forEach(button=>button.addEventListener('click',async()=>{
     const provider=button.dataset.colzoOauth;
     const status=$('colzoSocialStatus');

@@ -2205,6 +2205,11 @@ input.switch,input.switch:before{transition:none}
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true"></div>
 
 <main id="authScreen" class="auth-screen" aria-live="polite">
+<section id="colzoWelcome" class="colzo-welcome" aria-labelledby="colzoWelcomeTitle" hidden>
+ <div class="colzo-welcome-art" aria-hidden="true"><div class="colzo-welcome-orbit orbit-one"></div><div class="colzo-welcome-orbit orbit-two"></div></div>
+ <div class="colzo-welcome-content"><img src="/assets/icons/colzo-mark.svg" alt="" width="130" height="130"><h1 id="colzoWelcomeTitle">Colzo</h1><p class="colzo-welcome-tagline">Business made <strong>smarter.</strong></p></div>
+ <div class="colzo-welcome-actions"><button id="colzoWelcomeStart" type="button">Get started</button><button id="colzoWelcomeSignIn" type="button">Sign in</button><div class="colzo-welcome-divider">or continue with</div><div class="colzo-welcome-providers" aria-label="Other sign-in providers"><button type="button" data-colzo-welcome-provider="apple" aria-label="Continue with Apple">Apple</button><button type="button" data-colzo-welcome-provider="google" aria-label="Continue with Google">Google</button><button type="button" data-colzo-welcome-provider="azure" aria-label="Continue with Microsoft">Microsoft</button></div><p id="colzoWelcomeMessage" role="status" aria-live="polite"></p><p class="colzo-welcome-legal">By continuing, you agree to our <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>.</p><a class="colzo-welcome-customer" href="/customer/account">Customer account access →</a></div>
+</section>
 <section id="sharedAuthShell" class="auth-card auth-shared-shell" data-auth-role="business">
   <div class="auth-shared-brand">
     <div class="auth-shared-mascot" aria-hidden="true"><img src="/assets/icons/colzo-mark.svg" alt=""></div>
@@ -2216,6 +2221,7 @@ input.switch,input.switch:before{transition:none}
     <a class="auth-role-option active" href="/" data-auth-role-target="business" aria-current="page"><span class="auth-role-option-icon" aria-hidden="true">▣</span>Business owner</a>
     <a class="auth-role-option" href="/customer/account" data-auth-role-target="customer"><span class="auth-role-option-icon" aria-hidden="true">♙</span>Customer</a>
   </div>
+  <p id="colzoPreviewAuthNotice" class="colzo-preview-auth-notice" hidden role="status"></p>
   <div class="auth-role-description" aria-live="polite">
     <p class="auth-business-copy">Access your dashboard, manage enquiries, bookings and AI assistant settings.</p>
     <p class="auth-customer-copy">Message businesses, track your enquiries and manage your bookings.</p>
@@ -3979,7 +3985,7 @@ const button=$('loginSubmit');button.disabled=true;$('loginMessage').textContent
 try{
 const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
 if(error)throw error;
-}catch{ $('loginMessage').textContent='Unable to sign in with those details.'; }finally{button.disabled=false;}
+}catch{ $('loginMessage').textContent=window.location.hostname.endsWith('.vercel.app')?'Sign-in failed on this development preview. Your existing Business AI account has not been changed. The preview may be connected to a different authentication environment.':'Unable to sign in with those details.'; }finally{button.disabled=false;}
 });
 
 $('showSignUp').addEventListener('click',()=>{
