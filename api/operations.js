@@ -26,6 +26,7 @@ import marketingAutomationHandler from '../lib/marketing-automation-handler.js';
 import feedbackHandler from '../lib/feedback-handler.js';
 import complaintsHandler from '../lib/complaints-handler.js';
 import customerComplaintsHandler from '../lib/customer-complaints-handler.js';
+import reviewEmailScheduler from '../lib/review-email-automation.js';
 import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
@@ -60,6 +61,7 @@ const handlers = Object.freeze({
   feedback: feedbackHandler,
   complaints: complaintsHandler,
   "customer-complaints": customerComplaintsHandler,
+  "review-email-scheduler": reviewEmailScheduler,
   "incident-controls": incidentControlsHandler,
   "business-profile": businessProfileHandler,
   legal: legalHandler,

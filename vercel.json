@@ -131,6 +131,10 @@
       "destination": "/api/operations?operation=marketing-automation"
     },
     {
+      "source": "/api/review-email-scheduler",
+      "destination": "/api/operations?operation=review-email-scheduler"
+    },
+    {
       "source": "/api/complaints",
       "destination": "/api/operations?operation=complaints"
     },

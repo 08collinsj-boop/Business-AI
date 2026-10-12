@@ -37,3 +37,12 @@ These links illustrate the current platform, not features still being planned.
 - [ ] Run `npm run verify`; check Google/Facebook compatibility, Trustpilot URL validation, owner settings and tenant-scoped portal responses.
 - [ ] Separately implement and test automatic sends and complaints workflow.
 - [ ] Explicitly approve any promotion to main or live deployment.
+
+
+## 12 October development update — code complete, deployment pending
+
+- Signed-in customers can submit one complaint per tracked enquiry. Owner/admin staff see a private case queue in Actions, with human response notes and audited status transitions. No automated response or public posting occurs.
+- Automatic review invitation **queue and provider worker are implemented as source code**. Owners must enable review requests, select a valid review URL, and separately enable auto-email queueing. Each booking must have a valid contact email and explicit review-contact permission. Outbox is unique per tenant/booking; delivery uses atomic claims and a provider idempotency key. A case with a complaint is suppressed.
+- The Resend delivery worker refuses any send unless `REVIEW_EMAIL_DELIVERY_ENABLED=true`, `REVIEW_EMAIL_SCHEDULER_SECRET`, `RESEND_API_KEY`, and verified sender `REVIEW_EMAIL_FROM` are configured. **No scheduler has been activated**, so no real messages can be sent from this source branch.
+- **Do not enable delivery until** verified sender/domain, recipient contact preferences and suppression/unsubscribe handling, privacy and retention review, provider DPA, operational monitoring, complaint exclusion, and a controlled test email are approved. An ambiguous provider result is marked `unknown` rather than automatically retried.
+- Deployment requires applying `20261012220000`, `20261012233000` and `20261012234000` in migration order to a reviewed isolated dev database, then full end-to-end UI and backend checks; leave Pilot/Production untouched until approved.

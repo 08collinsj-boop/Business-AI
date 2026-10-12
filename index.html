@@ -2792,6 +2792,8 @@ Follow-up date
 <div class="field"><label for="bookingStart">Start date and time</label><input id="bookingStart" type="datetime-local"></div>
 <div class="field"><label for="bookingEnd">End date and time</label><input id="bookingEnd" type="datetime-local"></div>
 <div class="field full"><label for="bookingLocation">Location</label><input id="bookingLocation" maxlength="500" placeholder="Customer address or area"></div>
+<div class="field full"><label for="bookingCustomerEmail">Customer email (only for authorised customer communication)</label><input id="bookingCustomerEmail" type="email" maxlength="320" placeholder="customer@example.com"></div>
+<div class="field full" data-admin-only><label for="bookingReviewEmailAllowed"><input id="bookingReviewEmailAllowed" type="checkbox"> The customer has agreed to receive an email review invitation for this booking</label></div>
 <div class="field full"><label for="bookingNotes">Notes</label><textarea id="bookingNotes" maxlength="5000" placeholder="Access details, requested time, or anything the team needs"></textarea></div>
 </div>
 <button class="save-btn" onclick="createBooking()">Create booking</button>
@@ -3332,6 +3334,10 @@ Save business settings
 <div class="field"><label for="s_review_google_url">Google review link</label><input id="s_review_google_url" type="url" maxlength="2048" inputmode="url" placeholder="https://g.page/.../review" oninput="renderReviewRequestSettings()"></div>
 <div class="field full"><label for="s_review_facebook_url">Facebook review link</label><input id="s_review_facebook_url" type="url" maxlength="2048" inputmode="url" placeholder="https://www.facebook.com/your-page/reviews" oninput="renderReviewRequestSettings()"></div>
 <div class="field full"><label for="s_review_trustpilot_url">Trustpilot review link</label><input id="s_review_trustpilot_url" type="url" maxlength="2048" inputmode="url" placeholder="https://www.trustpilot.com/evaluate/your-business.co.uk" oninput="renderReviewRequestSettings()"></div>
+</div>
+<div class="review-email-config" data-owner-only>
+<label class="review-request-toggle" for="s_review_email_auto_enabled"><span><strong>Queue review emails for approved completed bookings</strong><small>Requires an email address and explicit review-contact permission for each booking. Actual delivery is disabled until server setup is certified.</small></span><input id="s_review_email_auto_enabled" class="switch" type="checkbox"></label>
+<div class="field"><label for="s_review_email_delay_hours">Send delay after completion</label><select id="s_review_email_delay_hours"><option value="0">As soon as due</option><option value="24">24 hours</option><option value="48">48 hours</option><option value="72">72 hours</option></select></div>
 </div>
 <div id="reviewRequestsHint" class="work-meta review-requests-hint">Add a Google, Facebook or Trustpilot review link before enabling this feature.</div>
 <div class="work-actions"><button class="small-btn primary-action" type="button" onclick="saveReviewRequestSettings()">Save review settings</button><button class="small-btn" type="button" onclick="showView('actions')">View prepared requests</button></div>
@@ -4933,7 +4939,7 @@ function renderBookings(){
 renderBookingsSummary();
 const list=$('bookingsList');
 if(!list)return;
-list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item booking-reference-card"><div class="work-item-top"><div class="reference-list-main"><span class="reference-list-icon" aria-hidden="true">□</span><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta reference-list-note">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn danger" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button></div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
+list.innerHTML=bookings.length?bookings.map(booking=>`<article class="work-item booking-reference-card"><div class="work-item-top"><div class="reference-list-main"><span class="reference-list-icon" aria-hidden="true">□</span><div><h4>${esc(booking.title)}</h4><div class="work-meta">${esc(booking.customer_name||leadName(booking.lead_id)||'No customer')} · ${timeLabel(booking.starts_at)||'Time to be arranged'}${booking.location?` · ${esc(booking.location)}`:''}</div></div></div><span class="pill ${esc(booking.status)}">${esc(booking.status)}</span></div>${booking.notes?`<div class="work-meta reference-list-note">${esc(booking.notes)}</div>`:''}<div class="work-actions">${booking.status==='requested'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'confirmed'})">Confirm</button>`:''}${booking.status==='confirmed'?`<button class="small-btn primary-action" onclick="updateBooking('${esc(booking.id)}',{status:'completed'})">Complete</button>`:''}${!['cancelled','completed'].includes(booking.status)?`<button class="small-btn danger" onclick="updateBooking('${esc(booking.id)}',{status:'cancelled'})">Cancel</button>`:''}<button class="small-btn" onclick="editBooking('${esc(booking.id)}')">Edit</button>${booking.status==='confirmed'&&['owner','admin'].includes(authenticatedBusinessRole)?`<button class="small-btn" onclick="configureReviewEmailForBooking('${esc(booking.id)}')">${booking.review_email_allowed?'Change review permission':'Approve review email'}</button>`:''}</div></article>`).join(''):'<div class="empty">No bookings yet.</div>';
 }
 
 const reviewUrlFromMessage=value=>{
@@ -4991,14 +4997,23 @@ const formDate=value=>value?new Date(value).toISOString():null;
 async function createBooking(){
 $('bookingTitle')?.removeAttribute('aria-invalid');
 try{
-await api('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('bookingTitle').value,lead_id:$('bookingLead').value||null,status:$('bookingStatus').value,starts_at:formDate($('bookingStart').value),ends_at:formDate($('bookingEnd').value),location:$('bookingLocation').value,notes:$('bookingNotes').value})});
-['bookingTitle','bookingStart','bookingEnd','bookingLocation','bookingNotes'].forEach(id=>$(id).value='');$('bookingLead').value='';$('bookingStatus').value='requested';toast('Booking created');await loadWorkItems();
+await api('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('bookingTitle').value,lead_id:$('bookingLead').value||null,status:$('bookingStatus').value,starts_at:formDate($('bookingStart').value),ends_at:formDate($('bookingEnd').value),location:$('bookingLocation').value,notes:$('bookingNotes').value,customer_email:$('bookingCustomerEmail').value,...((['owner','admin'].includes(authenticatedBusinessRole))?{review_email_allowed:Boolean($('bookingReviewEmailAllowed').checked)}:{})})});
+['bookingTitle','bookingStart','bookingEnd','bookingLocation','bookingNotes','bookingCustomerEmail'].forEach(id=>$(id).value='');$('bookingLead').value='';$('bookingStatus').value='requested';$('bookingReviewEmailAllowed').checked=false;toast('Booking created');await loadWorkItems();
 closeWorkDialog($('bookingsFormCard'),true);
 }catch(error){$('bookingTitle')?.setAttribute('aria-invalid','true');if($('bookingFormStatus'))$('bookingFormStatus').textContent=error.message;}
 }
 
 async function updateBooking(id,updates){
 try{await api('/api/bookings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Booking updated');await loadWorkItems();}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+
+async function configureReviewEmailForBooking(id){
+const booking=bookings.find(item=>String(item.id)===String(id));if(!booking||booking.status!=='confirmed')return;
+if(!['owner','admin'].includes(authenticatedBusinessRole))return;
+const email=window.prompt('Customer email address (only with review-contact permission)',booking.customer_email||'');if(email===null)return;
+if(!/^\S+@\S+\.\S+$/.test(email.trim()))return toast('Enter a valid customer email first');
+if(!window.confirm('Confirm the customer has agreed to receive a review invitation for this booking?'))return;
+await updateBooking(id,{customer_email:email.trim(),review_email_allowed:true});
+}
 
 function editBooking(id){
 const booking=bookings.find(item=>String(item.id)===String(id));if(!booking)return;
@@ -5188,6 +5203,8 @@ if($('s_review_google_url'))$('s_review_google_url').value=settings.review_googl
 if($('s_review_facebook_url'))$('s_review_facebook_url').value=settings.review_facebook_url||'';
 if($('s_review_trustpilot_url'))$('s_review_trustpilot_url').value=settings.review_trustpilot_url||'';
 if($('s_review_preferred_platform'))$('s_review_preferred_platform').value=['google','facebook','trustpilot'].includes(settings.review_preferred_platform)?settings.review_preferred_platform:'google';
+if($('s_review_email_auto_enabled'))$('s_review_email_auto_enabled').checked=Boolean(settings.review_email_auto_enabled);
+if($('s_review_email_delay_hours'))$('s_review_email_delay_hours').value=String([0,24,48,72].includes(settings.review_email_delay_hours)?settings.review_email_delay_hours:24);
 renderReviewRequestSettings();
 
 $('brandName').innerHTML='Business <span>AI</span>';
@@ -5384,7 +5401,7 @@ const anyReady=Boolean(google||facebook||trustpilot);
 if(badge)badge.textContent=enabled?(preferredReady?'On · '+({google:'Google',facebook:'Facebook',trustpilot:'Trustpilot'}[preferred]):(anyReady?'On · fallback link':'Needs link')):'Off';
 if(hint){
 if(!anyReady)hint.textContent='Add a Google, Facebook or Trustpilot review link before enabling this feature.';
-else if(enabled)hint.textContent='Completed bookings will prepare a neutral review message in Actions. Nothing is sent automatically.';
+else if(enabled)hint.textContent=Boolean($('s_review_email_auto_enabled')?.checked)?'Eligible bookings will enter a private email queue; sending remains disabled until provider approval and server activation.':'Completed bookings will prepare a neutral review message in Actions. Nothing is sent automatically.';
 else hint.textContent='Review links are saved, but automatic preparation is currently off.';
 }
 }
@@ -5398,7 +5415,8 @@ review_requests_enabled:Boolean($('s_review_requests_enabled')?.checked),
 review_google_url:String($('s_review_google_url')?.value||'').trim(),
 review_facebook_url:String($('s_review_facebook_url')?.value||'').trim(),
 review_trustpilot_url:String($('s_review_trustpilot_url')?.value||'').trim(),
-review_preferred_platform:['google','facebook','trustpilot'].includes($('s_review_preferred_platform')?.value)?$('s_review_preferred_platform').value:'google'
+review_preferred_platform:['google','facebook','trustpilot'].includes($('s_review_preferred_platform')?.value)?$('s_review_preferred_platform').value:'google',
+...((authenticatedBusinessRole==='owner')?{review_email_auto_enabled:Boolean($('s_review_email_auto_enabled')?.checked),review_email_delay_hours:Number($('s_review_email_delay_hours')?.value||24)}:{})
 })});
 fillSettings();
 toast(settings.review_requests_enabled?'Review requests enabled':'Review request settings saved');
