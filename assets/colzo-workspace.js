@@ -98,6 +98,27 @@
     if(!state.clients.length){const empty=document.createElement('p');empty.className='colzo-empty';empty.textContent=state.clientsLoaded?'No client contacts yet. Add one above.':'No client contacts available.';target.append(empty);return;}
     for(const client of state.clients){const btn=document.createElement('button');btn.type='button';btn.className='colzo-client-row';btn.innerHTML=`<span class="colzo-initials">${escape(initials(client.full_name))}</span><span><strong>${escape(client.full_name)}</strong><small>${escape(client.email||client.phone||'No contact details')}</small></span><span aria-hidden="true">›</span>`;btn.addEventListener('click',()=>openModal('client',client.id));target.append(btn);}
   }
+  function renderNotifications(){
+    const target=$('colzoNotificationsList');if(!target)return;target.replaceChildren();
+    const leadsToHandle=allLeads().filter(x=>x.status==='New');
+    const pending=typeof businessActions!=='undefined'&&Array.isArray(businessActions)?businessActions.filter(a=>a.status==='pending'):[];
+    const items=[...leadsToHandle.map(lead=>({title:lead.name||'New enquiry',detail:lead.job_type||'New customer enquiry',kind:'enquiry',id:lead.id,date:lead.created_at})),...pending.map(action=>({title:action.title||'Action required',detail:action.description||'Pending task',kind:'action',id:action.id,date:action.due_at}))].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,50);
+    if(!items.length){const empty=document.createElement('p');empty.className='colzo-empty';empty.textContent='Nothing needs attention right now.';target.append(empty);return;}
+    for(const item of items){const btn=document.createElement('button');btn.type='button';btn.className='colzo-notification-row';const mark=document.createElement('span');mark.className='colzo-notification-symbol';mark.textContent=item.kind==='enquiry'?'▤':'✓';const copy=document.createElement('span');copy.className='colzo-notification-copy';const title=document.createElement('strong');title.textContent=item.title;const detail=document.createElement('small');detail.textContent=`${item.detail} · ${fmtDate(item.date)}`;copy.append(title,detail);btn.append(mark,copy);const arrow=document.createElement('span');arrow.textContent='›';btn.append(arrow);btn.addEventListener('click',()=>item.kind==='enquiry'?openLead(item.id):showView('actions'));target.append(btn);}
+  }
+  const appearanceKey='colzo-display-preferences-v1';
+  function loadAppearance(){
+    let prefs={};try{prefs=JSON.parse(localStorage.getItem(appearanceKey)||'{}')||{};}catch{}
+    if($('colzoHighContrast'))$('colzoHighContrast').checked=prefs.highContrast===true;
+    if($('colzoReduceMotion'))$('colzoReduceMotion').checked=prefs.reduceMotion===true;
+    document.body.classList.toggle('colzo-high-contrast',prefs.highContrast===true);
+    document.body.classList.toggle('colzo-reduced-motion',prefs.reduceMotion===true);
+  }
+  function saveAppearance(){
+    const prefs={highContrast:Boolean($('colzoHighContrast')?.checked),reduceMotion:Boolean($('colzoReduceMotion')?.checked)};
+    try{localStorage.setItem(appearanceKey,JSON.stringify(prefs));}catch{}
+    loadAppearance();
+  }
   function renderDashboardExtras(){
     const stats=$('stats');if(!stats)return;
     // These figures are verified tenant records, not illustrative mockup numbers.
@@ -164,10 +185,13 @@
   $('colzoNewEnquiry')?.addEventListener('click',()=>document.querySelector('#leadsView .mock-add-lead')?.click());
   $('colzoNewProject')?.addEventListener('click',()=>openModal('project'));
   $('colzoAddClient')?.addEventListener('click',()=>openModal('client'));
+  $('colzoHighContrast')?.addEventListener('change',saveAppearance);
+  $('colzoReduceMotion')?.addEventListener('change',saveAppearance);
+  loadAppearance();
   $('colzoProjectsToLeads')?.addEventListener('click',()=>showView('leads'));
   $('colzoDialogClose')?.addEventListener('click',closeModal);
   $('colzoWorkspaceDialog')?.addEventListener('click',e=>{if(e.target.id==='colzoWorkspaceDialog')closeModal();});
   $('colzoWorkspaceForm')?.addEventListener('submit',submitModal);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('colzoWorkspaceDialog')?.hidden)closeModal();});
-  window.ColzoWorkspace={syncLeads(){renderEnquiries();renderDashboardExtras();},refreshProjects,refreshClients,renderProjects,renderEnquiries,openLead};
+  window.ColzoWorkspace={syncLeads(){renderEnquiries();renderDashboardExtras();},refreshProjects,refreshClients,renderProjects,renderEnquiries,renderNotifications,openLead};
 })();

@@ -3138,7 +3138,16 @@ class="view"
 <button class="reference-profile-summary reference-profile-summary-button" type="button" onclick="openBusinessProfile()" aria-label="Open Business Profile"><div class="reference-profile-mark" aria-hidden="true"><img id="settingsProfileImage" src="/assets/icons/colzo-mark.svg" alt=""></div><div><strong id="settingsProfileName">Your business</strong><span id="settingsProfileMeta">Business profile</span></div><span class="reference-profile-badge">Active</span><b class="reference-profile-chevron" aria-hidden="true">›</b></button>
 
 <div class="work-actions" style="margin-bottom:18px"><button class="small-btn" type="button" onclick="showView('addons')">✦ Additional Features</button></div>
-<div class="settings-hub" aria-label="Settings overview">
+<nav class="colzo-reference-settings" aria-label="Colzo settings">
+<button type="button" onclick="showView('businessProfile')"><i>▣</i><span><strong>Business profile</strong><small>Manage your business details</small></span><b>›</b></button>
+<button type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>♧</i><span><strong>Team members</strong><small>Invite and manage your team</small></span><b>›</b></button>
+<button type="button" onclick="showView('marketing')"><i>⇄</i><span><strong>Integrations</strong><small>Connect your favourite tools</small></span><b>›</b></button>
+<button type="button" onclick="showView('colzoNotifications')"><i>♧</i><span><strong>Notifications</strong><small>Check enquiries and outstanding actions</small></span><b>›</b></button>
+<button type="button" onclick="showView('colzoAppearance')"><i>☾</i><span><strong>Appearance</strong><small>Dark mode and display preferences</small></span><b>›</b></button>
+<button type="button" data-owner-only onclick="document.getElementById('securityCenterHubButton')?.click()"><i>⬡</i><span><strong>Security</strong><small>Passwords and multi-factor authentication</small></span><b>›</b></button>
+<button type="button" onclick="document.getElementById('colzoSupportSection')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>ⓘ</i><span><strong>Help &amp; support</strong><small>Find guidance and support information</small></span><b>›</b></button>
+</nav>
+<details class="colzo-advanced-settings"><summary>Advanced tools and settings</summary><div class="settings-hub" aria-label="Settings overview">
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('marketingSettingsCard')"><i>↗</i><span><strong>Marketing</strong><small>Create, schedule and publish content</small></span><b aria-hidden="true">›</b></button>
@@ -3148,7 +3157,7 @@ class="view"
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('websiteWidgetCard')"><i>↗</i><span><strong>Website widget</strong><small>Add the AI assistant to your website</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-admin-only onclick="openSettingsSection('smartLinksCard')"><i>⌁</i><span><strong>QR &amp; smart links</strong><small>Share your assistant anywhere</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" data-owner-only onclick="openSettingsSection('teamPrivacyCard')"><i>◉</i><span><strong>Team &amp; privacy</strong><small>Access and data controls</small></span><b aria-hidden="true">›</b></button>
-</div>
+</div></details>
 
 
 <div id="settingsStatus"></div>
@@ -3522,9 +3531,9 @@ Save business settings
 
 <div class="settings-section-label">Workspace</div><div class="colzo-legacy-shortcuts"><button type="button" onclick="showView('actions')">✓ Actions and complaints ›</button><button type="button" onclick="showView('bookings')">▣ Bookings and calendar ›</button><button type="button" onclick="showView('marketing')">✦ Marketing ›</button><button type="button" onclick="showView('businessProfile')">▤ Business profile ›</button></div><div class="settings-section-label">Clients</div>
 <div class="card colzo-clients-panel"><div class="card-head"><h3>Client contacts</h3><button type="button" id="colzoAddClient" class="small-btn primary-action">+ Add client</button></div><p id="colzoClientsStatus" class="work-meta" role="status">Your business contacts are private to this workspace.</p><div id="colzoClientsList"></div></div>
-<div class="settings-section-label">Support</div>
+<div id="colzoSupportSection" class="settings-section-label">Support</div>
 
-<div class="card" style="margin-top:14px"><div class="card-head"><h3>Pilot help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention - it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Colzo does not send the invitation email during this Pilot. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls remain Coming Soon. Marketing publishing is available only after the owner connects an eligible account and explicitly approves a draft; billing availability is shown in the Billing section. If something behaves unexpectedly, stop using that workflow, record the time and action, then report it to your Pilot contact.</div></div>
+<div class="card" style="margin-top:14px"><div class="card-head"><h3>Colzo help</h3><span>Owner guide</span></div><div class="work-meta"><strong>Start here:</strong> finish your business profile, copy the customer enquiry link, then send a test enquiry. New enquiries become leads; use Actions for work your team needs to do next. A handover means the AI has flagged something for human attention - it does not mean anyone has contacted the customer. Bookings are requests until you confirm them. Team invitations are shared by copying a secure link; Colzo currently shares team invitations through secure links rather than sending them by email. Review your retention policy and export/anonymise individual customer records deliberately. Voice calls remain Coming Soon. Marketing publishing is available only after the owner connects an eligible account and explicitly approves a draft; billing availability is shown in the Billing section. If something behaves unexpectedly, stop using that workflow, record the time and action, then contact Colzo support.</div></div>
 
 <div id="installAppCard" class="card install-app-card" hidden><div class="install-app-row"><div class="install-app-symbol" aria-hidden="true">↓</div><div class="install-app-copy"><h3>Install Colzo</h3><div class="work-meta">Add Colzo to your Home Screen for quick access.</div></div></div><div class="install-app-actions"><button id="installAppButton" class="small-btn primary-action" type="button" hidden>Install app</button></div><ol id="installAppIosInstructions" class="install-ios-steps" hidden><li>Tap Share in Safari.</li><li>Choose <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>.</li></ol></div>
 
@@ -3540,6 +3549,20 @@ Save business settings
  <p id="colzoProjectsStatus" class="colzo-inline-status" role="status"></p>
  <div id="colzoProjectsList" class="colzo-projects-list"></div>
  <div class="colzo-progress-banner"><strong>Turn enquiries<br>into real progress.</strong><p>Track work from the first message to the finished project.</p><button type="button" id="colzoProjectsToLeads" aria-label="View enquiries">➜</button></div>
+</section>
+<section id="colzoNotificationsView" class="view colzo-screen" aria-label="Notifications">
+<div class="colzo-detail-top"><button type="button" onclick="showView('settings')" aria-label="Back to Settings">‹</button><strong>Notifications</strong><span>•••</span></div>
+<h2 class="colzo-subpage-heading">What needs attention</h2>
+<p class="colzo-subpage-intro">Private reminders from your real enquiries and actions. Colzo does not claim to have sent any push notifications.</p>
+<div id="colzoNotificationsList" class="colzo-notifications-list" aria-live="polite"></div>
+</section>
+<section id="colzoAppearanceView" class="view colzo-screen" aria-label="Appearance">
+<div class="colzo-detail-top"><button type="button" onclick="showView('settings')" aria-label="Back to Settings">‹</button><strong>Appearance</strong><span>•••</span></div>
+<h2 class="colzo-subpage-heading">Display preferences</h2>
+<p class="colzo-subpage-intro">The reference's Graphite &amp; Volt dark theme remains the default.</p>
+<label class="colzo-pref-row"><span><strong>High contrast</strong><small>Increase separation between cards and controls</small></span><input id="colzoHighContrast" type="checkbox"></label>
+<label class="colzo-pref-row"><span><strong>Reduce animation</strong><small>Turn off unnecessary motion in this browser</small></span><input id="colzoReduceMotion" type="checkbox"></label>
+<p class="colzo-subpage-intro">Display preferences are saved on this device, not sent to the server.</p>
 </section>
 <div id="colzoWorkspaceDialog" class="colzo-workspace-dialog" hidden><div class="colzo-workspace-sheet" role="dialog" aria-modal="true" aria-labelledby="colzoWorkspaceDialogTitle"><div class="colzo-sheet-head"><h3 id="colzoWorkspaceDialogTitle">Create project</h3><button type="button" id="colzoDialogClose" aria-label="Close">×</button></div><form id="colzoWorkspaceForm"><div id="colzoWorkspaceFields"></div><div id="colzoWorkspaceFormMessage" role="status" aria-live="polite"></div><button type="submit" class="colzo-submit">Save</button></form></div></div>
 
@@ -4420,13 +4443,14 @@ if(ownerScroller)ownerScroller.scrollTo({top:0,left:0,behavior:'auto'});
 else window.scrollTo({top:0,left:0,behavior:'auto'});
 document.querySelectorAll('.view').forEach(item=>item.classList.toggle('active',item===target));
 
-const navContext=['addons','marketing','businessProfile'].includes(view)?'settings':view==='colzoLeadDetail'?'leads':view==='enquiries'?'dashboard':view;
+const navContext=['addons','marketing','businessProfile'].includes(view)?'settings':view==='colzoLeadDetail'?'leads':['colzoNotifications','colzoAppearance'].includes(view)?'settings':view==='enquiries'?'dashboard':view;
 document.querySelectorAll('.nav-btn').forEach(item=>{const active=item.dataset.view===navContext;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current');});
 requestAnimationFrame(()=>positionBottomNavIndicator(navContext));
 
 if(view==='bookings'||view==='actions')loadWorkItems();
 if(view==='colzoProjects')window.ColzoWorkspace?.refreshProjects();
 if(view==='settings')window.ColzoWorkspace?.refreshClients();
+if(view==='colzoNotifications')window.ColzoWorkspace?.renderNotifications();
 if(view==='actions'&&['owner','admin'].includes(authenticatedBusinessRole))loadComplaints();
 if(view==='voice')loadVoiceStatus();
 if(view==='businessProfile'&&!businessProfileState)loadBusinessProfile();

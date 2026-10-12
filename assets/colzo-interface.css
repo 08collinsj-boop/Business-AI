@@ -299,3 +299,31 @@ body.colzo-interface .colzo-social-providers button{min-width:0;min-height:45px;
 body.colzo-interface .colzo-social-providers button:hover{border-color:#92bd49}
 body.colzo-interface .colzo-google-g{color:#c8ff2e;font-size:17px}
 body.colzo-interface .colzo-social-note{font-size:10px;color:#8d999f;line-height:1.4;text-align:center}
+/* Settings now matches the exact menu structure shown in the visual reference. */
+body.colzo-interface.auth-ready #settingsView>.page-title{padding:0;margin:4px 0 16px!important}
+body.colzo-interface.auth-ready .colzo-reference-settings{display:grid;gap:8px;margin:12px 0 16px}
+body.colzo-interface.auth-ready .colzo-reference-settings>button{display:flex;gap:12px;align-items:center;min-height:68px;padding:12px 15px;width:100%;text-align:left;border:1px solid #363e47;border-radius:13px;background:linear-gradient(140deg,#272c32,#21272d);color:#f5f7fa}
+body.colzo-interface.auth-ready .colzo-reference-settings>button>i{display:grid;place-items:center;width:32px;height:37px;flex:none;color:#f5f7fa;font-size:20px;font-style:normal}
+body.colzo-interface.auth-ready .colzo-reference-settings>button>span{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+body.colzo-interface.auth-ready .colzo-reference-settings>button strong{font-size:13px;font-weight:760;color:#f5f7fa}
+body.colzo-interface.auth-ready .colzo-reference-settings>button small{font-size:10px;color:#b2bcc3;white-space:normal;line-height:1.35}
+body.colzo-interface.auth-ready .colzo-reference-settings>button b{font-size:23px;font-weight:400;color:#d2d8dd}
+body.colzo-interface.auth-ready .colzo-reference-settings>button:hover{border-color:#7ea044}
+body.colzo-interface.auth-ready .colzo-advanced-settings{border:1px solid #343f45;border-radius:14px;margin:16px 0;padding:12px 14px;background:#242b30}
+body.colzo-interface.auth-ready .colzo-advanced-settings>summary{cursor:pointer;font-size:12px;font-weight:760;color:#ccd9c6}
+body.colzo-interface.auth-ready .colzo-advanced-settings[open]>.settings-hub{margin-top:12px}
+body.colzo-interface.auth-ready .colzo-subpage-heading{font-size:26px;letter-spacing:-.8px;margin:0 0 8px}
+body.colzo-interface.auth-ready .colzo-subpage-intro{font-size:12px;color:#aab6bd;line-height:1.6;margin:0 0 18px}
+body.colzo-interface.auth-ready .colzo-notifications-list{display:flex;flex-direction:column;gap:8px}
+body.colzo-interface.auth-ready .colzo-notification-row{display:flex;width:100%;gap:12px;align-items:center;min-height:72px;padding:14px;border:1px solid #3d454e;border-radius:15px;background:#242b31;color:#f5f7fa;text-align:left}
+body.colzo-interface.auth-ready .colzo-notification-row .colzo-notification-symbol{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#343c31;color:#c8ff2e;flex:none}
+body.colzo-interface.auth-ready .colzo-notification-copy{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+body.colzo-interface.auth-ready .colzo-notification-copy strong{font-size:12px;color:#f5f7fa}
+body.colzo-interface.auth-ready .colzo-notification-copy small{font-size:11px;color:#aeb9c1;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+body.colzo-interface.auth-ready .colzo-pref-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0;padding:18px 15px;border:1px solid #3c464d;border-radius:14px;background:#252c32}
+body.colzo-interface.auth-ready .colzo-pref-row>span{display:flex;flex-direction:column;gap:6px}
+body.colzo-interface.auth-ready .colzo-pref-row strong{font-size:14px}
+body.colzo-interface.auth-ready .colzo-pref-row small{font-size:11px;color:#afb9bf;line-height:1.35}
+body.colzo-interface.auth-ready .colzo-pref-row input{width:22px;height:22px;accent-color:#c8ff2e;flex:none}
+body.colzo-interface.colzo-high-contrast .card,body.colzo-interface.colzo-high-contrast .colzo-enquiry-row,body.colzo-interface.colzo-high-contrast .colzo-project-row{border:2px solid #9eae7e!important}
+body.colzo-interface.colzo-reduced-motion *,body.colzo-interface.colzo-reduced-motion *:before,body.colzo-interface.colzo-reduced-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}

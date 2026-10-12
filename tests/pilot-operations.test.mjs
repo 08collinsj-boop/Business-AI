@@ -38,7 +38,7 @@ test("owner operations UI keeps support, team, privacy, and public enquiries sep
   assert.match(html, /Human handovers/);
   assert.match(html, /Team access/);
   assert.match(html, /Privacy & retention/);
-  assert.match(html, /Pilot help/);
+  assert.match(html, /Colzo help/);
   assert.match(html, /api\('\/api\/team'/);
   assert.match(html, /api\('\/api\/handovers'/);
   assert.match(html, /api\('\/api\/data-lifecycle'/);
