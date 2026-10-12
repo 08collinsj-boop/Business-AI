@@ -24,6 +24,8 @@ import marketingSchedulerHandler from '../lib/marketing-scheduler-handler.js';
 import marketingImageHandler from '../lib/marketing-image-handler.js';
 import marketingAutomationHandler from '../lib/marketing-automation-handler.js';
 import feedbackHandler from '../lib/feedback-handler.js';
+import complaintsHandler from '../lib/complaints-handler.js';
+import customerComplaintsHandler from '../lib/customer-complaints-handler.js';
 import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
@@ -56,6 +58,8 @@ const handlers = Object.freeze({
   "marketing-images": marketingImageHandler,
   "marketing-automation": marketingAutomationHandler,
   feedback: feedbackHandler,
+  complaints: complaintsHandler,
+  "customer-complaints": customerComplaintsHandler,
   "incident-controls": incidentControlsHandler,
   "business-profile": businessProfileHandler,
   legal: legalHandler,

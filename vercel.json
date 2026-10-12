@@ -131,6 +131,14 @@
       "destination": "/api/operations?operation=marketing-automation"
     },
     {
+      "source": "/api/complaints",
+      "destination": "/api/operations?operation=complaints"
+    },
+    {
+      "source": "/api/customer-complaints",
+      "destination": "/api/operations?operation=customer-complaints"
+    },
+    {
       "source": "/api/feedback",
       "destination": "/api/operations?operation=feedback"
     },

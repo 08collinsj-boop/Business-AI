@@ -121,6 +121,43 @@ function statusDate(value){
   const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
 
+
+function complaintStatusLabel(value){
+  return ({received:'Received',in_review:'Under review',responded:'Response recorded',resolved:'Resolved',reopened:'Reopened'})[value]||'Received';
+}
+function appendCustomerComplaintControls(card,item){
+  const section=document.createElement('div');section.className='customer-complaint-section';
+  if(item.complaint){
+    const label=document.createElement('strong');label.textContent='Complaint · '+complaintStatusLabel(item.complaint.status);
+    const detail=document.createElement('p');detail.textContent=item.complaint.subject||'Your complaint';
+    section.append(label,detail);card.append(section);return;
+  }
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='customer-complaint-trigger';trigger.textContent='Raise a complaint';
+  trigger.addEventListener('click',()=>{
+    if(section.querySelector('form'))return;
+    trigger.hidden=true;
+    const form=document.createElement('form');form.className='customer-complaint-form';
+    const label=document.createElement('strong');label.textContent='Raise a complaint about this enquiry';
+    const subjectLabel=document.createElement('label');subjectLabel.textContent='Subject';
+    const subject=document.createElement('input');subject.required=true;subject.minLength=5;subject.maxLength=160;subject.name='subject';subjectLabel.append(subject);
+    const descriptionLabel=document.createElement('label');descriptionLabel.textContent='What happened?';
+    const description=document.createElement('textarea');description.required=true;description.minLength=10;description.maxLength=4000;description.rows=4;description.name='description';descriptionLabel.append(description);
+    const message=document.createElement('p');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
+    const submit=document.createElement('button');submit.type='submit';submit.textContent='Submit complaint';
+    const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.addEventListener('click',()=>{form.remove();trigger.hidden=false;trigger.focus();});
+    form.append(label,subjectLabel,descriptionLabel,submit,cancel,message);section.append(form);subject.focus();
+    form.addEventListener('submit',async event=>{
+      event.preventDefault();if(!form.reportValidity())return;
+      submit.disabled=true;message.textContent='Submitting complaint…';
+      try{
+        await portalApi('/api/customer-complaints',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enquiry_id:item.id,subject:subject.value,description:description.value})});
+        await loadPortal();
+      }catch(error){message.textContent=error.message||'Could not submit complaint';submit.disabled=false;}
+    });
+  });
+  section.append(trigger);card.append(section);
+}
+
 function renderEnquiries(target,items,limit=null){
   if(!target)return;target.replaceChildren();
   const rows=limit?items.slice(0,limit):items;
@@ -137,6 +174,7 @@ function renderEnquiries(target,items,limit=null){
       const reviewLink=document.createElement('a');reviewLink.href=item.review_request.url;reviewLink.target='_blank';reviewLink.rel='noopener noreferrer';reviewLink.textContent='Leave a '+(item.review_request.label||'customer')+' review';
       review.append(copy,reviewLink);card.append(review);
     }
+    appendCustomerComplaintControls(card,item);
     if(item.business_path){const actions=document.createElement('div');actions.className='customer-enquiry-actions';const link=document.createElement('a');link.href=item.business_path;link.textContent='Open business';actions.append(link);card.append(actions);}
     target.append(card);
   }

@@ -2183,6 +2183,11 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/premium-ui.css">
 <link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-ui-fixes-1">
 <link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-add-lead-1">
+<style>
+.complaint-panel{margin-top:22px}.complaint-record{padding:14px 0;border-top:1px solid rgba(128,128,128,.22)}
+.complaint-record>p{white-space:pre-wrap;overflow-wrap:anywhere}.complaint-owner-controls{display:grid;gap:12px;margin-top:12px}
+.complaint-owner-controls label{display:grid;gap:5px}.complaint-owner-controls select,.complaint-owner-controls textarea{width:100%;border-radius:8px;padding:10px;color:inherit;background:var(--surface,transparent);border:1px solid rgba(128,128,128,.35)}
+</style>
 </head>
 
 <body class="auth-pending app-loading" aria-busy="true">
@@ -2813,6 +2818,12 @@ Follow-up date
 <button class="save-btn" onclick="createAction()">Create action</button>
 </div>
 <div id="actionsList" class="work-list"></div>
+<div id="complaintsPanel" class="card complaint-panel" data-admin-only>
+  <div class="card-head"><div><span class="settings-card-kicker">Customer care</span><h3>Customer complaints</h3></div><button class="small-btn" type="button" onclick="loadComplaints()">Refresh</button></div>
+  <p class="work-meta">Private complaints from signed-in customers. A team member must review and approve any response; this never publishes a complaint or sends an automatic message.</p>
+  <p id="complaintsStatus" class="work-meta" role="status" aria-live="polite">Open the Actions tab to load complaints.</p>
+  <div id="complaintsList" class="work-list"></div>
+</div>
 </section>
 
 
@@ -4372,11 +4383,49 @@ document.querySelectorAll('.nav-btn').forEach(item=>{const active=item.dataset.v
 requestAnimationFrame(()=>positionBottomNavIndicator(navContext));
 
 if(view==='bookings'||view==='actions')loadWorkItems();
+if(view==='actions'&&['owner','admin'].includes(authenticatedBusinessRole))loadComplaints();
 if(view==='voice')loadVoiceStatus();
 if(view==='businessProfile'&&!businessProfileState)loadBusinessProfile();
 if(view==='dashboard'&&frontendAuthEnabled)loadPilotMarketingProgress();
 window.marketingWorkspace?.open(view);
 
+}
+
+
+const COMPLAINT_NEXT={received:['in_review','responded'],in_review:['responded','resolved'],responded:['resolved','reopened'],resolved:['reopened'],reopened:['in_review','responded']};
+const COMPLAINT_LABELS={received:'Received',in_review:'Under review',responded:'Responded',resolved:'Resolved',reopened:'Reopened'};
+async function loadComplaints(){
+  const status=$('complaintsStatus'),container=$('complaintsList');if(!container||!status)return;
+  status.textContent='Loading complaints…';container.replaceChildren();
+  try{
+    const result=await api('/api/complaints');const records=Array.isArray(result?.complaints)?result.complaints:[];
+    status.textContent=records.length?`${records.length} private complaint${records.length===1?'':'s'} recorded`:'No complaints recorded.';
+    for(const complaint of records){
+      const card=document.createElement('article');card.className='complaint-record';
+      const heading=document.createElement('strong');heading.textContent=complaint.subject;
+      const meta=document.createElement('p');meta.className='work-meta';meta.textContent=`${COMPLAINT_LABELS[complaint.status]||'Received'} · ${new Date(complaint.created_at).toLocaleDateString('en-GB')} · Lead ${complaint.lead_id}`;
+      const detail=document.createElement('p');detail.textContent=complaint.description;
+      card.append(heading,meta,detail);
+      const allowed=COMPLAINT_NEXT[complaint.status]||[];
+      if(allowed.length){
+        const group=document.createElement('div');group.className='complaint-owner-controls';
+        const label=document.createElement('label');label.textContent='Change status';
+        const select=document.createElement('select');select.setAttribute('aria-label','New complaint status');
+        for(const key of allowed){const option=document.createElement('option');option.value=key;option.textContent=COMPLAINT_LABELS[key];select.append(option);}label.append(select);
+        const noteLabel=document.createElement('label');noteLabel.textContent='Human-approved response / resolution note (private)';
+        const note=document.createElement('textarea');note.maxLength=3000;note.rows=3;note.value=complaint.response_note||'';noteLabel.append(note);
+        const save=document.createElement('button');save.className='small-btn primary-action';save.type='button';save.textContent='Update complaint';
+        const feedback=document.createElement('p');feedback.className='work-meta';feedback.setAttribute('role','status');
+        save.addEventListener('click',async()=>{
+          save.disabled=true;feedback.textContent='Saving…';
+          try{await api('/api/complaints',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:complaint.id,status:select.value,response_note:note.value})});await loadComplaints();}
+          catch(error){feedback.textContent=error.message||'Could not save complaint';save.disabled=false;}
+        });
+        group.append(label,noteLabel,save,feedback);card.append(group);
+      }
+      container.append(card);
+    }
+  }catch{status.textContent='Complaints are unavailable in this environment.';}
 }
 
 window.addEventListener('resize',()=>{
