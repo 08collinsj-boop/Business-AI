@@ -1,7 +1,7 @@
 (() => {
   const byId=id=>document.getElementById(id);
   const VERSION='knowledge_accuracy_v1';
-  const CONFIRMATION='I confirm that I have reviewed this information and that, to the best of my knowledge, it is accurate and authorised for Business AI to use when answering customers and preparing marketing content.';
+  const CONFIRMATION='I confirm that I have reviewed this information and that, to the best of my knowledge, it is accurate and authorised for Colzo to use when answering customers and preparing marketing content.';
 
   const sources=()=>{try{return Array.isArray(knowledgeSources)?knowledgeSources:[];}catch{return [];}};
   const canManage=()=>{try{return Boolean(knowledgeCanManage);}catch{return false;}};
@@ -49,8 +49,8 @@
     message.textContent=state.verified
       ?'All current uploaded knowledge has been reviewed and approved by an owner or admin.'
       :state.current.length
-        ?'Review every current knowledge source before Business AI can use its extracted facts. Changes and replacement files require a fresh approval.'
-        :'Upload a knowledge file, review the extracted facts and confirm accuracy before Business AI can use those facts.';
+        ?'Review every current knowledge source before Colzo can use its extracted facts. Changes and replacement files require a fresh approval.'
+        :'Upload a knowledge file, review the extracted facts and confirm accuracy before Colzo can use those facts.';
     actions.replaceChildren();
     if(canManage()&&state.needsReview.length){
       const button=document.createElement('button');

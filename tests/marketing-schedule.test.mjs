@@ -314,7 +314,7 @@ test('schedule UI renders date, platform, preview and status safely', async () =
 test('scheduler wording matches live Facebook scheduling', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /Schedule an approved post/);
-  assert.match(html, /Business AI creates the scheduled Facebook post with Meta/);
+  assert.match(html, /Colzo creates the scheduled Facebook post with Meta/);
   assert.match(html, />Calendar</);
   assert.match(html, />Schedule post</);
   assert.match(html, /Schedule &amp; publish/);

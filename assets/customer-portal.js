@@ -329,7 +329,7 @@ async function bindCustomerRuntime(){
       return;
     }
 
-    // Business and Customer access share one Business AI identity. If these
+    // Business and Customer access share one Colzo identity. If these
     // credentials already belong to a confirmed business user, reuse that
     // same account for the Customer portal instead of creating a duplicate.
     const existingSignIn=await client.auth.signInWithPassword({email,password});
@@ -341,7 +341,7 @@ async function bindCustomerRuntime(){
     }
 
     const confirmationActions=byId('customerConfirmationActions');if(confirmationActions)confirmationActions.hidden=false;
-    message.textContent='If this is a new email, check your inbox to confirm it. If you already use this email for Business AI, sign in with your existing password — the same account works for Customer.';
+    message.textContent='If this is a new email, check your inbox to confirm it. If you already use this email for Colzo, sign in with your existing password — the same account works for Customer.';
   });
   byId('customerPortalLogout')?.addEventListener('click',async()=>{await client.auth.signOut();location.href='/customer/account';});
   document.querySelectorAll('[data-customer-tab]').forEach(button=>button.addEventListener('click',()=>showPortalTab(button.dataset.customerTab)));

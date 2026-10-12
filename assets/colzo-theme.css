@@ -1,0 +1,28 @@
+/* Colzo · Graphite & Volt · customer-facing visual layer.
+   Existing API paths, tenancy, authentication, payment and legal identities stay unchanged. */
+:root{
+  color-scheme:dark;
+  --bg:#15181d;--panel:#1f2329;--panel2:#242a31;--border:#353c46;
+  --text:#f5f7fa;--muted:#aab2bd;--green:#c8ff2e;--blue:#c8ff2e;--accent-blue:#c8ff2e;
+  --f-bg:#15181d;--f-panel:#1f2329;--f-panel2:#242a31;--f-border:#353c46;
+  --f-blue:#c8ff2e;--f-cyan:#c8ff2e;--f-green:#c8ff2e;--f-muted:#aab2bd;
+  --colzo-volt:#c8ff2e;--colzo-graphite:#1f2329;--colzo-charcoal:#15181d;
+}
+html,body{background:#15181d;color:#f5f7fa}
+body.auth-ready,body.auth-pending,body.customer-account,body.public-directory,body.public-enquiry,body.public-business-profile{background:radial-gradient(circle at 50% 0%,rgba(200,255,46,.055),transparent 22rem),#15181d!important}
+body.final-showcase-ui.auth-ready{background:radial-gradient(circle at 50% -8%,rgba(200,255,46,.08),transparent 25rem),linear-gradient(180deg,#1f2329,#15181d)!important}
+body.final-showcase-ui.auth-ready .fstat,body.final-showcase-ui.auth-ready .reference-summary-card,body.final-showcase-ui.auth-ready .dashboard-performance-card{border-color:#353c46!important;background:linear-gradient(145deg,#262b31,#1b1f25)!important}
+body.final-showcase-ui.auth-ready .dashboard-ai-strip{border-color:#536b1e!important;background:radial-gradient(circle at 8% 33%,rgba(200,255,46,.13),transparent 8rem),linear-gradient(145deg,#252c24,#1c2024)!important}
+body.final-showcase-ui.auth-ready .dashboard-ai-orb{border-color:#c8ff2e!important;box-shadow:0 0 18px rgba(200,255,46,.2)!important}
+.app-splash{background:radial-gradient(circle at 50% 38%,rgba(200,255,46,.09),transparent 26rem),#15181d!important}
+.app-splash-mark:before,.app-splash-mark:after{border-color:rgba(200,255,46,.3)!important}
+.app-splash-mark img,.auth-mark.auth-mark-brand img,.owner-brand-icon img,.public-directory-brand-mark img{filter:drop-shadow(0 0 15px rgba(200,255,46,.16))!important}
+.app-splash-brand,.auth-role-title,.customer-portal-brand strong,.public-directory-brand h1{color:#f5f7fa!important}
+.topbar .brand-text h1{color:#f5f7fa!important;letter-spacing:-.7px!important}
+.topbar .brand-text h1 span{color:#c8ff2e!important}
+body.auth-ready .owner-brand-icon,.public-directory-brand-mark,.auth-mark.auth-mark-brand{background:#15181d!important;border-color:#556b2b!important}
+button.primary-action,.primary-action:not(.small-btn),.auth-submit,.onboarding-next:not([disabled]),.customer-auth-submit{background:#c8ff2e!important;border-color:#c8ff2e!important;color:#15181d!important;font-weight:750}
+button.primary-action:focus-visible,.auth-submit:focus-visible,a:focus-visible,.nav-btn:focus-visible{outline:2px solid #c8ff2e;outline-offset:3px}
+.app-splash .app-splash-status,.brand-text p{color:#aab2bd!important}
+a:not(.nav-btn):not(.primary-action){text-underline-offset:2px}
+@media(prefers-reduced-motion:reduce){.app-splash-mark img{animation:none!important}}

@@ -1,11 +1,11 @@
-const STATIC_CACHE = "business-ai-static-v2";
+const STATIC_CACHE = "colzo-static-v1";
 const SAFE_STATIC_PATHS = new Set([
   "/manifest.webmanifest",
-  "/assets/icons/business-ai-16.png",
-  "/assets/icons/business-ai-32.png",
-  "/assets/icons/business-ai-180.png",
-  "/assets/icons/business-ai-192.png",
-  "/assets/icons/business-ai-512.png"
+  "/assets/icons/colzo-16.png",
+  "/assets/icons/colzo-32.png",
+  "/assets/icons/colzo-180.png",
+  "/assets/icons/colzo-192.png",
+  "/assets/icons/colzo-512.png"
 ]);
 
 self.addEventListener("install", (event) => {
