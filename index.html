@@ -2188,6 +2188,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-native.css?v=20261013-native-a">
 <link rel="stylesheet" href="/assets/colzo-legacy-theme.css?v=20261013-theme-bridge-1">
 <link rel="stylesheet" href="/assets/colzo-mfa-theme.css?v=20261013-mfa-1">
+<link rel="stylesheet" href="/assets/colzo-security-choice.css?v=20261013-security-choice-1">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" aria-busy="true">
@@ -2225,6 +2226,7 @@ input.switch,input.switch:before{transition:none}
       <label class="auth-input" for="loginPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="auth-password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Show password">◉</button></label>
       <div class="auth-utility-row"><span class="auth-remember"><input type="checkbox" checked disabled aria-label="Session stays signed in on this device">Keep me signed in</span><button id="showPasswordReset" type="button">Forgot password?</button></div>
       <button id="loginSubmit" class="auth-main-action" type="submit">Sign in&nbsp;&nbsp;→</button>
+<button id="colzoPasskeyLogin" class="btn colzo-passkey-login" type="button" hidden>Sign in with a passkey</button>
       <div id="loginMessage" class="auth-role-message" role="alert"></div>
       <div class="auth-divider">or</div>
       <button id="showSignUp" class="auth-secondary-action" type="button"><strong>Create business account</strong>&nbsp;→</button>
@@ -3910,7 +3912,11 @@ if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
 if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)throw new Error('Authentication is temporarily unavailable.');
 frontendAuthEnabled=true;
 passwordRecoveryActive=passwordRecoveryIntentFromLocation();
-supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+window.colzoPasskeysEnabled=config.colzoPasskeysEnabled===true;
+const passkeyLogin=$('colzoPasskeyLogin');
+supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey,
+  window.colzoPasskeysEnabled?{auth:{experimental:{passkey:true}}}:{});
+if(passkeyLogin){passkeyLogin.hidden=!window.colzoPasskeysEnabled||!window.PublicKeyCredential||!window.isSecureContext||typeof supabaseClient?.auth?.signInWithPasskey!=='function';}
 // Supabase holds an internal auth lock while notifying listeners. Defer
 // bootstrap to the next task and do not reload the dashboard on token refresh,
 // MFA changes or repeated same-user sign-in notifications.
@@ -3936,6 +3942,16 @@ try{
 const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
 if(error)throw error;
 }catch{ $('loginMessage').textContent='Unable to sign in with those details.'; }finally{button.disabled=false;}
+});
+
+$('colzoPasskeyLogin')?.addEventListener('click',async()=>{
+const button=$('colzoPasskeyLogin');if(!window.colzoPasskeysEnabled||!supabaseClient?.auth?.signInWithPasskey||!window.PublicKeyCredential||!window.isSecureContext)return;
+button.disabled=true;$('loginMessage').textContent='Waiting for your device’s passkey prompt…';
+try{
+ const {error}=await supabaseClient.auth.signInWithPasskey();if(error)throw error;
+ $('loginMessage').textContent='Signing you in securely…';
+}catch(error){$('loginMessage').textContent='Passkey sign-in was cancelled or unavailable. You can still sign in with your password.';}
+finally{button.disabled=false;}
 });
 
 $('showSignUp').addEventListener('click',()=>{
@@ -4195,7 +4211,7 @@ await beginConfigurationOnboarding();
 });
 
 $('onboardingBack')?.addEventListener('click',()=>{if(onboardingWizardIndex>0){onboardingWizardIndex-=1;renderOnboardingWizard();}});
-$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent=document.documentElement.classList.contains('pilot-free-access')?'Setup complete. Starter and AI Marketing are included free during the Pilot. No checkout is required.':'Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
+$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent=document.documentElement.classList.contains('pilot-free-access')?'Setup complete. Starter and AI Marketing are included free during the Pilot. No checkout is required.':'Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');window.colzoOfferSecuritySetup?.();return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
 
 
 const money=n=>

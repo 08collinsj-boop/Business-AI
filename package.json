@@ -9,6 +9,7 @@
     "verify:colzo-owner-visual": "node scripts/colzo-owner-visual-smoke.cjs",
     "verify:colzo-native": "node scripts/colzo-native-browser.cjs",
     "verify:colzo-mfa": "node scripts/colzo-mfa-browser.cjs",
+    "verify:colzo-security-methods": "node scripts/colzo-security-methods-browser.cjs",
     "verify": "npm test && npm run verify:local",
     "load:smoke": "node scripts/load-smoke.mjs"
   },

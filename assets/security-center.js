@@ -58,6 +58,11 @@
       <section id="accountSecurityCard" class="card settings-card settings-anchor-card security-card">
         <div class="card-head"><div><span class="settings-card-kicker">Account security</span><h3>Two-step verification</h3></div><span id="securityMfaBadge" class="settings-status-badge">Checking…</span></div>
         <p class="work-meta">Protect this account with a time-based code from an authenticator app. Once enabled, Colzo requires the second factor on future sign-ins.</p>
+        <div id="colzoSecurityMethods" class="colzo-security-methods" aria-label="Choose account security method">
+          <button id="colzoSecurityChooseTotp" type="button" class="colzo-security-choice"><span class="colzo-security-choice-icon" aria-hidden="true">▦</span><span><strong>Authenticator app</strong><small>Working two-step verification with a six-digit code</small></span><em>Available</em></button>
+          <button id="colzoSecurityChoosePasskey" type="button" class="colzo-security-choice" disabled><span class="colzo-security-choice-icon" aria-hidden="true">◈</span><span><strong>Face ID, Touch ID or fingerprint</strong><small>Device passkey for secure sign-in. Authenticator codes may still be required.</small></span><em id="colzoPasskeyAvailability">Not enabled yet</em></button>
+          <p id="colzoSecurityMethodNote" class="work-meta">Passkey sign-in is in testing. Phone/SMS verification is not enabled, so no message charges are incurred.</p>
+        </div>
         <div id="securityMfaState" class="security-state-panel"><div class="security-loading">Checking account security…</div></div>
         <div id="securityMfaEnrollment" class="security-mfa-enrol" hidden>
           <div class="security-mfa-qr"><img id="securityMfaQr" alt="QR code for setting up two-step verification in an authenticator app"></div>
@@ -88,6 +93,12 @@
     if(retention)retention.insertAdjacentElement('afterend',shell);
     else settingsView.appendChild(shell);
 
+    byId('colzoSecurityChooseTotp')?.addEventListener('click',async()=>{
+      const snapshot=await mfaSnapshot().catch(()=>null);
+      if(snapshot?.verified?.length){await ensureAal2ForAction();return}
+      beginMfaEnrollment();
+    });
+    byId('colzoSecurityChoosePasskey')?.addEventListener('click',registerDevicePasskey);
     byId('securityMfaVerify')?.addEventListener('click',verifyEnrollment);
     byId('securityMfaCancel')?.addEventListener('click',cancelEnrollment);
     byId('incidentSaveControls')?.addEventListener('click',saveIncidentControls);
@@ -97,6 +108,7 @@
     return true;
   }
 
+  window.colzoOpenSecurityCenter=()=>{if(injectUi())openSecurityCenter();};
   function openSecurityCenter(){
     const card=byId('accountSecurityCard');
     card?.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
@@ -247,9 +259,33 @@
     }
   }
 
+  function passkeysReady(){return window.colzoPasskeysEnabled===true&&window.isSecureContext===true&&!!window.PublicKeyCredential&&typeof client()?.auth?.registerPasskey==='function'}
+  function renderSecurityMethods(){
+    const button=byId('colzoSecurityChoosePasskey'),status=byId('colzoPasskeyAvailability');
+    const ready=passkeysReady();
+    if(button)button.disabled=!ready;
+    if(status)status.textContent=ready?'Set up':'In testing';
+  }
+  async function registerDevicePasskey(){
+    if(!passkeysReady())return;
+    const button=byId('colzoSecurityChoosePasskey'),note=byId('colzoSecurityMethodNote');
+    if(button)button.disabled=true;
+    try{
+      const account=await mfaSnapshot();
+      // Existing AAL2 protected owners must still complete their enrolled MFA.
+      if(account.verified.length&&account.aal?.currentLevel!=='aal2'){
+        const verified=await ensureAal2ForAction();if(!verified)return;
+      }
+      const result=await client().auth.registerPasskey();if(result?.error)throw result.error;
+      if(note)note.textContent='Passkey registered. Password sign-in and your existing two-step verification are still available.';
+    }catch(error){if(note)note.textContent='Device passkey setup was cancelled or unavailable. Your existing account security is unchanged.';}
+    finally{renderSecurityMethods();}
+  }
+
   async function loadMfaState(){
     const state=byId('securityMfaState');if(!state)return;
     state.innerHTML='<div class="security-loading">Checking two-step verification…</div>';
+    renderSecurityMethods();
     try{renderMfaSnapshot(await mfaSnapshot());}
     catch(error){state.innerHTML=`<div class="error">${esc(error.message||'Account security is unavailable.')}</div>`;const badge=byId('securityMfaBadge');if(badge)badge.textContent='Unavailable';}
   }
@@ -382,6 +418,27 @@
       }
     }catch{}finally{authReadyCheckRunning=false;}
   }
+
+  function offerSecuritySetup(){
+    if(!document.body.classList.contains('auth-ready')||document.body.classList.contains('security-mfa-required')||!injectUi())return;
+    if(byId('colzoNewAccountSecurity'))return;
+    const layer=document.createElement('div');layer.id='colzoNewAccountSecurity';layer.className='colzo-setup-security-overlay';
+    layer.innerHTML=`<section class="colzo-setup-security-dialog" role="dialog" aria-modal="true" aria-labelledby="colzoSecuritySetupTitle"><span class="settings-card-kicker">ACCOUNT SETUP / SECURITY</span><h2 id="colzoSecuritySetupTitle">Secure your Colzo account</h2><p>Choose how you'd like to protect your account. You can change your settings later.</p><div class="colzo-setup-security-actions"><button type="button" id="colzoSetupAuthenticator">Use authenticator app <small>Available now</small></button><button type="button" id="colzoSetupPasskey" disabled>Use a device passkey <small>Face ID, Touch ID or fingerprint — in testing</small></button></div><button id="colzoSetupLater" type="button" class="small-btn">I'll set this up later</button></section>`;
+    document.body.appendChild(layer);
+    const close=()=>{layer.remove();};
+    byId('colzoSetupLater')?.addEventListener('click',close);
+    byId('colzoSetupAuthenticator')?.addEventListener('click',()=>{
+      close();window.ColzoOwner?.openLegacy?.('settings');
+      requestAnimationFrame(()=>{openSecurityCenter();byId('colzoSecurityChooseTotp')?.click()});
+    });
+    const device=byId('colzoSetupPasskey');
+    if(device&&passkeysReady()){
+      device.disabled=false;device.querySelector('small').textContent='Use your device to sign in; existing MFA still applies';
+      device.addEventListener('click',()=>{close();window.ColzoOwner?.openLegacy?.('settings');registerDevicePasskey()});
+    }
+    byId('colzoSetupAuthenticator')?.focus();
+  }
+  window.colzoOfferSecuritySetup=offerSecuritySetup;
 
   async function refreshForAuthenticatedState(){
     if(!document.body.classList.contains('auth-ready'))return;

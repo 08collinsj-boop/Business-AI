@@ -96,3 +96,29 @@ The original two-step verification (TOTP/AAL2) overlay is injected **outside** b
 - Added `tests/colzo-mfa-theme.test.mjs` to assert visual scoping and preservation of challenge/verify/AAL2 requirements.
 - Added `npm run verify:colzo-mfa` browser test that runs the **real MFA overlay and AAL1→AAL2 blocking prompt** with synthetic, local-only authentication and simulated verified TOTP factor at 375×812, 390×844, 430×932 and 1366×768. No actual authenticator code, security service, customer data or real account credentials are used. Screenshots under `/tmp/colzo-mfa-qa/`.
 - Production is not modified; owner should use the new staging URL and confirm the prompt looks correct after signing in with their existing account.
+
+## Security choices: authenticator now, passkeys behind an explicit opt-in — 13 October 2026
+
+The Colzo login and post-onboarding account security settings now offer a consistent Graphite & Volt selection of authentication options. This is an additive frontend integration on the existing Supabase Auth backend; existing users, passwords, enrolled TOTP factors, sessions, customer data, Stripe and production are unchanged.
+
+**Working now**
+
+- **Authenticator app:** the existing Supabase Auth TOTP factor enrollment, 6-digit verification, required AAL2 challenge and factor-removal safeguard remain unchanged. Users select this method directly in the new account-security choice card; the new account onboarding offers the same route once business setup finishes. Security in native Colzo Settings now deep-links to the original proven security management panel rather than a generic Settings overview.
+- **Device passkeys (Face ID, Touch ID, fingerprint, device PIN/security key):** experimental Supabase capability is wired, but disabled by default via `COLZO_PASSKEYS_ENABLED`, absent in existing Vercel environments. The browser-safe `/api/public-config` only reports a boolean flag, not any secret. The passkey sign-in and registration controls additionally require a secure context, WebAuthn support and the actual `auth.signInWithPasskey` / `auth.registerPasskey` SDK methods. The Supabase Auth client receives `auth.experimental.passkey=true` **only when explicitly enabled**. The existing password login stays available. Passkeys **do not automatically replace enrolled TOTP AAL2 second-factor requirements**; the registration path first requires the existing AAL2 challenge when applicable.
+- **SMS/phone:** not enabled. No messaging provider, paid plan, new database or cost-generating service was created.
+- **Recovery:** existing email/password recovery and TOTP security controls remain unchanged. Before passkeys are activated publicly, document and test account recovery, lost-device scenarios and support response; do not make biometrics the sole way to access an account.
+
+**Activation gates (HOLD — never silently turn on)**
+
+1. Verify compatible Supabase Auth supports passkeys and the selected `supabase-js` version is >=2.105.0. Supabase passkeys remain experimental, so expect SDK changes.
+2. Configure **Supabase Authentication → Passkeys** on a verified safe environment and register a stable WebAuthn relying-party ID and allowed HTTPS origins tied to the final Colzo domain. Do **not** use a disposable Vercel preview domain as the long-term relying-party ID, which would strand passkeys when preview URLs change.
+3. Confirm no new charges, independent real-device testing on Face ID, Touch ID/fingerprint, and non-biometric browsers; verify AAL1 vs AAL2 policies, session recovery, lost-device fallback, logout and old enrolled TOTP factors.
+4. Only after those checks, explicitly set the environment flag. Never modify Supabase Auth configuration or owner accounts during development without a verified rollback/restore plan and approval.
+
+**Regression QA**
+
+- `npm run verify`: 589/589 tests pass, including strict default-off public config and account security options contracts.
+- `npm run verify:colzo-security-methods`: browser QA uses synthetic account data; tests both disabled and enabled feature-flag states, account-setup choices, authenticator enrollment and passkey method invocation. Never contacts Supabase, SMS, real accounts or production.
+- Existing `npm run verify:colzo-mfa`, `npm run verify:colzo-native` and `npm run verify:colzo-owner-visual` continue to pass at their supported mobile/desktop sizes.
+
+**Product scope:** these changes make Colzo's account security UX consistent and more app-like; they do **not** complete native Projects, Clients and saved/sent Quotes, nor imply passkey support is live for Pilot users.

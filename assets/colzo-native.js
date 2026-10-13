@@ -111,7 +111,7 @@
  const moreItems=[['clients','♧','Clients','Contacts from enquiries'],['quotes','£','Quotes','Draft estimates'],['settings','⚙','Settings','Original account controls'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Follow-ups and tasks'],['enquiriesLegacy','✦','AI receptionist','Assistant and handling settings'],['marketing','↗','Marketing','Posts, drafts and scheduling'],['businessProfile','◈','Business profile','Your public business page'],['addons','◇','Additional features','Existing add-ons and plans']];
  function more(){
   const business=typeof settings!=='undefined'?String(settings?.business_name||'Your business'):'Your business';
-  const choices=[['▤','Business profile','Manage your business details','businessProfile'],['♧','Team members','Invite and manage your team','settings'],['⌁','Integrations','Connect your favourite tools','settings'],['◐','Notifications','Choose what you’re notified about','settings'],['◐','Appearance','Dark mode, language and display','settings'],['⬡','Security','Password and two-factor authentication','settings'],['?','Help & support','Get help or contact our team','settings']];
+  const choices=[['▤','Business profile','Manage your business details','businessProfile'],['♧','Team members','Invite and manage your team','settings'],['⌁','Integrations','Connect your favourite tools','settings'],['◐','Notifications','Choose what you’re notified about','settings'],['◐','Appearance','Dark mode, language and display','settings'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','settings']];
   return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-legacy="settings" aria-label="Open account settings" type="button">›</button></div>
   <div class="cf-settings-list">${choices.map(([glyph,label,detail,view])=>`<button type="button" data-cn-legacy="${view}"><span class="cf-settings-icon">${glyph}</span><span class="cf-settings-label"><strong>${label}</strong><small>${detail}</small></span><span class="cf-settings-arrow">›</span></button>`).join('')}</div>
   <button class="cf-signout" type="button" data-cn-signout>Sign out</button>
@@ -129,12 +129,13 @@
  }
  function navigate(screen){state.screen=screen;state.notification='';state.focusSearch=false;render();root.scrollTo({top:0,behavior:'instant'});window.scrollTo({top:0,behavior:'instant'});}
  function original(view){
-  const originalView=view==='settings'?'settings':view;
+  const originalView=view==='security'?'settings':view;
   document.body.classList.add('colzo-legacy-mode');
   root.setAttribute('aria-hidden','true');
   const back=document.getElementById('cnReturnToColzo');back.hidden=false;
   if(originalView==='leads'&&state.activeLead!=null){if(typeof showView==='function')showView(originalView);if(typeof renderLeads==='function')renderLeads();}
   else if(typeof showView==='function')showView(originalView);
+  if(view==='security'){requestAnimationFrame(()=>{if(typeof window.colzoOpenSecurityCenter==='function')window.colzoOpenSecurityCenter();else document.getElementById('securityCenterHubButton')?.click();});}
  }
  async function copyDraft(form){const s=content.querySelector('#cnDraftStatus');const fd=new FormData(form);const leadId=String(fd.get('lead')||'');const amount=Number(fd.get('amount'));const title=String(fd.get('title')||'').trim();state.draftLead=leadId;state.draftAmount=String(fd.get('amount')||'');state.draftTitle=title;
   if(!title||!Number.isFinite(amount)||amount<0||amount>10000000){s.textContent='Please check the title and amount.';return}
@@ -159,6 +160,6 @@
  root.addEventListener('submit',e=>{if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render();});
  const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;content.replaceChildren();state.screen='home';state.search='';state.filter='All';state.activeLead=null;state.recordsReady=false;document.getElementById('cnReturnToColzo').hidden=true}};
- window.ColzoOwner={render,onAuthState,error:()=>{if(document.body.classList.contains('auth-ready'))content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')},getActiveScreen:()=>state.screen};
+ window.ColzoOwner={render,onAuthState,openLegacy:original,error:()=>{if(document.body.classList.contains('auth-ready'))content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();
