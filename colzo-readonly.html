@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#15181d">
+ <meta name="robots" content="noindex,nofollow">
+ <title>Colzo | Existing account verification</title>
+ <link rel="icon" href="/assets/icons/colzo-mark.svg" type="image/svg+xml">
+ <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-1">
+</head>
+<body>
+ <main class="screen">
+  <header class="masthead"><img src="/assets/icons/colzo-mark.svg" alt="" width="50" height="50"><div><strong>Colzo</strong><span>Existing account verification</span></div><a href="/">Back to Colzo</a></header>
+  <section class="intro" aria-labelledby="intro-title"><p class="eyebrow">READ-ONLY COMPATIBILITY TEST</p><h1 id="intro-title">Check your original Business AI account.</h1><p>This separate preview check uses the existing Business AI authentication service. Once you sign in, it can display a limited view of enquiries authorised to your account. It cannot change, create or delete customer records.</p></section>
+  <section class="panel" aria-labelledby="login-title"><div class="row"><h2 id="login-title">Existing owner sign-in</h2><span class="pill">No customer changes</span></div>
+   <p class="notice">Your password is sent directly to the original Supabase authentication service, not to the Colzo read-only API. Signing in creates an ordinary authentication session; it does not reset or create an account. This page does not save your session between visits.</p>
+   <form id="originalLogin" autocomplete="on"><label for="originalEmail">Email address</label><input id="originalEmail" type="email" name="email" autocomplete="username" required maxlength="320" placeholder="you@example.com">
+    <label for="originalPassword">Password</label><input id="originalPassword" type="password" name="password" autocomplete="current-password" required placeholder="Your existing password">
+    <button id="verifyButton" type="submit">Sign in and check my existing enquiries <span aria-hidden="true">→</span></button>
+   </form><p id="status" class="status" aria-live="polite" role="status">Checking the original app configuration…</p>
+   <div id="results" class="results" hidden><div class="row"><h2>Original account data</h2><button id="endCheck" class="secondary" type="button">End this test</button></div><p id="resultsDescription" class="muted"></p><div id="enquiriesList" class="enquiries-list"></div></div>
+  </section>
+  <footer><p>Preview-only · No live service-role key is used · All customer enquiries are read through the original application's existing authorisation rules.</p><a href="https://app.getbusiness-ai.com/">Open the original Business AI app</a></footer>
+ </main>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <script src="/assets/colzo-readonly.js?v=20261013-1" defer></script>
+</body></html>

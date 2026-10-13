@@ -55,6 +55,14 @@
       "destination": "/api/operations?operation=customer-portal"
     },
     {
+      "source": "/colzo/read-only",
+      "destination": "/colzo-readonly.html"
+    },
+    {
+      "source": "/api/colzo-original-readonly",
+      "destination": "/api/operations?operation=colzo-original-readonly"
+    },
+    {
       "source": "/api/colzo-preview-auth",
       "destination": "/api/operations?operation=colzo-preview-auth"
     },

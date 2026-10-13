@@ -181,6 +181,7 @@
       .then(info=>{
         const status=['same_project','different_project','unknown','unconfigured'].includes(info?.status)?info.status:'unknown';
         window.colzoPreviewAuthStatus=status;
+        const link=$('colzoOriginalReadOnlyLink');if(link)link.hidden=status!=='different_project';
         if(!notice)return;
         notice.classList.toggle('colzo-preview-warning',status!=='same_project');
         notice.textContent=status==='different_project'

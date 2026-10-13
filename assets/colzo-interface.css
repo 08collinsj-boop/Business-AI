@@ -460,3 +460,6 @@ body.colzo-interface #authScreen .auth-input .auth-password-toggle{
   padding:0!important;
   z-index:2!important;
 }
+
+body.colzo-interface #authScreen .colzo-original-readonly-link{display:block;margin:0 0 11px;padding:10px 12px;border:1px solid #5b7135;border-radius:11px;background:#2c3b25;color:#d8ff90;font-size:11px;font-weight:800;text-align:center;text-decoration:none}
+body.colzo-interface #authScreen .colzo-original-readonly-link[hidden]{display:none!important}
