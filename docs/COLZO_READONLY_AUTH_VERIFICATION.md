@@ -36,3 +36,17 @@ Go to `/colzo/read-only` on the latest Colzo **preview**. It is a separate, opt-
 - Confirm a restorable backup of the existing active Supabase project and a rollback candidate before reconfiguring Colzo or deploying to the live domain.
 - Verify the browser can sign in to the original project and view only the intended business's authorised enquiries; do not assume an existing login automatically validates every Colzo API route.
 - Once that succeeds, design a production-grade Colzo app migration that preserves all existing business data and workflows, and test it on isolated infrastructure before changing live integrations or domains.
+
+## Work and quotes stage (13 October 2026)
+
+The browser-approved read-only Colzo preview now extends beyond enquiries:
+
+- **Bookings**: a fixed, authenticated GET to the original `/api/bookings`, limited to `id`, linked lead ID, title, customer display name, status, start and end times. No phone/email, notes, business IDs, or mutations are returned.
+- **Actions**: a fixed, authenticated GET to `/api/actions`, limited to id, linked lead, title, status, priority, type and due date. The original app determines the authenticated business membership.
+- **Home and Projects**: presents real upcoming bookings and outstanding actions, labelled as such. Colzo Projects is **not** yet sourced from a validated project API, and revenue is **not** represented as actual income.
+- **Clients**: an enquiry-contacts view deduplicated from the already-authorised enquiry names. This is **not** a dedicated CRM contact list and cannot add or edit customer records.
+- **Quotes**: an in-memory draft text composer using an authorised enquiry, a human-supplied GBP amount and job notes. The user can explicitly copy the draft to their device. **No draft is stored in the database, emailed, sent for acceptance or billed**; quote terms, VAT and business identity require review.
+- On API failure, affected sections show an unavailable state, not a fabricated zero or status. Login remains valid when optional bookings/actions requests fail.
+- Ending verification clears the in-memory token, enquiries, bookings, actions, quote output and UI. No additional session persistence is enabled.
+
+The dedicated server-side Projects/Clients/Quotes development handlers exist in the feature branch but have **not** been enabled against the live owner database; they still require a verified backup, staged environment and role-based browser acceptance. No cross-tenant live data was written.

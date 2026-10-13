@@ -103,3 +103,41 @@ html{scroll-padding-bottom:120px}
 .colzo-explore.colzo-more-contrast .colzo-info-panel,.colzo-explore.colzo-more-contrast .colzo-mini-stat,.colzo-explore.colzo-more-contrast .colzo-settings-list>button,.colzo-explore.colzo-more-contrast .colzo-lead-card{border:2px solid #98bb66!important}
 .colzo-explore.colzo-less-motion *, .colzo-explore.colzo-less-motion *::before,.colzo-explore.colzo-less-motion *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 @media(max-width:390px){.colzo-explore{padding-bottom:calc(102px + env(safe-area-inset-bottom))!important}.colzo-owner-summary{gap:9px}.colzo-owner-summary .colzo-readonly-pill{font-size:7px;padding:5px}}
+
+/* Verified original Business AI work: booking and action cards, never mock projects. */
+.colzo-work-summary,.colzo-real-work{margin:19px 0 14px;padding:17px 15px;border:1px solid #3c454d;border-radius:16px;background:#22282f}
+.colzo-work-summary{margin-top:24px}
+.colzo-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.colzo-section-head h2{font-size:15px;letter-spacing:-.2px;line-height:1.25;color:#f5f7fa;margin:0}
+.colzo-section-head>button{border:0;background:transparent;padding:7px 0;color:#c8ff2e;font-size:11px;font-weight:800}
+.colzo-work-subline{color:#a9b7bd;font-size:11px;line-height:1.55;margin:0 0 14px}
+.colzo-home-work-list,.colzo-work-cards{display:flex;flex-direction:column;gap:8px}
+.colzo-upcoming-row,.colzo-work-row{display:flex;align-items:center;gap:10px;min-width:0;min-height:63px;background:#2b3238;border:1px solid #3e4952;border-radius:12px;padding:10px}
+.colzo-work-mark,.colzo-upcoming-icon{display:grid;place-items:center;flex:none;width:33px;height:33px;border-radius:10px;background:#33402e;color:#c8ff2e;font-size:17px}
+.colzo-work-copy{display:flex;flex-direction:column;align-items:start;gap:4px;flex:1;min-width:0}
+.colzo-work-copy strong{font-size:12px;color:#f5f7fa;line-height:1.3;max-width:100%;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.colzo-work-copy small{font-size:10px;color:#aab8bf;line-height:1.35;max-width:100%;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.colzo-work-stage{max-width:108px;font-size:9px;font-weight:770;line-height:1.35;flex:none;color:#c8ff2e;border:1px solid #485f35;background:#2b3929;border-radius:8px;padding:5px 7px;overflow-wrap:anywhere;text-align:center}
+.colzo-work-tabs{display:flex;align-items:center;gap:16px;margin:0 0 13px;border-bottom:1px solid #3c444c}
+.colzo-work-tabs>button{flex:1;min-height:39px;text-align:center;border:0;background:transparent;color:#aab5bd;position:relative;font-size:12px;font-weight:750}
+.colzo-work-tabs>button[aria-pressed="true"]{color:#c8ff2e}
+.colzo-work-tabs>button[aria-pressed="true"]:after{content:"";position:absolute;bottom:0;left:0;right:0;background:#c8ff2e;height:2px;border-radius:3px}
+.colzo-work-cards .colzo-empty-list{margin:0}
+.colzo-setting-activity .colzo-chevron{margin-left:auto;font-size:22px;color:#ccd5d9}
+@media(max-width:375px){.colzo-work-summary,.colzo-real-work{padding:13px 11px}.colzo-work-stage{max-width:80px;font-size:8px}.colzo-work-row{gap:7px;padding:9px 7px}}
+/* Quote drafting is local-only and cannot persist, send, charge or change a client. */
+.colzo-quote-form{display:grid;gap:10px;padding:16px;border:1px solid #414c51;border-radius:17px;background:#232a30;margin-top:15px}
+.colzo-quote-form label{display:block;color:#b7c3c8;font-size:11px;font-weight:760;margin:3px 0 0}
+.colzo-quote-form select,.colzo-quote-form input,.colzo-quote-form textarea{display:block;box-sizing:border-box;width:100%;min-width:0;margin:0;padding:12px 13px;border-radius:11px;border:1px solid #465058;background:#2c343b;color:#f5f7fa;font-size:14px;line-height:1.4;box-shadow:none;outline:none}
+.colzo-quote-form select:focus-visible,.colzo-quote-form input:focus-visible,.colzo-quote-form textarea:focus-visible{border-color:#c8ff2e;box-shadow:0 0 0 3px rgba(200,255,46,.11)}
+.colzo-quote-form select{height:51px;appearance:auto}
+.colzo-quote-form input{height:48px}
+.colzo-quote-form input::-webkit-inner-spin-button{appearance:none}
+.colzo-quote-form textarea{min-height:96px;resize:vertical}
+.colzo-quote-form button[type=submit],.colzo-quote-result button{display:block;min-height:49px;width:100%;padding:12px;border-radius:12px;border:1px solid #c8ff2e;background:#c8ff2e;color:#121812;font-size:13px;font-weight:850;margin:9px 0 0}
+.colzo-quote-result{padding:17px;background:#222a2f;border:1px solid #546d3d;border-radius:16px;margin-top:18px}
+.colzo-quote-result h2{font-size:17px;margin:0 0 8px}
+.colzo-quote-result>p{color:#aebcc1;font-size:11px;line-height:1.5;margin:0 0 11px}
+.colzo-quote-result textarea{width:100%;min-height:200px;padding:12px;background:#151a1d;color:#f0f5f0;border:1px solid #424d54;border-radius:10px;font-size:12px;line-height:1.6;resize:vertical}
+.colzo-quote-result[hidden]{display:none!important}
+#colzoQuoteMessage{min-height:0;margin:10px 0 0;color:#c8ff2e;font-size:12px;line-height:1.5}

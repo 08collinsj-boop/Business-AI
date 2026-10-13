@@ -55,6 +55,6 @@ test('Read-only Settings uses explicit original-app links rather than fake opera
  assert.match(js,/Your connected services remain on the original application/);
  assert.match(html,/Read-only preview/);
  assert.match(js,/function endVerification\(\)/);
- assert.match(js,/token=null;verifiedEnquiries=\[\];client=null/);
+ assert.match(js,/token=null;verifiedEnquiries=\[\];verifiedBookings=\[\];verifiedActions=\[\];workLoadState=\{bookings:'waiting',actions:'waiting'\};client=null/);
  assert.doesNotMatch(js,/innerHTML\s*=|insertAdjacentHTML|document\.write/);
 });

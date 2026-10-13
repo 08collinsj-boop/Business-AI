@@ -9,6 +9,10 @@
   let client = null;
   let token = null;
   let verifiedEnquiries = [];
+  let verifiedBookings = [];
+  let verifiedActions = [];
+  let workLoadState = {bookings:'waiting',actions:'waiting'};
+  let workTab = 'bookings';
   let activeFilter = 'All';
   let lastListScreen = 'Enquiries';
   const source = '/api/colzo-original-readonly';
@@ -32,9 +36,9 @@
   const getEnquiry = id => verifiedEnquiries.find(row => String(row.id)===String(id));
   const create = (tag,cls,content) => {const el=document.createElement(tag);if(cls)el.className=cls;if(content!==undefined)el.textContent=String(content);return el;};
   function showScreen(screen) {
-    const allowed=['Home','Enquiries','Projects','More','Detail','SettingsDetail'];if(!allowed.includes(screen))return;
+    const allowed=['Home','Enquiries','Projects','More','Detail','SettingsDetail','QuoteDraft'];if(!allowed.includes(screen))return;
     for(const section of allowed){const el=$('colzoExplore'+section);if(el)el.hidden=section!==screen;}
-    const tab=screen==='Detail'?'Enquiries':screen==='SettingsDetail'?'More':screen;
+    const tab=screen==='Detail'?'Enquiries':screen==='SettingsDetail'?'More':screen==='QuoteDraft'?'Home':screen;
     document.querySelectorAll('[data-colzo-screen]').forEach(button=>{
       if(button.dataset.colzoScreen===tab)button.setAttribute('aria-current','page');
       else button.removeAttribute('aria-current');
@@ -49,7 +53,8 @@
     notifications: { title:'Notifications', intro:'Recent enquiry activity from your verified business. These are records, not push notifications.' },
     appearance: { title:'Appearance', intro:'Try the Colzo display options locally for this session. No preferences are sent to your business.' },
     security: { title:'Security', intro:'Keep account security settings in the original application.', detail:'Password management, MFA and identity settings remain with your existing Business AI account. This preview cannot reset passwords or change authentication.' },
-    support: { title:'Help & support', intro:'Your original Business AI support and information remain available.', detail:'This is a limited Colzo compatibility preview. For live account management, use your existing application.' }
+    support: { title:'Help & support', intro:'Your original Business AI support and information remain available.', detail:'This is a limited Colzo compatibility preview. For live account management, use your existing application.' },
+    clients: {title:'Enquiry contacts',intro:'People named in your existing enquiry records. This is not yet a separate clients database.'}
   });
   function openSettingsDetail(kind) {
     const config=settingsInfo[kind];if(!config)return;
@@ -66,6 +71,18 @@
         const chip=create('span','colzo-setting-activity-status',stage(row.status));
         btn.append(marker,main,chip);btn.addEventListener('click',()=>openDetail(row.id));content.append(btn);
       }
+    }else if(kind==='clients'){
+      const names=new Set();const entries=[];
+      for(const enquiry of verifiedEnquiries){const name=String(enquiry.name||'').trim();if(!name||names.has(name.toLocaleLowerCase('en-GB')))continue;names.add(name.toLocaleLowerCase('en-GB'));entries.push(enquiry);}
+      entries.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+      content.append(create('p','colzo-setting-description',`${entries.length} contact${entries.length===1?'':'s'} from recorded enquiries. Separate client accounts and contact editing are not available in this preview.`));
+      for(const enquiry of entries){
+        const btn=create('button','colzo-setting-activity');btn.type='button';
+        const avatar=create('span','colzo-avatar',String(enquiry.name||'E').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase());
+        const main=create('span','colzo-setting-activity-text');main.append(create('strong','',enquiry.name),create('small','',enquiry.job_type||'General enquiry'));
+        btn.append(avatar,main,create('span','colzo-chevron','›'));
+        btn.addEventListener('click',()=>openDetail(enquiry.id));content.append(btn);
+      }
     }else if(kind==='appearance'){
       for(const [id,title,detail,cls] of [['colzoContrastSwitch','High contrast','Increase separation between cards and text.','colzo-more-contrast'],['colzoMotionSwitch','Reduce motion','Disable decorative transitions in this preview.','colzo-less-motion']]){
         const label=create('label','colzo-pref-control');const main=create('span','');main.append(create('strong','',title),create('small','',detail));
@@ -77,6 +94,108 @@
       const link=create('a','colzo-original-link','Open your original Business AI app ↗');link.href='https://app.getbusiness-ai.com/';link.target='_blank';link.rel='noopener noreferrer';content.append(link);
     }
     showScreen('SettingsDetail');
+  }
+  const workDate = value => {
+    if(!value||!Number.isFinite(Date.parse(value)))return 'Date not recorded';
+    return new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(value));
+  };
+  function renderWork(){
+    const names={bookings:'bookings',actions:'actions'};
+    const kind=workTab;
+    const current=kind==='bookings'?verifiedBookings:verifiedActions;
+    const state=workLoadState[kind];
+    $('colzoWorkStatus').textContent=state==='loaded'
+      ?`${current.length} recorded ${names[kind]}. No records can be edited here.`
+      :state==='error'?`Your existing ${kind} could not be loaded. Try your original Business AI app.`:'Checking existing work records…';
+    document.querySelectorAll('[data-colzo-work]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.colzoWork===kind)));
+    const list=$('colzoWorkRecords');list.replaceChildren();
+    if(state!=='loaded')return;
+    if(!current.length){list.append(create('p','colzo-empty-list',`No ${kind} recorded for your business.`));return;}
+    for(const item of current){
+      const card=create('article','colzo-work-row');
+      const mark=create('span','colzo-work-mark',kind==='bookings'?'▣':'✓');
+      const copy=create('span','colzo-work-copy');
+      copy.append(create('strong','',item.title||'Untitled '+(kind==='bookings'?'booking':'action')));
+      const detail=kind==='bookings'?`${item.customer_name||'Customer not recorded'} · ${workDate(item.starts_at)}`:`${item.priority||'Normal'} priority · ${workDate(item.due_at)}`;
+      copy.append(create('small','',detail));
+      const end=create('span','colzo-work-stage',item.status||'Unknown');card.append(mark,copy,end);list.append(card);
+    }
+  }
+  function renderUpcomingWork(){
+    const root=$('colzoHomeWorkList');root.replaceChildren();
+    const connected=workLoadState.bookings==='loaded'||workLoadState.actions==='loaded';
+    if(!connected){$('colzoWorkSummaryStatus').textContent='Bookings and actions are not available in this preview yet.';return;}
+    const now=Date.now();
+    const upcoming=verifiedBookings.filter(x=>x.status!=='cancelled'&&x.status!=='completed'&&(!x.starts_at||Date.parse(x.starts_at)>=now-86400000)).map(x=>({label:'Booking',title:x.title||'Booking',date:x.starts_at,status:x.status}));
+    const pending=verifiedActions.filter(x=>x.status==='pending').map(x=>({label:'Action',title:x.title||'Action',date:x.due_at,status:x.status}));
+    const combined=[...upcoming,...pending].sort((a,b)=>{const aDate=Date.parse(a.date),bDate=Date.parse(b.date);return (Number.isFinite(aDate)?aDate:Number.MAX_SAFE_INTEGER)-(Number.isFinite(bDate)?bDate:Number.MAX_SAFE_INTEGER)}).slice(0,4);
+    $('colzoWorkSummaryStatus').textContent=`${upcoming.length} upcoming booking${upcoming.length===1?'':'s'} · ${pending.length} pending action${pending.length===1?'':'s'}`;
+    if(!combined.length){root.append(create('p','colzo-work-subline','No upcoming bookings or pending actions.'));return;}
+    for(const item of combined){
+      const card=create('div','colzo-upcoming-row');
+      const ico=create('span','colzo-upcoming-icon',item.label==='Booking'?'▣':'✓');
+      const copy=create('span','colzo-work-copy');copy.append(create('strong','',item.title),create('small','',`${item.label} · ${workDate(item.date)}`));
+      const pill=create('span','colzo-work-stage',item.status||'Open');card.append(ico,copy,pill);root.append(card);
+    }
+  }
+  async function loadWorkData(){
+    const sessionToken=token;
+    if(!sessionToken)return;
+    const load=async kind=>{
+      try{
+        const response=await fetch(`${source}?kind=${kind}`,{method:'GET',cache:'no-store',headers:{Accept:'application/json',Authorization:`Bearer ${sessionToken}`}});
+        if(!response.ok)throw new Error('Original endpoint unavailable');
+        const payload=await response.json();
+        if(!Array.isArray(payload.items))throw new Error('Invalid response');
+        if(!token||token!==sessionToken)return;
+        if(kind==='bookings')verifiedBookings=payload.items;
+        else verifiedActions=payload.items;
+        workLoadState[kind]='loaded';
+      }catch{if(token===sessionToken)workLoadState[kind]='error';}
+    };
+    await Promise.allSettled([load('bookings'),load('actions')]);
+    if(token!==sessionToken)return;
+    renderWork();renderUpcomingWork();
+  }
+  function openQuoteDraft(){
+    if(!token)return;
+    const select=$('colzoQuoteLead');select.replaceChildren();
+    const placeholder=create('option','','Choose an existing enquiry');placeholder.value='';select.append(placeholder);
+    for(const enquiry of verifiedEnquiries){
+      const option=create('option','',`${enquiry.name||'Customer'} · ${enquiry.job_type||'General enquiry'}`);
+      option.value=String(enquiry.id);select.append(option);
+    }
+    $('colzoQuoteForm').reset();$('colzoQuoteResult').hidden=true;$('colzoQuoteOutput').value='';
+    showScreen('QuoteDraft');
+  }
+  function buildQuote(event){
+    event.preventDefault();if(!token)return;
+    const lead=getEnquiry($('colzoQuoteLead').value);
+    const title=$('colzoQuoteDescription').value.trim(),amount=Number($('colzoQuotePrice').value);
+    const notes=$('colzoQuoteNotes').value.trim();
+    const result=$('colzoQuoteResult');result.hidden=true;
+    if(!lead||title.length<3||title.length>160||!Number.isFinite(amount)||amount<=0||amount>99999999||Math.abs(Math.round(amount*100)-amount*100)>0.000001)return;
+    const gbp=new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'});
+    const today=new Intl.DateTimeFormat('en-GB',{dateStyle:'long'}).format(new Date());
+    const quote=['DRAFT QUOTATION — REVIEW BEFORE SENDING',`Prepared on: ${today}`,'',`Customer: ${lead.name||'Customer'}`,`Service: ${title}`,`Amount: ${gbp.format(amount)}`];
+    if(notes)quote.push('',`Scope / notes:
+${notes}`);
+    quote.push('','VAT, terms and quotation validity have not been confirmed.','DRAFT ONLY — NOT SENT OR ACCEPTED');
+    $('colzoQuoteOutput').value=quote.join('\n');
+    $('colzoQuoteMessage').textContent='Draft prepared in this browser only. It has not been saved or sent.';
+    result.hidden=false;result.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+  async function copyQuote(){
+    const value=$('colzoQuoteOutput').value;
+    if(!value)return;
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(value);
+      $('colzoQuoteMessage').textContent='Quote text copied. Review it before sending to the customer.';
+    }catch{
+      $('colzoQuoteOutput').focus();$('colzoQuoteOutput').select();
+      $('colzoQuoteMessage').textContent='Clipboard access is unavailable here. The draft is selected — use Copy on your device.';
+    }
   }
   function renderTrend() {
     const now=new Date(),monthStarts=Array.from({length:6},(_,i)=>new Date(now.getFullYear(),now.getMonth()-5+i,1));
@@ -94,6 +213,7 @@
     $('colzoHomeTitle').textContent=hour<12?'Good morning.':hour<18?'Good afternoon.':'Good evening.';
     $('colzoHomeEnquiries').textContent=String(verifiedEnquiries.length);
     renderTrend();
+    renderUpcomingWork();
   }
   function renderSearchList() {
     const text=String($('colzoEnquirySearch').value||'').trim().toLowerCase();
@@ -120,7 +240,9 @@
     const copy=create('div','colzo-detail-text');const title=create('h1','',name);title.id='colzoDetailTitle';
     copy.append(title,create('p','',lead.job_type||'General enquiry'),create('span','colzo-stage',stage(lead.status)));root.append(copy);
     const fields=$('colzoDetailFields');fields.replaceChildren();
-    for(const [label,value] of [['Submitted',safeDate(lead.created_at)],['Current status',stage(lead.status)],['Enquiry type',lead.job_type||'General enquiry']]){
+    const linkedBookings=verifiedBookings.filter(x=>String(x.lead_id)===String(lead.id));
+    const linkedActions=verifiedActions.filter(x=>String(x.lead_id)===String(lead.id));
+    for(const [label,value] of [['Submitted',safeDate(lead.created_at)],['Current status',stage(lead.status)],['Enquiry type',lead.job_type||'General enquiry'],['Linked bookings',workLoadState.bookings==='loaded'?String(linkedBookings.length):'Unavailable'],['Linked actions',workLoadState.actions==='loaded'?String(linkedActions.length):'Unavailable']]){
       const wrap=create('div','');wrap.append(create('dt','',label),create('dd','',value));fields.append(wrap);
     }
     lastListScreen='Enquiries';showScreen('Detail');
@@ -132,7 +254,8 @@
     renderHome();renderSearchList();showScreen('Home');
   }
   function endVerification() {
-    token=null;verifiedEnquiries=[];client=null;activeFilter='All';
+    token=null;verifiedEnquiries=[];verifiedBookings=[];verifiedActions=[];workLoadState={bookings:'waiting',actions:'waiting'};client=null;activeFilter='All';
+    $('colzoQuoteForm').reset();$('colzoQuoteOutput').value='';$('colzoQuoteResult').hidden=true;
     document.querySelector('.screen').classList.remove('colzo-preview-active');
     $('colzoExplore').hidden=true;
     $('results').hidden=true;$('enquiriesList').replaceChildren();$('colzoEnquiryCards').replaceChildren();form.reset();button.disabled=true;
@@ -178,6 +301,7 @@
       if(!token)throw new Error('No confirmed session');
       status('Original account sign-in successful. Loading authorised enquiries…','success');
       await readEnquiries();
+      await loadWorkData();
       status('Read-only verification completed. Your customer records were not changed.','success');
     } catch(error){
       $('originalPassword').value='';
@@ -196,9 +320,15 @@
   $('colzoEnquirySearch').addEventListener('input',renderSearchList);
   $('colzoDetailReturn').addEventListener('click',()=>showScreen(lastListScreen));
   $('colzoOpenEnquiries').addEventListener('click',()=>showScreen('Enquiries'));
+  $('colzoOpenQuote').addEventListener('click',openQuoteDraft);
+  $('colzoOpenContacts').addEventListener('click',()=>openSettingsDetail('clients'));
+  $('colzoQuoteBack').addEventListener('click',()=>showScreen('Home'));
+  $('colzoQuoteForm').addEventListener('submit',buildQuote);
+  $('colzoQuoteCopy').addEventListener('click',copyQuote);
   $('colzoOpenProjects').addEventListener('click',()=>showScreen('Projects'));
-  $('colzoOpenSettings').addEventListener('click',()=>showScreen('More'));
-  $('colzoViewOriginal').addEventListener('click',()=>{window.open('https://app.getbusiness-ai.com/','_blank','noopener,noreferrer');});
+  $('colzoHomeOpenWork').addEventListener('click',()=>showScreen('Projects'));
+  document.querySelectorAll('[data-colzo-work]').forEach(button=>button.addEventListener('click',()=>{workTab=button.dataset.colzoWork;renderWork();}));
+
   button.disabled=true;
   configure();
 })();

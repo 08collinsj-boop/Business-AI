@@ -7,7 +7,7 @@
  <meta name="robots" content="noindex,nofollow">
  <title>Colzo | Existing account verification</title>
  <link rel="icon" href="/assets/icons/colzo-mark.svg" type="image/svg+xml">
- <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-mobile-polish-2">
+ <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-work-v4">
 </head>
 <body>
  <main class="screen">
@@ -28,8 +28,9 @@
         <p class="colzo-eyebrow">BUSINESS OVERVIEW</p><h1 id="colzoHomeTitle">Good morning.</h1><p class="colzo-home-intro">Here's what's happening with your business today.</p>
         <div class="colzo-mini-stats"><div class="colzo-mini-stat"><span>Revenue</span><strong>—</strong><small>Not connected</small></div><div class="colzo-mini-stat colzo-stat-highlight"><span>Enquiries</span><strong id="colzoHomeEnquiries">0</strong><small>Verified records</small></div><div class="colzo-mini-stat"><span>Active projects</span><strong>—</strong><small>Not connected</small></div></div>
         <div class="colzo-trend-panel"><div class="colzo-trend-heading"><h2>Enquiry trend</h2><span>Last 6 months</span></div><svg id="colzoTrendChart" viewBox="0 0 318 132" role="img" aria-label="Enquiries over the last six months"><polyline id="colzoTrendLine" fill="none" stroke="#c8ff2e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points=""/></svg><div id="colzoTrendLabels" class="colzo-trend-labels"></div><p class="colzo-trend-subtitle">Real enquiries, not revenue.</p></div>
-        <div class="colzo-block-heading"><h2>Quick actions</h2></div><div class="colzo-quick-grid"><button id="colzoOpenEnquiries" type="button"><i>▤</i><span>View enquiries</span></button><button id="colzoOpenProjects" type="button"><i>▱</i><span>Projects</span></button><button id="colzoOpenSettings" type="button"><i>⚙</i><span>Settings</span></button><button id="colzoViewOriginal" type="button"><i>↗</i><span>Original app</span></button></div>
-        <p class="colzo-safe-note">This preview cannot create quotes, update enquiries, access billing or alter your live data.</p>
+        <div class="colzo-block-heading"><h2>Quick actions</h2></div><div class="colzo-quick-grid"><button id="colzoOpenEnquiries" type="button"><i>▤</i><span>View enquiries</span></button><button id="colzoOpenQuote" type="button"><i>✎</i><span>Draft quote</span></button><button id="colzoOpenContacts" type="button"><i>♧</i><span>Contacts</span></button><button id="colzoOpenProjects" type="button"><i>▱</i><span>Work</span></button></div>
+        <section class="colzo-work-summary" aria-label="Upcoming work"><div class="colzo-section-head"><h2>Upcoming work</h2><button id="colzoHomeOpenWork" type="button">See work ›</button></div><p id="colzoWorkSummaryStatus" class="colzo-work-subline" role="status">Checking your existing bookings and actions…</p><div id="colzoHomeWorkList" class="colzo-home-work-list"></div></section>
+        <p class="colzo-safe-note">This preview can prepare quote text but does not save or send it. It cannot update enquiries, access billing or alter live data.</p>
       </section>
       <section id="colzoExploreEnquiries" class="colzo-explore-panel" aria-labelledby="colzoEnquiriesTitle" hidden>
         <div class="colzo-mobile-heading"><h1 id="colzoEnquiriesTitle">Enquiries</h1><span class="colzo-readonly-pill">LIVE DATA · READ ONLY</span></div>
@@ -39,7 +40,8 @@
       <section id="colzoExploreDetail" class="colzo-explore-panel" aria-labelledby="colzoDetailTitle" hidden>
         <button id="colzoDetailReturn" type="button" class="colzo-back">‹ Enquiries</button><div id="colzoDetailPerson" class="colzo-person"></div><div class="colzo-info-panel"><h2>Details</h2><dl id="colzoDetailFields"></dl></div><div class="colzo-info-panel"><h2>Read-only preview</h2><p>Your original account's data is displayed here. Contact details, quotes and editing controls will become available only after Colzo's full environment is verified.</p></div>
       </section>
-      <section id="colzoExploreProjects" class="colzo-explore-panel" aria-labelledby="colzoProjectsTitle" hidden><h1 id="colzoProjectsTitle">Projects</h1><div class="colzo-filter-tabs" role="group" aria-label="Project categories"><span>All</span><span>Active</span><span>Completed</span></div><div class="colzo-empty-feature"><div aria-hidden="true">▱</div><h2>Projects need a verified connection</h2><p>The original app's project API has not been certified for this read-only preview. Nothing will be invented or moved from your existing database.</p></div><div class="colzo-project-banner"><span>Turn enquiries<br>into real progress.</span><p>Project tracking is built in the Colzo development branch; its full integration still needs testing.</p></div></section>
+      <section id="colzoExploreProjects" class="colzo-explore-panel" aria-labelledby="colzoProjectsTitle" hidden><h1 id="colzoProjectsTitle">Projects</h1><div class="colzo-filter-tabs" role="group" aria-label="Project categories"><span>All</span><span>Active</span><span>Completed</span></div><div class="colzo-empty-feature"><div aria-hidden="true">▱</div><h2>Projects need a verified connection</h2><p>The original app's project API has not been certified for this read-only preview. Nothing will be invented or moved from your existing database.</p></div><section class="colzo-real-work"><div class="colzo-section-head"><h2>Existing scheduled work</h2><span class="colzo-readonly-pill">LIVE · READ ONLY</span></div><p class="colzo-work-subline">These are bookings and outstanding tasks from Business AI — not completed Colzo project records.</p><div class="colzo-work-tabs" role="group" aria-label="Work records"><button type="button" data-colzo-work="bookings" aria-pressed="true">Bookings</button><button type="button" data-colzo-work="actions" aria-pressed="false">Actions</button></div><p id="colzoWorkStatus" role="status" class="colzo-work-subline"></p><div id="colzoWorkRecords" class="colzo-work-cards"></div></section>
+        <div class="colzo-project-banner"><span>Turn enquiries<br>into real progress.</span><p>Project tracking is built in the Colzo development branch; its full integration still needs testing.</p></div></section>
       <section id="colzoExploreMore" class="colzo-explore-panel" aria-labelledby="colzoMoreTitle" hidden>
         <h1 id="colzoMoreTitle">Settings</h1>
         <div class="colzo-owner-summary"><span class="colzo-owner-avatar" aria-hidden="true">C</span><span><strong>Business owner</strong><small>Verified original Business AI account</small></span><span class="colzo-readonly-pill">READ ONLY</span></div>
@@ -51,8 +53,22 @@
           <button type="button" data-colzo-setting="appearance"><span aria-hidden="true">☾</span><span><strong>Appearance</strong><small>Display and accessibility</small></span><b aria-hidden="true">›</b></button>
           <button type="button" data-colzo-setting="security"><span aria-hidden="true">⬡</span><span><strong>Security</strong><small>Password and two-factor authentication</small></span><b aria-hidden="true">›</b></button>
           <button type="button" data-colzo-setting="support"><span aria-hidden="true">ⓘ</span><span><strong>Help &amp; support</strong><small>Get help with your business account</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="clients"><span aria-hidden="true">♙</span><span><strong>Enquiry contacts</strong><small>People who have contacted your business</small></span><b aria-hidden="true">›</b></button>
           <button id="colzoSafeSignOut" type="button"><span aria-hidden="true">↪</span><span><strong>End verification</strong><small>Clear this preview session</small></span><b aria-hidden="true">›</b></button>
         </div>
+      </section>
+      <section id="colzoExploreQuoteDraft" class="colzo-explore-panel" aria-labelledby="colzoQuoteTitle" hidden>
+        <button id="colzoQuoteBack" class="colzo-back" type="button">‹ Home</button>
+        <h1 id="colzoQuoteTitle">Draft quote</h1><p class="colzo-home-intro">Prepare a quote from a verified enquiry and copy it for review. This draft is not saved, sent, accepted or billed by Colzo.</p>
+        <form id="colzoQuoteForm" class="colzo-quote-form">
+          <label for="colzoQuoteLead">Customer enquiry</label><select id="colzoQuoteLead" required><option value="">Choose an existing enquiry</option></select>
+          <label for="colzoQuoteDescription">Service or job</label><input id="colzoQuoteDescription" required maxlength="160" minlength="3" placeholder="Describe the work">
+          <label for="colzoQuotePrice">Quoted amount in GBP</label><input id="colzoQuotePrice" required type="number" min="0.01" max="99999999" step="0.01" inputmode="decimal" placeholder="0.00">
+          <label for="colzoQuoteNotes">Scope / notes</label><textarea id="colzoQuoteNotes" maxlength="2000" rows="4" placeholder="What is included?"></textarea>
+          <button type="submit">Prepare quote for review</button>
+        </form>
+        <div id="colzoQuoteResult" class="colzo-quote-result" hidden><h2>Quote draft preview</h2><p>Unsaved · Not emailed · No payment requested</p><textarea id="colzoQuoteOutput" readonly rows="11" aria-label="Copyable quote draft"></textarea><button id="colzoQuoteCopy" type="button">Copy quote text</button><p id="colzoQuoteMessage" role="status" aria-live="polite"></p></div>
+        <p class="colzo-safe-note">Amounts are draft figures only. Check business details, VAT treatment and terms before sending a real quotation.</p>
       </section>
       <section id="colzoExploreSettingsDetail" class="colzo-explore-panel" aria-labelledby="colzoSettingsDetailTitle" hidden>
         <button id="colzoSettingsDetailBack" class="colzo-back" type="button">‹ Settings</button><h1 id="colzoSettingsDetailTitle">Settings</h1>
@@ -65,5 +81,5 @@
   <footer><p>Preview-only · No live service-role key is used · All customer enquiries are read through the original application's existing authorisation rules.</p><a href="https://app.getbusiness-ai.com/">Open the original Business AI app</a></footer>
  </main>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script src="/assets/colzo-readonly.js?v=20261013-mobile-polish-2" defer></script>
+ <script src="/assets/colzo-readonly.js?v=20261013-work-v4" defer></script>
 </body></html>

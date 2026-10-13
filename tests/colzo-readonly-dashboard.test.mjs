@@ -39,13 +39,13 @@ test('dashboard never fabricates revenue or project counts',async()=>{
 
 test('full dashboard remains a read-only, in-memory view and clears on End Verification',async()=>{
  const [html,js,endpoint]=await Promise.all(['colzo-readonly.html','assets/colzo-readonly.js','lib/colzo-original-readonly.js'].map(read));
- assert.match(js,/token=null;verifiedEnquiries=\[\];client=null;activeFilter='All'/);
+ assert.match(js,/token=null;verifiedEnquiries=\[\];verifiedBookings=\[\];verifiedActions=\[\];workLoadState=\{bookings:'waiting',actions:'waiting'\};client=null;activeFilter='All'/);
  assert.match(js,/\$\('colzoExploreExit'\)\.addEventListener\('click',endVerification\)/);
  assert.match(js,/\$\('colzoSafeSignOut'\)\.addEventListener\('click',endVerification\)/);
  assert.match(js,/persistSession:false,autoRefreshToken:false,detectSessionInUrl:false/);
  assert.match(endpoint,/if\s*\(\s*req\.method\s*!==\s*'GET'\)\s*return res\.status\(405\)/);
  assert.match(endpoint,/if\s*\(process\.env\.VERCEL_ENV\s*!==\s*'preview'\)\s*return res\.status\(404\)/);
- assert.match(html,/This preview cannot create quotes, update enquiries, access billing or alter your live data/);
+ assert.match(html,/This preview can prepare quote text but does not save or send it. It cannot update enquiries, access billing or alter live data/);
  assert.doesNotMatch(js,/localStorage|sessionStorage|\.insert\(|\.update\(|\.delete\(|method\s*:\s*['"](?:POST|PATCH|DELETE)['"]/);
 });
 
