@@ -510,7 +510,7 @@
     if(node('marketingSchedulePlatform'))node('marketingSchedulePlatform').value=platform||cached.platform||'facebook';
     const summary=node('marketingScheduleDraftSummary');
     if(summary)summary.textContent=`Scheduling: ${platformLabel(cached.platform)} · ${contentTypeLabel(cached.content_type)} - ${(cached.request_text||'saved draft').slice(0,120)}`;
-    scheduleMessage('Choose a future date and time, then press Schedule post. Business AI will publish it automatically at that time.');
+    scheduleMessage('Choose a future date and time, then press Schedule post. Colzo will publish it automatically at that time.');
     tab('schedule');
     node('marketingScheduleDate')?.focus();
   }
@@ -557,7 +557,7 @@
     setBusy(true);scheduleMessage('Saving your scheduled post…');
     try{
       const result=await api('/api/marketing-schedules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'create',generation_id:scheduleDraftId,platform:node('marketingSchedulePlatform')?.value||'facebook',scheduled_for:scheduledFor})});
-      scheduleMessage(`Scheduled for ${when(result.schedule.scheduled_for)}. Business AI will publish it automatically.`);
+      scheduleMessage(`Scheduled for ${when(result.schedule.scheduled_for)}. Colzo will publish it automatically.`);
       clearScheduleForm();await Promise.all([loadSchedules(),loadAutomation()]);
     }catch(error){scheduleMessage(error?.message||'Could not save this scheduled post.');}
     finally{setBusy(false);}
@@ -671,7 +671,7 @@
         try{
           await uploadPreparedMarketingPhoto(selectedPhoto,result.id,{manageBusy:false,reload:false});
           clearPendingMarketingPhoto();
-          message('Draft and photo ready. Business AI used the visible photo context to refresh the caption. Review both before approval.');
+          message('Draft and photo ready. Colzo used the visible photo context to refresh the caption. Review both before approval.');
         }catch(photoError){
           message('Draft created, but the photo could not be attached. Your photo is still selected so you can try again.');
         }
@@ -777,11 +777,11 @@
       if(!supabaseClient)throw new Error('Secure photo upload is unavailable.');
       const {error}=await supabaseClient.storage.from(prepared.upload.bucket).uploadToSignedUrl(prepared.upload.path,prepared.upload.token,photo.blob,{contentType:photo.mimeType});
       if(error)throw new Error('The private photo upload could not be completed.');
-      uploaded=true;message('Business AI is reviewing the photo and refreshing the caption…');
+      uploaded=true;message('Colzo is reviewing the photo and refreshing the caption…');
       const data=await api('/api/marketing-images',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finalize_upload',generation_id:generationId,path:prepared.upload.path,file_name:photo.fileName,mime_type:photo.mimeType,size_bytes:photo.blob.size})});
       imageState=data.image||null;imageGenerationMode=data.configuration?.mode||imageGenerationMode;
       if(data.generation&&generationId===currentGenerationId)renderCurrent(data.generation);else renderImage();
-      if(data.copy_refreshed)message('Photo uploaded. Business AI used the visible photo context to refresh the caption. Review both before approval.');
+      if(data.copy_refreshed)message('Photo uploaded. Colzo used the visible photo context to refresh the caption. Review both before approval.');
       else if(data.copy_refresh_error)message('Photo uploaded and ready to publish. '+data.copy_refresh_error);
       else if(data.analysed)message('Photo uploaded and analysed. Review the post and photo before approval.');
       else message('Photo uploaded and attached to this post. Review it before approval.');
@@ -907,7 +907,7 @@
     if(node('marketingAutomationMode')){node('marketingAutomationMode').value=settings.mode||'approval_required';node('marketingAutomationMode').disabled=!owner;}
     if(node('marketingAutomationTone')){node('marketingAutomationTone').value=settings.tone||'friendly';node('marketingAutomationTone').disabled=!owner;}
     if(node('marketingAutomationFrequency')){node('marketingAutomationFrequency').value=String(postsPerDay);node('marketingAutomationFrequency').disabled=!owner;}
-    if(node('marketingAutomationFrequencySummary'))node('marketingAutomationFrequencySummary').textContent=settings.enabled===true?`Business AI prepares ${postsPerDay} Facebook ${postsPerDay===1?'post':'posts'} per day, spaced about ${24/postsPerDay} hours apart.`:'Automation is paused. No automatic Marketing posts will be created.';
+    if(node('marketingAutomationFrequencySummary'))node('marketingAutomationFrequencySummary').textContent=settings.enabled===true?`Colzo prepares ${postsPerDay} Facebook ${postsPerDay===1?'post':'posts'} per day, spaced about ${24/postsPerDay} hours apart.`:'Automation is paused. No automatic Marketing posts will be created.';
     if(node('marketingAutomationEnabled')){node('marketingAutomationEnabled').checked=settings.enabled===true;node('marketingAutomationEnabled').disabled=!owner;}
     if(node('marketingAutomationImage')){node('marketingAutomationImage').checked=settings.image_enabled===true;node('marketingAutomationImage').disabled=!owner;}
     if(node('marketingAutomationSave'))node('marketingAutomationSave').hidden=!owner;
@@ -918,8 +918,8 @@
     const last=settings.last_status?('Last run: '+settings.last_status.replaceAll('_',' ')+(settings.last_run_at?' · '+when(settings.last_run_at):'')):'No automated run yet.';
     if(node('marketingAutomationStatus'))node('marketingAutomationStatus').textContent=last+(settings.last_error_code?' · '+settings.last_error_code:'');
     if(node('marketingAutomationHint')){
-      const imageNote=(automationMedia||[]).some(item=>item?.role==='post')?'Approved post photos will be rotated before AI image generation is used. ':imageGenerationMode==='simulate'?'No approved post photos are available and AI image generation is currently simulated. ':'If no approved post photo is available, Business AI can generate an image; inspiration photos guide visual style only. ';
-      node('marketingAutomationHint').textContent=(settings.mode==='fully_automated'?`Fully automated mode can generate, approve and publish up to ${postsPerDay} Facebook ${postsPerDay===1?'post':'posts'} per day without asking first. `:`Approval required mode creates up to ${postsPerDay} ${postsPerDay===1?'draft':'drafts'} per day and waits for the owner. `)+'Business AI rotates content angles between services, work, advice, trust, offers and approved Business Knowledge. '+imageNote;
+      const imageNote=(automationMedia||[]).some(item=>item?.role==='post')?'Approved post photos will be rotated before AI image generation is used. ':imageGenerationMode==='simulate'?'No approved post photos are available and AI image generation is currently simulated. ':'If no approved post photo is available, Colzo can generate an image; inspiration photos guide visual style only. ';
+      node('marketingAutomationHint').textContent=(settings.mode==='fully_automated'?`Fully automated mode can generate, approve and publish up to ${postsPerDay} Facebook ${postsPerDay===1?'post':'posts'} per day without asking first. `:`Approval required mode creates up to ${postsPerDay} ${postsPerDay===1?'draft':'drafts'} per day and waits for the owner. `)+'Colzo rotates content angles between services, work, advice, trust, offers and approved Business Knowledge. '+imageNote;
     }
   }
 
@@ -946,7 +946,7 @@
     const postsPerDay=Math.max(1,Math.min(3,Number(node('marketingAutomationFrequency')?.value)||1));
     if(node('marketingAutomationEnabledLabel'))node('marketingAutomationEnabledLabel').textContent=enabled?'Active':'Paused';
     if(node('marketingAutomationBadge'))node('marketingAutomationBadge').textContent=!enabled?'Paused':mode==='fully_automated'?'Fully automated':'Approval required';
-    if(node('marketingAutomationFrequencySummary'))node('marketingAutomationFrequencySummary').textContent=enabled?`Business AI prepares ${postsPerDay} Facebook ${postsPerDay===1?'post':'posts'} per day, spaced about ${24/postsPerDay} hours apart.`:'Automation is paused. No automatic Marketing posts will be created.';
+    if(node('marketingAutomationFrequencySummary'))node('marketingAutomationFrequencySummary').textContent=enabled?`Colzo prepares ${postsPerDay} Facebook ${postsPerDay===1?'post':'posts'} per day, spaced about ${24/postsPerDay} hours apart.`:'Automation is paused. No automatic Marketing posts will be created.';
     message('Automation change ready. Choose Save automation to apply it.');
   }
 
@@ -992,7 +992,7 @@
   }
   async function connectMeta(){try{const result=await api('/api/meta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'oauth_start'})});if(result.authorization_url?.startsWith('https://'))location.assign(result.authorization_url);else throw new Error('Meta connection is unavailable');}catch(error){message(error.message||'Could not start Meta connection.');}}
   async function selectMeta(id){try{await api('/api/meta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'select_account',account_id:id})});message('Social account selected.');await loadMeta();}catch(error){message(error.message||'Could not select that account.');}}
-  async function disconnectMeta(){if(!confirm('Disconnect Facebook and remove stored Meta access tokens from Business AI?'))return;try{await api('/api/meta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'})});message('Meta connection removed.');await loadMeta();}catch(error){message(error.message||'Could not disconnect Meta.');}}
+  async function disconnectMeta(){if(!confirm('Disconnect Facebook and remove stored Meta access tokens from Colzo?'))return;try{await api('/api/meta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'})});message('Meta connection removed.');await loadMeta();}catch(error){message(error.message||'Could not disconnect Meta.');}}
 
   async function loadPublications(){
     try{const data=await api('/api/marketing-publications');publications=Array.isArray(data.publications)?data.publications:[];}catch{publications=[];}
@@ -1033,7 +1033,7 @@
         if(current!==epoch)return;
         const failed=loads.filter(item=>item.status==='rejected');
         const query=new URLSearchParams(location.search);
-        if(query.get('meta')==='connected')message('Facebook connection completed. Select the Page Business AI may use.');
+        if(query.get('meta')==='connected')message('Facebook connection completed. Select the Page Colzo may use.');
         else if(query.get('meta')==='error')message('Facebook connection was not completed. Check the Meta setup and try again.');
         else if(failed.length)message('Marketing loaded, but some live data could not be refreshed. Use Refresh on the affected section to try again.');
       }

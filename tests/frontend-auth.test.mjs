@@ -14,7 +14,7 @@ test("public config is gated and exposes only browser-safe Supabase config", { c
   for (const value of ["false", "TRUE", "1", "yes"]) { process.env.FRONTEND_AUTH_ENABLED = value; res = response(); await handler({}, res); assert.equal(res.statusCode, 404); }
   process.env.FRONTEND_AUTH_ENABLED = "true"; delete process.env.SUPABASE_URL; delete process.env.SUPABASE_ANON_KEY; res = response(); await handler({}, res); assert.equal(res.statusCode, 503);
   process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_ANON_KEY = "browser-safe-key"; res = response(); await handler({}, res);
-  assert.deepEqual(res.body, { frontendAuthEnabled: true, supabaseUrl: "https://example.supabase.co", supabaseAnonKey: "browser-safe-key", pilotFreeAccess: process.env.PILOT_FREE_STARTER_MARKETING === "true" }); assert.equal(res.headers["Cache-Control"], "no-store");
+  assert.deepEqual(res.body, { frontendAuthEnabled: true, supabaseUrl: "https://example.supabase.co", supabaseAnonKey: "browser-safe-key", pilotFreeAccess: process.env.PILOT_FREE_STARTER_MARKETING === "true", oauthProviders: { apple:process.env.COLZO_AUTH_APPLE_ENABLED === "true",google:process.env.COLZO_AUTH_GOOGLE_ENABLED === "true",azure:process.env.COLZO_AUTH_MICROSOFT_ENABLED === "true" } }); assert.equal(res.headers["Cache-Control"], "no-store");
 });
 
 test("frontend auth uses Supabase sessions only for private API requests", () => {
@@ -43,19 +43,14 @@ test("public customer links use only a validated slug and never unlock dashboard
   assert.match(publicHandler, /This assistant is currently unavailable\. Please contact the business directly\./);
 });
 
-test("owner navigation is focused while AI and bookings remain reachable from authenticated workspace cards", () => {
-  const nav = html.slice(html.indexOf("<nav class=\"bottom-nav\""), html.indexOf("</nav>", html.indexOf("<nav class=\"bottom-nav\"")));
-  assert.match(nav, /data-view="dashboard"[\s\S]*Home/);
-  assert.match(nav, /data-view="leads"[\s\S]*Leads/);
-  assert.match(nav, /data-view="actions"[\s\S]*Actions/);
-  assert.match(nav, /data-view="bookings"[\s\S]*Bookings/);
-  assert.match(nav, /data-view="settings"[\s\S]*More/);
-  assert.doesNotMatch(nav, /data-view="(?:voice|enquiries)"/);
-  assert.match(html, /showView\('enquiries'\)[\s\S]{0,200}Test your AI/);
-  assert.match(html, /showView\('bookings'\)/);
-  assert.match(html, /const navContext=\['addons','marketing','businessProfile'\]\.includes\(view\)\?'settings':view==='enquiries'\?'dashboard':view;/, "nested owner tools keep More active while the AI test retains a truthful Home context and Bookings has its own primary tab");
-  assert.match(html, /id="actionsFormCard" class="card work-form" hidden role="dialog"/, "new actions open in a focused sheet rather than permanently occupying the list");
-  assert.match(html, /id="bookingsFormCard" class="card work-form" hidden role="dialog"/, "new bookings open in a focused sheet rather than permanently occupying the list");
+test("Colzo mobile navigation matches the four reference tabs while prior features remain reachable", () => {
+  const nav = html.slice(html.indexOf('<nav class="bottom-nav"'), html.indexOf('</nav>', html.indexOf('<nav class="bottom-nav"')));
+  for(const label of ['Home','Enquiries','Projects','More']) assert.match(nav,new RegExp(`>${label}<`));
+  for(const view of ['dashboard','leads','colzoProjects','settings']) assert.ok(nav.includes(`data-view="${view}"`));
+  assert.doesNotMatch(nav,/data-view="(?:actions|bookings|voice|enquiries)"/);
+  for(const view of ['actions','bookings','marketing','businessProfile']) assert.ok(html.includes(`onclick="showView('${view}')"`),`reachable from workspace: ${view}`);
+  assert.match(html,/id="actionsFormCard" class="card work-form" hidden role="dialog"/);
+  assert.match(html,/id="bookingsFormCard" class="card work-form" hidden role="dialog"/);
 });
 
 test("owner dashboard uses semantic colour presentation without inventing metrics or activity", () => {

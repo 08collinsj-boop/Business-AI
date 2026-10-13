@@ -63,7 +63,11 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20261008214658_pilot_prevent_duplicate_marketing_scheduled_slots.sql",
     "20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots.sql",
     "20261008215744_pilot_identify_and_block_automatic_marketing_publications.sql",
-    "20261010_pilot_free_starter_marketing.sql"
+    "20261010_pilot_free_starter_marketing.sql",
+    "20261012220000_add_trustpilot_review_requests.sql",
+    "20261012233000_add_customer_complaints.sql",
+    "20261012234000_add_review_email_queue.sql",
+    "20261012235500_add_colzo_projects_quotes.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -136,6 +140,10 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(reviewRequests, /review_preferred_platform in \('google', 'facebook'\)/i);
   assert.match(reviewRequests, /'request_review'/i);
   assert.match(reviewRequests, /actions_one_review_request_per_booking_idx/i);
+  const trustpilotMigration = contents.get("20261012220000_add_trustpilot_review_requests.sql");
+  assert.match(trustpilotMigration, /add column if not exists review_trustpilot_url text not null default/i);
+  assert.match(trustpilotMigration, /review_preferred_platform in \('google', 'facebook', 'trustpilot'\)/i);
+  assert.doesNotMatch(trustpilotMigration, /sendEmail|sendSms|messages\.create/i);
 });
 
 test("tenancy, booking, and voice migrations retain tenant-safe constraints and RLS", () => {

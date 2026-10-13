@@ -55,6 +55,18 @@
       "destination": "/api/operations?operation=customer-portal"
     },
     {
+      "source": "/colzo/read-only",
+      "destination": "/colzo-readonly.html"
+    },
+    {
+      "source": "/api/colzo-original-readonly",
+      "destination": "/api/operations?operation=colzo-original-readonly"
+    },
+    {
+      "source": "/api/colzo-preview-auth",
+      "destination": "/api/operations?operation=colzo-preview-auth"
+    },
+    {
       "source": "/api/public-config",
       "destination": "/api/operations?operation=public-config"
     },
@@ -129,6 +141,30 @@
     {
       "source": "/api/marketing-automation",
       "destination": "/api/operations?operation=marketing-automation"
+    },
+    {
+      "source": "/api/review-email-scheduler",
+      "destination": "/api/operations?operation=review-email-scheduler"
+    },
+    {
+      "source": "/api/colzo/clients",
+      "destination": "/api/operations?operation=colzo-clients"
+    },
+    {
+      "source": "/api/colzo/projects",
+      "destination": "/api/operations?operation=colzo-work&kind=projects"
+    },
+    {
+      "source": "/api/colzo/quotes",
+      "destination": "/api/operations?operation=colzo-work&kind=quotes"
+    },
+    {
+      "source": "/api/complaints",
+      "destination": "/api/operations?operation=complaints"
+    },
+    {
+      "source": "/api/customer-complaints",
+      "destination": "/api/operations?operation=customer-complaints"
     },
     {
       "source": "/api/feedback",

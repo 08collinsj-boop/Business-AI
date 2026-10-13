@@ -548,3 +548,10 @@ body.customer-account.customer-portal-ready{
 .customer-auth-forgot button{color:#79b9ff;font-size:10px;font-weight:750}
 .customer-card{border-radius:18px;background:linear-gradient(155deg,#101d2c,#0a1724)}
 .customer-portal-user button:focus-visible,.customer-auth-primary:focus-visible,.customer-guest-link:focus-visible,.customer-search-result a:focus-visible{outline:2px solid #48a7ff;outline-offset:2px}
+
+/* Post-Pilot authenticated customer complaints */
+.customer-complaint-section{margin-top:14px;border-top:1px solid rgba(128,128,128,.25);padding-top:12px}
+.customer-complaint-trigger,.customer-complaint-form button{border-radius:10px;padding:10px 14px;cursor:pointer}
+.customer-complaint-form{display:grid;gap:10px;margin-top:10px}
+.customer-complaint-form label{display:grid;gap:6px}
+.customer-complaint-form input,.customer-complaint-form textarea{width:100%;border:1px solid rgba(128,128,128,.4);border-radius:8px;padding:10px;background:var(--surface,transparent);color:inherit}

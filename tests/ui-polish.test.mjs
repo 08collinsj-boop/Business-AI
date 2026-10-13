@@ -84,10 +84,10 @@ test('key empty states still render', () => {
 
 
 test('full Pilot polish keeps old surfaces on the same visual system', () => {
-  assert.match(html, /class="brand-icon owner-brand-icon"[^>]*><img src="\/assets\/icons\/business-ai-mascot\.png"/);
+  assert.match(html, /class="brand-icon owner-brand-icon"[^>]*><img src="\/assets\/icons\/colzo-mark\.svg"/);
   assert.match(html, /id="voiceView"[\s\S]{0,260}page-kicker">Coming soon/);
   assert.match(html, /id="addonsView"[\s\S]{0,220}page-kicker">Optional features/);
-  assert.match(html, /id="businessSetupForm" class="auth-card setup-auth-card"[\s\S]{0,180}business-ai-mascot\.png/);
+  assert.match(html, /id="businessSetupForm" class="auth-card setup-auth-card"[\s\S]{0,180}colzo-mark\.svg/);
   assert.match(html, /id="configurationOnboardingForm"[\s\S]{0,220}class="auth-mark auth-mark-brand onboarding-brand"/);
   assert.match(html, /class="onboarding-ai-option recommended"/);
   assert.match(html, /\.auth-field textarea,\.auth-field select/);

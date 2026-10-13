@@ -151,7 +151,7 @@ export default async function handler(req, res) {
         "services",
         "ai_instructions"
       ];
-      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled", "automatic_follow_up_enabled", "automatic_follow_up_hours", "review_requests_enabled", "review_google_url", "review_facebook_url", "review_preferred_platform"]);
+      const allowedFields = new Set([...textFields, "urgent_jobs_enabled", "directory_search_enabled", "automatic_follow_up_enabled", "automatic_follow_up_hours", "review_requests_enabled", "review_google_url", "review_facebook_url", "review_trustpilot_url", "review_preferred_platform", "review_email_auto_enabled", "review_email_delay_hours"]);
       if (Object.keys(body).some((field) => !allowedFields.has(field))) {
         return res.status(400).json({ error: "Unsupported settings fields" });
       }
@@ -196,7 +196,19 @@ export default async function handler(req, res) {
         updates.automatic_follow_up_hours = hours;
       }
 
-      // REVIEW REQUESTS — owner/admin controlled; customer messaging remains manual.
+      // EMAIL REVIEW INVITATIONS — opt-in and restricted to owner; delivery also needs a server kill-switch.
+      if (body.review_email_auto_enabled !== undefined || body.review_email_delay_hours !== undefined) {
+        if (auth.enforced && auth.role !== "owner") return res.status(403).json({ error: "Only owners can configure automatic review emails" });
+        if (body.review_email_auto_enabled !== undefined) {
+          if (typeof body.review_email_auto_enabled !== "boolean") return res.status(400).json({ error: "Invalid automatic review email setting" });
+          updates.review_email_auto_enabled = body.review_email_auto_enabled;
+        }
+        if (body.review_email_delay_hours !== undefined) {
+          if (!Number.isInteger(body.review_email_delay_hours) || ![0,24,48,72].includes(body.review_email_delay_hours)) return res.status(400).json({ error: "Invalid review email delay" });
+          updates.review_email_delay_hours = body.review_email_delay_hours;
+        }
+      }
+      // REVIEW REQUESTS — owner/admin controlled; email delivery defaults disabled.
       if (body.review_requests_enabled !== undefined) {
         if (typeof body.review_requests_enabled !== "boolean") {
           return res.status(400).json({ error: "Invalid review request setting" });
@@ -204,11 +216,11 @@ export default async function handler(req, res) {
         updates.review_requests_enabled = body.review_requests_enabled;
       }
 
-      for (const [field, platform] of [["review_google_url", "google"], ["review_facebook_url", "facebook"]]) {
+      for (const [field, platform] of [["review_google_url", "google"], ["review_facebook_url", "facebook"], ["review_trustpilot_url", "trustpilot"]]) {
         if (body[field] === undefined) continue;
         if (typeof body[field] !== "string") return res.status(400).json({ error: "Invalid review link" });
         const cleaned = normaliseReviewUrl(platform, body[field]);
-        if (cleaned === null) return res.status(400).json({ error: `Enter a valid ${platform === "google" ? "Google" : "Facebook"} review link using HTTPS` });
+        if (cleaned === null) return res.status(400).json({ error: `Enter a valid ${platform === "google" ? "Google" : platform === "facebook" ? "Facebook" : "Trustpilot"} review link using HTTPS` });
         updates[field] = cleaned;
       }
 
@@ -219,8 +231,11 @@ export default async function handler(req, res) {
       }
 
       const nextReviewSettings = { ...current, ...updates };
+      if (nextReviewSettings.review_email_auto_enabled && (!nextReviewSettings.review_requests_enabled || !reviewDestination(nextReviewSettings))) {
+        return res.status(400).json({ error: "Enable review requests and set a valid review link before automatic emails" });
+      }
       if (nextReviewSettings.review_requests_enabled && !reviewDestination(nextReviewSettings)) {
-        return res.status(400).json({ error: "Add a valid Google or Facebook review link before enabling review requests" });
+        return res.status(400).json({ error: "Add a valid Google, Facebook or Trustpilot review link before enabling review requests" });
       }
 
       // PUBLIC DIRECTORY DISCOVERABILITY — owner only.

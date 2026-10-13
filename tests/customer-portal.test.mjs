@@ -49,6 +49,7 @@ async function loadHandler({ review = false } = {}) {
     if (href.includes('/rest/v1/lead_handovers?')) return reply([
       { lead_id: 42, status: 'requires_attention', reason: 'human_first_mode' }
     ]);
+    if (href.includes('/rest/v1/customer_complaints?')) return reply([]);
     if (href.includes('/rest/v1/actions?')) return reply(review ? [
       { id: 17, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', lead_id: 42, booking_id: 9, status: 'completed', completed_at: '2026-09-28T20:00:00Z' }
     ] : []);

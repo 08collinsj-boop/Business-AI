@@ -4,6 +4,7 @@ import {
 } from "../lib/auth.js";
 import { recordAuditEvent } from "../lib/audit.js";
 import { buildReviewRequestMessage, reviewDestination } from "../lib/review-requests.js";
+import { eligibleReviewEmail, queueReviewEmail, reviewEmailDeliveryReady } from "../lib/review-email-automation.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -82,7 +83,7 @@ function dateTime(value, field) {
 function validateBooking(body, creating) {
   const allowed = new Set([
     "lead_id", "title", "customer_name", "customer_phone", "customer_email",
-    "starts_at", "ends_at", "location", "status", "notes"
+    "starts_at", "ends_at", "location", "status", "notes", "review_email_allowed"
   ]);
   if (creating) allowed.add("source");
   if (Object.keys(body).some((key) => !allowed.has(key))) throw new Error("Unsupported booking fields");
@@ -90,6 +91,10 @@ function validateBooking(body, creating) {
   for (const field of Object.keys(TEXT_LIMITS)) {
     const value = text(body[field], field, { required: creating && field === "title" });
     if (value !== undefined) updates[field] = value;
+  }
+  if (body.review_email_allowed !== undefined) {
+    if (typeof body.review_email_allowed !== "boolean") throw new Error("Invalid review email permission");
+    updates.review_email_allowed = body.review_email_allowed;
   }
   if (body.lead_id !== undefined) {
     if (body.lead_id === null || body.lead_id === "") updates.lead_id = null;
@@ -141,7 +146,7 @@ async function recordLeadHistory(leadId, businessId, action, oldValue = "", newV
 
 async function getReviewSettings(businessId) {
   const rows = await supabaseRequest(
-    `business_settings?business_id=eq.${encodeURIComponent(String(businessId))}&select=business_name,review_requests_enabled,review_google_url,review_facebook_url,review_preferred_platform&limit=1`
+    `business_settings?business_id=eq.${encodeURIComponent(String(businessId))}&select=business_name,review_requests_enabled,review_google_url,review_facebook_url,review_trustpilot_url,review_preferred_platform,review_email_auto_enabled,review_email_delay_hours&limit=1`
   );
   return Array.isArray(rows) ? rows[0] || null : null;
 }
@@ -150,6 +155,10 @@ async function prepareReviewRequest({ businessId, booking, actorUserId }) {
   if (!booking?.id || booking.status !== "completed") return null;
   const settings = await getReviewSettings(businessId);
   if (!settings?.review_requests_enabled) return null;
+  if (reviewEmailDeliveryReady() && eligibleReviewEmail({booking,settings})) {
+    await queueReviewEmail({booking,settings,businessId,actorUserId});
+    return null; // Do not also create a manual action for a queued email.
+  }
   const destination = reviewDestination(settings);
   if (!destination) return null;
 
@@ -226,6 +235,7 @@ export default async function handler(req, res) {
 
     if (req.method === "POST") {
       const updates = validateBooking(body, true);
+      if (updates.review_email_allowed && !["owner","admin"].includes(auth.role)) return res.status(403).json({ error: "Only owners or admins can approve review email contact" });
       const lead = updates.lead_id ? await findLead(updates.lead_id, businessId) : null;
       if (updates.lead_id && !lead) return res.status(404).json({ error: "Lead not found" });
       const booking = {
@@ -249,6 +259,7 @@ export default async function handler(req, res) {
     const bookingId = positiveId(body.id);
     if (!bookingId) return res.status(400).json({ error: "Invalid booking ID" });
     const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id")), false);
+    if (updates.review_email_allowed !== undefined && !["owner","admin"].includes(auth.role)) return res.status(403).json({ error: "Only owners or admins can change review email contact permission" });
     const currentRows = await supabaseRequest(
       `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}&select=*&limit=1`
     );
