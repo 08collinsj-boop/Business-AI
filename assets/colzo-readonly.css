@@ -62,11 +62,13 @@
 
 /* Mobile acceptance improvements based on iPhone screenshots (13 Oct).
    Leave deliberate scroll room above Safari's toolbar and the Colzo dock. */
-html{scroll-padding-bottom:175px}
+html{scroll-padding-bottom:120px}
 .screen.colzo-preview-active{overflow-x:hidden!important}
-.colzo-explore{padding-bottom:calc(205px + env(safe-area-inset-bottom))!important;scroll-padding-bottom:180px}
-.colzo-explore-body{padding-bottom:48px!important}
-.colzo-explore-panel{min-height:calc(100svh - 200px);padding-bottom:100px!important}
+/* Compact clearance: dock is ~70px tall and anchored above the Safari safe area.
+   Avoid stacking root, body and panel padding and generating a huge empty tail. */
+.colzo-explore{padding-bottom:calc(102px + env(safe-area-inset-bottom))!important;scroll-padding-bottom:110px}
+.colzo-explore-body{padding-bottom:0!important}
+.colzo-explore-panel{min-height:calc(100svh - 210px);padding-bottom:22px!important}
 .colzo-explore-nav{bottom:max(18px,env(safe-area-inset-bottom))!important;max-width:460px;box-shadow:0 16px 46px rgba(0,0,0,.65)!important}
 .colzo-explore-panel .colzo-quick-grid{position:relative;z-index:0}
 .colzo-explore-panel .colzo-safe-note{margin-bottom:35px!important}
@@ -100,4 +102,4 @@ html{scroll-padding-bottom:175px}
 .colzo-pref-control input{flex:none;width:23px;height:23px;accent-color:#c8ff2e}
 .colzo-explore.colzo-more-contrast .colzo-info-panel,.colzo-explore.colzo-more-contrast .colzo-mini-stat,.colzo-explore.colzo-more-contrast .colzo-settings-list>button,.colzo-explore.colzo-more-contrast .colzo-lead-card{border:2px solid #98bb66!important}
 .colzo-explore.colzo-less-motion *, .colzo-explore.colzo-less-motion *::before,.colzo-explore.colzo-less-motion *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
-@media(max-width:390px){.colzo-explore{padding-bottom:calc(205px + env(safe-area-inset-bottom))!important}.colzo-owner-summary{gap:9px}.colzo-owner-summary .colzo-readonly-pill{font-size:7px;padding:5px}}
+@media(max-width:390px){.colzo-explore{padding-bottom:calc(102px + env(safe-area-inset-bottom))!important}.colzo-owner-summary{gap:9px}.colzo-owner-summary .colzo-readonly-pill{font-size:7px;padding:5px}}

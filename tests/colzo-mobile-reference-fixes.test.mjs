@@ -41,10 +41,11 @@ test('Appearance controls change only current preview presentation, not business
 
 test('Mobile styles provide scroll clearance under fixed bottom nav and browser toolbar',async()=>{
  const css=await get('assets/colzo-readonly.css');
- assert.match(css,/\.colzo-explore\{padding-bottom:calc\(205px \+ env\(safe-area-inset-bottom\)\)!important/);
+ assert.match(css,/\.colzo-explore\{padding-bottom:calc\(102px \+ env\(safe-area-inset-bottom\)\)!important/);
  assert.match(css,/\.colzo-explore-nav\{bottom:max\(18px,env\(safe-area-inset-bottom\)\)!important/);
- assert.match(css,/\.colzo-explore-panel\{min-height:calc\(100svh - 200px\);padding-bottom:100px!important\}/);
+ assert.match(css,/\.colzo-explore-panel\{min-height:calc\(100svh - 210px\);padding-bottom:22px!important\}/);
  assert.match(css,/\.colzo-explore-panel \.colzo-safe-note\{margin-bottom:35px!important\}/);
+ assert.doesNotMatch(css,/padding-bottom:calc\(205px/);
 });
 
 test('Read-only Settings uses explicit original-app links rather than fake operational integrations',async()=>{
