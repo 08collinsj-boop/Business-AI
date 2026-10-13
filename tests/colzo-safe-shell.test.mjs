@@ -20,7 +20,12 @@ test('auth, owner/customer data APIs, billing and customer portal handlers remai
 });
 test('Colzo visual-only shell preserves the five original Business AI navigation actions and working authentication',async()=>{
  const html=await read('index.html');
- assert.match(html,/<body class="auth-pending app-loading colzo-safe-shell"/);
+ assert.match(html,/<body class="auth-pending app-loading colzo-safe-shell colzo-interface"/);
+ assert.match(html,/id="dashboardView"[\s\S]*?class="colzo-command-hero"/);
+ assert.match(html,/colzo-hero-art[\s\S]{0,200}colzo-mark\.svg/);
+ assert.match(html,/colzo-dashboard-section-title/);
+ assert.match(html,/colzo-hero-primary[^>]*>View enquiries/);
+ assert.match(html,/href="\/assets\/colzo-dashboard-visual\.css\?v=/);
  assert.match(html,/<title>Colzo \| Business workspace<\/title>/);
  assert.match(html,/href="\/assets\/colzo-safe-shell\.css\?v=/);
  assert.match(html,/class="app-splash-brand">Colzo<\/h1>/);
@@ -47,4 +52,11 @@ test('PWA Colzo icons exist and the service worker still caches only static allo
  assert.match(sw,/if \(url\.origin !== self\.location\.origin \|\| request\.mode === "navigate" \|\| url\.pathname\.startsWith\("\/api\/"\)\) return/);
  assert.doesNotMatch(sw,/Authorization|access_token|SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|\/api\/.*cache\.put/);
  assert.match(css,/#c8ff2e/i);assert.match(css,/#15181d/i);
+ const visuals=await read('assets/colzo-dashboard-visual.css');
+ assert.match(visuals,/colzo-command-hero/);
+ assert.match(visuals,/colzo-interface\.auth-ready \.bottom-nav/);
+ assert.match(visuals,/settings-hub-card/);
+ assert.match(visuals,/leadList \.lead-card/);
+ assert.doesNotMatch(visuals,/#pilotProgressCard\{display:none!important/);
+ assert.doesNotMatch(visuals,/#firstRunGuide\{display:none!important/);
 });

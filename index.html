@@ -2184,9 +2184,10 @@ input.switch,input.switch:before{transition:none}
 <link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-ui-fixes-1">
 <link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-add-lead-1">
 <link rel="stylesheet" href="/assets/colzo-safe-shell.css?v=20261013-safe-shell-1">
+<link rel="stylesheet" href="/assets/colzo-dashboard-visual.css?v=20261013-visual-v2">
 </head>
 
-<body class="auth-pending app-loading colzo-safe-shell" aria-busy="true">
+<body class="auth-pending app-loading colzo-safe-shell colzo-interface" aria-busy="true">
 
 <div id="appSplash" class="app-splash" role="status" aria-live="polite" aria-label="Colzo is loading">
 <div class="app-splash-inner">
@@ -2557,15 +2558,25 @@ id="dashboardView"
 class="view active"
 >
 
+<section class="colzo-command-hero" aria-label="Your Colzo workspace">
+<div class="colzo-hero-eyebrow"><span class="colzo-hero-square" aria-hidden="true"></span> YOUR WORKSPACE <span class="colzo-hero-separator">/</span> DAILY OVERVIEW</div>
+<div class="colzo-hero-content">
+<div class="colzo-hero-main">
 <div class="dashboard-reference-head">
   <div class="dashboard-reference-copy">
-    <span class="dashboard-reference-brand">Business <b>AI</b></span>
+    <span class="dashboard-reference-brand">COLZO <b>COMMAND CENTRE</b></span>
     <h2 id="dashboardGreeting">Welcome back.</h2>
     <p id="dashboardBusinessLabel">Your business overview</p>
   </div>
   <div id="dashboardDateLabel" class="dashboard-date-chip" aria-label="Today">Today</div>
 </div>
-
+<p class="colzo-hero-description">One place for your enquiries, customers, bookings and what comes next.</p>
+<div class="colzo-hero-buttons"><button type="button" onclick="showView('leads')" class="colzo-hero-primary">View enquiries <span aria-hidden="true">↗</span></button><button type="button" onclick="showView('enquiries')" class="colzo-hero-secondary">AI receptionist <span aria-hidden="true">→</span></button></div>
+</div>
+<div class="colzo-hero-art" aria-hidden="true"><span class="colzo-hero-ring ring-one"></span><span class="colzo-hero-ring ring-two"></span><img src="/assets/icons/colzo-mark.svg" alt=""><span class="colzo-hero-art-caption">BUSINESS MADE SMARTER.</span></div>
+</div>
+</section>
+<div class="colzo-dashboard-section-title"><div><span class="colzo-section-kicker">PERFORMANCE</span><h3>At a glance</h3></div><span class="colzo-section-aside">Recorded activity</span></div>
 <div class="stats" id="stats"></div>
 
 <button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
@@ -2669,7 +2680,7 @@ id="leadsView"
 class="view"
 >
 
-<div class="page-title screen-title"><span class="page-kicker">Leads</span><h2>Leads</h2><p>Manage every opportunity from enquiry to conversion.</p></div>
+<div class="page-title screen-title"><span class="page-kicker">CUSTOMERS / ENQUIRIES</span><h2>Enquiries</h2><p>Keep track of every enquiry, from first contact through to completion.</p></div>
 <div id="leadsSummary" class="reference-summary-grid reference-summary-grid-four" aria-label="Lead summary"></div>
 
 <div class="toolbar">
@@ -3101,7 +3112,7 @@ id="settingsView"
 class="view"
 >
 
-<div class="page-title screen-title"><span class="page-kicker">Your workspace</span><h2>Settings</h2><p>Manage your business, AI and account.</p></div>
+<div class="page-title screen-title"><span class="page-kicker">COLZO / YOUR WORKSPACE</span><h2>Settings</h2><p>Manage your business, AI and account in one place.</p></div>
 <button class="reference-profile-summary reference-profile-summary-button" type="button" onclick="openBusinessProfile()" aria-label="Open Business Profile"><div class="reference-profile-mark" aria-hidden="true"><img id="settingsProfileImage" src="/assets/icons/business-ai-mascot.png" alt=""></div><div><strong id="settingsProfileName">Your business</strong><span id="settingsProfileMeta">Business profile</span></div><span class="reference-profile-badge">Active</span><b class="reference-profile-chevron" aria-hidden="true">›</b></button>
 
 <div class="work-actions" style="margin-bottom:18px"><button class="small-btn" type="button" onclick="showView('addons')">✦ Additional Features</button></div>

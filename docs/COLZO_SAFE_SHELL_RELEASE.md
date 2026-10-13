@@ -28,3 +28,19 @@ Five viewports 375×812, 390×844, 430×932, 1366×768 and 1440×900 must show C
 **Do not promote to Production automatically.** The original live project is healthy, but the full Colzo preview on the original project lacks Production-auth-equivalent preview configuration. This small candidate is intended to be tested as a preview on the **existing Vercel project** first. Even a passing preview build is not an authenticated Production certification.
 
 Before any live switch: verify exact active deployment ID/rollback, an existing restorable database backup (no new paid service), original owner and member roles in a safe environment, legal/support naming, PWA update and core customer/AI/marketing/billing navigation; then get explicit release sign-off. If essential checks cannot be made without exposing live credentials or spending money, pause rather than taking shortcuts.
+
+## Visual redesign v2: actual Colzo command centre
+
+The first-stage brand-only shell was not sufficiently different from Business AI's dashboard. This second iteration incorporates the tested Graphite & Volt **command-centre hero, sizeable welcome panel, illustration, clearly grouped performance metrics, enhanced quick-action cards, responsive lime-highlight mobile navigation and desktop side rail**, plus updated Enquiries filters and Settings shortcuts. The presentation CSS was extracted from Colzo's existing design branch but *not* its unverified Projects/Clients/Quotes APIs or mutations. All legacy auth, billing, leads, bookings, AI and marketing functionality remains on the current Production-baseline code.
+
+The original owner **Pilot checklist, first-run guide and pipeline remain visible and functional**; unlike the complete redesign CSS, this variant does not hide them. The new visual layout is covered by `scripts/colzo-owner-visual-smoke.cjs` at five viewports (fake records).
+
+**This release is the redesigned owner shell and existing-feature layout, not the fully operational six-screen Projects/Quotes/Clients product.** No additional paid services or live database writes were introduced.
+
+## 13 October: tested visual v2 correction
+
+The owner's report that Colzo still looked like Business AI was accurate for the first safe-shell preview. The revised frontend adds the distinctive large Colzo command centre hero, graphite-and-lime metric cards, desktop left navigation rail, mobile app dock, premium Enquiries filters and Settings navigation cards. Nothing in the original auth, billing or enquiry server handlers is changed.
+
+Browser check: `npm run verify:colzo-owner-visual` with test-only Playwright Chromium installed; five screen sizes, **simulated data and fake authentication state only**, screenshots in `/tmp/colzo-owner-visual`. This check covers actual browser layout for Home, Enquiries and Settings and checks no horizontal overflow, accessible five-tab navigation and static branding. It is not an authenticated live-account test.
+
+The larger Colzo Projects/Clients/Quotes redesign is still on the separate Colzo feature branch. This first live-ready candidate must not be represented as the full six-screen product.

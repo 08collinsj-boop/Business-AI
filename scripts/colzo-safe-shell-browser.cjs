@@ -41,7 +41,7 @@ async function main(){
    assert.equal(data.ownerBrand,'Colzo');
    assert.equal(data.manifest,'Colzo');
    assert.ok(data.stylesheet);
-   assert.equal(data.background,'rgb(16, 20, 24)',JSON.stringify(data));
+   assert.equal(data.background,'rgb(21, 24, 29)',JSON.stringify(data));
    assert.deepEqual(data.nav.map(n=>n.view),['dashboard','leads','actions','bookings','settings']);
    assert.deepEqual(data.nav.map(n=>n.label),['Home','Enquiries','Actions','Bookings','More']);
    assert.ok(data.scrollWidth<=data.viewport+1,`${w}: horizontal overflow`);
