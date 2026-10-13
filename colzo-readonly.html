@@ -7,7 +7,7 @@
  <meta name="robots" content="noindex,nofollow">
  <title>Colzo | Existing account verification</title>
  <link rel="icon" href="/assets/icons/colzo-mark.svg" type="image/svg+xml">
- <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-explore-1">
+ <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-mobile-polish-2">
 </head>
 <body>
  <main class="screen">
@@ -40,12 +40,30 @@
         <button id="colzoDetailReturn" type="button" class="colzo-back">‹ Enquiries</button><div id="colzoDetailPerson" class="colzo-person"></div><div class="colzo-info-panel"><h2>Details</h2><dl id="colzoDetailFields"></dl></div><div class="colzo-info-panel"><h2>Read-only preview</h2><p>Your original account's data is displayed here. Contact details, quotes and editing controls will become available only after Colzo's full environment is verified.</p></div>
       </section>
       <section id="colzoExploreProjects" class="colzo-explore-panel" aria-labelledby="colzoProjectsTitle" hidden><h1 id="colzoProjectsTitle">Projects</h1><div class="colzo-filter-tabs" role="group" aria-label="Project categories"><span>All</span><span>Active</span><span>Completed</span></div><div class="colzo-empty-feature"><div aria-hidden="true">▱</div><h2>Projects need a verified connection</h2><p>The original app's project API has not been certified for this read-only preview. Nothing will be invented or moved from your existing database.</p></div><div class="colzo-project-banner"><span>Turn enquiries<br>into real progress.</span><p>Project tracking is built in the Colzo development branch; its full integration still needs testing.</p></div></section>
-      <section id="colzoExploreMore" class="colzo-explore-panel" aria-labelledby="colzoMoreTitle" hidden><h1 id="colzoMoreTitle">Settings</h1><p class="colzo-home-intro">Your original account is verified. These links keep you on the existing application until full migration is approved.</p><div class="colzo-settings-list"><a href="https://app.getbusiness-ai.com/" target="_blank" rel="noopener noreferrer"><span>▣</span><span><strong>Business profile</strong><small>Open the existing application</small></span><b>›</b></a><a href="https://app.getbusiness-ai.com/" target="_blank" rel="noopener noreferrer"><span>⚙</span><span><strong>Security and account</strong><small>Existing owner settings</small></span><b>›</b></a><button id="colzoSafeSignOut" type="button"><span>↪</span><span><strong>End verification</strong><small>Clear the preview's in-memory session</small></span><b>›</b></button></div></section>
+      <section id="colzoExploreMore" class="colzo-explore-panel" aria-labelledby="colzoMoreTitle" hidden>
+        <h1 id="colzoMoreTitle">Settings</h1>
+        <div class="colzo-owner-summary"><span class="colzo-owner-avatar" aria-hidden="true">C</span><span><strong>Business owner</strong><small>Verified original Business AI account</small></span><span class="colzo-readonly-pill">READ ONLY</span></div>
+        <div class="colzo-settings-list" role="group" aria-label="Settings">
+          <button type="button" data-colzo-setting="profile"><span aria-hidden="true">▣</span><span><strong>Business profile</strong><small>Manage your business details</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="team"><span aria-hidden="true">♧</span><span><strong>Team members</strong><small>Invite and manage your team</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="integrations"><span aria-hidden="true">⇄</span><span><strong>Integrations</strong><small>Connect your favourite tools</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="notifications"><span aria-hidden="true">♧</span><span><strong>Notifications</strong><small>Review enquiry activity</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="appearance"><span aria-hidden="true">☾</span><span><strong>Appearance</strong><small>Display and accessibility</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="security"><span aria-hidden="true">⬡</span><span><strong>Security</strong><small>Password and two-factor authentication</small></span><b aria-hidden="true">›</b></button>
+          <button type="button" data-colzo-setting="support"><span aria-hidden="true">ⓘ</span><span><strong>Help &amp; support</strong><small>Get help with your business account</small></span><b aria-hidden="true">›</b></button>
+          <button id="colzoSafeSignOut" type="button"><span aria-hidden="true">↪</span><span><strong>End verification</strong><small>Clear this preview session</small></span><b aria-hidden="true">›</b></button>
+        </div>
+      </section>
+      <section id="colzoExploreSettingsDetail" class="colzo-explore-panel" aria-labelledby="colzoSettingsDetailTitle" hidden>
+        <button id="colzoSettingsDetailBack" class="colzo-back" type="button">‹ Settings</button><h1 id="colzoSettingsDetailTitle">Settings</h1>
+        <p id="colzoSettingsDetailIntro" class="colzo-home-intro"></p>
+        <div id="colzoSettingsDetailContents" class="colzo-setting-detail-content"></div>
+      </section>
     </div>
     <nav class="colzo-explore-nav" aria-label="Colzo dashboard navigation"><button type="button" data-colzo-screen="Home" aria-current="page"><i>⌂</i>Home</button><button type="button" data-colzo-screen="Enquiries"><i>▤</i>Enquiries</button><button type="button" data-colzo-screen="Projects"><i>▱</i>Projects</button><button type="button" data-colzo-screen="More"><i>⋯</i>More</button></nav>
   </section>
   <footer><p>Preview-only · No live service-role key is used · All customer enquiries are read through the original application's existing authorisation rules.</p><a href="https://app.getbusiness-ai.com/">Open the original Business AI app</a></footer>
  </main>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script src="/assets/colzo-readonly.js?v=20261013-explore-1" defer></script>
+ <script src="/assets/colzo-readonly.js?v=20261013-mobile-polish-2" defer></script>
 </body></html>

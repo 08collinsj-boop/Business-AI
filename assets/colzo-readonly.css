@@ -59,3 +59,45 @@
 .colzo-explore-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:51px;padding:5px 2px;color:#aeb9bf;background:transparent;border:0;border-radius:14px;font-size:10px}.colzo-explore-nav button i{font-style:normal;font-size:22px;line-height:1}.colzo-explore-nav button[aria-current="page"]{background:#334329;color:#c8ff2e}
 @media(max-width:375px){.colzo-explore{padding:0 12px 115px}.colzo-filter-tabs{gap:12px}.colzo-readonly-pill{font-size:8px}.colzo-mini-stat{padding:11px 8px}}
 @media(prefers-reduced-motion:reduce){.colzo-explore *{animation:none!important;transition:none!important}}
+
+/* Mobile acceptance improvements based on iPhone screenshots (13 Oct).
+   Leave deliberate scroll room above Safari's toolbar and the Colzo dock. */
+html{scroll-padding-bottom:175px}
+.screen.colzo-preview-active{overflow-x:hidden!important}
+.colzo-explore{padding-bottom:calc(205px + env(safe-area-inset-bottom))!important;scroll-padding-bottom:180px}
+.colzo-explore-body{padding-bottom:48px!important}
+.colzo-explore-panel{min-height:calc(100svh - 200px);padding-bottom:100px!important}
+.colzo-explore-nav{bottom:max(18px,env(safe-area-inset-bottom))!important;max-width:460px;box-shadow:0 16px 46px rgba(0,0,0,.65)!important}
+.colzo-explore-panel .colzo-quick-grid{position:relative;z-index:0}
+.colzo-explore-panel .colzo-safe-note{margin-bottom:35px!important}
+/* Reference settings list with real detail screens and no misleading fake forms. */
+.colzo-owner-summary{display:flex;align-items:center;gap:13px;min-height:83px;margin:15px 0 19px;padding:13px;border:1px solid #3c454d;border-radius:15px;background:#242a31}
+.colzo-owner-avatar{display:grid;place-items:center;flex:none;width:51px;height:51px;border-radius:50%;background:#3c4650;color:#e2e8e8;font-size:22px;font-weight:760}
+.colzo-owner-summary>span:nth-child(2){display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.colzo-owner-summary strong{font-size:13px;color:#f5f7fa}
+.colzo-owner-summary small{font-size:10px;color:#acb7be;line-height:1.4}
+.colzo-owner-summary .colzo-readonly-pill{font-size:8px;white-space:nowrap}
+.colzo-settings-list{gap:7px!important}
+.colzo-settings-list>button{width:100%;min-height:67px!important;padding:11px 13px!important;cursor:pointer}
+.colzo-settings-list>button>span:first-child{font-size:23px!important;color:#d3dce0;width:34px!important}
+.colzo-settings-list>button>span:nth-child(2){gap:4px!important}
+.colzo-settings-list>button strong{font-size:12.5px!important}
+.colzo-settings-list>button small{font-size:10px!important}
+.colzo-settings-list>button b{color:#d1d8da;font-size:20px}
+.colzo-setting-detail-content{display:grid;gap:10px;margin-top:20px}
+.colzo-setting-description{font-size:13px;line-height:1.7;color:#bdc8cf;margin:0;padding:18px;border-radius:14px;background:#232a31;border:1px solid #3a444e}
+.colzo-original-link{display:block;padding:15px;border-radius:12px;background:#c8ff2e;color:#15181d!important;text-decoration:none;font-size:13px;font-weight:800;text-align:center}
+.colzo-setting-activity{width:100%;min-height:74px;display:flex;align-items:center;gap:11px;padding:13px 12px;border-radius:13px;border:1px solid #3e474e;background:#242b31;color:#f5f7fa;text-align:left}
+.colzo-setting-activity-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:11px;background:#34452b;color:#c8ff2e;font-size:18px}
+.colzo-setting-activity-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.colzo-setting-activity-text strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.colzo-setting-activity-text small{color:#aeb8bf;font-size:10px;line-height:1.4}
+.colzo-setting-activity-status{color:#c8ff2e;font-size:10px;font-weight:760;white-space:nowrap}
+.colzo-pref-control{display:flex;align-items:center;justify-content:space-between;gap:13px;border:1px solid #3b474d;border-radius:14px;background:#242b31;padding:16px 15px}
+.colzo-pref-control>span{display:flex;flex-direction:column;gap:4px;flex:1}
+.colzo-pref-control strong{font-size:13px}
+.colzo-pref-control small{font-size:11px;color:#aebac0;line-height:1.4}
+.colzo-pref-control input{flex:none;width:23px;height:23px;accent-color:#c8ff2e}
+.colzo-explore.colzo-more-contrast .colzo-info-panel,.colzo-explore.colzo-more-contrast .colzo-mini-stat,.colzo-explore.colzo-more-contrast .colzo-settings-list>button,.colzo-explore.colzo-more-contrast .colzo-lead-card{border:2px solid #98bb66!important}
+.colzo-explore.colzo-less-motion *, .colzo-explore.colzo-less-motion *::before,.colzo-explore.colzo-less-motion *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+@media(max-width:390px){.colzo-explore{padding-bottom:calc(205px + env(safe-area-inset-bottom))!important}.colzo-owner-summary{gap:9px}.colzo-owner-summary .colzo-readonly-pill{font-size:7px;padding:5px}}

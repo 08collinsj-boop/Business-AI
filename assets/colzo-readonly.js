@@ -32,15 +32,51 @@
   const getEnquiry = id => verifiedEnquiries.find(row => String(row.id)===String(id));
   const create = (tag,cls,content) => {const el=document.createElement(tag);if(cls)el.className=cls;if(content!==undefined)el.textContent=String(content);return el;};
   function showScreen(screen) {
-    const allowed=['Home','Enquiries','Projects','More','Detail'];if(!allowed.includes(screen))return;
+    const allowed=['Home','Enquiries','Projects','More','Detail','SettingsDetail'];if(!allowed.includes(screen))return;
     for(const section of allowed){const el=$('colzoExplore'+section);if(el)el.hidden=section!==screen;}
-    const tab=screen==='Detail'?'Enquiries':screen;
+    const tab=screen==='Detail'?'Enquiries':screen==='SettingsDetail'?'More':screen;
     document.querySelectorAll('[data-colzo-screen]').forEach(button=>{
       if(button.dataset.colzoScreen===tab)button.setAttribute('aria-current','page');
       else button.removeAttribute('aria-current');
     });
     if(screen==='Enquiries')renderSearchList();
     $('colzoExplore').scrollIntoView({block:'start',behavior:'instant'});
+  }
+  const settingsInfo = Object.freeze({
+    profile: { title:'Business profile', intro:'Business details remain managed in the original app.', detail:'This read-only preview does not change your business name, address, trading details, public profile or existing enquiries.' },
+    team: { title:'Team members', intro:'Your existing team access stays unchanged.', detail:'Team invitations, roles and permissions must be managed inside your existing Business AI owner account until the new Colzo environment is fully certified.' },
+    integrations: { title:'Integrations', intro:'Your connected services remain on the original application.', detail:'Billing, AI receptionist, marketing, Meta and other integrations have not been migrated to this read-only preview. No connection will be modified here.' },
+    notifications: { title:'Notifications', intro:'Recent enquiry activity from your verified business. These are records, not push notifications.' },
+    appearance: { title:'Appearance', intro:'Try the Colzo display options locally for this session. No preferences are sent to your business.' },
+    security: { title:'Security', intro:'Keep account security settings in the original application.', detail:'Password management, MFA and identity settings remain with your existing Business AI account. This preview cannot reset passwords or change authentication.' },
+    support: { title:'Help & support', intro:'Your original Business AI support and information remain available.', detail:'This is a limited Colzo compatibility preview. For live account management, use your existing application.' }
+  });
+  function openSettingsDetail(kind) {
+    const config=settingsInfo[kind];if(!config)return;
+    $('colzoSettingsDetailTitle').textContent=config.title;
+    $('colzoSettingsDetailIntro').textContent=config.intro;
+    const content=$('colzoSettingsDetailContents');content.replaceChildren();
+    if(kind==='notifications'){
+      const rows=verifiedEnquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,20);
+      if(!rows.length)content.append(create('p','colzo-setting-description','No recorded enquiry activity yet.'));
+      for(const row of rows){
+        const btn=create('button','colzo-setting-activity');btn.type='button';
+        const marker=create('span','colzo-setting-activity-icon','▤');
+        const main=create('span','colzo-setting-activity-text');main.append(create('strong','',row.name||'Enquiry'),create('small','',(row.job_type||'General enquiry')+' · '+safeDate(row.created_at)));
+        const chip=create('span','colzo-setting-activity-status',stage(row.status));
+        btn.append(marker,main,chip);btn.addEventListener('click',()=>openDetail(row.id));content.append(btn);
+      }
+    }else if(kind==='appearance'){
+      for(const [id,title,detail,cls] of [['colzoContrastSwitch','High contrast','Increase separation between cards and text.','colzo-more-contrast'],['colzoMotionSwitch','Reduce motion','Disable decorative transitions in this preview.','colzo-less-motion']]){
+        const label=create('label','colzo-pref-control');const main=create('span','');main.append(create('strong','',title),create('small','',detail));
+        const checkbox=create('input','');checkbox.type='checkbox';checkbox.id=id;checkbox.checked=$('colzoExplore').classList.contains(cls);
+        checkbox.addEventListener('change',()=>{$('colzoExplore').classList.toggle(cls,checkbox.checked);});label.append(main,checkbox);content.append(label);
+      }
+    }else{
+      content.append(create('p','colzo-setting-description',config.detail));
+      const link=create('a','colzo-original-link','Open your original Business AI app ↗');link.href='https://app.getbusiness-ai.com/';link.target='_blank';link.rel='noopener noreferrer';content.append(link);
+    }
+    showScreen('SettingsDetail');
   }
   function renderTrend() {
     const now=new Date(),monthStarts=Array.from({length:6},(_,i)=>new Date(now.getFullYear(),now.getMonth()-5+i,1));
@@ -54,6 +90,8 @@
     for(const date of monthStarts)labels.append(create('span','',new Intl.DateTimeFormat('en-GB',{month:'short'}).format(date)));
   }
   function renderHome() {
+    const hour=new Date().getHours();
+    $('colzoHomeTitle').textContent=hour<12?'Good morning.':hour<18?'Good afternoon.':'Good evening.';
     $('colzoHomeEnquiries').textContent=String(verifiedEnquiries.length);
     renderTrend();
   }
@@ -151,6 +189,8 @@
   $('openColzoExplore').addEventListener('click',openDashboard);
   $('colzoExploreExit').addEventListener('click',endVerification);
   $('colzoSafeSignOut').addEventListener('click',endVerification);
+  document.querySelectorAll('[data-colzo-setting]').forEach(button=>button.addEventListener('click',()=>openSettingsDetail(button.dataset.colzoSetting)));
+  $('colzoSettingsDetailBack').addEventListener('click',()=>showScreen('More'));
   document.querySelectorAll('[data-colzo-screen]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.colzoScreen)));
   document.querySelectorAll('[data-colzo-filter]').forEach(button=>button.addEventListener('click',()=>{activeFilter=button.dataset.colzoFilter;renderSearchList();}));
   $('colzoEnquirySearch').addEventListener('input',renderSearchList);
