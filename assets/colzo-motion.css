@@ -1,0 +1,251 @@
+/* COLZO / FLUID. Deliberately restrained motion for real business data.
+   Shared owner-shell primitives, never target customer portals, authentication,
+   billing APIs or original Business AI controls. All effects respect reduce. */
+#colzoOwner{
+  --cz-spring:cubic-bezier(.21,.9,.22,1);
+  --cz-ease:cubic-bezier(.22,.61,.36,1);
+  --cz-volt:#c8ff2e;
+  --cz-ink:#0d1115;
+  --cz-surface:#20272d;
+  --cz-edge:#364047;
+  --cn-active-index:0;
+  background:radial-gradient(ellipse 82% 35% at 78% -14%,rgba(200,255,46,.07),transparent 73%),#0d1115;
+  -webkit-tap-highlight-color:transparent;
+  font-feature-settings:'tnum' 1;
+}
+#colzoOwner .cn-content{isolation:isolate}
+#colzoOwner :is(button,a,input,select,textarea):focus-visible{outline:2px solid #c8ff2e!important;outline-offset:3px!important}
+#colzoOwner :is(button,a){-webkit-touch-callout:none}
+#colzoOwner button{touch-action:manipulation}
+/* Bottom navigation: a physically moving selection plate, not an instant swap. */
+#colzoOwner .cn-nav{
+  --cn-pill-padding:6px;
+  background:rgba(22,28,33,.91)!important;
+  border:1px solid rgba(157,175,175,.18)!important;
+  box-shadow:0 14px 38px rgba(0,0,0,.37),inset 0 1px rgba(255,255,255,.07)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.35);
+  backdrop-filter:blur(24px) saturate(1.35);
+  isolation:isolate;
+}
+#colzoOwner .cn-nav::before{
+  content:'';
+  position:absolute;
+  z-index:0;
+  top:5px;
+  bottom:5px;
+  left:var(--cn-pill-padding);
+  width:calc((100% - 2 * var(--cn-pill-padding))/4);
+  border-radius:14px;
+  background:linear-gradient(165deg,rgba(200,255,46,.16),rgba(200,255,46,.055));
+  border:1px solid rgba(200,255,46,.16);
+  box-shadow:inset 0 1px rgba(200,255,46,.2),0 0 23px rgba(200,255,46,.045);
+  transform:translate3d(calc(var(--cn-active-index) * 100%),0,0);
+  transition:transform .5s var(--cz-spring);
+  pointer-events:none;
+}
+#colzoOwner .cn-nav button{
+  position:relative;
+  z-index:1;
+  background:transparent!important;
+  box-shadow:none!important;
+  transition:color .22s ease,filter .22s ease;
+}
+#colzoOwner .cn-nav button[aria-current=page]{color:#d7ff80!important}
+#colzoOwner .cn-nav button .cn-navicon{
+  display:grid;
+  place-items:center;
+  width:25px;height:25px;
+  transition:transform .4s var(--cz-spring),color .25s ease;
+  transform-origin:50% 55%;
+}
+#colzoOwner .cn-navicon svg{width:21px;height:21px;display:block;overflow:visible}
+#colzoOwner .cn-nav button[aria-current=page] .cn-navicon{transform:translateY(-2px) scale(1.10)}
+#colzoOwner .cn-nav button:active .cn-navicon{transform:scale(.85)}
+/* iOS-like glass top controls; still high-contrast and reachable. */
+#colzoOwner .cn-header{z-index:35}
+#colzoOwner .cn-command-trigger{
+  display:grid;place-items:center;
+  width:36px;height:36px;flex:none;
+  padding:0;border:1px solid rgba(170,185,176,.16);border-radius:12px;
+  background:linear-gradient(145deg,#293239,#1c2429);color:#d9e4e6;
+  transition:background .18s ease,transform .25s var(--cz-spring),border-color .18s ease;
+}
+#colzoOwner .cn-command-trigger:active{transform:scale(.92)}
+#colzoOwner .cn-command-trigger:focus-visible{border-color:#c8ff2e}
+#colzoOwner .cn-account{
+  margin-left:0;
+  background:linear-gradient(130deg,#45563c,#2b352e)!important;
+  border:1px solid rgba(200,255,46,.15)!important;
+  box-shadow:0 2px 12px rgba(0,0,0,.22);
+}
+/* A quiet light source on surface cards, with no fabricated numbers or claims. */
+#colzoOwner :is(.cf-kpi,.cf-trend,.cf-lead-card,.cf-project-card,.cn-record,.cn-detail-panel,.cf-settings-list button,.cn-more-links button,.cf-quick-grid button,.cn-duo button,.cf-project-promo,.cf-profile){
+  position:relative;
+  isolation:isolate;
+  transition:transform .32s var(--cz-spring),background-color .25s ease,border-color .25s ease,box-shadow .32s ease;
+}
+#colzoOwner :is(.cf-kpi,.cf-trend,.cf-lead-card,.cf-project-card,.cf-settings-list button,.cf-quick-grid button){
+  border:1px solid rgba(184,202,196,.075)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.025),0 3px 14px rgba(0,0,0,.07);
+}
+#colzoOwner .cf-kpi:first-child{background:linear-gradient(153deg,#2b372d,#20272d 75%)}
+#colzoOwner .cf-kpi>strong{letter-spacing:-.75px}
+#colzoOwner .cf-kpi-sub{color:#c8ff2e}
+#colzoOwner .cf-trend{background:linear-gradient(160deg,#222b30,#1c2329)!important}
+#colzoOwner .cf-trend svg polyline{stroke-linecap:round;stroke-linejoin:round}
+#colzoOwner .cf-quick-grid button,.cn-duo button{will-change:auto}
+#colzoOwner :is(.cn-primary,.cf-button-volt,.cf-icon-button.volt,#cnDraftForm button[type=submit]){
+  background:linear-gradient(130deg,#deff69,#c8ff2e 75%)!important;
+  border-color:#d6ff61!important;
+  box-shadow:0 4px 16px rgba(200,255,46,.11),inset 0 1px rgba(255,255,255,.3);
+  transition:transform .3s var(--cz-spring),box-shadow .25s ease,filter .25s ease;
+}
+#colzoOwner :is(.cn-primary,.cf-button-volt,.cf-icon-button.volt,#cnDraftForm button[type=submit]):active{
+  transform:scale(.965);filter:brightness(.97);
+  box-shadow:0 2px 9px rgba(200,255,46,.14);
+}
+#colzoOwner .cn-pill{border:1px solid rgba(255,255,255,.07)}
+#colzoOwner .cn-search:focus-within,#colzoOwner .cn-command-input:focus-within{
+  outline:1px solid rgba(200,255,46,.55);
+  box-shadow:0 0 0 3px rgba(200,255,46,.06);
+}
+#colzoOwner .cf-project-promo{
+  background:radial-gradient(circle at 100% 0%,rgba(200,255,46,.14),transparent 55%),#1b2424;
+  border:1px solid rgba(200,255,46,.19);
+}
+#colzoOwner .cf-project-promo button{box-shadow:0 5px 18px rgba(200,255,46,.17)}
+/* Apply entrance animations only to a newly navigated screen, not to each
+   keystroke or background refresh. JS uses WAAPI for directional transitions. */
+#colzoOwner .cn-content[data-cn-animating=true]{pointer-events:auto}
+#colzoOwner .cn-content .cf-trend svg polyline,
+#colzoOwner .cn-content .cf-progress i{transform-origin:left center}
+#colzoOwner .cn-content[data-cn-intro=home] .cf-trend svg polyline{animation:cz-trend-reveal .85s var(--cz-ease) both}
+#colzoOwner .cn-content[data-cn-intro=projects] .cf-progress i{animation:cz-progress-reveal .62s var(--cz-spring) both}
+@keyframes cz-trend-reveal{from{opacity:.1;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes cz-progress-reveal{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(hover:hover) and (pointer:fine){
+  #colzoOwner :is(.cf-lead-card,.cf-project-card,.cn-record,.cf-quick-grid button,.cf-settings-list button,.cn-more-links button,.cn-duo button):hover{
+    transform:translateY(-3px);
+    border-color:rgba(200,255,46,.25)!important;
+    background-color:#29332f;
+    box-shadow:0 13px 26px rgba(0,0,0,.20);
+  }
+  #colzoOwner .cf-kpi:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.16)}
+  #colzoOwner .cn-command-trigger:hover{border-color:rgba(200,255,46,.45)}
+}
+@media(pointer:coarse){
+  #colzoOwner :is(.cf-lead-card,.cf-project-card,.cn-record,.cf-quick-grid button,.cf-settings-list button,.cn-more-links button,.cn-duo button):active{
+    transform:scale(.985);background-color:#2c363a;
+  }
+}
+/* Spotlight-style tool switcher: usable with Cmd/Ctrl+K, tap and screen reader. */
+#colzoOwner .cn-command-sheet[hidden]{display:none!important}
+#colzoOwner .cn-command-sheet{
+  position:fixed;inset:0;z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:max(10vh,70px) max(14px,env(safe-area-inset-right)) 16px max(14px,env(safe-area-inset-left));
+  overflow-y:auto;overscroll-behavior:contain;
+}
+#colzoOwner .cn-command-scrim{position:fixed;inset:0;z-index:0;border:0;background:rgba(3,8,11,.74);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+#colzoOwner .cn-command-panel{
+  z-index:1;position:relative;overflow:hidden;
+  width:min(100%,510px);max-height:min(76dvh,710px);
+  padding:19px;border:1px solid #4a5c44;border-radius:23px;
+  color:#f5f7fa;background:linear-gradient(150deg,#26322d,#1b242b 65%);
+  box-shadow:0 24px 90px rgba(0,0,0,.57),inset 0 1px rgba(200,255,46,.06);
+  display:flex;flex-direction:column;
+}
+#colzoOwner .cn-command-panel>header{display:flex;justify-content:space-between;align-items:center}
+#colzoOwner .cn-command-panel>header button{width:34px;height:34px;border:1px solid #46554b;border-radius:10px;background:#303a3b;color:#e8f3f0;font-size:21px}
+#colzoOwner .cn-command-panel h2{font-size:24px;letter-spacing:-.7px;margin:11px 0 16px;line-height:1.18;font-weight:760}
+#colzoOwner .cn-command-input{display:flex;align-items:center;gap:12px;padding:0 13px;height:51px;border-radius:14px;border:1px solid #536349;background:#131b20}
+#colzoOwner .cn-command-input svg{width:20px;height:20px;color:#c8ff2e;flex:none}
+#colzoOwner .cn-command-input input{width:100%;border:0;outline:0!important;background:transparent;color:#f5f7fa;font-size:15px}
+#colzoOwner .cn-command-input input::placeholder{color:#9eaeb4}
+#colzoOwner .cn-command-results{display:grid;gap:6px;overflow-y:auto;min-height:0;padding:13px 0}
+#colzoOwner .cn-command-results button{
+  border:1px solid transparent;border-radius:12px;
+  background:rgba(255,255,255,.035);color:#eef4f3;
+  display:flex;align-items:center;text-align:left;gap:12px;padding:12px;
+  min-height:58px;transition:background .18s ease,border-color .18s ease;
+}
+#colzoOwner .cn-command-results button .cn-command-glyph{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#344431;color:#c8ff2e;font-size:18px}
+#colzoOwner .cn-command-results button .cn-command-name{display:grid;gap:4px;flex:1;min-width:0;font-size:13px;font-weight:700}
+#colzoOwner .cn-command-results button small{font-size:11px;font-weight:400;color:#aab9bf}
+#colzoOwner .cn-command-results button .cn-command-arrow{font-size:20px;color:#c8ff2e}
+#colzoOwner .cn-command-results button:focus-visible,#colzoOwner .cn-command-results button:hover{border-color:rgba(200,255,46,.35);background:rgba(200,255,46,.075)}
+#colzoOwner .cn-command-results .cn-command-empty{font-size:13px;color:#a5b2bb;text-align:center;padding:18px 5px}
+#colzoOwner .cn-command-panel footer{display:flex;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid #405048;font-size:10px;color:#a4b3ad}
+@media(min-width:920px){
+  #colzoOwner .cn-nav{background:#192127!important;border:0!important;box-shadow:none!important;backdrop-filter:none}
+  #colzoOwner .cn-nav::before{display:none}
+  #colzoOwner .cn-nav button[aria-current=page]{background:linear-gradient(96deg,rgba(200,255,46,.17),rgba(200,255,46,.035))!important;border:1px solid rgba(200,255,46,.18);box-shadow:inset 3px 0 #c8ff2e!important}
+  #colzoOwner .cn-nav button:not([aria-current=page]):hover{background:#29362f!important}
+  #colzoOwner .cn-command-trigger{margin-left:auto}
+  #colzoOwner .cn-command-sheet{padding-top:12vh}
+}
+@media(max-width:600px){
+  #colzoOwner .cn-command-sheet{padding-top:max(8dvh,46px)}
+  #colzoOwner .cn-command-panel{max-height:83dvh;padding:17px;border-radius:20px}
+  #colzoOwner .cn-command-panel h2{font-size:21px}
+}
+@media(prefers-reduced-motion:reduce){
+  #colzoOwner *,#colzoOwner *::before,#colzoOwner *::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}
+  #colzoOwner :is(.cf-lead-card,.cf-project-card,.cn-record,.cf-quick-grid button,.cf-settings-list button,.cn-more-links button):hover,
+  #colzoOwner :is(.cf-lead-card,.cf-project-card,.cn-record,.cf-quick-grid button,.cf-settings-list button,.cn-more-links button):active{transform:none!important}
+  #colzoOwner .cn-nav button[aria-current=page] .cn-navicon{transform:none!important}
+}
+/* One concise live-region announcement per screen, not a repeated reading of
+   every card each time the user types in search. */
+#colzoOwner .cn-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#colzoOwner .cn-project-search{animation:cz-project-search .24s var(--cz-spring) both}
+@keyframes cz-project-search{from{opacity:.45;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+#colzoOwner .cn-settings-search{display:grid;place-items:center}
+@media(prefers-reduced-motion:reduce){#colzoOwner .cn-project-search{animation:none!important}}
+/* Older integrated owner tools share the same calm arrival cadence. This
+   bridge is CSS-only; original event handlers and data mutations stay intact. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .view.active{
+  animation:cz-legacy-arrive .37s cubic-bezier(.2,.85,.24,1) both;
+}
+@keyframes cz-legacy-arrive{
+  from{opacity:.65;transform:translate3d(0,9px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp :is(.btn,.small-btn,.settings-hub-card,.lead-card,.work-item,.marketing-tab){
+  transition:transform .25s cubic-bezier(.21,.9,.22,1),background-color .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp :is(.btn,.small-btn,.settings-hub-card):active{transform:scale(.985)}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #cnReturnToColzo:not([hidden]){
+  transition:transform .23s cubic-bezier(.21,.9,.22,1),box-shadow .2s ease;
+  box-shadow:0 9px 28px rgba(0,0,0,.45),0 0 0 1px rgba(200,255,46,.18);
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #cnReturnToColzo:not([hidden]):active{transform:scale(.96)}
+@media(hover:hover) and (pointer:fine){
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp :is(.settings-hub-card,.lead-card,.work-item):hover{transform:translateY(-2px);border-color:#526945!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .view.active{animation:none!important}
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp :is(.btn,.small-btn,.settings-hub-card,.lead-card,.work-item,.marketing-tab),
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #cnReturnToColzo:not([hidden]){transition:none!important;transform:none!important}
+}
+/* The existing, fully functioning account sign-in gets the same tactile
+   language, without replacing password reset, MFA, onboarding or role logic. */
+body.colzo-interface .auth-role-form-business .auth-main-action,
+body.colzo-interface .auth-role-form-business .auth-secondary-action,
+body.colzo-interface .auth-role-form-business .auth-input{
+  transition:transform .3s cubic-bezier(.21,.9,.22,1),box-shadow .3s ease,border-color .25s ease,background-color .25s ease;
+}
+body.colzo-interface .auth-role-form-business .auth-main-action{
+  background:linear-gradient(120deg,#deff6d,#c8ff2e)!important;
+  box-shadow:0 8px 27px rgba(200,255,46,.12),inset 0 1px rgba(255,255,255,.36)!important;
+}
+body.colzo-interface .auth-role-form-business .auth-main-action:active{transform:scale(.985);box-shadow:0 3px 12px rgba(200,255,46,.1)!important}
+body.colzo-interface .auth-role-form-business .auth-secondary-action:active{transform:scale(.99)}
+body.colzo-interface .auth-role-form-business .auth-input:focus-within{border-color:rgba(200,255,46,.55)!important;box-shadow:0 0 0 3px rgba(200,255,46,.07)!important}
+body.colzo-interface .auth-role-switch .auth-role-slider{transition:transform .47s cubic-bezier(.21,.9,.22,1)!important}
+@media(prefers-reduced-motion:reduce){
+  body.colzo-interface .auth-role-form-business .auth-main-action,
+  body.colzo-interface .auth-role-form-business .auth-secondary-action,
+  body.colzo-interface .auth-role-form-business .auth-input,
+  body.colzo-interface .auth-role-switch .auth-role-slider{transition:none!important;transform:none!important}
+}

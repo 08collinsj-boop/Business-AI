@@ -2189,6 +2189,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-legacy-theme.css?v=20261013-theme-bridge-1">
 <link rel="stylesheet" href="/assets/colzo-mfa-theme.css?v=20261013-mfa-1">
 <link rel="stylesheet" href="/assets/colzo-security-choice.css?v=20261013-security-choice-1">
+<link rel="stylesheet" href="/assets/colzo-motion.css?v=20261013-motion-1">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" aria-busy="true">
@@ -2230,7 +2231,7 @@ input.switch,input.switch:before{transition:none}
       <div id="loginMessage" class="auth-role-message" role="alert"></div>
       <div class="auth-divider">or</div>
       <button id="showSignUp" class="auth-secondary-action" type="button"><strong>Create business account</strong>&nbsp;→</button>
-      <div class="auth-role-footer">Secure access to your Business AI workspace.</div>
+      <div class="auth-role-footer">Secure access to your Colzo workspace.</div>
     </form>
     <form id="customerSignInForm" class="customer-auth-form auth-role-form auth-role-form-customer">
       <label class="auth-input" for="customerSignInEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="customerSignInEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
@@ -3523,15 +3524,29 @@ Save business settings
   <header class="cn-header">
     <button class="cn-wordmark" type="button" data-cn-screen="more" aria-label="Open Colzo tools"><img src="/assets/icons/colzo-mark.svg" alt=""><span>colzo<span class="cn-dot">.</span></span></button>
     <span id="cnBusinessName" class="cn-business">Your workspace</span>
+    <button class="cn-command-trigger" type="button" data-cn-command aria-label="Find a Colzo tool" title="Find tools (⌘K)">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg>
+    </button>
     <button class="cn-account" type="button" data-cn-legacy="settings" aria-label="Open account settings"><span aria-hidden="true">●</span></button>
   </header>
-  <div id="cnContent" class="cn-content" aria-live="polite"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
+  <div id="cnContent" class="cn-content" aria-label="Colzo workspace"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
+  <div id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="cn-nav" aria-label="Colzo primary navigation">
-    <button type="button" data-cn-screen="home" aria-current="page"><span class="cn-navicon">⌂</span>Home</button>
-    <button type="button" data-cn-screen="enquiries"><span class="cn-navicon">▤</span>Enquiries</button>
-    <button type="button" data-cn-screen="projects"><span class="cn-navicon">▦</span>Projects</button>
-    <button type="button" data-cn-screen="more"><span class="cn-navicon">···</span>More</button>
+    <button type="button" data-cn-screen="home" aria-current="page"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m3.25 10 8.75-7 8.75 7v10a1 1 0 0 1-1 1h-5.5v-7h-4.5v7h-5.5a1 1 0 0 1-1-1z"/></svg></span>Home</button>
+    <button type="button" data-cn-screen="enquiries"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Enquiries</button>
+    <button type="button" data-cn-screen="projects"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.75a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10h17"/></svg></span>Projects</button>
+    <button type="button" data-cn-screen="more"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span>More</button>
   </nav>
+  <div id="cnCommandSheet" class="cn-command-sheet" role="presentation" hidden>
+    <button type="button" class="cn-command-scrim" data-cn-close-command aria-label="Close tool search"></button>
+    <section class="cn-command-panel" role="dialog" aria-modal="true" aria-labelledby="cnCommandTitle">
+      <header><span class="cn-kicker">COLZO / SHORTCUTS</span><button type="button" data-cn-close-command aria-label="Close search">×</button></header>
+      <h2 id="cnCommandTitle">Where would you like to go?</h2>
+      <label class="cn-command-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg><input id="cnCommandSearch" autocomplete="off" aria-label="Search Colzo tools" placeholder="Search screens and tools…"/></label>
+      <div id="cnCommandResults" class="cn-command-results"></div>
+      <footer><span>Find your next action, faster.</span><span>ESC to close</span></footer>
+    </section>
+  </div>
 </section>
 <button id="cnReturnToColzo" class="cn-back-to-colzo" type="button" hidden>← Back to Colzo</button>
 

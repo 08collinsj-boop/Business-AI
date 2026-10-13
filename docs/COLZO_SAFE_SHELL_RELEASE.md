@@ -132,3 +132,9 @@ Supabase implementation references (consult before activation):
 - https://supabase.com/docs/guides/auth/auth-mfa — TOTP/phone enrollment and AAL1/AAL2 distinctions
 
 `npm run verify:colzo-mfa` now explicitly checks that both owner screens are inert while MFA blocks access. `npm run verify:colzo-security-methods` confirms existing verified TOTP owners are not shown a setup modal, while a fresh mock owner can choose the working authenticator path; simulated passkey paths are only tested with a fully stubbed SDK and do **not** mean Supabase passkeys were enabled or proven on a real device. The verified current release gate remains **HOLD** for public passkeys.
+
+## Colzo / FLUID — full owner motion and navigation overhaul
+
+Implemented `assets/colzo-motion.css` and updated the standalone Colzo owner shell with real vector-tab icons, a moving active selection plate, directional native page entrances and staggered list/card reveals, animated real-data trend/progress, contextual hover/press feedback, smooth legacy-view transitions and matching login focus/press treatment. Added a Spotlight-like tool finder with Cmd/Ctrl+K, focus trapping, Escape close, title-prioritised search and direct links to actual existing owner tools. Preserved per-screen scroll state without losing the iOS independent owner scroll fix. Native Projects now includes real in-page search. Accessible one-line announcements avoid repeated screen-reader reads of every search result, and all private UI states clear on sign-out. Fully honours reduced-motion preferences. Detailed design values and QA instructions: `docs/COLZO_MOTION_SYSTEM.md`.
+
+None of the motion system writes customer records, changes authentication policies, enables experimental passkeys, modifies billing or deploys to the live domain. No extra services/charges. Real authenticated staging verification is still required before live cutover.
