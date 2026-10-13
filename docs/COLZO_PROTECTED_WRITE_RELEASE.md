@@ -18,6 +18,13 @@
 - Owner edit forms and quote transition buttons supply the `updated_at` value obtained when the record was loaded, without relying on client-supplied business IDs.
 - Mock PostgREST API acceptance tests simulate two separate businesses, create/update workflows, forbidden cross-tenant access, stale edits, initial/final quote status restrictions, and an audit-log redaction check. Sent/final quote contents are immutable and status transitions cannot change prices or notes in the same request. Tests use fake network responses and no customer data.
 
+## Disposable database acceptance completed (13 October 2026)
+
+- The exact Colzo Projects/Quotes/Clients migration passes on an isolated, **in-memory PostgreSQL 17.5-compatible PGlite engine** (no Supabase account, billing, customer data or credentials).
+- Eleven SQL smoke checks passed: repeatable migration, all three RLS flags, public/member grants blocked, authenticated direct read/write denied, valid project creation, composite `(lead_id,business_id)` constraints, progress/status/currency/name validation, default private draft quotes, and atomic stale/tenant update predicates.
+- Re-run using `npm run verify:colzo-sql` after installing `@electric-sql/pglite@0.3.15` as an optional local test tool. See `docs/COLZO_STAGING_SQL_QA.md`.
+- The above **does not** replace a Supabase staging instance: it does not certify Supabase Auth configuration, service-role isolation, live RLS/grants beyond the supplied migration, Vercel secrets, backup/restore or browser authentication. No Supabase branch has been created and no production migrations have been run here.
+
 ## Release gates, in required order
 
 1. Confirm exactly which active Vercel deployment and alias serve `app.getbusiness-ai.com`, `business-ai-pilot.vercel.app`, and the marketing/public site; record current Git SHA, environment target and rollback deployment ID.
