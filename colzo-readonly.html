@@ -7,7 +7,7 @@
  <meta name="robots" content="noindex,nofollow">
  <title>Colzo | Existing account verification</title>
  <link rel="icon" href="/assets/icons/colzo-mark.svg" type="image/svg+xml">
- <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-work-v4">
+ <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-dock-layout-v5">
 </head>
 <body>
  <main class="screen">
@@ -40,7 +40,8 @@
       <section id="colzoExploreDetail" class="colzo-explore-panel" aria-labelledby="colzoDetailTitle" hidden>
         <button id="colzoDetailReturn" type="button" class="colzo-back">‹ Enquiries</button><div id="colzoDetailPerson" class="colzo-person"></div><div class="colzo-info-panel"><h2>Details</h2><dl id="colzoDetailFields"></dl></div><div class="colzo-info-panel"><h2>Read-only preview</h2><p>Your original account's data is displayed here. Contact details, quotes and editing controls will become available only after Colzo's full environment is verified.</p></div>
       </section>
-      <section id="colzoExploreProjects" class="colzo-explore-panel" aria-labelledby="colzoProjectsTitle" hidden><h1 id="colzoProjectsTitle">Projects</h1><div class="colzo-filter-tabs" role="group" aria-label="Project categories"><span>All</span><span>Active</span><span>Completed</span></div><div class="colzo-empty-feature"><div aria-hidden="true">▱</div><h2>Projects need a verified connection</h2><p>The original app's project API has not been certified for this read-only preview. Nothing will be invented or moved from your existing database.</p></div><section class="colzo-real-work"><div class="colzo-section-head"><h2>Existing scheduled work</h2><span class="colzo-readonly-pill">LIVE · READ ONLY</span></div><p class="colzo-work-subline">These are bookings and outstanding tasks from Business AI — not completed Colzo project records.</p><div class="colzo-work-tabs" role="group" aria-label="Work records"><button type="button" data-colzo-work="bookings" aria-pressed="true">Bookings</button><button type="button" data-colzo-work="actions" aria-pressed="false">Actions</button></div><p id="colzoWorkStatus" role="status" class="colzo-work-subline"></p><div id="colzoWorkRecords" class="colzo-work-cards"></div></section>
+      <section id="colzoExploreProjects" class="colzo-explore-panel" aria-labelledby="colzoProjectsTitle" hidden><h1 id="colzoProjectsTitle">Projects</h1><p class="colzo-project-caption">Existing business work appears below. Native Colzo project records are not yet connected.</p><section class="colzo-real-work"><div class="colzo-section-head"><h2>Existing scheduled work</h2><span class="colzo-readonly-pill">LIVE · READ ONLY</span></div><p class="colzo-work-subline">These are bookings and outstanding tasks from Business AI — not completed Colzo project records.</p><div class="colzo-work-tabs" role="group" aria-label="Work records"><button type="button" data-colzo-work="bookings" aria-pressed="true">Bookings</button><button type="button" data-colzo-work="actions" aria-pressed="false">Actions</button></div><p id="colzoWorkStatus" role="status" class="colzo-work-subline"></p><div id="colzoWorkRecords" class="colzo-work-cards"></div></section>
+        <div class="colzo-empty-feature"><div aria-hidden="true">▱</div><h2>Projects need a verified connection</h2><p>The original app's project API has not been certified for this read-only preview. Nothing will be invented or moved from your existing database.</p></div>
         <div class="colzo-project-banner"><span>Turn enquiries<br>into real progress.</span><p>Project tracking is built in the Colzo development branch; its full integration still needs testing.</p></div></section>
       <section id="colzoExploreMore" class="colzo-explore-panel" aria-labelledby="colzoMoreTitle" hidden>
         <h1 id="colzoMoreTitle">Settings</h1>
@@ -81,5 +82,5 @@
   <footer><p>Preview-only · No live service-role key is used · All customer enquiries are read through the original application's existing authorisation rules.</p><a href="https://app.getbusiness-ai.com/">Open the original Business AI app</a></footer>
  </main>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script src="/assets/colzo-readonly.js?v=20261013-work-v4" defer></script>
+ <script src="/assets/colzo-readonly.js?v=20261013-dock-layout-v5" defer></script>
 </body></html>

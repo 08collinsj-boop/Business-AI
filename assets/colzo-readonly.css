@@ -141,3 +141,105 @@ html{scroll-padding-bottom:120px}
 .colzo-quote-result textarea{width:100%;min-height:200px;padding:12px;background:#151a1d;color:#f0f5f0;border:1px solid #424d54;border-radius:10px;font-size:12px;line-height:1.6;resize:vertical}
 .colzo-quote-result[hidden]{display:none!important}
 #colzoQuoteMessage{min-height:0;margin:10px 0 0;color:#c8ff2e;font-size:12px;line-height:1.5}
+
+/* v5 — true app-shell layout, based on user-provided iPhone evidence.
+   No fixed overlay: app content scrolls inside a flex child, nav is a real
+   sibling beneath it and can never cover any enquiry, booking or settings row. */
+.screen.colzo-preview-active{
+  height:100dvh!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain;
+}
+.colzo-explore:not([hidden]){
+  height:100%!important;
+  min-height:0!important;
+  width:100%!important;
+  padding:0 17px max(8px,env(safe-area-inset-bottom))!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.colzo-explore-header{
+  flex:0 0 auto!important;
+  padding-top:max(17px,env(safe-area-inset-top))!important;
+  padding-bottom:15px!important;
+  min-height:70px!important;
+}
+.colzo-explore-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch;
+  scroll-padding-top:15px;
+  scroll-padding-bottom:25px;
+  padding:17px 0 22px!important;
+  scrollbar-width:thin;
+  scrollbar-color:#48535b transparent;
+}
+.colzo-explore-panel{
+  min-height:0!important;
+  padding-bottom:18px!important;
+}
+.colzo-explore-nav{
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  bottom:auto!important;
+  right:auto!important;
+  transform:none!important;
+  display:grid!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+  box-shadow:0 -7px 22px rgba(0,0,0,.28)!important;
+  z-index:3!important;
+}
+.colzo-explore-nav button{
+  min-height:49px!important;
+  touch-action:manipulation;
+}
+.colzo-explore-panel .colzo-safe-note{margin-bottom:10px!important}
+.colzo-explore-panel>h1{font-size:27px!important}
+.colzo-home-intro{margin-bottom:15px!important}
+.colzo-mini-stat{min-height:98px!important;padding:11px 9px!important}
+.colzo-mini-stat strong{font-size:24px!important;margin:3px 0 0!important}
+.colzo-trend-panel{margin-bottom:16px!important;padding:12px 13px 10px!important}
+.colzo-trend-panel svg{height:117px!important;margin-top:3px!important}
+.colzo-block-heading h2{margin-bottom:10px!important}
+.colzo-quick-grid button{min-height:83px!important;gap:6px!important}
+.colzo-quick-grid button i{width:32px!important;height:32px!important;font-size:21px!important}
+.colzo-work-summary{margin-top:17px!important}
+.colzo-settings-list>button{min-height:62px!important;padding:9px 12px!important}
+.colzo-owner-summary{min-height:72px!important;margin:10px 0 15px!important}
+.colzo-project-caption{font-size:11px;line-height:1.5;color:#aeb8be;margin:7px 0 10px}
+.colzo-real-work{margin-top:13px!important}
+.colzo-empty-feature{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-items:initial!important;
+  gap:12px!important;
+  padding:13px!important;
+  margin-top:13px!important;
+  text-align:left!important;
+}
+.colzo-empty-feature>div{flex:0 0 30px;font-size:24px!important}
+.colzo-empty-feature h2{flex:none;max-width:130px;font-size:11px!important;line-height:1.4!important}
+.colzo-empty-feature p{font-size:10px!important;line-height:1.45!important}
+@media(max-width:390px){
+  .colzo-explore:not([hidden]){padding-left:12px!important;padding-right:12px!important}
+  .colzo-explore-header{min-height:64px!important}
+  .colzo-mini-stat{min-height:96px!important}
+  .colzo-empty-feature h2{max-width:105px}
+}
+@media(max-height:670px){
+  .colzo-explore-header{min-height:58px!important;padding-bottom:9px!important}
+  .colzo-explore-body{padding-top:12px!important;padding-bottom:14px!important}
+  .colzo-explore-nav button{min-height:43px!important}
+  .colzo-trend-panel svg{height:92px!important}
+}

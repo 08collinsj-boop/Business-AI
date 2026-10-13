@@ -50,3 +50,17 @@ The browser-approved read-only Colzo preview now extends beyond enquiries:
 - Ending verification clears the in-memory token, enquiries, bookings, actions, quote output and UI. No additional session persistence is enabled.
 
 The dedicated server-side Projects/Clients/Quotes development handlers exist in the feature branch but have **not** been enabled against the live owner database; they still require a verified backup, staged environment and role-based browser acceptance. No cross-tenant live data was written.
+
+## Mobile screenshot acceptance: navigation and Projects (13 October 2026)
+
+The owner supplied additional iPhone screenshots showing fixed bottom navigation covering the last enquiry row, lower Settings entries, scheduled bookings and Home quick actions. An earlier CSS padding-only adjustment did not solve the overlay at the viewport level.
+
+Latest development-only layout changes:
+
+- Switched the authenticated preview to a full-viewport flex shell with non-scrolling header and **real non-overlapping footer dock**. Only the central `.colzo-explore-body` scrolls independently. The navigation is a flex sibling rather than a `position: fixed` overlay.
+- Tab changes now reset the inner scroller, so the browser page does not jump underneath the host app's top controls.
+- Reduced chart, Home metric and quick-action heights, and tightened Settings spacing while retaining minimum touch sizes.
+- Placed true owner-authorised bookings/actions at the top of the Projects view, with the unconnected native Colzo Projects notice below the useful data. Removed inert All / Active / Completed project tabs to avoid implying unsupported filters.
+- Added static layout and semantic regression checks. **656/656 tests passed locally**, including read-only source restrictions. Actual iOS in-app browser screenshot acceptance remains required; automated source tests alone cannot guarantee perfect visual layout on the user's phone.
+
+No new live database connections, migrations, customer writes, account changes or customer emails were made for this adjustment.

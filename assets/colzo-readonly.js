@@ -44,7 +44,8 @@
       else button.removeAttribute('aria-current');
     });
     if(screen==='Enquiries')renderSearchList();
-    $('colzoExplore').scrollIntoView({block:'start',behavior:'instant'});
+    const scroller=$('colzoExplore').querySelector('.colzo-explore-body');
+    if(scroller)scroller.scrollTop=0;
   }
   const settingsInfo = Object.freeze({
     profile: { title:'Business profile', intro:'Business details remain managed in the original app.', detail:'This read-only preview does not change your business name, address, trading details, public profile or existing enquiries.' },
