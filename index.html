@@ -3154,6 +3154,17 @@ class="view"
 <button type="button" data-owner-only onclick="document.getElementById('securityCenterHubButton')?.click()"><i>⬡</i><span><strong>Security</strong><small>Passwords and multi-factor authentication</small></span><b>›</b></button>
 <button type="button" onclick="document.getElementById('colzoSupportSection')?.scrollIntoView({behavior:'smooth',block:'start'})"><i>ⓘ</i><span><strong>Help &amp; support</strong><small>Find guidance and support information</small></span><b>›</b></button>
 </nav>
+<section id="colzoExistingFeatures" class="colzo-backend-shortcuts" aria-labelledby="colzoExistingFeaturesTitle">
+  <div class="colzo-backend-intro"><h3 id="colzoExistingFeaturesTitle">Your existing business tools</h3><p>All tools below open the established Business AI features inside Colzo using the same account and business data.</p></div>
+  <div class="colzo-backend-grid">
+    <button type="button" data-colzo-backend="receptionist" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i aria-hidden="true">✦</i><span><strong>AI receptionist</strong><small>Handling and knowledge</small></span><b aria-hidden="true">›</b></button>
+    <button type="button" data-colzo-backend="bookings" onclick="showView('bookings')"><i aria-hidden="true">▣</i><span><strong>Bookings</strong><small>Calendar and appointments</small></span><b aria-hidden="true">›</b></button>
+    <button type="button" data-colzo-backend="actions" onclick="showView('actions')"><i aria-hidden="true">✓</i><span><strong>Actions</strong><small>Follow-ups and handovers</small></span><b aria-hidden="true">›</b></button>
+    <button type="button" data-colzo-backend="marketing" onclick="showView('marketing')"><i aria-hidden="true">↗</i><span><strong>AI marketing</strong><small>Drafts and scheduling</small></span><b aria-hidden="true">›</b></button>
+    <button type="button" data-colzo-backend="knowledge" onclick="openSettingsSection('businessKnowledgeCard')"><i aria-hidden="true">▤</i><span><strong>Business knowledge</strong><small>Approved facts and files</small></span><b aria-hidden="true">›</b></button>
+    <button type="button" data-colzo-backend="billing" data-owner-only onclick="openSettingsSection('billingCard')"><i aria-hidden="true">£</i><span><strong>Billing</strong><small>Existing plan and subscription</small></span><b aria-hidden="true">›</b></button>
+  </div>
+</section>
 <details class="colzo-advanced-settings"><summary>Advanced tools and settings</summary><div class="settings-hub" aria-label="Settings overview">
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('businessDetailsCard')"><i>▣</i><span><strong>Business details</strong><small>Name, contact and customer link</small></span><b aria-hidden="true">›</b></button>
 <button class="settings-hub-card" type="button" onclick="openSettingsSection('aiReceptionistSettingsCard')"><i>✦</i><span><strong>AI receptionist</strong><small>Knowledge, services and rules</small></span><b aria-hidden="true">›</b></button>
@@ -4432,11 +4443,29 @@ function openSettingsSection(id){
 
 const target=document.getElementById(id);
 if(!target)return;
-target.scrollIntoView({behavior:'smooth',block:'start'});
-target.classList.remove('settings-focus-pulse');
+// These existing Business AI feature panels remain in the SAME owner app.
+// Open the Settings view and collapsed Advanced sections before scrolling.
+const parent=target.closest('.view');
+if(parent?.id==='settingsView'&&!parent.classList.contains('active'))showView('settings');
+let ancestor=target.parentElement;
+while(ancestor&&ancestor!==document.body){
+  if(ancestor.tagName==='DETAILS')ancestor.open=true;
+  ancestor=ancestor.parentElement;
+}
 requestAnimationFrame(()=>{
-target.classList.add('settings-focus-pulse');
-window.setTimeout(()=>target.classList.remove('settings-focus-pulse'),900);
+  // Never reveal hidden owner-only controls through a shortcut.
+  if(!target.getClientRects().length){
+    if(typeof toast==='function')toast('This setting is not available for your account.');
+    return;
+  }
+  target.scrollIntoView({behavior:'smooth',block:'start'});
+  target.classList.remove('settings-focus-pulse');
+  target.setAttribute('tabindex','-1');
+  target.focus({preventScroll:true});
+  requestAnimationFrame(()=>{
+    target.classList.add('settings-focus-pulse');
+    window.setTimeout(()=>target.classList.remove('settings-focus-pulse'),900);
+  });
 });
 
 }

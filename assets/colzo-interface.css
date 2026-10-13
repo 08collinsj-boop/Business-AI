@@ -463,3 +463,18 @@ body.colzo-interface #authScreen .auth-input .auth-password-toggle{
 
 body.colzo-interface #authScreen .colzo-original-readonly-link{display:block;margin:0 0 11px;padding:10px 12px;border:1px solid #5b7135;border-radius:11px;background:#2c3b25;color:#d8ff90;font-size:11px;font-weight:800;text-align:center;text-decoration:none}
 body.colzo-interface #authScreen .colzo-original-readonly-link[hidden]{display:none!important}
+
+/* Same-backend compatibility shortcuts: no second API, account or database. */
+body.colzo-interface.auth-ready .colzo-backend-shortcuts{margin:13px 0 23px}
+body.colzo-interface.auth-ready .colzo-backend-intro{margin:0 0 12px}
+body.colzo-interface.auth-ready .colzo-backend-intro h3{font-size:15px;font-weight:780;color:#f5f7fa;margin:0 0 5px}
+body.colzo-interface.auth-ready .colzo-backend-intro p{color:#aab2bd;font-size:11px;line-height:1.55;margin:0}
+body.colzo-interface.auth-ready .colzo-backend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+body.colzo-interface.auth-ready .colzo-backend-grid>button{min-width:0;min-height:75px;display:flex;align-items:center;gap:9px;padding:11px 10px;text-align:left;border:1px solid #3b444c;border-radius:14px;background:linear-gradient(145deg,#2a3138,#20272e);color:#f5f7fa}
+body.colzo-interface.auth-ready .colzo-backend-grid>button:focus-visible{outline:3px solid #c8ff2e;outline-offset:2px}
+body.colzo-interface.auth-ready .colzo-backend-grid>button>i{flex:0 0 27px;display:grid;place-items:center;width:27px;height:31px;color:#c8ff2e;font-size:19px;font-style:normal}
+body.colzo-interface.auth-ready .colzo-backend-grid>button>span{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+body.colzo-interface.auth-ready .colzo-backend-grid strong{font-size:11px;line-height:1.25}
+body.colzo-interface.auth-ready .colzo-backend-grid small{font-size:9px;line-height:1.3;color:#aeb9bd}
+body.colzo-interface.auth-ready .colzo-backend-grid b{font-size:16px;font-weight:500;color:#b9c4c8}
+@media(max-width:355px){body.colzo-interface.auth-ready .colzo-backend-grid{grid-template-columns:minmax(0,1fr)}}
