@@ -86,3 +86,13 @@ Still required before replacing Production: actual owner login / existing data a
 - Fixed an existing Marketing DOM reorder error in `assets/final-showcase.js`: moving Schedule before History now checks History is actually a direct child of the tabs node. This is a defensive front-end guard; it does not change tab identifiers, approval controls or publishing.
 - `npm run verify` passes (583 tests including 3 static theme-contract tests); `npm run verify:colzo-native` now visits original Bookings/Actions/Marketing/Settings/Business Profile, checks computed graphite styling and no overflow at five screen sizes, and captures Marketing and Settings screenshots for visual review.
 - The original fully integrated customer-facing flows remain intentionally unchanged. Visual checks with mock data do not replace authenticated real-account acceptance before Production cutover.
+
+## Colzo MFA gate visual consistency — 13 October 2026
+
+The original two-step verification (TOTP/AAL2) overlay is injected **outside** both Colzo owner screens and the legacy owner app (`securityMfaGate`, appended to `document.body`). It was still rendering with a blue panel and “open Business AI” prompt after the Graphite & Volt visual release.
+
+- Added `assets/colzo-mfa-theme.css`, loaded after other Colzo styles; selectors require the Colzo app shell and `#securityMfaGate`. Sets graphite background, volt accent, readable numeric input and properly differentiated Verify, Cancel and Log out actions, including safe scrolling on small screens. Existing authenticator code handling, blocking-session requirements, API endpoints and access decisions are **unchanged**.
+- Updated only user-facing strings in `assets/security-center.js` to Colzo. **The TOTP `friendlyName:'Business AI'` is retained** so existing authenticator setup naming/identifiers are not unexpectedly changed or re-enrolled.
+- Added `tests/colzo-mfa-theme.test.mjs` to assert visual scoping and preservation of challenge/verify/AAL2 requirements.
+- Added `npm run verify:colzo-mfa` browser test that runs the **real MFA overlay and AAL1→AAL2 blocking prompt** with synthetic, local-only authentication and simulated verified TOTP factor at 375×812, 390×844, 430×932 and 1366×768. No actual authenticator code, security service, customer data or real account credentials are used. Screenshots under `/tmp/colzo-mfa-qa/`.
+- Production is not modified; owner should use the new staging URL and confirm the prompt looks correct after signing in with their existing account.

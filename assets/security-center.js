@@ -5,7 +5,7 @@
     {key:'customer_submissions_paused',label:'Customer enquiry submissions',detail:'Stops new customer enquiries from being submitted.'},
     {key:'automatic_followups_paused',label:'Automatic follow-ups',detail:'Stops new automatic follow-up actions from being created.'},
     {key:'marketing_generation_paused',label:'Marketing generation',detail:'Stops new AI Marketing copy and generation workflows.'},
-    {key:'marketing_publishing_paused',label:'Marketing publishing',detail:'Stops Business AI from publishing Marketing content to connected channels.'}
+    {key:'marketing_publishing_paused',label:'Marketing publishing',detail:'Stops Colzo from publishing Marketing content to connected channels.'}
   ];
   let incidentState=null;
   let pendingEnrollment=null;
@@ -57,10 +57,10 @@
       <div class="settings-section-label">Security &amp; incidents</div>
       <section id="accountSecurityCard" class="card settings-card settings-anchor-card security-card">
         <div class="card-head"><div><span class="settings-card-kicker">Account security</span><h3>Two-step verification</h3></div><span id="securityMfaBadge" class="settings-status-badge">Checking…</span></div>
-        <p class="work-meta">Protect this account with a time-based code from an authenticator app. Once enabled, Business AI requires the second factor on future sign-ins.</p>
+        <p class="work-meta">Protect this account with a time-based code from an authenticator app. Once enabled, Colzo requires the second factor on future sign-ins.</p>
         <div id="securityMfaState" class="security-state-panel"><div class="security-loading">Checking account security…</div></div>
         <div id="securityMfaEnrollment" class="security-mfa-enrol" hidden>
-          <div class="security-mfa-qr"><img id="securityMfaQr" alt="QR code for adding Business AI to an authenticator app"></div>
+          <div class="security-mfa-qr"><img id="securityMfaQr" alt="QR code for setting up two-step verification in an authenticator app"></div>
           <div class="field full"><label for="securityMfaSecret">Manual setup key</label><input id="securityMfaSecret" readonly autocomplete="off" spellcheck="false"></div>
           <div class="field full"><label for="securityMfaCode">6-digit authenticator code</label><input id="securityMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></div>
           <p id="securityMfaEnrollmentStatus" class="work-meta" role="status" aria-live="polite"></p>
@@ -70,7 +70,7 @@
 
       <section id="incidentCentreCard" class="card settings-card settings-anchor-card security-card" hidden>
         <div class="card-head"><div><span class="settings-card-kicker">Incident Centre</span><h3>Emergency controls</h3></div><span id="incidentCentreBadge" class="settings-status-badge">Checking…</span></div>
-        <p class="work-meta">Pause high-risk automation immediately without taking the whole Business AI workspace offline. Pauses are enforced by the server and recorded in the audit trail.</p>
+        <p class="work-meta">Pause high-risk automation immediately without taking the whole Colzo workspace offline. Pauses are enforced by the server and recorded in the audit trail.</p>
         <div id="incidentPlatformNotice" class="security-platform-notice" hidden></div>
         <div id="incidentControlsList" class="security-control-list"></div>
         <div class="field full security-reason-field"><label for="incidentReason">Reason for this change</label><textarea id="incidentReason" maxlength="500" placeholder="For example: investigating unexpected Marketing publishing behaviour"></textarea><span class="work-meta">Required when changing a control. Keep it factual so the audit trail is useful.</span></div>
@@ -378,7 +378,7 @@
     try{
       const snapshot=await mfaSnapshot();
       if(snapshot.aal?.currentLevel==='aal1'&&snapshot.aal?.nextLevel==='aal2'){
-        await challengeForAal2({blocking:true,reason:'Your account has two-step verification enabled. Enter your authenticator code to open Business AI.'});
+        await challengeForAal2({blocking:true,reason:'Your account has two-step verification enabled. Enter your authenticator code to open Colzo.'});
       }
     }catch{}finally{authReadyCheckRunning=false;}
   }
