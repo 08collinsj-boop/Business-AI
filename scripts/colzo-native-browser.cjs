@@ -42,7 +42,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('#colzoOwner').isVisible(),true,'new owner shell should be visible');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'legacy original must not be rendered on primary Colzo screen');
   assert.equal(await page.locator('.bottom-nav').isVisible(),false,'old five-tab bottom navigation must not appear');
-  assert.equal(await page.locator('.cn-nav button').count(),4);
+  assert.equal(await page.locator('.cn-nav button').count(),5);
   assert.match(await page.locator('#colzoOwner .cf-home-head h1').innerText(),/Good|Welcome/);
   assert.match(await page.locator('.cf-kpis').innerText(),/Enquiries[\s\S]*2/);
   assert.equal(await page.locator('.cf-kpi').count(),3);
@@ -75,9 +75,10 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.locator('button[data-cn-screen="enquiries"]').first().click();
   await page.locator('#cnSearch').blur();
   await page.screenshot({path:`${shots}/native-enquiries-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="projects"]').click();
+  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Projects');
-  assert.equal(await page.locator('.cn-nav [data-cn-screen="projects"]').getAttribute('aria-current'),'page','projects navigation should be highlighted');
+  assert.equal(await page.locator('.cn-nav [data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
   assert.equal(await page.locator('.cn-nav [data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
   assert.equal(await page.locator('.cf-project-card').count(),2);
   assert.match(await page.locator('.cf-project-promo').innerText(),/Turn enquiries/);
@@ -88,7 +89,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Settings');
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.locator('.cn-more-links [data-cn-screen="clients"]').click();
-  assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Clients');
+  assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
   assert.equal(await page.locator('.cn-record').count(),2);
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();

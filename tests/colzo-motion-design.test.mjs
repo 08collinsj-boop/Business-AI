@@ -10,7 +10,7 @@ test('Colzo motion system is scoped, accessible, reduced-motion safe and visuall
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/body\.colzo-owner-enabled\.auth-ready\.colzo-legacy-mode #dashboardApp \.view\.active/);
  assert.doesNotMatch(css,/@import|@font-face|url\(https?:|animation-iteration-count\s*:\s*infinite/);
- assert.equal((html.match(/class="cn-navicon" aria-hidden="true"><svg/g)||[]).length,4);
+ assert.equal((html.match(/class="cn-navicon" aria-hidden="true"><svg/g)||[]).length,5);
  assert.match(html,/id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite"/);
  assert.doesNotMatch(html,/id="cnContent"[^>]*aria-live="polite"/);
  assert.match(html,/aria-modal="true" aria-labelledby="cnCommandTitle"/);
