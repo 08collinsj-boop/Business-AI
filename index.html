@@ -2185,6 +2185,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-add-lead-1">
 <link rel="stylesheet" href="/assets/colzo-safe-shell.css?v=20261013-safe-shell-1">
 <link rel="stylesheet" href="/assets/colzo-dashboard-visual.css?v=20261013-visual-v2">
+<link rel="stylesheet" href="/assets/colzo-native.css?v=20261013-native-a">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" aria-busy="true">
@@ -3512,6 +3513,23 @@ Save business settings
 <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg></span><span>More</span></button>
 </nav>
 
+<!-- Colzo's native mobile/desktop workspace. Original app stays available for
+     mature AI, bookings, actions, billing and account management features. -->
+<section id="colzoOwner" class="colzo-native" aria-label="Colzo owner workspace" hidden>
+  <header class="cn-header">
+    <button class="cn-wordmark" type="button" data-cn-screen="home" aria-label="Colzo home"><img src="/assets/icons/colzo-mark.svg" alt=""><span>colzo<span class="cn-dot">.</span></span></button>
+    <span id="cnBusinessName" class="cn-business">Your workspace</span>
+    <button class="cn-account" type="button" data-cn-legacy="settings" aria-label="Open account settings"><span aria-hidden="true">●</span></button>
+  </header>
+  <div id="cnContent" class="cn-content" aria-live="polite"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
+  <nav class="cn-nav" aria-label="Colzo primary navigation">
+    <button type="button" data-cn-screen="home" aria-current="page"><span class="cn-navicon">⌂</span>Home</button>
+    <button type="button" data-cn-screen="enquiries"><span class="cn-navicon">▤</span>Enquiries</button>
+    <button type="button" data-cn-screen="projects"><span class="cn-navicon">▦</span>Projects</button>
+    <button type="button" data-cn-screen="more"><span class="cn-navicon">···</span>More</button>
+  </nav>
+</section>
+<button id="cnReturnToColzo" class="cn-back-to-colzo" type="button" hidden>← Back to Colzo</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -3616,6 +3634,7 @@ document.body.setAttribute('aria-busy',String(active));
 const setAuthView=(state,message='')=>{
 document.body.classList.remove('auth-pending','auth-required','legal-acceptance-required','dpa-acceptance-required','onboarding-required','configuration-onboarding-required','auth-ready');
 document.body.classList.add(state);
+window.ColzoOwner?.onAuthState(state);
 $('loginMessage').textContent=message;
 };
 
@@ -4940,7 +4959,7 @@ try{
 const [bookingData,actionData]=await Promise.all([api('/api/bookings'),api('/api/actions')]);
 bookings=Array.isArray(bookingData)?bookingData:[];
 businessActions=Array.isArray(actionData)?actionData:[];
-fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();
+fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();window.ColzoOwner?.render();
 ['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).textContent='';});
 }catch(error){
 const message=error.message==='Bookings are not enabled'||error.message==='Actions are not enabled'?'Bookings and actions will be available after the database migration is applied.':error.message;
@@ -5512,6 +5531,7 @@ if(frontendAuthEnabled)loadOwnerReceptionistAvailability();
 if(frontendAuthEnabled)loadReferrals();
 if(frontendAuthEnabled)loadValueDashboard();
 
+window.ColzoOwner?.render();
 if(showFeedback)toast('Dashboard refreshed');
 
 }catch(error){
@@ -5521,6 +5541,7 @@ const message=`<div class="error">${esc(error.message||'Unable to load dashboard
 $('stats').innerHTML=message;
 
 $('leadList').innerHTML=message;
+window.ColzoOwner?.error(error);
 
 }
 
@@ -5547,6 +5568,7 @@ initializeApp();
 <script src="/assets/customer-portal.js?v=20261004-business-profile-1"></script>
 <script src="/assets/premium-ui.js?v=20261005-settings-profile-row-1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
+<script src="/assets/colzo-native.js?v=20261013-native-a"></script>
 </body>
 
 </html>

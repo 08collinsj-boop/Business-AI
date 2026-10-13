@@ -7,6 +7,7 @@
     "test": "node --test tests/*.test.mjs",
     "verify:local": "node scripts/verify-local.mjs",
     "verify:colzo-owner-visual": "node scripts/colzo-owner-visual-smoke.cjs",
+    "verify:colzo-native": "node scripts/colzo-native-browser.cjs",
     "verify": "npm test && npm run verify:local",
     "load:smoke": "node scripts/load-smoke.mjs"
   },
