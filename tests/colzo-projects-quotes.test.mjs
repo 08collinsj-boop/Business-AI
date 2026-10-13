@@ -44,7 +44,7 @@ test('unverified browser cannot read tenant projects or quotes', {concurrency:fa
 });
 test('project updates have optimistic timestamp checks and cannot modify another tenant', {concurrency:false},async()=>{
  let uri='';configure((url,options)=>{const auth=authenticated(url);if(auth)return auth;if(url.includes('/colzo_projects?')&&options.method==='PATCH'){uri=url;return respond([{id:projectId,status:'completed',progress:100}]);}if(url.includes('/colzo_projects?'))return respond([{id:projectId,status:'active',progress:40,updated_at:'2026-10-12T12:00:00Z'}]);if(url.includes('business_audit_events'))return respond([]);throw Error(url);});
- const response=res();await handler({method:'PATCH',headers:{authorization:'Bearer example'},query:{kind:'projects'},body:{id:projectId,progress:100}},response);
+ const response=res();await handler({method:'PATCH',headers:{authorization:'Bearer example'},query:{kind:'projects'},body:{id:projectId,expected_updated_at:'2026-10-12T12:00:00Z',progress:100}},response);
  assert.equal(response.code,200);assert.ok(uri.includes('business_id=eq.'+businessId));assert.match(uri,/updated_at=eq\./);
 });
 test('DB migration creates tenant-safe records with RLS and never uses public grants',async()=>{

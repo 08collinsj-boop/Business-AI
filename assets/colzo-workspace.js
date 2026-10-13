@@ -12,7 +12,7 @@
   const gbp=value=>'£'+Number(value||0).toLocaleString('en-GB',{maximumFractionDigits:2,minimumFractionDigits:0});
   const safeTel=value=>{const t=String(value||'').replace(/[^\d+]/g,'');return /^\+?\d{6,15}$/.test(t)?t:null;};
   const safeEmail=value=>{const t=String(value||'').trim();return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(t)&&t.length<=320?t:null;};
-  const state={enquiryFilter:'All',projectFilter:'All',projects:[],projectsLoaded:false,clients:[],clientsLoaded:false,selectedLead:null,quoteRows:[],lastModalFocus:null,modalKind:null,modalId:null,leadId:null};
+  const state={enquiryFilter:'All',projectFilter:'All',projects:[],projectsLoaded:false,clients:[],clientsLoaded:false,selectedLead:null,quoteRows:[],lastModalFocus:null,modalKind:null,modalId:null,modalVersion:null,leadId:null};
   const request=(url,init)=>api(url,init);
   function report(target,message){if($(target))$(target).textContent=message||'';}
   function updateFilters(){
@@ -60,7 +60,7 @@
     target.querySelectorAll('[data-colzo-quote-id]').forEach(button=>button.addEventListener('click',async()=>{
       if(button.dataset.colzoQuoteNext==='sent'&&!window.confirm('Confirm that you sent this quote to the customer outside Colzo? Colzo does not send it automatically.'))return;
       button.disabled=true;
-      try{await request('/api/colzo/quotes',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:button.dataset.colzoQuoteId,status:button.dataset.colzoQuoteNext})});await openLead(lead.id);report('colzoLeadDetailStatus','Quote record updated.');}
+      try{await request('/api/colzo/quotes',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:button.dataset.colzoQuoteId,expected_updated_at:state.quoteRows.find(row=>String(row.id)===button.dataset.colzoQuoteId)?.updated_at,status:button.dataset.colzoQuoteNext})});await openLead(lead.id);report('colzoLeadDetailStatus','Quote record updated.');}
       catch(e){report('colzoLeadDetailStatus',e.message||'Could not update quote');button.disabled=false;}
     }));
     $('colzoDetailSchedule')?.addEventListener('click',()=>{showView('bookings');requestAnimationFrame(()=>{const linked=$('bookingLead');if(linked)linked.value=String(lead.id);if(typeof toggleWorkForm==='function')toggleWorkForm('bookings');});});
@@ -143,7 +143,7 @@
   function openModal(kind,id=null,leadId=null){
     const modal=$('colzoWorkspaceDialog'),sheet=$('colzoWorkspaceFields');if(!modal||!sheet)return;
     const project=kind==='project',client=kind==='client',enquiry=kind==='enquiry',existing=project?state.projects.find(p=>p.id===id):client?state.clients.find(c=>c.id===id):null;
-    state.modalKind=kind;state.modalId=id;state.leadId=leadId;state.lastModalFocus=document.activeElement;
+    state.modalKind=kind;state.modalId=id;state.modalVersion=existing?.updated_at||null;state.leadId=leadId;state.lastModalFocus=document.activeElement;
     $('colzoWorkspaceDialogTitle').textContent=enquiry?'New enquiry':project?(existing?'Edit project':'New project'):client?(existing?'Edit client':'Add client'):'Create quote';
     const leadsOptions=['<option value="">No linked enquiry</option>',...allLeads().map(l=>`<option value="${escape(l.id)}" ${String(l.id)===String(existing?.lead_id||leadId)?'selected':''}>${escape(l.name||'Enquiry')} · ${escape(l.job_type||'General')}</option>`)].join('');
     const linked=`<label>Related enquiry<select name="lead_id" ${project?'':'required'}>${project?leadsOptions:leadsOptions.replace('<option value="">No linked enquiry</option>','<option value="" selected disabled>Choose an enquiry</option>')}</select></label>`;
@@ -160,7 +160,7 @@
     button.disabled=true;report('colzoWorkspaceFormMessage','Saving…');
     try{
       const url=enquiry?'/api/leads':client?'/api/colzo/clients':project?'/api/colzo/projects':'/api/colzo/quotes';
-      const saved=await request(url,{method:state.modalId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.modalId?{id:state.modalId,...body}:body)});
+      const saved=await request(url,{method:state.modalId?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.modalId?{id:state.modalId,expected_updated_at:state.modalVersion,...body}:body)});
       const leadId=state.leadId||(!enquiry&&!client&&!project?saved?.item?.lead_id:null);closeModal();
       if(enquiry){await loadAll(false);showView('leads');toast('Enquiry created');}else if(client){await refreshClients();toast('Client saved');}else if(project){await refreshProjects();toast('Project saved');}else if(leadId){await openLead(leadId);toast('Quote draft saved');}else{showView('leads');toast('Quote draft saved');}
     }catch(e){report('colzoWorkspaceFormMessage',e.message||'Could not save this record.');}

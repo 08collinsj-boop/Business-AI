@@ -27,10 +27,10 @@ test('client POST derives business ID server side and writes no secret or unappr
  const response=res();await handler({method:'POST',headers:{authorization:'Bearer test'},body:{full_name:'A Client',email:'person@example.com'}},response);
  assert.equal(response.code,201);assert.equal(stored.business_id,businessId);assert.equal(stored.full_name,'A Client');assert.equal(stored.email,'person@example.com');
 });
-test('cross-tenant client update fails closed', {concurrency:false},async()=>{
+test('missing or stale client update fails closed', {concurrency:false},async()=>{
  setup((url,options)=>{if(url.includes('/colzo_clients?')&&options.method==='PATCH')return respond([]);throw Error(url);});
- const response=res();await handler({method:'PATCH',headers:{authorization:'Bearer test'},body:{id:clientId,phone:'0123'}},response);
- assert.equal(response.code,404);
+ const response=res();await handler({method:'PATCH',headers:{authorization:'Bearer test'},body:{id:clientId,expected_updated_at:'2026-10-12T12:00:00Z',phone:'0123'}},response);
+ assert.equal(response.code,409);
 });
 test('new client records stay private and navigation leads to working forms',async()=>{
  const read=name=>readFile(new URL('../'+name,import.meta.url),'utf8');
