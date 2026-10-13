@@ -7,7 +7,7 @@
  <meta name="robots" content="noindex,nofollow">
  <title>Colzo | Existing account verification</title>
  <link rel="icon" href="/assets/icons/colzo-mark.svg" type="image/svg+xml">
- <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-1">
+ <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-explore-1">
 </head>
 <body>
  <main class="screen">
@@ -19,10 +19,33 @@
     <label for="originalPassword">Password</label><input id="originalPassword" type="password" name="password" autocomplete="current-password" required placeholder="Your existing password">
     <button id="verifyButton" type="submit">Sign in and check my existing enquiries <span aria-hidden="true">→</span></button>
    </form><p id="status" class="status" aria-live="polite" role="status">Checking the original app configuration…</p>
-   <div id="results" class="results" hidden><div class="row"><h2>Original account data</h2><button id="endCheck" class="secondary" type="button">End this test</button></div><p id="resultsDescription" class="muted"></p><div id="enquiriesList" class="enquiries-list"></div></div>
+   <div id="results" class="results" hidden><div class="row"><h2>Original account data</h2><button id="endCheck" class="secondary" type="button">End this test</button></div><p id="resultsDescription" class="muted"></p><div id="enquiriesList" class="enquiries-list"></div><button id="openColzoExplore" type="button" class="colzo-open-dashboard">Open your Colzo dashboard preview <span aria-hidden="true">↗</span></button><p class="colzo-open-caption">See a redesigned, read-only view of the data you just verified.</p></div>
+  </section>
+  <section id="colzoExplore" class="colzo-explore" aria-label="Colzo read-only dashboard" hidden>
+    <header class="colzo-explore-header"><div class="colzo-explore-brand"><img src="/assets/icons/colzo-mark.svg" width="34" height="34" alt=""><strong>Colzo</strong></div><div class="colzo-explore-header-right"><span class="colzo-readonly-pill">READ ONLY</span><button id="colzoExploreExit" type="button" aria-label="Exit dashboard and end verification">Exit</button></div></header>
+    <div class="colzo-explore-body">
+      <section id="colzoExploreHome" class="colzo-explore-panel" aria-labelledby="colzoHomeTitle">
+        <p class="colzo-eyebrow">BUSINESS OVERVIEW</p><h1 id="colzoHomeTitle">Good morning.</h1><p class="colzo-home-intro">Here's what's happening with your business today.</p>
+        <div class="colzo-mini-stats"><div class="colzo-mini-stat"><span>Revenue</span><strong>—</strong><small>Not connected</small></div><div class="colzo-mini-stat colzo-stat-highlight"><span>Enquiries</span><strong id="colzoHomeEnquiries">0</strong><small>Verified records</small></div><div class="colzo-mini-stat"><span>Active projects</span><strong>—</strong><small>Not connected</small></div></div>
+        <div class="colzo-trend-panel"><div class="colzo-trend-heading"><h2>Enquiry trend</h2><span>Last 6 months</span></div><svg id="colzoTrendChart" viewBox="0 0 318 132" role="img" aria-label="Enquiries over the last six months"><polyline id="colzoTrendLine" fill="none" stroke="#c8ff2e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points=""/></svg><div id="colzoTrendLabels" class="colzo-trend-labels"></div><p class="colzo-trend-subtitle">Real enquiries, not revenue.</p></div>
+        <div class="colzo-block-heading"><h2>Quick actions</h2></div><div class="colzo-quick-grid"><button id="colzoOpenEnquiries" type="button"><i>▤</i><span>View enquiries</span></button><button id="colzoOpenProjects" type="button"><i>▱</i><span>Projects</span></button><button id="colzoOpenSettings" type="button"><i>⚙</i><span>Settings</span></button><button id="colzoViewOriginal" type="button"><i>↗</i><span>Original app</span></button></div>
+        <p class="colzo-safe-note">This preview cannot create quotes, update enquiries, access billing or alter your live data.</p>
+      </section>
+      <section id="colzoExploreEnquiries" class="colzo-explore-panel" aria-labelledby="colzoEnquiriesTitle" hidden>
+        <div class="colzo-mobile-heading"><h1 id="colzoEnquiriesTitle">Enquiries</h1><span class="colzo-readonly-pill">LIVE DATA · READ ONLY</span></div>
+        <div class="colzo-filter-tabs" role="group" aria-label="Filter enquiries"><button type="button" data-colzo-filter="All" aria-pressed="true">All</button><button type="button" data-colzo-filter="New" aria-pressed="false">New</button><button type="button" data-colzo-filter="In Progress" aria-pressed="false">In Progress</button><button type="button" data-colzo-filter="Won" aria-pressed="false">Won</button></div>
+        <label class="colzo-search-label" for="colzoEnquirySearch"><span aria-hidden="true">⌕</span><input id="colzoEnquirySearch" type="search" placeholder="Search enquiries…" autocomplete="off"></label><p id="colzoEnquiryCount" class="colzo-count" aria-live="polite"></p><div id="colzoEnquiryCards" class="colzo-cards"></div>
+      </section>
+      <section id="colzoExploreDetail" class="colzo-explore-panel" aria-labelledby="colzoDetailTitle" hidden>
+        <button id="colzoDetailReturn" type="button" class="colzo-back">‹ Enquiries</button><div id="colzoDetailPerson" class="colzo-person"></div><div class="colzo-info-panel"><h2>Details</h2><dl id="colzoDetailFields"></dl></div><div class="colzo-info-panel"><h2>Read-only preview</h2><p>Your original account's data is displayed here. Contact details, quotes and editing controls will become available only after Colzo's full environment is verified.</p></div>
+      </section>
+      <section id="colzoExploreProjects" class="colzo-explore-panel" aria-labelledby="colzoProjectsTitle" hidden><h1 id="colzoProjectsTitle">Projects</h1><div class="colzo-filter-tabs" role="group" aria-label="Project categories"><span>All</span><span>Active</span><span>Completed</span></div><div class="colzo-empty-feature"><div aria-hidden="true">▱</div><h2>Projects need a verified connection</h2><p>The original app's project API has not been certified for this read-only preview. Nothing will be invented or moved from your existing database.</p></div><div class="colzo-project-banner"><span>Turn enquiries<br>into real progress.</span><p>Project tracking is built in the Colzo development branch; its full integration still needs testing.</p></div></section>
+      <section id="colzoExploreMore" class="colzo-explore-panel" aria-labelledby="colzoMoreTitle" hidden><h1 id="colzoMoreTitle">Settings</h1><p class="colzo-home-intro">Your original account is verified. These links keep you on the existing application until full migration is approved.</p><div class="colzo-settings-list"><a href="https://app.getbusiness-ai.com/" target="_blank" rel="noopener noreferrer"><span>▣</span><span><strong>Business profile</strong><small>Open the existing application</small></span><b>›</b></a><a href="https://app.getbusiness-ai.com/" target="_blank" rel="noopener noreferrer"><span>⚙</span><span><strong>Security and account</strong><small>Existing owner settings</small></span><b>›</b></a><button id="colzoSafeSignOut" type="button"><span>↪</span><span><strong>End verification</strong><small>Clear the preview's in-memory session</small></span><b>›</b></button></div></section>
+    </div>
+    <nav class="colzo-explore-nav" aria-label="Colzo dashboard navigation"><button type="button" data-colzo-screen="Home" aria-current="page"><i>⌂</i>Home</button><button type="button" data-colzo-screen="Enquiries"><i>▤</i>Enquiries</button><button type="button" data-colzo-screen="Projects"><i>▱</i>Projects</button><button type="button" data-colzo-screen="More"><i>⋯</i>More</button></nav>
   </section>
   <footer><p>Preview-only · No live service-role key is used · All customer enquiries are read through the original application's existing authorisation rules.</p><a href="https://app.getbusiness-ai.com/">Open the original Business AI app</a></footer>
  </main>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script src="/assets/colzo-readonly.js?v=20261013-1" defer></script>
+ <script src="/assets/colzo-readonly.js?v=20261013-explore-1" defer></script>
 </body></html>
