@@ -282,3 +282,18 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 /* Final Figma pixel-review corrections: single-line heading and visible sign out. */
 #colzoOwner .cf-profile{min-height:88px;margin-bottom:13px}
 #colzoOwner .cn-account:before{content:'●';font-size:16px}
+
+/* iOS Safari / installed PWA: the original owner app locks the BODY viewport
+   and scrolls its own .app container. The standalone Colzo workspace is a
+   sibling, so it must scroll independently while the native shell is active.
+   Leave the original Business AI .app scrolling unchanged in legacy mode. */
+@supports (-webkit-touch-callout: none) {
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner {
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}

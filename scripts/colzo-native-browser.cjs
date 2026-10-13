@@ -11,6 +11,15 @@ const server=spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const sdk='window.supabase={createClient(){return {auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}}}}';
 const shots=process.env.COLZO_NATIVE_SHOTS||'/tmp/colzo-native-qa';fs.mkdirSync(shots,{recursive:true});
+// Chromium does not support Safari's -webkit-touch-callout media query, so
+// execute the *actual source rule* with the same body lock in the mobile QA.
+const nativeCss=fs.readFileSync(path.resolve(__dirname,'../assets/colzo-native.css'),'utf8');
+const scrollRule=nativeCss.match(/@supports\s*\(-webkit-touch-callout:\s*none\)\s*\{\s*body\.colzo-owner-enabled\.auth-ready:not\(\.colzo-legacy-mode\) #colzoOwner\s*\{([^}]+)\}/);
+assert.ok(scrollRule,'Missing iOS WebKit Colzo scrolling fix in CSS');
+assert.match(scrollRule[1],/height:\s*100dvh/);
+assert.match(scrollRule[1],/overflow-y:\s*auto/);
+assert.match(scrollRule[1],/-webkit-overflow-scrolling:\s*touch/);
+
 async function run(){await sleep(650);const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});try{
  for(const [w,h] of [[375,812],[390,844],[430,932],[1366,768],[1440,900]]){
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:w<600,hasTouch:w<600});
@@ -39,6 +48,20 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cf-kpi').count(),3);
   assert.equal(await page.locator('.cf-quick-grid button').count(),4);
   assert.equal(await page.locator('.cf-trend').count(),1);
+  // Safari locks body scrolling to keep Business AI's old navigation fixed.
+  // Apply that same contract explicitly in Chromium: Colzo must scroll itself.
+  if(w<920){
+   await page.addStyleTag({content:`body.auth-ready{height:100dvh;min-height:100dvh;padding-bottom:0;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{${scrollRule[1]}}`});
+   const start=await page.evaluate(()=>{const el=document.querySelector('#colzoOwner');return{scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,scrollTop:el.scrollTop,bodyOverflow:getComputedStyle(document.body).overflowY,ownerOverflow:getComputedStyle(el).overflowY}});
+   assert.ok(start.scrollHeight>start.clientHeight+80,`Colzo home must have content below viewport: ${JSON.stringify(start)}`);
+   assert.equal(start.bodyOverflow,'hidden','iPhone / PWA body should remain locked for legacy navigation');
+   assert.equal(start.ownerOverflow,'auto','Colzo must be its own touch-scroll surface');
+   await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:99999,behavior:'instant'}));
+   const reached=await page.evaluate(()=>{const el=document.querySelector('#colzoOwner');return{top:el.scrollTop,end:el.scrollHeight-el.clientHeight,button:el.querySelector('.cf-below-fold .cn-duo button')?.getBoundingClientRect().bottom}});
+   assert.ok(reached.top>80&&Math.abs(reached.top-reached.end)<=2,`Colzo must scroll to bottom: ${JSON.stringify(reached)}`);
+   assert.ok(reached.button<h+10,`Colzo's lower actions must be reachable above viewport bottom: ${JSON.stringify(reached)}`);
+   await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:0,behavior:'instant'}));
+  }
   await page.screenshot({path:`${shots}/native-home-${w}.png`,fullPage:false});
   await page.locator('.cn-nav [data-cn-screen="enquiries"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Enquiries');
@@ -78,6 +101,13 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.match(await page.locator('#cnDraftStatus').innerText(),/No draft was saved or sent|Draft copied|Clipboard unavailable/);
   await page.screenshot({path:`${shots}/native-quotes-${w}.png`,fullPage:false});
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  if(w<920){
+   await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:99999,behavior:'instant'}));
+   const lower=await page.evaluate(()=>{const el=document.querySelector('#colzoOwner');return{top:el.scrollTop,max:el.scrollHeight-el.clientHeight,moreHeading:el.querySelector('.cf-tools-extra h2')?.getBoundingClientRect().top,signout:el.querySelector('.cf-signout')?.getBoundingClientRect().bottom}});
+   assert.ok(lower.top>80&&Math.abs(lower.max-lower.top)<=2,`More must scroll fully: ${JSON.stringify(lower)}`);
+   assert.ok(lower.moreHeading<h,`Bottom settings / tools should be reachable: ${JSON.stringify(lower)}`);
+   await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:0,behavior:'instant'}));
+  }
   await page.screenshot({path:`${shots}/native-more-${w}.png`,fullPage:false});
   await page.locator('.cn-more-links [data-cn-legacy="bookings"]').click();
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'legacy Bookings remains accessible');

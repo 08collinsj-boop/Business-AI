@@ -69,3 +69,11 @@ Figma file: `https://www.figma.com/design/wcdiGlxNa96O4hcmGgcsHx`, six editable 
 `npm run verify`: 580/580 pass. `npm run verify:colzo-native` browser checks pass at 375×812, 390×844, 430×932, 1366×768 and 1440×900 with synthetic tenant records and no live API requests. The code includes CSS layout controls scoped to `#colzoOwner`, without altering original Business AI functional CSS.
 
 Still required before replacing Production: actual owner login / existing data acceptance in the staged environment, verified rollback and recoverable backup, plus release approval. This is a substantially more faithful frontend, but does not imply full backend-enabled Project/Client/Quote editing.
+
+## iOS Safari / iPhone PWA scroll regression fixed (13 October 2026)
+
+**User-reported:** the Figma-aligned Colzo owner screens could not scroll down after sign-in on iPhone. Root cause: the existing Business AI iOS CSS sets `body.auth-ready { height:100dvh; overflow:hidden }` and scrolls only the old `.app` element; Colzo's distinct `#colzoOwner` is a sibling of `.app` and had no own scroll container. Its below-fold content was thus unreachable.
+
+**Change:** in `assets/colzo-native.css`, scope an independent `height:100dvh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-y:contain` container to the active standalone Colzo owner shell **only on WebKit/iOS**. This leaves legacy Business AI's `.app` scrolling, login, legal screens, public/customer portal and desktop layout untouched, and preserves nested horizontal status filter gestures. Existing fixed Colzo navigation continues to stay visible.
+
+**Regression:** `scripts/colzo-native-browser.cjs` checks the actual CSS rule and explicitly simulates Safari's body lock in Chromium; scrolls Home to the last quick actions and Settings to the lower business tools at 375×812, 390×844, 430×932, then scrolls back and tests all existing flows. Native WebKit binary is unavailable in the no-cost sandbox, so the fix needs owner confirmation on a physical iPhone from the new staged preview. Do not promote Production until authenticated acceptance.
