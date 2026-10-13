@@ -144,3 +144,141 @@ body.colzo-legacy-mode.auth-ready #cnReturnToColzo:not([hidden]){display:block}
 }
 @media(max-width:350px){#colzoOwner .cn-hero{padding:18px 14px}#colzoOwner .cn-hero-grid{grid-template-columns:minmax(0,1fr) 71px}#colzoOwner .cn-hero-mark{width:72px}#colzoOwner .cn-hero h1{font-size:29px}#colzoOwner .cn-stats{gap:7px}#colzoOwner .cn-stat{padding:13px 11px}}
 @media(prefers-reduced-motion:reduce){#colzoOwner *,#colzoOwner *:before,#colzoOwner *:after{transition:none!important;animation:none!important}}
+
+/* Figma / Colzo six-phone reference implementation, 390×844 mobile grid.
+   Measurements come from editable frames 3:7, 3:12, 3:17 and 3:22.
+   Existing account/customer/backend data remains real; no sample totals. */
+#colzoOwner{--cn-bg:#0d1115;--cn-panel:#20272d;--cn-panel2:#242b31;--cn-border:#364047;--cn-white:#f5f7fa;--cn-muted:#a5b0bb;background:var(--cn-bg)}
+body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
+#colzoOwner .cn-content{width:min(100%,700px);padding:16px 20px 110px}
+#colzoOwner .cn-header{height:91px;min-height:91px;align-items:flex-end;padding:0 20px 9px;background:#0d1115;border:0;backdrop-filter:none;position:relative}
+#colzoOwner .cn-business{display:none}
+#colzoOwner .cn-wordmark{width:38px;height:36px;color:#f5f7fa}
+#colzoOwner .cn-wordmark img,#colzoOwner .cn-wordmark>span{display:none}
+#colzoOwner .cn-wordmark:before{content:'☰';display:grid;place-items:center;font-size:22px;font-weight:400;width:38px;height:36px}
+#colzoOwner .cn-account{margin-left:auto;width:37px;height:37px;background:#39434b;border:0;color:#f5f7fa;font-size:14px}
+#colzoOwner .cn-account:before{content:'AM';font-size:11px;letter-spacing:0}
+#colzoOwner .cn-account>span{display:none}
+#colzoOwner:not([data-screen='home']) .cn-header{height:59px;min-height:59px;padding:0;overflow:hidden;visibility:hidden;pointer-events:none}
+#colzoOwner:not([data-screen='home']) .cn-content{padding-top:18px}
+#colzoOwner .cf-home-head{margin:0 0 18px;min-height:85px}
+#colzoOwner .cf-home-head h1{margin:0 0 10px;font-size:23px;line-height:1.2;font-weight:650;letter-spacing:-.65px}
+#colzoOwner .cf-home-head h1 span{font-weight:650}
+#colzoOwner .cf-home-head p{font-size:12px;line-height:1.42;color:#9eaab4;margin:0}
+#colzoOwner .cf-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 11px}
+#colzoOwner .cf-kpi{background:#20272d;border:0;border-radius:13px;display:flex;flex-direction:column;min-width:0;min-height:133px;padding:14px 12px 12px;box-shadow:none}
+#colzoOwner .cf-kpi-label{font-size:11px;font-weight:400;color:#9eaab4;min-height:40px;line-height:1.4}
+#colzoOwner .cf-kpi>strong{font-size:19px;line-height:1.18;font-weight:730;letter-spacing:-.6px;color:#f5f7fa;margin:0 0 auto}
+#colzoOwner .cf-kpi-sub{color:#c8ff2e;font-size:10px;line-height:1.2;min-height:12px;margin-top:17px}
+#colzoOwner .cf-trend{height:207px;margin:0 0 24px;border-radius:15px;background:#20272d;padding:12px 15px;border:0;overflow:hidden}
+#colzoOwner .cf-trend header{display:flex;justify-content:space-between;align-items:center;height:26px;gap:6px}
+#colzoOwner .cf-trend h2{font-size:14px;font-weight:650;margin:0;color:#f5f7fa}
+#colzoOwner .cf-trend header span{background:#242b31;border-radius:9px;color:#9eaab4;font-size:10px;padding:9px 8px;white-space:nowrap}
+#colzoOwner .cf-trend svg{display:block;width:100%;height:122px;margin:3px auto 0}
+#colzoOwner .cf-trend .cf-months{display:grid;grid-template-columns:repeat(6,1fr);color:#9eaab4;font-size:10px;text-align:center;margin:0}
+#colzoOwner .cf-trend p{font-size:9px;color:#9eaab4;position:absolute;left:-10000px}
+#colzoOwner .cf-quick h2{font-size:14px;color:#f5f7fa;margin:0 0 11px;font-weight:650}
+#colzoOwner .cf-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#colzoOwner .cf-quick-grid button{display:flex;flex-direction:column;align-items:center;justify-content:space-around;background:#20272d;color:#f5f7fa;border:0;border-radius:14px;min-height:115px;gap:10px;padding:13px 4px 7px;min-width:0}
+#colzoOwner .cf-quick-icon{display:grid;place-items:center;width:36px;height:36px;font-size:24px;color:#f5f7fa}
+#colzoOwner .cf-quick-icon.primary{background:#c8ff2e;color:#14200f;border-radius:50%;font-weight:700}
+#colzoOwner .cf-quick-grid small{font-size:10px;line-height:1.35;color:#f5f7fa;text-align:center;min-height:25px}
+#colzoOwner .cf-below-fold{margin-top:36px}
+#colzoOwner .cf-screen-top{display:flex;justify-content:space-between;align-items:center;gap:8px;height:43px;margin:0 0 20px}
+#colzoOwner .cf-screen-top h1{font-weight:720;font-size:27px;letter-spacing:-1px;margin:0;color:#f5f7fa}
+#colzoOwner .cf-top-actions{display:flex;gap:10px}
+#colzoOwner .cf-icon-button{border:0;background:#20272d;color:#f5f7fa;width:36px;height:36px;border-radius:12px;font-size:23px;display:grid;place-items:center;padding:0}
+#colzoOwner .cf-icon-button.volt{background:#c8ff2e;color:#172016;font-weight:700}
+#colzoOwner .cf-tabs{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #364047;gap:1px;margin:0 0 15px;min-height:34px;overflow-x:auto}
+#colzoOwner .cf-tabs button{font-size:10.5px;line-height:1.2;color:#9eaab4;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;padding:11px 2px 11px;white-space:nowrap;min-height:33px;flex:0 0 auto;font-weight:500}
+#colzoOwner .cf-tabs button[aria-pressed=true]{font-weight:650;color:#c8ff2e;border-bottom-color:#c8ff2e;box-shadow:none}
+#colzoOwner .cf-search{height:49px;background:#20272d;border:0;border-radius:15px;margin:0 0 13px;gap:9px}
+#colzoOwner .cf-search input{font-size:12px}
+#colzoOwner .cf-lead-list{gap:8px;margin:0 0 13px}
+#colzoOwner .cf-lead-card{height:92px;min-height:92px;background:#20272d;border:0;border-radius:16px;padding:11px 14px;gap:13px}
+#colzoOwner .cf-lead-card .cn-avatar{width:39px;height:39px;font-size:11px;background:#424b52;border:0}
+#colzoOwner .cf-lead-card .cn-record-main{gap:6px}
+#colzoOwner .cf-lead-card .cn-record-main strong{font-size:12px;font-weight:670}
+#colzoOwner .cf-lead-card .cn-record-main small{font-size:10px}
+#colzoOwner .cf-lead-card .cn-pill{font-size:10px;margin-top:1px;height:21px;min-width:44px;text-align:center;border-radius:12px;padding:5px 9px}
+#colzoOwner .cn-pill.progress{background:#76b9f9;color:#102232}
+#colzoOwner .cf-lead-card .cn-record-end time{font-size:9px}
+#colzoOwner .cf-lead-card .cn-record-end{gap:17px}
+#colzoOwner .cf-list-footer{display:flex;justify-content:space-between;gap:12px;color:#9eaab4;font-size:10px;margin:16px 0}
+#colzoOwner .cf-list-footer button{font-size:11px;border:0;color:#c8ff2e;background:none}
+#colzoOwner .cf-project-tabs{margin-bottom:13px}
+#colzoOwner .cf-project-list{gap:9px;margin:0 0 21px}
+#colzoOwner .cf-project-card{width:100%;min-height:88px;display:flex;align-items:center;gap:11px;padding:10px 13px;background:#20272d;color:#f5f7fa;border:0;border-radius:15px;text-align:left}
+#colzoOwner .cf-project-card .cn-avatar{width:43px;height:43px;background:#424b52;border:0;font-size:11px}
+#colzoOwner .cf-project-text{display:grid;gap:6px;flex:1;min-width:0}
+#colzoOwner .cf-project-text strong{font-size:12px;font-weight:670;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#colzoOwner .cf-project-text small{font-size:10px;color:#9eaab4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#colzoOwner .cf-progress{height:7px;background:#3b4347;border-radius:5px;overflow:hidden;width:100%;display:block;margin:4px 0}
+#colzoOwner .cf-progress i{display:block;height:100%;background:#c8ff2e;border-radius:5px}
+#colzoOwner .cf-project-status{color:#b4c1c8;font-size:9px;margin-top:7px}
+#colzoOwner .cf-project-end{color:#f5f7fa;font-size:22px;display:flex;flex-direction:column;align-items:end;justify-content:space-between;height:58px}
+#colzoOwner .cf-project-end small{color:#9eaab4;font-size:10px}
+#colzoOwner .cf-project-promo{height:164px;position:relative;overflow:hidden;background:#1b2424;border-radius:19px;padding:17px 15px;margin:5px 0 0}
+#colzoOwner .cf-promo-art{position:absolute;right:-30px;top:-12px;background:#6b8d1c;transform:rotate(-35deg);width:92px;height:180px;opacity:.8}
+#colzoOwner .cf-promo-icon{color:#c8ff2e;font-size:24px}
+#colzoOwner .cf-project-promo h2{font-size:19px;font-weight:680;line-height:1.15;margin:8px 0 9px;position:relative}
+#colzoOwner .cf-project-promo p{font-size:10px;line-height:1.5;color:#9eaab4;position:relative}
+#colzoOwner .cf-project-promo button{position:absolute;right:17px;bottom:14px;width:47px;height:47px;border-radius:50%;border:0;background:#c8ff2e;color:#142014;font-size:27px}
+#colzoOwner .cf-detail-top{display:flex;justify-content:space-between;align-items:center;min-height:40px;margin:0 0 21px}
+#colzoOwner .cf-detail-top .cn-back{font-size:30px;color:#f5f7fa;padding:0;background:none}
+#colzoOwner .cf-more-button{background:none;border:0;color:#f5f7fa;font-size:22px}
+#colzoOwner .cf-detail-contact{display:flex;align-items:center;gap:16px;margin:0 0 26px}
+#colzoOwner .cf-detail-contact .cn-avatar.large{width:62px;height:62px;font-size:17px;flex:none;margin:0;background:#424b52;border:0}
+#colzoOwner .cf-detail-contact h1{font-size:19px;line-height:1.25;margin:0 0 5px;font-weight:680}
+#colzoOwner .cf-detail-contact p{font-size:11px;color:#9eaab4;margin:0 0 9px}
+#colzoOwner .cf-contact-row{display:flex;align-items:flex-start;justify-content:space-around;gap:5px;margin:0 0 22px}
+#colzoOwner .cf-contact-row>*{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:0;color:#f5f7fa;text-decoration:none;border:0;background:none;font-size:11px;padding:0}
+#colzoOwner .cf-contact-row b{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:#20272d;font-size:22px;font-weight:400}
+#colzoOwner .cf-detail-panel{background:#20272d;border:0;border-radius:16px;padding:16px;margin:0 0 14px}
+#colzoOwner .cf-detail-panel h2{font-size:14px;margin:0 0 15px;font-weight:650}
+#colzoOwner .cf-detail-panel dl{gap:12px}
+#colzoOwner .cf-detail-panel dl>div{grid-template-columns:52% 48%;font-size:10px}
+#colzoOwner .cf-detail-panel p{font-size:11px;line-height:1.55}
+#colzoOwner .cf-detail-buttons{display:flex;flex-direction:column;gap:9px;margin:20px 0 0}
+#colzoOwner .cf-detail-buttons button{width:100%;height:49px;border-radius:14px;border:0;font-size:12px;font-weight:650}
+#colzoOwner .cf-button-muted{background:#20272d;color:#f5f7fa}
+#colzoOwner .cf-button-volt{background:#c8ff2e;color:#141b11}
+#colzoOwner .cn-nav{background:#161c20;border:1px solid #364047;border-radius:20px;left:50%;bottom:max(8px,env(safe-area-inset-bottom));width:min(calc(100% - 16px),530px);gap:1px;padding:4px 6px;height:70px}
+#colzoOwner .cn-nav button{border:0;border-radius:14px;min-height:59px;font-size:10px;gap:3px;font-weight:500}
+#colzoOwner .cn-nav button[aria-current=page]{color:#c8ff2e;background:#25321f;box-shadow:none;font-weight:680}
+#colzoOwner .cn-navicon{font-size:23px}
+@media(min-width:920px){
+ #colzoOwner .cn-content{width:min(100%,1040px);padding:38px 35px 90px}
+ #colzoOwner .cn-header{margin:0;min-height:85px;padding:12px 35px 10px}
+ #colzoOwner:not([data-screen='home']) .cn-header{visibility:visible;pointer-events:auto}
+ #colzoOwner .cn-wordmark img,#colzoOwner .cn-wordmark>span{display:none}
+ #colzoOwner .cf-kpis{gap:15px}
+ #colzoOwner .cf-kpi{min-height:143px}
+ #colzoOwner .cf-trend{height:250px;padding:20px 23px}
+ #colzoOwner .cf-trend svg{height:158px}
+ #colzoOwner .cf-quick-grid{gap:15px}
+ #colzoOwner .cn-nav{left:0;top:0;bottom:0;width:230px;height:100dvh;display:flex;flex-direction:column;align-items:stretch;padding:100px 14px 20px;transform:none;border-radius:0}
+}
+/* Figma frame 3:27 / Settings */
+#colzoOwner .cf-settings-title{margin:0 0 21px}
+#colzoOwner .cf-profile{min-height:103px;display:flex;align-items:center;gap:14px;margin:0 0 22px;padding:5px 4px}
+#colzoOwner .cf-profile-avatar{width:73px;height:73px;border-radius:50%;display:grid;place-items:center;color:#f5f7fa;background:#384148;font-weight:650;font-size:22px;flex:none}
+#colzoOwner .cf-profile>div{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+#colzoOwner .cf-profile strong{font-size:15px;font-weight:650;line-height:1.2}
+#colzoOwner .cf-profile small{font-size:10px;color:#9eaab4}
+#colzoOwner .cf-profile>button{border:0;background:none;color:#f5f7fa;font-size:24px;padding:10px 3px}
+#colzoOwner .cf-settings-list{display:grid;gap:4px}
+#colzoOwner .cf-settings-list button{background:#20272d;border:0;border-radius:12px;color:#f5f7fa;display:flex;align-items:center;text-align:left;gap:12px;width:100%;min-height:61px;padding:11px 15px}
+#colzoOwner .cf-settings-icon{font-size:22px;color:#f5f7fa;width:31px;display:grid;place-items:center;flex:none}
+#colzoOwner .cf-settings-label{display:grid;gap:5px;flex:1;min-width:0}
+#colzoOwner .cf-settings-label strong{font-size:12px;font-weight:660}
+#colzoOwner .cf-settings-label small{font-size:10px;color:#9eaab4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#colzoOwner .cf-settings-arrow{font-size:23px;color:#f5f7fa}
+#colzoOwner .cf-signout{display:block;background:#20272d;color:#f5f7fa;border:0;border-radius:12px;width:100%;min-height:43px;margin:21px 0 0;font-size:12px;font-weight:650}
+#colzoOwner .cf-tools-extra{margin:70px 0 0}
+#colzoOwner .cf-tools-extra h2{font-size:15px;margin:0 0 12px}
+#colzoOwner .cf-tools-extra .cn-more-links{grid-template-columns:minmax(0,1fr)}
+@media(min-width:920px){#colzoOwner .cf-settings-list{grid-template-columns:repeat(2,minmax(0,1fr))}#colzoOwner .cf-settings-list button{min-height:75px}#colzoOwner .cf-profile{min-height:117px}}
+/* Final Figma pixel-review corrections: single-line heading and visible sign out. */
+#colzoOwner .cf-profile{min-height:88px;margin-bottom:13px}
+#colzoOwner .cn-account:before{content:'●';font-size:16px}

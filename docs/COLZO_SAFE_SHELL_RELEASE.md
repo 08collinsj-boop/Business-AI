@@ -54,3 +54,18 @@ The new `#colzoOwner` interface **replaces the default authenticated owner prese
 **Scope:** The native Projects view currently shows **real existing bookings and actions** and says standalone Colzo project tracking is not yet enabled. Contacts remain enquiry-derived rather than saved Client entities. Quotes are **COPY ONLY** and never saved, approved, sent or billed. This is not the completed backend migration or the full six-screen product. Existing feature workflows stay in original screens until equivalent controls pass real authenticated testing.
 
 **Acceptance:** `npm run verify` passes 580 application tests. `npm run verify:colzo-native` (optional test-only Playwright Chromium) passes all five viewports and covers Home, Enquiries/search/details, Projects, Clients, copy-only Quotes, More, legacy navigation, return link, logout hiding protected UI and responsive geometry. Fake accounts and records are used for browser tests; no user/customer data is changed. Staged authenticated verification and reversible cutover remain required before promotion to the live domain.
+
+## Figma design-to-code pass (13 October 2026)
+
+Figma file: `https://www.figma.com/design/wcdiGlxNa96O4hcmGgcsHx`, six editable 390×844 Colzo reference frames. The browser implementation now follows the actual reference geometry rather than the previous invented hero. The Figma Starter MCP quota was reached after accessing Home, Enquiries, and Projects design context; no upgrade or paid operation was undertaken. Settings and enquiry-detail layouts were reconciled against the previously rendered Figma screenshots and user-supplied concept image.
+
+- **Home:** compact personalised time-of-day greeting (no fabricated account name), 3 real-data metrics, 6-month *enquiry* trend (never fictitious revenue), and four square quick actions matching the reference positioning.
+- **Enquiries:** top-right search/add controls, All/New/In Progress/Won filters with counts computed from actual enquiry statuses, dark 92px customer cards, coloured status badges, full search, and detail navigation.
+- **Enquiry details:** left-aligned initials + customer name/status, contact/scheduling controls, details and description panels, and clearly routed actions. Status editing remains in the original protected owner screen; there is no hidden backend mutation.
+- **Projects:** three status tabs, genuine bookings and actions in compact rows, percentage progress only when *explicitly present in source records* and a geometric Volt promotional banner. No mock project statistics or manufactured completion percentages on real accounts.
+- **Settings/More:** Figma-style account header and 7 settings rows, plus the original billing/AI/marketing/booking/client/quote tools retained under 'Other business tools'. The sign-out action uses the original authenticated sign-out button.
+- **Security:** original Auth, DPA/legal/onboarding, RLS API, Stripe and customer portal code unchanged; unreleased Colzo quote editing remains copy-only and does not persist/send payments.
+
+`npm run verify`: 580/580 pass. `npm run verify:colzo-native` browser checks pass at 375×812, 390×844, 430×932, 1366×768 and 1440×900 with synthetic tenant records and no live API requests. The code includes CSS layout controls scoped to `#colzoOwner`, without altering original Business AI functional CSS.
+
+Still required before replacing Production: actual owner login / existing data acceptance in the staged environment, verified rollback and recoverable backup, plus release approval. This is a substantially more faithful frontend, but does not imply full backend-enabled Project/Client/Quote editing.
