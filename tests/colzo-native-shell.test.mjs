@@ -8,7 +8,7 @@ test('Colzo owner interface is a real separate app shell, not simply rebranded o
  assert.match(html,/id="colzoOwner" class="colzo-native"/);
  assert.match(html,/id="cnContent"/);
  assert.match(html,/id="cnReturnToColzo"/);
- for(const screen of ['home','enquiries','projects','more'])assert.match(html,new RegExp(`data-cn-screen="${screen}"`));
+ for(const screen of ['home','enquiries','bookings','clients','more'])assert.match(html,new RegExp(`data-cn-screen="${screen}"`));
  assert.match(css,/body\.colzo-owner-enabled\.auth-ready:not\(\.colzo-legacy-mode\) #dashboardApp/);
  assert.match(css,/body:not\(\.auth-ready\) #colzoOwner/);
  assert.match(css,/#colzoOwner \.cn-nav/);
@@ -37,7 +37,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.match(js,/not been saved, approved or sent/);
  assert.match(js,/No draft was saved or sent/);
  assert.match(js,/Dedicated Colzo project tracking is not enabled yet/);
- assert.match(js,/not yet separate saved Colzo client profiles/);
+ assert.match(js,/separate saved customer profiles/);
  for(const view of ['bookings','actions','marketing','businessProfile','settings','enquiries'])assert.ok(js.includes(view));
  assert.doesNotMatch(js,/fetch\(['"]https?:\/\//);
  assert.doesNotMatch(js,/api\(['"]\/api\/billing/);

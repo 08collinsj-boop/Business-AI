@@ -34,7 +34,7 @@
   top:5px;
   bottom:5px;
   left:var(--cn-pill-padding);
-  width:calc((100% - 2 * var(--cn-pill-padding))/4);
+  width:calc((100% - 2 * var(--cn-pill-padding))/5);
   border-radius:14px;
   background:linear-gradient(165deg,rgba(200,255,46,.16),rgba(200,255,46,.055));
   border:1px solid rgba(200,255,46,.16);
