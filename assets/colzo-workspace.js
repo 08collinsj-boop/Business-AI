@@ -77,7 +77,7 @@
     if(!document.body.classList.contains('auth-ready'))return;
     report('colzoProjectsStatus','Loading projects…');
     try{const data=await request('/api/colzo/projects');state.projects=Array.isArray(data.items)?data.items:[];state.projectsLoaded=true;report('colzoProjectsStatus','');renderProjects();renderDashboardExtras();}
-    catch{state.projectsLoaded=false;report('colzoProjectsStatus','Projects are not available in this environment yet.');renderProjects();}
+    catch{state.projectsLoaded=false;state.projects=[];report('colzoProjectsStatus','Projects are not available in this environment yet.');renderProjects();renderDashboardExtras();}
   }
   function renderProjects(){
     const parent=$('colzoProjectsList');if(!parent)return;updateFilters();
@@ -92,7 +92,7 @@
     if(!document.body.classList.contains('auth-ready'))return;
     report('colzoClientsStatus','Loading clients…');
     try{const data=await request('/api/colzo/clients');state.clients=Array.isArray(data.clients)?data.clients:[];state.clientsLoaded=true;report('colzoClientsStatus',`${state.clients.length} saved client${state.clients.length===1?'':'s'}`);renderClients();}
-    catch{state.clientsLoaded=false;report('colzoClientsStatus','Client directory unavailable in this environment.');renderClients();}
+    catch{state.clientsLoaded=false;state.clients=[];report('colzoClientsStatus','Client directory unavailable in this environment.');renderClients();}
   }
   function renderClients(){const target=$('colzoClientsList');if(!target)return;target.replaceChildren();
     if(!state.clients.length){const empty=document.createElement('p');empty.className='colzo-empty';empty.textContent=state.clientsLoaded?'No client contacts yet. Add one above.':'No client contacts available.';target.append(empty);return;}
@@ -132,8 +132,13 @@
       setup(launches[2],'Add client','♧',()=>openModal('client'));
       setup(launches[3],'View reports','▥',()=>{const el=$('valueDashboardCard');el?.scrollIntoView({behavior:'smooth',block:'start'});});
     }
-    if(!state.projectsLoaded)return;
-    stats.innerHTML=`<div class="stat"><div class="stat-top"><span class="metric-icon">£</span><span class="stat-label">Won estimates</span></div><div class="stat-value">${gbp(estimate)}</div><div class="stat-sub">Estimated, not received revenue</div></div><div class="stat"><div class="stat-top"><span class="metric-icon">▤</span><span class="stat-label">Enquiries</span></div><div class="stat-value">${total}</div><div class="stat-sub">All recorded enquiries</div></div><div class="stat"><div class="stat-top"><span class="metric-icon">▣</span><span class="stat-label">Active projects</span></div><div class="stat-value">${active}</div><div class="stat-sub">Work in progress</div></div>`;
+    if(!state.projectsLoaded){
+      // A failed project refresh must never leave figures from a previous
+      // authenticated business on screen; project counts are UNKNOWN, not zero.
+      stats.innerHTML=`<div class="stat"><div class="stat-top"><span class="metric-icon">£</span><span class="stat-label">Won estimates</span></div><div class="stat-value">—</div><div class="stat-sub">Unavailable while records refresh</div></div><div class="stat"><div class="stat-top"><span class="metric-icon">▤</span><span class="stat-label">Enquiries</span></div><div class="stat-value">${total}</div><div class="stat-sub">All recorded enquiries</div></div><div class="stat"><div class="stat-top"><span class="metric-icon">▣</span><span class="stat-label">Active projects</span></div><div class="stat-value">—</div><div class="stat-sub">Projects are currently unavailable</div></div>`;
+      return;
+    }
+    stats.innerHTML=`<div class="stat><div class="stat-top"><span class="metric-icon">£</span><span class="stat-label">Won estimates</span></div><div class="stat-value">${gbp(estimate)}</div><div class="stat-sub">Estimated, not received revenue</div></div><div class="stat"><div class="stat-top"><span class="metric-icon">▤</span><span class="stat-label">Enquiries</span></div><div class="stat-value">${total}</div><div class="stat-sub">All recorded enquiries</div></div><div class="stat"><div class="stat-top"><span class="metric-icon">▣</span><span class="stat-label">Active projects</span></div><div class="stat-value">${active}</div><div class="stat-sub">Work in progress</div></div>`;
     const trend=$('colzoLiveTrend');if(!trend)return;
     const months=Array.from({length:6},(_,i)=>{const date=new Date();date.setDate(1);date.setMonth(date.getMonth()-(5-i));const start=new Date(date.getFullYear(),date.getMonth(),1),end=new Date(date.getFullYear(),date.getMonth()+1,1);return {name:new Intl.DateTimeFormat('en-GB',{month:'short'}).format(start),value:allLeads().filter(row=>Date.parse(row.created_at)>=start.getTime()&&Date.parse(row.created_at)<end.getTime()).length};});
     const max=Math.max(1,...months.map(x=>x.value)),points=months.map((x,i)=>`${18+i*55},${106-(x.value/max)*80}`).join(' ');

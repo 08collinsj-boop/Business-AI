@@ -25,6 +25,13 @@
 - Re-run using `npm run verify:colzo-sql` after installing `@electric-sql/pglite@0.3.15` as an optional local test tool. See `docs/COLZO_STAGING_SQL_QA.md`.
 - The above **does not** replace a Supabase staging instance: it does not certify Supabase Auth configuration, service-role isolation, live RLS/grants beyond the supplied migration, Vercel secrets, backup/restore or browser authentication. No Supabase branch has been created and no production migrations have been run here.
 
+## Full owner UI browser flow verified with mocks (13 October 2026)
+
+- The **actual owner-side** JavaScript Projects/Clients/Quotes forms are exercised by Chromium in a minimal HTML fixture against a fake server API, with no real accounts or customer data.
+- Test creates/updates a project, creates/edits a client, keeps the edit modal open on a mocked 409 conflict, then creates a quote as draft and manually transitions through sent to accepted.
+- All PATCH requests must include the previously loaded `expected_updated_at` value; the mock server rejects stale versions. **Five viewports pass.** Projects/Clients GET failure is tested after records are loaded: the owner UI now clears stale records, labels the affected metric unavailable, and supports recovery.
+- The optional test is `npm run verify:colzo-owner`; see `docs/COLZO_OWNER_FORMS_BROWSER_QA.md`. The real authenticated preview and production-equivalent browser QA remain blocked by staging/backup requirements.
+
 ## Release gates, in required order
 
 1. Confirm exactly which active Vercel deployment and alias serve `app.getbusiness-ai.com`, `business-ai-pilot.vercel.app`, and the marketing/public site; record current Git SHA, environment target and rollback deployment ID.
