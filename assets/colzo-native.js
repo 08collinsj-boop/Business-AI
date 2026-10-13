@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const state={screen:'home',filter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map()};
+ const state={screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map()};
  const safe=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const dateValue=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?d:null};
  const day=v=>{const d=dateValue(v);return d?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short'}).format(d):'No date'};
@@ -109,18 +109,108 @@
   <section class="cn-detail-panel"><div class="cn-notice"><strong>Draft-only mode</strong><p>Colzo quote storage and sending are not enabled in this release. You can copy a draft, but it will not be saved or sent.</p></div>
   <form id="cnDraftForm" class="cn-form"><label>Customer enquiry<select name="lead"><option value="">Choose an enquiry</option>${entries.map(l=>`<option value="${safe(l.id)}" ${state.draftLead===String(l.id)?'selected':''}>${safe(contact(l))} — ${safe(l.job_type||'Enquiry')}</option>`).join('')}</select></label><label>Estimate title<input name="title" maxlength="120" required placeholder="Work to be completed" value="${safe(state.draftTitle)}"></label><label>Estimated amount (GBP)<input name="amount" type="number" step="0.01" min="0" max="10000000" required placeholder="0.00" value="${safe(state.draftAmount)}"></label><button type="submit" class="cn-primary">Copy draft estimate ↗</button></form><p id="cnDraftStatus" role="status" class="cn-caption"></p></section>`;
  }
- const moreItems=[['clients','♧','Clients','Contacts from enquiries'],['quotes','£','Quotes','Draft estimates'],['settings','⚙','Settings','Original account controls'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Follow-ups and tasks'],['enquiriesLegacy','✦','AI receptionist','Assistant and handling settings'],['marketing','↗','Marketing','Posts, drafts and scheduling'],['businessProfile','◈','Business profile','Your public business page'],['addons','◇','Additional features','Existing add-ons and plans']];
+ const moreItems=[['clients','♧','Clients','Contacts from enquiries'],['quotes','£','Quotes','Draft estimates'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Follow-ups and tasks'],['enquiriesLegacy','✦','AI receptionist','Assistant and handling settings'],['marketing','↗','Marketing','Posts, drafts and scheduling'],['profile','◈','Business profile','Business details and public profile'],['addons','◇','Additional features','Existing add-ons and plans']];
  function more(){
   const business=typeof settings!=='undefined'?String(settings?.business_name||'Your business'):'Your business';
-  const choices=[['▤','Business profile','Manage your business details','businessProfile'],['♧','Team members','Invite and manage your team','settings'],['⌁','Integrations','Connect your favourite tools','settings'],['◐','Notifications','Choose what you’re notified about','settings'],['◐','Appearance','Dark mode, language and display','settings'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','settings']];
-  return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1><button type="button" class="cf-icon-button cn-settings-search" data-cn-command aria-label="Search Colzo tools">⌕</button></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-legacy="settings" aria-label="Open account settings" type="button">›</button></div>
-  <div class="cf-settings-list">${choices.map(([glyph,label,detail,view])=>`<button type="button" data-cn-legacy="${view}"><span class="cf-settings-icon">${glyph}</span><span class="cf-settings-label"><strong>${label}</strong><small>${detail}</small></span><span class="cf-settings-arrow">›</span></button>`).join('')}</div>
+  const choices=[['▤','Business profile','Manage your business details','profile'],['♧','Team members','Invite and manage your team','team'],['⌁','Integrations','Manage connected services','integrations'],['◐','Notifications','Device alerts and preferences','notifications'],['◐','Appearance','Motion, contrast and display','appearance'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','help']];
+  return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1><button type="button" class="cf-icon-button cn-settings-search" data-cn-command aria-label="Search Colzo tools">⌕</button></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-setting="profile" aria-label="Open business profile" type="button">›</button></div>
+  <div class="cf-settings-list">${choices.map(([glyph,label,detail,view])=>`<button type="button" data-cn-setting="${view}"><span class="cf-settings-icon">${glyph}</span><span class="cf-settings-label"><strong>${label}</strong><small>${detail}</small></span><span class="cf-settings-arrow">›</span></button>`).join('')}</div>
   <button class="cf-signout" type="button" data-cn-signout>Sign out</button>
-  <section class="cf-tools-extra"><h2>Other business tools</h2><div class="cn-more-links">${moreItems.map(([id,icon,label,detail])=>`<button type="button" ${['clients','quotes'].includes(id)?`data-cn-screen="${id}"`:`data-cn-legacy="${id==='enquiriesLegacy'?'enquiries':id}"`}><span class="cn-more-icon">${icon}</span><span><strong>${label}</strong><small>${detail}</small></span><b>›</b></button>`).join('')}</div></section>`;
+  <section class="cf-tools-extra"><h2>Other business tools</h2><div class="cn-more-links">${moreItems.map(([id,icon,label,detail])=>`<button type="button" ${['clients','quotes'].includes(id)?`data-cn-screen="${id}"`:id==='profile'?`data-cn-setting="profile"`:`data-cn-legacy="${id==='enquiriesLegacy'?'enquiries':id}"`}><span class="cn-more-icon">${icon}</span><span><strong>${label}</strong><small>${detail}</small></span><b>›</b></button>`).join('')}</div></section>`;
+ }
+ const nativeSettingMeta={
+  profile:['Business profile','YOUR BUSINESS','The details that represent your business.'],
+  team:['Team members','PEOPLE & ACCESS','Manage staff access and secure invitations.'],
+  integrations:['Integrations','CONNECTED SERVICES','Manage existing marketing, website and customer connections.'],
+  notifications:['Notifications','ALERTS & UPDATES','Control device notifications and review follow-ups.'],
+  appearance:['Appearance','PERSONALISE COLZO','Fine-tune how Colzo looks and moves on this device.'],
+  security:['Security','PROTECT YOUR ACCOUNT','Authentication, trusted access and device security.'],
+  help:['Help & support','HERE TO HELP','Get support and send feedback about Colzo.']
+ };
+ function settingPanel(titleText,body,iconText='▤'){
+   return `<section class="cn-settings-panel"><div class="cn-settings-panel-head"><span class="cn-settings-panel-icon" aria-hidden="true">${safe(iconText)}</span><h2>${safe(titleText)}</h2></div>${body}</section>`;
+ }
+ const settingsButton=(label,detail,action='settings',icon='↗')=>`<button type="button" class="cn-settings-action" data-cn-legacy="${safe(action)}"><span><strong>${safe(label)}</strong><small>${safe(detail)}</small></span><span aria-hidden="true">${icon}</span></button>`;
+ function nativeSetting(){
+   const key=state.setting;
+   const meta=nativeSettingMeta[key];
+   if(!meta)return `<button class="cn-back" data-cn-back-settings type="button">← Settings</button>${empty('Choose a settings section.')}`;
+   const business=typeof settings!=='undefined'&&settings?settings:{};
+   const head=`<header class="cn-settings-detail-head"><button type="button" data-cn-back-settings class="cn-settings-back" aria-label="Back to Settings"><span aria-hidden="true">←</span><span>Settings</span></button><span class="cn-kicker">${safe(meta[1])}</span><h1>${safe(meta[0])}</h1><p>${safe(meta[2])}</p></header>`;
+   let body='';
+   if(key==='profile'){
+     const fields=[['business_name','Business name','text',120],['business_type','Business type','text',120],['phone','Phone','tel',120],['email','Contact email','email',320],['address','Business location','text',1000]];
+     body=settingPanel('Business information',`<form id="cnBusinessSettings" class="cn-settings-form">${fields.map(([id,label,type,max])=>`<label for="cn-setting-${id}">${label}<input id="cn-setting-${id}" name="${id}" type="${type}" maxlength="${max}" value="${safe(business[id]||'')}" ${id==='business_name'?'required':''} autocomplete="off"></label>`).join('')}<p class="cn-settings-hint">Updates are saved to your existing business account.</p><button class="cn-settings-save" type="submit" ${state.settingsBusy?'disabled':''}>${state.settingsBusy?'Saving…':'Save business details'} <span aria-hidden="true">↗</span></button><p class="cn-settings-feedback" id="cnBusinessFeedback" role="status"></p></form>`,'▤')+settingPanel('Public business page',`<p class="cn-settings-hint">Profile photos, public services and your listing are managed through the existing secure business profile editor.</p>${settingsButton('Manage public profile','Images, customer-facing content and directory details','businessProfile')}`,'◈');
+   }else if(key==='team'){
+     const members=Array.isArray(state.teamData?.members)?state.teamData.members:[];
+     const invitations=Array.isArray(state.teamData?.invitations)?state.teamData.invitations:[];
+     const loaded=!state.teamLoading&&!state.teamError;
+     const list=state.teamLoading?'<div class="cn-settings-loading" role="status">Loading your team…</div>':state.teamError?`<p class="cn-settings-error" role="alert">${safe(state.teamError)}</p>`:
+       [...members.map(member=>`<div class="cn-settings-member"><span class="cn-avatar">♧</span><span><strong>${safe(member.role||'Member')}</strong><small>Active team access</small></span></div>`),...invitations.map(inv=>`<div class="cn-settings-member"><span class="cn-avatar">✉</span><span><strong>${safe(inv.invited_email||'Invitation')}</strong><small>${safe(inv.role||'member')} · ${safe(inv.status||'Pending')}</small></span></div>`)].join('')||'<p class="cn-settings-hint">No additional team members or invitations.</p>';
+     body=settingPanel('Your team',`${list}<button type="button" class="cn-settings-outline" data-cn-refresh-team>Refresh team ↻</button>`,'♧')+settingPanel('Invite a team member',`<p class="cn-settings-hint">Invitations create a secure link for you to share. They do not automatically email the recipient.</p><form id="cnInviteTeam" class="cn-settings-form"><label for="cnInviteEmail">Email address<input id="cnInviteEmail" name="email" type="email" maxlength="320" placeholder="staff@example.co.uk" required></label><label for="cnInviteRole">Access level<select id="cnInviteRole" name="role"><option value="member">Staff member</option><option value="admin">Admin</option></select></label><button class="cn-settings-save" type="submit" ${state.settingsBusy?'disabled':''}>Create secure invitation</button><p id="cnInviteFeedback" class="cn-settings-feedback" role="status">${safe(state.inviteFeedback)}${state.inviteUrl?`<span class="cn-invite-share"><input value="${safe(state.inviteUrl)}" readonly aria-label="New invitation link"/><button type="button" data-cn-copy-invite>Copy link</button></span>`:''}</p></form>`,'✉')+settingPanel('Advanced access',`${settingsButton('Manage existing invitations','Review and revoke existing access using your original secure tools','settings')}`,'⬡');
+     if(!loaded&&state.teamData===null)body=body.replace('Your team','Your team');
+   }else if(key==='integrations'){
+     body=settingPanel('Marketing channels',`<p class="cn-settings-hint">Manage connected social channels and approved publishing within the existing Marketing workspace.</p>${settingsButton('Facebook and social publishing','View connections, drafts and publishing permissions','marketing','↗')}`,'⌁')+settingPanel('Website and enquiries',`${settingsButton('Website assistant','Embed or link your AI receptionist on your website','settings')}${settingsButton('Customer-facing business page','View your listing and public profile controls','businessProfile')}`,'▤')+`<p class="cn-settings-note">Colzo does not claim that an integration is connected until your account confirms it.</p>`;
+   }else if(key==='notifications'){
+     const supported=typeof Notification!=='undefined'&&window.isSecureContext;
+     const permission=supported?Notification.permission:'unavailable';
+     body=settingPanel('This device',`<div class="cn-settings-status"><span>Browser notification permission</span><strong>${safe(permission)}</strong></div><p class="cn-settings-hint">Allowing notifications gives this browser permission only. Actual Colzo push alerts are not yet enabled, so this will not schedule messages.</p>`,'◐')+settingPanel('Customer follow-ups',`${settingsButton('Actions and reminders','Manage your existing follow-up tasks','actions')}${settingsButton('AI receptionist','Review enquiry notifications and handling settings','settings')}`,'✓');
+   }else if(key==='appearance'){
+     body=settingPanel('Graphite & Volt',`<div class="cn-settings-swatch"><span></span><div><strong>Signature dark</strong><small>Colzo's reference design. Light theme is not enabled.</small></div><span class="cn-settings-check">✓</span></div>`,'◐')+settingPanel('Motion and layout',`<label class="cn-settings-toggle"><span><strong>Reduced animations</strong><small>Quieter tab changes and screen transitions</small></span><input type="checkbox" id="cnQuietMotion" ${state.quietMotion?'checked':''}></label><label class="cn-settings-toggle"><span><strong>Compact cards</strong><small>Fit more enquiries and projects on each screen</small></span><input type="checkbox" id="cnCompactCards" ${state.compactCards?'checked':''}></label><p class="cn-settings-hint">These appearance choices apply to this session. Your system's Reduce Motion setting always takes priority.</p>`,'✦');
+   }else if(key==='security'){
+     body=settingPanel('Two-step verification',`<div class="cn-settings-feature"><span class="cn-settings-feature-icon">⬡</span><span><strong>Authenticator app</strong><small>Existing accounts keep their enrolled authenticator and required verification.</small></span></div>${settingsButton('Manage authenticator and devices','View verified factors, recovery options and passkeys','security')}`,'⬡')+settingPanel('Face ID & passkeys',`<p class="cn-settings-hint">Passkey sign-in using your device remains in testing. It does not bypass an existing second-factor requirement.</p><div class="cn-settings-status"><span>Passkey sign-in</span><strong>${window.colzoPasskeysEnabled===true?'Device eligibility required':'Not enabled'}</strong></div>`,'◈')+settingPanel('Session protection',`${settingsButton('Account security centre','Manage trusted sign-in and session controls','security')}`,'▣');
+   }else if(key==='help'){
+     body=settingPanel('Help with Colzo',`<p class="cn-settings-hint">Tell us about something that looks wrong, isn't working or could be improved.</p>${settingsButton('Send pilot feedback','Use the existing secure feedback form','settings')}`,'?')+settingPanel('Useful shortcuts',`<button data-cn-command type="button" class="cn-settings-action"><span><strong>Find a Colzo tool</strong><small>Search pages, bookings, marketing or settings</small></span><span aria-hidden="true">⌕</span></button>${settingsButton('Business account controls','Manage your existing business and permissions','settings')}`,'✧');
+   }
+   return head+`<div class="cn-settings-panels">${body}</div>`;
+ }
+ async function loadNativeTeam(){
+   if(state.teamLoading)return;
+   state.teamLoading=true;state.teamError='';
+   if(state.screen==='setting'&&state.setting==='team')render();
+   try{
+     if(typeof api!=='function')throw new Error('Team data is unavailable in this preview.');
+     const response=await api('/api/team');
+     state.teamData=response;
+   }catch(error){state.teamError=error?.message||'Team details could not be loaded.';}
+   finally{state.teamLoading=false;if(state.screen==='setting'&&state.setting==='team')render()}
+ }
+ async function saveNativeBusiness(form){
+   const feedback=content.querySelector('#cnBusinessFeedback');
+   if(state.settingsBusy)return;
+   const fields=new FormData(form),updates={};
+   for(const key of ['business_name','business_type','phone','email','address'])updates[key]=String(fields.get(key)||'').trim();
+   if(!updates.business_name){if(feedback)feedback.textContent='Please enter your business name.';return}
+   const button=form.querySelector('[type=submit]');state.settingsBusy=true;if(button)button.disabled=true;
+   if(feedback)feedback.textContent='Saving business details…';
+   try{
+     if(typeof api!=='function')throw new Error('Saving is unavailable in this preview.');
+     const saved=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(updates)});
+     if(typeof settings!=='undefined'){settings=saved;if(typeof fillSettings==='function')fillSettings()}
+     if(feedback)feedback.textContent='Business details saved successfully.';
+   }catch(error){if(feedback)feedback.textContent=error?.message||'Your changes could not be saved.';}
+   finally{state.settingsBusy=false;if(button)button.disabled=false}
+ }
+ async function inviteNativeMember(form){
+   const feedback=content.querySelector('#cnInviteFeedback');if(state.settingsBusy)return;
+   const data=new FormData(form),email=String(data.get('email')||'').trim(),role=String(data.get('role')||'member');
+   if(!email||!['member','admin'].includes(role)){if(feedback)feedback.textContent='Enter a valid email and access level.';return}
+   const button=form.querySelector('[type=submit]');state.settingsBusy=true;if(button)button.disabled=true;
+   if(feedback)feedback.textContent='Creating your secure invitation…';
+   try{
+     if(typeof api!=='function')throw new Error('Invitations are unavailable in this preview.');
+     const result=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,role})});
+     const url=new URL(result.accept_path,window.location.origin);
+     if(url.origin!==window.location.origin)throw new Error('Invitation link did not match this app.');
+     state.inviteFeedback='Invitation created. Share the secure link only with the intended person.';state.inviteUrl=url.toString();
+     if(feedback){feedback.textContent=state.inviteFeedback;}
+     form.reset();await loadNativeTeam();
+   }catch(error){if(feedback)feedback.textContent=error?.message||'Could not create the invitation.';}
+   finally{state.settingsBusy=false;if(button)button.disabled=false}
  }
  const primaryScreens=['home','enquiries','projects','more'];
- const navPosition=screen=>screen==='lead'?1:screen==='clients'||screen==='quotes'?3:Math.max(0,primaryScreens.indexOf(screen));
- const allowMotion=()=>!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const navPosition=screen=>screen==='lead'?1:screen==='setting'||screen==='clients'||screen==='quotes'?3:Math.max(0,primaryScreens.indexOf(screen));
+ const allowMotion=()=>!state.quietMotion&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const scrollContainer=()=>{const overflow=getComputedStyle(root).overflowY;return /auto|scroll/.test(overflow)?root:window};
  const currentScroll=()=>{const container=scrollContainer();return container===window?window.scrollY:root.scrollTop};
  const restoreScroll=position=>{
@@ -151,25 +241,25 @@
  function render({motion='none',direction=1}={}){
    if(!document.body.classList.contains('auth-ready'))return;
    state.recordsReady=true;
-   const pages={home,enquiries:enquiry,lead:leadDetails,projects,clients,quotes,more};
+   const pages={home,enquiries:enquiry,lead:leadDetails,projects,clients,quotes,more,setting:nativeSetting};
    const page=pages[state.screen]||home;
    stopMotion();
    root.dataset.screen=state.screen;
    root.style.setProperty('--cn-active-index',String(navPosition(state.screen)));
    content.innerHTML=page();
    content.dataset.cnIntro=state.screen;
-   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['clients','quotes'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['clients','quotes','setting'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    if(motion!=='none')animateArrival(direction,motion);
  }
  function navigate(screen){
-   if(!['home','enquiries','lead','projects','clients','quotes','more'].includes(screen))return;
+   if(!['home','enquiries','lead','projects','clients','quotes','more','setting'].includes(screen))return;
    closeCommand(false);
    if(screen===state.screen){restoreScroll(0);return}
    const before=state.screen;
    state.scrollByScreen.set(before,currentScroll());
    state.screen=screen;state.notification='';state.focusSearch=false;
-   const announcement=root.querySelector('#cnScreenAnnounce');if(announcement)announcement.textContent=`${{lead:'Enquiry details',more:'Settings',clients:'Clients',quotes:'Quotes'}[screen]||screen.replace(/^./,x=>x.toUpperCase())} screen`;
+   const announcement=root.querySelector('#cnScreenAnnounce');if(announcement)announcement.textContent=`${{lead:'Enquiry details',more:'Settings',setting:nativeSettingMeta[state.setting]?.[0]||'Settings',clients:'Clients',quotes:'Quotes'}[screen]||screen.replace(/^./,x=>x.toUpperCase())} screen`;
    const direction=navPosition(screen)<navPosition(before)?-1:1;
    render({motion:screen==='lead'?'detail':'page',direction});
    restoreScroll(state.scrollByScreen.get(screen)||0);
@@ -185,8 +275,8 @@
    {label:'Actions',detail:'Task management and follow-ups',glyph:'✓',legacy:'actions'},
    {label:'AI receptionist',detail:'Existing assistant settings',glyph:'✦',legacy:'enquiries'},
    {label:'Account settings',detail:'Business and user preferences',glyph:'⚙',screen:'more'},
-   {label:'Security',detail:'Authenticator and passkey choices',glyph:'◇',legacy:'security'},
-   {label:'Billing',detail:'Current plans and subscription controls',glyph:'◈',legacy:'settings'}
+   {label:'Security',detail:'Authenticator and passkey choices',glyph:'◇',setting:'security'},
+   {label:'Billing',detail:'Current plans and subscription controls',glyph:'◈',legacy:'billing'}
  ];
  const sheet=root.querySelector('#cnCommandSheet');
  const commandInput=root.querySelector('#cnCommandSearch');
@@ -196,7 +286,7 @@
    if(!commandResults)return;
    const q=(commandInput?.value||'').trim().toLowerCase();
    const found=commandItems.filter(x=>!q||`${x.label} ${x.detail}`.toLowerCase().includes(q)).sort((a,b)=>q?(Number(b.label.toLowerCase().startsWith(q))-Number(a.label.toLowerCase().startsWith(q))):0);
-   commandResults.innerHTML=found.length?found.map(item=>`<button type="button" ${item.screen?`data-cn-screen="${item.screen}"`:`data-cn-legacy="${item.legacy}"`}><span class="cn-command-glyph" aria-hidden="true">${safe(item.glyph)}</span><span class="cn-command-name">${safe(item.label)}<small>${safe(item.detail)}</small></span><span class="cn-command-arrow" aria-hidden="true">›</span></button>`).join(''):'<p class="cn-command-empty">No matching tools. Try “Marketing” or “Enquiries”.</p>';
+   commandResults.innerHTML=found.length?found.map(item=>`<button type="button" ${item.screen?`data-cn-screen="${item.screen}"`:item.setting?`data-cn-setting="${item.setting}"`:`data-cn-legacy="${item.legacy}"`}><span class="cn-command-glyph" aria-hidden="true">${safe(item.glyph)}</span><span class="cn-command-name">${safe(item.label)}<small>${safe(item.detail)}</small></span><span class="cn-command-arrow" aria-hidden="true">›</span></button>`).join(''):'<p class="cn-command-empty">No matching tools. Try “Marketing” or “Enquiries”.</p>';
  }
  function closeCommand(restoreFocus=true){
    if(!sheet||sheet.hidden)return;
@@ -250,6 +340,11 @@
   const target=e.target.closest('button');if(!target||!root.contains(target))return;
   if(target.hasAttribute('data-cn-command')){openCommand();return}
   if(target.hasAttribute('data-cn-close-command')){closeCommand();return}
+  if(target.hasAttribute('data-cn-setting')){state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam();return}
+  if(target.hasAttribute('data-cn-back-settings')){navigate('more');return}
+  if(target.hasAttribute('data-cn-refresh-team')){loadNativeTeam();return}
+  if(target.hasAttribute('data-cn-copy-invite')){if(state.inviteUrl&&navigator.clipboard?.writeText){navigator.clipboard.writeText(state.inviteUrl).then(()=>{const feedback=content.querySelector('#cnInviteFeedback');if(feedback)feedback.firstChild.textContent='Invitation link copied. Share it only with the intended person.'}).catch(()=>{const field=content.querySelector('.cn-invite-share input');field?.select()})}else{const field=content.querySelector('.cn-invite-share input');field?.select()}return}
+  if(target.hasAttribute('data-cn-permission')){if(typeof Notification!=='undefined'&&window.isSecureContext)Notification.requestPermission().then(()=>{if(state.screen==='setting'&&state.setting==='notifications')render()}).catch(()=>{});return}
   if(target.hasAttribute('data-cn-screen')){navigate(target.getAttribute('data-cn-screen'));return}
   if(target.hasAttribute('data-cn-legacy')){original(target.getAttribute('data-cn-legacy'));return}
   if(target.hasAttribute('data-cn-lead')){state.activeLead=target.getAttribute('data-cn-lead');navigate('lead');return}
@@ -262,9 +357,10 @@
   if(target.hasAttribute('data-cn-signout')){document.getElementById('logoutButton')?.click();return}
  });
  root.addEventListener('input',e=>{if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
- root.addEventListener('submit',e=>{if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
+ root.addEventListener('submit',e=>{if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
+ root.addEventListener('change',e=>{if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
- const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.search='';state.filter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
+ const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
  window.ColzoOwner={render,onAuthState,openLegacy:original,error:()=>{if(document.body.classList.contains('auth-ready'))content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();

@@ -1,0 +1,72 @@
+/* Colzo / Native settings: all seven sections are real in-shell screens.
+   Match six-phone Figma graphite surfaces, subtle depth and Volt accents. */
+#colzoOwner .cn-settings-detail-head{padding:2px 0 9px;margin:0 0 16px}
+#colzoOwner .cn-settings-back{display:inline-flex;align-items:center;gap:9px;min-height:44px;margin:0 0 19px;padding:6px 8px 6px 0;border:0;background:transparent;color:#c7d2d4;font-size:12px;font-weight:620}
+#colzoOwner .cn-settings-back span:first-child{font-size:24px;color:#c8ff2e;line-height:1}
+#colzoOwner .cn-settings-detail-head h1{margin:7px 0 9px;color:#f5f7fa;font-size:32px;line-height:1.1;font-weight:790;letter-spacing:-1.2px}
+#colzoOwner .cn-settings-detail-head p{margin:0;max-width:420px;color:#a5b2b9;font-size:12px;line-height:1.55}
+#colzoOwner .cn-settings-panels{display:grid;gap:13px;padding-bottom:15px}
+#colzoOwner .cn-settings-panel{position:relative;background:linear-gradient(150deg,#222b31,#1b232a);border:1px solid #38484a;border-radius:19px;padding:18px 16px;box-shadow:inset 0 1px rgba(255,255,255,.04)}
+#colzoOwner .cn-settings-panel-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+#colzoOwner .cn-settings-panel-head h2{font-size:15px;line-height:1.3;color:#f5f7fa;font-weight:720;letter-spacing:-.28px;margin:0}
+#colzoOwner .cn-settings-panel-icon{display:grid;place-items:center;flex:none;width:37px;height:37px;border-radius:11px;background:#32412d;color:#c8ff2e;font-size:20px}
+#colzoOwner .cn-settings-form{display:grid;gap:15px}
+#colzoOwner .cn-settings-form label{display:grid;gap:8px;color:#c3cdd1;font-size:11px;font-weight:630}
+#colzoOwner .cn-settings-form :is(input,select,textarea){width:100%;min-height:47px;padding:11px 12px;border:1px solid #47575d;border-radius:12px;outline:none;background:#141d22;color:#f5f7fa;font-size:16px;font-family:inherit;font-weight:460;transition:border-color .2s ease,box-shadow .2s ease}
+#colzoOwner .cn-settings-form :is(input,select,textarea):focus-visible{outline:2px solid #c8ff2e!important;outline-offset:2px}
+#colzoOwner .cn-settings-form input::placeholder{color:#88999e}
+#colzoOwner .cn-settings-save{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;padding:12px 16px;border:0;border-radius:12px;background:linear-gradient(120deg,#dcff60,#c8ff2e);color:#14200f;font-weight:790;font-size:12px;box-shadow:0 5px 20px rgba(200,255,46,.1);transition:transform .25s ease}
+#colzoOwner .cn-settings-save:active{transform:scale(.98)}
+#colzoOwner .cn-settings-save:disabled{opacity:.6;cursor:wait}
+#colzoOwner .cn-settings-feedback{color:#c8ffad;font-size:11px;line-height:1.5;min-height:14px;margin:0;overflow-wrap:anywhere}
+#colzoOwner .cn-settings-feedback a{color:#c8ff2e;overflow-wrap:anywhere}
+#colzoOwner .cn-settings-note,#colzoOwner .cn-settings-hint{font-size:11px;color:#aab8bc;line-height:1.55;margin:0 0 13px}
+#colzoOwner .cn-settings-panels>.cn-settings-note{margin:5px 0 0}
+#colzoOwner .cn-settings-action{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:61px;padding:12px 13px;border:1px solid #43514f;border-radius:13px;background:#283330;color:#f5f7fa;text-align:left;transition:background .22s ease,transform .28s cubic-bezier(.21,.9,.22,1),border-color .22s ease}
+#colzoOwner .cn-settings-action+ .cn-settings-action{margin-top:9px}
+#colzoOwner .cn-settings-action>span:first-child{display:grid;gap:6px;flex:1;min-width:0}
+#colzoOwner .cn-settings-action strong{font-size:12px;font-weight:700}
+#colzoOwner .cn-settings-action small{font-size:10px;line-height:1.4;color:#acb9ba}
+#colzoOwner .cn-settings-action>span:last-child{font-size:19px;color:#c8ff2e;flex:none}
+#colzoOwner .cn-settings-action:active{transform:scale(.985)}
+#colzoOwner .cn-settings-action:hover{border-color:#657b4d}
+#colzoOwner .cn-settings-member{display:flex;align-items:center;gap:12px;min-height:65px;padding:10px 0;border-bottom:1px solid #38474a}
+#colzoOwner .cn-settings-member:last-child{border:0}
+#colzoOwner .cn-settings-member .cn-avatar{width:39px;height:39px;font-size:16px;background:#334333;border:0;color:#c8ff2e}
+#colzoOwner .cn-settings-member>span:last-child{display:grid;gap:5px;min-width:0}
+#colzoOwner .cn-settings-member strong{font-size:12px;color:#f5f7fa;overflow-wrap:anywhere}
+#colzoOwner .cn-settings-member small{font-size:10px;color:#a7b8b7}
+#colzoOwner .cn-settings-error{font-size:12px;line-height:1.5;color:#ffadb5}
+#colzoOwner .cn-settings-loading{font-size:12px;color:#b3c3c4;padding:10px 0}
+#colzoOwner .cn-settings-outline{min-height:43px;width:100%;padding:10px;border:1px solid #526b43;border-radius:12px;background:#2e3b2b;color:#e2ffc6;font-size:12px;font-weight:680;margin:13px 0 0}
+#colzoOwner .cn-settings-status{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;padding:12px;border-radius:11px;background:#141e24;margin:0 0 12px}
+#colzoOwner .cn-settings-status>span{font-size:11px;color:#bdcacc}
+#colzoOwner .cn-settings-status strong{font-size:10px;color:#c8ff2e;font-weight:790;text-transform:capitalize;text-align:right}
+#colzoOwner .cn-settings-swatch{display:flex;gap:13px;align-items:center;min-height:60px}
+#colzoOwner .cn-settings-swatch>span:first-child{width:42px;height:42px;border-radius:13px;background:linear-gradient(130deg,#0d1115 42%,#c8ff2e 43%,#c8ff2e 56%,#20272d 57%);border:1px solid #6b7d58;flex:none}
+#colzoOwner .cn-settings-swatch>div{display:grid;gap:7px;flex:1;min-width:0}
+#colzoOwner .cn-settings-swatch strong{color:#f5f7fa;font-size:12px}
+#colzoOwner .cn-settings-swatch small{font-size:10px;color:#a7b4b8;line-height:1.4}
+#colzoOwner .cn-settings-check{color:#c8ff2e;font-weight:900}
+#colzoOwner .cn-settings-toggle{display:flex;gap:14px;align-items:center;justify-content:space-between;min-height:76px;border-bottom:1px solid #364447}
+#colzoOwner .cn-settings-toggle:last-of-type{border:0;margin-bottom:12px}
+#colzoOwner .cn-settings-toggle>span{display:grid;gap:6px;min-width:0}
+#colzoOwner .cn-settings-toggle strong{font-size:12px;color:#f5f7fa}
+#colzoOwner .cn-settings-toggle small{color:#a6b4b8;font-size:10px;line-height:1.45}
+#colzoOwner .cn-settings-toggle input{appearance:none;position:relative;width:48px;height:29px;flex:none;cursor:pointer;border-radius:18px;background:#45535b;border:1px solid #67747a;transition:background .18s ease}
+#colzoOwner .cn-settings-toggle input::before{content:'';position:absolute;top:3px;left:3px;height:21px;width:21px;border-radius:50%;background:#e8eced;box-shadow:0 1px 4px #0007;transition:transform .2s cubic-bezier(.21,.9,.22,1)}
+#colzoOwner .cn-settings-toggle input:checked{background:#b1f522;border-color:#c8ff2e}
+#colzoOwner .cn-settings-toggle input:checked::before{transform:translateX(19px);background:#1f2b19}
+#colzoOwner .cn-settings-feature{display:flex;align-items:center;gap:12px;margin:0 0 15px}
+#colzoOwner .cn-settings-feature-icon{display:grid;place-items:center;background:#33412c;border-radius:12px;color:#c8ff2e;height:44px;width:44px;font-size:23px}
+#colzoOwner .cn-settings-feature>span:last-child{display:grid;gap:5px;flex:1;min-width:0}
+#colzoOwner .cn-settings-feature strong{font-size:12px;color:#f5f7fa}
+#colzoOwner .cn-settings-feature small{font-size:10px;color:#abb9bc;line-height:1.5}
+#colzoOwner.cn-compact-cards :is(.cf-lead-card,.cf-project-card,.cn-record){min-height:68px;height:auto;padding:8px 11px}
+#colzoOwner.cn-compact-cards .cf-lead-card .cn-avatar{width:35px;height:35px}
+#colzoOwner.cn-quiet-motion *,#colzoOwner.cn-quiet-motion *::before,#colzoOwner.cn-quiet-motion *::after{transition-duration:0s!important;animation:none!important}
+@media(min-width:920px){#colzoOwner .cn-settings-panels{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:16px}#colzoOwner .cn-settings-detail-head{margin-bottom:24px}#colzoOwner .cn-settings-panel{padding:21px}}
+@media(prefers-reduced-motion:reduce){#colzoOwner .cn-settings-form :is(input,select,textarea),#colzoOwner .cn-settings-action,#colzoOwner .cn-settings-toggle input::before{transition:none!important}}
+#colzoOwner .cn-invite-share{display:flex;align-items:center;gap:7px;margin:11px 0 0}
+#colzoOwner .cn-invite-share input{min-width:0;flex:1;background:#121b20;border:1px solid #475950;border-radius:10px;padding:10px;color:#e8eee8;font-size:12px}
+#colzoOwner .cn-invite-share button{min-height:41px;border-radius:10px;padding:10px 12px;background:#c8ff2e;color:#16230f;border:0;font-size:11px;font-weight:750}
