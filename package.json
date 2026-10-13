@@ -12,6 +12,7 @@
     "verify:colzo-security-methods": "node scripts/colzo-security-methods-browser.cjs",
     "verify:colzo-motion": "node scripts/colzo-motion-browser.cjs",
     "verify:colzo-settings": "node scripts/colzo-settings-browser.cjs",
+    "verify:colzo-workflows": "node scripts/colzo-workflows-browser.cjs",
     "verify": "npm test && npm run verify:local",
     "load:smoke": "node scripts/load-smoke.mjs"
   },

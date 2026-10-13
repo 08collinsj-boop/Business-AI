@@ -1,0 +1,77 @@
+/* Colzo Operations — native Bookings and Actions; no Business AI UI fallback.
+   Graphite & Volt, composed using Lumen dialog/form/tab/calendar guidance. */
+#colzoOwner .cn-work-header{padding:4px 0 12px}
+#colzoOwner .cn-work-header>.cn-settings-back{min-height:34px;margin:0 0 16px}
+#colzoOwner .cn-work-title-row{display:flex;align-items:center;justify-content:space-between;gap:13px;margin:7px 0 16px}
+#colzoOwner .cn-work-title-row h1{margin:0 0 7px;color:#f6faf9;font-size:32px;line-height:1.04;letter-spacing:-1.2px;font-weight:800}
+#colzoOwner .cn-work-title-row p{margin:0;color:#aab9c0;font-size:11px;line-height:1.5}
+#colzoOwner .cn-work-add{flex:none;display:grid;place-items:center;width:46px;height:46px;border:0;border-radius:14px;background:linear-gradient(130deg,#e3ff74,#c8ff2e);color:#16200f;font-size:29px;font-weight:590;box-shadow:0 7px 22px rgba(200,255,46,.12);transition:transform .25s cubic-bezier(.21,.9,.22,1)}
+#colzoOwner .cn-work-add:active{transform:scale(.94)}
+#colzoOwner .cn-work-tabs{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:1px 0 12px;scrollbar-width:none}
+#colzoOwner .cn-work-tabs::-webkit-scrollbar{display:none}
+#colzoOwner .cn-work-tabs button{display:inline-flex;align-items:center;gap:5px;flex:none;min-height:35px;padding:9px 12px;border:1px solid #35444a;border-radius:11px;background:#20282e;color:#b9c5c9;font-size:11px;font-weight:630;white-space:nowrap;transition:background .25s ease,color .25s ease}
+#colzoOwner .cn-work-tabs button span{font-size:10px;color:inherit;opacity:.7}
+#colzoOwner .cn-work-tabs button[aria-pressed=true]{background:#c8ff2e;color:#1a2612;border-color:#c8ff2e;font-weight:800}
+#colzoOwner .cn-work-search{display:flex;align-items:center;gap:9px;width:100%;height:48px;padding:5px 11px 5px 15px;border:1px solid #394a4d;border-radius:14px;background:#202a2f;color:#9faeb5;margin-bottom:17px}
+#colzoOwner .cn-work-search>span{font-size:23px;color:#c8ff2e}
+#colzoOwner .cn-work-search input{min-width:0;flex:1;height:35px;border:0!important;box-shadow:none!important;outline:0!important;background:transparent;color:#f5f8f8;font-size:14px}
+#colzoOwner .cn-work-search input::placeholder{color:#91a2aa}
+#colzoOwner .cn-work-search:focus-within{border-color:#a5db53;box-shadow:0 0 0 3px rgba(200,255,46,.055)}
+#colzoOwner .cn-work-search>button{display:grid;place-items:center;width:35px;height:35px;border-radius:10px;border:1px solid #475855;color:#c9d9d1;background:#2a3637;font-size:19px}
+#colzoOwner .cn-work-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:0 0 19px}
+#colzoOwner .cn-work-stats article{display:grid;gap:11px;padding:17px 16px;min-height:100px;border:1px solid rgba(188,207,194,.09);border-radius:15px;background:linear-gradient(154deg,#283430,#20282e);box-shadow:inset 0 1px rgba(255,255,255,.03)}
+#colzoOwner .cn-work-stats span{font-size:11px;color:#b0c0be}
+#colzoOwner .cn-work-stats strong{font-size:27px;line-height:1;color:#f4f9f4;letter-spacing:-.6px}
+#colzoOwner .cn-work-month{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;gap:12px}
+#colzoOwner .cn-work-month strong{color:#f5f8f6;font-size:14px;font-weight:740}
+#colzoOwner .cn-work-month button{display:grid;place-items:center;width:35px;height:35px;border:1px solid #46544a;border-radius:11px;background:#253029;color:#c8ff2e;font-size:24px}
+#colzoOwner .cn-work-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding:12px 10px;background:linear-gradient(145deg,#212b30,#1a2328);border:1px solid #354248;border-radius:17px;margin:0 0 23px}
+#colzoOwner .cn-work-calendar .weekday{height:26px;display:grid;place-items:center;color:#8da0a3;font-size:10px;font-weight:800}
+#colzoOwner .cn-work-calendar .calendar-day{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;height:37px;padding:7px 0 2px;border-radius:11px;font-size:11px;color:#dfe7e8}
+#colzoOwner .cn-work-calendar .calendar-day.today{color:#c8ff2e;background:#34412f;font-weight:850}
+#colzoOwner .cn-work-calendar .calendar-day i{height:4px;width:4px;border-radius:50%;background:#c8ff2e;flex:none}
+#colzoOwner .cn-work-list-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 10px}
+#colzoOwner .cn-work-list-title h2{font-size:15px;color:#f5f9f5;margin:0;font-weight:740}
+#colzoOwner .cn-work-list-title span{font-size:10px;color:#9cadb1}
+#colzoOwner .cn-work-list{display:grid;gap:9px;margin:0 0 19px}
+#colzoOwner .cn-work-record{display:flex;align-items:center;width:100%;min-height:98px;gap:13px;padding:12px;background:#20282e;border:1px solid #38474a;border-radius:16px;color:#f6f8f8;text-align:left;transition:background .22s ease,transform .32s cubic-bezier(.21,.9,.22,1),border-color .25s ease,box-shadow .3s ease}
+#colzoOwner .cn-work-record:active{transform:scale(.985);background:#2a3737}
+#colzoOwner .cn-work-record:hover{border-color:#567142}
+#colzoOwner .cn-work-date{display:grid;align-content:center;justify-items:center;gap:4px;width:53px;height:60px;border-radius:13px;background:#303c3d;flex:none;color:#f5faf4}
+#colzoOwner .cn-work-date strong{font-size:21px;line-height:1;font-weight:790}
+#colzoOwner .cn-work-date small{font-size:10px;color:#b3c1c3}
+#colzoOwner .cn-work-record-main{display:grid;gap:6px;min-width:0;flex:1}
+#colzoOwner .cn-work-record-main>strong{font-size:12px;font-weight:720;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+#colzoOwner .cn-work-record-main>small{font-size:10px;color:#a7b8bb;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+#colzoOwner .cn-work-record-badges{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+#colzoOwner .cn-work-status{display:inline-flex;padding:5px 9px;border-radius:50px;font-size:9px;font-weight:760;text-transform:capitalize;color:#dce7ee;background:#34444c}
+#colzoOwner .cn-work-status.confirmed{background:#c8ff2e;color:#19230d}
+#colzoOwner .cn-work-status.finished{background:#305946;color:#bbf3d4}
+#colzoOwner .cn-work-status.cancelled{background:#553741;color:#ffb9c4}
+#colzoOwner .cn-work-priority{display:inline-flex;padding:5px 8px;border-radius:8px;font-size:9px;font-weight:640;text-transform:capitalize;color:#aec1c7;background:#293741}
+#colzoOwner .cn-work-priority.high,#colzoOwner .cn-work-priority.urgent{color:#ffd8a4;background:#62492d}
+#colzoOwner .cn-work-chevron{font-size:22px;color:#c8ff2e}
+#colzoOwner .cn-work-message{padding:12px;border:1px solid #566d44;background:#27352d;color:#d1ffb5;border-radius:12px;font-size:11px;line-height:1.5}
+/* Focused, accessible in-app editor rather than navigating to old screens. */
+#colzoOwner .cn-work-dialog-backdrop{position:fixed;inset:0;z-index:205;display:flex;align-items:flex-end;justify-content:center;padding:12px 12px max(12px,env(safe-area-inset-bottom));background:rgba(4,9,12,.79);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#colzoOwner .cn-work-dialog{display:flex;flex-direction:column;width:min(100%,535px);max-height:calc(100dvh - 40px);overflow:auto;overscroll-behavior:contain;background:linear-gradient(145deg,#27312e,#182127 64%);border:1px solid #536d44;border-radius:24px;padding:20px 17px 17px;color:#f5f8f7;box-shadow:0 25px 75px rgba(0,0,0,.54)}
+#colzoOwner .cn-work-dialog>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+#colzoOwner .cn-work-dialog h2{margin:9px 0 0;font-size:24px;line-height:1.1;letter-spacing:-.8px}
+#colzoOwner .cn-work-dialog-x{display:grid;place-items:center;width:36px;height:36px;flex:none;border:1px solid #4c5c60;border-radius:11px;background:#303a3b;color:#f5f5f5;font-size:23px}
+#colzoOwner .cn-work-form{display:grid;gap:13px;overflow:auto;padding-bottom:3px}
+#colzoOwner .cn-work-form label{display:grid;gap:7px;font-size:11px;color:#c4d0ce;font-weight:640;min-width:0}
+#colzoOwner .cn-work-form :is(input,textarea,select){min-height:45px;min-width:0;width:100%;padding:11px;border:1px solid #4c5b5e;border-radius:11px;outline:none;background:#131d21;color:#f5f8f8;font-size:16px;font-family:inherit;font-weight:450}
+#colzoOwner .cn-work-form textarea{resize:vertical}
+#colzoOwner .cn-work-form :is(input,textarea,select):focus-visible{outline:2px solid #c8ff2e!important;outline-offset:2px!important}
+#colzoOwner .cn-work-form input::placeholder{color:#9caeb3}
+#colzoOwner .cn-work-form-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+#colzoOwner .cn-work-form-hint{padding:11px;margin:0;border:1px solid #4c5a4e;border-radius:11px;background:#252f29;color:#b9c9be;font-size:10px;line-height:1.5}
+#colzoOwner .cn-work-form-error{margin:0;min-height:13px;color:#ffc5c8;font-size:11px;line-height:1.45}
+#colzoOwner .cn-work-form-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:9px;padding-top:3px}
+#colzoOwner .cn-work-form-actions button{min-height:48px;border-radius:12px;padding:10px;font-size:12px;font-weight:760}
+#colzoOwner .cn-work-outline{border:1px solid #495958;background:#293336;color:#f0f5f3}
+#colzoOwner .cn-work-submit{background:#c8ff2e;border:1px solid #c8ff2e;color:#15210e}
+#colzoOwner .cn-work-submit:disabled{opacity:.6;cursor:wait}
+@media(min-width:920px){#colzoOwner .cn-work-calendar{padding:20px}#colzoOwner .cn-work-calendar .calendar-day{height:52px}#colzoOwner .cn-work-record{min-height:93px}#colzoOwner .cn-work-dialog-backdrop{align-items:center}}
+@media(max-width:375px){#colzoOwner .cn-work-form-pair{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){#colzoOwner .cn-work-record,#colzoOwner .cn-work-add{transition:none!important;transform:none!important}#colzoOwner .cn-work-dialog-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}}

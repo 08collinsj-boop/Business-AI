@@ -109,12 +109,16 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:0,behavior:'instant'}));
   }
   await page.screenshot({path:`${shots}/native-more-${w}.png`,fullPage:false});
-  await page.locator('.cn-more-links [data-cn-legacy="bookings"]').click();
-  assert.equal(await page.locator('#dashboardApp').isVisible(),true,'legacy Bookings remains accessible');
+  await page.locator('.cn-more-links [data-cn-screen="bookings"]').click();
+  assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
+  assert.equal(await page.locator('#dashboardApp').isVisible(),false,'native Bookings never opens original UI');
+  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-more-links [data-cn-legacy="marketing"]').click();
+  assert.equal(await page.locator('#dashboardApp').isVisible(),true,'advanced Marketing remains accessible');
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Colzo is hidden while editing legacy');
   assert.equal(await page.locator('#cnReturnToColzo').isVisible(),true);
   // The old owner features are still needed for billing, Marketing, AI and
-  // bookings. Test the actual CSS bridge rather than only button navigation.
+  // integrations. Test the actual CSS bridge rather than only button navigation.
   const legacy=await page.evaluate(()=>{
    const css=e=>getComputedStyle(document.querySelector(e));
    const rect=e=>document.querySelector(e).getBoundingClientRect();
@@ -137,7 +141,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(legacy.legacyVisible,true);
   assert.ok(legacy.scrollWidth<=w+1,'Legacy screen overflows iPhone viewport');
   if(w<920&&legacy.navVisible)assert.ok(legacy.backBottom<=legacy.navTop-2,`Back button overlaps legacy navigation: ${JSON.stringify(legacy)}`);
-  for(const view of ['actions','marketing','settings','businessProfile']){
+  for(const view of ['marketing','settings','businessProfile']){
    await page.evaluate(view=>showView(view),view);
    assert.equal(await page.locator('#'+view+'View').isVisible(),true,`${view} must remain available in Colzo theme`);
    assert.equal(await page.locator('#colzoOwner').isVisible(),false);

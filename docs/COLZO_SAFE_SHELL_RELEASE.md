@@ -157,3 +157,23 @@ None of the motion system writes customer records, changes authentication polici
 **Verification:** `npm run verify` → 594/594 pass, including three new static contract tests. `npm run verify:colzo-settings` → all seven pages, no forced legacy navigation, form validation, fake authenticated settings PATCH, mock team invitation, motion/layout choices and sign-out privacy at 375×812, 390×844, 430×932, 1366×768 and 1440×900. Existing native, motion, MFA, passkey setup, login and PWA browser tests also pass. All browser API calls use synthetic fixture data; no customer changes during tests.
 
 **Production release remains HOLD** pending authenticated staging acceptance and verified rollback. Old advanced controls are deliberately retained behind explicit action links, and unfinished push notification/passkey features are not represented as enabled.
+
+## Native Bookings and Actions — Colzo-only UI (13 October 2026)
+
+Implemented the first major conversion away from the original Business AI UI using the existing APIs and no database migrations. Verified via the installed **Lumen UI** dialog, form, segmented-control, calendar and accessibility contract guidance; implemented in Colzo's current zero-dependency vanilla-JS system rather than installing another UI runtime.
+
+### Native pages and destinations
+
+- **Bookings:** Full Colzo screen with month-by-month calendar and real booking indicators, actual-record stats, Active/All/Completed/Cancelled status filtering (non-finalised bookings are shown as open), search, detail editor, create form with optional linked enquiry, customer name, start/end, location and notes. Supports the existing statuses and authenticated tenant-scoped `/api/bookings` POST/PATCH. Explicit confirmation warns that completing a booking may prepare a review request when enabled in the original account settings. No silent publishing or payments.
+- **Actions:** Full Colzo screen with counts, Open/All/Completed/Cancelled filters, searchable priority-labelled task cards, create/edit form, due date, optional linked enquiry, task type, notes and status. Supports existing `/api/actions` POST/PATCH and keeps the original server restrictions on review-request actions.
+- **Navigation:** Home booking tile, Enquiry scheduling shortcut, Projects cards, More tool list, relevant Settings actions and universal tool finder all link to Colzo-native Bookings/Actions. **No automatic old-UI redirect for either section**. Other advanced legacy services are unchanged until their own native replacements pass acceptance.
+- **App resilience:** Dialog portalled above bottom navigation; keyboard Escape/Tab containment, protected action ordering, server response validation, form data retained on failed API requests, date/time validation before writes, no false 1970 date for records without a time. Existing owner-scoped `api()` wrapper continues to enforce Supabase Auth, session checks, MFA and the underlying tenant access; all operations require explicit Save.
+- **Design:** Implemented in `assets/colzo-workflows.css`, reusing Graphite & Volt palette, reference typography, status accents, calendar rhythm and reduced-motion preferences. No new backend, user accounts, subscriptions or billable service.
+
+### Validation and release conditions
+
+- Full app verification: `npm run verify` **597/597 PASS**.
+- Mock-browser `npm run verify:colzo-workflows`: **5/5 viewports** (375×812, 390×844, 430×932, 1366×768 and 1440×900) PASS, including real click geometry, native forms and CRUD via **synthetic mocked** GET/POST/PATCH, date validation, failed server save retains entered details, session-authentication wrapper, accessibility dialog focus, original old UI never shown for these routes, navigation from Home/Projects/More/search, no live API calls.
+- Existing `verify:colzo-native`, `verify:colzo-motion`, `verify:colzo-settings`, `verify:colzo-mfa`, `verify:colzo-security-methods` and `verify:colzo-owner-visual` all green at their supported viewports.
+- No real customer writes or real auth tokens in acceptance tests; no changes to `/api/bookings`, `/api/actions`, Supabase schema, Stripe, Marketing automation, Meta, Production app or domain mapping.
+- **Remain in development:** Real owner sign-in and non-destructive acceptance still required before live Colzo switch. Enquiry editing, full Projects/Clients/Quotes and native Marketing/Receptionist/Billing need subsequent separate conversions. The Colzo preview can write real account bookings/actions **only when the signed-in user deliberately saves**; do not use real customer records for arbitrary test data.

@@ -87,8 +87,12 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'3');
   await page.keyboard.press('Control+k');
   await page.locator('#cnCommandSearch').fill('actions');
-  await page.locator('#cnCommandResults button[data-cn-legacy="actions"]').click();
-  assert.equal(await page.locator('#dashboardApp').isVisible(),true,'Legacy tools still accessible');
+  await page.locator('#cnCommandResults button[data-cn-screen="actions"]').click();
+  assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
+  assert.equal(await page.locator('#dashboardApp').isVisible(),false,'Native Actions never shows Business AI');
+  await nav.locator('[data-cn-screen="more"]').click();
+  await page.locator('.cn-more-links [data-cn-legacy="marketing"]').click();
+  assert.equal(await page.locator('#dashboardApp').isVisible(),true,'Advanced Marketing legacy tools still accessible');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
   await page.locator('#cnReturnToColzo').click();
   assert.equal(await page.locator('#colzoOwner').isVisible(),true);
