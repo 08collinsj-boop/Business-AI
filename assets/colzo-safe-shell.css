@@ -1,0 +1,41 @@
+/* Colzo Graphite & Volt: visual-only shell of the last verified Business AI app.
+   No API, Stripe, customer portal, marketing or authentication behaviour changes. */
+body.colzo-safe-shell{
+ --bg:#101418;--panel:#1f2329;--panel2:#242b30;--border:#3a424a;
+ --text:#f5f7fa;--muted:#a6b1b9;--blue:#c8ff2e;--accent-blue:#c8ff2e;
+ --green:#a7dc48;--radius:17px;
+ background:#101418!important;color:#f5f7fa;
+}
+body.colzo-safe-shell .app{background:transparent}
+body.colzo-safe-shell .topbar{background:#15181d;border-color:#39413e}
+body.colzo-safe-shell .brand-icon{background:#15181d;border-radius:13px}
+body.colzo-safe-shell .brand-icon img{object-fit:contain;filter:none}
+body.colzo-safe-shell .brand-text h1{color:#f5f7fa;font-weight:850;letter-spacing:-.6px}
+body.colzo-safe-shell .brand-text h1 span{color:#c8ff2e}
+body.colzo-safe-shell .card,
+body.colzo-safe-shell .stat,
+body.colzo-safe-shell .work-item,
+body.colzo-safe-shell .lead-card{background:#1f2329;border-color:#384148;box-shadow:0 9px 23px rgba(0,0,0,.11)}
+body.colzo-safe-shell .card-head h3{color:#f5f7fa}
+body.colzo-safe-shell .bottom-nav{background:rgba(25,29,34,.97)!important;border-color:#4a5557!important;box-shadow:0 13px 35px rgba(0,0,0,.4)}
+body.colzo-safe-shell .bottom-nav .nav-btn{color:#b5c1c5}
+body.colzo-safe-shell .bottom-nav .nav-btn.active{background:#35432c!important;color:#c8ff2e!important}
+body.colzo-safe-shell .bottom-nav .nav-btn.active .nav-icon{color:#c8ff2e}
+body.colzo-safe-shell .btn.primary,
+body.colzo-safe-shell .small-btn.primary-action,
+body.colzo-safe-shell .auth-main-action,
+body.colzo-safe-shell .save-btn{background:#c8ff2e;color:#172016;border-color:#c8ff2e}
+body.colzo-safe-shell :is(button,a,input,select,textarea):focus-visible{outline:2px solid #c8ff2e;outline-offset:3px}
+body.colzo-safe-shell .auth-screen{background:radial-gradient(circle at 90% 8%,rgba(200,255,46,.10),transparent 26rem),#101418!important}
+body.colzo-safe-shell .auth-card{background:#20252b;border-color:#3b4940}
+body.colzo-safe-shell .auth-shared-brand h1{font-weight:850;letter-spacing:-.9px;color:#f5f7fa}
+body.colzo-safe-shell .auth-shared-mascot img{object-fit:contain;filter:none}
+body.colzo-safe-shell .app-splash{background:#11161a}
+body.colzo-safe-shell .app-splash-mark img{filter:drop-shadow(0 0 19px rgba(200,255,46,.22))}
+body.colzo-safe-shell .app-splash-mark:before,
+body.colzo-safe-shell .app-splash-mark:after{border-color:rgba(200,255,46,.28)}
+body.colzo-safe-shell .app-splash-tagline{color:#abb7bc}
+body.colzo-safe-shell .auth-role-switch{border-color:#48564a}
+body.colzo-safe-shell .auth-role-option.active{color:#c8ff2e}
+body.colzo-safe-shell .settings-hub-card{border-color:#3b434b;background:#252c31}
+@media(prefers-reduced-motion:reduce){body.colzo-safe-shell .app-splash-mark img{animation:none}}

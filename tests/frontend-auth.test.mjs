@@ -46,7 +46,7 @@ test("public customer links use only a validated slug and never unlock dashboard
 test("owner navigation is focused while AI and bookings remain reachable from authenticated workspace cards", () => {
   const nav = html.slice(html.indexOf("<nav class=\"bottom-nav\""), html.indexOf("</nav>", html.indexOf("<nav class=\"bottom-nav\"")));
   assert.match(nav, /data-view="dashboard"[\s\S]*Home/);
-  assert.match(nav, /data-view="leads"[\s\S]*Leads/);
+  assert.match(nav, /data-view="leads"[\s\S]*Enquiries/);
   assert.match(nav, /data-view="actions"[\s\S]*Actions/);
   assert.match(nav, /data-view="bookings"[\s\S]*Bookings/);
   assert.match(nav, /data-view="settings"[\s\S]*More/);
