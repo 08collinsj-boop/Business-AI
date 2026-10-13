@@ -64,3 +64,11 @@ Latest development-only layout changes:
 - Added static layout and semantic regression checks. **656/656 tests passed locally**, including read-only source restrictions. Actual iOS in-app browser screenshot acceptance remains required; automated source tests alone cannot guarantee perfect visual layout on the user's phone.
 
 No new live database connections, migrations, customer writes, account changes or customer emails were made for this adjustment.
+
+## Safer refresh and unattended browser QA (13 October 2026)
+
+- The owner can explicitly refresh enquiries, bookings and actions with a read-only button in the Colzo header. Nothing is posted to live business APIs.
+- Refreshed data is accepted only if the in-memory authentication token and verification generation are still current. Ending verification increments the generation, clears local data and quote text, disables the refresh control and locally signs out of the ephemeral Supabase session.
+- Read failures retain previously loaded records and show a notice instead of inventing empty results. An unauthorised enquiry response asks the owner to end verification and sign in again.
+- Local Chromium/Playwright browser QA now covers 375×812, 390×844, 430×932, 1366×768 and 1440×900 using intercepted fake authentication/records. Tests include quote creation, Settings routes, navigation geometry, a manual data refresh and a deliberately delayed refresh that finishes after exit, verifying the screen remains cleared. All five viewports passed. See `docs/COLZO_BROWSER_QA.md`.
+- This test is **not** a live-authentication acceptance certificate: the original customer's data was not used in the browser fixtures, and the protected Vercel preview remains a separate acceptance requirement.

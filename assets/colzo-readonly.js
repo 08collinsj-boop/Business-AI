@@ -8,6 +8,8 @@
   const form = $('originalLogin');
   let client = null;
   let token = null;
+  let verificationGeneration = 0;
+  let refreshBusy = false;
   let verifiedEnquiries = [];
   let verifiedBookings = [];
   let verifiedActions = [];
@@ -255,7 +257,14 @@ ${notes}`);
     renderHome();renderSearchList();showScreen('Home');
   }
   function endVerification() {
+    // Invalidate in-flight reads before touching the UI, so a stale response
+    // can never repopulate another business's data after the owner exits.
+    verificationGeneration++;
+    const oldClient=client;
     token=null;verifiedEnquiries=[];verifiedBookings=[];verifiedActions=[];workLoadState={bookings:'waiting',actions:'waiting'};client=null;activeFilter='All';
+    refreshBusy=false;
+    $('colzoRefreshData').disabled=true;$('colzoRefreshStatus').hidden=true;
+    if(oldClient?.auth?.signOut)void oldClient.auth.signOut({scope:'local'}).catch(()=>{});
     $('colzoQuoteForm').reset();$('colzoQuoteOutput').value='';$('colzoQuoteResult').hidden=true;
     document.querySelector('.screen').classList.remove('colzo-preview-active');
     $('colzoExplore').hidden=true;
@@ -279,15 +288,46 @@ ${notes}`);
       copy.append(name,service);card.append(avatar,copy,stage);list.append(card);
     }
   }
-  async function readEnquiries() {
-    const response = await fetch(`${source}?kind=enquiries`, {
-      method:'GET',cache:'no-store',headers:{Accept:'application/json',Authorization:`Bearer ${token}`}
+  async function readEnquiries(expectedToken=token, expectedGeneration=verificationGeneration) {
+    if(!expectedToken || expectedGeneration!==verificationGeneration)return false;
+    const response=await fetch(`${source}?kind=enquiries`,{
+      method:'GET',cache:'no-store',headers:{Accept:'application/json',Authorization:`Bearer ${expectedToken}`}
     });
-    const data = await response.json().catch(()=>({}));
-    if (!response.ok) throw new Error(response.status===401||response.status===403?'The original app could not authorise this session.':'The original app could not return enquiries right now.');
-    verifiedEnquiries=Array.isArray(data.items)?data.items:[];
+    const data=await response.json().catch(()=>({}));
+    if(token!==expectedToken||verificationGeneration!==expectedGeneration)return false;
+    if(!response.ok){
+      const error=new Error(response.status===401||response.status===403?'Original account authorisation has expired. End verification and sign in again.':'The original app could not return enquiries right now.');
+      error.status=response.status;throw error;
+    }
+    if(!Array.isArray(data.items))throw new Error('Unexpected enquiry response from the original app.');
+    verifiedEnquiries=data.items;
     render(verifiedEnquiries,Boolean(data.truncated));
     $('results').hidden=false;
+    return true;
+  }
+  async function refreshData(){
+    if(!token||refreshBusy)return;
+    const currentToken=token,currentGeneration=verificationGeneration;
+    refreshBusy=true;
+    const button=$('colzoRefreshData'),notice=$('colzoRefreshStatus');
+    button.disabled=true;notice.hidden=false;notice.textContent='Refreshing authorised business data…';
+    try{
+      const refreshed=await readEnquiries(currentToken,currentGeneration);
+      if(!refreshed||token!==currentToken||verificationGeneration!==currentGeneration)return;
+      workLoadState={bookings:'waiting',actions:'waiting'};
+      await loadWorkData();
+      if(token!==currentToken||verificationGeneration!==currentGeneration)return;
+      renderHome();renderSearchList();renderWork();
+      notice.textContent='Business data refreshed. No records were changed.';
+    }catch(error){
+      if(token!==currentToken||verificationGeneration!==currentGeneration)return;
+      notice.textContent=error?.status===401||error?.status===403
+        ?'Your original account session has expired. End verification and sign in again.'
+        :'Refresh unavailable. Previously loaded records are unchanged.';
+    }finally{
+      refreshBusy=false;
+      if(token===currentToken&&verificationGeneration===currentGeneration)button.disabled=false;
+    }
   }
   form.addEventListener('submit',async event=>{
     event.preventDefault();if(!client)return;
@@ -313,6 +353,7 @@ ${notes}`);
   $('endCheck').addEventListener('click',endVerification);
   $('openColzoExplore').addEventListener('click',openDashboard);
   $('colzoExploreExit').addEventListener('click',endVerification);
+  $('colzoRefreshData').addEventListener('click',refreshData);
   $('colzoSafeSignOut').addEventListener('click',endVerification);
   document.querySelectorAll('[data-colzo-setting]').forEach(button=>button.addEventListener('click',()=>openSettingsDetail(button.dataset.colzoSetting)));
   $('colzoSettingsDetailBack').addEventListener('click',()=>showScreen('More'));

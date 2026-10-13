@@ -7,7 +7,7 @@
  <meta name="robots" content="noindex,nofollow">
  <title>Colzo | Existing account verification</title>
  <link rel="icon" href="/assets/icons/colzo-mark.svg" type="image/svg+xml">
- <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-dock-layout-v5">
+ <link rel="stylesheet" href="/assets/colzo-readonly.css?v=20261013-refresh-v6">
 </head>
 <body>
  <main class="screen">
@@ -22,7 +22,8 @@
    <div id="results" class="results" hidden><div class="row"><h2>Original account data</h2><button id="endCheck" class="secondary" type="button">End this test</button></div><p id="resultsDescription" class="muted"></p><div id="enquiriesList" class="enquiries-list"></div><button id="openColzoExplore" type="button" class="colzo-open-dashboard">Open your Colzo dashboard preview <span aria-hidden="true">↗</span></button><p class="colzo-open-caption">See a redesigned, read-only view of the data you just verified.</p></div>
   </section>
   <section id="colzoExplore" class="colzo-explore" aria-label="Colzo read-only dashboard" hidden>
-    <header class="colzo-explore-header"><div class="colzo-explore-brand"><img src="/assets/icons/colzo-mark.svg" width="34" height="34" alt=""><strong>Colzo</strong></div><div class="colzo-explore-header-right"><span class="colzo-readonly-pill">READ ONLY</span><button id="colzoExploreExit" type="button" aria-label="Exit dashboard and end verification">Exit</button></div></header>
+    <header class="colzo-explore-header"><div class="colzo-explore-brand"><img src="/assets/icons/colzo-mark.svg" width="34" height="34" alt=""><strong>Colzo</strong></div><div class="colzo-explore-header-right"><span class="colzo-readonly-pill">READ ONLY</span><button id="colzoRefreshData" type="button" aria-label="Refresh authorised business data" title="Refresh authorised data">↻</button><button id="colzoExploreExit" type="button" aria-label="Exit dashboard and end verification">Exit</button></div></header>
+    <p id="colzoRefreshStatus" class="colzo-refresh-status" role="status" aria-live="polite" hidden></p>
     <div class="colzo-explore-body">
       <section id="colzoExploreHome" class="colzo-explore-panel" aria-labelledby="colzoHomeTitle">
         <p class="colzo-eyebrow">BUSINESS OVERVIEW</p><h1 id="colzoHomeTitle">Good morning.</h1><p class="colzo-home-intro">Here's what's happening with your business today.</p>
@@ -82,5 +83,5 @@
   <footer><p>Preview-only · No live service-role key is used · All customer enquiries are read through the original application's existing authorisation rules.</p><a href="https://app.getbusiness-ai.com/">Open the original Business AI app</a></footer>
  </main>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- <script src="/assets/colzo-readonly.js?v=20261013-dock-layout-v5" defer></script>
+ <script src="/assets/colzo-readonly.js?v=20261013-refresh-v6" defer></script>
 </body></html>

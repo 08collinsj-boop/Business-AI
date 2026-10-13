@@ -7,7 +7,8 @@
     "test": "node --test tests/*.test.mjs",
     "verify:local": "node scripts/verify-local.mjs",
     "verify": "npm test && npm run verify:local",
-    "load:smoke": "node scripts/load-smoke.mjs"
+    "load:smoke": "node scripts/load-smoke.mjs",
+    "verify:colzo-browser": "node scripts/colzo-browser-smoke.cjs"
   },
   "dependencies": {
     "qrcode": "1.5.4"

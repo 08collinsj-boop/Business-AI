@@ -243,3 +243,22 @@ html{scroll-padding-bottom:120px}
   .colzo-explore-nav button{min-height:43px!important}
   .colzo-trend-panel svg{height:92px!important}
 }
+
+/* v6: explicit owner refresh; never overlays the navigation or content pane. */
+.colzo-explore-header-right #colzoRefreshData{
+  display:grid;place-items:center;flex:0 0 37px;width:37px;height:37px;
+  padding:0!important;border:1px solid #495a3b;border-radius:11px;
+  background:#2d3a2a;color:#c8ff2e;font-size:22px;line-height:1;
+}
+.colzo-explore-header-right #colzoRefreshData:disabled{opacity:.5}
+.colzo-refresh-status:not([hidden]){
+  display:block;flex:0 0 auto;margin:0 0 0;padding:9px 14px;
+  border-bottom:1px solid #3e4b41;background:#263227;color:#c8ff2e;
+  font-size:11px;line-height:1.45;
+}
+@media(max-width:390px){
+  .colzo-explore-header-right{gap:6px!important}
+  .colzo-explore-header-right #colzoRefreshData{flex-basis:32px;width:32px;height:34px}
+  .colzo-explore-header-right .colzo-readonly-pill{font-size:7px!important;padding:5px!important}
+  .colzo-explore-header-right #colzoExploreExit{padding:7px 8px!important;font-size:10px!important}
+}

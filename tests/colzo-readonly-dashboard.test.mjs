@@ -16,7 +16,8 @@ test('verified original account can explicitly transition into the four-tab Colz
 
 test('enquiry list, filters, and details use the original authorised records without copying private fields',async()=>{
  const js=await read('assets/colzo-readonly.js');
- assert.match(js,/verifiedEnquiries=Array\.isArray\(data\.items\)\?data\.items:\[\]/);
+ assert.match(js,/if\(!Array\.isArray\(data\.items\)\)throw new Error/);
+ assert.match(js,/verifiedEnquiries=data\.items/);
  assert.match(js,/const stage = value => value === 'Converted' \? 'Won' : value === 'Contacted' \? 'In Progress' : 'New'/);
  assert.match(js,/data-colzo-filter/);
  assert.match(js,/\$\('colzoEnquirySearch'\)\.addEventListener\('input',renderSearchList\)/);
