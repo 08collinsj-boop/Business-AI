@@ -113,6 +113,40 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'legacy Bookings remains accessible');
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Colzo is hidden while editing legacy');
   assert.equal(await page.locator('#cnReturnToColzo').isVisible(),true);
+  // The old owner features are still needed for billing, Marketing, AI and
+  // bookings. Test the actual CSS bridge rather than only button navigation.
+  const legacy=await page.evaluate(()=>{
+   const css=e=>getComputedStyle(document.querySelector(e));
+   const rect=e=>document.querySelector(e).getBoundingClientRect();
+   const nav=rect('.bottom-nav'),back=rect('#cnReturnToColzo');
+   return {bodyBg:css('body').backgroundColor,appBg:css('#dashboardApp').backgroundColor,
+    cardBg:css('#dashboardApp .card').backgroundColor,cardBorder:css('#dashboardApp .card').borderTopColor,
+    fieldBg:css('#dashboardApp .field input').backgroundColor,
+    themeRule:[...document.styleSheets].some(x=>x.href?.includes('colzo-legacy-theme.css')),
+    legacyVisible:css('#dashboardApp').display!=='none',
+    backBottom:back.bottom,navTop:nav.top,backTop:back.top,
+    scrollWidth:document.documentElement.scrollWidth,
+    navVisible:css('.bottom-nav').display!=='none'};
+  });
+  assert.equal(legacy.bodyBg,'rgb(13, 17, 21)',JSON.stringify(legacy));
+  assert.equal(legacy.appBg,'rgb(13, 17, 21)',JSON.stringify(legacy));
+  assert.equal(legacy.cardBg,'rgb(32, 39, 45)',JSON.stringify(legacy));
+  assert.equal(legacy.cardBorder,'rgb(54, 64, 71)',JSON.stringify(legacy));
+  assert.equal(legacy.fieldBg,'rgb(36, 44, 51)',JSON.stringify(legacy));
+  assert.equal(legacy.themeRule,true);
+  assert.equal(legacy.legacyVisible,true);
+  assert.ok(legacy.scrollWidth<=w+1,'Legacy screen overflows iPhone viewport');
+  if(w<920&&legacy.navVisible)assert.ok(legacy.backBottom<=legacy.navTop-2,`Back button overlaps legacy navigation: ${JSON.stringify(legacy)}`);
+  for(const view of ['actions','marketing','settings','businessProfile']){
+   await page.evaluate(view=>showView(view),view);
+   assert.equal(await page.locator('#'+view+'View').isVisible(),true,`${view} must remain available in Colzo theme`);
+   assert.equal(await page.locator('#colzoOwner').isVisible(),false);
+   const style=await page.locator('#'+view+'View .card').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor})).catch(()=>null);
+   if(style){assert.equal(style.bg,'rgb(32, 39, 45)');assert.equal(style.border,'rgb(54, 64, 71)');}
+   if((view==='marketing'||view==='settings')&&(w===390||w===1366)){
+    await page.screenshot({path:`${shots}/legacy-${view}-${w}.png`,fullPage:false});
+   }
+  }
   await page.locator('#cnReturnToColzo').click();
   assert.equal(await page.locator('#colzoOwner').isVisible(),true);
   const metrics=await page.evaluate(()=>{const r=document.querySelector('#colzoOwner').getBoundingClientRect();const nav=document.querySelector('.cn-nav').getBoundingClientRect();return{viewport:innerWidth,scroll:document.documentElement.scrollWidth,nav:{x:nav.x,y:nav.y,right:nav.right,bottom:nav.bottom,w:nav.width},rootW:r.width}});

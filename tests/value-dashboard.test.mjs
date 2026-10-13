@@ -9,7 +9,7 @@ test("home shows a value and ROI card without presenting estimates as revenue", 
   const html = await read("index.html");
   assert.match(html, /id="valueDashboardCard"/);
   assert.match(html, /Value &amp; ROI/);
-  assert.match(html, /Business AI impact/);
+  assert.match(html, /Colzo impact/);
   assert.match(html, /not confirmed revenue/i);
   assert.match(html, /Potential value added/);
   assert.match(html, /id="valueSourceBars"/);

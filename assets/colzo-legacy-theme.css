@@ -1,0 +1,266 @@
+/* Colzo / Graphite & Volt visual bridge for ORIGINAL authenticated owner tools.
+   Deliberately enabled only when the user opts into an older owner feature
+   from Colzo. Never themes public enquiries, customer accounts, login,
+   business onboarding, or non-owner states. No new API or entitlement logic. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode {
+  --bg:#0d1115;
+  --panel:#20272d;
+  --panel2:#242b31;
+  --border:#364047;
+  --text:#f5f7fa;
+  --muted:#a5b0bb;
+  --blue:#c8ff2e;
+  --accent-blue:#c8ff2e;
+  --green:#43d68c;
+  --yellow:#e7c76c;
+  --radius:16px;
+  --mock-bg:#0d1115;
+  --mock-bg2:#171d22;
+  --mock-panel:#20272d;
+  --mock-panel2:#242b31;
+  --mock-border:#364047;
+  --mock-blue:#c8ff2e;
+  background:#0d1115!important;
+  color:#f5f7fa;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp.app {
+  background:#0d1115!important;
+  color:#f5f7fa!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .topbar {
+  background:#151b20!important;
+  border:1px solid #354149!important;
+  border-radius:17px!important;
+  padding:13px!important;
+  margin-bottom:18px!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .brand-text h1 {
+  color:#f5f7fa!important;
+  font-weight:800!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .lead-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .work-item,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .billing-plan,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-automation-media-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-hub-card {
+  background:#20272d!important;
+  border:1px solid #364047!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+  color:#f5f7fa;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .card-head h3,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .page-title h2,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .screen-title h2,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .work-item h4 {
+  color:#f5f7fa!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .page-kicker,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-card-kicker,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-section-label,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-eyebrow {
+  color:#c8ff2e!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .work-meta,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .lead-meta,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .card-head span,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .field label {
+  color:#b6c1c7!important;
+}
+/* Compact Colzo fields. Leave required/disabled/read-only attributes alone. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .field input,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .field textarea,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .field select,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .search,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .sortbar select,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .work-form input,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .work-form textarea,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .work-form select,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-workspace input,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-workspace textarea,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-workspace select {
+  min-width:0;
+  max-width:100%;
+  border:1px solid #44515b!important;
+  border-radius:12px!important;
+  background:#242c33!important;
+  color:#f5f7fa!important;
+  box-shadow:none!important;
+  font-size:16px;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp :is(input,textarea)::placeholder {
+  color:#aab6be!important;
+  opacity:1;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp :is(input,textarea,select,button,a):focus-visible {
+  outline:3px solid #c8ff2e!important;
+  outline-offset:2px!important;
+}
+/* Primary action only: preserve danger/destructive buttons and plan semantics. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .small-btn.primary-action,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .btn.primary,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .save-btn,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .billing-action.primary {
+  background:#c8ff2e!important;
+  border-color:#c8ff2e!important;
+  color:#141d0f!important;
+  box-shadow:none!important;
+  font-weight:750;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .small-btn:not(.primary-action),
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .btn:not(.primary),
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .billing-action:not(.primary):not(.danger-soft),
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .refresh {
+  border-color:#455059;
+  border-radius:12px;
+  background:#2b333a;
+  color:#eef3f5;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .filter.active {
+  color:#172015!important;
+  background:#c8ff2e!important;
+  border-color:#c8ff2e!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-hub-card i {
+  background:#34412d!important;
+  color:#c8ff2e!important;
+  border-radius:12px;
+  box-shadow:none!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-hub-card b,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .card-head-action,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .text-action {
+  color:#c8ff2e!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .settings-status-badge {
+  background:#313b2b!important;
+  color:#d6ff98!important;
+  border:1px solid #566f3e!important;
+}
+/* Keep non-interactive marketing previews neutral; distinguish approval state. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-automation-advanced-wrap,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-automation-advanced,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-automation-media-thumb {
+  background:#171e23!important;
+  border-color:#364047!important;
+}
+/* A visible way back to the Colzo shell that does not cover the legacy dock. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #cnReturnToColzo:not([hidden]) {
+  display:block!important;
+  position:fixed!important;
+  z-index:85;
+  right:max(14px,env(safe-area-inset-right));
+  bottom:calc(90px + env(safe-area-inset-bottom));
+  min-height:42px;
+  padding:10px 16px;
+  background:#c8ff2e;
+  color:#16200f;
+  border-radius:12px;
+  border:1px solid #c8ff2e;
+  box-shadow:0 10px 28px rgba(0,0,0,.48);
+}
+@media(min-width:920px){
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #cnReturnToColzo:not([hidden]) {
+    top:18px;
+    bottom:auto;
+  }
+}
+@media(max-width:530px){
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp.app {
+    padding-bottom:calc(178px + env(safe-area-inset-bottom))!important;
+  }
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .topbar {
+    padding:10px!important;
+  }
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .card {
+    padding:15px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp *,
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp *::before,
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp *::after {
+    transition:none!important;
+    animation:none!important;
+  }
+}
+
+/* AI Marketing and Additional Features have their own older blue palette.
+   Restyle containers, not statuses, approval controls or publishing actions. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-workspace {
+  --marketing-border:#364047;
+  --marketing-border-strong:#586d3b;
+  --marketing-panel:#20272d;
+  --marketing-panel-soft:#171e23;
+  --marketing-blue:#c8ff2e;
+  --marketing-text:#f5f7fa;
+  --marketing-muted:#a5b0bb;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-hero {
+  background:linear-gradient(135deg,#29352a,#20272d 75%)!important;
+  border:1px solid #526642!important;
+  border-radius:19px!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-hero-mark,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-usage-icon,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-image-option-icon {
+  background:#33412d!important;
+  border-color:#536d40!important;
+  color:#c8ff2e!important;
+  box-shadow:none!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-hero-copy p,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-workspace .screen-title p,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-message {
+  color:#b7c3c7!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-usage-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-command-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-strategy-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-performance-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-calendar-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-automation-panel,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-review-card,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-publish-panel,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .addon-card {
+  background:#20272d!important;
+  border-color:#364047!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-tabs,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-selected-draft,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-composer-photo,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-image-option,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-trust-note {
+  background:#171e23!important;
+  border-color:#414d55!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-step-pill,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-chip,
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .addon-badge {
+  background:#303d2b!important;
+  border-color:#51683c!important;
+  color:#d6ff98!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-usage-track i {
+  background:linear-gradient(90deg,#83b72d,#c8ff2e)!important;
+}
+@media(max-width:460px){
+  body.colzo-owner-enabled.auth-ready.colzo-legacy-mode #dashboardApp .marketing-tabs {
+    background:#171e23!important;
+  }
+}
+
+/* The original five-tab dock has an independently painted blue indicator. */
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode .bottom-nav::before {
+  background:#364333!important;
+  border-color:#51683c!important;
+  box-shadow:none!important;
+}
+body.colzo-owner-enabled.auth-ready.colzo-legacy-mode .bottom-nav .nav-btn.active::after {
+  background:#c8ff2e!important;
+  box-shadow:none!important;
+}

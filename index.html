@@ -2186,6 +2186,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-safe-shell.css?v=20261013-safe-shell-1">
 <link rel="stylesheet" href="/assets/colzo-dashboard-visual.css?v=20261013-visual-v2">
 <link rel="stylesheet" href="/assets/colzo-native.css?v=20261013-native-a">
+<link rel="stylesheet" href="/assets/colzo-legacy-theme.css?v=20261013-theme-bridge-1">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" aria-busy="true">
@@ -2598,21 +2599,21 @@ class="view active"
 
 <div id="pilotProgressCard" class="card pilot-progress-card">
   <div class="pilot-progress-head">
-    <div><span class="settings-card-kicker">Pilot checklist</span><h3>Test Business AI properly</h3></div>
+    <div><span class="settings-card-kicker">Pilot checklist</span><h3>Test Colzo properly</h3></div>
     <span id="pilotProgressCount" class="pilot-progress-count">0 / 6</span>
   </div>
   <p class="pilot-progress-copy">These are real-use checks, not setup chores. Progress updates from what you actually do in the Pilot.</p>
   <div class="pilot-progress-track" role="progressbar" aria-label="Pilot testing progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0"><span id="pilotProgressBar" class="pilot-progress-fill"></span></div>
   <div id="pilotProgressList" class="pilot-progress-list"></div>
-  <div id="pilotProgressComplete" class="pilot-progress-complete" hidden>Checklist complete - thanks. Keep using Business AI normally and send feedback whenever something feels wrong or unnecessary.</div>
+  <div id="pilotProgressComplete" class="pilot-progress-complete" hidden>Checklist complete - thanks. Keep using Colzo normally and send feedback whenever something feels wrong or unnecessary.</div>
 </div>
 
 <div id="valueDashboardCard" class="card value-dashboard-card dashboard-performance-card">
   <div class="card-head value-dashboard-head">
-    <div><span class="settings-card-kicker">Value &amp; ROI · Performance overview</span><h3>Business AI impact</h3></div>
+    <div><span class="settings-card-kicker">Value &amp; ROI · Performance overview</span><h3>Colzo impact</h3></div>
     <span id="valueDashboardPeriod">Last 30 days</span>
   </div>
-  <p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
+  <p class="work-meta value-dashboard-disclaimer">See what Colzo is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
   <div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
   <div id="valueFollowUpSummary" class="value-follow-up-summary">Automatic follow-ups will appear here when enabled.</div>
   <div id="valueReviewSummary" class="value-review-summary">Review requests will appear here when used.</div>
@@ -2649,7 +2650,7 @@ class="view active"
 
 <div class="card" id="firstRunGuide">
   <div class="card-head"><h3>Get your business ready</h3><span>First steps</span></div>
-  <p class="work-meta">Complete these steps before sharing Business AI with customers. The AI only uses the information you save for this business.</p>
+  <p class="work-meta">Complete these steps before sharing Colzo with customers. The AI only uses the information you save for this business.</p>
   <div id="firstRunSteps" class="first-run-list"></div>
 </div>
 
@@ -2876,7 +2877,7 @@ class="view"
 </div>
 
 <div id="receptionistTestInspector" class="card receptionist-test-inspector" aria-live="polite">
-<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">Waiting for test</span></div>
+<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Colzo would do</h3></div><span class="settings-status-badge">Waiting for test</span></div>
 <div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>
 </div>
 
@@ -3052,7 +3053,7 @@ class="view"
 
 <div id="marketingPublishControls" class="marketing-publish-panel marketing-publish-card" hidden>
 <div class="marketing-panel-heading"><div><span class="marketing-eyebrow">Approved</span><h4>Publish or schedule</h4></div><span class="marketing-step-pill">3 · Publish</span></div>
-<p class="work-meta">Publishing uses the connected Page selected below. Business AI will never silently claim a failed post was published.</p>
+<p class="work-meta">Publishing uses the connected Page selected below. Colzo will never silently claim a failed post was published.</p>
 <div class="settings-grid"><div class="field"><label for="marketingPublishPlatform">Channel</label><select id="marketingPublishPlatform"><option value="facebook">Facebook Page</option><option value="instagram">Instagram professional account</option></select></div><div class="field"><label for="marketingScheduleAt">Publish later <small>(optional)</small></label><input id="marketingScheduleAt" type="datetime-local"></div></div>
 <div class="work-actions"><button id="marketingPublishNow" class="small-btn primary-action" type="button">Publish now</button><button id="marketingSchedule" class="small-btn" type="button">Schedule &amp; publish</button><button id="marketingScheduleDraft" class="small-btn" type="button">Open scheduler</button></div>
 </div>
@@ -4308,7 +4309,7 @@ function renderReceptionistTestInspector(preview){
   const target=$('receptionistTestInspector');if(!target)return;
   receptionistTestLastPreview=preview||null;
   if(!preview){
-    target.innerHTML='<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">Waiting for test</span></div><div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>';
+    target.innerHTML='<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Colzo would do</h3></div><span class="settings-status-badge">Waiting for test</span></div><div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>';
     return;
   }
   const outcomes=[];
@@ -4318,7 +4319,7 @@ function renderReceptionistTestInspector(preview){
   const context=Array.isArray(preview.context?.available)?preview.context.available:[];
   const lead=preview.lead||{};
   const leadRows=[['Name',lead.name],['Contact',lead.phone||lead.email],['Location',lead.location],['Job / service',lead.job_type],['Urgency',lead.urgency],['Priority',lead.priority]].filter(([,value])=>value);
-  target.innerHTML=`<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">${outcomes.length?'Would create workflow':'No record action'}</span></div>
+  target.innerHTML=`<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Colzo would do</h3></div><span class="settings-status-badge">${outcomes.length?'Would create workflow':'No record action'}</span></div>
   <div class="receptionist-test-grid">
     <article><span>Handling mode</span><strong>${esc(String(preview.handling_mode||'balanced').replaceAll('_',' '))}</strong></article>
     <article><span>Detected intent</span><strong>${esc(String(preview.intent?.type||'unknown').replaceAll('_',' '))}</strong></article>
