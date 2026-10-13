@@ -67,6 +67,7 @@ test('frontend loads work only with the current verified bearer session, and nev
  assert.match(js,/function renderWork\(\)/);
  assert.match(js,/function renderUpcomingWork\(\)/);
  assert.match(js,/kind==='clients'/);
- assert.match(js,/const names=new Set\(\)/);
+ assert.match(js,/const entries=verifiedEnquiries\.filter\(enquiry=>String\(enquiry\.name\|\|'\'\)\.trim\(\)\)/);
+ assert.doesNotMatch(js,/const names=new Set\(\)/);
  assert.doesNotMatch(js,/method:'POST'|method:'PATCH'|method:'DELETE'|localStorage|sessionStorage/);
 });

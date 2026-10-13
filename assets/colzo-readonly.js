@@ -75,14 +75,15 @@
         btn.append(marker,main,chip);btn.addEventListener('click',()=>openDetail(row.id));content.append(btn);
       }
     }else if(kind==='clients'){
-      const names=new Set();const entries=[];
-      for(const enquiry of verifiedEnquiries){const name=String(enquiry.name||'').trim();if(!name||names.has(name.toLocaleLowerCase('en-GB')))continue;names.add(name.toLocaleLowerCase('en-GB'));entries.push(enquiry);}
-      entries.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
-      content.append(create('p','colzo-setting-description',`${entries.length} contact${entries.length===1?'':'s'} from recorded enquiries. Separate client accounts and contact editing are not available in this preview.`));
+      // Names alone do not establish identity. Keep one contact entry per
+      // authorised enquiry so two customers with the same name cannot merge.
+      const entries=verifiedEnquiries.filter(enquiry=>String(enquiry.name||'').trim());
+      entries.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''))||String(b.created_at||'').localeCompare(String(a.created_at||'')));
+      content.append(create('p','colzo-setting-description',`${entries.length} named enquiry record${entries.length===1?'':'s'}. Repeated names are shown separately because customer identities have not been verified. Client-account editing is not available here.`));
       for(const enquiry of entries){
         const btn=create('button','colzo-setting-activity');btn.type='button';
         const avatar=create('span','colzo-avatar',String(enquiry.name||'E').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase());
-        const main=create('span','colzo-setting-activity-text');main.append(create('strong','',enquiry.name),create('small','',enquiry.job_type||'General enquiry'));
+        const main=create('span','colzo-setting-activity-text');main.append(create('strong','',enquiry.name),create('small','',(enquiry.job_type||'General enquiry')+' · '+safeDate(enquiry.created_at)));
         btn.append(avatar,main,create('span','colzo-chevron','›'));
         btn.addEventListener('click',()=>openDetail(enquiry.id));content.append(btn);
       }

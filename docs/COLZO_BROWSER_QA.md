@@ -33,3 +33,7 @@ All five viewport scenarios PASS after introducing the non-overlapping flex dock
 ### Session-exit race check
 
 The 390×844 scenario deliberately delays a mock GET request until after the owner presses Exit. The previously loaded data and dashboard remain hidden when the delayed response arrives. This verifies a privacy-sensitive UI lifecycle case without involving any real customer data.
+
+### Duplicate-name integrity test
+
+The 390×844 fixture deliberately assigns the same display name to two different enquiries. The owner contacts screen must still render all three enquiry contact entries, because a matching name is not reliable proof that two people are the same customer. No real customer information is used in this test.

@@ -37,7 +37,11 @@ async function main(){
       await page.route('**/supabase-js@2*',route=>route.fulfill({status:200,contentType:'application/javascript',body:mockSDK}));
       await page.route('**/api/colzo-original-readonly?*',route=>{
         const kind=new URL(route.request().url()).searchParams.get('kind');
-        route.fulfill({status:fixtures[kind]?200:404,contentType:'application/json',body:JSON.stringify(fixtures[kind]||{error:'Unsupported'})});
+        // Deliberate same-name, different-enquiry fixture at 390px:
+        // the Contacts view must not silently merge customer identities.
+        const payload=JSON.parse(JSON.stringify(fixtures[kind]||{error:'Unsupported'}));
+        if(width===390&&kind==='enquiries')payload.items[2].name='Leyton Example';
+        route.fulfill({status:fixtures[kind]?200:404,contentType:'application/json',body:JSON.stringify(payload)});
       });
       await page.goto(`http://127.0.0.1:${port}/colzo-readonly.html`,{waitUntil:'networkidle'});
       await page.fill('#originalEmail','browser-qa@example.invalid');
@@ -78,6 +82,10 @@ async function main(){
       await page.locator('[data-colzo-setting="appearance"]').click();
       await page.locator('#colzoContrastSwitch').check();
       if(!await page.locator('#colzoExplore').evaluate(el=>el.classList.contains('colzo-more-contrast')))errors.push('Contrast setting did not apply');
+      await page.click('[data-colzo-screen="Home"]');
+      await page.click('#colzoOpenContacts');
+      const contactEntries=await page.locator('#colzoSettingsDetailContents .colzo-setting-activity').count();
+      if(contactEntries!==3)errors.push(`Contacts merged records unexpectedly: ${contactEntries} of 3`);
       await page.click('[data-colzo-screen="Home"]');
       await page.click('#colzoOpenQuote');
       await page.selectOption('#colzoQuoteLead','2');
