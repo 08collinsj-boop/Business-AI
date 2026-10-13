@@ -51,6 +51,10 @@ async function run(){await sleep(500);const browser=await chromium.launch({headl
   await page.screenshot({path:`${out}/method-selection-${enabled?'enabled':'disabled'}.png`,fullPage:false});
   await page.locator('#colzoSetupLater').click();
   assert.equal(await page.locator('#colzoNewAccountSecurity').count(),0);
+  await page.evaluate(()=>{supabaseClient.auth.mfa.listFactors=async()=>({data:{totp:[{id:'existing-verified-factor',status:'verified'}]},error:null})});
+  await page.evaluate(async()=>window.colzoOfferSecuritySetup());
+  assert.equal(await page.locator('#colzoNewAccountSecurity').count(),0,'Existing TOTP owner must not see an alternative setup prompt before AAL2');
+  await page.evaluate(()=>{supabaseClient.auth.mfa.listFactors=async()=>({data:{totp:[]},error:null})});
   if(enabled){
    await page.locator('#colzoSecurityChoosePasskey').click();
    await page.waitForFunction(()=>window.__securityCalls.register===1);

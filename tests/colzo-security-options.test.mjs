@@ -34,6 +34,10 @@ test('Passkey sign-in is opt-in only; existing password/auth flows, onboarding a
  assert.match(security,/await client\(\)\.auth\.registerPasskey\(\)/);
  assert.match(security,/account\.verified\.length&&account\.aal\?\.currentLevel!=='aal2'/);
  assert.match(security,/passkeysReady\(\)/);
+ assert.match(security,/if\(app\)app\.inert=true/);
+ assert.match(security,/if\(colzoOwner\)colzoOwner\.inert=true/);
+ assert.match(security,/if\(colzoOwner\)colzoOwner\.inert=false/);
+ assert.match(security,/if\(!account\|\|account\.verified\.length/);
  assert.match(security,/colzoSetupAuthenticator/);
  assert.match(security,/colzoSetupPasskey/);
  assert.match(security,/colzoSetupLater/);

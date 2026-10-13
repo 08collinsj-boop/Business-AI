@@ -370,6 +370,8 @@
     overlay.hidden=false;
     document.body.classList.add('security-mfa-required');
     const app=byId('dashboardApp');if(app)app.inert=true;
+    const colzoOwner=byId('colzoOwner');if(colzoOwner)colzoOwner.inert=true;
+    byId('colzoNewAccountSecurity')?.remove();
     const promise=new Promise(resolve=>{activeChallenge={resolve,promise:null,factor,blocking};});
     activeChallenge.promise=promise;
     requestAnimationFrame(()=>byId('securityMfaGateCode')?.focus());
@@ -395,6 +397,7 @@
     const overlay=byId('securityMfaGate');if(overlay)overlay.hidden=true;
     document.body.classList.remove('security-mfa-required');
     const app=byId('dashboardApp');if(app)app.inert=false;
+    const colzoOwner=byId('colzoOwner');if(colzoOwner)colzoOwner.inert=false;
     challenge?.resolve(Boolean(result));
   }
 
@@ -419,8 +422,12 @@
     }catch{}finally{authReadyCheckRunning=false;}
   }
 
-  function offerSecuritySetup(){
+  async function offerSecuritySetup(){
     if(!document.body.classList.contains('auth-ready')||document.body.classList.contains('security-mfa-required')||!injectUi())return;
+    // Do not offer a second setup modal before an enrolled TOTP has satisfied AAL2.
+    // No protected settings are unlocked by this optional onboarding prompt.
+    const account=await mfaSnapshot().catch(()=>null);
+    if(!account||account.verified.length||!document.body.classList.contains('auth-ready')||document.body.classList.contains('security-mfa-required'))return;
     if(byId('colzoNewAccountSecurity'))return;
     const layer=document.createElement('div');layer.id='colzoNewAccountSecurity';layer.className='colzo-setup-security-overlay';
     layer.innerHTML=`<section class="colzo-setup-security-dialog" role="dialog" aria-modal="true" aria-labelledby="colzoSecuritySetupTitle"><span class="settings-card-kicker">ACCOUNT SETUP / SECURITY</span><h2 id="colzoSecuritySetupTitle">Secure your Colzo account</h2><p>Choose how you'd like to protect your account. You can change your settings later.</p><div class="colzo-setup-security-actions"><button type="button" id="colzoSetupAuthenticator">Use authenticator app <small>Available now</small></button><button type="button" id="colzoSetupPasskey" disabled>Use a device passkey <small>Face ID, Touch ID or fingerprint — in testing</small></button></div><button id="colzoSetupLater" type="button" class="small-btn">I'll set this up later</button></section>`;
@@ -449,6 +456,7 @@
   }
 
   const bodyObserver=new MutationObserver(()=>{
+    if(document.body.classList.contains('security-mfa-required'))byId('colzoNewAccountSecurity')?.remove();
     if(document.body.classList.contains('auth-ready'))refreshForAuthenticatedState();
     else if(activeChallenge)finishChallenge(false);
   });

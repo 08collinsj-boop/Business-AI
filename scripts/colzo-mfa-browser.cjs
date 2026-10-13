@@ -32,6 +32,9 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   assert.equal(await page.locator('#securityMfaGateCancel').isVisible(),false,'blocking MFA cannot be dismissed');
   assert.equal(await page.locator('#securityMfaGateVerify').isVisible(),true);
   assert.equal(await page.locator('#securityMfaGateLogout').isVisible(),true);
+  assert.equal(await page.locator('#colzoOwner').evaluate(el=>el.inert),true,'Native Colzo owner workspace must be inert during mandatory AAL2 challenge');
+  assert.equal(await page.locator('#dashboardApp').evaluate(el=>el.inert),true,'Original owner app must be inert during mandatory AAL2 challenge');
+  assert.equal(await page.locator('#colzoNewAccountSecurity').count(),0,'No alternate setup dialog can cover the required second-factor challenge');
   const rendered=await page.evaluate(()=>{
    const s=q=>getComputedStyle(document.querySelector(q)),r=q=>document.querySelector(q).getBoundingClientRect();
    return {border:s('#securityMfaGate .security-mfa-dialog').borderTopColor,background:s('#securityMfaGate .security-mfa-dialog').backgroundImage,verifyBg:s('#securityMfaGateVerify').backgroundColor,verifyText:s('#securityMfaGateVerify').color,codeBg:s('#securityMfaGateCode').backgroundColor,copy:s('#securityMfaGateCopy').color,dialog:r('#securityMfaGate .security-mfa-dialog').toJSON(),vw:innerWidth,vh:innerHeight,scrollWidth:document.documentElement.scrollWidth};
@@ -43,6 +46,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   // Closing an authenticated session still hides protected MFA content.
   await page.evaluate(()=>document.body.classList.remove('auth-ready'));
   await page.waitForFunction(()=>document.querySelector('#securityMfaGate')?.hidden===true,{timeout:6000});
+  assert.equal(await page.locator('#colzoOwner').evaluate(el=>el.inert),false,'Native owner workspace should reset inert when session ends');
   assert.deepEqual(errors,[]);
   console.log(`${width}x${height}: PASS actual protected Colzo MFA dialog, AAL2 gate, Graphite & Volt CSS and logout-safe exit`);
   await context.close();

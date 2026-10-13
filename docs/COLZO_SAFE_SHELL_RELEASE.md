@@ -122,3 +122,13 @@ The Colzo login and post-onboarding account security settings now offer a consis
 - Existing `npm run verify:colzo-mfa`, `npm run verify:colzo-native` and `npm run verify:colzo-owner-visual` continue to pass at their supported mobile/desktop sizes.
 
 **Product scope:** these changes make Colzo's account security UX consistent and more app-like; they do **not** complete native Projects, Clients and saved/sent Quotes, nor imply passkey support is live for Pilot users.
+
+### Additional verified safeguards and SDK references
+
+The first-time security selector now checks the actual Supabase MFA snapshot and does **not** offer a replacement setup while any verified TOTP factor is attached. During a mandatory AAL2 challenge, **both** the original Business AI owner workspace and the standalone Colzo owner workspace are `inert`; any optional setup overlay is removed, and the enforced authenticator overlay remains active until the factor is verified or the session ends. After challenge completion both owner workspace inert flags are cleared. The sign-in passkey button also stays hidden unless the feature flag, secure context, WebAuthn and experimental SDK method are all present.
+
+Supabase implementation references (consult before activation):
+- https://supabase.com/docs/guides/auth/passkeys — experimental opt-in, >= v2.105.0 and WebAuthn relying-party requirements
+- https://supabase.com/docs/guides/auth/auth-mfa — TOTP/phone enrollment and AAL1/AAL2 distinctions
+
+`npm run verify:colzo-mfa` now explicitly checks that both owner screens are inert while MFA blocks access. `npm run verify:colzo-security-methods` confirms existing verified TOTP owners are not shown a setup modal, while a fresh mock owner can choose the working authenticator path; simulated passkey paths are only tested with a fully stubbed SDK and do **not** mean Supabase passkeys were enabled or proven on a real device. The verified current release gate remains **HOLD** for public passkeys.
