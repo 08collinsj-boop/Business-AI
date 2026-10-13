@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://business-ai-pilot.vercel.app/api/:path*"
+    },
+    {
       "source": "/",
       "has": [
         {
