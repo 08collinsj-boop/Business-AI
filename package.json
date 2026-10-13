@@ -11,6 +11,7 @@
     "verify:colzo-browser": "node scripts/colzo-browser-smoke.cjs",
     "verify:colzo-owner": "node scripts/colzo-owner-forms-smoke.cjs",
     "verify:colzo-backend-nav": "node scripts/colzo-same-backend-navigation-smoke.cjs",
+    "verify:colzo-release-gate": "node scripts/colzo-release-gate.mjs",
     "verify:colzo-sql": "node scripts/colzo-sql-smoke.cjs"
   },
   "dependencies": {

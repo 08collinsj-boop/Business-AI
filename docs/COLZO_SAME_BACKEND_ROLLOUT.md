@@ -36,3 +36,7 @@ The **More → Your existing business tools** panel provides immediate navigatio
 ## Current release status
 
 **NOT YET APPROVED FOR PRODUCTION REPLACEMENT.** Backend sharing is implemented in the source architecture and the new navigation; controlled production auth/write QA and backup remain outstanding. The isolated Colzo read-only preview is a verification tool, **not** a replacement for full Business AI.
+
+## 13 October 2026 — same-project candidate preview and release gate
+
+A preview of Colzo SHA `571606a1649cf8add0f68677779edcdab54a254c` was built **inside the original** `business-ai-pilot` Vercel project, READY (deployment `dpl_B9CzwEzyBNkmgC3go2BVirYcA1zb`) without changing the live alias. The environment is not auth-equivalent to Production: `/api/health` returns 503, `/api/public-config` returns 404, while live returns 200 for both. Therefore the preflight remains **BLOCKED**, and the live deployment was preserved. See `docs/COLZO_PRODUCTION_CUTOVER_20261013.md` and the GET-only `npm run verify:colzo-release-gate` command.
