@@ -48,7 +48,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 35 | Referrals | Existing referral APIs | No invented credits/rewards |
 | 36 | Integrations | Existing provider connections | Show connected only when API confirms |
 | 37 | Security and Privacy | Existing security controls | Preserve auth, tenancy and MFA gates |
-| 38 | Feedback and Support | Existing support route | Confirm submit destination/result |
+| 38 | Feedback and Support | Existing authenticated `/api/feedback` | Native Colzo form with categories, validation and success only after the API confirms a saved record |
 
 ## Required safeguards
 1. The authenticated backend remains the source of truth for identity, tenancy, records, permissions and business configuration.
