@@ -43,7 +43,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 30 | Analytics | Existing authenticated `/api/value-dashboard` | Native read-only metrics use real tenant data; opportunity value is clearly distinguished from revenue and delivery is not inferred from saved status |
 | 31 | Automations | Existing authenticated `/api/marketing-automation` | Native read-only status/usage view; no automation is toggled, run or scheduled by opening the page |
 | 32 | Customer Portal | Existing public/customer routes | Do not imply public login unless configured |
-| 33 | Public Business Profile | Existing verified public profile data | No invented business facts |
+| 33 | Public Business Profile | Existing authenticated `/api/business-profile` | Native Colzo preview/editor uses saved business details and shows the public page only when a real route exists |
 | 34 | Review Requests | Existing manual review workflow | Don't claim sent without channel confirmation |
 | 35 | Referrals | Existing referral APIs | No invented credits/rewards |
 | 36 | Integrations | Existing provider connections | Show connected only when API confirms |
