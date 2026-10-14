@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const state={screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:''};
+ const state={screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:''};
  const safe=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const dateValue=v=>{if(v===null||v===undefined||v==='')return null;const d=new Date(v);return Number.isFinite(d.getTime())?d:null};
  const day=v=>{const d=dateValue(v);return d?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short'}).format(d):'No date'};
@@ -96,7 +96,7 @@
   <div class="cf-tabs cf-project-tabs" role="group" aria-label="Filter projects">${['All','Active','Completed'].map(t=>`<button type="button" data-cn-project-filter="${t}" aria-pressed="${(state.projectFilter||'All')===t}">${t}</button>`).join('')}</div>
   ${state.colzoForm?.resource==='projects'?colzoRecordForm('projects',state.colzoForm.record):''}
   ${state.colzoError?empty(state.colzoError,'<button type="button" data-colzo-refresh="projects">Try again</button>'):''}
-  <div class="cn-stack cf-project-list">${filtered.length?filtered.map(p=>`<button class="cf-project-card" type="button" data-colzo-edit="projects" data-colzo-id="${safe(p.id)}"><span class="cn-avatar">${safe(String(p.title||'?').slice(0,1).toUpperCase())}</span><span class="cf-project-text"><strong>${safe(p.title)}</strong><small>${safe(p.client_name||'Customer not recorded')} · ${safe(day(p.created_at))}</small><span class="cf-progress"><i style="width:${Number(p.progress)||0}%"></i></span><span class="cf-project-status">${safe(p.status)} · ${Number(p.progress)||0}%</span></span><span>›</span></button>`).join(''):empty('No saved projects yet. Create a project to start tracking work.')}</div>
+  <div class="cn-stack cf-project-list">${filtered.length?filtered.map(p=>`<button class="cf-project-card" type="button" data-colzo-detail="projects" data-colzo-id="${safe(p.id)}"><span class="cn-avatar">${safe(String(p.title||'?').slice(0,1).toUpperCase())}</span><span class="cf-project-text"><strong>${safe(p.title)}</strong><small>${safe(p.client_name||'Customer not recorded')} · ${safe(day(p.created_at))}</small><span class="cf-progress"><i style="width:${Number(p.progress)||0}%"></i></span><span class="cf-project-status">${safe(p.status)} · ${Number(p.progress)||0}%</span></span><span>›</span></button>`).join(''):empty('No saved projects yet. Create a project to start tracking work.')}</div>
   <p class="cn-caption">Projects are stored as tenant-scoped Colzo records. Changes are confirmed by the server.</p>`;
  }
  function clients(){
@@ -105,7 +105,7 @@
   const unique=new Map();for(const l of entries){const k=String(l.email||l.phone||l.name||'').trim().toLowerCase();if(k&&!unique.has(k))unique.set(k,l)}
   const contacts=[...unique.values()];
   const filtered=saved.filter(c=>[c.full_name,c.email,c.phone].join(' ').toLowerCase().includes(state.clientSearch.toLowerCase())).sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name)));
-  const row=c=>`<button class="cn-stitch-customer" type="button" data-colzo-edit="clients" data-colzo-id="${safe(c.id)}"><span class="cn-avatar">${safe(String(c.full_name||'?').trim().split(/\\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(c.full_name)}</strong><small>${safe(c.email||c.phone||'No contact details')}</small><small>Saved customer · ${safe(day(c.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
+  const row=c=>`<button class="cn-stitch-customer" type="button" data-colzo-detail="clients" data-colzo-id="${safe(c.id)}"><span class="cn-avatar">${safe(String(c.full_name||'?').trim().split(/\\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(c.full_name)}</strong><small>${safe(c.email||c.phone||'No contact details')}</small><small>Saved customer · ${safe(day(c.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
   return `<div class="cn-stitch-title"><div><h1>Customers</h1><p>${state.colzoLoading==='clients'?'Loading saved customers…':`${saved.length} saved customers`}</p></div><button class="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button></div>
   ${state.colzoFeedback?`<p class="cn-work-message" role="status">${safe(state.colzoFeedback)}</p>`:''}
   <label class="cn-stitch-search"><span aria-hidden="true">⌕</span><input id="cnClientSearch" type="search" aria-label="Search saved customers" value="${safe(state.clientSearch)}" placeholder="Search saved customers…"></label>
@@ -137,10 +137,24 @@
   ${state.colzoForm?.resource==='quotes'?colzoRecordForm('quotes',state.colzoForm.record):''}
   ${state.colzoError?empty(state.colzoError,'<button type="button" data-colzo-refresh="quotes">Try again</button>'):''}
   <label class="cn-search cf-search"><span aria-hidden="true">⌕</span><input id="cnQuoteSearch" type="search" aria-label="Search quotes" placeholder="Search saved quotes…" value="${safe(state.search)}"></label>
-  <div class="cn-stack">${filtered.length?filtered.map(q=>{const lead=records().enquiries.find(l=>String(l.id)===String(q.lead_id));return `<button class="cn-record cf-lead-card" type="button" data-colzo-edit="quotes" data-colzo-id="${safe(q.id)}"><span class="cn-avatar">£</span><span class="cn-record-main"><strong>${safe(q.title)}</strong><small>${safe(lead?contact(lead):'Related enquiry')} · ${safe(day(q.created_at))}</small><span class="cn-pill ${q.status==='accepted'?'success':'attention'}">${safe(q.status)}</span></span><span class="cn-record-end"><strong>£${Number(q.amount_gbp||0).toFixed(2)}</strong><span>›</span></span></button>`}).join(''):empty('No saved quotes yet. Create a draft quote linked to an existing enquiry.')}</div>
+  <div class="cn-stack">${filtered.length?filtered.map(q=>{const lead=records().enquiries.find(l=>String(l.id)===String(q.lead_id));return `<button class="cn-record cf-lead-card" type="button" data-colzo-detail="quotes" data-colzo-id="${safe(q.id)}"><span class="cn-avatar">£</span><span class="cn-record-main"><strong>${safe(q.title)}</strong><small>${safe(lead?contact(lead):'Related enquiry')} · ${safe(day(q.created_at))}</small><span class="cn-pill ${q.status==='accepted'?'success':'attention'}">${safe(q.status)}</span></span><span class="cn-record-end"><strong>£${Number(q.amount_gbp||0).toFixed(2)}</strong><span>›</span></span></button>`}).join(''):empty('No saved quotes yet. Create a draft quote linked to an existing enquiry.')}</div>
   <p class="cn-caption">A saved quote is not the same as an issued or emailed quote. Sending remains a separate workflow.</p>`;
  }
 
+ function colzoRecordDetail(){
+  const detail=state.colzoDetail;
+  if(!detail||!['clients','projects','quotes'].includes(detail.resource))return '<button class="cn-back" data-cn-screen="more" type="button">← Back</button>'+empty('This record is no longer available.');
+  const {resource,id}=detail,record=(state.colzoRecords[resource]||[]).find(item=>String(item.id)===String(id));
+  if(!record)return '<button class="cn-back" data-cn-screen="'+resource+'" type="button">← Back</button>'+empty('This record is no longer available in this workspace.');
+  const back='<button class="cn-back" data-cn-screen="'+resource+'" type="button" aria-label="Back to '+(resource==='clients'?'customers':resource)+'">← '+(resource==='clients'?'Customers':resource==='projects'?'Projects':'Quotes')+'</button>';
+  const edit='<button class="cn-primary" type="button" data-colzo-edit="'+resource+'" data-colzo-id="'+safe(record.id)+'">Edit details</button>';
+  let body='';
+  if(resource==='clients')body='<section class="cn-detail-panel cf-detail-panel"><h2>Contact details</h2><dl><div><dt>Full name</dt><dd>'+safe(record.full_name||'Not recorded')+'</dd></div><div><dt>Email</dt><dd>'+safe(record.email||'Not recorded')+'</dd></div><div><dt>Phone</dt><dd>'+safe(record.phone||'Not recorded')+'</dd></div><div><dt>Created</dt><dd>'+safe(day(record.created_at))+'</dd></div></dl></section><section class="cn-detail-panel cf-detail-panel"><h2>Notes</h2><p>'+safe(record.notes||'No notes recorded.')+'</p></section>';
+  if(resource==='projects')body='<section class="cn-detail-panel cf-detail-panel"><h2>Project overview</h2><dl><div><dt>Customer</dt><dd>'+safe(record.client_name||'Not recorded')+'</dd></div><div><dt>Status</dt><dd>'+safe(record.status||'planned')+'</dd></div><div><dt>Progress</dt><dd>'+Number(record.progress||0)+'%</dd></div><div><dt>Created</dt><dd>'+safe(day(record.created_at))+'</dd></div></dl><div class="cf-progress"><i style="width:'+Math.max(0,Math.min(100,Number(record.progress)||0))+'%"></i></div></section><section class="cn-detail-panel cf-detail-panel"><h2>Project notes</h2><p>'+safe(record.notes||'No project notes recorded.')+'</p></section>';
+  if(resource==='quotes'){const lead=records().enquiries.find(item=>String(item.id)===String(record.lead_id));body='<section class="cn-detail-panel cf-detail-panel"><h2>Quote overview</h2><dl><div><dt>Related enquiry</dt><dd>'+safe(lead?contact(lead):'No matching enquiry')+'</dd></div><div><dt>Amount</dt><dd>£'+Number(record.amount_gbp||0).toFixed(2)+'</dd></div><div><dt>Status</dt><dd>'+safe(record.status||'draft')+'</dd></div><div><dt>Created</dt><dd>'+safe(day(record.created_at))+'</dd></div></dl></section><section class="cn-detail-panel cf-detail-panel"><h2>Notes</h2><p>'+safe(record.notes||'No quote notes recorded.')+'</p></section><p class="cn-caption">This is a saved quote record, not an issued or emailed quote.</p>';}
+  const heading=resource==='clients'?record.full_name:record.title;
+  return '<div class="cf-screen-top">'+back+'</div><header class="cf-detail-contact"><span class="cn-avatar large">'+(resource==='quotes'?'£':safe(String(heading||'?').slice(0,1).toUpperCase()))+'</span><div><span class="cn-kicker">'+(resource==='clients'?'CUSTOMER PROFILE':resource==='projects'?'PROJECT DETAILS':'QUOTE DETAILS')+'</span><h1>'+safe(heading||'Untitled record')+'</h1><p>'+safe(resource==='clients'?'Saved customer':resource==='projects'?'Project record':'Saved quote')+'</p></div></header>'+body+'<div class="cf-detail-buttons">'+edit+'</div>';
+ }
  async function loadMarketingDrafts(force=false){
   if(state.marketingLoading||(!force&&Array.isArray(state.marketingDrafts)))return;
   state.marketingLoading=true;state.marketingError='';
@@ -515,7 +529,7 @@
    if(!document.body.classList.contains('auth-ready'))return;
    if(state.workModal&&motion==='none'&&root.querySelector('#cnWorkForm'))return;
    state.recordsReady=true;
-   const pages={home,enquiries:enquiry,lead:leadDetails,customer:customerProfile,projects,clients,quotes,marketing,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
+   const pages={home,enquiries:enquiry,lead:leadDetails,customer:customerProfile,projects,clients,quotes,colzoDetail:colzoRecordDetail,marketing,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
    const page=pages[state.screen]||home;
    stopMotion();
    root.dataset.screen=state.screen;
@@ -524,12 +538,12 @@
    content.innerHTML=page();
    const dialog=content.querySelector('.cn-work-dialog-backdrop');if(dialog)root.appendChild(dialog);
    content.dataset.cnIntro=state.screen;
-   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['quotes','setting','projects','actions'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['quotes','setting','projects','actions','marketing'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    if(motion!=='none')animateArrival(direction,motion);
  }
  function navigate(screen){
-   if(!['home','enquiries','lead','projects','clients','quotes','more','setting','bookings','actions','marketing'].includes(screen))return;
+   if(!['home','enquiries','lead','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing'].includes(screen))return;
    closeCommand(false);
    if(screen===state.screen){restoreScroll(0);return}
    const before=state.screen;
@@ -630,8 +644,9 @@
   if(target.hasAttribute('data-marketing-create')){state.marketingForm=true;state.marketingFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-marketing-cancel')){state.marketingForm=false;state.marketingEditing=null;render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-refresh')){loadMarketingDrafts(true);return}
+  if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){state.colzoDetail={resource,id};state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});}return}
   if(target.hasAttribute('data-colzo-create')){const resource=target.getAttribute('data-colzo-create');state.colzoForm={resource,record:null};state.colzoFeedback='';render({motion:'detail'});return}
-  if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';render({motion:'detail'})}return}
+  if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
   if(target.hasAttribute('data-colzo-cancel')){state.colzoForm=null;render({motion:'page'});return}
   if(target.hasAttribute('data-colzo-refresh')){loadColzoResource(target.getAttribute('data-colzo-refresh'),true);return}
   if(target.hasAttribute('data-cn-command')){openCommand();return}
