@@ -13,23 +13,23 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 |---:|---|---|---|
 | 1 | Customer Profile | Existing authenticated enquiry records | Integrated read-only in feature branch; separate saved customer records use Customers directory |
 | 2 | Add Customer | `POST /api/colzo-records?resource=clients` | Integrated create form; owner/admin only; preview DB target still requires confirmation |
-| 3 | Edit Customer | `PATCH /api/colzo-records?resource=clients&id=...` | Integrated edit form; tenant-filtered; preview DB target still requires confirmation |
+| 3 | Edit Customer | `PATCH /api/colzo-records?resource=clients&id=...` | Integrated edit form; tenant-filtered; preview DB target still requires confirmation; dedicated read-only profile detail added |
 | 4 | Enquiry Details | Existing authenticated lead records | Native details screen exists |
 | 5 | Create Enquiry | Existing lead/enquiry API | Existing legacy form/API route; Stitch styling not yet fully integrated |
 | 6 | Edit Enquiry | Existing lead PATCH API | Existing legacy editor/API route; Stitch styling not yet fully integrated |
 | 7 | Quotes Directory | `GET /api/colzo-records?resource=quotes` | Integrated list from tenant-scoped API |
-| 8 | Quote Details | Saved quote records and related enquiry | Basic saved quote card/edit form; dedicated standalone detail page still pending |
+| 8 | Quote Details | Saved quote records and related enquiry | Native read-only detail page with related enquiry, amount, status, notes and explicit edit action |
 | 9 | Create Quote | `POST /api/colzo-records?resource=quotes` | Integrated save form; sending/emailing is not implemented |
 | 10 | Edit Quote | `PATCH /api/colzo-records?resource=quotes&id=...` | Integrated edit form; sending/emailing is not implemented |
 | 11 | Projects Directory | `GET /api/colzo-records?resource=projects` | Integrated saved projects list, status and progress |
-| 12 | Project Details | Saved project record | Basic card opens edit form; standalone details page still pending |
+| 12 | Project Details | Saved project record | Native read-only detail page with customer, status, progress, notes and explicit edit action |
 | 13 | Create Project | `POST /api/colzo-records?resource=projects` | Integrated create form with server-side validation |
 | 14 | Edit Project | `PATCH /api/colzo-records?resource=projects&id=...` | Integrated edit form with server-side validation |
 | 15 | AI Receptionist Dashboard | Existing assistant settings and usage | Design simulator is not a live voice/model integration |
 | 16 | AI Conversations | Existing recorded call/enquiry data | Do not show fabricated conversation records |
 | 17 | AI Receptionist Settings | Existing settings/configuration APIs | Verify each setting before adding writes |
 | 18 | Business Knowledge | Existing knowledge APIs | Keep owner-provided facts distinct from verified facts |
-| 19 | Marketing Dashboard | Native Colzo Marketing screen + existing `/api/marketing` | Native screen lists saved drafts from the authenticated tenant |
+| 19 | Marketing Dashboard | Native Colzo Marketing screen + existing `/api/marketing` | Native screen lists saved drafts from the authenticated tenant; create, edit and delete supported |
 | 20 | Marketing Content Creation | Native Colzo draft form + existing `/api/marketing` | Explicit submit uses the existing AI Marketing allowance; nothing publishes automatically |
 | 21 | Marketing Library and Scheduling | Existing marketing library/schedule APIs | Dedicated native library/calendar and schedule controls remain pending |
 | 22 | Notifications | Supported native settings | No claims of live channels until configured |
