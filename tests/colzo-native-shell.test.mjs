@@ -40,10 +40,14 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('function colzoRecordDetail()'));
  assert.ok(js.includes('function leadForm()'));
  assert.ok(js.includes('async function loadBilling'));
+ assert.ok(js.includes('async function loadKnowledge'));
+ assert.ok(js.includes('async function approveKnowledge'));
+ assert.ok(js.includes('async function saveManualKnowledge'));
+ assert.ok(js.includes("confirmation_version:'knowledge_accuracy_v1'"));
  assert.ok(js.includes('function billing()'));
  assert.ok(js.includes("const result=await api('/api/billing')"));
  assert.ok(js.includes('const moreItems=['));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge'].includes(id)"));
  assert.ok(js.includes('async function saveNativeLead'));
  assert.ok(js.includes("method:editing?'PATCH':'POST'"));
  assert.ok(js.includes("['New','Contacted','Converted']"));
