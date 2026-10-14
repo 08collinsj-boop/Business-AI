@@ -1,5 +1,5 @@
 /* Colzo's native owner interface. Same authenticated Business AI account, same
- * browser-loaded tenant records, NO new API endpoints or silent mutations.
+ * existing authenticated APIs plus a tenant-scoped Colzo records API; no silent mutations.
  * The original feature-rich owner app remains one click away. */
 (()=>{
  'use strict';
