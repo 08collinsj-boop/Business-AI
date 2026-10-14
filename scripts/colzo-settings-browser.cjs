@@ -18,7 +18,8 @@ async function main(){await sleep(650);const browser=await chromium.launch({head
   page.on('request',r=>{const h=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(h))errors.push('External request '+h)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
   await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://synthetic-qa.invalid',supabaseAnonKey:'mock-public'})}));
-  await page.route('**/colzo-backend/settings',async route=>{const req=route.request();requests.push({path:'/api/settings',method:req.method(),body:req.postDataJSON?.()});const result=req.method()==='PATCH'?{business_name:'Updated Fixtures',business_type:'Electrician',phone:'01642111222',email:'fixture@example.invalid',address:'Fixture Lane'}:{business_name:'Fixture Electrical',business_type:'Electrician',phone:'01642111222',email:'fixture@example.invalid',address:'Fixture Lane'};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)})});
+  const dbSettings={business_name:'Fixture Electrical',business_type:'Electrician',phone:'01642111222',email:'fixture@example.invalid',address:'Fixture Lane'};
+  await page.route('**/colzo-backend/settings',async route=>{const req=route.request();requests.push({path:'/api/settings',method:req.method(),body:req.postDataJSON?.()});if(req.method()==='PATCH')Object.assign(dbSettings,req.postDataJSON?.()||{});await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(dbSettings)})});
   await page.route('**/colzo-backend/team',async route=>{const req=route.request();requests.push({path:'/api/team',method:req.method(),body:req.postDataJSON?.()});const body=req.method()==='POST'?{accept_path:'/invite?token=fixture-only'}:{members:[{role:'owner',created_at:'2026-10-01'}],invitations:[]};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)})});
   await page.route('**/colzo-backend/**',r=>{if(['/colzo-backend/settings','/colzo-backend/team','/colzo-backend/public-config'].includes(new URL(r.request().url()).pathname))return r.fallback();return r.fulfill({status:401,contentType:'application/json',body:'{"error":"Not real"}'})});
   await page.goto(base+'/',{waitUntil:'networkidle'});
@@ -72,6 +73,11 @@ async function main(){await sleep(650);const browser=await chromium.launch({head
    if(width===390)await page.screenshot({path:`${dir}/${key}-390.png`,fullPage:false,animations:'disabled'});
    await page.locator('[data-cn-back-settings]').click();
    assert.equal(await page.locator('.cf-settings-title h1').innerText(),'Settings');
+  }
+  if(width===390){
+   await page.locator('.cf-settings-list [data-cn-setting="profile"]').click();
+   assert.equal(await page.locator('#cn-setting-business_name').inputValue(),'Updated Fixtures','Saved business details should still be returned when the profile screen is reopened');
+   await page.locator('[data-cn-back-settings]').click();
   }
   const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,nav:document.querySelector('.cn-nav').getBoundingClientRect().toJSON()}));
   assert.ok(layout.scrollWidth<=width+1,`No horizontal overflow: ${JSON.stringify(layout)}`);
