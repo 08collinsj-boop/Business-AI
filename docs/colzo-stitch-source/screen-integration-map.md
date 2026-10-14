@@ -31,12 +31,12 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 18 | Business Knowledge | Existing knowledge APIs | Keep owner-provided facts distinct from verified facts |
 | 19 | Marketing Dashboard | Native Colzo Marketing screen + existing `/api/marketing` | Native screen lists saved drafts from the authenticated tenant; create, edit and delete supported |
 | 20 | Marketing Content Creation | Native Colzo draft form + existing `/api/marketing` | Explicit submit uses the existing AI Marketing allowance; nothing publishes automatically |
-| 21 | Marketing Library and Scheduling | Existing marketing library/schedule APIs | Dedicated native library/calendar and schedule controls remain pending |
+| 21 | Marketing Library and Scheduling | Existing `/api/marketing-schedules` | Native draft-library/schedule tabs; schedule only approved drafts, list upcoming/status and explicitly cancel upcoming schedules |
 | 22 | Notifications | Supported native settings | No claims of live channels until configured |
 | 23 | Business Settings | Existing authenticated settings/configuration | Do not claim unsupported settings were saved |
 | 24 | Team and Permissions | Existing team/invitation operations | Confirm endpoint success before claiming invite |
 | 25 | Billing and Subscription | Existing Stripe/billing operations | Do not invent checkout or subscription status |
-| 26 | More Menu | Native navigation | Only supported modules and truthful status |
+| 26 | More Menu | Native navigation | Self-contained menu routes supported screens and settings within Colzo; no undefined menu data dependency |
 | 27 | Settings Hub | Existing settings routes | All navigation stays within Colzo |
 | 28 | Business Actions | Existing actions API | Authenticated, tenant-scoped actions |
 | 29 | Create Action | Existing actions API | Save only after API success |
