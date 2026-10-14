@@ -29,9 +29,9 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 16 | AI Conversations | Existing recorded call/enquiry data | Do not show fabricated conversation records |
 | 17 | AI Receptionist Settings | Existing settings/configuration APIs | Verify each setting before adding writes |
 | 18 | Business Knowledge | Existing knowledge APIs | Keep owner-provided facts distinct from verified facts |
-| 19 | Marketing Dashboard | Existing marketing module | Metrics must derive from real drafts/posts |
-| 20 | Marketing Content Creation | Existing marketing draft flow | No implied publishing |
-| 21 | Marketing Library and Scheduling | Existing marketing library/schedule APIs | Only show actual connection/schedule state |
+| 19 | Marketing Dashboard | Native Colzo Marketing screen + existing `/api/marketing` | Native screen lists saved drafts from the authenticated tenant |
+| 20 | Marketing Content Creation | Native Colzo draft form + existing `/api/marketing` | Explicit submit uses the existing AI Marketing allowance; nothing publishes automatically |
+| 21 | Marketing Library and Scheduling | Existing marketing library/schedule APIs | Dedicated native library/calendar and schedule controls remain pending |
 | 22 | Notifications | Supported native settings | No claims of live channels until configured |
 | 23 | Business Settings | Existing authenticated settings/configuration | Do not claim unsupported settings were saved |
 | 24 | Team and Permissions | Existing team/invitation operations | Confirm endpoint success before claiming invite |
