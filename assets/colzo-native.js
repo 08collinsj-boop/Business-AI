@@ -104,7 +104,7 @@
   state.leadBusy=true;const button=form.querySelector('[type=submit]');if(button)button.disabled=true;const feedback=content.querySelector('#cnLeadFeedback');if(feedback)feedback.textContent='Saving securely…';
   try{const result=await api('/api/leads',{method:editing?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!result||result.error)throw new Error(result?.error||'The server did not confirm the enquiry save.');state.leadFeedback=editing?'Enquiry changes saved.':'Enquiry created.';state.leadForm=null;if(typeof loadAll==='function')await loadAll(false);state.screen=editing?'enquiries':'enquiries';state.activeLead=editing?body.id:result.id||null;render({motion:'page'});}
   catch(error){if(feedback)feedback.textContent=error?.message||'The enquiry could not be saved. No successful save was confirmed.'}
-  finally{state.leadBusy=false;if(state.screen==='leadForm')render()}
+  finally{state.leadBusy=false;if(button)button.disabled=false}
  }
  function projects(){
   const saved=Array.isArray(state.colzoRecords.projects)?state.colzoRecords.projects:[];
@@ -663,7 +663,7 @@
   if(target.hasAttribute('data-marketing-delete')){deleteMarketingDraft(target.getAttribute('data-marketing-delete'));return}
   if(target.hasAttribute('data-cn-create-lead')){state.leadForm={mode:'create',lead:null};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});return}
   if(target.hasAttribute('data-cn-edit-lead')){const id=target.getAttribute('data-cn-edit-lead'),lead=records().enquiries.find(x=>String(x.id)===String(id));if(lead){state.leadForm={mode:'edit',lead};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});}return}
-  if(target.hasAttribute('data-cn-lead-cancel')){state.leadForm=null;state.leadFeedback='';state.screen=state.leadForm?.mode==='edit'?'lead':'enquiries';render({motion:'page'});return}
+  if(target.hasAttribute('data-cn-lead-cancel')){const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-create')){state.marketingForm=true;state.marketingFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-marketing-cancel')){state.marketingForm=false;state.marketingEditing=null;render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-refresh')){loadMarketingDrafts(true);return}
