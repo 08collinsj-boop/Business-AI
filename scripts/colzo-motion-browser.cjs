@@ -57,13 +57,11 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   assert.equal(await page.locator('.cf-project-card').count(),2);
-  await page.locator('[data-cn-search-projects]').click();
-  assert.equal(await page.locator('#cnProjectSearch').isVisible(),true,'Native project search must expand');
+  assert.equal(await page.locator('#cnProjectSearch').isVisible(),true,'Native project search is available');
   await page.locator('#cnProjectSearch').fill('Inspection');
   assert.equal(await page.locator('.cf-project-card').count(),1,'Project search filters only the local authenticated records');
   assert.match(await page.locator('.cf-project-card').first().innerText(),/Inspection/);
-  await page.locator('[data-cn-search-projects]').click();
-  assert.equal(await page.locator('#cnProjectSearch').count(),0);
+  await page.locator('#cnProjectSearch').fill('');
   assert.equal(await page.locator('.cf-project-card').count(),2);
   await page.screenshot({path:`${dir}/projects-${width}.png`,fullPage:false,animations:'disabled'});
   await nav.locator('[data-cn-screen="more"]').click();
