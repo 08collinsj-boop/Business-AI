@@ -15,8 +15,8 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 2 | Add Customer | `POST /api/colzo-records?resource=clients` | Integrated create form; owner/admin only; preview DB target still requires confirmation |
 | 3 | Edit Customer | `PATCH /api/colzo-records?resource=clients&id=...` | Integrated edit form; tenant-filtered; preview DB target still requires confirmation; dedicated read-only profile detail added |
 | 4 | Enquiry Details | Existing authenticated lead records | Native details screen exists |
-| 5 | Create Enquiry | Existing lead/enquiry API | Existing legacy form/API route; Stitch styling not yet fully integrated |
-| 6 | Edit Enquiry | Existing lead PATCH API | Existing legacy editor/API route; Stitch styling not yet fully integrated |
+| 5 | Create Enquiry | Existing authenticated `POST /api/leads` | Native Colzo form; server derives tenant membership and confirms successful creation |
+| 6 | Edit Enquiry | Existing authenticated `PATCH /api/leads` | Native Colzo form for status, estimated value, priority, follow-up date and internal notes; uses only supported status values |
 | 7 | Quotes Directory | `GET /api/colzo-records?resource=quotes` | Integrated list from tenant-scoped API |
 | 8 | Quote Details | Saved quote records and related enquiry | Native read-only detail page with related enquiry, amount, status, notes and explicit edit action |
 | 9 | Create Quote | `POST /api/colzo-records?resource=quotes` | Integrated save form; sending/emailing is not implemented |
