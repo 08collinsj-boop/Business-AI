@@ -38,6 +38,11 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.match(js,/No draft was saved or sent/);
  assert.match(js,/Dedicated Colzo project tracking is not enabled yet/);
  assert.match(js,/separate saved customer profiles/);
+ assert.match(js,/function customerProfile\\(\\)/);
+ assert.match(js,/customer:customerProfile/);
+ assert.match(js,/data-cn-customer/);
+ assert.match(js,/Profile from existing enquiry records/);
+ assert.match(js,/This view is read-only/);
  for(const view of ['bookings','actions','marketing','businessProfile','settings','enquiries'])assert.ok(js.includes(view));
  assert.doesNotMatch(js,/fetch\(['"]https?:\/\//);
  assert.doesNotMatch(js,/api\(['"]\/api\/billing/);

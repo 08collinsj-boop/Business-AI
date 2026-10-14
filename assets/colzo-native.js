@@ -105,8 +105,22 @@
    for(const l of entries){const k=String(l.email||l.phone||l.name||'').trim().toLowerCase();if(k&&!unique.has(k))unique.set(k,l)}
    const all=[...unique.values()];
    const filtered=all.filter(l=>[l.name,l.email,l.phone,l.company,l.business_name,l.job_type].join(' ').toLowerCase().includes(state.clientSearch.toLowerCase())&&(state.clientFilter==='All'||(state.clientFilter==='Active'&&leadStage(l)!=='Won')||(state.clientFilter==='Recent'&&!!dateValue(l.created_at)&&Date.now()-dateValue(l.created_at).getTime()<2592000000))).sort((a,b)=>contact(a).localeCompare(contact(b)));
-   const row=l=>`<button class="cn-stitch-customer" type="button" data-cn-lead="${safe(l.id)}"><span class="cn-avatar">${safe(contact(l).split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase().slice(0,2))}</span><span class="cn-stitch-customer-copy"><strong>${safe(contact(l))}</strong><small>${safe(l.company||l.business_name||l.email||'Customer')}</small><small>${safe(l.job_type||'Enquiry')} · ${safe(day(l.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
+   const row=l=>`<button class="cn-stitch-customer" type="button" data-cn-customer="${safe(l.id)}"><span class="cn-avatar">${safe(contact(l).split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase().slice(0,2))}</span><span class="cn-stitch-customer-copy"><strong>${safe(contact(l))}</strong><small>${safe(l.company||l.business_name||l.email||'Customer')}</small><small>${safe(l.job_type||'Enquiry')} · ${safe(day(l.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
    return `<div class="cn-stitch-title"><div><h1>Customers</h1><p>${all.length} enquiry contacts</p></div><button class="cn-stitch-add" data-cn-legacy="leads" type="button" aria-label="Add contact through an enquiry">+</button></div><label class="cn-stitch-search"><span aria-hidden="true">⌕</span><input id="cnClientSearch" type="search" aria-label="Search customers" value="${safe(state.clientSearch)}" placeholder="Search customers by name, business…"></label><div class="cn-stitch-filters" role="group" aria-label="Filter customers">${['All','Recent','Active'].map(f=>`<button type="button" data-cn-client-filter="${f}" aria-pressed="${state.clientFilter===f}">${f}${f==='All'?' ('+all.length+')':''}</button>`).join('')}</div><div class="cn-stitch-directory-label"><b>DIRECTORY</b><span>${filtered.length} contacts</span></div><div class="cn-stitch-customer-list">${filtered.length?filtered.map(row).join(''):empty('No customers match this view.')}</div><p class="cn-caption">Contacts are derived from existing enquiries; separate saved customer profiles are not yet supported. Use the existing enquiry tools to add contacts.</p>`;
+ }
+ function customerProfile(){
+  const lead=records().enquiries.find(l=>String(l.id)===String(state.activeLead));
+  if(!lead)return `<button class="cn-back" data-cn-screen="clients" type="button">‹ Customers</button>${empty('This customer is no longer available in the current enquiry records.')}`;
+  const key=v=>String(v||'').trim().toLowerCase();
+  const email=key(lead.email),phone=String(lead.phone||'').replace(/\\D/g,''),name=key(lead.name);
+  const related=records().enquiries.filter(l=>(email&&key(l.email)===email)||(phone&&String(l.phone||'').replace(/\\D/g,'')===phone)||(!email&&!phone&&name&&key(l.name)===name));
+  const tel=String(lead.phone||'').replace(/[^+\\d]/g,'');
+  return `<header class="cf-detail-top"><button class="cn-back" data-cn-screen="clients" type="button" aria-label="Back to customers">‹</button><button class="cf-more-button" data-cn-screen="enquiries" type="button" aria-label="View enquiries">Enquiries</button></header>
+  <section class="cf-detail-contact"><span class="cn-avatar large">${initial(contact(lead))}</span><div><h1>${safe(contact(lead))}</h1><p>${safe(lead.company||lead.business_name||'Customer contact')}</p><span class="cn-caption">Profile from existing enquiry records</span></div></section>
+  <div class="cf-contact-row">${tel?`<a href="tel:${safe(tel)}"><b>☎</b><span>Call</span></a>`:''}${lead.email?`<a href="mailto:${safe(lead.email)}"><b>✉</b><span>Email</span></a>`:''}<button data-cn-screen="enquiries" type="button"><b>▤</b><span>Enquiries</span></button></div>
+  <section class="cn-detail-panel cf-detail-panel"><h2>Contact details</h2><dl><div><dt>Email address</dt><dd>${safe(lead.email||'Not recorded')}</dd></div><div><dt>Phone number</dt><dd>${safe(lead.phone||'Not recorded')}</dd></div><div><dt>Business</dt><dd>${safe(lead.company||lead.business_name||'Not recorded')}</dd></div><div><dt>Last recorded enquiry</dt><dd>${safe(day(lead.created_at))}</dd></div></dl></section>
+  <section class="cn-detail-panel cf-detail-panel"><h2>Enquiries (${related.length})</h2>${related.length?related.map(l=>`<button class="cn-record cf-lead-card" type="button" data-cn-lead="${safe(l.id)}"><span class="cn-record-main"><strong>${safe(l.job_type||'General enquiry')}</strong><small>${safe(day(l.created_at))} · ${safe(leadStage(l))}</small></span><span>›</span></button>`).join(''):empty('No related enquiries found.')}</section>
+  <p class="cn-caption">This view is read-only. Colzo currently derives customer contacts from existing enquiries; it does not create a separate customer record.</p>`;
  }
  function quotes(){
   const entries=records().enquiries;
@@ -403,7 +417,7 @@
    if(!document.body.classList.contains('auth-ready'))return;
    if(state.workModal&&motion==='none'&&root.querySelector('#cnWorkForm'))return;
    state.recordsReady=true;
-   const pages={home,enquiries:enquiry,lead:leadDetails,projects,clients,quotes,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
+   const pages={home,enquiries:enquiry,lead:leadDetails,customer:customerProfile,projects,clients,quotes,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
    const page=pages[state.screen]||home;
    stopMotion();
    root.dataset.screen=state.screen;
@@ -528,6 +542,7 @@
   if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)closeWorkModal();return}
   if(target.hasAttribute('data-cn-screen')){navigate(target.getAttribute('data-cn-screen'));return}
   if(target.hasAttribute('data-cn-legacy')){original(target.getAttribute('data-cn-legacy'));return}
+  if(target.hasAttribute('data-cn-customer')){state.activeLead=target.getAttribute('data-cn-customer');navigate('customer');return}
   if(target.hasAttribute('data-cn-lead')){state.activeLead=target.getAttribute('data-cn-lead');navigate('lead');return}
   if(target.hasAttribute('data-cn-filter')){const next=target.getAttribute('data-cn-filter');if(state.filter!==next){state.filter=next;render({motion:'filter'})}return}
   if(target.hasAttribute('data-cn-project-filter')){const next=target.getAttribute('data-cn-project-filter');if(state.projectFilter!==next){state.projectFilter=next;render({motion:'filter'})}return}
