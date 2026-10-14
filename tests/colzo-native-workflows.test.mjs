@@ -9,7 +9,7 @@ test('Bookings and Actions use native Colzo views from More, Home, Projects, and
  assert.match(js,/bookings:bookingScreen,actions:actionsScreen/);
  assert.match(js,/const workTabs=\{bookings:/);
  assert.match(js,/data-cn-screen="bookings" type="button"/);
- assert.match(js,/\['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist'\]\.includes\(id\)/);
+ assert.match(js,/\['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing'\]\.includes\(id\)/);
  assert.match(js,/label:'Bookings'[^\n]*screen:'bookings'/);
  assert.match(js,/label:'Actions'[^\n]*screen:'actions'/);
  assert.doesNotMatch(js,/data-cn-legacy="bookings"/);
