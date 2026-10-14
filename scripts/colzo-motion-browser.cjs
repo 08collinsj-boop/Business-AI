@@ -18,8 +18,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push(`Unexpected request ${host}`)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-qa.supabase.invalid',supabaseAnonKey:'public-test-key'})}));
-  await page.route('**/api/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"not real"}'}));
+  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-qa.supabase.invalid',supabaseAnonKey:'public-test-key'})}));
+  await page.route('**/colzo-backend/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"not real"}'}));
   await page.goto(origin+'/',{waitUntil:'networkidle'});
   await page.evaluate(()=>{
     const now=new Date().toISOString();

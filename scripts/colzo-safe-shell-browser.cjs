@@ -17,8 +17,8 @@ async function main(){
    const page=await ctx.newPage(),unexpected=[];
    page.on('request',request=>{const host=new URL(request.url()).hostname;if(host!=='127.0.0.1'&&host!=='cdn.jsdelivr.net')unexpected.push(`Unexpected destination: ${host}`)});
    await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',r=>r.fulfill({status:200,contentType:'application/javascript',body:fakeSupabase}));
-   await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(publicConfig)}));
-   await page.route('**/api/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"Unauthorised fixture"}'}));
+   await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(publicConfig)}));
+   await page.route('**/colzo-backend/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"Unauthorised fixture"}'}));
    await page.goto(origin+'/',{waitUntil:'networkidle'});
    await page.waitForFunction(()=>document.querySelector('#appSplash')&&document.body.classList.contains('auth-required'),{timeout:11000}).catch(()=>{});
    const data=await page.evaluate(async()=>({

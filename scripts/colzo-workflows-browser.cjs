@@ -18,8 +18,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected external request '+host)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'public-fixture'})}));
-  for(const resource of ['bookings','actions'])await page.route(`**/api/${resource}`,async route=>{
+  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'public-fixture'})}));
+  for(const resource of ['bookings','actions'])await page.route(`**/colzo-backend/${resource}`,async route=>{
     const req=route.request(),method=req.method();
     const body=['POST','PATCH'].includes(method)?req.postDataJSON():null;
     calls.push({resource,method,body});
@@ -37,7 +37,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
     }
     return route.fulfill({status:405,body:'Unsupported method'});
   });
-  await page.route('**/api/**',r=>['/api/bookings','/api/actions','/api/public-config'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+  await page.route('**/colzo-backend/**',r=>['/colzo-backend/bookings','/colzo-backend/actions','/colzo-backend/public-config'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
   await page.goto(base+'/',{waitUntil:'networkidle'});
   await page.evaluate((fixture)=>{
     settings=fixture.settings;
