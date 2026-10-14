@@ -35,7 +35,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 22 | Notifications | Supported native settings | No claims of live channels until configured |
 | 23 | Business Settings | Existing authenticated settings/configuration | Do not claim unsupported settings were saved |
 | 24 | Team and Permissions | Existing team/invitation operations | Confirm endpoint success before claiming invite |
-| 25 | Billing and Subscription | Existing Stripe/billing operations | Do not invent checkout or subscription status |
+| 25 | Billing and Subscription | Existing authenticated `GET /api/billing` | Native read-only Colzo summary shows returned plan/status/entitlements; checkout and subscription mutations remain intentionally unavailable here |
 | 26 | More Menu | Native navigation | Self-contained menu routes supported screens and settings within Colzo; no undefined menu data dependency |
 | 27 | Settings Hub | Existing settings routes | All navigation stays within Colzo |
 | 28 | Business Actions | Existing actions API | Authenticated, tenant-scoped actions |
