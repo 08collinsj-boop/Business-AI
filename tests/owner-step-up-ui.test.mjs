@@ -13,6 +13,8 @@ function setup(responses, verified=true) {
     supabaseClient:{auth:{getSession:async()=>({data:{session:{access_token:`test-session-${++sessions}`}}})}},
     fetch:async(url,options)=>{calls.push({url,headers:options.headers});const next=responses.shift();return {status:next.status,ok:next.status===200,json:async()=>next.body};}
   });
+  // Provide the same backend bridge seam as the browser before bootstrap.
+  context.window.colzoBackendFetch=context.fetch;
   vm.runInContext(`${source};this.callApi=api;`,context);
   return {run:()=>context.callApi('/api/billing',{method:'POST',body:'{"action":"portal"}'}),calls,challenges:()=>challenges};
 }
