@@ -33,7 +33,7 @@ test('authenticated owner data and access gates are unchanged; Colzo content nev
 
 test('Colzo quotes remain copy-only, projects derived from bookings/actions and original feature routes remain accessible',async()=>{
  const js=await read('assets/colzo-native.js');
- assert.match(js,/DRAFT ESTIMATE — NOT ISSUED/);
+ assert.match(js,/function loadColzoResource/);\n assert.match(js,/api\\('\/api\/colzo-records/);\n assert.match(js,/data-colzo-create/);\n assert.match(js,/function colzoRecordForm/);\n assert.match(js,/function loadColzoResource/);\n assert.match(js,/DRAFT ESTIMATE — NOT ISSUED/);
  assert.match(js,/not been saved, approved or sent/);
  assert.match(js,/No draft was saved or sent/);
  assert.match(js,/Dedicated Colzo project tracking is not enabled yet/);
