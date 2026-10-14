@@ -46,6 +46,11 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('data-colzo-detail="quotes"'));
  assert.ok(js.includes('data-colzo-detail="clients"'));
  assert.ok(js.includes('async function deleteMarketingDraft'));
+ assert.ok(js.includes('async function loadMarketingSchedules'));
+ assert.ok(js.includes('async function saveMarketingSchedule'));
+ assert.ok(js.includes('async function cancelMarketingSchedule'));
+ assert.ok(js.includes("action:'create',generation_id:draftId,platform:'facebook'"));
+ assert.ok(js.includes("action:'cancel',schedule_id:id"));
  assert.ok(js.includes("action:'edit',generation_id:current.id,output"));
  assert.ok(js.includes("action:'delete',generation_id:id"));
  assert.ok(js.includes('data-cn-screen="marketing"'));
