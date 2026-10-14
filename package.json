@@ -14,6 +14,7 @@
     "verify:colzo-settings": "node scripts/colzo-settings-browser.cjs",
     "verify:colzo-workflows": "node scripts/colzo-workflows-browser.cjs",
     "verify:colzo-auth": "node scripts/colzo-auth-browser.cjs",
+    "verify:colzo-leads": "node scripts/colzo-lead-save-browser.cjs",
     "verify": "npm test && npm run verify:local",
     "load:smoke": "node scripts/load-smoke.mjs"
   },
