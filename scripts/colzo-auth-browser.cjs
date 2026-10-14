@@ -31,7 +31,7 @@ async function main(){
     calls.push({path:'/api/business-onboarding',method,body});
     const business={id:'fixture-business',business_name:'Fixture Colzo',business_type:'Electrical services'};
     if(method==='POST')return r.fulfill({status:201,contentType:'application/json',body:JSON.stringify({business,public_path:'/enquire/fixture-colzo'})});
-    return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({needs_business:false,business,role:'owner'})});
+    return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({needs_business:false,business,public_slug:'fixture-colzo',role:'owner'})});
    });
    await page.route('**/colzo-backend/business-configuration',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({configuration:{},onboarding:{state:'in_progress'}})}));
    await page.route('**/colzo-backend/settings',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({business_name:'Fixture Colzo',business_type:'Electrical services',phone:'',email:'',address:''})}));
