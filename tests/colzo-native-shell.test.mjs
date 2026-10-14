@@ -44,6 +44,9 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('async function loadAnalytics'));
  assert.ok(js.includes('async function submitNativeFeedback'));
  assert.ok(js.includes('async function loadAutomation'));
+ assert.ok(js.includes('async function loadPublicProfile'));
+ assert.ok(js.includes('function publicProfile()'));
+ assert.ok(js.includes("api('/api/business-profile')"));
  assert.ok(js.includes('function automations()'));
  assert.ok(js.includes("api('/api/marketing-automation')"));
  assert.ok(js.includes('function feedback()'));
@@ -57,7 +60,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('function billing()'));
  assert.ok(js.includes("const result=await api('/api/billing')"));
  assert.ok(js.includes('const moreItems=['));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
  assert.ok(js.includes('async function saveNativeLead'));
  assert.ok(js.includes("method:editing?'PATCH':'POST'"));
  assert.ok(js.includes("['New','Contacted','Converted']"));
