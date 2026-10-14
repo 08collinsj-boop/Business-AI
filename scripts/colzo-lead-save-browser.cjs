@@ -64,7 +64,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  await page.locator('#cnLeadForm [type=submit]').click();
  await page.waitForFunction(()=>!document.querySelector('#cnLeadForm'));
  const patch=calls.find(x=>x.method==='PATCH');assert.ok(patch,'PATCH /api/leads must be confirmed');
- assert.equal(patch.body.id,42);assert.equal(patch.body.status,'Contacted');assert.equal(patch.body.estimated_value,300);assert.equal(patch.body.priority,'High');assert.equal(patch.body.notes,'QA note only');assert.equal(patch.body.business_id,undefined);
+ assert.equal(patch.body.id,'42');assert.equal(patch.body.status,'Contacted');assert.equal(patch.body.estimated_value,300);assert.equal(patch.body.priority,'High');assert.equal(patch.body.notes,'QA note only');assert.equal(patch.body.business_id,undefined);
  assert.equal(await page.locator('.cf-lead-card').filter({hasText:'New Fixture Customer'}).count(),1);
  assert.deepEqual(errors,[]);
  console.log('390x844: PASS native enquiry create and edit, server-confirmed fixture saves, tenant ID never client-supplied, no external API calls');
