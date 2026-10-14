@@ -4,17 +4,17 @@ const {chromium}=require('playwright');
 const {spawn}=require('node:child_process');
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const port=Number(process.env.COLZO_AUTH_QA_PORT||8804),base=\`http://127.0.0.1:\${port}\`;
+const port=Number(process.env.COLZO_AUTH_QA_PORT||8804),base=`http://127.0.0.1:${port}`;
 const server=spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.1'],{cwd:path.resolve(__dirname,'..'),stdio:'ignore'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const sdk=\`window.supabase={createClient(){return {auth:{
+const sdk=`window.supabase={createClient(){return {auth:{
  getSession:async()=>({data:{session:null},error:null}),
  onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),
  signInWithPassword:async()=>({data:{user:null,session:null},error:{message:'Invalid login credentials'}}),
  signUp:async()=>({data:{user:{id:'fixture-user'},session:null},error:null}),
  signOut:async()=>({error:null}),
  getUser:async()=>({data:{user:null},error:null})
-}}}}\`;
+}}}}`;
 async function main(){
  await sleep(600);
  const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -76,7 +76,7 @@ async function main(){
    assert.equal(create.body.business_type,'Electrical services');
    assert.equal(await page.locator('#configurationOnboardingScreen').isVisible(),true,'successful creation advances to business configuration');
    assert.deepEqual(errors,[]);
-   console.log(\`\${width}x\${height}: PASS sign-in failure handling, account signup validation, email-confirmation boundary, Colzo branding and fixture business creation\`);
+   console.log(`${width}x${height}: PASS sign-in failure handling, account signup validation, email-confirmation boundary, Colzo branding and fixture business creation`);
    await context.close();
   }
  }finally{await browser.close()}
