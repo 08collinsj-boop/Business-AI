@@ -19,7 +19,12 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push(`Unexpected request ${host}`)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
   await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-qa.supabase.invalid',supabaseAnonKey:'public-test-key'})}));
-  await page.route('**/colzo-backend/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"not real"}'}));
+  await page.route('**/colzo-backend/colzo-records*',async route=>{
+    const resource=new URL(route.request().url()).searchParams.get('resource');
+    const rows=resource==='projects'?[{id:'project-qa-1',title:'Inspection project',client_name:'Fixture Customer',status:'active',progress:35,created_at:'2026-10-12'},{id:'project-qa-2',title:'Maintenance project',client_name:'Second Fixture',status:'planned',progress:10,created_at:'2026-10-13'}]:[];
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(rows)});
+  });
+  await page.route('**/colzo-backend/**',r=>new URL(r.request().url()).pathname==='/colzo-backend/colzo-records'?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"not real"}'}));
   await page.goto(origin+'/',{waitUntil:'networkidle'});
   await page.evaluate(()=>{
     const now=new Date().toISOString();
@@ -32,7 +37,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   });
   if(width<920)await page.addStyleTag({content:'body.auth-ready{height:100dvh;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{height:100dvh;overflow-y:auto;overflow-x:hidden}'});
   const nav=page.locator('.cn-nav'),root=page.locator('#colzoOwner'),panel=page.locator('#cnContent');
-  assert.equal(await page.locator('.cn-navicon svg').count(),4,'Four crisp SVG navigation icons');
+  assert.equal(await page.locator('.cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   await page.screenshot({path:`${dir}/home-${width}.png`,fullPage:false});
   if(width<920){
@@ -48,8 +53,9 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('.cf-lead-card').count(),1);
   assert.equal(await page.locator('#cnSearch').inputValue(),'Fixture');
   await page.screenshot({path:`${dir}/enquiries-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator('[data-cn-screen="projects"]').click();
-  assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'2');
+  await nav.locator('[data-cn-screen="more"]').click();
+  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
+  assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   assert.equal(await page.locator('.cf-project-card').count(),2);
   await page.locator('[data-cn-search-projects]').click();
   assert.equal(await page.locator('#cnProjectSearch').isVisible(),true,'Native project search must expand');
@@ -83,7 +89,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnCommandSearch').fill('clients');
   await page.locator('#cnCommandResults button').click();
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
-  assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Clients');
+  assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'3');
   await page.keyboard.press('Control+k');
   await page.locator('#cnCommandSearch').fill('actions');
@@ -91,7 +97,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'Native Actions never shows Business AI');
   await nav.locator('[data-cn-screen="more"]').click();
-  await page.locator('.cn-more-links [data-cn-legacy="marketing"]').click();
+  await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'Advanced Marketing legacy tools still accessible');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
   await page.locator('#cnReturnToColzo').click();
