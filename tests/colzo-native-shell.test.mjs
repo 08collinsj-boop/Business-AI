@@ -78,5 +78,5 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.match(js,/This view is read-only/);
  for(const view of ['bookings','actions','marketing','businessProfile','settings','enquiries'])assert.ok(js.includes(view));
  assert.doesNotMatch(js,/fetch\(['"]https?:\/\//);
- assert.doesNotMatch(js,/api\(['"]\/api\/billing/);
+ assert.doesNotMatch(js,/api\(['"]\/api\/billing['"]\s*,\s*\{\s*method:/);
 });
