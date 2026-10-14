@@ -36,6 +36,10 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.match(js,/function loadColzoResource/);
  assert.ok(js.includes('async function loadMarketingDrafts'));
  assert.ok(js.includes('async function generateMarketingDraft'));
+ assert.ok(js.includes('async function saveMarketingEdit'));
+ assert.ok(js.includes('async function deleteMarketingDraft'));
+ assert.ok(js.includes("action:'edit',generation_id:current.id,output"));
+ assert.ok(js.includes("action:'delete',generation_id:id"));
  assert.ok(js.includes('data-cn-screen="marketing"'));
  assert.ok(js.includes('/api/colzo-records?resource='));
  assert.match(js,/data-colzo-create/);
