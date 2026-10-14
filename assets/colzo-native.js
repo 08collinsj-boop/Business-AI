@@ -397,7 +397,7 @@
    }else if(key==='security'){
      body=settingPanel('Two-step verification',`<div class="cn-settings-feature"><span class="cn-settings-feature-icon">⬡</span><span><strong>Authenticator app</strong><small>Existing accounts keep their enrolled authenticator and required verification.</small></span></div>${settingsButton('Manage authenticator and devices','View verified factors, recovery options and passkeys','security')}`,'⬡')+settingPanel('Face ID & passkeys',`<p class="cn-settings-hint">Passkey sign-in using your device remains in testing. It does not bypass an existing second-factor requirement.</p><div class="cn-settings-status"><span>Passkey sign-in</span><strong>${window.colzoPasskeysEnabled===true?'Device eligibility required':'Not enabled'}</strong></div>`,'◈')+settingPanel('Session protection',`${settingsButton('Account security centre','Manage trusted sign-in and session controls','security')}`,'▣');
    }else if(key==='help'){
-     body=settingPanel('Help with Colzo',`<p class="cn-settings-hint">Tell us about something that looks wrong, isn't working or could be improved.</p>${settingsButton('Send pilot feedback','Use the existing secure feedback form','settings')}`,'?')+settingPanel('Useful shortcuts',`<button data-cn-command type="button" class="cn-settings-action"><span><strong>Find a Colzo tool</strong><small>Search pages, bookings, marketing or settings</small></span><span aria-hidden="true">⌕</span></button>${settingsButton('Business account controls','Manage your existing business and permissions','settings')}`,'✧');
+     body=settingPanel('Help with Colzo',`<p class="cn-settings-hint">Tell us about something that looks wrong, isn't working or could be improved.</p>${settingsButton('Send pilot feedback','Use the secure Colzo feedback form','feedback')}`,'?')+settingPanel('Useful shortcuts',`<button data-cn-command type="button" class="cn-settings-action"><span><strong>Find a Colzo tool</strong><small>Search pages, bookings, marketing or settings</small></span><span aria-hidden="true">⌕</span></button>${settingsButton('Business account controls','Manage your existing business and permissions','settings')}`,'✧');
    }
    return head+`<div class="cn-settings-panels">${body}</div>`;
  }
@@ -713,6 +713,7 @@
    {label:'AI receptionist',detail:'Phone answering and handover status',glyph:'✦',screen:'receptionist'},
    {label:'Business knowledge',detail:'Review facts used by your assistant',glyph:'◇',screen:'knowledge'},
    {label:'Analytics',detail:'Recorded activity and opportunity value',glyph:'▥',screen:'analytics'},
+   {label:'Help and feedback',detail:'Send a secure feedback report',glyph:'?',screen:'feedback'},
    {label:'Help and feedback',detail:'Send a secure feedback report',glyph:'?',screen:'feedback'},
    {label:'Billing',detail:'Current plan and feature access',glyph:'◈',screen:'billing'},
    {label:'Business knowledge',detail:'Facts and accuracy review',glyph:'◇',screen:'knowledge'},
