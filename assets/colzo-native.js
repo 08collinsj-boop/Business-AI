@@ -296,7 +296,7 @@
  function settingPanel(titleText,body,iconText='▤'){
    return `<section class="cn-settings-panel"><div class="cn-settings-panel-head"><span class="cn-settings-panel-icon" aria-hidden="true">${safe(iconText)}</span><h2>${safe(titleText)}</h2></div>${body}</section>`;
  }
- const settingsButton=(label,detail,action='settings',icon='↗')=>`<button type="button" class="cn-settings-action" ${['bookings','actions','marketing'].includes(action)?`data-cn-screen="${action}"`:`data-cn-legacy="${safe(action)}"`}><span><strong>${safe(label)}</strong><small>${safe(detail)}</small></span><span aria-hidden="true">${icon}</span></button>`;
+ const settingsButton=(label,detail,action='settings',icon='↗')=>`<button type="button" class="cn-settings-action" ${['bookings','actions','marketing','receptionist','billing'].includes(action)?`data-cn-screen="${action}"`:action==='businessProfile'?`data-cn-setting="profile"`:['profile','team','integrations','notifications','appearance','security','help'].includes(action)?`data-cn-setting="${safe(action)}"`:`data-cn-screen="more"`}><span><strong>${safe(label)}</strong><small>${safe(detail)}</small></span><span aria-hidden="true">${icon}</span></button>`;
  function nativeSetting(){
    const key=state.setting;
    const meta=nativeSettingMeta[key];
@@ -643,10 +643,8 @@
    {label:'Billing',detail:'Current plan and feature access',glyph:'◈',screen:'billing'},
    {label:'Bookings',detail:'Appointments and calendar',glyph:'▣',screen:'bookings'},
    {label:'Actions',detail:'Task management and follow-ups',glyph:'✓',screen:'actions'},
-   {label:'AI receptionist',detail:'Existing assistant settings',glyph:'✦',legacy:'enquiries'},
    {label:'Account settings',detail:'Business and user preferences',glyph:'⚙',screen:'more'},
    {label:'Security',detail:'Authenticator and passkey choices',glyph:'◇',setting:'security'},
-   {label:'Billing',detail:'Current plans and subscription controls',glyph:'◈',legacy:'billing'}
  ];
  const sheet=root.querySelector('#cnCommandSheet');
  const commandInput=root.querySelector('#cnCommandSearch');
