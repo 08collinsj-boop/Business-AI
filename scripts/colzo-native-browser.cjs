@@ -99,12 +99,8 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();
   assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Quotes');
-  assert.match(await page.locator('.cn-notice').innerText(),/not be saved or sent/);
-  await page.locator('#cnDraftForm input[name="title"]').fill('Mock work');
-  await page.locator('#cnDraftForm input[name="amount"]').fill('149.50');
-  await page.locator('#cnDraftForm button[type="submit"]').click();
-  await page.waitForFunction(()=>/No draft was saved or sent|Draft copied|Clipboard unavailable/.test(document.querySelector('#cnDraftStatus')?.textContent||''));
-  assert.match(await page.locator('#cnDraftStatus').innerText(),/No draft was saved or sent|Draft copied|Clipboard unavailable/);
+  assert.equal(await page.locator('.cn-record').count(),0,'Empty quotes directory should not fabricate saved quotes');
+  assert.match((await page.locator('.cn-caption').allTextContents()).join(' '),/Sending remains a separate workflow/);
   await page.screenshot({path:`${shots}/native-quotes-${w}.png`,fullPage:false});
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   if(w<920){
