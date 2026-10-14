@@ -12,7 +12,7 @@ test('Colzo owner interface is a real separate app shell, not simply rebranded o
  assert.match(css,/body\.colzo-owner-enabled\.auth-ready:not\(\.colzo-legacy-mode\) #dashboardApp/);
  assert.match(css,/body:not\(\.auth-ready\) #colzoOwner/);
  assert.match(css,/#colzoOwner \.cn-nav/);
- for(const content of ['cf-home-head','Enquiry trend','Turn enquiries','Client','DRAFT ESTIMATE','cf-settings-list'])assert.ok(js.includes(content),content);
+ for(const content of ['cf-home-head','Enquiry trend','No saved projects yet','Client','DRAFT ESTIMATE','cf-settings-list'])assert.ok(js.includes(content),content);
  for(const endpoint of ['/api/colzo/projects','/api/colzo/clients','/api/colzo/quotes'])assert.ok(!js.includes(endpoint),'Unverified Colzo write endpoint should not be reached: '+endpoint);
  assert.ok((await stat(new URL('../assets/colzo-native.css',import.meta.url))).size>9000);
 });
