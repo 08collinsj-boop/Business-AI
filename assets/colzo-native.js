@@ -561,7 +561,7 @@
    finally{state.workBusy=false;if(submit)submit.disabled=false}
  }
  const primaryScreens=['home','enquiries','bookings','clients','more'];
- const navPosition=screen=>screen==='lead'?1:['setting','quotes','projects','actions','marketing'].includes(screen)?4:Math.max(0,primaryScreens.indexOf(screen));
+ const navPosition=screen=>screen==='lead'?1:['setting','quotes','projects','actions','marketing','receptionist'].includes(screen)?4:Math.max(0,primaryScreens.indexOf(screen));
  const allowMotion=()=>!state.quietMotion&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const scrollContainer=()=>{const overflow=getComputedStyle(root).overflowY;return /auto|scroll/.test(overflow)?root:window};
  const currentScroll=()=>{const container=scrollContainer();return container===window?window.scrollY:root.scrollTop};
