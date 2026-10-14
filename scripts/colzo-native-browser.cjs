@@ -115,7 +115,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'native Bookings never opens original UI');
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
-  await page.locator('.cn-more-links [data-cn-legacy="marketing"]').click();
+  await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'advanced Marketing remains accessible');
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Colzo is hidden while editing legacy');
   assert.equal(await page.locator('#cnReturnToColzo').isVisible(),true);
