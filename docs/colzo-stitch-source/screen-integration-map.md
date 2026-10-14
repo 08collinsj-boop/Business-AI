@@ -41,7 +41,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 28 | Business Actions | Existing actions API | Authenticated, tenant-scoped actions |
 | 29 | Create Action | Existing actions API | Save only after API success |
 | 30 | Analytics | Existing authenticated `/api/value-dashboard` | Native read-only metrics use real tenant data; opportunity value is clearly distinguished from revenue and delivery is not inferred from saved status |
-| 31 | Automations | Existing automation settings | Remain disabled/approval-required until execution verified |
+| 31 | Automations | Existing authenticated `/api/marketing-automation` | Native read-only status/usage view; no automation is toggled, run or scheduled by opening the page |
 | 32 | Customer Portal | Existing public/customer routes | Do not imply public login unless configured |
 | 33 | Public Business Profile | Existing verified public profile data | No invented business facts |
 | 34 | Review Requests | Existing manual review workflow | Don't claim sent without channel confirmation |
