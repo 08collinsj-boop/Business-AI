@@ -28,7 +28,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 15 | AI Receptionist Dashboard | Authenticated `/api/voice-status` | Native status view shows provider/live-call/environment gates only when server confirms them; no fake calls or transcripts |
 | 16 | AI Conversations | Existing recorded call/enquiry data | Do not show fabricated conversation records |
 | 17 | AI Receptionist Settings | Existing settings/configuration APIs | Verify each setting before adding writes |
-| 18 | Business Knowledge | Existing knowledge APIs | Keep owner-provided facts distinct from verified facts |
+| 18 | Business Knowledge | Existing authenticated `/api/knowledge` | Native source list, manual fact entry and explicit review/accuracy confirmation; file upload/extraction remains pending in the native UI |
 | 19 | Marketing Dashboard | Native Colzo Marketing screen + existing `/api/marketing` | Native screen lists saved drafts from the authenticated tenant; create, edit and delete supported |
 | 20 | Marketing Content Creation | Native Colzo draft form + existing `/api/marketing` | Explicit submit uses the existing AI Marketing allowance; nothing publishes automatically |
 | 21 | Marketing Library and Scheduling | Existing `/api/marketing-schedules` | Native draft-library/schedule tabs; schedule only approved drafts, list upcoming/status and explicitly cancel upcoming schedules |
