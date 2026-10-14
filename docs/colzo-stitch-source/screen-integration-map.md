@@ -25,7 +25,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 | 12 | Project Details | Saved project record | Native read-only detail page with customer, status, progress, notes and explicit edit action |
 | 13 | Create Project | `POST /api/colzo-records?resource=projects` | Integrated create form with server-side validation |
 | 14 | Edit Project | `PATCH /api/colzo-records?resource=projects&id=...` | Integrated edit form with server-side validation |
-| 15 | AI Receptionist Dashboard | Existing assistant settings and usage | Design simulator is not a live voice/model integration |
+| 15 | AI Receptionist Dashboard | Authenticated `/api/voice-status` | Native status view shows provider/live-call/environment gates only when server confirms them; no fake calls or transcripts |
 | 16 | AI Conversations | Existing recorded call/enquiry data | Do not show fabricated conversation records |
 | 17 | AI Receptionist Settings | Existing settings/configuration APIs | Verify each setting before adding writes |
 | 18 | Business Knowledge | Existing knowledge APIs | Keep owner-provided facts distinct from verified facts |
