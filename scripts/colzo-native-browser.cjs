@@ -95,7 +95,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.locator('.cn-more-links [data-cn-screen="clients"]').click();
   assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
-  assert.equal(await page.locator('.cn-record').count(),2);
+  assert.equal(await page.locator('.cn-stitch-customer').count(),2);
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();
   assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Quotes');
