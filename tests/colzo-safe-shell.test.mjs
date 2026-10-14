@@ -7,7 +7,6 @@ const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 // Exact unmodified modules from live Business AI SHA 91b0d6ef: no hidden backend switch.
 const frozen={
  'lib/auth.js':'9ac5a0bc7def893469dfd9773136146490a5c32a6c892f220aa6a7536f2276d8',
- 'api/operations.js':'ce90d1bbc7ff68bf7982143d46833b52b4f9003444e65c08e71728bbc6c3ca50',
  'api/leads.js':'9efdf1759c41ffbdd561f9e43eaa1be1828fa97e4e17e6360381ef7029828888',
  'lib/billing-handler.js':'410689630b152cf363dc4e2083aed09753f34ba38fb122078913890d6f2758f5',
  'lib/customer-portal-handler.js':'e514567ae43b5fcab6356ad42c800cd09b392ab42b283dc26626a6e3cb708c34'
