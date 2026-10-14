@@ -63,7 +63,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('async function loadVoiceStatus'));
  assert.ok(js.includes('function receptionist()'));
  assert.ok(js.includes("api('/api/voice-status')"));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics'].includes(id)"));
  assert.ok(js.includes('async function saveMarketingSchedule'));
  assert.ok(js.includes('async function cancelMarketingSchedule'));
  assert.ok(js.includes("action:'create',generation_id:draftId,platform:'facebook'"));
