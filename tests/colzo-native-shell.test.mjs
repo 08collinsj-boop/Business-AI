@@ -38,6 +38,10 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('async function generateMarketingDraft'));
  assert.ok(js.includes('async function saveMarketingEdit'));
  assert.ok(js.includes('function colzoRecordDetail()'));
+ assert.ok(js.includes('function leadForm()'));
+ assert.ok(js.includes('async function saveNativeLead'));
+ assert.ok(js.includes("method:editing?'PATCH':'POST'"));
+ assert.ok(js.includes("['New','Contacted','Converted']"));
  assert.ok(js.includes('data-colzo-detail="projects"'));
  assert.ok(js.includes('data-colzo-detail="quotes"'));
  assert.ok(js.includes('data-colzo-detail="clients"'));
