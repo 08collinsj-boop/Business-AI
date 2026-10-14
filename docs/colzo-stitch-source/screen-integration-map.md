@@ -11,20 +11,20 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 ## Screen-by-screen status
 | # | Screen | Current integration target | Status / boundary |
 |---:|---|---|---|
-| 1 | Customer Profile | Existing authenticated enquiry records | Integrated read-only in feature branch |
-| 2 | Add Customer | `colzo_clients` only after API and target DB verified | UI design exists; no safe create action yet |
-| 3 | Edit Customer | `colzo_clients` only after API and target DB verified | UI design exists; no safe update action yet |
+| 1 | Customer Profile | Existing authenticated enquiry records | Integrated read-only in feature branch; separate saved customer records use Customers directory |
+| 2 | Add Customer | `POST /api/colzo-records?resource=clients` | Integrated create form; owner/admin only; preview DB target still requires confirmation |
+| 3 | Edit Customer | `PATCH /api/colzo-records?resource=clients&id=...` | Integrated edit form; tenant-filtered; preview DB target still requires confirmation |
 | 4 | Enquiry Details | Existing authenticated lead records | Native details screen exists |
 | 5 | Create Enquiry | Existing lead/enquiry API | Existing legacy form/API route; Stitch styling not yet fully integrated |
 | 6 | Edit Enquiry | Existing lead PATCH API | Existing legacy editor/API route; Stitch styling not yet fully integrated |
-| 7 | Quotes Directory | `colzo_quotes` | Dev schema exists; app CRUD endpoint absent in this branch |
-| 8 | Quote Details | `colzo_quotes` and related lead | Dev schema exists; app CRUD endpoint absent |
-| 9 | Create Quote | `colzo_quotes` | No live save until API + database target verified |
-| 10 | Edit Quote | `colzo_quotes` | No live update until API + database target verified |
-| 11 | Projects Directory | `colzo_projects` | Dev schema exists; app CRUD endpoint absent |
-| 12 | Project Details | `colzo_projects` | Dev schema exists; app CRUD endpoint absent |
-| 13 | Create Project | `colzo_projects` | No live save until API + database target verified |
-| 14 | Edit Project | `colzo_projects` | No live update until API + database target verified |
+| 7 | Quotes Directory | `GET /api/colzo-records?resource=quotes` | Integrated list from tenant-scoped API |
+| 8 | Quote Details | Saved quote records and related enquiry | Basic saved quote card/edit form; dedicated standalone detail page still pending |
+| 9 | Create Quote | `POST /api/colzo-records?resource=quotes` | Integrated save form; sending/emailing is not implemented |
+| 10 | Edit Quote | `PATCH /api/colzo-records?resource=quotes&id=...` | Integrated edit form; sending/emailing is not implemented |
+| 11 | Projects Directory | `GET /api/colzo-records?resource=projects` | Integrated saved projects list, status and progress |
+| 12 | Project Details | Saved project record | Basic card opens edit form; standalone details page still pending |
+| 13 | Create Project | `POST /api/colzo-records?resource=projects` | Integrated create form with server-side validation |
+| 14 | Edit Project | `PATCH /api/colzo-records?resource=projects&id=...` | Integrated edit form with server-side validation |
 | 15 | AI Receptionist Dashboard | Existing assistant settings and usage | Design simulator is not a live voice/model integration |
 | 16 | AI Conversations | Existing recorded call/enquiry data | Do not show fabricated conversation records |
 | 17 | AI Receptionist Settings | Existing settings/configuration APIs | Verify each setting before adding writes |
@@ -55,5 +55,5 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 2. No new endpoint may trust a client-supplied business_id; derive it from authenticated membership.
 3. Never use demo records as fallback for signed-in users.
 4. Never claim a save, publish, send, invite or payment succeeded without API confirmation.
-5. Before enabling writes for the three Colzo tables, confirm the preview's Supabase target and commit/apply an auditable migration with tenant constraints and RLS. No production DB changes were made.
+5. Before using the new write flows with real data, confirm the preview's Supabase target. No production DB changes or test rows were made.
 6. Each workflow needs success, validation, API failure, tenant-isolation and mobile-layout tests.
