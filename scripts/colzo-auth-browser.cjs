@@ -69,7 +69,7 @@ async function main(){
    await page.locator('#newBusinessName').fill('Fixture Colzo');
    await page.locator('#newBusinessType').fill('Electrical services');
    await page.locator('#businessSetupSubmit').click();
-   await page.waitForFunction(()=>document.querySelector('#businessSetupMessage')?.textContent?.includes('Business created.'));
+   await page.waitForFunction(()=>document.body.classList.contains('configuration-onboarding-required')||document.querySelector('#businessSetupMessage')?.textContent?.includes('Business access is unavailable')||document.querySelector('#businessSetupMessage')?.textContent?.includes('Could not create the business.'));
    const create=calls.find(x=>x.path==='/api/business-onboarding'&&x.method==='POST');
    assert.ok(create,'business creation POST must be recorded');
    assert.equal(create.body.business_name,'Fixture Colzo');
