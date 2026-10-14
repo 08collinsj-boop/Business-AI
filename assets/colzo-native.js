@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const state={screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false};
+ const state={screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:''};
  const safe=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const dateValue=v=>{if(v===null||v===undefined||v==='')return null;const d=new Date(v);return Number.isFinite(d.getTime())?d:null};
  const day=v=>{const d=dateValue(v);return d?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short'}).format(d):'No date'};
@@ -250,14 +250,27 @@
   const listBody=state.marketingView==='drafts'?(state.marketingLoading?empty('Loading saved drafts…'):state.marketingError?empty(state.marketingError,'<button type="button" data-marketing-refresh>Try again</button>'):(list||empty('No saved marketing drafts yet. Create one when you are ready.'))):(state.marketingSchedulesLoading?empty('Loading scheduled posts…'):state.marketingScheduleError?empty(state.marketingScheduleError,'<button type="button" data-marketing-refresh-schedules>Try again</button>'):(scheduleList||empty('No scheduled posts found.')));
   return '<header class="cf-screen-top"><div><span class="cn-kicker">CONTENT STUDIO</span><h1>Marketing</h1></div><button type="button" class="cf-icon-button volt" data-marketing-create aria-label="Create marketing draft">+</button></header><p class="cn-caption">Create, review and manage saved drafts and scheduled posts.</p>'+nav+(state.marketingFeedback?'<p class="cn-work-message" role="status">'+safe(state.marketingFeedback)+'</p>':'')+create+editor+scheduleForm+listBody+'<p class="cn-caption">Draft generation never auto-publishes. Scheduling is explicit and only permitted for approved drafts.</p>';
  }
+ async function loadVoiceStatus(force=false){
+  if(state.voiceLoading||(!force&&state.voiceStatus))return;
+  state.voiceLoading=true;state.voiceError='';if(state.screen==='receptionist')render();
+  try{const result=await api('/api/voice-status');if(!result||typeof result.enabled!=='boolean')throw new Error('Unexpected receptionist status response.');state.voiceStatus=result}
+  catch(error){state.voiceError=error?.message||'Receptionist status could not be loaded.'}
+  finally{state.voiceLoading=false;if(state.screen==='receptionist')render()}
+ }
+ function receptionist(){
+  const v=state.voiceStatus;
+  const {enquiries}=records();
+  const active=Boolean(v?.enabled&&v?.provider_connected&&v?.live_calls_enabled);
+  return '<header class="cf-screen-top"><div><span class="cn-kicker">AI ASSISTANT</span><h1>AI receptionist</h1></div><button class="cf-icon-button" type="button" data-voice-refresh aria-label="Refresh receptionist status">↻</button></header><p class="cn-caption">A clear view of your current phone-reception setup.</p>'+(state.voiceLoading?empty('Checking live configuration…'):'')+(state.voiceError?empty(state.voiceError,'<button type="button" data-voice-refresh>Try again</button>'):'')+(v?'<section class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">PHONE RECEPTION</span><span class="cn-pill '+(active?'success':'attention')+'">'+(active?'Connected':'Not connected')+'</span></div><h2>'+(active?'Voice receptionist is enabled':'Voice receptionist is not active')+'</h2><p>'+safe(v.message||'Live phone handling is not configured.')+'</p><dl><div><dt>Provider connection</dt><dd>'+ (v.provider_connected?'Connected':'Not connected')+'</dd></div><div><dt>Live calling</dt><dd>'+ (v.live_calls_enabled?'Enabled':'Disabled')+'</dd></div><div><dt>Environment gate</dt><dd>'+ (v.environment_gate_enabled?'Enabled':'Disabled')+'</dd></div></dl></section>':'')+'<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Enquiry handover</h2><span class="cn-pill progress">'+enquiries.length+' recorded</span></div><p class="cn-caption">These are existing business enquiries, not a fabricated call transcript or voice-call count.</p><button class="cn-primary" type="button" data-cn-screen="enquiries">View enquiries</button></section><section class="cn-detail-panel"><h2>What is available?</h2><p class="cn-caption">The existing web enquiry assistant and owner workflows remain separate from live phone answering. This screen will only show voice features that the server confirms are enabled.</p><button class="cn-secondary" type="button" data-cn-setting="integrations">Review integrations</button></section>';
+ }
  function more(){
-  const moreItems=[['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
+  const moreItems=[['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
   const business=typeof settings!=='undefined'?String(settings?.business_name||'Your business'):'Your business';
   const choices=[['▤','Business profile','Manage your business details','profile'],['♧','Team members','Invite and manage your team','team'],['⌁','Integrations','Manage connected services','integrations'],['◐','Notifications','Device alerts and preferences','notifications'],['◐','Appearance','Motion, contrast and display','appearance'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','help']];
   return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1><button type="button" class="cf-icon-button cn-settings-search" data-cn-command aria-label="Search Colzo tools">⌕</button></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-setting="profile" aria-label="Open business profile" type="button">›</button></div>
   <div class="cf-settings-list">${choices.map(([glyph,label,detail,view])=>`<button type="button" data-cn-setting="${view}"><span class="cf-settings-icon">${glyph}</span><span class="cf-settings-label"><strong>${label}</strong><small>${detail}</small></span><span class="cf-settings-arrow">›</span></button>`).join('')}</div>
   <button class="cf-signout" type="button" data-cn-signout>Sign out</button>
-  <section class="cf-tools-extra"><h2>Other business tools</h2><div class="cn-more-links">${moreItems.map(([id,icon,label,detail])=>`<button type="button" ${['projects','clients','quotes','bookings','actions','marketing','enquiries'].includes(id)?`data-cn-screen="${id}"`:['profile','team','integrations','notifications','appearance','security','help'].includes(id)?`data-cn-setting="${id}"`:`data-cn-legacy="${id}"`}><span class="cn-more-icon">${icon}</span><span><strong>${label}</strong><small>${detail}</small></span><b>›</b></button>`).join('')}</div></section>`;
+  <section class="cf-tools-extra"><h2>Other business tools</h2><div class="cn-more-links">${moreItems.map(([id,icon,label,detail])=>`<button type="button" ${['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist'].includes(id)?`data-cn-screen="${id}"`:['profile','team','integrations','notifications','appearance','security','help'].includes(id)?`data-cn-setting="${id}"`:`data-cn-legacy="${id}"`}><span class="cn-more-icon">${icon}</span><span><strong>${label}</strong><small>${detail}</small></span><b>›</b></button>`).join('')}</div></section>`;
  }
  const nativeSettingMeta={
   profile:['Business profile','YOUR BUSINESS','The details that represent your business.'],
@@ -581,7 +594,7 @@
    if(!document.body.classList.contains('auth-ready'))return;
    if(state.workModal&&motion==='none'&&root.querySelector('#cnWorkForm'))return;
    state.recordsReady=true;
-   const pages={home,enquiries:enquiry,lead:leadDetails,leadForm,customer:customerProfile,projects,clients,quotes,colzoDetail:colzoRecordDetail,marketing,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
+   const pages={home,enquiries:enquiry,lead:leadDetails,leadForm,customer:customerProfile,projects,clients,quotes,colzoDetail:colzoRecordDetail,marketing,receptionist,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
    const page=pages[state.screen]||home;
    stopMotion();
    root.dataset.screen=state.screen;
@@ -590,18 +603,18 @@
    content.innerHTML=page();
    const dialog=content.querySelector('.cn-work-dialog-backdrop');if(dialog)root.appendChild(dialog);
    content.dataset.cnIntro=state.screen;
-   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['quotes','setting','projects','actions','marketing'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['quotes','setting','projects','actions','marketing','receptionist'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    if(motion!=='none')animateArrival(direction,motion);
  }
  function navigate(screen){
-   if(!['home','enquiries','lead','leadForm','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing'].includes(screen))return;
+   if(!['home','enquiries','lead','leadForm','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing','receptionist'].includes(screen))return;
    closeCommand(false);
    if(screen===state.screen){restoreScroll(0);return}
    const before=state.screen;
    state.scrollByScreen.set(before,currentScroll());
    state.screen=screen;state.notification='';state.focusSearch=false;state.colzoForm=null;state.colzoFeedback='';
-  if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}
+  if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}if(screen==='receptionist')loadVoiceStatus();
    const announcement=root.querySelector('#cnScreenAnnounce');if(announcement)announcement.textContent=`${{lead:'Enquiry details',more:'Settings',bookings:'Bookings',actions:'Actions',setting:nativeSettingMeta[state.setting]?.[0]||'Settings',clients:'Customers',quotes:'Quotes'}[screen]||screen.replace(/^./,x=>x.toUpperCase())} screen`;
    const direction=navPosition(screen)<navPosition(before)?-1:1;
    render({motion:screen==='lead'?'detail':'page',direction});
@@ -614,6 +627,7 @@
    {label:'Clients',detail:'Contacts from real enquiries',glyph:'♧',screen:'clients'},
    {label:'Quotes',detail:'Prepare a copy-only draft estimate',glyph:'£',screen:'quotes'},
    {label:'Marketing',detail:'Create and manage saved content drafts',glyph:'✧',screen:'marketing'},
+   {label:'AI receptionist',detail:'Phone answering and handover status',glyph:'✦',screen:'receptionist'},
    {label:'Bookings',detail:'Appointments and calendar',glyph:'▣',screen:'bookings'},
    {label:'Actions',detail:'Task management and follow-ups',glyph:'✓',screen:'actions'},
    {label:'AI receptionist',detail:'Existing assistant settings',glyph:'✦',legacy:'enquiries'},
@@ -696,6 +710,7 @@
   if(target.hasAttribute('data-cn-create-lead')){state.leadForm={mode:'create',lead:null};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});return}
   if(target.hasAttribute('data-cn-edit-lead')){const id=target.getAttribute('data-cn-edit-lead'),lead=records().enquiries.find(x=>String(x.id)===String(id));if(lead){state.leadForm={mode:'edit',lead};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});}return}
   if(target.hasAttribute('data-cn-lead-cancel')){const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'});return}
+  if(target.hasAttribute('data-voice-refresh')){loadVoiceStatus(true);return}
   if(target.hasAttribute('data-marketing-view')){state.marketingView=target.getAttribute('data-marketing-view');state.marketingSchedulingDraft=null;if(state.marketingView==='schedule')loadMarketingSchedules();render({motion:'filter'});return}
   if(target.hasAttribute('data-marketing-schedule')){const id=target.getAttribute('data-marketing-schedule');state.marketingSchedulingDraft=state.marketingDrafts?.find(d=>String(d.id)===String(id)&&d.approval_status==='approved')||null;state.marketingView='drafts';render({motion:'detail'});return}
   if(target.hasAttribute('data-marketing-cancel-schedule')){state.marketingSchedulingDraft=null;render({motion:'page'});return}
