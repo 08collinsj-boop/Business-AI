@@ -35,7 +35,7 @@ async function main(){
    });
    await page.route('**/colzo-backend/business-configuration',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({configuration:{},onboarding:{state:'in_progress'}})}));
    await page.route('**/colzo-backend/settings',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({business_name:'Fixture Colzo',business_type:'Electrical services',phone:'',email:'',address:''})}));
-   await page.route('**/colzo-backend/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+   await page.route('**/colzo-backend/**',r=>['/colzo-backend/public-config','/colzo-backend/business-onboarding','/colzo-backend/business-configuration','/colzo-backend/settings'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
    await page.goto(base+'/',{waitUntil:'networkidle'});
    assert.equal(await page.locator('#loginForm').isVisible(),true);
    assert.equal(await page.locator('#loginSubmit').innerText().then(x=>x.includes('Sign in')),true);
