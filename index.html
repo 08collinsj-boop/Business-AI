@@ -3871,28 +3871,38 @@ const {data:{session}}=await supabaseClient.auth.getSession();await handleSessio
 }catch(error){message.textContent=error.message||'Could not record the DPA acceptance.';}finally{button.disabled=false;}
 }
 
+let colzoLoginFailure=null;
 const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
 if(session){
 setAppLoading(true);
 setAuthView('auth-pending');
+colzoLoginFailure=null;
+let loginStep='account legal';
 try{
 const accountLegal=await loadLegalState();
 if(accountLegal?.needs_user_acceptance){setAppLoading(false);setAuthView('legal-acceptance-required');return;}
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
+loginStep='business onboarding';
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){prefillReferralInputs();setAppLoading(false);setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
+loginStep='business legal';
 const businessLegal=await loadLegalState();
 if(authenticatedBusinessRole==='owner'&&businessLegal?.dpa_required&&!businessLegal?.dpa_accepted&&businessLegal?.provider_identity_configured!==false){setAppLoading(false);setAuthView('dpa-acceptance-required');return;}
+loginStep='business configuration';
 const setup=await api('/api/business-configuration');
 if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();setAppLoading(false);return;}
 setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);return;
 }catch(error){
 setAppLoading(false);
 if(error.message==='Your session has expired.')return;
-clearPrivateState();setAuthView('auth-required','Your business access is unavailable.');return;
+// Show the failed route/status only, not bearer tokens, customer data or raw API errors.
+const hint=colzoLoginFailure?colzoLoginFailure.path+' (HTTP '+colzoLoginFailure.status+')':loginStep+' ('+(error?.name==='TypeError'?'network':'response')+')';
+clearPrivateState();
+setAuthView('auth-required','Your business access is unavailable. Diagnostic: '+hint+'.');
+return;
 }
 }
 setAppLoading(false);clearPrivateState();setAuthView('auth-required');
@@ -4524,6 +4534,9 @@ headers.set('Authorization',`Bearer ${session.access_token}`);
 }
 
 const response=await fetch(url,{...options,headers});
+if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configuration'].includes(requestUrl.pathname)){
+  colzoLoginFailure={path:requestUrl.pathname,status:response.status};
+}
 
 let result=null;
 
