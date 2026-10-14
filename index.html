@@ -3555,6 +3555,7 @@ Save business settings
 <button id="cnReturnToColzo" class="cn-back-to-colzo" type="button" hidden>← Back to Colzo</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/colzo-backend-bridge.js?v=20261014-api1"></script>
 <script>
 
 let leads=[];
@@ -3816,7 +3817,7 @@ function openCustomerQr(){const link=qrCustomerUrl(authenticatedPublicBusinessSl
 async function downloadCustomerQr(){
 const url=qrImageUrl(authenticatedPublicBusinessSlug,'png');if(!url)return toast('QR code is unavailable');
 try{
-const response=await fetch(url,{headers:{Accept:'image/png'}});if(!response.ok)throw new Error('QR download failed');
+const response=await window.colzoBackendFetch(url,{headers:{Accept:'image/png'}});if(!response.ok)throw new Error('QR download failed');
 const blob=await response.blob();const objectUrl=URL.createObjectURL(blob);const a=document.createElement('a');a.href=objectUrl;a.download=(authenticatedPublicBusinessSlug||'business-ai')+'-business-ai-qr.png';document.body.append(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);toast('QR code downloaded');
 }catch{toast('Could not download the QR code');}
 }
@@ -3927,7 +3928,7 @@ async function bootstrapAuthSession(session){
 
 async function initializeAuthentication(){
 try{
-const response=await fetch('/api/public-config');
+const response=await window.colzoBackendFetch('/api/public-config');
 if(response.status===404){setAuthView('auth-ready');return false;}
 if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
 const config=await response.json();
@@ -4098,7 +4099,7 @@ const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus')
 showPublicDirectorySearching();
 try{
 const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
-const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
+const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
 if(requestId!==publicDirectorySearchSequence)return;
 if(!response.ok||!Array.isArray(result?.businesses))throw new Error('Search unavailable');
@@ -4139,13 +4140,13 @@ function setPublicProfileImage(target,url,fallbackInitial='B'){
 if(!target)return;if(url){target.innerHTML='<img src="'+esc(url)+'" alt="">';return;}if(target.id==='publicProfileAvatar')target.innerHTML='<span>'+esc(fallbackInitial)+'</span>';else target.replaceChildren();
 }
 async function loadPublicBusinessProfile(slug){
-const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
+const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
 
 async function loadPublicBusinessIdentity(){
 if(!publicEnquirySlug)return;
 try{
 const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',publicEnquirySlug);
-const response=await fetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
+const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
 if(!response.ok||!result?.business)throw new Error('Business not available');
 const business=result.business;
@@ -4208,7 +4209,7 @@ const list=$('publicMessages');if(!list)return;const message=document.createElem
 async function sendPublicEnquiry(event){
 event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 function setPublicQuickActions(open){
 const button=$('publicQuickActionsToggle');const body=$('publicQuickActionsBody');if(!button||!body)return;
@@ -4533,7 +4534,7 @@ if(!session){handleSession(null);throw new Error('Your session has expired.');}
 headers.set('Authorization',`Bearer ${session.access_token}`);
 }
 
-const response=await fetch(url,{...options,headers});
+const response=await window.colzoBackendFetch(url,{...options,headers});
 if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configuration'].includes(requestUrl.pathname)){
   colzoLoginFailure={path:requestUrl.pathname,status:response.status};
 }
@@ -4824,7 +4825,7 @@ async function loadOwnerReceptionistAvailability(){
 ownerAssistantAvailable=null;renderReceptionistAvailability();
 if(!authenticatedPublicBusinessSlug){ownerAssistantAvailable=false;renderReceptionistAvailability();return;}
 try{
-const response=await fetch('/api/public-business?business='+encodeURIComponent(authenticatedPublicBusinessSlug),{headers:{Accept:'application/json'},cache:'no-store'});
+const response=await window.colzoBackendFetch('/api/public-business?business='+encodeURIComponent(authenticatedPublicBusinessSlug),{headers:{Accept:'application/json'},cache:'no-store'});
 const data=await response.json().catch(()=>null);
 if(!response.ok)throw new Error('Receptionist status unavailable');
 ownerAssistantAvailable=data?.business?.assistant_available===true;

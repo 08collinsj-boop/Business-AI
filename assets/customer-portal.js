@@ -80,7 +80,7 @@ async function initClient(){
     if(typeof supabaseClient!=='undefined'&&supabaseClient){
       client=supabaseClient;
     }else{
-      const response=await fetch('/api/public-config',{headers:{Accept:'application/json'}});
+      const response=await window.colzoBackendFetch('/api/public-config',{headers:{Accept:'application/json'}});
       const config=await response.json();
       if(!response.ok||!config?.frontendAuthEnabled||!window.supabase?.createClient)return null;
       client=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
@@ -101,7 +101,7 @@ async function portalApi(url,options={}){
   const current=value.data.session;
   if(!current)throw new Error('Sign in to continue.');
   const headers=new Headers(options.headers||{});headers.set('Authorization','Bearer '+current.access_token);
-  const response=await fetch(url,{...options,headers});
+  const response=await window.colzoBackendFetch(url,{...options,headers});
   const data=await response.json().catch(()=>null);
   if(!response.ok)throw new Error(data?.error||'Customer portal is unavailable.');
   return data;
@@ -176,7 +176,7 @@ async function searchBusinesses(query){
   target.innerHTML='<div class="customer-empty">Searching businesses…</div>';
   try{
     const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
-    const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
+    const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
     const data=await response.json();target.replaceChildren();
     const rows=Array.isArray(data.businesses)?data.businesses:[];
     if(!rows.length){target.innerHTML='<div class="customer-empty">No matching businesses found.</div>';return;}

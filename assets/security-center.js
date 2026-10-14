@@ -26,7 +26,7 @@
     if(!session?.access_token)throw new Error('Your session has expired.');
     const headers=new Headers(options.headers||{});
     headers.set('Authorization',`Bearer ${session.access_token}`);
-    const response=await fetch(path,{...options,headers});
+    const response=await window.colzoBackendFetch(path,{...options,headers});
     const data=await response.json().catch(()=>null);
     if(!response.ok){
       const error=new Error(data?.error||'Security request failed.');

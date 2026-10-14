@@ -23,6 +23,8 @@ function fixture(response,authUser={id:'owner-1'},authError=null){
     fetch:async()=>{calls.fetches++;return {status:response.status,ok:response.status>=200&&response.status<300,json:async()=>response.body};},
     handleSession:async()=>{throw Error('Unexpected navigation');}
   };
+  // Bridge is loaded before the owner script in the actual browser.
+  context.window.colzoBackendFetch=context.fetch;
   const api=runInNewContext(html.slice(start,end)+';api;',context);
   return {api,calls,context};
 }
