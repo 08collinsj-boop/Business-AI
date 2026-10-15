@@ -4,7 +4,7 @@ All 38 Stitch designs were approved by the owner on 14 October 2026. This locks 
 
 ## Verified repository/backend facts
 - Existing app API handlers include authenticated leads/enquiries, bookings, actions, business settings/configuration, marketing, billing, team and security operations.
-- Read-only inspection of the **Business-AI-Dev** Supabase project confirmed that tables named `colzo_clients`, `colzo_projects` and `colzo_quotes` exist there, with business_id tenant columns. However, this repository branch has no matching API handlers or migrations for those tables, and the preview's effective database target has not been confirmed. Do not assume those tables exist in another environment or wire writes until the target is confirmed.
+- Read-only inspection of the established Supabase project confirmed that `colzo_clients`, `colzo_projects` and `colzo_quotes` exist with `business_id` tenant columns. The records handler is shipped through `/api/operations?operation=colzo-records`; the preview bridge must keep `/api/colzo-records` local, because the legacy backend proxy does not yet implement that route. The separate preview Supabase project timed out during inspection, so its schema and authenticated save/reload behaviour remain unverified.
 - The native Customer Profile added in this branch is derived from the authenticated tenant's existing enquiry records. It is read-only and does not yet use `colzo_clients`.
 - A live unauthenticated check of `business-ai-pilot.vercel.app/api/business-onboarding` returns the expected 401 and `/api/health` returns 200. That does not reproduce the user's authenticated HTTP 500. Vercel runtime logs were unavailable for the relevant time window, so the cause of the sign-in/onboarding failure is still unconfirmed.
 
