@@ -1,3 +1,5 @@
+> **Historical note (15 October 2026):** This earlier shared-Pilot-backend preview design is superseded on the corrective development branch. The safe Colzo preview must use same-deployment API handlers and the development Supabase environment. Do not rely on the old cross-deployment rewrite for authentication or record writes. Production and the original Business AI Pilot remain unchanged.
+
 # Colzo frontend migration - existing Business AI backend
 
 Isolated development-branch change. Original Business AI Pilot remains running

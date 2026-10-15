@@ -20,3 +20,11 @@ This branch is a corrective change for Colzo as the intended successor to Busine
 - [ ] Obtain explicit approval for the exact production cutover before merging or deploying.
 
 Passing automated tests alone does not authorize a merge, migration, or Production release.
+
+## Preview API isolation
+
+- No `/colzo-backend/*` rewrite to Business AI Pilot is permitted on this branch.
+- All Colzo browser API requests use handlers from this Preview deployment.
+- Check that `/api/public-config` reflects the development Supabase project before authentication tests.
+- Preview must use synthetic accounts/records. Live Stripe, Meta and other outbound actions are out of scope until separately isolated and approved.
+- The historical shared-backend rollout document is superseded for this corrective branch.
