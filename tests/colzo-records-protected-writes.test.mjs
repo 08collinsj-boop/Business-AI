@@ -1,1 +1,159 @@
-{"successful":true,"data":{"results":[{"response":{"successful":true,"data":{"content":{"_links":{"git":"https://api.github.com/repos/08collinsj-boop/Business-AI/git/blobs/c23f53ac2aa20b7851ee2e1506cb393e39e5529e","html":"https://github.com/08collinsj-boop/Business-AI/blob/fix/colzo-composio-first-protected-writes-20261015/tests/colzo-records-protected-writes.test.mjs","self":"https://api.github.com/repos/08collinsj-boop/Business-AI/contents/tests/colzo-records-protected-writes.test.mjs?ref=fix/colzo-composio-first-protected-writes-20261015"},"content":"aW1wb3J0IHRlc3QgZnJvbSAibm9kZTp0ZXN0IjsKaW1wb3J0IGFzc2VydCBm\ncm9tICJub2RlOmFzc2VydC9zdHJpY3QiOwppbXBvcnQgaGFuZGxlciBmcm9t\nICIuLi9saWIvY29sem8tcmVjb3Jkcy1oYW5kbGVyLmpzIjsKCmNvbnN0IEJV\nU0lORVNTX0lEID0gIjExMTExMTExLTExMTEtNDExMS04MTExLTExMTExMTEx\nMTExMSI7CmNvbnN0IFVTRVJfSUQgPSAiMjIyMjIyMjItMjIyMi00MjIyLTgy\nMjItMjIyMjIyMjIyMjIyIjsKY29uc3QgUVVPVEVfSUQgPSAiMzMzMzMzMzMt\nMzMzMy00MzMzLTgzMzMtMzMzMzMzMzMzMzMzIjsKY29uc3QgVkVSU0lPTiA9\nICIyMDI2LTEwLTE1VDEwOjAwOjAwLjAwMFoiOwoKZnVuY3Rpb24gcmVzcG9u\nc2Uoc3RhdHVzLCB2YWx1ZSkgewogIHJldHVybiB7IG9rOiBzdGF0dXMgPj0g\nMjAwICYmIHN0YXR1cyA8IDMwMCwgc3RhdHVzLAogICAgYXN5bmMgdGV4dCgp\nIHsgcmV0dXJuIHZhbHVlID09IG51bGwgPyAiIiA6IEpTT04uc3RyaW5naWZ5\nKHZhbHVlKTsgfSwKICAgIGFzeW5jIGpzb24oKSB7IHJldHVybiB2YWx1ZTsg\nfSB9Owp9CmFzeW5jIGZ1bmN0aW9uIGNhbGxIYW5kbGVyKHQsIHsgbWV0aG9k\nID0gIlBBVENIIiwgYm9keSA9IHt9LCBidXNpbmVzc0lkID0gQlVTSU5FU1Nf\nSUQsIHJlY29yZCA9IG51bGwsIGV4cGVjdGVkQnVzaW5lc3NJZCA9IEJVU0lO\nRVNTX0lEIH0gPSB7fSkgewogIGNvbnN0IG9sZEZldGNoID0gZ2xvYmFsVGhp\ncy5mZXRjaDsKICBjb25zdCBvbGRFbnYgPSBPYmplY3QuZnJvbUVudHJpZXMo\nWyJURU5BTkNZX0FVVEhfRU5BQkxFRCIsICJTVVBBQkFTRV9VUkwiLCAiU1VQ\nQUJBU0VfU0VSVklDRV9ST0xFX0tFWSJdLm1hcChrZXkgPT4gW2tleSwgcHJv\nY2Vzcy5lbnZba2V5XV0pKTsKICBwcm9jZXNzLmVudi5URU5BTkNZX0FVVEhf\nRU5BQkxFRCA9ICJ0cnVlIjsKICBwcm9jZXNzLmVudi5TVVBBQkFTRV9VUkwg\nPSAiaHR0cHM6Ly9zdXBhYmFzZS50ZXN0IjsKICBwcm9jZXNzLmVudi5TVVBB\nQkFTRV9TRVJWSUNFX1JPTEVfS0VZID0gInRlc3Qtc2VydmljZS1rZXkiOwog\nIGxldCBzYXZlZCA9IHJlY29yZCA/IHN0cnVjdHVyZWRDbG9uZShyZWNvcmQp\nIDogbnVsbDsKICBjb25zdCBjYWxscyA9IFtdOwogIGdsb2JhbFRoaXMuZmV0\nY2ggPSBhc3luYyAoaW5wdXQsIG9wdGlvbnMgPSB7fSkgPT4gewogICAgY29u\nc3QgdXJsID0gbmV3IFVSTChTdHJpbmcoaW5wdXQpKTsKICAgIGNvbnN0IHZl\ncmIgPSBvcHRpb25zLm1ldGhvZCB8fCAiR0VUIjsKICAgIGNvbnN0IGJvZHlT\nZW50ID0gb3B0aW9ucy5ib2R5ID8gSlNPTi5wYXJzZShvcHRpb25zLmJvZHkp\nIDogbnVsbDsKICAgIGNhbGxzLnB1c2goeyB1cmwsIHZlcmIsIGJvZHk6IGJv\nZHlTZW50IH0pOwogICAgaWYgKHVybC5wYXRobmFtZSA9PT0gIi9hdXRoL3Yx\nL3VzZXIiKSByZXR1cm4gcmVzcG9uc2UoMjAwLCB7IGlkOiBVU0VSX0lELCBl\nbWFpbDogIm93bmVyQGV4YW1wbGUudGVzdCIgfSk7CiAgICBpZiAodXJsLnBh\ndGhuYW1lID09PSAiL3Jlc3QvdjEvYnVzaW5lc3NfbWVtYmVyc2hpcHMiKSBy\nZXR1cm4gcmVzcG9uc2UoMjAwLCBbeyBidXNpbmVzc19pZDogYnVzaW5lc3NJ\nZCwgcm9sZTogIm93bmVyIiB9XSk7CiAgICBpZiAodXJsLnBhdGhuYW1lID09\nPSAiL3Jlc3QvdjEvYnVzaW5lc3NfYXVkaXRfZXZlbnRzIikgcmV0dXJuIHJl\nc3BvbnNlKDIwMSwgbnVsbCk7CiAgICBpZiAodXJsLnBhdGhuYW1lID09PSAi\nL3Jlc3QvdjEvY29sem9fcXVvdGVzIikgewogICAgICBjb25zdCByb3dCdXNp\nbmVzcyA9IHVybC5zZWFyY2hQYXJhbXMuZ2V0KCJidXNpbmVzc19pZCIpOwog\nICAgICBjb25zdCByb3dJZCA9IHVybC5zZWFyY2hQYXJhbXMuZ2V0KCJpZCIp\nOwogICAgICBpZiAodmVyYiA9PT0gIkdFVCIpIHsKICAgICAgICBpZiAoIXNh\ndmVkIHx8IHJvd0J1c2luZXNzICE9PSBgZXEuJHtleHBlY3RlZEJ1c2luZXNz\nSWR9YCB8fCByb3dJZCAhPT0gYGVxLiR7UVVPVEVfSUR9YCkgcmV0dXJuIHJl\nc3BvbnNlKDIwMCwgW10pOwogICAgICAgIHJldHVybiByZXNwb25zZSgyMDAs\nIFtzdHJ1Y3R1cmVkQ2xvbmUoc2F2ZWQpXSk7CiAgICAgIH0KICAgICAgaWYg\nKHZlcmIgPT09ICJQQVRDSCIpIHsKICAgICAgICBjb25zdCBleHBlY3RlZCA9\nIHVybC5zZWFyY2hQYXJhbXMuZ2V0KCJ1cGRhdGVkX2F0Iik7CiAgICAgICAg\naWYgKCFzYXZlZCB8fCByb3dCdXNpbmVzcyAhPT0gYGVxLiR7ZXhwZWN0ZWRC\ndXNpbmVzc0lkfWAgfHwgcm93SWQgIT09IGBlcS4ke1FVT1RFX0lEfWAgfHwg\nZXhwZWN0ZWQgIT09IGBlcS4ke3NhdmVkLnVwZGF0ZWRfYXR9YCkgcmV0dXJu\nIHJlc3BvbnNlKDIwMCwgW10pOwogICAgICAgIHNhdmVkID0geyAuLi5zYXZl\nZCwgLi4uYm9keVNlbnQgfTsKICAgICAgICByZXR1cm4gcmVzcG9uc2UoMjAw\nLCBbc3RydWN0dXJlZENsb25lKHNhdmVkKV0pOwogICAgICB9CiAgICAgIGlm\nICh2ZXJiID09PSAiREVMRVRFIikgcmV0dXJuIHJlc3BvbnNlKDIwMCwgc2F2\nZWQgPyBbeyBpZDogc2F2ZWQuaWQgfV0gOiBbXSk7CiAgICB9CiAgICByZXR1\ncm4gcmVzcG9uc2UoMjAwLCBbXSk7CiAgfTsKICB0LmFmdGVyKCgpID0+IHsK\nICAgIGdsb2JhbFRoaXMuZmV0Y2ggPSBvbGRGZXRjaDsKICAgIGZvciAoY29u\nc3QgW2tleSwgdmFsdWVdIG9mIE9iamVjdC5lbnRyaWVzKG9sZEVudikpIHsK\nICAgICAgaWYgKHZhbHVlID09PSB1bmRlZmluZWQpIGRlbGV0ZSBwcm9jZXNz\nLmVudltrZXldOwogICAgICBlbHNlIHByb2Nlc3MuZW52W2tleV0gPSB2YWx1\nZTsKICAgIH0KICB9KTsKICBjb25zdCByZXEgPSB7IG1ldGhvZCwgaGVhZGVy\nczogeyBhdXRob3JpemF0aW9uOiAiQmVhcmVyIHZlcmlmaWVkLXRlc3QtdG9r\nZW4iIH0sIHF1ZXJ5OiB7IHJlc291cmNlOiAicXVvdGVzIiwgaWQ6IFFVT1RF\nX0lEIH0sIGJvZHkgfTsKICBjb25zdCByZXMgPSB7IHN0YXR1c0NvZGU6IDIw\nMCwgcGF5bG9hZDogbnVsbCwgc3RhdHVzKGNvZGUpIHsgdGhpcy5zdGF0dXND\nb2RlID0gY29kZTsgcmV0dXJuIHRoaXM7IH0sIGpzb24ocGF5bG9hZCkgeyB0\naGlzLnBheWxvYWQgPSBwYXlsb2FkOyByZXR1cm4gdGhpczsgfSB9OwogIGF3\nYWl0IGhhbmRsZXIocmVxLCByZXMpOwogIHJldHVybiB7IHN0YXR1czogcmVz\nLnN0YXR1c0NvZGUsIHBheWxvYWQ6IHJlcy5wYXlsb2FkLCBjYWxscywgcmVj\nb3JkOiBzYXZlZCB9Owp9CmZ1bmN0aW9uIHF1b3RlKHN0YXR1cyA9ICJkcmFm\ndCIsIHVwZGF0ZWRfYXQgPSBWRVJTSU9OKSB7CiAgcmV0dXJuIHsgaWQ6IFFV\nT1RFX0lELCBidXNpbmVzc19pZDogQlVTSU5FU1NfSUQsIGxlYWRfaWQ6IDQy\nLCB0aXRsZTogIkJhdGhyb29tIHJlbm92YXRpb24iLCBhbW91bnRfZ2JwOiAx\nMjUwLCBub3RlczogIk1hdGVyaWFscyBpbmNsdWRlZCIsIHN0YXR1cywgY3Jl\nYXRlZF9hdDogVkVSU0lPTiwgdXBkYXRlZF9hdCB9Owp9Cgp0ZXN0KCJQQVRD\nSCByZWplY3RzIG1pc3NpbmcgZXhwZWN0ZWRfdXBkYXRlZF9hdCB3aXRob3V0\nIGF0dGVtcHRpbmcgYSByZWNvcmQgd3JpdGUiLCBhc3luYyB0ID0+IHsKICBj\nb25zdCByZXN1bHQgPSBhd2FpdCBjYWxsSGFuZGxlcih0LCB7IGJvZHk6IHsg\nc3RhdHVzOiAic2VudCIgfSwgcmVjb3JkOiBxdW90ZSgpIH0pOwogIGFzc2Vy\ndC5lcXVhbChyZXN1bHQuc3RhdHVzLCA0MDApOwogIGFzc2VydC5lcXVhbChy\nZXN1bHQuY2FsbHMuc29tZShjYWxsID0+IGNhbGwudmVyYiA9PT0gIlBBVENI\nIiB8fCBjYWxsLnZlcmIgPT09ICJERUxFVEUiKSwgZmFsc2UpOwp9KTsKdGVz\ndCgiUEFUQ0ggcmV0dXJucyA0MDkgZm9yIGEgc3RhbGUgcmVjb3JkIHZlcnNp\nb24iLCBhc3luYyB0ID0+IHsKICBjb25zdCByZXN1bHQgPSBhd2FpdCBjYWxs\nSGFuZGxlcih0LCB7IGJvZHk6IHsgZXhwZWN0ZWRfdXBkYXRlZF9hdDogIjIw\nMjYtMTAtMTRUMTA6MDA6MDAuMDAwWiIsIHN0YXR1czogInNlbnQiIH0sIHJl\nY29yZDogcXVvdGUoKSB9KTsKICBhc3NlcnQuZXF1YWwocmVzdWx0LnN0YXR1\ncywgNDA5KTsKfSk7CnRlc3QoIkRFTEVURSBpcyByZWplY3RlZCBhbmQgbmV2\nZXIgcmVhY2hlcyB0aGUgZGF0YWJhc2UiLCBhc3luYyB0ID0+IHsKICBjb25z\ndCByZXN1bHQgPSBhd2FpdCBjYWxsSGFuZGxlcih0LCB7IG1ldGhvZDogIkRF\nTEVURSIsIHJlY29yZDogcXVvdGUoKSB9KTsKICBhc3NlcnQuZXF1YWwocmVz\ndWx0LnN0YXR1cywgNDA1KTsKICBhc3NlcnQuZXF1YWwocmVzdWx0LmNhbGxz\nLnNvbWUoY2FsbCA9PiBjYWxsLnZlcmIgPT09ICJERUxFVEUiKSwgZmFsc2Up\nOwp9KTsKdGVzdCgiZHJhZnQgcXVvdGUgY2FuIHRyYW5zaXRpb24gdG8gc2Vu\ndCB3aXRob3V0IGNoYW5naW5nIHF1b3RlIHRlcm1zIiwgYXN5bmMgdCA9PiB7\nCiAgY29uc3QgcmVzdWx0ID0gYXdhaXQgY2FsbEhhbmRsZXIodCwgeyBib2R5\nOiB7IGV4cGVjdGVkX3VwZGF0ZWRfYXQ6IFZFUlNJT04sIHN0YXR1czogInNl\nbnQiIH0sIHJlY29yZDogcXVvdGUoKSB9KTsKICBhc3NlcnQuZXF1YWwocmVz\ndWx0LnN0YXR1cywgMjAwKTsKICBhc3NlcnQuZXF1YWwocmVzdWx0LnJlY29y\nZC5zdGF0dXMsICJzZW50Iik7CiAgYXNzZXJ0LmVxdWFsKHJlc3VsdC5yZWNv\ncmQuYW1vdW50X2dicCwgMTI1MCk7CiAgYXNzZXJ0Lm9rKERhdGUucGFyc2Uo\ncmVzdWx0LnJlY29yZC51cGRhdGVkX2F0KSA+IERhdGUucGFyc2UoVkVSU0lP\nTikpOwp9KTsKdGVzdCgiZHJhZnQgcXVvdGUgY2Fubm90IHNraXAgZGlyZWN0\nbHkgdG8gYWNjZXB0ZWQiLCBhc3luYyB0ID0+IHsKICBjb25zdCByZXN1bHQg\nPSBhd2FpdCBjYWxsSGFuZGxlcih0LCB7IGJvZHk6IHsgZXhwZWN0ZWRfdXBk\nYXRlZF9hdDogVkVSU0lPTiwgc3RhdHVzOiAiYWNjZXB0ZWQiIH0sIHJlY29y\nZDogcXVvdGUoKSB9KTsKICBhc3NlcnQuZXF1YWwocmVzdWx0LnN0YXR1cywg\nNDAwKTsKfSk7CnRlc3QoInNlbnQgcXVvdGUgdGVybXMgY2Fubm90IGJlIGVk\naXRlZCIsIGFzeW5jIHQgPT4gewogIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGNh\nbGxIYW5kbGVyKHQsIHsgYm9keTogeyBleHBlY3RlZF91cGRhdGVkX2F0OiBW\nRVJTSU9OLCBhbW91bnRfZ2JwOiA5MDAgfSwgcmVjb3JkOiBxdW90ZSgic2Vu\ndCIpIH0pOwogIGFzc2VydC5lcXVhbChyZXN1bHQuc3RhdHVzLCA0MDApOwp9\nKTsKdGVzdCgic2VudCBxdW90ZSBtYXkgdHJhbnNpdGlvbiB0byBhY2NlcHRl\nZCB3aXRob3V0IGNoYW5naW5nIHRlcm1zIiwgYXN5bmMgdCA9PiB7CiAgY29u\nc3QgcmVzdWx0ID0gYXdhaXQgY2FsbEhhbmRsZXIodCwgeyBib2R5OiB7IGV4\ncGVjdGVkX3VwZGF0ZWRfYXQ6IFZFUlNJT04sIHN0YXR1czogImFjY2VwdGVk\nIiB9LCByZWNvcmQ6IHF1b3RlKCJzZW50IikgfSk7CiAgYXNzZXJ0LmVxdWFs\nKHJlc3VsdC5zdGF0dXMsIDIwMCk7CiAgYXNzZXJ0LmVxdWFsKHJlc3VsdC5y\nZWNvcmQuc3RhdHVzLCAiYWNjZXB0ZWQiKTsKICBhc3NlcnQuZXF1YWwocmVz\ndWx0LnJlY29yZC5hbW91bnRfZ2JwLCAxMjUwKTsKfSk7CnRlc3QoImEgc3Vj\nY2Vzc2Z1bCBQQVRDSCB1c2VzIHRoZSBsb2FkZWQgdmVyc2lvbiBpbiBpdHMg\nYXRvbWljIGRhdGFiYXNlIHByZWRpY2F0ZSIsIGFzeW5jIHQgPT4gewogIGNv\nbnN0IHJlc3VsdCA9IGF3YWl0IGNhbGxIYW5kbGVyKHQsIHsgYm9keTogeyBl\neHBlY3RlZF91cGRhdGVkX2F0OiBWRVJTSU9OLCBzdGF0dXM6ICJzZW50IiB9\nLCByZWNvcmQ6IHF1b3RlKCkgfSk7CiAgYXNzZXJ0LmVxdWFsKHJlc3VsdC5z\ndGF0dXMsIDIwMCk7CiAgY29uc3QgcGF0Y2ggPSByZXN1bHQuY2FsbHMuZmlu\nZChjYWxsID0+IGNhbGwudmVyYiA9PT0gIlBBVENIIik7CiAgYXNzZXJ0Lm9r\nKHBhdGNoLCAidGhlIHVwZGF0ZSBzaG91bGQgcmVhY2ggdGhlIGRhdGFiYXNl\nIik7CiAgYXNzZXJ0LmVxdWFsKHBhdGNoLnVybC5zZWFyY2hQYXJhbXMuZ2V0\nKCJ1cGRhdGVkX2F0IiksIGBlcS4ke1ZFUlNJT059YCk7CiAgYXNzZXJ0Lm9r\nKERhdGUucGFyc2UocmVzdWx0LnJlY29yZC51cGRhdGVkX2F0KSA+IERhdGUu\ncGFyc2UoVkVSU0lPTikpOwp9KTsKdGVzdCgidGVuYW50LXNjb3BlZCBsb29r\ndXAgZG9lcyBub3QgZXhwb3NlIGFub3RoZXIgYnVzaW5lc3MncyBxdW90ZSIs\nIGFzeW5jIHQgPT4gewogIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGNhbGxIYW5k\nbGVyKHQsIHsgYm9keTogeyBleHBlY3RlZF91cGRhdGVkX2F0OiBWRVJTSU9O\nLCBzdGF0dXM6ICJzZW50IiB9LCByZWNvcmQ6IHF1b3RlKCksIGV4cGVjdGVk\nQnVzaW5lc3NJZDogIjQ0NDQ0NDQ0LTQ0NDQtNDQ0NC04NDQ0LTQ0NDQ0NDQ0\nNDQ0NCIgfSk7CiAgYXNzZXJ0LmVxdWFsKHJlc3VsdC5zdGF0dXMsIDQwNCk7\nCn0pOwo=\n","download_url":"https://raw.githubusercontent.com/08collinsj-boop/Business-AI/fix/colzo-composio-first-protected-writes-20261015/tests/colzo-records-protected-writes.test.mjs","encoding":"base64","git_url":"https://api.github.com/repos/08collinsj-boop/Business-AI/git/blobs/c23f53ac2aa20b7851ee2e1506cb393e39e5529e","html_url":"https://github.com/08collinsj-boop/Business-AI/blob/fix/colzo-composio-first-protected-writes-20261015/tests/colzo-records-protected-writes.test.mjs","name":"colzo-records-protected-writes.test.mjs","path":"tests/colzo-records-protected-writes.test.mjs","sha":"c23f53ac2aa20b7851ee2e1506cb393e39e5529e","size":6260,"type":"file","url":"https://api.github.com/repos/08collinsj-boop/Business-AI/contents/tests/colzo-records-protected-writes.test.mjs?ref=fix/colzo-composio-first-protected-writes-20261015"}}},"tool_slug":"GITHUB_GET_REPOSITORY_CONTENT","index":0}],"total_count":1,"success_count":1,"error_count":0,"session":{"id":"pull","instructions":"REQUIRED: Pass session_id \"pull\" in ALL subsequent meta tool calls for this workflow."}},"error":null,"log_id":"log_n6vToSp4EYZu"}
+import test from "node:test";
+import assert from "node:assert/strict";
+import handler from "../lib/colzo-records-handler.js";
+
+const BUSINESS_ID = "11111111-1111-4111-8111-111111111111";
+const USER_ID = "22222222-2222-4222-8222-222222222222";
+const QUOTE_ID = "33333333-3333-4333-8333-333333333333";
+const VERSION = "2026-10-15T10:00:00.000Z";
+const LATER = "2026-10-15T10:00:01.000Z";
+
+function response(status, value) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    async text() { return value == null ? "" : JSON.stringify(value); },
+    async json() { return value; }
+  };
+}
+
+async function callHandler(t, { method = "PATCH", body = {}, businessId = BUSINESS_ID, record = null } = {}) {
+  const oldFetch = globalThis.fetch;
+  const oldEnv = {
+    TENANCY_AUTH_ENABLED: process.env.TENANCY_AUTH_ENABLED,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
+  };
+  process.env.TENANCY_AUTH_ENABLED = "true";
+  process.env.SUPABASE_URL = "https://supabase.test";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-key";
+  let saved = record ? structuredClone(record) : null;
+  const calls = [];
+  globalThis.fetch = async (input, options = {}) => {
+    const url = new URL(String(input));
+    const verb = options.method || "GET";
+    calls.push({ url, verb, body: options.body ? JSON.parse(options.body) : null });
+    if (url.pathname === "/auth/v1/user") return response(200, { id: USER_ID, email: "owner@example.test" });
+    if (url.pathname === "/rest/v1/business_memberships") return response(200, [{ business_id: businessId, role: "owner" }]);
+    if (url.pathname === "/rest/v1/business_audit_events") return response(201, null);
+    if (url.pathname === "/rest/v1/colzo_quotes") {
+      const rowBusiness = url.searchParams.get("business_id");
+      const rowId = url.searchParams.get("id");
+      if (verb === "GET") {
+        if (!saved || rowBusiness !== `eq.${saved.business_id}` || rowId !== `eq.${QUOTE_ID}`) return response(200, []);
+        return response(200, [structuredClone(saved)]);
+      }
+      if (verb === "PATCH") {
+        const expected = url.searchParams.get("updated_at");
+        if (!saved || rowBusiness !== `eq.${saved.business_id}` || rowId !== `eq.${QUOTE_ID}` || expected !== `eq.${body.expected_updated_at}` || saved.updated_at !== body.expected_updated_at) return response(200, []);
+        saved = { ...saved, ...calls.at(-1).body, updated_at: calls.at(-1).body.updated_at };
+        return response(200, [structuredClone(saved)]);
+      }
+      if (verb === "DELETE") return response(200, saved ? [{ id: saved.id }] : []);
+    }
+    return response(200, []);
+  };
+  t.after(() => {
+    globalThis.fetch = oldFetch;
+    for (const [key, value] of Object.entries(oldEnv)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+  const req = {
+    method,
+    headers: { authorization: "Bearer verified-test-token" },
+    query: { resource: "quotes", id: QUOTE_ID },
+    body
+  };
+  const res = {
+    statusCode: 200,
+    payload: null,
+    status(code) { this.statusCode = code; return this; },
+    json(payload) { this.payload = payload; return this; }
+  };
+  await handler(req, res);
+  return { status: res.statusCode, payload: res.payload, calls, record: saved };
+}
+
+function quote(status = "draft", updated_at = VERSION) {
+  return {
+    id: QUOTE_ID,
+    business_id: BUSINESS_ID,
+    lead_id: 42,
+    title: "Bathroom renovation",
+    amount_gbp: 1250,
+    notes: "Materials included",
+    status,
+    created_at: VERSION,
+    updated_at
+  };
+}
+
+test("PATCH rejects a missing expected_updated_at before any record write", async (t) => {
+  const result = await callHandler(t, { body: { status: "sent" }, record: quote() });
+  assert.equal(result.status, 400);
+  assert.equal(result.calls.some((call) => call.verb === "PATCH" || call.verb === "DELETE"), false);
+});
+
+test("PATCH returns 409 for a stale record version", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: "2026-10-14T10:00:00.000Z", status: "sent" },
+    record: quote()
+  });
+  assert.equal(result.status, 409);
+});
+
+test("DELETE is rejected and never reaches the database", async (t) => {
+  const result = await callHandler(t, { method: "DELETE", body: {}, record: quote() });
+  assert.equal(result.status, 405);
+  assert.equal(result.calls.some((call) => call.verb === "DELETE"), false);
+});
+
+test("draft quote can transition to sent without changing quote terms", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "sent" },
+    record: quote()
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.record.status, "sent");
+  assert.equal(result.record.amount_gbp, 1250);
+});
+
+test("draft quote cannot skip directly to accepted", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "accepted" },
+    record: quote()
+  });
+  assert.equal(result.status, 400);
+});
+
+test("sent quote terms cannot be edited", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, amount_gbp: 900 },
+    record: quote("sent")
+  });
+  assert.equal(result.status, 400);
+});
+
+test("sent quote may transition to accepted without changing terms", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "accepted" },
+    record: quote("sent")
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.record.status, "accepted");
+  assert.equal(result.record.amount_gbp, 1250);
+});
+
+test("a successful PATCH uses the loaded version in the atomic database predicate", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "sent" },
+    record: quote()
+  });
+  assert.equal(result.status, 200);
+  const patch = result.calls.find((call) => call.verb === "PATCH");
+  assert.ok(patch, "the update should reach the database");
+  assert.equal(patch.url.searchParams.get("updated_at"), `eq.${VERSION}`);
+  assert.ok(Date.parse(result.record.updated_at) > Date.parse(VERSION));
+});
