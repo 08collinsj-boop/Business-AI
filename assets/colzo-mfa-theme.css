@@ -294,3 +294,6 @@ body.colzo-interface .auth-screen :is(.wizard-review article,.setup-summary,.onb
   transition:none!important;animation:none!important;scroll-behavior:auto!important;
  }
 }
+/* Keep wizard visibility under the existing JavaScript; colour only. */
+body.colzo-interface .auth-screen .wizard-step{color:#f5f7fa}
+body.colzo-interface .auth-screen .wizard-step.active{accent-color:#c8ff2e}
