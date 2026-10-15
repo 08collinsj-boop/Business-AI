@@ -14,8 +14,8 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  page.on('pageerror',e=>errors.push(e.stack||e.message));
  page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected network host '+host)});
  await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
- await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'fixture'})}));
- await page.route('**/colzo-backend/leads',async route=>{
+ await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'fixture'})}));
+ await page.route('**/api/leads',async route=>{
   const req=route.request(),method=req.method(),body=['POST','PATCH'].includes(method)?req.postDataJSON():null;
   calls.push({path:'/api/leads',method,body});
   if(method==='GET')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(db.leads)});
@@ -30,12 +30,12 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   }
   return route.fulfill({status:405,body:'Unsupported method'});
  });
- await page.route('**/colzo-backend/pipeline',r=>r.fulfill({status:200,contentType:'application/json',body:'{}'}));
- await page.route('**/colzo-backend/settings',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(db.settings)}));
- await page.route('**/colzo-backend/bookings',r=>r.fulfill({status:200,contentType:'application/json',body:'[]'}));
- await page.route('**/colzo-backend/actions',r=>r.fulfill({status:200,contentType:'application/json',body:'[]'}));
- await page.route('**/colzo-backend/business-configuration',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({configuration:{},onboarding:{state:'completed'}})}));
- await page.route('**/colzo-backend/**',r=>['/colzo-backend/public-config','/colzo-backend/leads','/colzo-backend/pipeline','/colzo-backend/settings','/colzo-backend/bookings','/colzo-backend/actions','/colzo-backend/business-configuration'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+ await page.route('**/api/pipeline',r=>r.fulfill({status:200,contentType:'application/json',body:'{}'}));
+ await page.route('**/api/settings',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(db.settings)}));
+ await page.route('**/api/bookings',r=>r.fulfill({status:200,contentType:'application/json',body:'[]'}));
+ await page.route('**/api/actions',r=>r.fulfill({status:200,contentType:'application/json',body:'[]'}));
+ await page.route('**/api/business-configuration',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({configuration:{},onboarding:{state:'completed'}})}));
+ await page.route('**/api/**',r=>['/api/public-config','/api/leads','/api/pipeline','/api/settings','/api/bookings','/api/actions','/api/business-configuration'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
  await page.goto(base+'/',{waitUntil:'networkidle'});
  await page.evaluate(()=>{
   settings={business_name:'Fixture Colzo'};leads=[{id:41,name:'Existing Fixture',job_type:'Repairs',status:'New',created_at:'2026-10-13T10:00:00Z'}];bookings=[];businessActions=[];

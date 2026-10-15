@@ -27,13 +27,13 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected network destination '+host)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-fixture.supabase.co',supabaseAnonKey:'fake-public-publishable-key-no-real-account-data'})}));
+  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-fixture.supabase.co',supabaseAnonKey:'fake-public-publishable-key-no-real-account-data'})}));
   await page.route('**/api/colzo-records*',async route=>{
     const url=new URL(route.request().url()),resource=url.searchParams.get('resource');
     const fixtures={projects:[{id:51,title:'Fixture project',client_name:'Fixture Client',status:'active',progress:35,created_at:'2026-10-12',notes:'Fixture only'},{id:52,title:'Sample confirmed visit',client_name:'Fixture Customer',status:'planned',progress:10,created_at:'2026-10-13',notes:'Fixture only'}],clients:[],quotes:[]};
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fixtures[resource]||[])});
   });
-  await page.route('**/colzo-backend/**',r=>new URL(r.request().url()).pathname==='/api/colzo-records'?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"fixture only"}'}));
+  await page.route('**/api/**',r=>new URL(r.request().url()).pathname==='/api/colzo-records'?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"fixture only"}'}));
   await page.goto(base+'/',{waitUntil:'networkidle'});
   await page.evaluate(()=>{
    leads=[{id:'qa-01',name:'Mock Jones',job_type:'Electrical repair',status:'New',created_at:'2026-10-12T08:40:00Z',phone:'07000000000',email:'mock@example.invalid',description:'Sample issue for local UI testing only',priority:'Normal',location:'Sample town'},{id:'qa-02',name:'Test Customer',job_type:'Lighting inspection',status:'Contacted',created_at:'2026-09-28T11:00:00Z'}];

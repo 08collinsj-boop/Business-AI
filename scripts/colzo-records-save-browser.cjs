@@ -10,11 +10,12 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const sdk='window.supabase={createClient(){return {auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}}}}';
 async function main(){await sleep(600);const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});try{
  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),calls=[],errors=[];
- const db={clients:[],projects:[],quotes:[]};let nextId=100;
+ const db={clients:[],projects:[],quotes:[]};let nextId=100,versionTick=0;
+ const nextVersion=()=>new Date(Date.parse('2026-10-14T10:00:00Z')+(++versionTick)*1000).toISOString();
  page.on('pageerror',e=>errors.push(e.stack||e.message));
  page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected external request '+host)});
  await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
- await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'fixture'})}));
+ await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'fixture'})}));
  await page.route('**/api/colzo-records*',async route=>{
   const req=route.request(),url=new URL(req.url()),resource=url.searchParams.get('resource'),id=url.searchParams.get('id'),method=req.method(),body=['POST','PATCH'].includes(method)?req.postDataJSON():null;
   calls.push({resource,method,id,body});
@@ -22,18 +23,29 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   if(method==='GET')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(db[resource])});
   if(method==='POST'){
    if(body?.business_id||body?.id)return route.fulfill({status:400,contentType:'application/json',body:'{"error":"Tenant fields are server-controlled"}'});
-   const record={...body,id:++nextId,created_at:'2026-10-14T10:00:00.000Z'};
+   const record={...body,id:++nextId,created_at:'2026-10-14T10:00:00.000Z',updated_at:nextVersion()};
    db[resource].push(record);return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify(record)});
   }
   if(method==='PATCH'){
    const record=db[resource].find(row=>String(row.id)===String(id||body?.id));
    if(!record)return route.fulfill({status:404,contentType:'application/json',body:'{"error":"Fixture record not found"}'});
    if(body?.business_id)return route.fulfill({status:400,contentType:'application/json',body:'{"error":"Tenant fields are server-controlled"}'});
-   Object.assign(record,body);return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(record)});
+   if(typeof body?.expected_updated_at!=='string'||!body.expected_updated_at.trim())return route.fulfill({status:400,contentType:'application/json',body:'{"error":"expected_updated_at is required"}'});
+   if(body.expected_updated_at!==record.updated_at)return route.fulfill({status:409,contentType:'application/json',body:'{"error":"Record was updated elsewhere. Reload before saving."}'});
+   const {expected_updated_at,...patch}=body;
+   if(resource==='quotes'){
+    const transitions={draft:['draft','sent'],sent:['sent','accepted','declined'],declined:['declined','draft'],accepted:['accepted']};
+    const current=record.status||'draft',target=patch.status||current;
+    if(!transitions[current]?.includes(target))return route.fulfill({status:400,contentType:'application/json',body:'{"error":"Invalid quote status transition"}'});
+    const changesTerms=['lead_id','title','amount_gbp','notes'].some(k=>Object.hasOwn(patch,k)&&String(patch[k])!==String(record[k]??''));
+    if(changesTerms&&(current!=='draft'||target!=='draft'))return route.fulfill({status:400,contentType:'application/json',body:'{"error":"Quote terms locked"}'});
+    if(current==='accepted')return route.fulfill({status:400,contentType:'application/json',body:'{"error":"Accepted quotes cannot be edited"}'});
+   }
+   Object.assign(record,patch,{updated_at:nextVersion()});return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(record)});
   }
   return route.fulfill({status:405,body:'Unsupported method'});
  });
- await page.route('**/colzo-backend/**',r=>['/colzo-backend/public-config','/colzo-backend/colzo-records'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+ await page.route('**/api/**',r=>['/api/public-config','/api/colzo-records'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
  await page.goto(base+'/',{waitUntil:'networkidle'});
  await page.evaluate(()=>{
   settings={business_name:'Fixture Colzo'};leads=[{id:41,name:'Existing Fixture',job_type:'Inspection',status:'New',created_at:'2026-10-13T10:00:00Z',email:'existing@example.invalid'}];bookings=[];businessActions=[];
@@ -99,6 +111,13 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  assert.equal(db.quotes[0].amount_gbp,'225');assert.equal(db.quotes[0].notes,'Fixture note');
  assert.equal(calls.filter(x=>x.resource==='quotes'&&x.method==='PATCH').length,1);
  for(const call of calls.filter(x=>['POST','PATCH'].includes(x.method)))assert.equal(call.body.business_id,undefined,'tenant ownership is server-derived');
+ for(const call of calls.filter(x=>x.method==='PATCH'))assert.equal(typeof call.body.expected_updated_at,'string','guarded updates must carry server version');
+ const stale=await page.evaluate(async()=>{
+   const response=await fetch('/api/colzo-records?resource=clients&id=101',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:'07000000009',expected_updated_at:'2026-10-14T10:00:00.000Z'})});
+   return response.status;
+ });
+ assert.equal(stale,409,'a stale record version must be rejected');
+ assert.equal(db.clients[0].phone,'07000000002','a stale update must not change persisted data');
  assert.deepEqual(errors,[]);
  console.log('390x844: PASS saved customer, project and quote create/edit flows, server-confirmed fixture records, tenant fields never client-supplied, no external API calls');
 }finally{await browser.close()}}main().catch(e=>{console.error(e.stack||String(e));process.exitCode=1}).finally(()=>server.kill());

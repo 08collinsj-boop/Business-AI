@@ -25,17 +25,17 @@ async function main(){
    page.on('pageerror',e=>errors.push(e.stack||e.message));
    page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected external request '+host)});
    await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-   await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'public-fixture'})}));
-   await page.route('**/colzo-backend/business-onboarding',async r=>{
+   await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'public-fixture'})}));
+   await page.route('**/api/business-onboarding',async r=>{
     const req=r.request(),method=req.method(),body=method==='POST'?req.postDataJSON():null;
     calls.push({path:'/api/business-onboarding',method,body});
     const business={id:'fixture-business',business_name:'Fixture Colzo',business_type:'Electrical services'};
     if(method==='POST')return r.fulfill({status:201,contentType:'application/json',body:JSON.stringify({business,public_path:'/enquire/fixture-colzo'})});
     return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({needs_business:false,business,public_slug:'fixture-colzo',role:'owner'})});
    });
-   await page.route('**/colzo-backend/business-configuration',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({configuration:{},onboarding:{state:'in_progress'}})}));
-   await page.route('**/colzo-backend/settings',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({business_name:'Fixture Colzo',business_type:'Electrical services',phone:'',email:'',address:''})}));
-   await page.route('**/colzo-backend/**',r=>['/colzo-backend/public-config','/colzo-backend/business-onboarding','/colzo-backend/business-configuration','/colzo-backend/settings'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+   await page.route('**/api/business-configuration',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({configuration:{},onboarding:{state:'in_progress'}})}));
+   await page.route('**/api/settings',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({business_name:'Fixture Colzo',business_type:'Electrical services',phone:'',email:'',address:''})}));
+   await page.route('**/api/**',r=>['/api/public-config','/api/business-onboarding','/api/business-configuration','/api/settings'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
    await page.goto(base+'/',{waitUntil:'networkidle'});
    assert.equal(await page.locator('#loginForm').isVisible(),true);
    assert.equal(await page.locator('#loginSubmit').innerText().then(x=>x.includes('Sign in')),true);
