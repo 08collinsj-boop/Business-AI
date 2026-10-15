@@ -15,7 +15,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected external request '+host)});
  await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'fixture'})}));
- await page.route('**/colzo-backend/colzo-records*',async route=>{
+ await page.route('**/api/colzo-records*',async route=>{
   const req=route.request(),url=new URL(req.url()),resource=url.searchParams.get('resource'),id=url.searchParams.get('id'),method=req.method(),body=['POST','PATCH'].includes(method)?req.postDataJSON():null;
   calls.push({resource,method,id,body});
   if(!Object.hasOwn(db,resource))return route.fulfill({status:400,contentType:'application/json',body:'{"error":"Unknown fixture resource"}'});
