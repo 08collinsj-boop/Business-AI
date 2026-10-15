@@ -167,7 +167,7 @@
   const {resource,id}=detail,record=(state.colzoRecords[resource]||[]).find(item=>String(item.id)===String(id));
   if(!record)return '<button class="cn-back" data-cn-screen="'+resource+'" type="button">← Back</button>'+empty('This record is no longer available in this workspace.');
   const back='<button class="cn-back" data-cn-screen="'+resource+'" type="button" aria-label="Back to '+(resource==='clients'?'customers':resource)+'">← '+(resource==='clients'?'Customers':resource==='projects'?'Projects':'Quotes')+'</button>';
-  const edit='<button class="cn-primary" type="button" data-colzo-edit="'+resource+'" data-colzo-id="'+safe(record.id)+'">Edit details</button>';
+  const edit=resource==='quotes'&&['sent','accepted'].includes(record.status)?'<p class="cn-caption">Quote terms are locked after issuing. Editing is unavailable here.</p>':'<button class="cn-primary" type="button" data-colzo-edit="'+resource+'" data-colzo-id="'+safe(record.id)+'">Edit details</button>';
   let body='';
   if(resource==='clients')body='<section class="cn-detail-panel cf-detail-panel"><h2>Contact details</h2><dl><div><dt>Full name</dt><dd>'+safe(record.full_name||'Not recorded')+'</dd></div><div><dt>Email</dt><dd>'+safe(record.email||'Not recorded')+'</dd></div><div><dt>Phone</dt><dd>'+safe(record.phone||'Not recorded')+'</dd></div><div><dt>Created</dt><dd>'+safe(day(record.created_at))+'</dd></div></dl></section><section class="cn-detail-panel cf-detail-panel"><h2>Notes</h2><p>'+safe(record.notes||'No notes recorded.')+'</p></section>';
   if(resource==='projects')body='<section class="cn-detail-panel cf-detail-panel"><h2>Project overview</h2><dl><div><dt>Customer</dt><dd>'+safe(record.client_name||'Not recorded')+'</dd></div><div><dt>Status</dt><dd>'+safe(record.status||'planned')+'</dd></div><div><dt>Progress</dt><dd>'+Number(record.progress||0)+'%</dd></div><div><dt>Created</dt><dd>'+safe(day(record.created_at))+'</dd></div></dl><div class="cf-progress"><i style="width:'+Math.max(0,Math.min(100,Number(record.progress)||0))+'%"></i></div></section><section class="cn-detail-panel cf-detail-panel"><h2>Project notes</h2><p>'+safe(record.notes||'No project notes recorded.')+'</p></section>';
@@ -457,6 +457,24 @@
   if(resource==='quotes')values.amount_gbp=String(values.amount_gbp||'').trim();
   if(resource==='projects'){values.progress=Number(values.progress||0);values.lead_id=values.lead_id?String(values.lead_id):null}
   if(resource==='quotes')values.lead_id=String(values.lead_id||'');
+  // Compare edits with the exact version returned by the server, not browser time.
+  const original=id&&state.colzoForm?.resource===resource&&String(state.colzoForm?.record?.id)===id?state.colzoForm.record:null;
+  if(id&&(!original||typeof original.updated_at!=='string'||!Number.isFinite(Date.parse(original.updated_at)))){
+   if(feedback)feedback.textContent='This record needs to be reloaded before editing. Your changes have not been saved.';
+   return;
+  }
+  if(resource==='quotes'){
+   const selectedStatus=String(values.status||'draft');
+   if(id&&(selectedStatus!==String(original.status||'draft')||['sent','accepted'].includes(original.status))){
+    if(feedback)feedback.textContent='Quote status and issued quotes are managed separately. No changes have been saved.';
+    return;
+   }
+   if(!id&&selectedStatus!=='draft'){
+    if(feedback)feedback.textContent='A new quote must start as a draft. No changes have been saved.';
+    return;
+   }
+  }
+  if(id)values.expected_updated_at=original.updated_at;
   state.colzoBusy=true;if(button)button.disabled=true;if(feedback)feedback.textContent='Saving securely…';
   try{
    if(typeof api!=='function')throw new Error('Saving is unavailable in this preview.');
