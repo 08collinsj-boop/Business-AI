@@ -52,3 +52,9 @@ test('Safari iOS autofill keeps Colzo email and passwords graphite instead of pa
  assert.match(css,/body\.colzo-interface\s+\.auth-screen/);
  assert.doesNotMatch(css,/input:-webkit-autofill\s*\{[^}]*background:\s*#fff/i);
 });
+
+test('Colzo registration does not advertise legacy Business AI referral placeholders',async()=>{
+ const html=await read('index.html');
+ assert.doesNotMatch(html,/placeholder="e\.g\. BAI-[^"]+"/);
+ assert.match(html,/id="signUpReferralCode"/);
+});
