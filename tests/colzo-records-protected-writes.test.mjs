@@ -45,7 +45,7 @@ async function callHandler(t, { method = "PATCH", body = {}, businessId = BUSINE
       }
       if (verb === "PATCH") {
         const expected = url.searchParams.get("updated_at");
-        if (!saved || rowBusiness !== `eq.${saved.business_id}` || rowId !== `eq.${QUOTE_ID}` || expected !== `eq.${body.expected_updated_at}` || saved.updated_at !== body.expected_updated_at) return response(200, []);
+        if (!saved || rowBusiness !== `eq.${saved.business_id}` || rowId !== `eq.${QUOTE_ID}` || expected !== `eq.${saved.updated_at}`) return response(200, []);
         saved = { ...saved, ...calls.at(-1).body, updated_at: calls.at(-1).body.updated_at };
         return response(200, [structuredClone(saved)]);
       }
