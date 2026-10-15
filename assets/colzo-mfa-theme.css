@@ -313,3 +313,69 @@ body.colzo-interface .auth-screen :is(input[type=email],input[type=password],inp
 body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):autofill {
  caret-color:#c8ff2e!important;
 }
+
+/* GRAPHITE SURFACE CORRECTION - eliminate the inherited navy/blue
+   premium-v2 and legacy sign-up theme on every Colzo owner auth stage.
+   Deliberately flat neutral graphite, matching Colzo dashboard cards. */
+body.colzo-interface #authScreen.auth-screen {
+  background:#0d1115!important;
+  background-image:none!important;
+  border-color:#364047!important;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen,#businessSetupScreen,#configurationOnboardingScreen).auth-screen {
+  background:#0d1115!important;
+  background-image:none!important;
+  border-color:#364047!important;
+}
+body.colzo-interface #authScreen #signUpForm.auth-card,
+body.colzo-interface #authScreen #passwordResetRequestForm.auth-card,
+body.colzo-interface #authScreen #passwordRecoveryForm.auth-card,
+body.colzo-interface #authScreen #sharedAuthShell.auth-card,
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen,#businessSetupScreen,#configurationOnboardingScreen).auth-screen .auth-card {
+  background:#20272d!important;
+  background-image:none!important;
+  border:1px solid #364047!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.18)!important;
+}
+body.colzo-interface #authScreen #signUpForm .legal-consent-row {
+  background:#252d32!important;
+  background-image:none!important;
+  border:1px solid #364047!important;
+  border-color:#364047!important;
+  box-shadow:none!important;
+  color:#e4e9eb!important;
+}
+body.colzo-interface #authScreen #signUpForm .auth-field input {
+  background:#293138!important;
+  background-image:none!important;
+  border:1px solid #4a545a!important;
+  border-color:#4a545a!important;
+  color:#f5f7fa!important;
+}
+body.colzo-interface .auth-screen .auth-card :is(.auth-field input,.auth-field select,.auth-field textarea,.auth-input input) {
+  background-color:#293138!important;
+  border-color:#4a545a!important;
+  color:#f5f7fa!important;
+}
+body.colzo-interface #authScreen #sharedAuthShell .auth-role-switch,
+body.colzo-interface #authScreen #sharedAuthShell .auth-secondary-action {
+  background:#252d32!important;
+  background-image:none!important;
+  border-color:#364047!important;
+}
+body.colzo-interface #authScreen :is(.auth-main-action,.btn.primary.auth-submit),
+body.colzo-interface .auth-screen .auth-submit.btn.primary {
+  background:#c8ff2e!important;
+  background-image:none!important;
+  border-color:#c8ff2e!important;
+  color:#141b0c!important;
+}
+body.colzo-interface #authScreen #signUpForm :is(.auth-link,.legal-consent-row a),
+body.colzo-interface .auth-screen .auth-card .auth-link {
+  color:#c8ff2e!important;
+}
+body.colzo-interface #authScreen #signUpForm .auth-mark,
+body.colzo-interface #authScreen #signUpForm .auth-mark::before {
+  background-color:#293328!important;
+  border-color:#4b613d!important;
+}
