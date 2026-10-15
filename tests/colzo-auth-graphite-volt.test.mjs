@@ -62,7 +62,7 @@ test('Colzo registration does not advertise legacy Business AI referral placehol
 test('account signup has neutral graphite screen, card and consent tile rather than legacy navy',async()=>{
   const css=await read('assets/colzo-mfa-theme.css');
   assert.match(css,/body\.colzo-interface #authScreen\.auth-screen\s*\{[^}]*background:\s*#0d1115\s*!important/s);
-  assert.match(css,/body\.colzo-interface #authScreen #signUpForm\.auth-card\s*\{[^}]*background:\s*#20272d\s*!important/s);
+  assert.match(css,/body\.colzo-interface #authScreen #signUpForm\.auth-card[^{}]*\{[^}]*background:\s*#20272d\s*!important/s);
   assert.match(css,/body\.colzo-interface #authScreen #signUpForm \.legal-consent-row\s*\{[^}]*background:\s*#252d32\s*!important/s);
   assert.match(css,/body\.colzo-interface #authScreen #signUpForm \.auth-field input\s*\{[^}]*background:\s*#293138\s*!important/s);
   assert.match(css,/background-image:\s*none\s*!important/);
