@@ -157,3 +157,12 @@ test("a successful PATCH uses the loaded version in the atomic database predicat
   assert.equal(patch.url.searchParams.get("updated_at"), `eq.${VERSION}`);
   assert.ok(Date.parse(result.record.updated_at) > Date.parse(VERSION));
 });
+
+test("tenant-scoped lookup does not expose another business's quote", async (t) => {
+  const foreignBusiness = "44444444-4444-4444-8444-444444444444";
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "sent" },
+    record: { ...quote(), business_id: foreignBusiness }
+  });
+  assert.equal(result.status, 404);
+});
