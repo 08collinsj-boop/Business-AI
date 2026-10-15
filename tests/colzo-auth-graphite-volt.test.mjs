@@ -41,3 +41,14 @@ test('all auth controls are accessible Graphite & Volt without changing authenti
   assert.match(html,/resetPasswordForEmail/);
   assert.match(html,/supabaseClient\.auth\.signUp/);
 });
+
+test('Safari iOS autofill keeps Colzo email and passwords graphite instead of pale yellow',async()=>{
+ const css=await read('assets/colzo-mfa-theme.css');
+ assert.match(css,/:-webkit-autofill/);
+ assert.match(css,/:-webkit-autofill:focus/);
+ assert.match(css,/-webkit-text-fill-color:\s*#f5f7fa\s*!important/i);
+ assert.match(css,/-webkit-box-shadow:\s*0\s+0\s+0\s+1000px\s+#293138\s+inset\s*!important/i);
+ assert.match(css,/caret-color:\s*#c8ff2e/i);
+ assert.match(css,/body\.colzo-interface\s+\.auth-screen/);
+ assert.doesNotMatch(css,/input:-webkit-autofill\s*\{[^}]*background:\s*#fff/i);
+});
