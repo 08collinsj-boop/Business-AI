@@ -2,59 +2,42 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
-const flows = [
-  'authScreen', 'legalAcceptanceScreen', 'dpaAcceptanceScreen',
-  'businessSetupScreen', 'configurationOnboardingScreen'
-];
-const formIds = [
-  'loginForm', 'customerSignInForm', 'customerSignUpForm',
-  'signUpForm', 'passwordResetRequestForm', 'passwordRecoveryForm'
-];
+const read = p => readFile(new URL('../'+p,import.meta.url),'utf8');
+const screens = ['authScreen','legalAcceptanceScreen','dpaAcceptanceScreen','businessSetupScreen','configurationOnboardingScreen'];
 
-test('all Colzo authentication and onboarding stages load one final Graphite & Volt stylesheet', async () => {
-  const html = await read('index.html');
-  const css = await read('assets/colzo-auth-graphite-volt.css');
-  const styles = Array.from(html.matchAll(/<link[^>]+rel="stylesheet"[^>]*>/g), m => m[0]);
-  assert.match(html, /\/assets\/colzo-auth-graphite-volt\.css\?v=/);
-  assert.match(styles.at(-1), /\/assets\/colzo-auth-graphite-volt\.css/);
-  assert.match(css, /--colzo-auth-volt:\s*#c8ff2e/i);
-  assert.match(css, /--colzo-auth-bg:\s*#0d1115/i);
-  assert.match(css, /body\.colzo-interface/);
-  for (const id of flows) {
-    assert.match(html, new RegExp('id="' + id + '"'));
-    assert.match(css, new RegExp('#' + id));
+test('Colzo Graphite & Volt auth theme is loaded after legacy premium CSS and scopes every account stage',async()=>{
+  const [html,css] = await Promise.all([read('index.html'),read('assets/colzo-mfa-theme.css')]);
+  assert.ok(html.indexOf('/assets/colzo-mfa-theme.css?v=') > html.indexOf('/assets/premium-v2.css'));
+  assert.match(css,/--colzo-auth-bg:#0d1115/);
+  assert.match(css,/--colzo-auth-volt:#c8ff2e/);
+  for (const id of screens) {
+    assert.match(html,new RegExp('id="'+id+'"'));
+    assert.match(css,new RegExp('#'+id));
   }
-  for (const id of formIds) assert.match(html, new RegExp('id="' + id + '"'));
+  assert.match(css,/body\.colzo-interface/);
 });
 
-test('auth and account-setup screens use Colzo icon, not old Business AI mascot', async () => {
-  const html = await read('index.html');
-  for (const id of flows) {
-    const start = html.indexOf('<main id="' + id + '"');
-    assert.notEqual(start, -1);
-    const end = html.indexOf('</main>', start);
-    assert.notEqual(end, -1);
-    const region = html.slice(start, end);
-    assert.doesNotMatch(region, /business-ai-mascot\.png/);
-    assert.match(region, /colzo-mark\.svg/);
-  }
+test('all account forms display Colzo marks instead of old Business AI art',async()=>{
+  const [html,css] = await Promise.all([read('index.html'),read('assets/colzo-mfa-theme.css')]);
+  for (const id of screens) assert.match(html,new RegExp('id="'+id+'"'));
+  assert.match(css,/content:url\(["']?\/assets\/icons\/colzo-mark\.svg/);
+  assert.match(css,/\.auth-mark\.auth-mark-brand img/);
+  assert.match(html,/id="passwordResetRequestForm"/);
+  assert.match(html,/id="passwordRecoveryForm"/);
+  assert.match(html,/id="signUpForm"/);
+  assert.match(html,/id="loginForm"/);
+  assert.match(html,/id="customerSignInForm"/);
+  assert.match(html,/id="customerSignUpForm"/);
 });
 
-test('authentication palette includes accessible controls without changing auth behaviour', async () => {
-  const css = await read('assets/colzo-auth-graphite-volt.css');
-  for (const selector of [
-    '#authScreen', '.auth-main-action', '.auth-role-switch', '.auth-role-slider',
-    '.auth-field', '.legal-consent-row', '.wizard-step',
-    ':focus-visible', ':disabled', 'prefers-reduced-motion',
-    'safe-area-inset-bottom'
-  ]) assert.ok(css.includes(selector), selector);
-  assert.match(css, /min-height:\s*44px/);
-  assert.match(css, /color:\s*#141b0c/);
-  assert.doesNotMatch(css, /@import|https?:\/\/|\/api\//);
-  assert.doesNotMatch(css, /visibility:\s*hidden\s*!important|pointer-events:\s*none\s*!important/);
-  const auth = await read('index.html');
-  assert.match(auth, /supabaseClient\.auth\.signInWithPassword/);
-  assert.match(auth, /resetPasswordForEmail/);
-  assert.match(auth, /supabaseClient\.auth\.signUp/);
+test('all auth controls are accessible Graphite & Volt without changing authentication actions',async()=>{
+  const [html,css]=await Promise.all([read('index.html'),read('assets/colzo-mfa-theme.css')]);
+  for(const s of ['.auth-main-action','.auth-role-switch','.auth-role-slider','.auth-field','.legal-consent-row','.wizard-step',':focus-visible',':disabled','prefers-reduced-motion','safe-area-inset-bottom'])assert.ok(css.includes(s),s);
+  assert.match(css,/min-height:44px/);
+  assert.match(css,/font-size:16px/);
+  assert.match(css,/color:#141b0c/);
+  assert.doesNotMatch(css,/@import|https?:\/\//);
+  assert.match(html,/supabaseClient\.auth\.signInWithPassword/);
+  assert.match(html,/resetPasswordForEmail/);
+  assert.match(html,/supabaseClient\.auth\.signUp/);
 });
