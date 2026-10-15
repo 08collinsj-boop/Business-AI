@@ -192,3 +192,21 @@ test("quote terms cannot change in the same PATCH as a status transition", async
   });
   assert.equal(result.status, 400);
 });
+
+test("new quotes cannot be created directly as sent", async (t) => {
+  const result = await callHandler(t, {
+    method: "POST",
+    body: { lead_id: 42, title: "Bathroom renovation", amount_gbp: 1250, status: "sent" }
+  });
+  assert.equal(result.status, 400);
+  assert.equal(result.calls.some((call) => call.verb === "POST" && call.url.pathname === "/rest/v1/colzo_quotes"), false);
+});
+
+test("new quotes cannot be created directly as accepted", async (t) => {
+  const result = await callHandler(t, {
+    method: "POST",
+    body: { lead_id: 42, title: "Bathroom renovation", amount_gbp: 1250, status: "accepted" }
+  });
+  assert.equal(result.status, 400);
+  assert.equal(result.calls.some((call) => call.verb === "POST" && call.url.pathname === "/rest/v1/colzo_quotes"), false);
+});
