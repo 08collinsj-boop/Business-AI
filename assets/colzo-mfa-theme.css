@@ -379,3 +379,105 @@ body.colzo-interface #authScreen #signUpForm .auth-mark::before {
   background-color:#293328!important;
   border-color:#4b613d!important;
 }
+
+/* Colzo Graphite & Volt: finish all business-creation wizard steps.
+   The original AI handling cards retained legacy Business AI navy/blue.
+   Scoped to onboarding so dashboard handling options keep their own styling. */
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-options {
+  gap:12px!important;
+  margin:16px 0 20px!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-options legend {
+  color:#c4ced1!important;
+  font-size:13px!important;
+  line-height:1.45!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option {
+  background:#252e33!important;
+  background-image:none!important;
+  border:1px solid #4a5654!important;
+  box-shadow:none!important;
+  border-radius:17px!important;
+  padding:16px!important;
+  grid-template-columns:26px minmax(0,1fr)!important;
+  gap:12px!important;
+  color:#f5f7fa!important;
+  transition:border-color .18s ease,background-color .18s ease!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option:has(input:checked) {
+  background:#2a352e!important;
+  background-image:none!important;
+  border-color:#c8ff2e!important;
+  box-shadow:inset 0 0 0 1px rgba(200,255,46,.18)!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option:focus-within {
+  outline:3px solid #c8ff2e!important;
+  outline-offset:3px!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-dot {
+  width:22px!important;
+  height:22px!important;
+  margin-top:2px!important;
+  border:2px solid #8c9a99!important;
+  background:#20272d!important;
+  box-shadow:inset 0 0 0 4px #20272d!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option:has(input:checked) .onboarding-ai-dot {
+  border-color:#c8ff2e!important;
+  background:#c8ff2e!important;
+  box-shadow:inset 0 0 0 4px #2a352e!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option strong {
+  color:#f5f7fa!important;
+  font-size:16px!important;
+  line-height:1.25!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option small {
+  background:#374045!important;
+  color:#d4dee0!important;
+  font-size:10px!important;
+  line-height:1.2!important;
+  border-radius:999px!important;
+  padding:4px 8px!important;
+  letter-spacing:.075em!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option.recommended small {
+  background:#35412d!important;
+  color:#dfff91!important;
+}
+body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option em {
+  color:#b7c2c7!important;
+  font-size:13px!important;
+  line-height:1.5!important;
+  font-style:normal!important;
+}
+body.colzo-interface #configurationOnboardingScreen .wizard-step > p {
+  color:#b7c2c7!important;
+  line-height:1.55!important;
+}
+body.colzo-interface #configurationOnboardingScreen .wizard-actions {
+  border-top-color:#45525a!important;
+}
+body.colzo-interface #configurationOnboardingScreen .wizard-review article {
+  background:#293138!important;
+  border-color:#45525a!important;
+  box-shadow:none!important;
+}
+@media(max-width:520px){
+  body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option {
+    padding:15px 13px!important;
+    gap:11px!important;
+  }
+  body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option em {
+    font-size:13px!important;
+  }
+  body.colzo-interface #configurationOnboardingScreen .wizard-actions button {
+    min-height:48px!important;
+    min-width:0!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.colzo-interface #configurationOnboardingScreen .onboarding-ai-option {
+    transition:none!important;
+  }
+}
