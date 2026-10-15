@@ -17,7 +17,7 @@ function response(status, value) {
   };
 }
 
-async function callHandler(t, { method = "PATCH", body = {}, businessId = BUSINESS_ID, record = null } = {}) {
+async function callHandler(t, { method = "PATCH", body = {}, businessId = BUSINESS_ID, record = null, raceOnPatch = false } = {}) {
   const oldFetch = globalThis.fetch;
   const oldEnv = {
     TENANCY_AUTH_ENABLED: process.env.TENANCY_AUTH_ENABLED,
@@ -45,7 +45,7 @@ async function callHandler(t, { method = "PATCH", body = {}, businessId = BUSINE
       }
       if (verb === "PATCH") {
         const expected = url.searchParams.get("updated_at");
-        if (!saved || rowBusiness !== `eq.${saved.business_id}` || rowId !== `eq.${QUOTE_ID}` || expected !== `eq.${saved.updated_at}`) return response(200, []);
+        if (!saved || rowBusiness !== `eq.${saved.business_id}` || rowId !== `eq.${QUOTE_ID}` || expected !== `eq.${saved.updated_at}` || raceOnPatch) return response(200, []);
         saved = { ...saved, ...calls.at(-1).body, updated_at: calls.at(-1).body.updated_at };
         return response(200, [structuredClone(saved)]);
       }
@@ -165,4 +165,30 @@ test("tenant-scoped lookup does not expose another business's quote", async (t) 
     record: { ...quote(), business_id: foreignBusiness }
   });
   assert.equal(result.status, 404);
+});
+
+test("PATCH returns 409 when another writer wins after the initial version check", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "sent" },
+    record: quote(),
+    raceOnPatch: true
+  });
+  assert.equal(result.status, 409);
+  assert.equal(result.record.status, "draft");
+});
+
+test("accepted quotes are immutable", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, notes: "Changed terms" },
+    record: quote("accepted")
+  });
+  assert.equal(result.status, 400);
+});
+
+test("quote terms cannot change in the same PATCH as a status transition", async (t) => {
+  const result = await callHandler(t, {
+    body: { expected_updated_at: VERSION, status: "sent", amount_gbp: 1400 },
+    record: quote()
+  });
+  assert.equal(result.status, 400);
 });
