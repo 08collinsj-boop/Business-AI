@@ -16,6 +16,10 @@ The standard development Supabase variables must also be available **in exactly 
 `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 Those values are sensitive; only an authorised operator or dedicated secrets workflow should provision them. **Never** paste secrets into GitHub, chat, source files, documentation or screenshots. Never copy Production keys into a Preview.
 
+## Vercel application timing
+
+Branch-scoped environment variables only apply to deployments **created after** the variable is saved. An already-READY Preview cannot be used to judge whether the guard works. Create a fresh deployment of this isolated integration branch, verify the exact commit and check that its public auth config rejects the known mismatched project with HTTP 503. Do not submit any real user sign-up or enquiry to the mismatched preview.
+
 ## Behaviour
 
 - When the optional environment variable is absent, existing Pilot/Production behaviour remains unchanged.
