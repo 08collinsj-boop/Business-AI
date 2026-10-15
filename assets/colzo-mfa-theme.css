@@ -143,3 +143,239 @@ body.colzo-interface.auth-ready .security-mfa-enrol {
 @media(prefers-reduced-motion:reduce){
   body.colzo-interface #securityMfaGate.security-mfa-gate {backdrop-filter:none;-webkit-backdrop-filter:none;}
 }
+
+
+/* COLZO AUTH CONTINUITY | Graphite & Volt 2026-10-15
+   Purely visual: no changes to Supabase, consent, enrolment or routing.
+   All owner/customer auth, recovery, legal and onboarding screens share the
+   native Colzo palette. Keep #securityMfaGate protections above intact. */
+body.colzo-interface{
+ --colzo-auth-bg:#0d1115;
+ --colzo-auth-volt:#c8ff2e;
+ --colzo-auth-panel:#20272d;
+ --colzo-auth-input:#293138;
+ --colzo-auth-border:#45525a;
+ --colzo-auth-text:#f5f7fa;
+ --colzo-auth-muted:#b5c0c5;
+ color-scheme:dark;
+}
+body.colzo-interface :is(#authScreen,#legalAcceptanceScreen,#dpaAcceptanceScreen,#businessSetupScreen,#configurationOnboardingScreen).auth-screen{
+ min-height:100dvh!important;height:auto;box-sizing:border-box;
+ padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important;
+ background:radial-gradient(ellipse 460px 260px at 50% -75px,rgba(200,255,46,.09),transparent 78%),#0d1115!important;
+ color:#f5f7fa!important;overflow-y:auto;
+}
+body.colzo-interface .auth-screen .auth-card,
+body.colzo-interface #authScreen .auth-card.auth-shared-shell{
+ box-sizing:border-box;width:min(100%,490px)!important;max-width:490px!important;
+ padding:26px 23px!important;border-radius:23px!important;
+ border:1px solid #45525a!important;
+ background:linear-gradient(155deg,#252d33,#181f25 88%)!important;
+ box-shadow:0 24px 58px rgba(0,0,0,.3)!important;color:#f5f7fa!important;
+}
+body.colzo-interface #authScreen .auth-card.auth-shared-shell{max-width:450px!important}
+body.colzo-interface #configurationOnboardingScreen .auth-card{max-width:590px!important}
+body.colzo-interface .auth-screen :is(.auth-card h1,.auth-card h2,.auth-card h3),
+body.colzo-interface #authScreen .auth-shared-brand h1 span,
+body.colzo-interface #authScreen .auth-shared-brand h1 span:last-child{
+ color:#f5f7fa!important;letter-spacing:-.8px;font-weight:800;
+}
+body.colzo-interface #authScreen .auth-shared-brand h1::after{
+ content:".";color:#c8ff2e;
+}
+body.colzo-interface .auth-screen :is(.auth-shared-brand>p,.auth-card>p,.auth-role-description p,.auth-switch,.auth-role-footer,.onboarding-hint,.work-meta){
+ color:#b5c0c5!important;line-height:1.48;
+}
+body.colzo-interface .auth-screen :is(.auth-shared-mascot,.auth-mark.auth-mark-brand){
+ display:grid;place-items:center;width:75px!important;height:75px!important;
+ margin:0 auto 14px!important;border:1px solid #506341!important;
+ border-radius:20px!important;background:#2c3829!important;
+ box-shadow:0 12px 28px rgba(0,0,0,.17)!important;
+}
+body.colzo-interface .auth-screen :is(.auth-shared-mascot img,.auth-mark.auth-mark-brand img){
+ content:url("/assets/icons/colzo-mark.svg");
+ width:57px!important;height:57px!important;object-fit:contain!important;filter:none!important;
+}
+body.colzo-interface #authScreen .auth-role-switch{
+ border:1px solid #455849!important;border-radius:14px!important;
+ background:#131b20!important;box-shadow:none!important;
+}
+body.colzo-interface #authScreen .auth-role-slider{
+ background:#c8ff2e!important;border:1px solid #c8ff2e!important;
+ box-shadow:0 7px 17px rgba(200,255,46,.12)!important;
+}
+body.colzo-interface #authScreen .auth-role-option{color:#c0cbd0!important}
+body.colzo-interface #authScreen .auth-role-option.active,
+body.colzo-interface #authScreen .auth-role-option[aria-current="page"]{
+ color:#141b0c!important;font-weight:800!important;
+}
+body.colzo-interface #authScreen .auth-role-option:focus-visible{
+ outline:3px solid #c8ff2e!important;outline-offset:2px!important;
+}
+body.colzo-interface .auth-screen :is(.auth-input>span,.auth-field label,.field>label,.field>span){
+ color:#c4ced1!important;font-size:12px!important;font-weight:650;letter-spacing:normal;
+}
+body.colzo-interface .auth-screen :is(.auth-input input,.auth-field input,.auth-field textarea,.auth-field select,.field input,.field select,.field textarea){
+ box-sizing:border-box;min-width:0;max-width:100%;width:100%;min-height:52px!important;
+ border:1px solid #536069!important;border-radius:13px!important;
+ background:#293138!important;color:#f5f7fa!important;
+ font-size:16px!important;caret-color:#c8ff2e;box-shadow:none!important;
+}
+body.colzo-interface .auth-screen :is(input,textarea)::placeholder{
+ color:#a8b5bb!important;opacity:1;
+}
+body.colzo-interface .auth-screen :is(input,textarea,select,button,a):focus-visible{
+ outline:3px solid #c8ff2e!important;outline-offset:2px!important;
+ border-color:#c8ff2e!important;
+}
+body.colzo-interface .auth-screen :is(.auth-password-toggle,.auth-utility-row button,.auth-role-footer button,.auth-switch .auth-link,.show-login-link){
+ color:#c8ff2e!important;
+}
+body.colzo-interface .auth-screen .auth-remember{color:#b5c0c5!important}
+body.colzo-interface .auth-screen input[type=checkbox]{accent-color:#c8ff2e}
+body.colzo-interface .auth-screen :is(.auth-main-action,.btn.primary.auth-submit,.wizard-actions .btn.primary){
+ min-height:48px!important;background:#c8ff2e!important;
+ border:1px solid #c8ff2e!important;border-radius:13px!important;
+ color:#141b0c!important;font-weight:800!important;
+ box-shadow:0 8px 22px rgba(200,255,46,.12)!important;
+}
+body.colzo-interface .auth-screen :is(.auth-main-action,.auth-submit):hover:not(:disabled){
+ filter:brightness(1.05);
+}
+body.colzo-interface .auth-screen :is(.auth-secondary-action,.btn:not(.primary),.wizard-actions button:not(.primary)){
+ min-height:44px!important;background:#293138!important;
+ color:#f5f7fa!important;border:1px solid #56636c!important;
+ border-radius:13px!important;box-shadow:none!important;
+}
+body.colzo-interface .auth-screen :is(button,a):disabled{
+ opacity:.65;cursor:not-allowed;
+}
+body.colzo-interface .auth-screen :is(.auth-role-footer,.auth-divider,.auth-switch){
+ color:#b0bdc3!important;
+}
+body.colzo-interface .auth-screen :is(.legal-consent-row,.customer-auth-note,.legal-gate-card label){
+ color:#d1dadb!important;line-height:1.55;
+}
+body.colzo-interface .auth-screen :is(.legal-consent-row a,.customer-auth-note a,.auth-switch a,.auth-card a){
+ color:#c8ff2e!important;
+}
+body.colzo-interface .auth-screen :is(.auth-role-message.info,.auth-message.info){
+ color:#d6ff96!important;
+}
+body.colzo-interface .auth-screen :is(.auth-role-message,.auth-message)[role=alert]:not(.info){
+ color:#ffbdc9;
+}
+body.colzo-interface .auth-screen .onboarding-progress i{
+ background:#47545a!important;
+}
+body.colzo-interface .auth-screen .onboarding-progress i.active{
+ background:#c8ff2e!important;
+}
+body.colzo-interface .auth-screen :is(.wizard-review article,.setup-summary,.onboarding-review){
+ background:#293138!important;border-color:#45525a!important;color:#f5f7fa;
+}
+@media(max-width:520px){
+ body.colzo-interface :is(#authScreen,#legalAcceptanceScreen,#dpaAcceptanceScreen,#businessSetupScreen,#configurationOnboardingScreen).auth-screen{
+  align-items:flex-start;padding:max(16px,env(safe-area-inset-top)) 13px max(23px,env(safe-area-inset-bottom))!important;
+ }
+ body.colzo-interface .auth-screen .auth-card,
+ body.colzo-interface #authScreen .auth-card.auth-shared-shell{
+  padding:22px 17px!important;border-radius:19px!important;
+ }
+ body.colzo-interface .auth-screen :is(.auth-shared-mascot,.auth-mark.auth-mark-brand){
+  width:67px!important;height:67px!important;
+ }
+ body.colzo-interface .auth-screen :is(.auth-shared-mascot img,.auth-mark.auth-mark-brand img){
+  width:51px!important;height:51px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.colzo-interface .auth-screen *{
+  transition:none!important;animation:none!important;scroll-behavior:auto!important;
+ }
+}
+/* Keep wizard visibility under the existing JavaScript; colour only. */
+body.colzo-interface .auth-screen .wizard-step{color:#f5f7fa}
+body.colzo-interface .auth-screen .wizard-step.active{accent-color:#c8ff2e}
+
+/* iOS Safari and Chromium may inject a bright yellow autofill background.
+   Explicitly repaint autofilled email/password/name fields with Colzo's
+   original graphite input surface, without disabling platform autofill. */
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):-webkit-autofill,
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):-webkit-autofill:hover,
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):-webkit-autofill:focus {
+ -webkit-text-fill-color:#f5f7fa!important;
+ -webkit-box-shadow:0 0 0 1000px #293138 inset!important;
+ box-shadow:0 0 0 1000px #293138 inset!important;
+ caret-color:#c8ff2e!important;
+ border-color:#536069!important;
+}
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):autofill {
+ caret-color:#c8ff2e!important;
+}
+
+/* GRAPHITE SURFACE CORRECTION - eliminate the inherited navy/blue
+   premium-v2 and legacy sign-up theme on every Colzo owner auth stage.
+   Deliberately flat neutral graphite, matching Colzo dashboard cards. */
+body.colzo-interface #authScreen.auth-screen {
+  background:#0d1115!important;
+  background-image:none!important;
+  border-color:#364047!important;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen,#businessSetupScreen,#configurationOnboardingScreen).auth-screen {
+  background:#0d1115!important;
+  background-image:none!important;
+  border-color:#364047!important;
+}
+body.colzo-interface #authScreen #signUpForm.auth-card,
+body.colzo-interface #authScreen #passwordResetRequestForm.auth-card,
+body.colzo-interface #authScreen #passwordRecoveryForm.auth-card,
+body.colzo-interface #authScreen #sharedAuthShell.auth-card,
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen,#businessSetupScreen,#configurationOnboardingScreen).auth-screen .auth-card {
+  background:#20272d!important;
+  background-image:none!important;
+  border:1px solid #364047!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.18)!important;
+}
+body.colzo-interface #authScreen #signUpForm .legal-consent-row {
+  background:#252d32!important;
+  background-image:none!important;
+  border:1px solid #364047!important;
+  border-color:#364047!important;
+  box-shadow:none!important;
+  color:#e4e9eb!important;
+}
+body.colzo-interface #authScreen #signUpForm .auth-field input {
+  background:#293138!important;
+  background-image:none!important;
+  border:1px solid #4a545a!important;
+  border-color:#4a545a!important;
+  color:#f5f7fa!important;
+}
+body.colzo-interface .auth-screen .auth-card :is(.auth-field input,.auth-field select,.auth-field textarea,.auth-input input) {
+  background-color:#293138!important;
+  border-color:#4a545a!important;
+  color:#f5f7fa!important;
+}
+body.colzo-interface #authScreen #sharedAuthShell .auth-role-switch,
+body.colzo-interface #authScreen #sharedAuthShell .auth-secondary-action {
+  background:#252d32!important;
+  background-image:none!important;
+  border-color:#364047!important;
+}
+body.colzo-interface #authScreen :is(.auth-main-action,.btn.primary.auth-submit),
+body.colzo-interface .auth-screen .auth-submit.btn.primary {
+  background:#c8ff2e!important;
+  background-image:none!important;
+  border-color:#c8ff2e!important;
+  color:#141b0c!important;
+}
+body.colzo-interface #authScreen #signUpForm :is(.auth-link,.legal-consent-row a),
+body.colzo-interface .auth-screen .auth-card .auth-link {
+  color:#c8ff2e!important;
+}
+body.colzo-interface #authScreen #signUpForm .auth-mark,
+body.colzo-interface #authScreen #signUpForm .auth-mark::before {
+  background-color:#293328!important;
+  border-color:#4b613d!important;
+}
