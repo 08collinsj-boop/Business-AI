@@ -16,8 +16,8 @@ test("Colzo records API is tenant scoped and restricts mutations to authenticate
  assert.match(js,/Record could not be confirmed/);
  for(const table of ["colzo_clients","colzo_projects","colzo_quotes"])assert.ok(js.includes(table));
  assert.match(js,/sendAuthError/);
- assert.ok(js.includes("/^\\\\d{1,9}(?:\\\\.\\\\d{1,2})?$/"),"GBP amounts accept valid decimal values");
- assert.ok(js.includes("/^[^\\\\s@]+@[^\\\\s@]+\\\\.[^\\\\s@]+$/"),"Email validation uses whitespace and dot escapes correctly");
+ assert.ok(js.includes(String.raw`/^\d{1,9}(?:\.\d{1,2})?$/`),"GBP amounts accept valid decimal values");
+ assert.ok(js.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`),"Email validation uses whitespace and dot escapes correctly");
  assert.doesNotMatch(js,/req\.body\.business_id/);
  assert.doesNotMatch(js,/fetch\(['"]https?:\/\//);
 });
