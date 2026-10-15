@@ -1,0 +1,43 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
+test('Bookings and Actions use native Colzo views from More, Home, Projects, and the command palette',async()=>{
+ const js=await read('assets/colzo-native.js');
+ assert.match(js,/function bookingScreen\(\)/);
+ assert.match(js,/function actionsScreen\(\)/);
+ assert.match(js,/bookings:bookingScreen,actions:actionsScreen/);
+ assert.match(js,/const workTabs=\{bookings:/);
+ assert.match(js,/data-cn-screen="bookings" type="button"/);
+ assert.match(js,/\['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'\]\.includes\(id\)/);
+ assert.match(js,/label:'Bookings'[^\n]*screen:'bookings'/);
+ assert.match(js,/label:'Actions'[^\n]*screen:'actions'/);
+ assert.doesNotMatch(js,/data-cn-legacy="bookings"/);
+ assert.doesNotMatch(js,/data-cn-legacy="actions"/);
+});
+test('Native workflow forms only mutate existing authorised tenant API resources after user submits',async()=>{
+ const [js,html,css]=await Promise.all(['assets/colzo-native.js','index.html','assets/colzo-workflows.css'].map(read));
+ assert.match(js,/await api\(`\/api\/\$\{screen\}`/);
+ assert.match(js,/method:editing\?'PATCH':'POST'/);
+ assert.match(js,/function saveWork\(form\)/);
+ assert.match(js,/if\(editing\)body\.id=Number\(id\)/);
+ assert.match(js,/const validWorkId=id=>/);
+ assert.match(js,/body\.lead_id=validWorkId\(leadId\)\?Number\(leadId\):null/);
+ assert.match(js,/if\(!window\.confirm\('Mark this booking completed/);
+ assert.match(js,/The end time must be after the start time/);
+ assert.match(js,/The server did not confirm the saved record/);
+ assert.match(html,/colzo-workflows\.css\?v=/);
+ assert.match(css,/#colzoOwner \.cn-work-record/);
+ assert.match(css,/\.cn-work-dialog-backdrop\{position:fixed;inset:0;z-index:205/);
+ assert.doesNotMatch(js,/await fetch\('https:\/\/.*supabase/);
+});
+test('Native editors trap keyboard focus, retain entered details on API failure and clear at signout',async()=>{
+ const js=await read('assets/colzo-native.js');
+ assert.match(js,/const editor=root\.querySelector\('\.cn-work-dialog'\)/);
+ assert.match(js,/state\.workModal&&motion==='none'&&root\.querySelector\('#cnWorkForm'\)/);
+ assert.match(js,/root\.querySelector\('\.cn-work-dialog-backdrop'\)\?\.remove\(\)/);
+ assert.match(js,/if\(e\.key==='Escape'&&!state\.workBusy\)/);
+ assert.match(js,/showWorkFormError\('Enter a valid booking date and time/);
+ assert.match(js,/state\.workModal=null;state\.workBusy=false/);
+ assert.match(js,/\|\|state\.workModal\)return/);
+});

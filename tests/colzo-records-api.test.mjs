@@ -1,0 +1,23 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+test("Colzo records API is tenant scoped and restricts mutations to authenticated admins", async () => {
+ const js=await readFile(new URL("../lib/colzo-records-handler.js", import.meta.url),"utf8");
+ const ops=await readFile(new URL("../api/operations.js", import.meta.url),"utf8");
+ const vercel=JSON.parse(await readFile(new URL("../vercel.json", import.meta.url),"utf8"));
+ assert.match(ops,/"colzo-records": colzoRecordsHandler/);
+ assert.ok(vercel.rewrites.some(r=>r.source==="/api/colzo-records"&&r.destination==="/api/operations?operation=colzo-records"));
+ assert.match(js,/requireBusinessMember\(req\)/);
+ assert.match(js,/requireBusinessAdmin\(req\)/);
+ assert.match(js,/auth\.businessId/);
+ assert.match(js,/business_id=eq/);
+ assert.match(js,/business_id: auth\.businessId/);
+ assert.match(js,/Unsupported fields in request/);
+ assert.match(js,/Record could not be confirmed/);
+ for(const table of ["colzo_clients","colzo_projects","colzo_quotes"])assert.ok(js.includes(table));
+ assert.match(js,/sendAuthError/);
+ assert.ok(js.includes(String.raw`/^\d{1,9}(?:\.\d{1,2})?$/`),"GBP amounts accept valid decimal values");
+ assert.ok(js.includes(String.raw`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`),"Email validation uses whitespace and dot escapes correctly");
+ assert.doesNotMatch(js,/req\.body\.business_id/);
+ assert.doesNotMatch(js,/fetch\(['"]https?:\/\//);
+});

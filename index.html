@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="app-version" content="0.2.0-pilot">
-<meta name="theme-color" content="#07090c">
+<meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Business AI">
+<meta name="apple-mobile-web-app-title" content="Colzo">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/assets/icons/business-ai-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/assets/icons/business-ai-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/business-ai-180.png">
-<title>Business AI</title>
+<link rel="icon" href="/assets/icons/colzo-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/assets/icons/colzo-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/colzo-180.png">
+<title>Colzo | Business workspace</title>
 
 <style>
 :root{
@@ -2183,14 +2183,24 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/premium-ui.css">
 <link data-business-ai-premium-v2 rel="stylesheet" href="/assets/premium-v2.css?v=20261003-ui-fixes-1">
 <link rel="stylesheet" href="/assets/mock-v3.css?v=20261004-add-lead-1">
+<link rel="stylesheet" href="/assets/colzo-safe-shell.css?v=20261013-safe-shell-1">
+<link rel="stylesheet" href="/assets/colzo-dashboard-visual.css?v=20261013-visual-v2">
+<link rel="stylesheet" href="/assets/colzo-native.css?v=20261013-native-a">
+<link rel="stylesheet" href="/assets/colzo-legacy-theme.css?v=20261013-theme-bridge-1">
+<link rel="stylesheet" href="/assets/colzo-mfa-theme.css?v=20261013-mfa-1">
+<link rel="stylesheet" href="/assets/colzo-security-choice.css?v=20261013-security-choice-1">
+<link rel="stylesheet" href="/assets/colzo-motion.css?v=20261013-motion-1">
+<link rel="stylesheet" href="/assets/colzo-settings.css?v=20261013-native-settings-1">
+<link rel="stylesheet" href="/assets/colzo-workflows.css?v=20261013-bookings-actions-1">
+<link rel="stylesheet" href="/assets/colzo-stitch-integration.css?v=20261013-stitch-1">
 </head>
 
-<body class="auth-pending app-loading" aria-busy="true">
+<body class="auth-pending app-loading colzo-safe-shell colzo-interface" aria-busy="true">
 
-<div id="appSplash" class="app-splash" role="status" aria-live="polite" aria-label="Business AI is loading">
+<div id="appSplash" class="app-splash" role="status" aria-live="polite" aria-label="Colzo is loading">
 <div class="app-splash-inner">
-<div class="app-splash-mark" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
-<h1 class="app-splash-brand">Business AI</h1>
+<div class="app-splash-mark" aria-hidden="true"><img src="/assets/icons/colzo-mark.svg" alt=""></div>
+<h1 class="app-splash-brand">Colzo</h1>
 <p class="app-splash-tagline">Your business, intelligently managed.</p>
 <div class="app-splash-status"><span>Preparing your workspace</span><span class="app-splash-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
 </div>
@@ -2201,8 +2211,8 @@ input.switch,input.switch:before{transition:none}
 <main id="authScreen" class="auth-screen" aria-live="polite">
 <section id="sharedAuthShell" class="auth-card auth-shared-shell" data-auth-role="business">
   <div class="auth-shared-brand">
-    <div class="auth-shared-mascot" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div>
-    <h1><span>Business</span> <span>AI</span></h1>
+    <div class="auth-shared-mascot" aria-hidden="true"><img src="/assets/icons/colzo-mark.svg" alt=""></div>
+    <h1><span>Colzo</span></h1>
     <p>Smarter business. Happier customers.</p>
   </div>
   <div class="auth-role-switch business-active" data-auth-role-switch aria-label="Choose account type">
@@ -2220,10 +2230,11 @@ input.switch,input.switch:before{transition:none}
       <label class="auth-input" for="loginPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="auth-password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Show password">◉</button></label>
       <div class="auth-utility-row"><span class="auth-remember"><input type="checkbox" checked disabled aria-label="Session stays signed in on this device">Keep me signed in</span><button id="showPasswordReset" type="button">Forgot password?</button></div>
       <button id="loginSubmit" class="auth-main-action" type="submit">Sign in&nbsp;&nbsp;→</button>
+<button id="colzoPasskeyLogin" class="btn colzo-passkey-login" type="button" hidden>Sign in with a passkey</button>
       <div id="loginMessage" class="auth-role-message" role="alert"></div>
       <div class="auth-divider">or</div>
       <button id="showSignUp" class="auth-secondary-action" type="button"><strong>Create business account</strong>&nbsp;→</button>
-      <div class="auth-role-footer">Secure access to your Business AI workspace.</div>
+      <div class="auth-role-footer">Secure access to your Colzo workspace.</div>
     </form>
     <form id="customerSignInForm" class="customer-auth-form auth-role-form auth-role-form-customer">
       <label class="auth-input" for="customerSignInEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="customerSignInEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
@@ -2266,7 +2277,7 @@ input.switch,input.switch:before{transition:none}
 <form id="signUpForm" class="auth-card auth-form-hidden">
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Create your account</h2>
-<p>After confirming your email, you will set up your secure Business AI workspace.</p>
+<p>After confirming your email, you will set up your secure Colzo workspace.</p>
 <p id="pilotFreeSignUpOffer" class="auth-switch" hidden><strong>Free Pilot:</strong> Starter and AI Marketing are included at no charge during testing. No subscription or payment details are required.</p>
 <div class="auth-field"><label for="signUpEmail">Business email</label><input id="signUpEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
@@ -2316,7 +2327,7 @@ input.switch,input.switch:before{transition:none}
 <form id="businessSetupForm" class="auth-card setup-auth-card">
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <h2>Set up your business</h2>
-<p>Create your secure Business AI workspace. You can complete the detailed business profile next.</p>
+<p>Create your secure Colzo workspace. You can complete the detailed business profile next.</p>
 <div class="auth-field"><label for="newBusinessName">Business name</label><input id="newBusinessName" maxlength="120" autocomplete="organization" required></div>
 <div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
 <div style="color:var(--muted);font-size:11px;line-height:1.45">Your customer enquiry link will be created automatically from your business name.</div>
@@ -2330,15 +2341,15 @@ input.switch,input.switch:before{transition:none}
 <form id="configurationOnboardingForm" class="auth-card onboarding-card" novalidate>
 <div class="auth-mark auth-mark-brand onboarding-brand"><img src="/assets/icons/business-ai-mascot.png" alt="" aria-hidden="true"></div>
 <div class="onboarding-progress" aria-label="Setup progress"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-<div class="wizard-step" data-wizard-step="business"><h2>Tell us about your business</h2><p>These details help customers recognise your business and help the AI answer accurately.</p><div class="auth-field"><label for="o_business_name">Business name</label><input id="o_business_name" maxlength="120"></div><div class="auth-field"><label for="o_business_type">Industry or business type</label><input id="o_business_type" maxlength="120"></div><div class="auth-field"><label for="o_phone">Business phone</label><input id="o_phone" maxlength="120" inputmode="tel"></div><div class="auth-field"><label for="o_email">Business email</label><input id="o_email" maxlength="320" type="email"></div><div class="auth-field"><label for="o_website">Website <small>(optional)</small></label><input id="o_website" maxlength="2048" type="url" placeholder="https://example.co.uk"><div class="work-actions" style="margin-top:8px"><button id="onboardingWebsiteImport" class="small-btn" type="button" onclick="importWebsiteSuggestions('onboarding')">Import website details</button></div><div id="onboardingWebsiteImportStatus" class="work-meta" role="status" aria-live="polite">Business AI can use public details from your website as suggestions. Nothing is saved until you continue.</div></div></div>
+<div class="wizard-step" data-wizard-step="business"><h2>Tell us about your business</h2><p>These details help customers recognise your business and help the AI answer accurately.</p><div class="auth-field"><label for="o_business_name">Business name</label><input id="o_business_name" maxlength="120"></div><div class="auth-field"><label for="o_business_type">Industry or business type</label><input id="o_business_type" maxlength="120"></div><div class="auth-field"><label for="o_phone">Business phone</label><input id="o_phone" maxlength="120" inputmode="tel"></div><div class="auth-field"><label for="o_email">Business email</label><input id="o_email" maxlength="320" type="email"></div><div class="auth-field"><label for="o_website">Website <small>(optional)</small></label><input id="o_website" maxlength="2048" type="url" placeholder="https://example.co.uk"><div class="work-actions" style="margin-top:8px"><button id="onboardingWebsiteImport" class="small-btn" type="button" onclick="importWebsiteSuggestions('onboarding')">Import website details</button></div><div id="onboardingWebsiteImportStatus" class="work-meta" role="status" aria-live="polite">Colzo can use public details from your website as suggestions. Nothing is saved until you continue.</div></div></div>
 <div class="wizard-step" data-wizard-step="location"><h2>Where do you work?</h2><p>Tell customers where your business is based and where you can help.</p><div class="auth-field"><label for="o_address">Primary business location</label><textarea id="o_address" maxlength="1000" rows="3"></textarea></div><div class="auth-field"><label for="o_service_areas">Service areas</label><textarea id="o_service_areas" maxlength="4000" rows="4" placeholder="Towns, postcodes or travel limits"></textarea></div><div class="auth-field"><label for="o_delivery_mode">How do you serve customers?</label><select id="o_delivery_mode"><option value="unspecified">Choose later</option><option value="premises">Customers visit our premises</option><option value="travel">We travel to customers</option><option value="both">Both</option></select></div></div>
 <div class="wizard-step" data-wizard-step="services"><h2>What do you offer?</h2><p>Use clear, factual wording. You can expand this later in Settings.</p><div class="auth-field"><label for="o_services">Services offered</label><textarea id="o_services" maxlength="4000" rows="7" placeholder="List the services your business provides"></textarea></div><div class="auth-field"><label for="o_description">Short business description</label><textarea id="o_description" maxlength="4000" rows="4" placeholder="What should customers know about your business?"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="hours"><h2>Opening hours</h2><p>Enter your usual Monday–Sunday hours. Use “Closed” for closed days. You can paste the same hours for multiple days.</p><div class="auth-field"><label for="o_hours">Opening hours</label><textarea id="o_hours" maxlength="4000" rows="9" placeholder="Monday 08:00–18:00&#10;Tuesday 08:00–18:00&#10;…&#10;Sunday Closed"></textarea></div></div>
-<div class="wizard-step" data-wizard-step="ai"><h2>Set up your AI receptionist</h2><fieldset class="onboarding-ai-options"><legend>How would you like Business AI to handle your customers?</legend>
+<div class="wizard-step" data-wizard-step="ai"><h2>Set up your AI receptionist</h2><fieldset class="onboarding-ai-options"><legend>How would you like Colzo to handle your customers?</legend>
 <label class="onboarding-ai-option"><input type="radio" name="o_ai_handling_mode" value="human_first"><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>Human-first</strong><small>Personal service first</small><em>AI answers basic questions and captures enquiries. Your team handles important conversations personally.</em></span></label>
 <label class="onboarding-ai-option recommended"><input type="radio" name="o_ai_handling_mode" value="balanced" checked><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>Balanced</strong><small>Recommended</small><em>AI handles everyday enquiries but hands customers over when a personal response is more appropriate.</em></span></label>
 <label class="onboarding-ai-option"><input type="radio" name="o_ai_handling_mode" value="ai_first"><span class="onboarding-ai-dot" aria-hidden="true"></span><span><strong>AI-first</strong><small>Maximum automation</small><em>AI handles as much as your business settings allow, while customers can still request a person at any time.</em></span></label>
-</fieldset><p>Business AI’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
+</fieldset><p>Colzo’s safety rules always apply. Do not add passwords, payment data or instructions to bypass safety.</p><div class="auth-field"><label for="o_ai_instructions">Greeting, details to collect and important rules</label><textarea id="o_ai_instructions" maxlength="6000" rows="8" placeholder="A friendly greeting, what to ask customers, and business-specific rules."></textarea></div><div class="auth-field"><label for="o_handover_instructions">Human handover instructions</label><textarea id="o_handover_instructions" maxlength="4000" rows="4" placeholder="When should the AI flag a person for attention?"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="knowledge"><h2>Add useful knowledge</h2><p>Optional factual information the AI may use. You can add more FAQs later.</p><div class="auth-field"><label for="o_faq_question">Frequently asked question</label><input id="o_faq_question" maxlength="500" placeholder="For example: Do you cover my area?"></div><div class="auth-field"><label for="o_faq_answer">Answer</label><textarea id="o_faq_answer" maxlength="2000" rows="4" placeholder="A short factual answer"></textarea></div></div>
 <div class="wizard-step" data-wizard-step="review"><h2>Review your setup</h2><p>Check the information your AI receptionist will use. You can edit everything later.</p><div id="onboardingReview" class="wizard-review"></div><p class="onboarding-hint" id="onboardingPilotHint">Completing setup does not grant a trial or subscription. Billing remains separate and secure.</p></div>
 <div id="configurationOnboardingMessage" class="auth-message" role="alert"></div><div class="wizard-actions"><button id="onboardingBack" class="btn" type="button">Back</button><button id="onboardingNext" class="btn primary" type="submit">Continue</button></div>
@@ -2545,7 +2556,7 @@ input.switch,input.switch:before{transition:none}
 <div id="dashboardApp" class="app">
 
 <header class="topbar">
-<div class="brand"><div class="brand-icon owner-brand-icon" aria-hidden="true"><img src="/assets/icons/business-ai-mascot.png" alt=""></div><div class="brand-text"><h1 id="brandName">Business <span>AI</span></h1><p id="brandBusinessName">Your workspace</p></div></div>
+<div class="brand"><div class="brand-icon owner-brand-icon" aria-hidden="true"><img src="/assets/icons/colzo-mark.svg" alt=""></div><div class="brand-text"><h1 id="brandName">Colzo</h1><p id="brandBusinessName">Your workspace</p></div></div>
 <div class="owner-tools"><span class="status-dot" title="System online"></span><span class="owner-avatar" aria-hidden="true">AI</span><button id="logoutButton" class="logout-btn" type="button" aria-label="Log out"><span class="logout-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M10 5H6.8A1.8 1.8 0 0 0 5 6.8v10.4A1.8 1.8 0 0 0 6.8 19H10M14.5 8.5 18 12l-3.5 3.5M18 12H9"></path></svg></span><span class="logout-label">Log out</span></button></div>
 
 </header>
@@ -2556,15 +2567,25 @@ id="dashboardView"
 class="view active"
 >
 
+<section class="colzo-command-hero" aria-label="Your Colzo workspace">
+<div class="colzo-hero-eyebrow"><span class="colzo-hero-square" aria-hidden="true"></span> YOUR WORKSPACE <span class="colzo-hero-separator">/</span> DAILY OVERVIEW</div>
+<div class="colzo-hero-content">
+<div class="colzo-hero-main">
 <div class="dashboard-reference-head">
   <div class="dashboard-reference-copy">
-    <span class="dashboard-reference-brand">Business <b>AI</b></span>
+    <span class="dashboard-reference-brand">COLZO <b>COMMAND CENTRE</b></span>
     <h2 id="dashboardGreeting">Welcome back.</h2>
     <p id="dashboardBusinessLabel">Your business overview</p>
   </div>
   <div id="dashboardDateLabel" class="dashboard-date-chip" aria-label="Today">Today</div>
 </div>
-
+<p class="colzo-hero-description">One place for your enquiries, customers, bookings and what comes next.</p>
+<div class="colzo-hero-buttons"><button type="button" onclick="showView('leads')" class="colzo-hero-primary">View enquiries <span aria-hidden="true">↗</span></button><button type="button" onclick="showView('enquiries')" class="colzo-hero-secondary">AI receptionist <span aria-hidden="true">→</span></button></div>
+</div>
+<div class="colzo-hero-art" aria-hidden="true"><span class="colzo-hero-ring ring-one"></span><span class="colzo-hero-ring ring-two"></span><img src="/assets/icons/colzo-mark.svg" alt=""><span class="colzo-hero-art-caption">BUSINESS MADE SMARTER.</span></div>
+</div>
+</section>
+<div class="colzo-dashboard-section-title"><div><span class="colzo-section-kicker">PERFORMANCE</span><h3>At a glance</h3></div><span class="colzo-section-aside">Recorded activity</span></div>
 <div class="stats" id="stats"></div>
 
 <button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
@@ -2585,21 +2606,21 @@ class="view active"
 
 <div id="pilotProgressCard" class="card pilot-progress-card">
   <div class="pilot-progress-head">
-    <div><span class="settings-card-kicker">Pilot checklist</span><h3>Test Business AI properly</h3></div>
+    <div><span class="settings-card-kicker">Pilot checklist</span><h3>Test Colzo properly</h3></div>
     <span id="pilotProgressCount" class="pilot-progress-count">0 / 6</span>
   </div>
   <p class="pilot-progress-copy">These are real-use checks, not setup chores. Progress updates from what you actually do in the Pilot.</p>
   <div class="pilot-progress-track" role="progressbar" aria-label="Pilot testing progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0"><span id="pilotProgressBar" class="pilot-progress-fill"></span></div>
   <div id="pilotProgressList" class="pilot-progress-list"></div>
-  <div id="pilotProgressComplete" class="pilot-progress-complete" hidden>Checklist complete - thanks. Keep using Business AI normally and send feedback whenever something feels wrong or unnecessary.</div>
+  <div id="pilotProgressComplete" class="pilot-progress-complete" hidden>Checklist complete - thanks. Keep using Colzo normally and send feedback whenever something feels wrong or unnecessary.</div>
 </div>
 
 <div id="valueDashboardCard" class="card value-dashboard-card dashboard-performance-card">
   <div class="card-head value-dashboard-head">
-    <div><span class="settings-card-kicker">Value &amp; ROI · Performance overview</span><h3>Business AI impact</h3></div>
+    <div><span class="settings-card-kicker">Value &amp; ROI · Performance overview</span><h3>Colzo impact</h3></div>
     <span id="valueDashboardPeriod">Last 30 days</span>
   </div>
-  <p class="work-meta value-dashboard-disclaimer">See what Business AI is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
+  <p class="work-meta value-dashboard-disclaimer">See what Colzo is helping capture and move forward. Opportunity values come from the estimated values you add to leads, so they are not confirmed revenue.</p>
   <div id="valueDashboardMetrics" class="value-dashboard-metrics"><div class="value-dashboard-loading">Loading impact…</div></div>
   <div id="valueFollowUpSummary" class="value-follow-up-summary">Automatic follow-ups will appear here when enabled.</div>
   <div id="valueReviewSummary" class="value-review-summary">Review requests will appear here when used.</div>
@@ -2636,7 +2657,7 @@ class="view active"
 
 <div class="card" id="firstRunGuide">
   <div class="card-head"><h3>Get your business ready</h3><span>First steps</span></div>
-  <p class="work-meta">Complete these steps before sharing Business AI with customers. The AI only uses the information you save for this business.</p>
+  <p class="work-meta">Complete these steps before sharing Colzo with customers. The AI only uses the information you save for this business.</p>
   <div id="firstRunSteps" class="first-run-list"></div>
 </div>
 
@@ -2668,7 +2689,7 @@ id="leadsView"
 class="view"
 >
 
-<div class="page-title screen-title"><span class="page-kicker">Leads</span><h2>Leads</h2><p>Manage every opportunity from enquiry to conversion.</p></div>
+<div class="page-title screen-title"><span class="page-kicker">CUSTOMERS / ENQUIRIES</span><h2>Enquiries</h2><p>Keep track of every enquiry, from first contact through to completion.</p></div>
 <div id="leadsSummary" class="reference-summary-grid reference-summary-grid-four" aria-label="Lead summary"></div>
 
 <div class="toolbar">
@@ -2863,7 +2884,7 @@ class="view"
 </div>
 
 <div id="receptionistTestInspector" class="card receptionist-test-inspector" aria-live="polite">
-<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">Waiting for test</span></div>
+<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Colzo would do</h3></div><span class="settings-status-badge">Waiting for test</span></div>
 <div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>
 </div>
 
@@ -3039,7 +3060,7 @@ class="view"
 
 <div id="marketingPublishControls" class="marketing-publish-panel marketing-publish-card" hidden>
 <div class="marketing-panel-heading"><div><span class="marketing-eyebrow">Approved</span><h4>Publish or schedule</h4></div><span class="marketing-step-pill">3 · Publish</span></div>
-<p class="work-meta">Publishing uses the connected Page selected below. Business AI will never silently claim a failed post was published.</p>
+<p class="work-meta">Publishing uses the connected Page selected below. Colzo will never silently claim a failed post was published.</p>
 <div class="settings-grid"><div class="field"><label for="marketingPublishPlatform">Channel</label><select id="marketingPublishPlatform"><option value="facebook">Facebook Page</option><option value="instagram">Instagram professional account</option></select></div><div class="field"><label for="marketingScheduleAt">Publish later <small>(optional)</small></label><input id="marketingScheduleAt" type="datetime-local"></div></div>
 <div class="work-actions"><button id="marketingPublishNow" class="small-btn primary-action" type="button">Publish now</button><button id="marketingSchedule" class="small-btn" type="button">Schedule &amp; publish</button><button id="marketingScheduleDraft" class="small-btn" type="button">Open scheduler</button></div>
 </div>
@@ -3100,7 +3121,7 @@ id="settingsView"
 class="view"
 >
 
-<div class="page-title screen-title"><span class="page-kicker">Your workspace</span><h2>Settings</h2><p>Manage your business, AI and account.</p></div>
+<div class="page-title screen-title"><span class="page-kicker">COLZO / YOUR WORKSPACE</span><h2>Settings</h2><p>Manage your business, AI and account in one place.</p></div>
 <button class="reference-profile-summary reference-profile-summary-button" type="button" onclick="openBusinessProfile()" aria-label="Open Business Profile"><div class="reference-profile-mark" aria-hidden="true"><img id="settingsProfileImage" src="/assets/icons/business-ai-mascot.png" alt=""></div><div><strong id="settingsProfileName">Your business</strong><span id="settingsProfileMeta">Business profile</span></div><span class="reference-profile-badge">Active</span><b class="reference-profile-chevron" aria-hidden="true">›</b></button>
 
 <div class="work-actions" style="margin-bottom:18px"><button class="small-btn" type="button" onclick="showView('addons')">✦ Additional Features</button></div>
@@ -3494,14 +3515,47 @@ Save business settings
 
 <nav class="bottom-nav" aria-label="Primary navigation">
 <button class="nav-btn active" data-view="dashboard" aria-current="page" onclick="showView('dashboard')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg></span><span>Home</span></button>
-<button class="nav-btn" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c.3-4 2.1-6 5.5-6s5.2 2 5.5 6M16 8h4M18 6v4"/></svg></span><span>Leads</span></button>
+<button class="nav-btn" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c.3-4 2.1-6 5.5-6s5.2 2 5.5 6M16 8h4M18 6v4"/></svg></span><span>Enquiries</span></button>
 <button class="nav-btn" data-view="actions" onclick="showView('actions')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9 16l10-10M5 5h6M5 19h14"/></svg></span><span>Actions</span></button>
 <button class="nav-btn" data-view="bookings" onclick="showView('bookings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M7 3v4M17 3v4M3.5 10h17"/></svg></span><span>Bookings</span></button>
 <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg></span><span>More</span></button>
 </nav>
 
+<!-- Colzo's native mobile/desktop workspace. Original app stays available for
+     mature AI, bookings, actions, billing and account management features. -->
+<section id="colzoOwner" class="colzo-native" aria-label="Colzo owner workspace" hidden>
+  <header class="cn-header">
+    <button class="cn-wordmark" type="button" data-cn-screen="more" aria-label="Open Colzo tools"><img src="/assets/icons/colzo-mark.svg" alt=""><span>colzo<span class="cn-dot">.</span></span></button>
+    <span id="cnBusinessName" class="cn-business">Your workspace</span>
+    <button class="cn-command-trigger" type="button" data-cn-command aria-label="Find a Colzo tool" title="Find tools (⌘K)">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg>
+    </button>
+    <button class="cn-account" type="button" data-cn-legacy="settings" aria-label="Open account settings"><span aria-hidden="true">●</span></button>
+  </header>
+  <div id="cnContent" class="cn-content" aria-label="Colzo workspace"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
+  <div id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+  <nav class="cn-nav" aria-label="Colzo primary navigation">
+<button type="button" data-cn-screen="home" aria-current="page"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/></svg></span>Home</button>
+<button type="button" data-cn-screen="enquiries"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Enquiries</button>
+<button type="button" data-cn-screen="bookings"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 11h18"/></svg></span>Bookings</button>
+<button type="button" data-cn-screen="clients"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2 20v-2a6 6 0 0 1 12 0v2M17 5a3.5 3.5 0 0 1 0 7M17 15a5 5 0 0 1 5 5"/></svg></span>Customers</button>
+<button type="button" data-cn-screen="more"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></span>More</button>
+</nav>
+  <div id="cnCommandSheet" class="cn-command-sheet" role="presentation" hidden>
+    <button type="button" class="cn-command-scrim" data-cn-close-command aria-label="Close tool search"></button>
+    <section class="cn-command-panel" role="dialog" aria-modal="true" aria-labelledby="cnCommandTitle">
+      <header><span class="cn-kicker">COLZO / SHORTCUTS</span><button type="button" data-cn-close-command aria-label="Close search">×</button></header>
+      <h2 id="cnCommandTitle">Where would you like to go?</h2>
+      <label class="cn-command-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg><input id="cnCommandSearch" autocomplete="off" aria-label="Search Colzo tools" placeholder="Search screens and tools…"/></label>
+      <div id="cnCommandResults" class="cn-command-results"></div>
+      <footer><span>Find your next action, faster.</span><span>ESC to close</span></footer>
+    </section>
+  </div>
+</section>
+<button id="cnReturnToColzo" class="cn-back-to-colzo" type="button" hidden>← Back to Colzo</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/colzo-backend-bridge.js?v=20261014-api1"></script>
 <script>
 
 let leads=[];
@@ -3604,6 +3658,7 @@ document.body.setAttribute('aria-busy',String(active));
 const setAuthView=(state,message='')=>{
 document.body.classList.remove('auth-pending','auth-required','legal-acceptance-required','dpa-acceptance-required','onboarding-required','configuration-onboarding-required','auth-ready');
 document.body.classList.add(state);
+window.ColzoOwner?.onAuthState(state);
 $('loginMessage').textContent=message;
 };
 
@@ -3762,7 +3817,7 @@ function openCustomerQr(){const link=qrCustomerUrl(authenticatedPublicBusinessSl
 async function downloadCustomerQr(){
 const url=qrImageUrl(authenticatedPublicBusinessSlug,'png');if(!url)return toast('QR code is unavailable');
 try{
-const response=await fetch(url,{headers:{Accept:'image/png'}});if(!response.ok)throw new Error('QR download failed');
+const response=await window.colzoBackendFetch(url,{headers:{Accept:'image/png'}});if(!response.ok)throw new Error('QR download failed');
 const blob=await response.blob();const objectUrl=URL.createObjectURL(blob);const a=document.createElement('a');a.href=objectUrl;a.download=(authenticatedPublicBusinessSlug||'business-ai')+'-business-ai-qr.png';document.body.append(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);toast('QR code downloaded');
 }catch{toast('Could not download the QR code');}
 }
@@ -3817,28 +3872,38 @@ const {data:{session}}=await supabaseClient.auth.getSession();await handleSessio
 }catch(error){message.textContent=error.message||'Could not record the DPA acceptance.';}finally{button.disabled=false;}
 }
 
+let colzoLoginFailure=null;
 const handleSession=async (session)=>{
 if(!frontendAuthEnabled)return;
 if(session){
 setAppLoading(true);
 setAuthView('auth-pending');
+colzoLoginFailure=null;
+let loginStep='account legal';
 try{
 const accountLegal=await loadLegalState();
 if(accountLegal?.needs_user_acceptance){setAppLoading(false);setAuthView('legal-acceptance-required');return;}
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
+loginStep='business onboarding';
 const onboarding=await api('/api/business-onboarding');
 if(onboarding?.needs_business){prefillReferralInputs();setAppLoading(false);setAuthView('onboarding-required');return;}
 applyBusinessContext(onboarding);
+loginStep='business legal';
 const businessLegal=await loadLegalState();
 if(authenticatedBusinessRole==='owner'&&businessLegal?.dpa_required&&!businessLegal?.dpa_accepted&&businessLegal?.provider_identity_configured!==false){setAppLoading(false);setAuthView('dpa-acceptance-required');return;}
+loginStep='business configuration';
 const setup=await api('/api/business-configuration');
 if(authenticatedBusinessRole==='owner'&&!setup?.onboarding?.completed){await beginConfigurationOnboarding();setAppLoading(false);return;}
 setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);return;
 }catch(error){
 setAppLoading(false);
 if(error.message==='Your session has expired.')return;
-clearPrivateState();setAuthView('auth-required','Your business access is unavailable.');return;
+// Show the failed route/status only, not bearer tokens, customer data or raw API errors.
+const hint=colzoLoginFailure?colzoLoginFailure.path+' (HTTP '+colzoLoginFailure.status+')':loginStep+' ('+(error?.name==='TypeError'?'network':'response')+')';
+clearPrivateState();
+setAuthView('auth-required','Your business access is unavailable. Diagnostic: '+hint+'.');
+return;
 }
 }
 setAppLoading(false);clearPrivateState();setAuthView('auth-required');
@@ -3863,7 +3928,7 @@ async function bootstrapAuthSession(session){
 
 async function initializeAuthentication(){
 try{
-const response=await fetch('/api/public-config');
+const response=await window.colzoBackendFetch('/api/public-config');
 if(response.status===404){setAuthView('auth-ready');return false;}
 if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
 const config=await response.json();
@@ -3877,7 +3942,11 @@ if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
 if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)throw new Error('Authentication is temporarily unavailable.');
 frontendAuthEnabled=true;
 passwordRecoveryActive=passwordRecoveryIntentFromLocation();
-supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey);
+window.colzoPasskeysEnabled=config.colzoPasskeysEnabled===true;
+const passkeyLogin=$('colzoPasskeyLogin');
+supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey,
+  window.colzoPasskeysEnabled?{auth:{experimental:{passkey:true}}}:{});
+if(passkeyLogin){passkeyLogin.hidden=!window.colzoPasskeysEnabled||!window.PublicKeyCredential||!window.isSecureContext||typeof supabaseClient?.auth?.signInWithPasskey!=='function';}
 // Supabase holds an internal auth lock while notifying listeners. Defer
 // bootstrap to the next task and do not reload the dashboard on token refresh,
 // MFA changes or repeated same-user sign-in notifications.
@@ -3903,6 +3972,16 @@ try{
 const {error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
 if(error)throw error;
 }catch{ $('loginMessage').textContent='Unable to sign in with those details.'; }finally{button.disabled=false;}
+});
+
+$('colzoPasskeyLogin')?.addEventListener('click',async()=>{
+const button=$('colzoPasskeyLogin');if(!window.colzoPasskeysEnabled||!supabaseClient?.auth?.signInWithPasskey||!window.PublicKeyCredential||!window.isSecureContext)return;
+button.disabled=true;$('loginMessage').textContent='Waiting for your device’s passkey prompt…';
+try{
+ const {error}=await supabaseClient.auth.signInWithPasskey();if(error)throw error;
+ $('loginMessage').textContent='Signing you in securely…';
+}catch(error){$('loginMessage').textContent='Passkey sign-in was cancelled or unavailable. You can still sign in with your password.';}
+finally{button.disabled=false;}
 });
 
 $('showSignUp').addEventListener('click',()=>{
@@ -4020,7 +4099,7 @@ const target=$('publicDirectoryResults');const status=$('publicDirectoryStatus')
 showPublicDirectorySearching();
 try{
 const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
-const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
+const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
 if(requestId!==publicDirectorySearchSequence)return;
 if(!response.ok||!Array.isArray(result?.businesses))throw new Error('Search unavailable');
@@ -4061,13 +4140,13 @@ function setPublicProfileImage(target,url,fallbackInitial='B'){
 if(!target)return;if(url){target.innerHTML='<img src="'+esc(url)+'" alt="">';return;}if(target.id==='publicProfileAvatar')target.innerHTML='<span>'+esc(fallbackInitial)+'</span>';else target.replaceChildren();
 }
 async function loadPublicBusinessProfile(slug){
-const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await fetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
+const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
 
 async function loadPublicBusinessIdentity(){
 if(!publicEnquirySlug)return;
 try{
 const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',publicEnquirySlug);
-const response=await fetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
+const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
 if(!response.ok||!result?.business)throw new Error('Business not available');
 const business=result.business;
@@ -4130,7 +4209,7 @@ const list=$('publicMessages');if(!list)return;const message=document.createElem
 async function sendPublicEnquiry(event){
 event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await fetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 function setPublicQuickActions(open){
 const button=$('publicQuickActionsToggle');const body=$('publicQuickActionsBody');if(!button||!body)return;
@@ -4162,7 +4241,7 @@ await beginConfigurationOnboarding();
 });
 
 $('onboardingBack')?.addEventListener('click',()=>{if(onboardingWizardIndex>0){onboardingWizardIndex-=1;renderOnboardingWizard();}});
-$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent=document.documentElement.classList.contains('pilot-free-access')?'Setup complete. Starter and AI Marketing are included free during the Pilot. No checkout is required.':'Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
+$('configurationOnboardingForm')?.addEventListener('submit',async event=>{event.preventDefault();const button=$('onboardingNext'),message=$('configurationOnboardingMessage');button.disabled=true;message.textContent='Saving your progress…';try{const complete=onboardingWizardSteps[onboardingWizardIndex]==='review';await saveOnboardingProgress(complete);if(complete){message.textContent=document.documentElement.classList.contains('pilot-free-access')?'Setup complete. Starter and AI Marketing are included free during the Pilot. No checkout is required.':'Setup complete. Choose a plan or trial to start using AI enquiries.';setAppLoading(true);setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false);showView('settings');window.colzoOfferSecuritySetup?.();return;}onboardingWizardIndex+=1;message.textContent='Saved. You can leave and return at any time.';renderOnboardingWizard();}catch(error){message.textContent=error.message||'Could not save your setup.';}finally{button.disabled=false;}});
 
 
 const money=n=>
@@ -4277,7 +4356,7 @@ function renderReceptionistTestInspector(preview){
   const target=$('receptionistTestInspector');if(!target)return;
   receptionistTestLastPreview=preview||null;
   if(!preview){
-    target.innerHTML='<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">Waiting for test</span></div><div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>';
+    target.innerHTML='<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Colzo would do</h3></div><span class="settings-status-badge">Waiting for test</span></div><div class="empty">Run a test to inspect the handling mode, intent, context and records that would be created.</div>';
     return;
   }
   const outcomes=[];
@@ -4287,7 +4366,7 @@ function renderReceptionistTestInspector(preview){
   const context=Array.isArray(preview.context?.available)?preview.context.available:[];
   const lead=preview.lead||{};
   const leadRows=[['Name',lead.name],['Contact',lead.phone||lead.email],['Location',lead.location],['Job / service',lead.job_type],['Urgency',lead.urgency],['Priority',lead.priority]].filter(([,value])=>value);
-  target.innerHTML=`<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Business AI would do</h3></div><span class="settings-status-badge">${outcomes.length?'Would create workflow':'No record action'}</span></div>
+  target.innerHTML=`<div class="card-head"><div><span class="settings-card-kicker">Inspector</span><h3>What Colzo would do</h3></div><span class="settings-status-badge">${outcomes.length?'Would create workflow':'No record action'}</span></div>
   <div class="receptionist-test-grid">
     <article><span>Handling mode</span><strong>${esc(String(preview.handling_mode||'balanced').replaceAll('_',' '))}</strong></article>
     <article><span>Detected intent</span><strong>${esc(String(preview.intent?.type||'unknown').replaceAll('_',' '))}</strong></article>
@@ -4455,7 +4534,10 @@ if(!session){handleSession(null);throw new Error('Your session has expired.');}
 headers.set('Authorization',`Bearer ${session.access_token}`);
 }
 
-const response=await fetch(url,{...options,headers});
+const response=await window.colzoBackendFetch(url,{...options,headers});
+if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configuration'].includes(requestUrl.pathname)){
+  colzoLoginFailure={path:requestUrl.pathname,status:response.status};
+}
 
 let result=null;
 
@@ -4743,7 +4825,7 @@ async function loadOwnerReceptionistAvailability(){
 ownerAssistantAvailable=null;renderReceptionistAvailability();
 if(!authenticatedPublicBusinessSlug){ownerAssistantAvailable=false;renderReceptionistAvailability();return;}
 try{
-const response=await fetch('/api/public-business?business='+encodeURIComponent(authenticatedPublicBusinessSlug),{headers:{Accept:'application/json'},cache:'no-store'});
+const response=await window.colzoBackendFetch('/api/public-business?business='+encodeURIComponent(authenticatedPublicBusinessSlug),{headers:{Accept:'application/json'},cache:'no-store'});
 const data=await response.json().catch(()=>null);
 if(!response.ok)throw new Error('Receptionist status unavailable');
 ownerAssistantAvailable=data?.business?.assistant_available===true;
@@ -4928,7 +5010,7 @@ try{
 const [bookingData,actionData]=await Promise.all([api('/api/bookings'),api('/api/actions')]);
 bookings=Array.isArray(bookingData)?bookingData:[];
 businessActions=Array.isArray(actionData)?actionData:[];
-fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();
+fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();window.ColzoOwner?.render();
 ['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).textContent='';});
 }catch(error){
 const message=error.message==='Bookings are not enabled'||error.message==='Actions are not enabled'?'Bookings and actions will be available after the database migration is applied.':error.message;
@@ -5500,6 +5582,7 @@ if(frontendAuthEnabled)loadOwnerReceptionistAvailability();
 if(frontendAuthEnabled)loadReferrals();
 if(frontendAuthEnabled)loadValueDashboard();
 
+window.ColzoOwner?.render();
 if(showFeedback)toast('Dashboard refreshed');
 
 }catch(error){
@@ -5509,6 +5592,7 @@ const message=`<div class="error">${esc(error.message||'Unable to load dashboard
 $('stats').innerHTML=message;
 
 $('leadList').innerHTML=message;
+window.ColzoOwner?.error(error);
 
 }
 
@@ -5535,6 +5619,7 @@ initializeApp();
 <script src="/assets/customer-portal.js?v=20261004-business-profile-1"></script>
 <script src="/assets/premium-ui.js?v=20261005-settings-profile-row-1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
+<script src="/assets/colzo-native.js?v=20261013-native-a"></script>
 </body>
 
 </html>

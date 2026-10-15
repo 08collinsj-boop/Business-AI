@@ -643,7 +643,7 @@ test('owner UI uses dedicated receptionist test mode and exposes an outcome insp
   assert.match(html, /Safe customer simulation/);
   assert.match(html, /test_mode:true/);
   assert.match(html, /No lead, booking or handover was saved/);
-  assert.match(html, /What Business AI would do/);
+  assert.match(html, /What Colzo would do/);
   assert.match(html, /business-ai-receptionist-test:/);
   assert.match(html, /qa\.customer@example\.test/);
 });

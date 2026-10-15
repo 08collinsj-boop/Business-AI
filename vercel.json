@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/colzo-backend/:path*",
+      "destination": "https://business-ai-pilot.vercel.app/api/:path*"
+    },
+    {
       "source": "/",
       "has": [
         {
@@ -17,6 +21,10 @@
     {
       "source": "/customer",
       "destination": "/index.html"
+    },
+    {
+      "source": "/api/colzo-records",
+      "destination": "/api/operations?operation=colzo-records"
     },
     {
       "source": "/api/audit-log",

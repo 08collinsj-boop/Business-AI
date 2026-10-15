@@ -14,7 +14,7 @@ test("public config is gated and exposes only browser-safe Supabase config", { c
   for (const value of ["false", "TRUE", "1", "yes"]) { process.env.FRONTEND_AUTH_ENABLED = value; res = response(); await handler({}, res); assert.equal(res.statusCode, 404); }
   process.env.FRONTEND_AUTH_ENABLED = "true"; delete process.env.SUPABASE_URL; delete process.env.SUPABASE_ANON_KEY; res = response(); await handler({}, res); assert.equal(res.statusCode, 503);
   process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_ANON_KEY = "browser-safe-key"; res = response(); await handler({}, res);
-  assert.deepEqual(res.body, { frontendAuthEnabled: true, supabaseUrl: "https://example.supabase.co", supabaseAnonKey: "browser-safe-key", pilotFreeAccess: process.env.PILOT_FREE_STARTER_MARKETING === "true" }); assert.equal(res.headers["Cache-Control"], "no-store");
+  assert.deepEqual(res.body, { frontendAuthEnabled: true, supabaseUrl: "https://example.supabase.co", supabaseAnonKey: "browser-safe-key", pilotFreeAccess: process.env.PILOT_FREE_STARTER_MARKETING === "true", colzoPasskeysEnabled: process.env.COLZO_PASSKEYS_ENABLED === "true" }); assert.equal(res.headers["Cache-Control"], "no-store");
 });
 
 test("frontend auth uses Supabase sessions only for private API requests", () => {
@@ -46,7 +46,7 @@ test("public customer links use only a validated slug and never unlock dashboard
 test("owner navigation is focused while AI and bookings remain reachable from authenticated workspace cards", () => {
   const nav = html.slice(html.indexOf("<nav class=\"bottom-nav\""), html.indexOf("</nav>", html.indexOf("<nav class=\"bottom-nav\"")));
   assert.match(nav, /data-view="dashboard"[\s\S]*Home/);
-  assert.match(nav, /data-view="leads"[\s\S]*Leads/);
+  assert.match(nav, /data-view="leads"[\s\S]*Enquiries/);
   assert.match(nav, /data-view="actions"[\s\S]*Actions/);
   assert.match(nav, /data-view="bookings"[\s\S]*Bookings/);
   assert.match(nav, /data-view="settings"[\s\S]*More/);
