@@ -50,6 +50,20 @@ Existing documented prices (source `docs/STRIPE_BILLING_PILOT_SETUP.md` and `doc
 8. If charging at launch, complete **TEST mode only** checkout/webhook/portal lifecycle; inspect entitlements and cancel. No live cards.
 9. Capture device dimensions, screenshots, network failures, console issues, tested SHA and feature results. Mark each P0 gate PASS/FAIL/BLOCKED; do not infer success from Vercel READY.
 
+## Confirmed owner structure and HMRC trading allowance (owner decision, 15 October 2026)
+
+**Operator structure:** Colzo is intended to operate as an **individual sole trader trading as Colzo**, not a limited company. The owner has chosen not to register for HMRC Self Assessment until required under the UK **£1,000 gross trading income per tax year** rule. This is *not* an instruction to avoid trading, income records or other legal obligations until that threshold. The business may begin trading as a sole trader before Self Assessment registration, but must keep proper records from the start. The threshold relates to receipts before expenses (and may include other relevant trading income) over **6 April to 5 April**, not profit or cumulative lifetime Colzo revenue. Other reasons can require earlier Self Assessment registration.
+
+**Before publishing any legal documents:** confirm exact operator's legal name, a valid UK address for business/service correspondence where required (do not automatically publish the owner's home address), suitable business contact email and contact route. Sole trader invoices using a business name must include the individual's legal name, trading name and an address for legal service. **Do not** display “Colzo Ltd”, Companies House registration details, a company number, or invented VAT/ICO registration data. Get the operator's review and legal acceptance-version approval before replacing existing Business AI legal pages.
+
+**Independently applicable launch requirements:** whether HMRC Self Assessment is presently required does not remove UK GDPR/privacy, ICO data-protection fee self-assessment, fair marketing claims, valid consumer/business contracts, commercial hosting licence, security, backups or any applicable tax/VAT obligations. No filing, payment, company formation or legal declarations were performed.
+
+**Current official guidance (checked 15 October 2026):**
+- GOV.UK, become a sole trader: https://www.gov.uk/become-sole-trader
+- GOV.UK, Self Assessment threshold and tax year: https://www.gov.uk/self-assessment-tax-returns/who-must-send-a-tax-return
+- GOV.UK, sole trader invoices: https://www.gov.uk/invoicing-and-taking-payment-from-customers/invoices-what-they-must-include
+- GOV.UK, choose trading name: https://www.gov.uk/become-sole-trader/choose-your-business-name
+
 ## Commercial and legal constraints
 
 - The current Vercel team was recorded on Hobby; Hobby is not a commercially authorised solution for a paying launch. Obtain owner-approved compliant hosting before collecting paying customers; do not upgrade automatically.
