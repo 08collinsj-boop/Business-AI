@@ -19,12 +19,12 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push(`Unexpected request ${host}`)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
   await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-qa.supabase.invalid',supabaseAnonKey:'public-test-key'})}));
-  await page.route('**/colzo-backend/colzo-records*',async route=>{
+  await page.route('**/api/colzo-records*',async route=>{
     const resource=new URL(route.request().url()).searchParams.get('resource');
     const rows=resource==='projects'?[{id:'project-qa-1',title:'Inspection project',client_name:'Fixture Customer',status:'active',progress:35,created_at:'2026-10-12'},{id:'project-qa-2',title:'Maintenance project',client_name:'Second Fixture',status:'planned',progress:10,created_at:'2026-10-13'}]:[];
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(rows)});
   });
-  await page.route('**/colzo-backend/**',r=>new URL(r.request().url()).pathname==='/colzo-backend/colzo-records'?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"not real"}'}));
+  await page.route('**/colzo-backend/**',r=>new URL(r.request().url()).pathname==='/api/colzo-records'?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"not real"}'}));
   await page.goto(origin+'/',{waitUntil:'networkidle'});
   await page.evaluate(()=>{
     const now=new Date().toISOString();
