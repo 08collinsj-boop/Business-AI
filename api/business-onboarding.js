@@ -76,21 +76,25 @@ export default async function handler(req, res) {
   let auth;
   try { auth = await requireAuthenticatedUser(req); } catch (error) { return sendAuthError(res, error); }
   if (!auth.enforced) return res.status(503).json({ error: "Business onboarding is not enabled" });
+  let stage = "memberships";
   try {
     const existing = await memberships(auth.userId);
     if (req.method === "GET") {
       if (existing.length === 0) return res.status(200).json({ needs_business: true });
+      stage = "public-route";
       const publicSlug = await activePublicSlug(existing[0].business_id);
       if (!publicSlug) return res.status(503).json({ error: "Business public route is unavailable" });
       return res.status(200).json({ needs_business: false, public_slug: publicSlug, role: existing[0].role });
     }
     if (existing.length) return res.status(409).json({ error: "This account already belongs to a business" });
+    stage = "validate-input";
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid business details" });
     const { businessName, businessType, referralCode } = validate(body);
     const baseSlug = slugBaseFromBusinessName(businessName);
     let created = null;
     let publicSlug = null;
+    stage = "create-business";
     for (let attempt = 1; attempt <= 50; attempt += 1) {
       const candidate = slugCandidate(baseSlug, attempt);
       try {
@@ -108,6 +112,7 @@ export default async function handler(req, res) {
       }
     }
     if (!created?.business_id || !publicSlug) throw new Error("Database request failed");
+    stage = "audit-event";
     await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
     return res.status(201).json({ public_slug: publicSlug, public_path: `/customer?business=${encodeURIComponent(publicSlug)}` });
   } catch (error) {
@@ -115,7 +120,7 @@ export default async function handler(req, res) {
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
     if (error?.code === "PUBLIC_ROUTE_CONFLICT") return res.status(409).json({ error: "Could not create a unique customer link. Please try again." });
     if (error?.status === 409 || error?.status === 400) { console.error("Business onboarding database request failed", { status: error.status }); return res.status(500).json({ error: "Could not create the business. Please try again." }); }
-    console.error("Business onboarding API error");
+    console.error("Business onboarding API error", { stage, status: Number.isInteger(error?.status) ? error.status : 0, name: String(error?.name || "Error").slice(0, 80) });
     return res.status(500).json({ error: "Could not create the business" });
   }
 }

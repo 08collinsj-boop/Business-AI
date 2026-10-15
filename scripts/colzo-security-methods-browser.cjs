@@ -31,8 +31,8 @@ async function run(){await sleep(500);const browser=await chromium.launch({headl
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const hostname=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(hostname))errors.push('unexpected '+hostname)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:fakeSdk}));
-  await page.route('**/api/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
-  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.supabase.co',supabaseAnonKey:'public-fixture-not-real',colzoPasskeysEnabled:enabled})}));
+  await page.route('**/colzo-backend/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.supabase.co',supabaseAnonKey:'public-fixture-not-real',colzoPasskeysEnabled:enabled})}));
   await page.goto(origin+'/',{waitUntil:'networkidle'});
   try{await page.waitForFunction(()=>typeof window.colzoPasskeysEnabled==='boolean'&&typeof supabaseClient!=='undefined'&&!!supabaseClient,{timeout:5000});}catch(e){const state=await page.evaluate(()=>({className:document.body.className,passkeys:window.colzoPasskeysEnabled,windowSupabase:!!window.supabase,errors:document.querySelector('#loginMessage')?.innerText}));throw Error(JSON.stringify({state,errors,original:e.message}))}
   assert.equal(await page.locator('#colzoPasskeyLogin').isVisible(),enabled,'passkey sign-in must be hidden until server-side opt-in');

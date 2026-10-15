@@ -23,6 +23,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/api/colzo-records",
+      "destination": "/api/operations?operation=colzo-records"
+    },
+    {
       "source": "/api/audit-log",
       "destination": "/api/operations?operation=audit-log"
     },

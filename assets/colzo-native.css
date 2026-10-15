@@ -297,3 +297,18 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
     overscroll-behavior-y: contain;
   }
 }
+
+/* Saved-record forms use the same Graphite & Volt language as the approved screens. */
+#colzoOwner .cn-colzo-record-form{margin:16px 0;padding:18px;border:1px solid var(--cn-border,#343c42);border-radius:22px;background:var(--cn-panel,#171c21)}
+#colzoOwner .cn-colzo-record-form form{display:grid;gap:14px}
+#colzoOwner .cn-colzo-record-form h2{margin:0 0 2px;font-size:19px;letter-spacing:-.025em}
+#colzoOwner .cn-colzo-record-form label{display:grid;gap:7px;color:var(--cn-muted,#a4afb6);font-size:13px;font-weight:650}
+#colzoOwner .cn-colzo-record-form input,#colzoOwner .cn-colzo-record-form select,#colzoOwner .cn-colzo-record-form textarea{width:100%;min-height:46px;padding:12px 13px;border:1px solid var(--cn-border,#343c42);border-radius:13px;background:#101418;color:var(--cn-text,#f4f6f7);font:inherit;font-size:15px}
+#colzoOwner .cn-colzo-record-form textarea{resize:vertical;min-height:88px}
+#colzoOwner .cn-colzo-record-form input[type=range]{accent-color:var(--cn-volt,#c8ff2e);padding:0;min-height:28px}
+#colzoOwner .cn-colzo-record-form .cn-form-actions{display:flex;gap:10px;align-items:center}
+#colzoOwner .cn-colzo-record-form .cn-primary,#colzoOwner .cn-colzo-record-form .cn-secondary{min-height:46px;padding:11px 16px;border-radius:14px;font:inherit;font-weight:750;cursor:pointer}
+#colzoOwner .cn-colzo-record-form .cn-primary{flex:1;border:0;background:var(--cn-volt,#c8ff2e);color:#10130b}
+#colzoOwner .cn-colzo-record-form .cn-secondary{border:1px solid var(--cn-border,#343c42);background:#252b31;color:var(--cn-text,#f4f6f7)}
+#colzoOwner .cn-colzo-record-form button:disabled{opacity:.6;cursor:wait}
+@media (prefers-reduced-motion:no-preference){#colzoOwner .cn-colzo-record-form{animation:cn-record-form-in .22s ease-out both}@keyframes cn-record-form-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}

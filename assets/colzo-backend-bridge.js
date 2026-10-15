@@ -12,6 +12,9 @@
     const value=input instanceof Request?input.url:input instanceof URL?input.href:String(input);
     const url=new URL(value,window.location.origin);
     if(url.origin!==window.location.origin||!url.pathname.startsWith(internalApiPrefix))return null;
+    // This deployment owns the Colzo records handler. Do not proxy it to the
+    // legacy backend until that backend explicitly ships the same route.
+    if(url.pathname==='/api/colzo-records')return null;
     return backendPrefix+url.pathname.slice('/api'.length)+url.search+url.hash;
   }
 

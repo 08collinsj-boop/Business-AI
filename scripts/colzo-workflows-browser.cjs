@@ -18,8 +18,13 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected external request '+host)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'public-fixture'})}));
-  for(const resource of ['bookings','actions'])await page.route(`**/api/${resource}`,async route=>{
+  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fixture.invalid',supabaseAnonKey:'public-fixture'})}));
+  await page.route('**/api/colzo-records*',async route=>{
+    const url=new URL(route.request().url()),resource=url.searchParams.get('resource');
+    const fixtures={projects:[{id:51,title:'Fixture project',client_name:'Fixture Client',status:'active',progress:35,created_at:'2026-10-12',notes:'Fixture only'},{id:52,title:'Sample confirmed visit',client_name:'Fixture Customer',status:'planned',progress:10,created_at:'2026-10-13',notes:'Fixture only'}],clients:[],quotes:[]};
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fixtures[resource]||[])});
+  });
+  for(const resource of ['bookings','actions'])await page.route(`**/colzo-backend/${resource}`,async route=>{
     const req=route.request(),method=req.method();
     const body=['POST','PATCH'].includes(method)?req.postDataJSON():null;
     calls.push({resource,method,body});
@@ -37,7 +42,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
     }
     return route.fulfill({status:405,body:'Unsupported method'});
   });
-  await page.route('**/api/**',r=>['/api/bookings','/api/actions','/api/public-config'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
+  await page.route('**/colzo-backend/**',r=>['/colzo-backend/bookings','/colzo-backend/actions','/colzo-backend/public-config','/api/colzo-records'].includes(new URL(r.request().url()).pathname)?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"Fixture only"}'}));
   await page.goto(base+'/',{waitUntil:'networkidle'});
   await page.evaluate((fixture)=>{
     settings=fixture.settings;
@@ -91,9 +96,11 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('[data-cn-work-refresh]').click();
   await page.waitForFunction(()=>[...document.querySelectorAll('.cn-work-record')].some(el=>el.textContent.includes('sample booking')));
   // Native operations should remain accessible from Projects/More.
-  await page.locator('.cn-nav [data-cn-screen="projects"]').click();
+  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   await page.locator('.cf-project-card').first().click();
-  assert.ok(['Bookings','Actions'].includes(await page.locator('.cn-work-title-row h1').innerText()));
+  assert.equal(await page.locator('.cf-detail-contact h1').innerText(),'Fixture project');
+  await page.locator('.cf-screen-top [data-cn-screen="projects"]').click();
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   await page.locator('[data-cn-screen="actions"]').first().click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');

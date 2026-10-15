@@ -27,8 +27,13 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const host=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(host))errors.push('Unexpected network destination '+host)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-fixture.supabase.co',supabaseAnonKey:'fake-public-publishable-key-no-real-account-data'})}));
-  await page.route('**/api/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"fixture only"}'}));
+  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-fixture.supabase.co',supabaseAnonKey:'fake-public-publishable-key-no-real-account-data'})}));
+  await page.route('**/api/colzo-records*',async route=>{
+    const url=new URL(route.request().url()),resource=url.searchParams.get('resource');
+    const fixtures={projects:[{id:51,title:'Fixture project',client_name:'Fixture Client',status:'active',progress:35,created_at:'2026-10-12',notes:'Fixture only'},{id:52,title:'Sample confirmed visit',client_name:'Fixture Customer',status:'planned',progress:10,created_at:'2026-10-13',notes:'Fixture only'}],clients:[],quotes:[]};
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fixtures[resource]||[])});
+  });
+  await page.route('**/colzo-backend/**',r=>new URL(r.request().url()).pathname==='/api/colzo-records'?r.fallback():r.fulfill({status:401,contentType:'application/json',body:'{"error":"fixture only"}'}));
   await page.goto(base+'/',{waitUntil:'networkidle'});
   await page.evaluate(()=>{
    leads=[{id:'qa-01',name:'Mock Jones',job_type:'Electrical repair',status:'New',created_at:'2026-10-12T08:40:00Z',phone:'07000000000',email:'mock@example.invalid',description:'Sample issue for local UI testing only',priority:'Normal',location:'Sample town'},{id:'qa-02',name:'Test Customer',job_type:'Lighting inspection',status:'Contacted',created_at:'2026-09-28T11:00:00Z'}];
@@ -81,7 +86,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cn-nav [data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
   assert.equal(await page.locator('.cn-nav [data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
   assert.equal(await page.locator('.cf-project-card').count(),2);
-  assert.match(await page.locator('.cf-project-promo').innerText(),/Turn enquiries/);
+  assert.match((await page.locator('.cf-project-card').allTextContents()).join(' '),/Sample confirmed visit/);
   assert.match(await page.locator('.cn-stack').innerText(),/Sample confirmed visit/);
   await page.waitForTimeout(120);
   await page.screenshot({path:`${shots}/native-projects-${w}.png`,fullPage:false});
@@ -90,16 +95,12 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.locator('.cn-more-links [data-cn-screen="clients"]').click();
   assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
-  assert.equal(await page.locator('.cn-record').count(),2);
+  assert.equal(await page.locator('.cn-stitch-customer').count(),2);
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();
   assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Quotes');
-  assert.match(await page.locator('.cn-notice').innerText(),/not be saved or sent/);
-  await page.locator('#cnDraftForm input[name="title"]').fill('Mock work');
-  await page.locator('#cnDraftForm input[name="amount"]').fill('149.50');
-  await page.locator('#cnDraftForm button[type="submit"]').click();
-  await page.waitForFunction(()=>/No draft was saved or sent|Draft copied|Clipboard unavailable/.test(document.querySelector('#cnDraftStatus')?.textContent||''));
-  assert.match(await page.locator('#cnDraftStatus').innerText(),/No draft was saved or sent|Draft copied|Clipboard unavailable/);
+  assert.equal(await page.locator('.cn-record').count(),0,'Empty quotes directory should not fabricate saved quotes');
+  assert.match((await page.locator('.cn-caption').allTextContents()).join(' '),/Sending remains a separate workflow/);
   await page.screenshot({path:`${shots}/native-quotes-${w}.png`,fullPage:false});
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
   if(w<920){
@@ -114,7 +115,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'native Bookings never opens original UI');
   await page.locator('.cn-nav [data-cn-screen="more"]').click();
-  await page.locator('.cn-more-links [data-cn-legacy="marketing"]').click();
+  await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'advanced Marketing remains accessible');
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Colzo is hidden while editing legacy');
   assert.equal(await page.locator('#cnReturnToColzo').isVisible(),true);
