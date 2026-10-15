@@ -297,3 +297,19 @@ body.colzo-interface .auth-screen :is(.wizard-review article,.setup-summary,.onb
 /* Keep wizard visibility under the existing JavaScript; colour only. */
 body.colzo-interface .auth-screen .wizard-step{color:#f5f7fa}
 body.colzo-interface .auth-screen .wizard-step.active{accent-color:#c8ff2e}
+
+/* iOS Safari and Chromium may inject a bright yellow autofill background.
+   Explicitly repaint autofilled email/password/name fields with Colzo's
+   original graphite input surface, without disabling platform autofill. */
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):-webkit-autofill,
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):-webkit-autofill:hover,
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):-webkit-autofill:focus {
+ -webkit-text-fill-color:#f5f7fa!important;
+ -webkit-box-shadow:0 0 0 1000px #293138 inset!important;
+ box-shadow:0 0 0 1000px #293138 inset!important;
+ caret-color:#c8ff2e!important;
+ border-color:#536069!important;
+}
+body.colzo-interface .auth-screen :is(input[type=email],input[type=password],input[type=text]):autofill {
+ caret-color:#c8ff2e!important;
+}
