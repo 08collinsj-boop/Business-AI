@@ -30,8 +30,10 @@ test('Bridge forwards same-origin API calls, preserves auth and query, leaves Su
  assert.equal(calls[0][1].headers,auth);
  await window.colzoBackendFetch('/api/bookings?filter=all',{method:'GET'});
  assert.equal(calls[1][0],'/colzo-backend/bookings?filter=all');
+ await window.colzoBackendFetch('/api/colzo-records?resource=clients');
+ assert.equal(calls[2][0],'/api/colzo-records?resource=clients','Colzo records must execute on this deployment, not proxy to the legacy backend');
  await window.colzoBackendFetch('https://mvwseobgkexzpmmkgcxe.supabase.co/auth/v1/user');
- assert.equal(calls[2][0],'https://mvwseobgkexzpmmkgcxe.supabase.co/auth/v1/user');
+ assert.equal(calls[3][0],'https://mvwseobgkexzpmmkgcxe.supabase.co/auth/v1/user');
  await window.colzoBackendFetch('/assets/logo.png');
- assert.equal(calls[3][0],'/assets/logo.png');
+ assert.equal(calls[4][0],'/assets/logo.png');
 });
