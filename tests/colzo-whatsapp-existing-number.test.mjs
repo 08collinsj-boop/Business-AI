@@ -80,3 +80,13 @@ test('isolated WhatsApp foundation keeps Vercel Hobby API count at twelve',async
  assert.equal(apiFiles.length,12,'A thirteenth function prevents the free preview deployment');
  assert.equal(apiFiles.includes('whatsapp-inbound.js'),false,'Disabled provider must not be a deployed endpoint');
 });
+
+test('standard opt-out and provider-handled keywords never become automatic AI FAQ drafts',()=>{
+ for(const keyword of ['STOP','STOPALL','UNSUBSCRIBE','CANCEL','END','QUIT','REVOKE','OPTOUT','HELP','INFO','START','UNSTOP','human','agent']){
+  assert.equal(parseTwilioWhatsAppForm(form({Body:keyword})).requiresHumanReview,true,keyword);
+ }
+ for(const kind of ['STOP','START','HELP']){
+  assert.equal(parseTwilioWhatsAppForm(form({Body:'Are you open tomorrow?',OptOutType:kind})).requiresHumanReview,true,kind);
+ }
+ assert.equal(parseTwilioWhatsAppForm(form()).requiresHumanReview,false);
+});
