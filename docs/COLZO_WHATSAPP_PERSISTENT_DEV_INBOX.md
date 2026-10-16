@@ -55,6 +55,17 @@ Endpoint `/api/colzo-whatsapp-inbox` is rewritten through the existing
 `/api/operations` dispatcher to avoid a thirteenth Vercel serverless function.
 It is not `/api/whatsapp-inbound`; provider webhook remains nonexistent.
 
+## Authentication transition safety
+
+In-flight owner inbox requests are guarded by a monotonically increasing
+session revision. Colzo calls `ColzoWhatsAppDemo.reset()` at sign-out; any
+pending read, seed, human handover or rejected request from that old session is
+discarded rather than repopulating conversation data or errors after logout.
+The reset also releases the local busy flag so a subsequent authorised account
+can begin a fresh request. Three regression tests cover late reads, stale
+failure after account switch and delayed human handover. This is client-side
+privacy defence in depth; server-side tenant authorization remains mandatory.
+
 ## Deployment boundaries
 
 The branch and PR must remain draft and unmerged until broader approval. Do not

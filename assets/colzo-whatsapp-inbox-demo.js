@@ -13,10 +13,10 @@
   {id:'demo-c',name:'Sample customer C',initial:'C',time:'Wednesday',state:'review',tag:'Opening hours',
    messages:['Are you open on Saturdays?'],draft:'I will check the approved opening hours before answering.'}
  ];
- let threads,activeId,filter,announcement,persisted=false,persistentError="",busy=false;
+ let threads,activeId,filter,announcement,persisted=false,persistentError="",busy=false,sessionRevision=0;
  const button=(label,action,cls,extra='')=>
   '<button type="button" class="'+esc(cls)+'" data-wa-action="'+esc(action)+'" '+extra+'>'+esc(label)+'</button>';
- function reset(){threads=SEED.map(t=>({...t,messages:t.messages.slice()}));activeId='demo-a';filter='all';announcement='';persisted=false;persistentError='';}
+ function reset(){sessionRevision++;busy=false;threads=SEED.map(t=>({...t,messages:t.messages.slice()}));activeId='demo-a';filter='all';announcement='';persisted=false;persistentError='';}
  reset();
  const current=()=>threads.find(t=>t.id===activeId)||threads[0];
  function render(){
@@ -112,6 +112,8 @@
   if(!isPersistentAction)
    return handleClick({getAttribute:name=>name==='data-wa-action'?action:null});
   if(busy)return false;
+  const requestRevision=sessionRevision;
+  const isCurrent=()=>requestRevision===sessionRevision;
   busy=true;persistentError='';
   try{
    if(typeof api!=='function')throw Error('Secure development API is unavailable.');
@@ -119,6 +121,7 @@
     await api('/api/colzo-whatsapp-inbox',{
      method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
     });
+    if(!isCurrent())return false;
    }else if(action.startsWith('handover:')){
     const id=action.slice('handover:'.length),current=threads.find(t=>t.id===id);
     if(!current||current.state!=='review')return false;
@@ -126,13 +129,17 @@
      method:'PATCH',headers:{'Content-Type':'application/json'},
      body:JSON.stringify({fixture_key:id,state:'human',expected_updated_at:current.updatedAt})
     });
+    if(!isCurrent())return false;
    }
-   hydrate(await api('/api/colzo-whatsapp-inbox'));
+   const result=await api('/api/colzo-whatsapp-inbox');
+   if(!isCurrent())return false;
+   hydrate(result);
    announcement='Saved fictional conversations loaded';
   }catch(err){
+   if(!isCurrent())return false;
    persistentError=String(err?.message||'Saved demo unavailable. Check development access.');
    announcement='Could not update saved demo';
-  }finally{busy=false;}
+  }finally{if(isCurrent())busy=false;}
   return true;
  }
  window.ColzoWhatsAppDemo=Object.freeze({render,handleClick,reset,act,isPersisted:()=>persisted});

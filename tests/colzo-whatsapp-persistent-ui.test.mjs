@@ -57,3 +57,49 @@ test('native owner routes async persisted actions through existing authenticated
  assert.match(native,/ColzoWhatsAppDemo\.act/);
  assert.match(native,/typeof api/);
 });
+
+
+test('logout/reset cannot repopulate saved chats when an earlier authorised read finishes late', async()=>{
+ const c=controller();
+ let finish;
+ const api=()=>new Promise(resolve=>{finish=resolve;});
+ const pending=c.act('persist:load',api);
+ c.reset(); // Called by Colzo owner auth-state teardown
+ finish({mode:'synthetic_persistent',items});
+ assert.equal(await pending,false);
+ assert.equal(c.isPersisted(),false);
+ assert.doesNotMatch(c.render(),/Test message|Saved fictional conversations/);
+ assert.match(c.render(),/Demo only - fictional messages/);
+});
+
+test('reset cancels stale failure and allows a new authorised load without old response overwriting it',async()=>{
+ const c=controller();
+ let finishFirst,failFirst;
+ const oldRequest=new Promise((resolve,reject)=>{finishFirst=resolve;failFirst=reject;});
+ const first=c.act('persist:load',()=>oldRequest);
+ c.reset();
+ const newer=[{...items[0],messages:['Second session example'],customer_label:'Another sample'}];
+ const second=await c.act('persist:load',async()=>({mode:'synthetic_persistent',items:newer}));
+ assert.equal(second,true);
+ assert.equal(c.isPersisted(),true);
+ failFirst(new Error('Old account error'));
+ assert.equal(await first,false);
+ assert.match(c.render(),/Second session example/);
+ assert.doesNotMatch(c.render(),/Old account error|Test message/);
+});
+
+test('reset during slow handover must not restore previous tenant record in the UI',async()=>{
+ const c=controller();
+ await c.act('persist:load',async()=>({mode:'synthetic_persistent',items}));
+ let releaseHandover;
+ const held=new Promise(resolve=>{releaseHandover=resolve;});
+ const inFlight=c.act('handover:demo-a',async(path,options)=>{
+  if(options?.method==='PATCH')return held;
+  return {mode:'synthetic_persistent',items};
+ });
+ c.reset();
+ releaseHandover({mode:'synthetic_persistent',items});
+ assert.equal(await inFlight,false);
+ assert.equal(c.isPersisted(),false);
+ assert.doesNotMatch(c.render(),/Test message|Saved fictional conversations/);
+});
