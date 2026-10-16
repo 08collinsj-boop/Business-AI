@@ -19,12 +19,30 @@ export async function checkLaunch({origin,expectedRef,fetcher=fetch}){
  async function get(path){
   try{
    const response=await fetcher(base+path,{method:'GET',redirect:'error',cache:'no-store',
-    headers:{Accept:path.startsWith('/legal/')?'text/html':'application/json'},
+    headers:{Accept:path==='/'||path.startsWith('/legal/')?'text/html':'application/json'},
     signal:AbortSignal.timeout(9000)});
    return response.ok?response:null;
   }catch{return null}
  }
  async function json(path){const response=await get(path);try{return await response?.json()}catch{return null}}
+ // Public anonymous checks: a missing route, unexpected success, redirect, or
+ // network error must never be treated as proof of tenant isolation.
+ async function protectedStatus(path){
+  try{
+   const response=await fetcher(base+path,{method:'GET',redirect:'error',cache:'no-store',
+    headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   if(response.status===401||response.status===403)return true;
+   if(response.status===429||response.status>=500)return null;
+   return false;
+  }catch{return null;}
+ }
+ const shellResponse=await get('/');
+ const shellHtml=shellResponse?await shellResponse.text():'';
+ mark('Colzo owner shell deployed',shellResponse?
+  /<title[^>]*>[^<]*\bColzo\b/i.test(shellHtml)&&/id=[\"']colzoOwner[\"']/.test(shellHtml):null);
+ mark('Protected business onboarding',await protectedStatus('/api/business-onboarding'));
+ mark('Protected Colzo records',await protectedStatus('/api/colzo-records?resource=clients'));
+ mark('Protected records dispatcher',await protectedStatus('/api/operations?operation=colzo-records&resource=clients'));
  const health=await json('/api/health');
  mark('Health endpoint',health?health.status==='ok':null);
  const config=await json('/api/public-config');

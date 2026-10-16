@@ -85,6 +85,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Projects');
   assert.equal(await page.locator('.cn-nav [data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
   assert.equal(await page.locator('.cn-nav [data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
+  await page.waitForFunction(()=>document.querySelectorAll('.cf-project-card').length===2,{timeout:10000});
   assert.equal(await page.locator('.cf-project-card').count(),2);
   assert.match((await page.locator('.cf-project-card').allTextContents()).join(' '),/Sample confirmed visit/);
   assert.match(await page.locator('.cn-stack').innerText(),/Sample confirmed visit/);

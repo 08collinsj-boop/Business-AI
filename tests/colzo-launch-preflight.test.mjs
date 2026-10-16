@@ -14,6 +14,8 @@ function fixture({ref=expected,identity=true,operator='sole_trader',company='',b
   calls.push({path,options});
   if(path===broken)throw Error('Offline');
   let body;
+  if(path==='/')return new Response('<html><head><title>Colzo | Business workspace</title></head><body><main id="colzoOwner"></main></body></html>',{status:200});
+  if(['/api/business-onboarding','/api/colzo-records','/api/operations'].includes(path))return new Response('',{status:401});
   if(path==='/api/health')body={status:'ok'};
   else if(path==='/api/public-config')body={frontendAuthEnabled:true,supabaseUrl:'https://'+ref+'.supabase.co'};
   else if(path==='/api/legal-public')body={legal:{identity_configured:identity,operator_type:operator,company_number:company}};
@@ -23,10 +25,10 @@ function fixture({ref=expected,identity=true,operator='sole_trader',company='',b
  };
  return {calls,fetcher};
 }
-test('positive synthetic preflight is read only and contains 14 checks',async()=>{
+test('positive synthetic preflight is read only and contains 18 checks',async()=>{
  const f=fixture(),result=await checkLaunch({origin,expectedRef:expected,fetcher:f.fetcher});
  assert.equal(result.status,'PASS');
- assert.equal(result.checks.length,14);
+ assert.equal(result.checks.length,18);
  assert.ok(f.calls.every(c=>c.options.method==='GET'&&!c.options.headers.Authorization));
  assert.ok(f.calls.every(c=>c.options.redirect==='error'));
 });
@@ -57,4 +59,45 @@ test('rejects insecure public hosts, credential-bearing URLs and missing project
   {origin,expectedRef:''}
  ]) await assert.rejects(checkLaunch({...item,fetcher:f.fetcher}));
  assert.equal(f.calls.length,0);
+});
+test('public launch preflight demands Colzo owner shell and denies unauthenticated protected APIs',async()=>{
+ const f=fixture();
+ const fetcher=async(url,options)=>{
+  const path=new URL(url).pathname;
+  if(path==='/')return new Response('<!doctype html><html><head><title>Colzo | Business workspace</title></head><body><main id="colzoOwner"></main></body></html>',{status:200,headers:{'content-type':'text/html'}});
+  if(['/api/business-onboarding','/api/colzo-records','/api/operations'].includes(path))return new Response('{"error":"Authentication required"}',{status:401});
+  return f.fetcher(url,options);
+ };
+ const result=await checkLaunch({origin,expectedRef:expected,fetcher});
+ assert.equal(result.status,'PASS');
+ assert.equal(result.checks.length,18);
+ for(const name of ['Colzo owner shell deployed','Protected business onboarding','Protected Colzo records','Protected records dispatcher'])
+  assert.equal(result.checks.find(x=>x.name===name)?.status,'PASS',name);
+});
+test('release blocks missing Colzo shell and unauthenticated records disclosure',async()=>{
+ const f=fixture();
+ const fetcher=async(url,options)=>{
+  const p=new URL(url).pathname;
+  if(p==='/')return new Response('<title>Business AI Pilot</title><div id="dashboardApp"></div>',{status:200});
+  if(p==='/api/colzo-records')return new Response('[{"id":"exposed"}]',{status:200});
+  if(p==='/api/business-onboarding'||p==='/api/operations')return new Response('',{status:404});
+  return f.fetcher(url,options);
+ };
+ const result=await checkLaunch({origin,expectedRef:expected,fetcher});
+ assert.equal(result.status,'BLOCKED');
+ for(const name of ['Colzo owner shell deployed','Protected business onboarding','Protected Colzo records','Protected records dispatcher'])
+  assert.equal(result.checks.find(x=>x.name===name)?.status,'BLOCKED');
+});
+test('unreachable protected API must not count as authenticated denial',async()=>{
+ const f=fixture();
+ const fetcher=async(url,options)=>{
+  const p=new URL(url).pathname;
+  if(p==='/')return new Response('<title>Colzo</title><main id="colzoOwner"></main>',{status:200});
+  if(p==='/api/colzo-records')throw Error('timeout');
+  if(p==='/api/business-onboarding'||p==='/api/operations')return new Response('',{status:403});
+  return f.fetcher(url,options);
+ };
+ const result=await checkLaunch({origin,expectedRef:expected,fetcher});
+ assert.equal(result.status,'UNVERIFIED');
+ assert.equal(result.checks.find(x=>x.name==='Protected Colzo records')?.status,'UNVERIFIED');
 });
