@@ -15,6 +15,7 @@ test('WhatsApp schema remains a review-only, append-only migration',()=>{
 
 test('Globally unique account plus WhatsApp sender, and atomic message ID receipts',()=>{
  assert.match(stripped,/unique\s*\(\s*provider_account_sid\s*,\s*whatsapp_address\s*\)/i);
+ assert.match(stripped,/unique\s*\(\s*whatsapp_address\s*\)/i,'a number cannot belong to two tenants across Twilio accounts');
  assert.match(stripped,/unique\s*\(\s*provider_account_sid\s*,\s*message_sid\s*\)/i);
  assert.match(stripped,/foreign key\s*\(\s*connection_id\s*,\s*business_id\s*,\s*provider_account_sid\s*\)/i);
  assert.match(stripped,/foreign key\s*\(\s*sender_binding_id\s*,\s*business_id\s*,\s*provider_account_sid\s*\)/i);

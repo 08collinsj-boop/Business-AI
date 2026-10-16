@@ -86,3 +86,14 @@ Existing Colzo enquiry or dashboard screens do not import these modules, and the
 5. Review Meta/Twilio ISV eligibility, customer opt-in and the 24-hour rule, and explicitly approve any sender migration, live testing or provider charges.
 
 This is a source-only security and architecture milestone, NOT a live WhatsApp test and NOT ready for users.
+
+
+## Phase 3: local PostgreSQL and official Twilio SDK checks (16 Oct 2026)
+
+**Source only, not deployed to Supabase.** A separate disposable PostgreSQL 17.11 instance successfully executed the proposed SQL. The real database checks discovered a safety gap: the original unique key (provider_account_sid, whatsapp_address) permitted the same WhatsApp number to be linked to two businesses through separate Twilio accounts. A red SQL test reproduced it. The proposal now adds global UNIQUE (whatsapp_address) to prevent that situation.
+
+**Evidence from disposable PostgreSQL:** 27 checks passed after the change, including approved sender state, cross-tenant composite foreign-key constraints, owner and admin own-tenant reads, non-member/member and anonymous denial, denial of direct authenticated inserts, and ten simultaneous deliveries of the same message SID inserting exactly one receipt.
+
+**Offline official Twilio SDK check:** 4/4 synthetic messages showed matching HMAC signature validation in Colzo's validator and Twilio SDK v5, including Unicode, query parameters and tampered message bodies. No Twilio API was contacted or charges incurred.
+
+This is still a schema proposal under docs/sql-proposals/, never an automatic migration. A real provider sender and sandbox webhook, durable state, approved AI responses, privacy/consent/cost controls and owner-approved number registration remain required before activation. Keep the actual HTTP endpoint disabled until all these controls pass.

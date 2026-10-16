@@ -46,6 +46,8 @@ create table if not exists public.whatsapp_sender_bindings (
       (verified_at is not null and owner_approved_at is not null)),
   constraint whatsapp_sender_binding_account_number_unique
     unique (provider_account_sid, whatsapp_address),
+  constraint whatsapp_sender_binding_phone_globally_unique
+    unique (whatsapp_address),
   constraint whatsapp_sender_binding_id_business_account_unique
     unique (id, business_id, provider_account_sid)
 );
