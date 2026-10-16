@@ -891,7 +891,17 @@
   if(target.hasAttribute('data-cn-work-new')){openWorkModal(state.screen);return}
   if(target.hasAttribute('data-cn-work-edit')){openWorkModal(state.screen,target.getAttribute('data-cn-work-edit'));return}
   if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)closeWorkModal();return}
-  if(target.hasAttribute('data-wa-action')){if(state.screen==='whatsappDemo'&&window.ColzoWhatsAppDemo?.handleClick(target))render({motion:'none'});return}
+  if(target.hasAttribute('data-wa-action')){
+   if(state.screen==='whatsappDemo'&&window.ColzoWhatsAppDemo){
+    const action=target.getAttribute('data-wa-action');
+    if(typeof window.ColzoWhatsAppDemo.act==='function'){
+     Promise.resolve(window.ColzoWhatsAppDemo.act(action,typeof api==='function'?api:null))
+      .then(changed=>{if(changed&&state.screen==='whatsappDemo')render({motion:'none'})})
+      .catch(()=>{if(state.screen==='whatsappDemo')render({motion:'none'})});
+    }else if(window.ColzoWhatsAppDemo.handleClick(target))render({motion:'none'});
+   }
+   return;
+  }
   if(target.hasAttribute('data-cn-screen')){navigate(target.getAttribute('data-cn-screen'));return}
   if(target.hasAttribute('data-cn-legacy')){original(target.getAttribute('data-cn-legacy'));return}
   if(target.hasAttribute('data-cn-customer')){state.activeLead=target.getAttribute('data-cn-customer');navigate('customer');return}

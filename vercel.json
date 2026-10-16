@@ -19,6 +19,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/api/colzo-whatsapp-inbox",
+      "destination": "/api/operations?operation=colzo-whatsapp-inbox"
+    },
+    {
       "source": "/api/colzo-records",
       "destination": "/api/operations?operation=colzo-records"
     },

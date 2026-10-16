@@ -13,10 +13,10 @@
   {id:'demo-c',name:'Sample customer C',initial:'C',time:'Wednesday',state:'review',tag:'Opening hours',
    messages:['Are you open on Saturdays?'],draft:'I will check the approved opening hours before answering.'}
  ];
- let threads,activeId,filter,announcement;
+ let threads,activeId,filter,announcement,persisted=false,persistentError="",busy=false;
  const button=(label,action,cls,extra='')=>
   '<button type="button" class="'+esc(cls)+'" data-wa-action="'+esc(action)+'" '+extra+'>'+esc(label)+'</button>';
- function reset(){threads=SEED.map(t=>({...t,messages:t.messages.slice()}));activeId='demo-a';filter='all';announcement='';}
+ function reset(){threads=SEED.map(t=>({...t,messages:t.messages.slice()}));activeId='demo-a';filter='all';announcement='';persisted=false;persistentError='';}
  reset();
  const current=()=>threads.find(t=>t.id===activeId)||threads[0];
  function render(){
@@ -42,7 +42,8 @@
     '<h1>WhatsApp inbox</h1><p>A single place to review conversations and AI suggestions.</p></div>'+
     '<span class="cn-wa-status"><i aria-hidden="true"></i>Not connected</span></header>'+
     '<aside class="cn-wa-demo-notice" role="status"><span class="cn-wa-demo-icon" aria-hidden="true">◎</span>'+
-    '<div><strong>Demo only - fictional messages</strong><p>WhatsApp is not connected. No real enquiries, saved records or sent replies.</p></div></aside>'+
+    '<div><strong>'+(persisted?'Saved fictional conversations':'Demo only - fictional messages')+'</strong><p>WhatsApp is not connected. No real enquiries or sent replies.'+(persisted?' These sample records are stored in development only.':'')+'</p></div></aside>'+
+    (persistentError?'<p class="cn-wa-empty" role="status">'+esc(persistentError)+'</p>':'')+
     '<div class="cn-wa-metrics"><article><span>Sample chats</span><strong>'+threads.length+'</strong></article>'+
     '<article><span>Needs review</span><strong>'+threads.filter(t=>t.state==='review').length+'</strong></article>'+
     '<article><span>Human handover</span><strong>'+threads.filter(t=>t.state==='human').length+'</strong></article></div>'+
@@ -59,8 +60,9 @@
     '<div class="cn-wa-draft"><div class="cn-wa-draft-label"><span>✦ AI suggestion</span><span>REVIEW ONLY</span></div>'+
     draft+'<div class="cn-wa-actions">'+
     button('Mark for human','handover:'+selected.id,'cn-wa-primary',selected.state==='human'?'disabled':'')+
-    button('Reset demo','reset','cn-wa-secondary')+'</div></div></section></div>'+
-    '<p class="cn-wa-footnote">Temporary fictional content only. Reload or sign out to reset. No external calls or database writes.</p>'+
+    button(persisted?'View local demo':'Reset demo','reset','cn-wa-secondary')+'</div></div></section></div>'+
+    (persisted?'':'<div class="cn-wa-actions">'+button('Load saved demo','persist:load','cn-wa-secondary')+button('Save fictional chats','persist:seed','cn-wa-secondary')+'</div>')+
+    '<p class="cn-wa-footnote">'+(persisted?'Fictional development records only. Nothing is sent to WhatsApp.':'Temporary fictional content only. Reload or sign out to reset; saving is optional and requires business authentication.')+'</p>'+
     '<p class="cn-wa-sr-only" role="status" aria-live="polite">'+esc(announcement)+'</p></section>';
  }
  function handleClick(el){
@@ -83,5 +85,55 @@
   }
   return false;
  }
- window.ColzoWhatsAppDemo=Object.freeze({render,handleClick,reset});
+ function hydrate(result){
+  if(result?.mode!=='synthetic_persistent'||!Array.isArray(result.items)||
+      !result.items.length||result.items.length>SEED.length)throw Error('Saved demo is unavailable or empty.');
+  const seen=new Set();
+  const next=result.items.map(item=>{
+   if(!SEED.some(x=>x.id===item.fixture_key)||seen.has(item.fixture_key)||
+      !['review','human'].includes(item.state)||
+      typeof item.customer_label!=='string'||item.customer_label.length>80||
+      typeof item.tag!=='string'||item.tag.length>80||
+      !Array.isArray(item.messages)||!item.messages.length||item.messages.length>4||
+      item.messages.some(m=>typeof m!=='string'||m.length>2000)||
+      (item.draft!==null&&(typeof item.draft!=='string'||item.draft.length>900))||
+      typeof item.updated_at!=='string')throw Error('Saved demo contains invalid records.');
+   seen.add(item.fixture_key);
+   return {id:item.fixture_key,name:item.customer_label,initial:item.customer_label[0]||'?',
+    time:'Saved',state:item.state,tag:item.tag,messages:[...item.messages],
+    draft:item.draft,updatedAt:item.updated_at};
+  });
+  threads=next;activeId=next.some(t=>t.id===activeId)?activeId:next[0].id;
+  filter='all';persisted=true;persistentError='';
+ }
+ async function act(action,api){
+  const isPersistentAction=action==='persist:load'||action==='persist:seed'||
+   (persisted&&action.startsWith('handover:'));
+  if(!isPersistentAction)
+   return handleClick({getAttribute:name=>name==='data-wa-action'?action:null});
+  if(busy)return false;
+  busy=true;persistentError='';
+  try{
+   if(typeof api!=='function')throw Error('Secure development API is unavailable.');
+   if(action==='persist:seed'){
+    await api('/api/colzo-whatsapp-inbox',{
+     method:'POST',headers:{'Content-Type':'application/json'},body:'{}'
+    });
+   }else if(action.startsWith('handover:')){
+    const id=action.slice('handover:'.length),current=threads.find(t=>t.id===id);
+    if(!current||current.state!=='review')return false;
+    await api('/api/colzo-whatsapp-inbox',{
+     method:'PATCH',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({fixture_key:id,state:'human',expected_updated_at:current.updatedAt})
+    });
+   }
+   hydrate(await api('/api/colzo-whatsapp-inbox'));
+   announcement='Saved fictional conversations loaded';
+  }catch(err){
+   persistentError=String(err?.message||'Saved demo unavailable. Check development access.');
+   announcement='Could not update saved demo';
+  }finally{busy=false;}
+  return true;
+ }
+ window.ColzoWhatsAppDemo=Object.freeze({render,handleClick,reset,act,isPersisted:()=>persisted});
 })();
