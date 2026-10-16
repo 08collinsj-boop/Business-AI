@@ -87,3 +87,19 @@ For live WhatsApp, design a **separate** owner-approved provider connector,
 signature-verified webhook, atomic receipt deduplication, consent / retention,
 approved-knowledge handover and bounded cost controls. Nothing in this demo
 can be treated as approval to migrate existing business numbers.
+
+## Offline authenticated-flow browser acceptance
+
+Run `node scripts/colzo-whatsapp-persistent-browser.cjs` after installing a
+compatible Playwright package and local Chromium browser in a disposable QA
+environment. This test serves only local static HTML, CSS and JavaScript.
+`tests/fixtures/colzo-whatsapp-persistent-browser.js` is an explicitly **fake**
+owner-authenticated API backed by memory, not Supabase, Twilio or real accounts.
+It checks four mobile/desktop viewport sizes, synthetic business A/B isolation,
+AAL2 rejection in the fake API, stored human handover, late-response cancellation,
+HTML layout/scrolling, disabled sends and zero external network requests.
+
+These browser results **do not** verify real Supabase membership checks, actual
+MFA enrolment, database concurrency, serverless configuration, Twilio signatures
+or live WhatsApp delivery. Those require separately approved authenticated Dev
+acceptance before changing any production-facing integration.

@@ -48,7 +48,7 @@
     '<article><span>Needs review</span><strong>'+threads.filter(t=>t.state==='review').length+'</strong></article>'+
     '<article><span>Human handover</span><strong>'+threads.filter(t=>t.state==='human').length+'</strong></article></div>'+
     '<div class="cn-wa-layout"><section class="cn-wa-list-wrap" aria-label="Sample conversations">'+
-    '<div class="cn-wa-title-line"><h2>Conversations</h2><span>Local preview</span></div>'+
+    '<div class="cn-wa-title-line"><h2>Conversations</h2><span>'+(persisted?'Saved demo':'Local preview')+'</span></div>'+
     '<div class="cn-wa-filters" role="group" aria-label="Filter sample conversations">'+filters+'</div>'+
     '<div class="cn-wa-list">'+(rows||'<p class="cn-wa-empty">No fictional chats in this filter.</p>')+'</div></section>'+
     '<section class="cn-wa-conversation" aria-label="Selected sample conversation">'+
