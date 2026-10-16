@@ -48,3 +48,13 @@ take live payments or run an onboarding campaign.
 5. Fix and re-review the 12 flagged Stitch screens; design approval is not evidence of working features.
 
 **Go/no-go:** One unresolved P0 is NO-GO for public paid release. Passing synthetic tests and a Vercel READY build are not sufficient.
+
+## Deployment protection and interpretation
+
+An anonymous probe of the branch Preview returned an overall UNVERIFIED result
+because Vercel access protection blocked the app shell, health and public
+configuration. Even if individual owner APIs return HTTP 401, this is **not**
+a protected-handler PASS until the actual Colzo health endpoint and shell are
+reached. The preflight now includes a regression test that explicitly simulates
+an outer deployment access wall returning 401 on every URL. Do not disable
+deployment protection or use those outer 401 responses as permission to launch.

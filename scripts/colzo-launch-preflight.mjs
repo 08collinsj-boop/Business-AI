@@ -31,19 +31,23 @@ export async function checkLaunch({origin,expectedRef,fetcher=fetch}){
   try{
    const response=await fetcher(base+path,{method:'GET',redirect:'error',cache:'no-store',
     headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
-   if(response.status===401||response.status===403)return true;
-   if(response.status===429||response.status>=500)return null;
-   return false;
+   return response.status;
   }catch{return null;}
  }
  const shellResponse=await get('/');
  const shellHtml=shellResponse?await shellResponse.text():'';
  mark('Colzo owner shell deployed',shellResponse?
   /<title[^>]*>[^<]*\bColzo\b/i.test(shellHtml)&&/id=[\"']colzoOwner[\"']/.test(shellHtml):null);
- mark('Protected business onboarding',await protectedStatus('/api/business-onboarding'));
- mark('Protected Colzo records',await protectedStatus('/api/colzo-records?resource=clients'));
- mark('Protected records dispatcher',await protectedStatus('/api/operations?operation=colzo-records&resource=clients'));
  const health=await json('/api/health');
+ // A Vercel deployment access wall can return 401 for ALL paths (including
+ // /api/health). That is not evidence that Colzo tenant auth was reached.
+ const applicationReached=health?.status==='ok'&&Boolean(shellResponse);
+ const ownerRouteStatus=status=>status===200?false:
+  !applicationReached||status===null||status===429||status>=500?null:
+  status===401||status===403?true:false;
+ mark('Protected business onboarding',ownerRouteStatus(await protectedStatus('/api/business-onboarding')));
+ mark('Protected Colzo records',ownerRouteStatus(await protectedStatus('/api/colzo-records?resource=clients')));
+ mark('Protected records dispatcher',ownerRouteStatus(await protectedStatus('/api/operations?operation=colzo-records&resource=clients')));
  mark('Health endpoint',health?health.status==='ok':null);
  const config=await json('/api/public-config');
  mark('Owner authentication enabled',config?config.frontendAuthEnabled===true:null);

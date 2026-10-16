@@ -101,3 +101,12 @@ test('unreachable protected API must not count as authenticated denial',async()=
  assert.equal(result.status,'UNVERIFIED');
  assert.equal(result.checks.find(x=>x.name==='Protected Colzo records')?.status,'UNVERIFIED');
 });
+
+test('outer Vercel deployment protection cannot masquerade as successful Colzo API auth',async()=>{
+ const fetcher=async()=>new Response('{"error":"Authentication Required"}',{status:401,headers:{'content-type':'application/json'}});
+ const result=await checkLaunch({origin,expectedRef:expected,fetcher});
+ assert.equal(result.status,'UNVERIFIED');
+ for(const name of ['Protected business onboarding','Protected Colzo records','Protected records dispatcher']){
+  assert.equal(result.checks.find(x=>x.name===name)?.status,'UNVERIFIED',name);
+ }
+});
