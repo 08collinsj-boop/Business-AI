@@ -97,3 +97,14 @@ This is a source-only security and architecture milestone, NOT a live WhatsApp t
 **Offline official Twilio SDK check:** 4/4 synthetic messages showed matching HMAC signature validation in Colzo's validator and Twilio SDK v5, including Unicode, query parameters and tampered message bodies. No Twilio API was contacted or charges incurred.
 
 This is still a schema proposal under docs/sql-proposals/, never an automatic migration. A real provider sender and sandbox webhook, durable state, approved AI responses, privacy/consent/cost controls and owner-approved number registration remain required before activation. Keep the actual HTTP endpoint disabled until all these controls pass.
+
+
+## Phase 4: native inbox demo and synthetic processing
+
+The isolated feature branch now adds a native Colzo More-menu WhatsApp demo,
+fictional conversations, graphite styling, local review/handover/reset and a
+prominent Not connected warning. Detailed QA and restrictions are in
+COLZO_WHATSAPP_SYNTHETIC_INBOX.md. An independent signed synthetic-message
+processor validates tenant-bound draft review and replay handling with no
+real network, external services or database. The webhook remains disabled
+and the SQL proposal remains unapplied.
