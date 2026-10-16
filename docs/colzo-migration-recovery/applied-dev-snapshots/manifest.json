@@ -1,0 +1,24 @@
+{
+  "migrations": [
+    {
+      "application": "archive-only-not-auto-migrated",
+      "environment": "historical-dev",
+      "name": "post_pilot_colzo_projects_quotes_clients",
+      "path": "docs/colzo-migration-recovery/applied-dev-snapshots/20261012223925_post_pilot_colzo_projects_quotes_clients.sql",
+      "sha256": "29a7e140c2d3b387dab4f68fb6f305bbc6aaebb7df04fd75bc35ba06a76ba410",
+      "version": "20261012223925"
+    },
+    {
+      "application": "archive-only-not-auto-migrated",
+      "environment": "dev-only",
+      "name": "colzo_whatsapp_synthetic_inbox_dev_20261016",
+      "path": "docs/colzo-migration-recovery/applied-dev-snapshots/20261016153313_colzo_whatsapp_synthetic_inbox_dev_20261016.sql",
+      "sha256": "1e3ea3593d9814c348977a2ee5d7c62a245cb5dbba3e2e014a2ab979b274536c",
+      "version": "20261016153313"
+    }
+  ],
+  "projectRef": "mvwseobgkexzpmmkgcxe",
+  "purpose": "recovery-audit-only",
+  "source": "Supabase Dev project applied migration history",
+  "warning": "Not a deployment plan. NEVER apply Dev-only WhatsApp SQL to Production or Pilot."
+}
