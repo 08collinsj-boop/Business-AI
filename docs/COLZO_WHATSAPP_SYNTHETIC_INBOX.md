@@ -60,5 +60,5 @@ access. It is **not** end-to-end authenticated production navigation proof.
 6. Complete owner-approved sandbox end-to-end testing before any real sender,
    number migration or outbound messaging.
 
-**api/whatsapp-inbound.js remains disabled and fail-closed.** The schema
+**There is no deployed WhatsApp webhook endpoint.** The `lib/whatsapp-disabled-stub.js` example remains fail-closed, and the `/api/whatsapp-inbound` route returns a platform 404 until a separately approved integration is built. The schema
 proposal remains under docs/sql-proposals, never applied to a Supabase project.

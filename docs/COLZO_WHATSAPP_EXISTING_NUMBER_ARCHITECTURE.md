@@ -48,7 +48,7 @@ All tables must have tenant-scoped RLS, composite FKs and owner/administrator co
 
 ## What has been implemented
 - lib/whatsapp-existing-number.js: pure compatibility decision, strict Twilio form parser, HMAC signature check, isolated per-tenant sender lookup decision. No messages are transmitted or persisted.
-- api/whatsapp-inbound.js: disabled by default (404); even if accidentally enabled, fails closed (503). Never acknowledges a message as delivered without persistence/processing.
+- lib/whatsapp-disabled-stub.js: non-deployed, fail-closed example (404 by default, 503 if toggled on in a local test). No deployed /api/whatsapp-inbound function exists; requests get a platform 404 and no Twilio message can be acknowledged. Keeps the existing 12-function free preview budget.
 - tests/colzo-whatsapp-existing-number.test.mjs: synthetic validations for migration review, signatures, tampering, tenant isolation, payload limits and disabled route.
 - No Twilio dependency is required, no Twilio account is called and no billing is initiated.
 

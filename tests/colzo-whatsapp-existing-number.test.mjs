@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {assessExistingWhatsAppNumber,parseTwilioWhatsAppForm,verifyTwilioWhatsAppSignature,inspectSignedTwilioWhatsAppMessage} from '../lib/whatsapp-existing-number.js';
-import handler from '../api/whatsapp-inbound.js';
+import handler from '../lib/whatsapp-disabled-stub.js';
 
 const A='AC'+'a'.repeat(32),M='SM'+'b'.repeat(32),URL='https://preview.example/api/whatsapp-inbound',TOKEN='fake-only-token';
 const uuid='12345678-1234-4234-8234-123456789012';
@@ -60,7 +60,7 @@ test('reject invalid HMAC before any tenant lookup, and wrong account binding',a
   assert.equal(d.code,'sender_not_connected');assert.equal(d.canSendReply,false);
  }
 });
-test('HTTP endpoint is not enabled and cannot send messages, even if accidentally switched on',async()=>{
+test('non-deployed example is disabled and cannot send messages even if switched on',async()=>{
  const before=process.env.COLZO_WHATSAPP_WEBHOOK_ENABLED;
  const res=()=>({statusCode:0,body:null,setHeader(){return this},status(code){this.statusCode=code;return this},json(data){this.body=data;return this}});
  try{
@@ -71,4 +71,12 @@ test('HTTP endpoint is not enabled and cannot send messages, even if accidentall
   const b=res();await handler({method:'POST',body:form(),headers:{}},b);
   assert.equal(b.statusCode,503);
  }finally{if(before===undefined)delete process.env.COLZO_WHATSAPP_WEBHOOK_ENABLED;else process.env.COLZO_WHATSAPP_WEBHOOK_ENABLED=before;}
+});
+
+
+test('isolated WhatsApp foundation keeps Vercel Hobby API count at twelve',async()=>{
+ const {readdirSync}=await import('node:fs');
+ const apiFiles=readdirSync(new globalThis.URL('../api/',import.meta.url)).filter(name=>name.endsWith('.js'));
+ assert.equal(apiFiles.length,12,'A thirteenth function prevents the free preview deployment');
+ assert.equal(apiFiles.includes('whatsapp-inbound.js'),false,'Disabled provider must not be a deployed endpoint');
 });
