@@ -103,3 +103,19 @@ These browser results **do not** verify real Supabase membership checks, actual
 MFA enrolment, database concurrency, serverless configuration, Twilio signatures
 or live WhatsApp delivery. Those require separately approved authenticated Dev
 acceptance before changing any production-facing integration.
+
+## PostgreSQL timestamp compatibility
+
+Saved `updated_at` timestamps are obtained from the real `timestamptz` column.
+PostgreSQL/PostgREST can serialise these as
+`2026-10-16T12:34:56.123456+00:00` or omit fractional seconds entirely,
+not merely the JavaScript `.000Z` variant. The staff handover request now
+accepts those bounded ISO timestamp forms, validates the calendar date and
+timezone offset, and **preserves the exact originally returned string** for
+the atomic `updated_at=eq.<value>` optimistic concurrency condition.
+
+Tests cover successful microsecond/offset handover, no-fraction responses,
+and malformed calendar values and query-injection attempts. This is API
+compatibility verification, not a claim of authenticated owner end-to-end
+testing. The branch's hosted persistence remains off pending real login and
+MFA acceptance.

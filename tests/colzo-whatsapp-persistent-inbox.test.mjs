@@ -100,3 +100,36 @@ test('even with its flag set, default handler refuses a non-development Supabase
   else process.env.COLZO_WHATSAPP_PERSISTENCE_ENABLED=previous.flag;
  }
 });
+
+test('PATCH accepts PostgreSQL JSON timestamp with microsecond precision and UTC offset without altering optimistic lock',async()=>{
+ // Business-AI-Dev row_to_json(timestamptz) returns +00:00 and up to 6 decimals.
+ const timestamp='2026-10-16T12:34:56.123456+00:00';
+ const a=setup({rows:[{fixture_key:'demo-a',state:'human',updated_at:'2026-10-16T12:34:57.000Z'}]});
+ const res=await invoke(a.handler,'PATCH',{}, {fixture_key:'demo-a',state:'human',expected_updated_at:timestamp});
+ assert.equal(res.statusCode,200);
+ assert.equal(a.calls.length,1);
+ assert.match(a.calls[0].path,/business_id=eq\.12345678/);
+ assert.match(a.calls[0].path,/state=eq\.review/);
+ assert.ok(a.calls[0].path.includes('updated_at=eq.'+encodeURIComponent(timestamp)));
+ assert.ok(Date.parse(JSON.parse(a.calls[0].opt.body).updated_at)>Date.parse(timestamp));
+});
+
+test('PATCH accepts PostgreSQL timestamp that omits fractional seconds',async()=>{
+ const timestamp='2026-10-16T12:34:56+00:00';
+ const a=setup({rows:[{fixture_key:'demo-b',state:'human'}]});
+ const res=await invoke(a.handler,'PATCH',{}, {fixture_key:'demo-b',state:'human',expected_updated_at:timestamp});
+ assert.equal(res.statusCode,200);
+ assert.ok(a.calls[0].path.includes(encodeURIComponent(timestamp)));
+});
+
+test('PATCH still rejects invalid calendar values, extra content and malformed timezone offsets',async()=>{
+ const invalid=['2026-02-30T12:00:00+00:00','2026-13-10T12:00:00+00:00','2026-10-16T12:34:56.1234567+00:00',
+  '2026-10-16T12:34:56+25:00','2026-10-16T12:34:56+00:99',
+  '2026-10-16T12:34:56.000Z&business_id=eq.foreign','just now'];
+ const a=setup();
+ for(const timestamp of invalid){
+  const result=await invoke(a.handler,'PATCH',{}, {fixture_key:'demo-a',state:'human',expected_updated_at:timestamp});
+  assert.equal(result.statusCode,400, 'reject '+timestamp);
+ }
+ assert.equal(a.calls.length,0);
+});
