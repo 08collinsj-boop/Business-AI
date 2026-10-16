@@ -82,3 +82,28 @@ test('no live network, DB or localStorage operations exist in processor source',
  const s=readFileSync(new URL('../lib/whatsapp-synthetic-processor.js',import.meta.url),'utf8');
  assert.doesNotMatch(s,/\bfetch\s*\(|\.messages\.create\s*\(|localStorage|supabase\.|from\s+['"]twilio['"]/);
 });
+
+
+test('human handover wins over an in-flight synthetic AI draft',async()=>{
+ let releaseDraft,signalDraftStarted;
+ const draftStarted=new Promise(resolve=>{signalDraftStarted=resolve;});
+ const pausedDraft=new Promise(resolve=>{releaseDraft=resolve;});
+ const store=init({draftWithApprovedKnowledge:async()=>{
+  signalDraftStarted();
+  await pausedDraft;
+  return {text:'This answer must never reappear after handover.',grounded:true};
+ }});
+ const raw=make();
+ const pending=store.receive({rawBody:raw,signature:sign(raw)});
+ await draftStarted;
+ assert.equal(store.snapshot({businessId:businessA})[0].state,'received');
+ assert.equal(store.handover({businessId:businessA,messageSid:sid}).state,'needs_human');
+ releaseDraft();
+ const result=await pending;
+ assert.equal(result.code,'needs_human');
+ assert.equal(result.canSendReply,false);
+ assert.equal(result.preview,undefined);
+ const receipt=store.snapshot({businessId:businessA})[0];
+ assert.equal(receipt.state,'needs_human');
+ assert.equal(receipt.preview,undefined);
+});
