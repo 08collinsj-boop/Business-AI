@@ -1,0 +1,633 @@
+{
+  "backupInventory": {
+    "backups": [],
+    "backups_count": 0,
+    "physical_backup_data_present": false,
+    "pitr_enabled": false,
+    "region": "eu-west-1",
+    "walg_enabled": true
+  },
+  "columns": [
+    {
+      "column_default": "gen_random_uuid()",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": null,
+      "column_name": "business_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": null,
+      "column_name": "full_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": "''::text",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": "''::text",
+      "column_name": "phone",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": "''::text",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_clients"
+    },
+    {
+      "column_default": "gen_random_uuid()",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": null,
+      "column_name": "business_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": null,
+      "column_name": "lead_id",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": null,
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "''::text",
+      "column_name": "client_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "'planned'::text",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "0",
+      "column_name": "progress",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "numeric_precision": 32,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "''::text",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_projects"
+    },
+    {
+      "column_default": "gen_random_uuid()",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": null,
+      "column_name": "business_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": null,
+      "column_name": "lead_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": null,
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": null,
+      "column_name": "amount_gbp",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "numeric_precision": 12,
+      "numeric_scale": 2,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": "''::text",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": "'draft'::text",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "column_default": null,
+      "column_name": "business_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": null,
+      "column_name": "fixture_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": null,
+      "column_name": "customer_label",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": null,
+      "column_name": "tag",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": null,
+      "column_name": "messages",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": null,
+      "column_name": "draft",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": "'review'::text",
+      "column_name": "state",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": "true",
+      "column_name": "synthetic",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "received_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "column_default": "now()",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "numeric_precision": 0,
+      "numeric_scale": 0,
+      "table_name": "colzo_whatsapp_demo_threads"
+    }
+  ],
+  "constraints": [
+    {
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE RESTRICT",
+      "kind": "f",
+      "name": "colzo_clients_business_id_fkey",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "CHECK ((char_length(email) <= 320))",
+      "kind": "c",
+      "name": "colzo_clients_email_check",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "CHECK (((char_length(full_name) >= 2) AND (char_length(full_name) <= 160)))",
+      "kind": "c",
+      "name": "colzo_clients_full_name_check",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "CHECK ((char_length(notes) <= 4000))",
+      "kind": "c",
+      "name": "colzo_clients_notes_check",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "CHECK ((char_length(phone) <= 80))",
+      "kind": "c",
+      "name": "colzo_clients_phone_check",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "PRIMARY KEY (id)",
+      "kind": "p",
+      "name": "colzo_clients_pkey",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE RESTRICT",
+      "kind": "f",
+      "name": "colzo_projects_business_id_fkey",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CHECK ((char_length(client_name) <= 160))",
+      "kind": "c",
+      "name": "colzo_projects_client_name_check",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "FOREIGN KEY (lead_id, business_id) REFERENCES leads(id, business_id) ON DELETE RESTRICT",
+      "kind": "f",
+      "name": "colzo_projects_lead_tenant_fkey",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CHECK ((char_length(notes) <= 4000))",
+      "kind": "c",
+      "name": "colzo_projects_notes_check",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "PRIMARY KEY (id)",
+      "kind": "p",
+      "name": "colzo_projects_pkey",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CHECK (((progress >= 0) AND (progress <= 100)))",
+      "kind": "c",
+      "name": "colzo_projects_progress_check",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CHECK ((status = ANY (ARRAY['planned'::text, 'active'::text, 'paused'::text, 'completed'::text])))",
+      "kind": "c",
+      "name": "colzo_projects_status_check",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CHECK (((char_length(title) >= 3) AND (char_length(title) <= 160)))",
+      "kind": "c",
+      "name": "colzo_projects_title_check",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CHECK (((amount_gbp >= (0)::numeric) AND (amount_gbp <= 999999999.99)))",
+      "kind": "c",
+      "name": "colzo_quotes_amount_gbp_check",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE RESTRICT",
+      "kind": "f",
+      "name": "colzo_quotes_business_id_fkey",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "FOREIGN KEY (lead_id, business_id) REFERENCES leads(id, business_id) ON DELETE RESTRICT",
+      "kind": "f",
+      "name": "colzo_quotes_lead_tenant_fkey",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "CHECK ((char_length(notes) <= 4000))",
+      "kind": "c",
+      "name": "colzo_quotes_notes_check",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "PRIMARY KEY (id)",
+      "kind": "p",
+      "name": "colzo_quotes_pkey",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'sent'::text, 'accepted'::text, 'declined'::text])))",
+      "kind": "c",
+      "name": "colzo_quotes_status_check",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "CHECK (((char_length(title) >= 3) AND (char_length(title) <= 160)))",
+      "kind": "c",
+      "name": "colzo_quotes_title_check",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE",
+      "kind": "f",
+      "name": "colzo_whatsapp_demo_threads_business_id_fkey",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK (((char_length(customer_label) >= 1) AND (char_length(customer_label) <= 80)))",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_customer_label_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK (((draft IS NULL) OR (char_length(draft) <= 900)))",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_draft_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK ((fixture_key = ANY (ARRAY['demo-a'::text, 'demo-b'::text, 'demo-c'::text])))",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_fixture_key_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK (((jsonb_typeof(messages) = 'array'::text) AND ((jsonb_array_length(messages) >= 1) AND (jsonb_array_length(messages) <= 4)) AND (length((messages)::text) <= 4000)))",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_messages_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "PRIMARY KEY (business_id, fixture_key)",
+      "kind": "p",
+      "name": "colzo_whatsapp_demo_threads_pkey",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK ((state = ANY (ARRAY['review'::text, 'human'::text])))",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_state_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK (synthetic)",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_synthetic_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK (((char_length(tag) >= 1) AND (char_length(tag) <= 80)))",
+      "kind": "c",
+      "name": "colzo_whatsapp_demo_threads_tag_check",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CHECK (((state <> 'human'::text) OR (draft IS NULL)))",
+      "kind": "c",
+      "name": "colzo_whatsapp_human_has_no_draft",
+      "table_name": "colzo_whatsapp_demo_threads"
+    }
+  ],
+  "containsCustomerRows": false,
+  "evidenceType": "read-only-postgres-catalog",
+  "indexes": [
+    {
+      "definition": "CREATE INDEX colzo_clients_business_idx ON public.colzo_clients USING btree (business_id, full_name)",
+      "name": "colzo_clients_business_idx",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "CREATE UNIQUE INDEX colzo_clients_pkey ON public.colzo_clients USING btree (id)",
+      "name": "colzo_clients_pkey",
+      "table_name": "colzo_clients"
+    },
+    {
+      "definition": "CREATE UNIQUE INDEX colzo_projects_pkey ON public.colzo_projects USING btree (id)",
+      "name": "colzo_projects_pkey",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CREATE INDEX colzo_projects_tenant_status_idx ON public.colzo_projects USING btree (business_id, status, created_at DESC)",
+      "name": "colzo_projects_tenant_status_idx",
+      "table_name": "colzo_projects"
+    },
+    {
+      "definition": "CREATE UNIQUE INDEX colzo_quotes_pkey ON public.colzo_quotes USING btree (id)",
+      "name": "colzo_quotes_pkey",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "CREATE INDEX colzo_quotes_tenant_lead_idx ON public.colzo_quotes USING btree (business_id, lead_id, created_at DESC)",
+      "name": "colzo_quotes_tenant_lead_idx",
+      "table_name": "colzo_quotes"
+    },
+    {
+      "definition": "CREATE INDEX colzo_wa_demo_tenant_recent_idx ON public.colzo_whatsapp_demo_threads USING btree (business_id, received_at DESC)",
+      "name": "colzo_wa_demo_tenant_recent_idx",
+      "table_name": "colzo_whatsapp_demo_threads"
+    },
+    {
+      "definition": "CREATE UNIQUE INDEX colzo_whatsapp_demo_threads_pkey ON public.colzo_whatsapp_demo_threads USING btree (business_id, fixture_key)",
+      "name": "colzo_whatsapp_demo_threads_pkey",
+      "table_name": "colzo_whatsapp_demo_threads"
+    }
+  ],
+  "isLiveContinuouslyVerified": false,
+  "observedAtUTC": "2026-10-16T23:18:40.963794+00:00",
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "name": "colzo whatsapp admin read synthetic demo",
+      "qual": "(EXISTS ( SELECT 1\n   FROM business_memberships membership\n  WHERE ((membership.business_id = colzo_whatsapp_demo_threads.business_id) AND (membership.user_id = ( SELECT auth.uid() AS uid)) AND (membership.role = ANY (ARRAY['owner'::text, 'admin'::text])))))",
+      "roles": "{authenticated}",
+      "table_name": "colzo_whatsapp_demo_threads",
+      "with_check": null
+    }
+  ],
+  "projectRef": "mvwseobgkexzpmmkgcxe",
+  "roles": [
+    {
+      "anon_insert": false,
+      "anon_select": false,
+      "anon_update": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false,
+      "rls_enabled": true,
+      "table_name": "colzo_clients"
+    },
+    {
+      "anon_insert": false,
+      "anon_select": false,
+      "anon_update": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false,
+      "rls_enabled": true,
+      "table_name": "colzo_projects"
+    },
+    {
+      "anon_insert": false,
+      "anon_select": false,
+      "anon_update": false,
+      "authenticated_insert": false,
+      "authenticated_select": false,
+      "authenticated_update": false,
+      "rls_enabled": true,
+      "table_name": "colzo_quotes"
+    },
+    {
+      "anon_insert": false,
+      "anon_select": false,
+      "anon_update": false,
+      "authenticated_insert": false,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "rls_enabled": true,
+      "table_name": "colzo_whatsapp_demo_threads"
+    }
+  ],
+  "schemaVersion": 1
+}
