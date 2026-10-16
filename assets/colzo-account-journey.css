@@ -113,3 +113,95 @@ body.colzo-interface .auth-screen :is(#signUpForm,#businessSetupForm,#configurat
     transition:none!important;animation:none!important;
   }
 }
+
+/* Account recovery + legally required consent gates.
+   Preserve legal document links, required checkboxes and existing backend
+   consent enforcement. Never imply that the visual screen grants access. */
+body.colzo-interface #authScreen #passwordResetRequestForm,
+body.colzo-interface #authScreen #passwordRecoveryForm,
+body.colzo-interface #legalAcceptanceScreen .legal-gate-card,
+body.colzo-interface #dpaAcceptanceScreen .legal-gate-card{
+  width:min(100%,490px)!important;
+  min-width:0!important;
+  border:1px solid #45525a!important;
+  border-radius:23px!important;
+  background:linear-gradient(158deg,#242d34,#171e24 88%)!important;
+  padding:26px 23px!important;
+  box-shadow:0 24px 60px rgba(0,0,0,.32)!important;
+}
+body.colzo-interface #authScreen #passwordRecoveryForm .cn-recovery-alt{
+  margin:18px 0 0!important;
+  text-align:center;
+  font-size:13px!important;
+}
+body.colzo-interface #authScreen #passwordRecoveryRequestAgain{
+  width:auto;min-height:44px;
+  padding:9px 13px;
+  color:#c8ff2e!important;
+  border:1px solid #496147!important;
+  border-radius:11px;background:#27362a;
+  font:inherit;font-size:12px;font-weight:740;
+  cursor:pointer;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-card .legal-kicker{
+  display:inline-flex;
+  margin:7px 0 8px!important;
+  padding:6px 9px;
+  border:1px solid #495e47;
+  background:#29382a;
+  border-radius:9px;
+  color:#c8ff2e!important;
+  font-size:10px!important;
+  font-weight:750!important;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-links{
+  display:grid;gap:9px;min-width:0;margin:20px 0;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-links a{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;min-height:48px;box-sizing:border-box;
+  padding:12px 14px;
+  border:1px solid #435259;border-radius:12px;
+  background:#27323a!important;
+  color:#eff5f3!important;font-size:12px!important;
+  line-height:1.45;overflow-wrap:anywhere;text-decoration:none!important;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-links a:hover{
+  border-color:#6f8553!important;
+  background:#303e42!important;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-links a:focus-visible{
+  outline:3px solid #c8ff2e!important;outline-offset:2px!important;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-card>.legal-consent-row{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:15px 12px;margin:21px 0 18px;
+  background:#212d2c;border:1px solid #42584a;
+  border-radius:13px;line-height:1.5;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-card>.legal-consent-row input[type=checkbox]{
+  min-width:19px!important;width:19px!important;
+  min-height:19px!important;height:19px!important;
+  flex:none;margin:2px 0 0;
+  accent-color:#c8ff2e!important;
+}
+body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-card .auth-submit{
+  width:100%;min-height:51px!important;
+}
+@media (max-width:520px){
+ body.colzo-interface #authScreen #passwordResetRequestForm,
+ body.colzo-interface #authScreen #passwordRecoveryForm,
+ body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-card{
+  border-radius:19px!important;padding:22px 17px!important;
+  margin-bottom:max(12px,env(safe-area-inset-bottom));
+ }
+ body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-links a{
+  padding:11px 12px;min-height:50px;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ body.colzo-interface :is(#legalAcceptanceScreen,#dpaAcceptanceScreen) .legal-gate-links a{
+  transition:none!important;
+ }
+}

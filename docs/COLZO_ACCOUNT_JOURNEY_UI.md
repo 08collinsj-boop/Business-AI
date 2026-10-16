@@ -34,3 +34,22 @@ Not yet verified: live signup/email, existing owner MFA, authenticated
 database writes, real customer paths, assistive technologies, or pixel
 parity of all accepted Stitch references. Twelve flagged reference screens
 remain unapproved; this batch does not silently approve or implement them.
+
+## Follow-up: recovery, legal gates and mandatory MFA review
+
+- Password recovery now has an explicit **Request a new reset link** action
+  when a reset is expired or needs replacing. An existing Supabase recovery
+  session must sign out successfully first; otherwise the current recovery
+  screen remains visible and an error is shown. After success, the temporary
+  password fields are cleared and the normal existing reset-request flow is
+  presented. This does not bypass Supabase token validation or AAL2.
+- Legal acceptance and DPA screens keep their existing real document URLs,
+  consent checkboxes and server-enforced requirements. The new Graphite &
+  Volt styling improves link cards, checkboxes, safe areas and keyboard
+  focus without rewriting legal agreements.
+- New offline browser QA checks reset-request/back navigation, simulated
+  logout success/failure, legal/DPA page visibility and links, and mobile
+  overflow for widths 375, 390, 430 and 1366. Existing isolated mandatory
+  MFA browser suite also remains a release gate.
+- No live authenticator credentials, email, database mutations or customer
+  records are used in these tests.

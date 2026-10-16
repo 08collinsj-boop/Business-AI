@@ -2274,6 +2274,7 @@ input.switch,input.switch:before{transition:none}
 <div class="auth-field"><label for="recoveryPassword">New password</label><input id="recoveryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <div class="auth-field"><label for="recoveryPasswordConfirm">Confirm new password</label><input id="recoveryPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit">Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
+<p class="auth-switch cn-recovery-alt"><button id="passwordRecoveryRequestAgain" class="auth-link" type="button">Request a new reset link</button></p>
 </form>
 
 <form id="signUpForm" class="auth-card auth-form-hidden">
@@ -4005,6 +4006,27 @@ $('passwordResetRequestForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
 const button=$('passwordResetRequestSubmit');const message=$('passwordResetRequestMessage');let sent=false;button.disabled=true;message.classList.remove('info');message.textContent='Sending reset link…';
 try{const redirect=new URL('/',window.location.origin);redirect.searchParams.set('auth','recovery');rememberPasswordRecoveryRequest();const {error}=await supabaseClient.auth.resetPasswordForEmail($('passwordResetEmail').value.trim(),{redirectTo:redirect.toString()});if(error)throw error;sent=true;message.textContent='If this email can be used, check your inbox for a secure reset link. Please wait about a minute before requesting another.';message.classList.add('info');}catch{clearPasswordRecoveryRequest();message.textContent='We could not send a reset link. Please try again shortly.';}finally{if(sent)window.setTimeout(()=>{button.disabled=false;},PASSWORD_RESET_REQUEST_COOLDOWN_MS);else button.disabled=false;}
+});
+
+$('passwordRecoveryRequestAgain').addEventListener('click',async()=>{
+const button=$('passwordRecoveryRequestAgain');
+button.disabled=true;
+try{
+// Abandon the current recovery session before presenting a fresh request form.
+// Never expose the normal signed-in app as a way around password recovery.
+if(supabaseClient){
+ const {error}=await supabaseClient.auth.signOut();
+ if(error)throw error;
+}
+passwordRecoveryActive=false;
+clearPasswordRecoveryLocation();
+$('recoveryPassword').value='';
+$('recoveryPasswordConfirm').value='';
+$('passwordRecoveryMessage').textContent='';
+setAuthenticationMode('reset-request');
+}catch{
+ $('passwordRecoveryMessage').textContent='Could not leave password recovery securely. Reload the page before requesting a new link.';
+}finally{button.disabled=false;}
 });
 
 $('passwordRecoveryForm').addEventListener('submit',async event=>{
