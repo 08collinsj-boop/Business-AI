@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Colzo WhatsApp demo - synthetic fixture</title>
+<link rel="stylesheet" href="/assets/colzo-native.css">
+<link rel="stylesheet" href="/assets/colzo-whatsapp-inbox-demo.css">
+<style>body{margin:0;background:#15181d;color:#f5f7fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}#colzoOwner{display:block!important;min-height:100dvh;max-width:1200px;margin:auto;padding:16px}#cnContent{max-width:1100px;margin:auto}</style>
+</head><body class="auth-ready colzo-owner-enabled"><div id="colzoOwner" class="colzo-native">
+<main id="cnContent" aria-label="Synthetic Colzo WhatsApp inbox fixture"></main>
+</div>
+<script src="/assets/colzo-whatsapp-inbox-demo.js"></script>
+<script>
+const panel=document.getElementById('cnContent');
+function draw(){panel.innerHTML=window.ColzoWhatsAppDemo.render()}
+document.querySelector('#colzoOwner').addEventListener('click',event=>{
+ const button=event.target.closest('button[data-wa-action]');
+ if(button&&window.ColzoWhatsAppDemo.handleClick(button))draw();
+});
+draw();
+</script></body></html>

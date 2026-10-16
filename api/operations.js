@@ -27,6 +27,7 @@ import feedbackHandler from '../lib/feedback-handler.js';
 import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
+import colzoWhatsAppInboxHandler from '../lib/colzo-whatsapp-persistent-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
@@ -34,6 +35,7 @@ import { observeOperation } from '../lib/operations-observability.js';
 // implementation packaging and does not relax the individual handlers' auth.
 const handlers = Object.freeze({
   "colzo-records": colzoRecordsHandler,
+  "colzo-whatsapp-inbox": colzoWhatsAppInboxHandler,
   "audit-log": auditLogHandler,
   "data-lifecycle": dataLifecycleHandler,
   "data-subjects": dataSubjectsHandler,
