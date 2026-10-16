@@ -63,3 +63,26 @@ All tables must have tenant-scoped RLS, composite FKs and owner/administrator co
 - [ ] Do not alter Production, Pilot or existing WhatsApp numbers until authorised.
 
 **Current release status: NOT CONNECTED / NOT AVAILABLE TO CUSTOMERS.**
+
+
+## Phase 2: tenant-isolated shadow receipts and simulated receptionist
+
+These files are added only to the unmerged WhatsApp feature branch:
+
+- docs/sql-proposals/colzo_whatsapp_tenant_shadow_receipts.sql: REVIEW ONLY, NOT applied. Provides provider connections, verified sender bindings, and minimal inbound receipts. Sender binding has unique provider account plus receiving number; receipt has unique provider account plus message SID. Composite tenant foreign keys, owner-approved verification status, restricted access and RLS guard against cross-business misrouting.
+- tests/colzo-whatsapp-schema-isolation.test.mjs: static regression checks for schema isolation, unique constraints and absence of plain customer phone/message storage. These tests do NOT prove a real PostgreSQL migration or RLS behaviour.
+- lib/whatsapp-shadow-flow.js: no-network simulator. It requires trusted signed routing, an injected atomic receipt callback, verified policy and safe intent before preparing a grounded draft for review. All outputs have canSendReply false and canCreateLead false. It never contacts AI providers or Twilio.
+- tests/colzo-whatsapp-shadow-flow.test.mjs: verified routing, message retry idempotency, concurrency, invalid signatures, cross-business spoofing, missing knowledge and human handover tests.
+- lib/whatsapp-outbound-policy.js and tests: conservatively consider the 24-hour service window, STOP, approved templates and owner approval for manual review. No combination permits actual sending.
+
+Existing Colzo enquiry or dashboard screens do not import these modules, and the actual Twilio webhook route remains disabled.
+
+### Remaining activation gates
+
+1. Review and exercise migration on an isolated throwaway PostgreSQL database, never the shared Pilot's Supabase database. Verify actual SQL syntax, RLS and message-SID unique-concurrency behaviour.
+2. Replace synthetic atomic receipt callback with trusted server-side INSERT ON CONFLICT DO NOTHING RETURNING id, maintaining verified tenant binding. Do not store actual customer chat or phone numbers without approved privacy policy, retention and secure storage.
+3. Use the officially supported Twilio SDK signature validator in the actual provider adapter; verify exact HTTPS callback URL and authorised account/subaccount credentials.
+4. Integrate the existing Colzo receptionist business policies through a trusted server service, a durable human review queue, and cost/rate controls. The simulator never sends or confirms a booking.
+5. Review Meta/Twilio ISV eligibility, customer opt-in and the 24-hour rule, and explicitly approve any sender migration, live testing or provider charges.
+
+This is a source-only security and architecture milestone, NOT a live WhatsApp test and NOT ready for users.
