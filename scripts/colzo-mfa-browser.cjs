@@ -17,8 +17,8 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('request',r=>{const hostname=new URL(r.url()).hostname;if(!['127.0.0.1','cdn.jsdelivr.net'].includes(hostname))errors.push('unexpected external '+hostname)});
   await page.route('**/supabase-js@2*',r=>r.fulfill({status:200,contentType:'application/javascript',body:sdk}));
-  await page.route('**/colzo-backend/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-qa.example.invalid',supabaseAnonKey:'public-fixture'})}));
-  await page.route('**/colzo-backend/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"fixture only"}'}));
+  await page.route('**/api/public-config',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({frontendAuthEnabled:true,supabaseUrl:'https://fake-qa.example.invalid',supabaseAnonKey:'public-fixture'})}));
+  await page.route('**/api/**',r=>r.fulfill({status:401,contentType:'application/json',body:'{"error":"fixture only"}'}));
   await page.goto(base+'/',{waitUntil:'networkidle'});
   await page.waitForFunction(()=>typeof window.businessAiVerifyProtectedAction==='function',{timeout:8000});
   await page.evaluate(()=>{

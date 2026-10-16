@@ -1,0 +1,91 @@
+/* Approved Colzo Graphite & Volt functional first wave.
+ * Scoped to native Colzo owner workspace. No legacy or public pages affected.
+ * References: accepted Customer Profile/Add/Edit, Quotes and Projects.
+ */
+#colzoOwner .cn-approved-profile,
+#colzoOwner .cn-approved-client-form,
+#colzoOwner .cn-approved-quotes,
+#colzoOwner .cn-approved-projects{--approved-volt:#c8ff2e;--approved-surface:#151b22;--approved-surface2:#1e262e;--approved-border:#303c44;--approved-muted:#a4b4c0;max-width:940px;margin:0 auto 22px;color:#f4f7fa}
+#colzoOwner .cn-approved-profile{display:grid;gap:13px}
+#colzoOwner .cn-approved-detail-top{display:flex;justify-content:space-between;align-items:center;min-height:44px;gap:16px}
+#colzoOwner .cn-approved-detail-top .cn-back{min-height:44px;font-size:13px;color:#c8ff2e;border:0;background:transparent;padding:7px 4px}
+#colzoOwner .cn-approved-text-action{border:0;background:transparent;min-height:44px;min-width:44px;padding:9px 13px;color:#c8ff2e;font-size:14px;font-weight:650;cursor:pointer}
+#colzoOwner .cn-approved-text-action:focus-visible,
+#colzoOwner .cn-approved-profile button:focus-visible,
+#colzoOwner .cn-approved-profile a:focus-visible{outline:3px solid #c8ff2e;outline-offset:2px}
+#colzoOwner .cn-approved-contact-head{text-align:center;display:flex;align-items:center;flex-direction:column;gap:3px;padding:10px 0 3px}
+#colzoOwner .cn-approved-avatar{width:76px;height:76px;display:grid;place-items:center;border-radius:50%;background:#323e49;color:#f3f7fb;border:1px solid #566878;font-size:24px;font-weight:750;letter-spacing:-.04em}
+#colzoOwner .cn-approved-contact-head h1{font-size:26px;letter-spacing:-.05em;line-height:1.1;margin:13px 0 0;font-weight:720;color:#f7f9fa}
+#colzoOwner .cn-approved-contact-head p{font-size:12px;color:#b1bec8;line-height:1.5;margin:5px 0 0}
+#colzoOwner .cn-approved-contact-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:5px 0}
+#colzoOwner .cn-approved-contact-actions a,
+#colzoOwner .cn-approved-contact-actions button,
+#colzoOwner .cn-approved-disabled-action{min-height:62px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;border:1px solid #303d45;border-radius:13px;background:#1c242d;color:#e2ebef;text-decoration:none;font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+#colzoOwner .cn-approved-contact-actions span[aria-hidden=true]{font-size:18px;color:#c8ff2e}
+#colzoOwner .cn-approved-disabled-action{color:#80919b;cursor:not-allowed}
+#colzoOwner .cn-approved-tabs{display:flex;gap:5px;background:#11171e;border:1px solid #303b45;border-radius:12px;padding:5px}
+#colzoOwner .cn-approved-tabs button{flex:1;min-height:41px;font:inherit;font-size:12px;color:#adb9c2;border:0;border-radius:9px;background:transparent;cursor:pointer}
+#colzoOwner .cn-approved-tabs button[aria-pressed=true]{background:#2a333d;color:#edf4f6;font-weight:700;box-shadow:0 1px 7px rgba(0,0,0,.21)}
+#colzoOwner .cn-approved-info-card{background:#171f27;border:1px solid #303d47;border-radius:15px;padding:16px;min-width:0}
+#colzoOwner .cn-approved-info-card h2{font-size:10px;letter-spacing:.11em;color:#9faebb;font-weight:750;margin:0 0 11px;display:flex;justify-content:space-between;align-items:center}
+#colzoOwner .cn-approved-info-card h2 span{color:#c8ff2e}
+#colzoOwner .cn-approved-info-card dl{margin:0}
+#colzoOwner .cn-approved-info-card dl>div{display:grid;gap:5px;padding:12px 0;border-bottom:1px solid #293640}
+#colzoOwner .cn-approved-info-card dl>div:last-child{border-bottom:0;padding-bottom:1px}
+#colzoOwner .cn-approved-info-card dt{font-size:11px;color:#a1b2be}
+#colzoOwner .cn-approved-info-card dd{font-size:13px;color:#ecf2f4;overflow-wrap:anywhere;margin:0}
+#colzoOwner .cn-approved-note{margin:2px 0 13px;font-size:13px;white-space:pre-wrap;color:#d7e2e7;line-height:1.55;overflow-wrap:anywhere}
+#colzoOwner .cn-approved-related{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid #313f49;border-radius:12px;background:#222c35;color:#f2f6f6;padding:12px 13px;width:100%;margin:8px 0;min-height:60px;cursor:pointer}
+#colzoOwner .cn-approved-related span:first-child{display:grid;gap:5px;min-width:0}
+#colzoOwner .cn-approved-related strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#colzoOwner .cn-approved-related small{font-size:11px;color:#aab7c1}
+#colzoOwner .cn-approved-related span:last-child{color:#c8ff2e;font-size:21px}
+#colzoOwner .cn-approved-outline{background:transparent;border:1px solid #607743;color:#c8ff2e;border-radius:10px;padding:9px 15px;min-height:42px;font-size:12px;font-weight:650}
+#colzoOwner .cn-approved-boundary,
+#colzoOwner .cn-approved-honesty{color:#abbac1;font-size:11px;line-height:1.55;margin:10px 0}
+#colzoOwner .cn-approved-client-form{border-radius:18px;background:#10161d;border:1px solid #27323d;padding:0 15px 22px;max-width:640px}
+#colzoOwner .cn-approved-form-header{min-height:61px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #2e3943;margin:0 -15px;padding:2px 12px}
+#colzoOwner .cn-approved-form-header h2{font-size:18px;font-weight:700;letter-spacing:-.03em;margin:0;white-space:nowrap}
+#colzoOwner .cn-approved-form-subtitle{font-size:12px;color:#a3b3c1;line-height:1.5;margin:14px 1px 20px}
+#colzoOwner .cn-approved-form-group{display:grid;gap:13px;margin-bottom:21px}
+#colzoOwner .cn-approved-form-group h3{display:flex;justify-content:space-between;gap:12px;font-size:10px;font-weight:700;letter-spacing:.11em;color:#b0bec7;margin:0}
+#colzoOwner .cn-approved-form-group h3 small{font-weight:500;color:#8a9daa;letter-spacing:0;font-size:11px}
+#colzoOwner .cn-approved-form-group label{display:grid;gap:8px;font-size:12px;color:#d8e3e8}
+#colzoOwner .cn-approved-form-group input,
+#colzoOwner .cn-approved-form-group textarea{box-sizing:border-box;width:100%;border:1px solid #374650;border-radius:11px;min-height:48px;background:#202934;color:#f2f5f7;padding:12px 14px;font:inherit;font-size:15px;outline:0}
+#colzoOwner .cn-approved-form-group textarea{resize:vertical;min-height:94px;line-height:1.5}
+#colzoOwner .cn-approved-form-group input:focus,
+#colzoOwner .cn-approved-form-group textarea:focus{border-color:#c8ff2e;box-shadow:0 0 0 2px rgba(200,255,46,.11)}
+#colzoOwner .cn-approved-client-form #cnColzoFeedback{min-height:16px;color:#c8ff2e}
+#colzoOwner .cn-approved-form-limit{font-size:11px;color:#9babb5;line-height:1.5;margin-top:12px}
+#colzoOwner .cn-approved-quotes .cn-record,
+#colzoOwner .cn-approved-projects .cf-project-card{background:#172029;border:1px solid #33414c;border-radius:15px;min-height:92px;padding:15px;transition:border-color .14s ease,background-color .14s ease}
+#colzoOwner .cn-approved-quotes .cn-record:focus-visible,
+#colzoOwner .cn-approved-projects .cf-project-card:focus-visible{outline:3px solid #c8ff2e;outline-offset:2px}
+#colzoOwner .cn-approved-quotes .cn-record:hover,
+#colzoOwner .cn-approved-projects .cf-project-card:hover{background:#202c34;border-color:#6a8545}
+#colzoOwner .cn-approved-quotes .cn-avatar,
+#colzoOwner .cn-approved-projects .cn-avatar{border-radius:12px;background:#313d39;color:#c8ff2e}
+#colzoOwner .cn-approved-quotes .cn-record-main strong,
+#colzoOwner .cn-approved-projects .cf-project-text strong{font-size:14px;letter-spacing:-.02em}
+#colzoOwner .cn-approved-quotes .cn-record-main small,
+#colzoOwner .cn-approved-projects .cf-project-text small{color:#a9bac2;font-size:11px}
+#colzoOwner .cn-approved-quotes .cn-record-end strong{font-size:15px;color:#e8f3dd;font-variant-numeric:tabular-nums}
+#colzoOwner .cn-approved-quotes .cn-pill{border-radius:999px;font-size:10px}
+#colzoOwner .cn-approved-projects .cf-progress{height:6px;border-radius:99px;background:#303c42;overflow:hidden}
+#colzoOwner .cn-approved-projects .cf-progress i{background:#c8ff2e;border-radius:99px}
+#colzoOwner .cn-approved-projects .cf-project-status{font-size:11px;color:#b9c7c0}
+#colzoOwner .cn-approved-quotes .cn-section-bar .cn-primary,
+#colzoOwner .cn-approved-projects .cf-icon-button.volt{min-height:44px}
+#colzoOwner .cn-approved-quotes .cn-stack,
+#colzoOwner .cn-approved-projects .cn-stack{display:grid;gap:11px}
+@media(max-width:600px){
+ #colzoOwner .cn-approved-profile,
+ #colzoOwner .cn-approved-quotes,
+ #colzoOwner .cn-approved-projects{padding:0 3px}
+ #colzoOwner .cn-approved-contact-head h1{font-size:23px}
+ #colzoOwner .cn-approved-info-card{padding:14px}
+ #colzoOwner .cn-approved-client-form{margin:0 0 8px;padding:0 13px 19px;border-radius:13px}
+ #colzoOwner .cn-approved-form-header{margin:0 -13px}
+}
+@media(prefers-reduced-motion:reduce){#colzoOwner .cn-approved-quotes .cn-record,#colzoOwner .cn-approved-projects .cf-project-card{transition:none}}

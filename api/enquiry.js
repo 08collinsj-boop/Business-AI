@@ -1,3 +1,15 @@
+// Anonymous enquiries must not target a different database on an isolated Colzo Preview.
+function isApprovedSupabaseTarget() {
+  const expected = process.env.COLZO_EXPECTED_SUPABASE_PROJECT_REF;
+  if (!expected) return true;
+  if (!/^[a-z0-9]{20}$/.test(String(expected))) return false;
+  try {
+    const url = new URL(String(process.env.SUPABASE_URL || ''));
+    return url.protocol === 'https:' && url.hostname === expected + '.supabase.co'
+      && !url.username && !url.password && !url.port && url.pathname === '/' && !url.search && !url.hash;
+  } catch { return false; }
+}
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -968,6 +980,10 @@ async function callOpenRouterEnquiryModel(systemPrompt, conversation) {
 }
 
 export default async function handler(req, res) {
+  // Reject direct anonymous enquiry writes if this Preview is connected to an unexpected database.
+  if (!isApprovedSupabaseTarget()) {
+    return res.status(503).json({ error: 'Enquiries are temporarily unavailable' });
+  }
   if (req.method !== "POST") {
     return res.status(405).json({
       error: "Method not allowed"
