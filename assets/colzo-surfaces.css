@@ -28,6 +28,11 @@ body#colzoApp:is(.customer-account,.customer-portal-ready,.public-directory,.pub
 #colzoApp .public-directory-hero p{font-size:14px!important;max-width:560px!important;margin:0 0 24px!important}
 #colzoApp :is(.public-directory-search,.customer-search-box){display:flex;align-items:center;gap:12px;padding:6px!important;border-radius:16px!important;border:1px solid var(--cz-line)!important;background:var(--cz-bg)!important;box-shadow:none!important;width:100%;margin:16px 0 0!important}
 #colzoApp :is(.public-directory-search input,.customer-search-box input){background:transparent!important;border:0!important;min-width:0;flex:1;box-shadow:none!important;outline-offset:0!important;font-size:16px!important;padding:12px!important}
+#colzoApp .public-directory-search-icon{display:none!important}
+#colzoApp .public-directory-search-submit{position:static!important;transform:none!important;flex:0 0 auto}
+#colzoApp .public-directory-search-hint{color:var(--cz-muted)!important}
+#colzoApp .public-directory-search-types span{color:var(--cz-muted)!important}
+#colzoApp .public-directory-search-types b{color:var(--cz-volt)!important}
 #colzoApp :is(.public-directory-search button,.customer-search-box button,.customer-profile-form button,.customer-auth-primary,.public-chat-form button,#publicProfileEnquiryButton){background:var(--cz-volt)!important;color:var(--cz-bg)!important;border:1px solid var(--cz-volt)!important;box-shadow:none!important;border-radius:12px!important;min-height:48px!important;font-size:14px!important;font-weight:650;padding:12px 20px!important}
 #colzoApp :is(.public-directory-search-hint,.public-directory-search-types){font-size:12px!important;color:var(--cz-muted)!important}
 #colzoApp .public-directory-search-types{display:flex!important;gap:8px!important;margin:16px 0!important}

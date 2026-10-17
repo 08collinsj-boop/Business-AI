@@ -20,6 +20,13 @@ body.colzo-public-site:before,.ambient,.site-bg,.aurora,.wave,.hero-glow{display
 .colzo-public-site :is(.icon-box,.feature-icon,.step-number,.step-icon){background:#1b222c!important;color:#c8ff2e!important;border-color:#28313d!important;box-shadow:none!important}
 .colzo-public-site :is(.chart,.chart-card svg,.metric b,.metric-grid b){color:#c8ff2e!important}
 .colzo-public-site .product-stage:after{display:none!important}
+.colzo-public-site :is(.stage-glow,.laptop-frame:after,.laptop-frame:before,.laptop-topbar:after){display:none!important}
+.colzo-public-site .laptop-frame{transform:none!important;animation:none!important;background:#151a22!important;border:1px solid #28313d!important;border-radius:20px!important;box-shadow:none!important;padding:12px!important}
+.colzo-public-site :is(.laptop-topbar,.activity-panel,.activity-line,.trust-strip,.eyebrow){background:#151a22!important;border-color:#28313d!important;box-shadow:none!important}
+.colzo-public-site :is(.activity-icon,.hero-points li:before,.industry i){background:transparent!important;color:#c8ff2e!important;box-shadow:none!important}
+.colzo-public-site .activity-icon{background:#c8ff2e!important}
+.colzo-public-site .button-ghost{background:transparent!important;color:#f5f7fa!important;border-color:#28313d!important}
+.colzo-public-site :is(.brand-mark,.nav-brand-icon,.nav-brand img){box-shadow:none!important;filter:none!important}
 .colzo-public-site :is(.phone-preview,.phone-frame){display:none!important}
 .colzo-public-site :is(.howto-search,.howto-search-wrap){background:#151a22!important;color:#f5f7fa!important;border-color:#28313d!important;box-shadow:none!important;font-size:16px!important}
 .colzo-public-site .howto-screens{display:grid!important;grid-template-columns:repeat(3,1fr);gap:14px}
