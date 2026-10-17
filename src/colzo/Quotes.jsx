@@ -6,7 +6,7 @@ export function Quotes({ model }) {
   const filtered = saved.filter(q => [q.title, q.status, q.notes].join(' ').toLowerCase().includes((model.search || '').toLowerCase()));
   return <div className="cn-approved-quotes">
     <header className="cn-screen-heading"><span className="cn-kicker">ESTIMATES / QUOTES</span><h1>Quotes</h1><p>Create and manage saved quote records.</p></header>
-    <Feedback model={model}/><div className="cn-section-bar"><span className="cn-caption">{saved.length} saved quotes</span>
+    <Feedback model={model}/><div className="cn-section-bar"><span className="cn-caption">{saved.length} saved quote{saved.length === 1 ? '' : 's'}</span>
       <button className="cn-primary" type="button" data-colzo-create="quotes">+ New quote</button></div>
     <SearchField id="cnQuoteSearch" value={model.search} label="Search quotes" onChange={v => model.onSearch('search', v)}/>
     <div className="cn-stack"><DirectoryState model={model} resource="quotes" filtered={filtered}

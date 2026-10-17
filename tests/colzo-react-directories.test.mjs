@@ -61,3 +61,11 @@ test('React customer activity never joins unrelated records without contact iden
  const f=fixture();f.model.screen='colzoDetail';f.model.customerProfileTab='activity';f.model.colzoDetail={resource:'clients',id:'c'};f.model.colzoRecords.clients=[{id:'c',full_name:'Same Name'}];f.model.enquiries=[{id:42,name:'Same Name',job_type:'Unrelated sensitive work'}];f.render();
  assert.doesNotMatch(f.view.textContent,/Unrelated sensitive work/);f.dom.window.close();
 });
+test('singular saved-record counts and project progress have clear accessible names',()=>{
+ const f=fixture();f.model.colzoRecords.projects=[{id:'qa',title:'QA'}];f.render();
+ assert.match(f.view.textContent,/1 saved project(?!s)/);
+ f.model.colzoForm={resource:'projects',record:{id:'qa',title:'QA',progress:20}};f.render();
+ assert.equal(f.view.querySelector('input[type="range"]').getAttribute('aria-label'),'Project progress');
+ f.model.colzoForm=null;f.model.screen='quotes';f.model.colzoRecords.quotes=[{id:'q',title:'QA',status:'draft',amount_gbp:2}];f.render();
+ assert.match(f.view.textContent,/1 saved quote(?!s)/);f.dom.window.close();
+});

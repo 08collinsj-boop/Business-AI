@@ -26,7 +26,7 @@ test('authenticated owner data and access gates are unchanged; Colzo content nev
  assert.match(html,/window\.ColzoOwner\?\.onAuthState\(state\)/);
  assert.match(html,/window\.ColzoOwner\?\.render\(\)/);
  assert.match(js,/if\(auth==='auth-ready'\)/);
- assert.match(js,/root\.hidden=true;window\.ColzoReact\?\.unmount\(content\);content\.replaceChildren\(\)/);
+ assert.match(js,/root\.hidden=true;window\.colzoParkSecurityCenter\?\.\(\);window\.ColzoReact\?\.unmount\(content\);content\.replaceChildren\(\)/);
  assert.match(js,/document\.body\.classList\.remove\('colzo-owner-enabled','colzo-legacy-mode'\)/);
  assert.match(js,/body/); // no auth methods replaced; only original session controls access
 });

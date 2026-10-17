@@ -40,7 +40,7 @@ export function RecordForm({ model }) {
       </> : <>
         <Field name="client_name" label="Customer name" value={record?.client_name} maxLength={160}/>
         <label>Status<select name="status" defaultValue={record?.status || 'planned'}>{['planned','active','paused','completed'].map(v => <option key={v} value={v}>{v[0].toUpperCase() + v.slice(1)}</option>)}</select></label>
-        <label>Progress<output>{Number(record?.progress || 0)}%</output><input name="progress" type="range" min={0} max={100} step={5} defaultValue={record?.progress || 0} onInput={e => { e.currentTarget.previousElementSibling.value = `${e.currentTarget.value}%`; }}/></label>
+        <label>Progress<output>{Number(record?.progress || 0)}%</output><input name="progress" aria-label="Project progress" type="range" min={0} max={100} step={5} defaultValue={record?.progress || 0} onInput={e => { e.currentTarget.previousElementSibling.value = `${e.currentTarget.value}%`; }}/></label>
       </>}
       <Notes value={record?.notes}/><p id="cnColzoFeedback" className="cn-caption" role="status">{model.colzoFeedback}</p>
       <div className="cn-form-actions"><button className="cn-primary" type="submit" disabled={model.colzoBusy}>{model.colzoBusy ? 'Saving…' : editing ? 'Save changes' : isQuote ? 'Create draft quote' : 'Create project'}</button><button className="cn-secondary" type="button" data-colzo-cancel>Cancel</button></div>

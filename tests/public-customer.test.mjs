@@ -144,7 +144,7 @@ test("public quick actions only guide the existing public conversation", () => {
 
 test("approved chat-first customer layout keeps quick actions collapsed with an animated reveal", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.match(publicMarkup, /<h1>Business AI assistant<\/h1>/);
+  assert.match(publicMarkup, /<h1>Colzo assistant<\/h1>/);
   assert.match(publicMarkup, /id="publicQuickActionsToggle"/);
   assert.match(publicMarkup, /aria-expanded="false"/);
   assert.match(publicMarkup, /id="publicQuickActionsBody" class="public-quick-actions-body" aria-hidden="true"/);
@@ -162,7 +162,7 @@ test("public enquiry uses the approved dark chat-first theme", () => {
   assert.match(publicMarkup, /class="public-assistant-hero"/);
   assert.match(publicMarkup, /class="public-quick-actions-panel"/);
   assert.match(publicMarkup, /class="public-chat-card public-chat-primary"/);
-  assert.match(publicMarkup, /Business AI assistant/);
+  assert.match(publicMarkup, /Colzo assistant/);
   assert.match(html, /\.public-quick-actions-toggle\{[\s\S]{0,900}backdrop-filter:blur\(18px\)/);
 });
 
