@@ -70,7 +70,7 @@
   return `<div class="cf-screen-top"><h1>Enquiries</h1><div class="cf-top-actions"><button type="button" class="cf-icon-button" data-cn-focus-search aria-label="Focus enquiry search">⌕</button><button type="button" class="cf-icon-button volt" data-cn-create-lead aria-label="Create enquiry">+</button></div></div>
   <div class="cn-tabs cf-tabs" role="group" aria-label="Filter enquiries">${tabs.map(t=>`<button type="button" data-cn-filter="${t}" aria-pressed="${state.filter===t}">${t}${t!=='All'?` (${leadCount(all,t)})`:''}</button>`).join('')}</div>
   <div class="cn-search cf-search"><span aria-hidden="true">⌕</span><input id="cnSearch" type="search" placeholder="Search enquiries..." value="${safe(state.search)}" aria-label="Search enquiries"></div>
-  <div class="cn-stack cf-lead-list">${filtered.length?filtered.map(leadRow).join(''):empty('No enquiries match this view.','<button type="button" data-cn-filter="All">Show all</button>')}</div>
+  <div class="cn-stack cf-lead-list">${filtered.length?filtered.map(leadRow).join(''):empty(!all.length?'No enquiries yet. Create an enquiry to begin.':'No enquiries match your search or filters.',!all.length?'<button type="button" data-cn-create-lead>Create enquiry</button>':'<button type="button" data-cn-filter="All">Show all</button>')}</div>
   <div class="cf-list-footer"><span>${filtered.length} ${filtered.length===1?'enquiry':'enquiries'}</span><button type="button" data-cn-refresh>Refresh ↻</button></div>`;
  }
  function leadDetails(){
@@ -806,10 +806,53 @@
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    if(motion!=='none')animateArrival(direction,motion);
  }
+ // Approved-screen correction #089: preserve edited user input across navigation.
+ // This dialog never claims to save or persist data; it only prevents accidental loss.
+ const dirtyFormSelector='#cnLeadForm[data-cn-dirty="true"], #cnColzoForm[data-cn-dirty="true"], #cnBusinessSettings[data-cn-dirty="true"], #cnWorkForm[data-cn-dirty="true"]';
+ function markUnsavedDraft(event){
+   const form=event.target.closest?.('form');
+   if(form&&['cnLeadForm','cnColzoForm','cnBusinessSettings','cnWorkForm'].includes(form.id)){
+     form.dataset.cnDirty='true';
+   }
+ }
+ root.addEventListener('input',markUnsavedDraft,true);
+ root.addEventListener('change',markUnsavedDraft,true);
+ function confirmUnsaved(action){
+   const form=root.querySelector(dirtyFormSelector);
+   if(!form){action();return}
+   if(root.querySelector('.cn-unsaved-overlay'))return;
+   const previous=document.activeElement,overlay=document.createElement('div');
+   overlay.className='cn-unsaved-overlay';
+   overlay.innerHTML='<section class="cn-unsaved-sheet" role="dialog" aria-modal="true" aria-labelledby="cnUnsavedTitle" aria-describedby="cnUnsavedDescription"><span class="cn-unsaved-grip" aria-hidden="true"></span><h2 id="cnUnsavedTitle">Unsaved changes</h2><p id="cnUnsavedDescription">You have edited this form. Leaving now will discard your changes.</p><div class="cn-unsaved-actions"><button type="button" class="cn-unsaved-keep">Keep editing</button><button type="button" class="cn-unsaved-discard">Discard changes</button></div></section>';
+   root.appendChild(overlay);
+   const keep=overlay.querySelector('.cn-unsaved-keep'),discard=overlay.querySelector('.cn-unsaved-discard');
+   const close=(restore=true)=>{
+     overlay.remove();
+     if(restore&&previous?.isConnected&&typeof previous.focus==='function')previous.focus({preventScroll:true});
+   };
+   keep.addEventListener('click',()=>close());
+   discard.addEventListener('click',()=>{
+     // A confirmed discard must not trigger a second prompt on the same form.
+     form.dataset.cnDirty='false';
+     close(false);
+     action();
+   });
+   overlay.addEventListener('keydown',event=>{
+     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return}
+     if(event.key!=='Tab')return;
+     const nodes=[keep,discard],first=nodes[0],last=nodes.at(-1);
+     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+     event.stopPropagation();
+   });
+   keep.focus({preventScroll:true});
+ }
  function navigate(screen){
    if(!['home','enquiries','lead','leadForm','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(screen))return;
    closeCommand(false);
-   if(screen===state.screen){restoreScroll(0);return}
+   if(screen===state.screen&&screen!=='setting'){restoreScroll(0);return}
+   if(root.querySelector(dirtyFormSelector)){confirmUnsaved(()=>navigate(screen));return}
+   if(screen===state.screen){render();return}
    const before=state.screen;
    state.scrollByScreen.set(before,currentScroll());
    state.screen=screen;state.notification='';state.focusSearch=false;state.colzoForm=null;state.colzoFeedback='';
@@ -868,13 +911,14 @@
    }
  }
  const screenShortcuts=e=>{
+   if(root.querySelector('.cn-unsaved-overlay'))return;
    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'&&!e.altKey){
      if(!document.body.classList.contains('auth-ready')||document.body.classList.contains('colzo-legacy-mode')||document.body.classList.contains('security-mfa-required')||state.workModal)return;
      e.preventDefault();if(sheet.hidden)openCommand();else closeCommand();return;
    }
    const editor=root.querySelector('.cn-work-dialog');
    if(editor){
-     if(e.key==='Escape'&&!state.workBusy){e.preventDefault();closeWorkModal();return}
+     if(e.key==='Escape'&&!state.workBusy){e.preventDefault();confirmUnsaved(closeWorkModal);return}
      if(e.key!=='Tab')return;
      const focusable=[...editor.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')].filter(el=>el.getBoundingClientRect().width>0);
      if(!focusable.length)return;
@@ -914,7 +958,7 @@
   if(target.hasAttribute('data-marketing-delete')){deleteMarketingDraft(target.getAttribute('data-marketing-delete'));return}
   if(target.hasAttribute('data-cn-create-lead')){state.leadForm={mode:'create',lead:null};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});return}
   if(target.hasAttribute('data-cn-edit-lead')){const id=target.getAttribute('data-cn-edit-lead'),lead=records().enquiries.find(x=>String(x.id)===String(id));if(lead){state.leadForm={mode:'edit',lead};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});}return}
-  if(target.hasAttribute('data-cn-lead-cancel')){const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'});return}
+  if(target.hasAttribute('data-cn-lead-cancel')){confirmUnsaved(()=>{const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'})});return}
   if(target.hasAttribute('data-public-profile-refresh')){loadPublicProfile(true);return}
   if(target.hasAttribute('data-automation-refresh')){loadAutomation(true);return}
   if(target.hasAttribute('data-analytics-refresh')){loadAnalytics(true);return}
@@ -939,12 +983,12 @@
   if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});}return}
   if(target.hasAttribute('data-colzo-create')){const resource=target.getAttribute('data-colzo-create');state.colzoForm={resource,record:null};state.colzoFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
-  if(target.hasAttribute('data-colzo-cancel')){state.colzoForm=null;render({motion:'page'});return}
+  if(target.hasAttribute('data-colzo-cancel')){confirmUnsaved(()=>{state.colzoForm=null;render({motion:'page'})});return}
   if(target.hasAttribute('data-colzo-refresh')){loadColzoResource(target.getAttribute('data-colzo-refresh'),true);return}
   if(target.hasAttribute('data-cn-command')){openCommand();return}
   if(target.hasAttribute('data-cn-close-command')){closeCommand();return}
-  if(target.hasAttribute('data-cn-setting')){state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam();return}
-  if(target.hasAttribute('data-cn-back-settings')){navigate('more');return}
+  if(target.hasAttribute('data-cn-setting')){confirmUnsaved(()=>{state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam()});return}
+  if(target.hasAttribute('data-cn-back-settings')){confirmUnsaved(()=>navigate('more'));return}
   if(target.hasAttribute('data-cn-refresh-team')){loadNativeTeam();return}
   if(target.hasAttribute('data-cn-copy-invite')){if(state.inviteUrl&&navigator.clipboard?.writeText){navigator.clipboard.writeText(state.inviteUrl).then(()=>{const feedback=content.querySelector('#cnInviteFeedback');if(feedback)feedback.firstChild.textContent='Invitation link copied. Share it only with the intended person.'}).catch(()=>{const field=content.querySelector('.cn-invite-share input');field?.select()})}else{const field=content.querySelector('.cn-invite-share input');field?.select()}return}
   if(target.hasAttribute('data-cn-permission')){if(typeof Notification!=='undefined'&&window.isSecureContext)Notification.requestPermission().then(()=>{if(state.screen==='setting'&&state.setting==='notifications')render()}).catch(()=>{});return}
@@ -954,9 +998,9 @@
   if(target.hasAttribute('data-cn-work-refresh')){refreshWork();return}
   if(target.hasAttribute('data-cn-work-new')){openWorkModal(state.screen);return}
   if(target.hasAttribute('data-cn-work-edit')){openWorkModal(state.screen,target.getAttribute('data-cn-work-edit'));return}
-  if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)closeWorkModal();return}
+  if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)confirmUnsaved(closeWorkModal);return}
   if(target.hasAttribute('data-cn-screen')){navigate(target.getAttribute('data-cn-screen'));return}
-  if(target.hasAttribute('data-cn-legacy')){original(target.getAttribute('data-cn-legacy'));return}
+  if(target.hasAttribute('data-cn-legacy')){confirmUnsaved(()=>original(target.getAttribute('data-cn-legacy')));return}
   if(target.hasAttribute('data-cn-customer')){state.activeLead=target.getAttribute('data-cn-customer');navigate('customer');return}
   if(target.hasAttribute('data-cn-lead')){state.activeLead=target.getAttribute('data-cn-lead');navigate('lead');return}
   if(target.hasAttribute('data-cn-filter')){const next=target.getAttribute('data-cn-filter');if(state.filter!==next){state.filter=next;render({motion:'filter'})}return}
@@ -965,13 +1009,13 @@
   if(target.hasAttribute('data-cn-insights')){navigate('analytics');return}
   if(target.hasAttribute('data-cn-search-projects')){state.showProjectSearch=!state.showProjectSearch;if(!state.showProjectSearch)state.projectSearch='';render({motion:'filter'});if(state.showProjectSearch)document.getElementById('cnProjectSearch')?.focus();return}
   if(target.hasAttribute('data-cn-refresh')){if(typeof loadAll==='function')loadAll(true);return}
-  if(target.hasAttribute('data-cn-signout')){document.getElementById('logoutButton')?.click();return}
+  if(target.hasAttribute('data-cn-signout')){confirmUnsaved(()=>document.getElementById('logoutButton')?.click());return}
  });
  root.addEventListener('input',e=>{if(e.target.id==='cnClientSearch'){const pos=e.target.selectionStart;state.clientSearch=e.target.value;render();const field=content.querySelector('#cnClientSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnWorkSearch'){state.workSearch[state.screen]=e.target.value;const start=e.target.selectionStart;render();const field=content.querySelector('#cnWorkSearch');if(field){field.focus();field.setSelectionRange(Math.min(start,field.value.length),Math.min(start,field.value.length))}return}if(e.target.id==='cnQuoteSearch'){state.search=e.target.value;const pos=e.target.selectionStart;render();const field=content.querySelector('#cnQuoteSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
  root.addEventListener('submit',e=>{if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
  root.addEventListener('change',e=>{if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
- const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Upcoming',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
+ const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Upcoming',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
  window.ColzoOwner={render,onAuthState,openLegacy:original,error:()=>{if(document.body.classList.contains('auth-ready'))content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();
