@@ -6,7 +6,9 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const state={screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false};
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
+ const state=initialState();
+ let sessionEpoch=0;
  const safe=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
  const dateValue=v=>{if(v===null||v===undefined||v==='')return null;const d=new Date(v);return Number.isFinite(d.getTime())?d:null};
  const day=v=>{const d=dateValue(v);return d?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short'}).format(d):'No date'};
@@ -70,7 +72,7 @@
   return `<div class="cf-screen-top"><h1>Enquiries</h1><div class="cf-top-actions"><button type="button" class="cf-icon-button" data-cn-focus-search aria-label="Focus enquiry search">⌕</button><button type="button" class="cf-icon-button volt" data-cn-create-lead aria-label="Create enquiry">+</button></div></div>
   <div class="cn-tabs cf-tabs" role="group" aria-label="Filter enquiries">${tabs.map(t=>`<button type="button" data-cn-filter="${t}" aria-pressed="${state.filter===t}">${t}${t!=='All'?` (${leadCount(all,t)})`:''}</button>`).join('')}</div>
   <div class="cn-search cf-search"><span aria-hidden="true">⌕</span><input id="cnSearch" type="search" placeholder="Search enquiries..." value="${safe(state.search)}" aria-label="Search enquiries"></div>
-  <div class="cn-stack cf-lead-list">${filtered.length?filtered.map(leadRow).join(''):empty('No enquiries match this view.','<button type="button" data-cn-filter="All">Show all</button>')}</div>
+  <div class="cn-stack cf-lead-list">${filtered.length?filtered.map(leadRow).join(''):empty(!all.length?'No enquiries yet. Create an enquiry to begin.':'No enquiries match your search or filters.',!all.length?'<button type="button" data-cn-create-lead>Create enquiry</button>':'<button type="button" data-cn-filter="All">Show all</button>')}</div>
   <div class="cf-list-footer"><span>${filtered.length} ${filtered.length===1?'enquiry':'enquiries'}</span><button type="button" data-cn-refresh>Refresh ↻</button></div>`;
  }
  function leadDetails(){
@@ -217,19 +219,21 @@
   return '<div class="cf-screen-top">'+back+'</div><header class="cf-detail-contact"><span class="cn-avatar large">'+(resource==='quotes'?'£':safe(String(heading||'?').slice(0,1).toUpperCase()))+'</span><div><span class="cn-kicker">'+(resource==='clients'?'CUSTOMER PROFILE':resource==='projects'?'PROJECT DETAILS':'QUOTE DETAILS')+'</span><h1>'+safe(heading||'Untitled record')+'</h1><p>'+safe(resource==='clients'?'Saved customer':resource==='projects'?'Project record':'Saved quote')+'</p></div></header>'+body+'<div class="cf-detail-buttons">'+edit+'</div>';
  }
  async function loadMarketingDrafts(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.marketingLoading||(!force&&Array.isArray(state.marketingDrafts)))return;
   state.marketingLoading=true;state.marketingError='';
   if(state.screen==='marketing')render();
-  try{if(typeof api!=='function')throw new Error('Marketing is unavailable in this preview.');const result=await api('/api/marketing?limit=50');if(!Array.isArray(result?.generations))throw new Error('Unexpected marketing response.');state.marketingDrafts=result.generations}
-  catch(error){state.marketingError=error?.message||'Saved marketing drafts could not be loaded.'}
-  finally{state.marketingLoading=false;if(state.screen==='marketing')render()}
+  try{if(typeof api!=='function')throw new Error('Marketing is unavailable in this preview.');const result=await api('/api/marketing?limit=50');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.generations))throw new Error('Unexpected marketing response.');state.marketingDrafts=result.generations}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.marketingError=error?.message||'Saved marketing drafts could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.marketingLoading=false;if(state.screen==='marketing')render()}
  }
  async function loadMarketingSchedules(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.marketingSchedulesLoading||(!force&&Array.isArray(state.marketingSchedules)))return;
   state.marketingSchedulesLoading=true;state.marketingScheduleError='';if(state.screen==='marketing')render();
-  try{const result=await api('/api/marketing-schedules');if(!Array.isArray(result?.schedules))throw new Error('Unexpected schedule response.');state.marketingSchedules=result.schedules}
-  catch(error){state.marketingScheduleError=error?.message||'Scheduled posts could not be loaded.'}
-  finally{state.marketingSchedulesLoading=false;if(state.screen==='marketing')render()}
+  try{const result=await api('/api/marketing-schedules');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.schedules))throw new Error('Unexpected schedule response.');state.marketingSchedules=result.schedules}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.marketingScheduleError=error?.message||'Scheduled posts could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.marketingSchedulesLoading=false;if(state.screen==='marketing')render()}
  }
  async function saveMarketingSchedule(form){
   if(state.marketingScheduleBusy)return;
@@ -292,11 +296,12 @@
   return '<header class="cf-screen-top"><div><span class="cn-kicker">CONTENT STUDIO</span><h1>Marketing</h1></div><button type="button" class="cf-icon-button volt" data-marketing-create aria-label="Create marketing draft">+</button></header><p class="cn-caption">Create, review and manage saved drafts and scheduled posts.</p>'+nav+(state.marketingFeedback?'<p class="cn-work-message" role="status">'+safe(state.marketingFeedback)+'</p>':'')+create+editor+scheduleForm+listBody+'<p class="cn-caption">Draft generation never auto-publishes. Scheduling is explicit and only permitted for approved drafts.</p>';
  }
  async function loadPublicProfile(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.publicProfileLoading||(!force&&state.publicProfileData))return;
   state.publicProfileLoading=true;state.publicProfileError='';if(state.screen==='publicProfile')render();
-  try{const result=await api('/api/business-profile');if(!result?.profile)throw new Error('Unexpected public profile response.');state.publicProfileData=result}
-  catch(error){state.publicProfileError=error?.message||'Public profile could not be loaded.'}
-  finally{state.publicProfileLoading=false;if(state.screen==='publicProfile')render()}
+  try{const result=await api('/api/business-profile');if(requestEpoch!==sessionEpoch)return;if(!result?.profile)throw new Error('Unexpected public profile response.');state.publicProfileData=result}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.publicProfileError=error?.message||'Public profile could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.publicProfileLoading=false;if(state.screen==='publicProfile')render()}
  }
  async function savePublicProfile(form){
   if(state.publicProfileBusy)return;
@@ -315,11 +320,12 @@
   return '<header class="cf-screen-top"><div><span class="cn-kicker">PUBLIC BUSINESS PAGE</span><h1>Public profile</h1></div><button class="cf-icon-button" type="button" data-public-profile-refresh aria-label="Refresh public profile">↻</button></header><p class="cn-caption">Manage the verified details customers see on your business page.</p>'+(state.publicProfileLoading?empty('Loading public profile…'):'')+(state.publicProfileError?empty(state.publicProfileError,'<button type="button" data-public-profile-refresh>Try again</button>'):'')+(d?'<section class="cn-detail-panel"><h2>Customer-facing preview</h2>'+(d.profile_banner_url?'<img class="cn-public-banner" src="'+safe(d.profile_banner_url)+'" alt="Business banner">':'')+(d.profile_image_url?'<img class="cn-public-avatar" src="'+safe(d.profile_image_url)+'" alt="Business profile image">':'')+'<h3>'+safe(d.business_name||'Business name not set')+'</h3><p>'+safe(d.description||'No public description yet.')+'</p><p class="cn-caption">'+safe(d.public_slug?'Public link is configured':'Public link not configured')+'</p>'+(d.preview_path?'<a class="cn-text-action" href="'+safe(d.preview_path)+'" target="_blank" rel="noopener">Preview public page ↗</a>':'')+'</section><section class="cn-detail-panel cn-colzo-record-form"><form id="cnPublicProfileForm">'+field('business_name','Business name','text',120)+field('business_type','Business type','text',120)+field('phone','Phone','tel',80)+field('email','Contact email','email',160)+field('website','Website','url',2048)+area('description','Public description',2000)+area('services','Services',4000)+area('opening_hours','Opening hours',500)+area('service_areas','Service areas',500)+'<p class="cn-caption" id="cnPublicProfileFeedback" role="status">'+safe(state.publicProfileFeedback)+'</p>'+(canEdit?'<button class="cn-primary" type="submit">Save public profile</button>':'<p class="cn-caption">You have read-only access to this profile.</p>')+'</form></section>':'');
  }
  async function loadAutomation(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.automationLoading||(!force&&state.automationData))return;
   state.automationLoading=true;state.automationError='';if(state.screen==='automations')render();
-  try{const result=await api('/api/marketing-automation');if(!result||typeof result!=='object')throw new Error('Unexpected automation response.');state.automationData=result}
-  catch(error){state.automationError=error?.message||'Automation settings could not be loaded.'}
-  finally{state.automationLoading=false;if(state.screen==='automations')render()}
+  try{const result=await api('/api/marketing-automation');if(requestEpoch!==sessionEpoch)return;if(!result||typeof result!=='object')throw new Error('Unexpected automation response.');state.automationData=result}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.automationError=error?.message||'Automation settings could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.automationLoading=false;if(state.screen==='automations')render()}
  }
  function automations(){
   const d=state.automationData,s=d?.settings,u=d?.usage;
@@ -338,11 +344,12 @@
   return '<header class="cf-screen-top"><div><span class="cn-kicker">HELP & SUPPORT</span><h1>Feedback</h1></div></header><p class="cn-caption">Report a problem, suggest an improvement or flag an AI accuracy issue.</p>'+(state.feedbackSuccess?'<p class="cn-work-message" role="status">'+safe(state.feedbackSuccess)+'</p>':'')+(state.feedbackError?'<p class="cn-settings-error" role="alert">'+safe(state.feedbackError)+'</p>':'')+'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnFeedbackForm"><label>Feedback category<select name="category"><option value="suggestion">Suggestion</option><option value="bug">Something is not working</option><option value="confusing">Something is confusing</option><option value="ai_accuracy">AI accuracy</option><option value="missing_feature">Missing feature</option><option value="other">Other</option></select></label><label>Title (optional)<input name="title" maxlength="120" placeholder="A short summary"></label><label>What happened or what would help?<textarea name="message" rows="5" maxlength="3000" required placeholder="Please avoid including passwords or sensitive customer information."></textarea></label><p id="cnFeedbackStatus" class="cn-caption" role="status">Your feedback is saved to the authenticated business workspace.</p><button class="cn-primary" type="submit" '+(state.feedbackBusy?'disabled':'')+'>Submit feedback</button></form></section>';
  }
  async function loadAnalytics(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.analyticsLoading||(!force&&state.analyticsData))return;
   state.analyticsLoading=true;state.analyticsError='';if(state.screen==='analytics')render();
-  try{const result=await api('/api/value-dashboard');if(!result?.activity||!result?.values||!result?.sources)throw new Error('Unexpected analytics response.');state.analyticsData=result}
-  catch(error){state.analyticsError=error?.message||'Analytics could not be loaded.'}
-  finally{state.analyticsLoading=false;if(state.screen==='analytics')render()}
+  try{const result=await api('/api/value-dashboard');if(requestEpoch!==sessionEpoch)return;if(!result?.activity||!result?.values||!result?.sources)throw new Error('Unexpected analytics response.');state.analyticsData=result}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.analyticsError=error?.message||'Analytics could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.analyticsLoading=false;if(state.screen==='analytics')render()}
  }
  function analytics(){
   const d=state.analyticsData,fmt=n=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',maximumFractionDigits:0}).format(Number(n)||0);
@@ -351,17 +358,19 @@
   return '<header class="cf-screen-top"><div><span class="cn-kicker">BUSINESS INSIGHTS</span><h1>Analytics</h1></div><button class="cf-icon-button" type="button" data-analytics-refresh aria-label="Refresh analytics">↻</button></header><p class="cn-caption">'+safe(d?.period?.label||'Last 30 days')+' · Calculated from your recorded business data.</p>'+(state.analyticsLoading?empty('Loading verified analytics…'):'')+(state.analyticsError?empty(state.analyticsError,'<button type="button" data-analytics-refresh>Try again</button>'):'')+(d?'<div class="cf-kpis">'+figmaStat('New enquiries',activity.enquiries,'Last 30 days','▤')+figmaStat('Booking requests',activity.ai_booking_requests,'AI-originated requests','▣')+figmaStat('Completed actions',activity.actions_completed,'Last 30 days','✓')+'</div><section class="cn-detail-panel"><span class="cn-kicker">OPPORTUNITY VALUE</span><h2>'+fmt(values.period_opportunity_value)+'</h2><p class="cn-caption">Estimated value of enquiries created in this period, not confirmed revenue.</p><dl><div><dt>Open pipeline</dt><dd>'+fmt(values.open_pipeline_value)+'</dd></div><div><dt>Converted opportunities</dt><dd>'+fmt(values.converted_opportunity_value)+'</dd></div><div><dt>Enquiries with an estimate</dt><dd>'+Number(values.valued_leads||0)+'</dd></div></dl></section><section class="cn-detail-panel"><h2>Enquiry sources</h2><p class="cn-caption">Counts are based on recorded attribution events. Untracked means the source was not captured.</p><div class="cn-stack">'+sourceLabels.map(([key,label])=>'<div class="cn-settings-status"><span>'+label+'</span><strong>'+Number(sources[key]||0)+'</strong></div>').join('')+'</div></section><section class="cn-detail-panel"><h2>Operational activity</h2><dl><div><dt>Automatic follow-ups created</dt><dd>'+Number(activity.automatic_follow_ups_created||0)+'</dd></div><div><dt>Automatic follow-ups completed</dt><dd>'+Number(activity.automatic_follow_ups_completed||0)+'</dd></div><div><dt>Review requests prepared</dt><dd>'+Number(activity.review_requests_prepared||0)+'</dd></div><div><dt>Review requests marked sent</dt><dd>'+Number(activity.review_requests_marked_sent||0)+'</dd></div></dl><p class="cn-caption">“Marked sent” reflects the saved action status, not independent proof of delivery.</p></section>':'')+'<p class="cn-caption">Colzo does not estimate revenue from enquiry counts or fill missing data with demo numbers.</p>';
  }
  async function loadKnowledge(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.knowledgeLoading||(!force&&Array.isArray(state.knowledgeSources)))return;
   state.knowledgeLoading=true;state.knowledgeError='';if(state.screen==='knowledge')render();
-  try{const result=await api('/api/knowledge');if(!Array.isArray(result?.sources))throw new Error('Unexpected business knowledge response.');state.knowledgeSources=result.sources;state.knowledgeCanManage=result.can_manage===true}
-  catch(error){state.knowledgeError=error?.message||'Business knowledge could not be loaded.'}
-  finally{state.knowledgeLoading=false;if(state.screen==='knowledge')render()}
+  try{const result=await api('/api/knowledge');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.sources))throw new Error('Unexpected business knowledge response.');state.knowledgeSources=result.sources;state.knowledgeCanManage=result.can_manage===true}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.knowledgeError=error?.message||'Business knowledge could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.knowledgeLoading=false;if(state.screen==='knowledge')render()}
  }
  async function openKnowledgeSource(id){
+  const requestEpoch=sessionEpoch;
   if(!id)return;state.knowledgeLoading=true;state.knowledgeError='';state.knowledgeDetail=null;state.knowledgeIncludes={};render({motion:'detail'});
-  try{const result=await api('/api/knowledge?source_id='+encodeURIComponent(id));if(!result?.source||!Array.isArray(result.items))throw new Error('Unexpected knowledge detail response.');state.knowledgeDetail=result;state.knowledgeIncludes=Object.fromEntries(result.items.map(item=>[item.id,item.status==='active'||item.status==='needs_review']))}
-  catch(error){state.knowledgeError=error?.message||'Knowledge details could not be loaded.'}
-  finally{state.knowledgeLoading=false;if(state.screen==='knowledge')render()}
+  try{const result=await api('/api/knowledge?source_id='+encodeURIComponent(id));if(requestEpoch!==sessionEpoch)return;if(!result?.source||!Array.isArray(result.items))throw new Error('Unexpected knowledge detail response.');state.knowledgeDetail=result;state.knowledgeIncludes=Object.fromEntries(result.items.map(item=>[item.id,item.status==='active'||item.status==='needs_review']))}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.knowledgeError=error?.message||'Knowledge details could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.knowledgeLoading=false;if(state.screen==='knowledge')render()}
  }
  async function saveManualKnowledge(form){
   if(state.knowledgeBusy)return;const fd=new FormData(form),body={action:'create_manual',item_type:String(fd.get('item_type')||''),title:String(fd.get('title')||'').trim(),content:String(fd.get('content')||'').trim()};
@@ -397,11 +406,12 @@
   return '<header class="cf-screen-top"><div><span class="cn-kicker">BUSINESS KNOWLEDGE</span><h1>Knowledge</h1></div><button class="cf-icon-button volt" type="button" data-knowledge-create aria-label="Add a fact">+</button></header><p class="cn-caption">Keep the assistant grounded in accurate business information. New facts require owner review before use.</p>'+(state.knowledgeFeedback?'<p class="cn-work-message" role="status">'+safe(state.knowledgeFeedback)+'</p>':'')+form+(state.knowledgeLoading?empty('Loading business knowledge…'):'')+(state.knowledgeError?empty(state.knowledgeError,'<button type="button" data-knowledge-refresh>Try again</button>'):'')+(rows||(!state.knowledgeLoading&&!state.knowledgeError?empty('No knowledge sources saved yet. Add a manual fact to get started.'):''))+'<p class="cn-caption">This screen supports manual facts and review of existing sources. File upload and extraction are not yet integrated here.</p>';
  }
  async function loadBilling(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.billingLoading||(!force&&state.billingData))return;
   state.billingLoading=true;state.billingError='';if(state.screen==='billing')render();
-  try{const result=await api('/api/billing');if(!result||typeof result!=='object')throw new Error('Unexpected billing response.');state.billingData=result}
-  catch(error){state.billingError=error?.message||'Billing information could not be loaded.'}
-  finally{state.billingLoading=false;if(state.screen==='billing')render()}
+  try{const result=await api('/api/billing');if(requestEpoch!==sessionEpoch)return;if(!result||typeof result!=='object')throw new Error('Unexpected billing response.');state.billingData=result}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.billingError=error?.message||'Billing information could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.billingLoading=false;if(state.screen==='billing')render()}
  }
  function billing(){
   const data=state.billingData,account=data?.account,ents=data?.entitlements;
@@ -409,11 +419,12 @@
   return '<header class="cf-screen-top"><div><span class="cn-kicker">ACCOUNT</span><h1>Billing</h1></div><button type="button" class="cf-icon-button" data-billing-refresh aria-label="Refresh billing">↻</button></header><p class="cn-caption">Plan and access details returned by your existing billing service.</p>'+(state.billingLoading?empty('Loading current billing details…'):'')+(state.billingError?empty(state.billingError,'<button type="button" data-billing-refresh>Try again</button>'):'')+(data?'<section class="cn-detail-panel"><span class="cn-kicker">CURRENT PLAN</span><h2>'+safe(data.pilot_free_access?'Pilot access':account?.plan||'No plan recorded')+'</h2><p class="cn-caption">'+safe(data.pilot_free_access?'Starter and AI Marketing access are included at no charge under the current pilot configuration.':account?.status||'No subscription status returned.')+'</p><dl><div><dt>Subscription</dt><dd>'+safe(account?.status||'Not recorded')+'</dd></div><div><dt>Stripe customer</dt><dd>'+(account?.has_customer?'Linked':'Not linked')+'</dd></div><div><dt>Stripe subscription</dt><dd>'+(account?.has_subscription?'Linked':'Not linked')+'</dd></div></dl></section>'+(features?'<section class="cn-detail-panel"><h2>Feature access</h2><dl>'+features+'</dl></section>':'')+(data.pending_plan_change?'<section class="cn-detail-panel"><h2>Scheduled plan change</h2><p>'+safe(data.pending_plan_change.effective_at||'Effective date not provided')+'</p></section>':''):'')+'<section class="cn-detail-panel"><h2>Payment safety</h2><p class="cn-caption">This Colzo screen is read-only. It will not start checkout, change a plan or cancel a subscription. Those actions require a separate explicit decision and the existing security checks.</p></section>';
  }
  async function loadVoiceStatus(force=false){
+  const requestEpoch=sessionEpoch;
   if(state.voiceLoading||(!force&&state.voiceStatus))return;
   state.voiceLoading=true;state.voiceError='';if(state.screen==='receptionist')render();
-  try{const result=await api('/api/voice-status');if(!result||typeof result.enabled!=='boolean')throw new Error('Unexpected receptionist status response.');state.voiceStatus=result}
-  catch(error){state.voiceError=error?.message||'Receptionist status could not be loaded.'}
-  finally{state.voiceLoading=false;if(state.screen==='receptionist')render()}
+  try{const result=await api('/api/voice-status');if(requestEpoch!==sessionEpoch)return;if(!result||typeof result.enabled!=='boolean')throw new Error('Unexpected receptionist status response.');state.voiceStatus=result}
+  catch(error){if(requestEpoch!==sessionEpoch)return;state.voiceError=error?.message||'Receptionist status could not be loaded.'}
+  finally{if(requestEpoch!==sessionEpoch)return;state.voiceLoading=false;if(state.screen==='receptionist')render()}
  }
  function receptionist(){
   const v=state.voiceStatus;
@@ -477,17 +488,18 @@
    return head+`<div class="cn-settings-panels">${body}</div>`;
  }
  async function loadColzoResource(resource,force=false){
+  const requestEpoch=sessionEpoch;
   if(!['clients','projects','quotes'].includes(resource)||state.colzoLoading===resource)return;
   if(!force&&Array.isArray(state.colzoRecords[resource]))return;
   state.colzoLoading=resource;state.colzoError='';
   if(state.screen===resource)render();
   try{
    if(typeof api!=='function')throw new Error('Colzo records are unavailable in this preview.');
-   const data=await api(`/api/colzo-records?resource=${resource}`);
+   const data=await api(`/api/colzo-records?resource=${resource}`);if(requestEpoch!==sessionEpoch)return;
    if(!Array.isArray(data))throw new Error('The server returned an unexpected records response.');
    state.colzoRecords[resource]=data;
-  }catch(error){state.colzoError=error?.message||'Records could not be loaded.';}
-  finally{state.colzoLoading='';if(state.screen===resource)render()}
+  }catch(error){if(requestEpoch!==sessionEpoch)return;state.colzoError=error?.message||'Records could not be loaded.';}
+  finally{if(requestEpoch!==sessionEpoch)return;state.colzoLoading='';if(state.screen===resource)render()}
  }
  async function saveColzoRecord(form){
   if(state.colzoBusy)return;
@@ -560,15 +572,16 @@
   return `<section class="cn-detail-panel cn-colzo-record-form"><form id="cnColzoForm" data-resource="${resource}" data-record-id="${safe(record?.id||'')}"><h2>${editing?'Edit':'Create'} ${resource==='clients'?'customer':resource==='projects'?'project':'quote'}</h2>${fields}<p id="cnColzoFeedback" class="cn-caption" role="status">${safe(state.colzoFeedback)}</p><div class="cn-form-actions"><button type="submit" class="cn-primary">${editing?'Save changes':'Create '+(resource==='clients'?'customer':resource==='projects'?'project':'quote')}</button>${close}</div></form></section>`;
  }
  async function loadNativeTeam(){
+  const requestEpoch=sessionEpoch;
    if(state.teamLoading)return;
    state.teamLoading=true;state.teamError='';
    if(state.screen==='setting'&&state.setting==='team')render();
    try{
      if(typeof api!=='function')throw new Error('Team data is unavailable in this preview.');
-     const response=await api('/api/team');
+     const response=await api('/api/team');if(requestEpoch!==sessionEpoch)return;
      state.teamData=response;
-   }catch(error){state.teamError=error?.message||'Team details could not be loaded.';}
-   finally{state.teamLoading=false;if(state.screen==='setting'&&state.setting==='team')render()}
+   }catch(error){if(requestEpoch!==sessionEpoch)return;state.teamError=error?.message||'Team details could not be loaded.';}
+   finally{if(requestEpoch!==sessionEpoch)return;state.teamLoading=false;if(state.screen==='setting'&&state.setting==='team')render()}
  }
  async function saveNativeBusiness(form){
    const feedback=content.querySelector('#cnBusinessFeedback');
@@ -799,17 +812,63 @@
    root.dataset.screen=state.screen;
    root.style.setProperty('--cn-active-index',String(navPosition(state.screen)));
    root.querySelector('.cn-work-dialog-backdrop')?.remove();
-   content.innerHTML=page();
+   const reactModel={...state,enquiries:records().enquiries,
+     onSearch:(key,value)=>{if(!['search','clientSearch','projectSearch'].includes(key))return;state[key]=value;render()},
+     onResetEnquiry:()=>{state.search='';state.filter='All';render({motion:'filter'})}};
+   if(!window.ColzoReact?.renderScreen(content,reactModel))content.innerHTML=page();
    const dialog=content.querySelector('.cn-work-dialog-backdrop');if(dialog)root.appendChild(dialog);
    content.dataset.cnIntro=state.screen;
    root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['quotes','setting','projects','actions','marketing','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    if(motion!=='none')animateArrival(direction,motion);
  }
+ // Approved-screen correction #089: preserve edited user input across navigation.
+ // This dialog never claims to save or persist data; it only prevents accidental loss.
+ const dirtyFormSelector='#cnLeadForm[data-cn-dirty="true"], #cnColzoForm[data-cn-dirty="true"], #cnBusinessSettings[data-cn-dirty="true"], #cnWorkForm[data-cn-dirty="true"]';
+ function markUnsavedDraft(event){
+   const form=event.target.closest?.('form');
+   if(form&&['cnLeadForm','cnColzoForm','cnBusinessSettings','cnWorkForm'].includes(form.id)){
+     form.dataset.cnDirty='true';
+   }
+ }
+ root.addEventListener('input',markUnsavedDraft,true);
+ root.addEventListener('change',markUnsavedDraft,true);
+ function confirmUnsaved(action){
+   const form=root.querySelector(dirtyFormSelector);
+   if(!form){action();return}
+   if(root.querySelector('.cn-unsaved-overlay'))return;
+   const previous=document.activeElement,overlay=document.createElement('div');
+   overlay.className='cn-unsaved-overlay';
+   overlay.innerHTML='<section class="cn-unsaved-sheet" role="dialog" aria-modal="true" aria-labelledby="cnUnsavedTitle" aria-describedby="cnUnsavedDescription"><span class="cn-unsaved-grip" aria-hidden="true"></span><h2 id="cnUnsavedTitle">Unsaved changes</h2><p id="cnUnsavedDescription">You have edited this form. Leaving now will discard your changes.</p><div class="cn-unsaved-actions"><button type="button" class="cn-unsaved-keep">Keep editing</button><button type="button" class="cn-unsaved-discard">Discard changes</button></div></section>';
+   root.appendChild(overlay);
+   const keep=overlay.querySelector('.cn-unsaved-keep'),discard=overlay.querySelector('.cn-unsaved-discard');
+   const close=(restore=true)=>{
+     overlay.remove();
+     if(restore&&previous?.isConnected&&typeof previous.focus==='function')previous.focus({preventScroll:true});
+   };
+   keep.addEventListener('click',()=>close());
+   discard.addEventListener('click',()=>{
+     // A confirmed discard must not trigger a second prompt on the same form.
+     form.dataset.cnDirty='false';
+     close(false);
+     action();
+   });
+   overlay.addEventListener('keydown',event=>{
+     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return}
+     if(event.key!=='Tab')return;
+     const nodes=[keep,discard],first=nodes[0],last=nodes.at(-1);
+     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+     event.stopPropagation();
+   });
+   keep.focus({preventScroll:true});
+ }
  function navigate(screen){
    if(!['home','enquiries','lead','leadForm','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(screen))return;
    closeCommand(false);
-   if(screen===state.screen){restoreScroll(0);return}
+   if(screen===state.screen&&screen!=='setting'){restoreScroll(0);return}
+   if(root.querySelector(dirtyFormSelector)){confirmUnsaved(()=>navigate(screen));return}
+   if(screen===state.screen){render();return}
    const before=state.screen;
    state.scrollByScreen.set(before,currentScroll());
    state.screen=screen;state.notification='';state.focusSearch=false;state.colzoForm=null;state.colzoFeedback='';
@@ -868,13 +927,14 @@
    }
  }
  const screenShortcuts=e=>{
+   if(root.querySelector('.cn-unsaved-overlay'))return;
    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'&&!e.altKey){
      if(!document.body.classList.contains('auth-ready')||document.body.classList.contains('colzo-legacy-mode')||document.body.classList.contains('security-mfa-required')||state.workModal)return;
      e.preventDefault();if(sheet.hidden)openCommand();else closeCommand();return;
    }
    const editor=root.querySelector('.cn-work-dialog');
    if(editor){
-     if(e.key==='Escape'&&!state.workBusy){e.preventDefault();closeWorkModal();return}
+     if(e.key==='Escape'&&!state.workBusy){e.preventDefault();confirmUnsaved(closeWorkModal);return}
      if(e.key!=='Tab')return;
      const focusable=[...editor.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')].filter(el=>el.getBoundingClientRect().width>0);
      if(!focusable.length)return;
@@ -914,7 +974,7 @@
   if(target.hasAttribute('data-marketing-delete')){deleteMarketingDraft(target.getAttribute('data-marketing-delete'));return}
   if(target.hasAttribute('data-cn-create-lead')){state.leadForm={mode:'create',lead:null};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});return}
   if(target.hasAttribute('data-cn-edit-lead')){const id=target.getAttribute('data-cn-edit-lead'),lead=records().enquiries.find(x=>String(x.id)===String(id));if(lead){state.leadForm={mode:'edit',lead};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});}return}
-  if(target.hasAttribute('data-cn-lead-cancel')){const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'});return}
+  if(target.hasAttribute('data-cn-lead-cancel')){confirmUnsaved(()=>{const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'})});return}
   if(target.hasAttribute('data-public-profile-refresh')){loadPublicProfile(true);return}
   if(target.hasAttribute('data-automation-refresh')){loadAutomation(true);return}
   if(target.hasAttribute('data-analytics-refresh')){loadAnalytics(true);return}
@@ -939,12 +999,12 @@
   if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});}return}
   if(target.hasAttribute('data-colzo-create')){const resource=target.getAttribute('data-colzo-create');state.colzoForm={resource,record:null};state.colzoFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
-  if(target.hasAttribute('data-colzo-cancel')){state.colzoForm=null;render({motion:'page'});return}
+  if(target.hasAttribute('data-colzo-cancel')){confirmUnsaved(()=>{state.colzoForm=null;render({motion:'page'})});return}
   if(target.hasAttribute('data-colzo-refresh')){loadColzoResource(target.getAttribute('data-colzo-refresh'),true);return}
   if(target.hasAttribute('data-cn-command')){openCommand();return}
   if(target.hasAttribute('data-cn-close-command')){closeCommand();return}
-  if(target.hasAttribute('data-cn-setting')){state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam();return}
-  if(target.hasAttribute('data-cn-back-settings')){navigate('more');return}
+  if(target.hasAttribute('data-cn-setting')){confirmUnsaved(()=>{state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam()});return}
+  if(target.hasAttribute('data-cn-back-settings')){confirmUnsaved(()=>navigate('more'));return}
   if(target.hasAttribute('data-cn-refresh-team')){loadNativeTeam();return}
   if(target.hasAttribute('data-cn-copy-invite')){if(state.inviteUrl&&navigator.clipboard?.writeText){navigator.clipboard.writeText(state.inviteUrl).then(()=>{const feedback=content.querySelector('#cnInviteFeedback');if(feedback)feedback.firstChild.textContent='Invitation link copied. Share it only with the intended person.'}).catch(()=>{const field=content.querySelector('.cn-invite-share input');field?.select()})}else{const field=content.querySelector('.cn-invite-share input');field?.select()}return}
   if(target.hasAttribute('data-cn-permission')){if(typeof Notification!=='undefined'&&window.isSecureContext)Notification.requestPermission().then(()=>{if(state.screen==='setting'&&state.setting==='notifications')render()}).catch(()=>{});return}
@@ -954,9 +1014,9 @@
   if(target.hasAttribute('data-cn-work-refresh')){refreshWork();return}
   if(target.hasAttribute('data-cn-work-new')){openWorkModal(state.screen);return}
   if(target.hasAttribute('data-cn-work-edit')){openWorkModal(state.screen,target.getAttribute('data-cn-work-edit'));return}
-  if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)closeWorkModal();return}
+  if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)confirmUnsaved(closeWorkModal);return}
   if(target.hasAttribute('data-cn-screen')){navigate(target.getAttribute('data-cn-screen'));return}
-  if(target.hasAttribute('data-cn-legacy')){original(target.getAttribute('data-cn-legacy'));return}
+  if(target.hasAttribute('data-cn-legacy')){confirmUnsaved(()=>original(target.getAttribute('data-cn-legacy')));return}
   if(target.hasAttribute('data-cn-customer')){state.activeLead=target.getAttribute('data-cn-customer');navigate('customer');return}
   if(target.hasAttribute('data-cn-lead')){state.activeLead=target.getAttribute('data-cn-lead');navigate('lead');return}
   if(target.hasAttribute('data-cn-filter')){const next=target.getAttribute('data-cn-filter');if(state.filter!==next){state.filter=next;render({motion:'filter'})}return}
@@ -965,13 +1025,13 @@
   if(target.hasAttribute('data-cn-insights')){navigate('analytics');return}
   if(target.hasAttribute('data-cn-search-projects')){state.showProjectSearch=!state.showProjectSearch;if(!state.showProjectSearch)state.projectSearch='';render({motion:'filter'});if(state.showProjectSearch)document.getElementById('cnProjectSearch')?.focus();return}
   if(target.hasAttribute('data-cn-refresh')){if(typeof loadAll==='function')loadAll(true);return}
-  if(target.hasAttribute('data-cn-signout')){document.getElementById('logoutButton')?.click();return}
+  if(target.hasAttribute('data-cn-signout')){confirmUnsaved(()=>document.getElementById('logoutButton')?.click());return}
  });
- root.addEventListener('input',e=>{if(e.target.id==='cnClientSearch'){const pos=e.target.selectionStart;state.clientSearch=e.target.value;render();const field=content.querySelector('#cnClientSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnWorkSearch'){state.workSearch[state.screen]=e.target.value;const start=e.target.selectionStart;render();const field=content.querySelector('#cnWorkSearch');if(field){field.focus();field.setSelectionRange(Math.min(start,field.value.length),Math.min(start,field.value.length))}return}if(e.target.id==='cnQuoteSearch'){state.search=e.target.value;const pos=e.target.selectionStart;render();const field=content.querySelector('#cnQuoteSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
+ root.addEventListener('input',e=>{if(e.target.hasAttribute('data-react-field'))return;if(e.target.id==='cnClientSearch'){const pos=e.target.selectionStart;state.clientSearch=e.target.value;render();const field=content.querySelector('#cnClientSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnWorkSearch'){state.workSearch[state.screen]=e.target.value;const start=e.target.selectionStart;render();const field=content.querySelector('#cnWorkSearch');if(field){field.focus();field.setSelectionRange(Math.min(start,field.value.length),Math.min(start,field.value.length))}return}if(e.target.id==='cnQuoteSearch'){state.search=e.target.value;const pos=e.target.selectionStart;render();const field=content.querySelector('#cnQuoteSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
  root.addEventListener('submit',e=>{if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
  root.addEventListener('change',e=>{if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
- const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Upcoming',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
- window.ColzoOwner={render,onAuthState,openLegacy:original,error:()=>{if(document.body.classList.contains('auth-ready'))content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')},getActiveScreen:()=>state.screen};
+ const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Upcoming',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
+ window.ColzoOwner={render,onAuthState,openLegacy:original,error:()=>{if(document.body.classList.contains('auth-ready')){window.ColzoReact?.unmount(content);content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')}},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();

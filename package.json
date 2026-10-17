@@ -17,9 +17,17 @@
     "verify:colzo-leads": "node scripts/colzo-lead-save-browser.cjs",
     "verify:colzo-records": "node scripts/colzo-records-save-browser.cjs",
     "verify": "npm test && npm run verify:local",
-    "load:smoke": "node scripts/load-smoke.mjs"
+    "load:smoke": "node scripts/load-smoke.mjs",
+    "build": "node scripts/build-colzo-react.mjs",
+    "pretest": "npm run build"
   },
   "dependencies": {
-    "qrcode": "1.5.4"
+    "qrcode": "1.5.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10",
+    "jsdom": "26.1.0"
   }
 }
