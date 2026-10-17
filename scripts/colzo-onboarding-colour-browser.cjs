@@ -56,6 +56,11 @@ const sdk='window.supabase={createClient(){return {auth:{getSession:async()=>({d
    await options.nth(2).click();
    assert.equal(await options.nth(2).locator('input').isChecked(),true);
    assert.equal(await options.nth(1).locator('input').isChecked(),false);
+   // CSS transitions interpolate border colour for 180 ms; observe its
+   // final selected style instead of asserting against an animation frame.
+   await page.waitForFunction(()=>getComputedStyle(
+     document.querySelectorAll('#configurationOnboardingScreen .onboarding-ai-option')[2]
+   ).borderTopColor==='rgb(200, 255, 46)');
    const newBorder=await options.nth(2).evaluate(el=>getComputedStyle(el).borderTopColor);
    assert.equal(newBorder,'rgb(200, 255, 46)');
    await page.locator('#onboardingNext').scrollIntoViewIfNeeded();

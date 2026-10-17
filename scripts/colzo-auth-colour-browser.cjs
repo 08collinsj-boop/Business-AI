@@ -50,7 +50,11 @@ async function main(){
      primary:surface('#signUpSubmit')
     };
    });
-   assert.deepEqual(got.screen,{background:'rgb(13, 17, 21)',image:'none'});
+   // The approved account journey adds a subtle Volt radial glow, not the
+   // retired Business AI blue gradient. Keep checking the actual dark canvas.
+   assert.equal(got.screen.background,'rgb(13, 17, 21)');
+   assert.match(got.screen.image,/rgba\(200, 255, 46,/);
+   assert.doesNotMatch(got.screen.image,/rgba\(24, 111, 241|rgba\(20, 115, 255/);
    assert.deepEqual(got.card,{background:'rgb(32, 39, 45)',image:'none'});
    assert.deepEqual(got.consent,{background:'rgb(37, 45, 50)',image:'none'});
    assert.deepEqual(got.input,{background:'rgb(41, 49, 56)',image:'none'});

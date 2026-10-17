@@ -84,7 +84,7 @@
   <section class="cn-detail-panel cf-detail-panel"><h2>Details</h2><dl><div><dt>▣　Enquiry source</dt><dd>${safe(lead.source||lead.enquiry_source||'Not recorded')}</dd></div><div><dt>▤　Submitted</dt><dd>${safe(day(lead.created_at))}</dd></div><div><dt>◇　Budget</dt><dd>${safe(lead.budget||'Not supplied')}</dd></div><div><dt>♧　Location</dt><dd>${safe(lead.location||'Not supplied')}</dd></div></dl></section>
   <section class="cn-detail-panel cf-detail-panel"><h2>Description</h2><p>${safe(lead.description||'No message has been recorded.')}</p></section>
   <div class="cf-detail-buttons"><button class="cf-button-muted" type="button" data-cn-screen="quotes">Create quote</button><button class="cf-button-volt" type="button" data-cn-edit-lead="${safe(lead.id)}">Edit enquiry</button></div>
-  <p class="cn-caption">Updates are confirmed in the existing enquiry editor. Draft quotes are not saved or sent.</p>`;
+  <p class="cn-caption">Draft quotes are saved to this business and are not sent automatically.</p>`;
  }
  function leadForm(){
   const current=state.leadForm?.lead||null,editing=state.leadForm?.mode==='edit'&&current;
@@ -125,13 +125,13 @@
   const unique=new Map();for(const l of entries){const k=String(l.email||l.phone||l.name||'').trim().toLowerCase();if(k&&!unique.has(k))unique.set(k,l)}
   const contacts=[...unique.values()];
   const filtered=saved.filter(c=>[c.full_name,c.email,c.phone].join(' ').toLowerCase().includes(state.clientSearch.toLowerCase())).sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name)));
-  const row=c=>`<button class="cn-stitch-customer" type="button" data-colzo-detail="clients" data-colzo-id="${safe(c.id)}"><span class="cn-avatar">${safe(String(c.full_name||'?').trim().split(/\\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(c.full_name)}</strong><small>${safe(c.email||c.phone||'No contact details')}</small><small>Saved customer · ${safe(day(c.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
-  return `<div class="cn-stitch-title"><div><h1>Customers</h1><p>${state.colzoLoading==='clients'?'Loading saved customers…':`${saved.length} saved customers`}</p></div><button class="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button></div>
+  const row=c=>`<button class="cn-stitch-customer" type="button" data-colzo-detail="clients" data-colzo-id="${safe(c.id)}"><span class="cn-avatar">${safe(String(c.full_name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(c.full_name)}</strong><small>${safe(c.email||c.phone||'No contact details')}</small><small>Saved customer · ${safe(day(c.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
+  return `<div class="cn-stitch-title"><div><h1>Customers</h1><p>${state.colzoLoading==='clients'?'Loading saved customers…':`${saved.length} saved customer${saved.length===1?'':'s'}`}</p></div><button class="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button></div>
   ${state.colzoFeedback?`<p class="cn-work-message" role="status">${safe(state.colzoFeedback)}</p>`:''}
   <label class="cn-stitch-search"><span aria-hidden="true">⌕</span><input id="cnClientSearch" type="search" aria-label="Search saved customers" value="${safe(state.clientSearch)}" placeholder="Search saved customers…"></label>
   ${state.colzoForm?.resource==='clients'?colzoRecordForm('clients',state.colzoForm.record):''}
   ${state.colzoError?empty(state.colzoError,'<button type="button" data-colzo-refresh="clients">Try again</button>'):''}
-  <div class="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>${filtered.length} records</span></div><div class="cn-stitch-customer-list">${filtered.length?filtered.map(row).join(''):empty('No saved customers yet. Add a customer to create a persistent profile.')}</div>
+  <div class="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>${filtered.length} record${filtered.length===1?'':'s'}</span></div><div class="cn-stitch-customer-list">${filtered.length?filtered.map(row).join(''):empty(state.colzoLoading==='clients'?'Loading saved customers…':saved.length?'No customers match your search. Try a different name, email or phone number.':'No saved customers yet. Add a customer to create a persistent profile.')}</div>
   <section class="cn-detail-panel"><h2>Enquiry contacts</h2><p class="cn-caption">These contacts are derived from existing enquiries and are not saved customer profiles.</p><div class="cn-stitch-customer-list">${contacts.filter(l=>[l.name,l.email,l.phone].join(' ').toLowerCase().includes(state.clientSearch.toLowerCase())).slice(0,8).map(l=>`<button class="cn-stitch-customer" type="button" data-cn-customer="${safe(l.id)}"><span class="cn-avatar">${safe(contact(l).slice(0,1).toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(contact(l))}</strong><small>${safe(l.email||l.phone||'Enquiry contact')}</small></span><span>›</span></button>`).join('')||empty('No matching enquiry contacts.')}</div></section>`;
  }
  function customerProfile(){
@@ -168,6 +168,21 @@
   if(!record)return '<button class="cn-back" data-cn-screen="'+resource+'" type="button">← Back</button>'+empty('This record is no longer available in this workspace.');
   const back='<button class="cn-back" data-cn-screen="'+resource+'" type="button" aria-label="Back to '+(resource==='clients'?'customers':resource)+'">← '+(resource==='clients'?'Customers':resource==='projects'?'Projects':'Quotes')+'</button>';
   const edit=resource==='quotes'&&['sent','accepted'].includes(record.status)?'<p class="cn-caption">Quote terms are locked after issuing. Editing is unavailable here.</p>':'<button class="cn-primary" type="button" data-colzo-edit="'+resource+'" data-colzo-id="'+safe(record.id)+'">Edit details</button>';
+  if(resource==='quotes'){
+    // Accepted Stitch #008: estimate, linked records, notes and explicit draft boundary.
+    const lead=records().enquiries.find(item=>String(item.id)===String(record.lead_id));
+    return `<section class="cn-approved-quote-detail" aria-label="Saved quote details">
+      <header class="cn-approved-detail-top">${back}<h1>Quote details</h1></header>
+      <section class="cn-approved-estimate" aria-label="Saved quote estimate">
+        <div class="cn-approved-estimate-meta"><span>${safe(day(record.created_at))}</span><span class="cn-pill">${safe(record.status||'draft')}</span></div>
+        <h2>${safe(record.title||'Untitled quote')}</h2><p>Price estimate</p><strong>£${Number(record.amount_gbp||0).toFixed(2)} <small>GBP</small></strong>
+      </section>
+      <section class="cn-approved-info-card"><h2>LINKED RECORDS</h2>${lead?`<button type="button" class="cn-approved-related" data-cn-lead="${safe(lead.id)}"><span><small>Customer</small><strong>${safe(contact(lead))}</strong><small>Linked enquiry · ${safe(lead.job_type||'General enquiry')}</small></span><span aria-hidden="true">›</span></button>`:'<p class="cn-caption">No matching enquiry is available in this workspace.</p>'}</section>
+      <section class="cn-approved-info-card"><h2>WORK DESCRIPTION / NOTES</h2><p class="cn-approved-note">${safe(record.notes||'No quote notes recorded.')}</p></section>
+      <p class="cn-approved-quote-boundary">This is a saved quote record. Sending quotes and collecting customer payments are unavailable here. A saved status does not confirm delivery.</p>
+      <div class="cn-approved-quote-actions">${edit}</div>
+    </section>`;
+  }
   if(resource==='clients'){
     // Approved customer profile using actual tenant-scoped saved customer data.
     const norm=v=>String(v||'').trim().toLowerCase();

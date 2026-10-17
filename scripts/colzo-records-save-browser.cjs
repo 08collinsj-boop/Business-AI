@@ -65,7 +65,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  assert.equal(db.clients.length,1);assert.equal(db.clients[0].full_name,'Fixture Saved Customer');
  assert.equal(calls.filter(x=>x.resource==='clients'&&x.method==='POST').length,1);
  await page.locator('[data-colzo-detail="clients"]').click();
- await page.locator('[data-colzo-edit="clients"]').click();
+ await page.getByRole('button',{name:'Edit',exact:true}).click();
  await page.locator('#cnColzoForm [name=phone]').fill('07000000002');
  await page.locator('#cnColzoForm [type=submit]').click();
  await page.waitForFunction(()=>!document.querySelector('#cnColzoForm'));

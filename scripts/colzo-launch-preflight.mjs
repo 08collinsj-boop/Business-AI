@@ -19,13 +19,35 @@ export async function checkLaunch({origin,expectedRef,fetcher=fetch}){
  async function get(path){
   try{
    const response=await fetcher(base+path,{method:'GET',redirect:'error',cache:'no-store',
-    headers:{Accept:path.startsWith('/legal/')?'text/html':'application/json'},
+    headers:{Accept:path==='/'||path.startsWith('/legal/')?'text/html':'application/json'},
     signal:AbortSignal.timeout(9000)});
    return response.ok?response:null;
   }catch{return null}
  }
  async function json(path){const response=await get(path);try{return await response?.json()}catch{return null}}
+ // Public anonymous checks: a missing route, unexpected success, redirect, or
+ // network error must never be treated as proof of tenant isolation.
+ async function protectedStatus(path){
+  try{
+   const response=await fetcher(base+path,{method:'GET',redirect:'error',cache:'no-store',
+    headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000)});
+   return response.status;
+  }catch{return null;}
+ }
+ const shellResponse=await get('/');
+ const shellHtml=shellResponse?await shellResponse.text():'';
+ mark('Colzo owner shell deployed',shellResponse?
+  /<title[^>]*>[^<]*\bColzo\b/i.test(shellHtml)&&/id=[\"']colzoOwner[\"']/.test(shellHtml):null);
  const health=await json('/api/health');
+ // A Vercel deployment access wall can return 401 for ALL paths (including
+ // /api/health). That is not evidence that Colzo tenant auth was reached.
+ const applicationReached=health?.status==='ok'&&Boolean(shellResponse);
+ const ownerRouteStatus=status=>status===200?false:
+  !applicationReached||status===null||status===429||status>=500?null:
+  status===401||status===403?true:false;
+ mark('Protected business onboarding',ownerRouteStatus(await protectedStatus('/api/business-onboarding')));
+ mark('Protected Colzo records',ownerRouteStatus(await protectedStatus('/api/colzo-records?resource=clients')));
+ mark('Protected records dispatcher',ownerRouteStatus(await protectedStatus('/api/operations?operation=colzo-records&resource=clients')));
  mark('Health endpoint',health?health.status==='ok':null);
  const config=await json('/api/public-config');
  mark('Owner authentication enabled',config?config.frontendAuthEnabled===true:null);
