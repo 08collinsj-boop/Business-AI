@@ -1,13 +1,13 @@
 import React from 'react';
-import { contact, day, DirectoryState, Feedback, SearchField } from './primitives.jsx';
+import { contact, day, DirectoryState, Feedback, PageHeader, SearchField } from './primitives.jsx';
 
 export function Quotes({ model }) {
   const saved = model.colzoRecords.quotes || [];
   const filtered = saved.filter(q => [q.title, q.status, q.notes].join(' ').toLowerCase().includes((model.search || '').toLowerCase()));
   return <div className="cn-approved-quotes">
-    <header className="cn-screen-heading"><span className="cn-kicker">ESTIMATES / QUOTES</span><h1>Quotes</h1><p>Create and manage saved quote records.</p></header>
-    <Feedback model={model}/><div className="cn-section-bar"><span className="cn-caption">{saved.length} saved quote{saved.length === 1 ? '' : 's'}</span>
-      <button className="cn-primary" type="button" data-colzo-create="quotes">+ New quote</button></div>
+    <PageHeader title="Quotes" subtitle={`${saved.length} saved quote${saved.length === 1 ? '' : 's'}`} className="cn-screen-heading"
+      actions={<button className="cf-icon-button volt" type="button" data-colzo-create="quotes" aria-label="Create quote">+</button>}/>
+    <Feedback model={model}/>
     <SearchField id="cnQuoteSearch" value={model.search} label="Search quotes" onChange={v => model.onSearch('search', v)}/>
     <div className="cn-stack"><DirectoryState model={model} resource="quotes" filtered={filtered}
       empty="No saved quotes yet. Create a draft quote linked to an existing enquiry." noMatch="No quotes match your search.">

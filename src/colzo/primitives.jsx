@@ -1,5 +1,13 @@
 import React from 'react';
 
+// One title baseline and action row for standard owner directories.
+export function PageHeader({ title, subtitle, actions, className = '' }) {
+  return <header className={`cn-page-header ${className}`}>
+    <div className="cn-page-heading"><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
+    {actions && <div className="cn-page-actions">{actions}</div>}
+  </header>;
+}
+
 export const contact = lead => String(lead.name || lead.email || lead.phone || 'Customer');
 export const initials = name => String(name || '?').trim().split(/\s+/).slice(0, 2).map(x => x[0] || '').join('').toUpperCase();
 export const stage = lead => {

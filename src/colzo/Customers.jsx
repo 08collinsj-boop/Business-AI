@@ -1,5 +1,5 @@
 import React from 'react';
-import { contact, day, initials, DirectoryState, Feedback, SearchField } from './primitives.jsx';
+import { contact, day, initials, DirectoryState, Feedback, PageHeader, SearchField } from './primitives.jsx';
 
 export function Customers({ model }) {
   const saved = model.colzoRecords.clients || [];
@@ -12,8 +12,8 @@ export function Customers({ model }) {
   });
   const contacts = [...unique.values()].filter(l => match([l.name,l.email,l.phone])).slice(0, 8);
   return <>
-    <div className="cn-stitch-title"><div><h1>Customers</h1><p>{saved.length} saved customer{saved.length === 1 ? '' : 's'}</p></div>
-      <button className="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button></div>
+    <PageHeader title="Customers" subtitle={`${saved.length} saved customer${saved.length === 1 ? '' : 's'}`} className="cn-stitch-title"
+      actions={<button className="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button>}/>
     <Feedback model={model}/><SearchField id="cnClientSearch" value={model.clientSearch} label="Search saved customers" className="cn-stitch-search" onChange={v => model.onSearch('clientSearch', v)}/>
     <div className="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>{filtered.length} record{filtered.length === 1 ? '' : 's'}</span></div>
     <div className="cn-stitch-customer-list"><DirectoryState model={model} resource="clients" filtered={filtered}

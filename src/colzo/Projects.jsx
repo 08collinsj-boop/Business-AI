@@ -1,5 +1,5 @@
 import React from 'react';
-import { day, DirectoryState, Feedback, SearchField } from './primitives.jsx';
+import { day, DirectoryState, Feedback, PageHeader, SearchField } from './primitives.jsx';
 
 export function Projects({ model }) {
   const saved = model.colzoRecords.projects || [];
@@ -7,8 +7,8 @@ export function Projects({ model }) {
   const filtered = saved.filter(p => [p.title, p.client_name, p.status, p.notes].join(' ').toLowerCase().includes((model.projectSearch || '').toLowerCase())
     && (filter === 'All' || (filter === 'Completed' ? p.status === 'completed' : p.status !== 'completed')));
   return <div className="cn-approved-projects">
-    <div className="cf-screen-top"><h1>Projects</h1><button type="button" className="cf-icon-button volt" data-colzo-create="projects" aria-label="Create project">+</button></div>
-    <p className="cn-caption">{saved.length} saved project{saved.length === 1 ? '' : 's'}</p><Feedback model={model}/>
+    <PageHeader title="Projects" subtitle={`${saved.length} saved project${saved.length === 1 ? '' : 's'}`} className="cf-screen-top" actions={<button type="button" className="cf-icon-button volt" data-colzo-create="projects" aria-label="Create project">+</button>}/>
+    <Feedback model={model}/>
     <SearchField id="cnProjectSearch" value={model.projectSearch} label="Search projects" onChange={v => model.onSearch('projectSearch', v)}/>
     <div className="cf-tabs cf-project-tabs" role="group" aria-label="Filter projects">
       {['All', 'Active', 'Completed'].map(t => <button key={t} type="button" data-cn-project-filter={t} aria-pressed={filter === t}>{t}</button>)}
