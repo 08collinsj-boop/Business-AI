@@ -78,6 +78,8 @@ body#colzoApp:is(.customer-account,.customer-portal-ready,.public-directory,.pub
 #colzoApp .public-profile-card{background:var(--cz-surface)!important;border:1px solid var(--cz-line)!important;border-radius:20px!important;box-shadow:none!important;overflow:hidden}
 #colzoApp .public-profile-banner:not(.has-image){background:var(--cz-raised)!important;min-height:72px!important}
 #colzoApp .public-profile-card h1{font-size:28px!important;color:var(--cz-text)!important;letter-spacing:-.6px}
+#colzoApp .public-profile-top-brand img{border-color:var(--cz-line)!important;background:var(--cz-surface)!important}
+#colzoApp :is(.public-profile-hours,.public-profile-kicker,.public-profile-footer a){color:var(--cz-muted)!important}
 #colzoApp :is(.public-profile-about,.public-profile-services,.public-profile-section){background:var(--cz-surface)!important;border:1px solid var(--cz-line)!important;border-radius:18px!important;box-shadow:none!important;padding:20px!important;margin-top:16px!important}
 #colzoApp .public-business-actions a{background:var(--cz-raised)!important;color:var(--cz-volt)!important;border:1px solid var(--cz-line)!important;box-shadow:none!important;min-height:48px!important;border-radius:12px!important}
 #colzoApp #publicProfileEnquiryButton{width:100%;margin-top:20px!important}
@@ -93,6 +95,9 @@ body#colzoApp:is(.customer-account,.customer-portal-ready,.public-directory,.pub
 #colzoApp .public-chat-heading strong{font-size:16px!important;color:var(--cz-text)!important}
 #colzoApp .public-chat-heading-copy p{color:var(--cz-muted)!important;font-size:12px!important}
 #colzoApp .public-assistant-avatar{background:var(--cz-raised)!important;color:var(--cz-volt)!important;border:1px solid var(--cz-line)!important;box-shadow:none!important}
+#colzoApp .public-quick-actions-grid i{background:var(--cz-volt)!important;box-shadow:none!important}
+#colzoApp .public-quick-actions-chevron{color:var(--cz-muted)!important}
+#colzoApp :is(.public-online-pill,.public-chat-status){background:var(--cz-raised)!important;color:var(--cz-muted)!important;border-color:var(--cz-line)!important;box-shadow:none!important}
 #colzoApp .public-messages{background:var(--cz-bg)!important;min-height:180px}
 #colzoApp .public-messages :is(.msg,.message,.bubble){font-size:15px!important;line-height:1.5;border-radius:16px!important}
 #colzoApp .public-messages :is(.msg.ai,.message.assistant,.bubble.assistant){background:var(--cz-surface)!important;border:1px solid var(--cz-line)!important;color:var(--cz-text)!important;box-shadow:none!important}

@@ -13,3 +13,13 @@ This is a visual migration, not certification of all 122 reference states. The 1
 Five new regression checks cover entry styling and logo wiring, public asset resolution, widget identity/routing/deduplication, and preview versus public link routing. Existing backend, MFA, tenant isolation, billing and data tests are retained. Live preview verification and exact automated results are recorded after deployment.
 
 Production and main are unchanged. Changes remain on feature/colzo-complete-ui-motion-20261017 and draft PR #26.
+
+## Verification evidence
+
+- `npm run verify`: 729 tests passed, zero failures; local validation checked 237 JavaScript files and secret/temporary-marker rules.
+- Visual follow-up: eight focused public surface/site regression tests passed, production bundle rebuilt and local validation passed again.
+- Live initial code preview: `f8a1ee1695af33d5060691e1bc0675fc1769cbc4`; Preview READY, `/api/health` 200, `/api/public-config` 200 with authentication enabled and the expected Business-AI-Dev Supabase target.
+- Browser checks: customer directory initial/search/no-match/matched result; customer sign-in; legal centre; secondary public site with Dev-local app links; existing public profile and enquiry assistant. No messages, checkout, record writes or account/security changes were submitted.
+- Live findings corrected: search icon overlap, remaining blue illustration effects, profile secondary labels and enquiry quick-action indicators. Embedded widget is included in the subsequent commit.
+- Saved public profile data includes a Business AI business name and an uploaded Business AI promotional banner. These are tenant content, not product-shell branding, and have not been overwritten.
+- Authenticated owner/customer portal acceptance on the newest origin, real iPhone Safari checks and physical-device motion measurements remain outstanding. The previous live-page report is historical and must not be read as acceptance of the new visual layer.
