@@ -1,0 +1,22 @@
+/* Shared states inherit the approved screen geometry and Graphite & Volt tokens. */
+#colzoOwner .cr-loading{padding:12px 0}
+#colzoOwner .cr-skeleton-row{display:flex;align-items:center;gap:14px;padding:18px 16px;margin:10px 0;border:1px solid #28313d;border-radius:18px;background:#20272d}
+#colzoOwner .cr-skeleton-row>span{width:44px;height:44px;border-radius:50%;flex:none}
+#colzoOwner .cr-skeleton-row>div{flex:1;min-width:0}
+#colzoOwner .cr-skeleton-row i{display:block;width:70%;height:12px;margin:6px 0;border-radius:6px}
+#colzoOwner .cr-skeleton-row i+i{width:48%}
+#colzoOwner .cr-skeleton-row :is(i,span){background:#3b454d;animation:cr-loading-pulse 1.6s ease-in-out infinite alternate}
+@keyframes cr-loading-pulse{from{opacity:.45}to{opacity:.85}}
+#colzoOwner .cf-progress{overflow:hidden}
+#colzoOwner .cf-progress i{transition:width .32s var(--cz-ease,cubic-bezier(.22,.61,.36,1))}
+#colzoOwner :is(.cf-icon-button,.cn-stitch-add){min-width:44px;min-height:44px}
+#colzoOwner .cn-empty button{min-height:44px}
+#colzoOwner .cn-work-dialog :is(input,select),#colzoOwner .cn-colzo-record-form :is(input,select){min-height:48px;font-size:16px}
+#colzoOwner .cn-work-dialog :is(button,a),#colzoOwner .cn-command-panel>header button{min-height:44px;min-width:44px}
+#colzoOwner :is(.cr-skeleton-row,.cn-empty,.cn-work-message){overflow-wrap:anywhere}
+#colzoOwner.cn-quiet-motion .cr-skeleton-row :is(i,span){animation:none}
+#colzoOwner.cn-quiet-motion .cf-progress i{transition:none}
+@media(prefers-reduced-motion:reduce){
+  #colzoOwner .cr-skeleton-row :is(i,span){animation:none}
+  #colzoOwner .cf-progress i{transition:none}
+}
