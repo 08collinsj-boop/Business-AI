@@ -89,3 +89,23 @@
  #colzoOwner .cn-approved-form-header{margin:0 -13px}
 }
 @media(prefers-reduced-motion:reduce){#colzoOwner .cn-approved-quotes .cn-record,#colzoOwner .cn-approved-projects .cf-project-card{transition:none}}
+
+/* Accepted Stitch #008. Keep the shared app navigation and real record handlers. */
+#colzoOwner .cn-approved-quote-detail{display:grid;gap:16px;min-width:0;max-width:760px;margin:0 auto}
+#colzoOwner .cn-approved-quote-detail .cn-approved-detail-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#colzoOwner .cn-approved-quote-detail .cn-approved-detail-top h1{font-size:17px;margin:0;overflow-wrap:anywhere}
+#colzoOwner .cn-approved-estimate{padding:20px;border:1px solid rgba(255,255,255,.07);border-radius:16px;background:#161c24;min-width:0}
+#colzoOwner .cn-approved-estimate-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#94a3b8;font-size:12px}
+#colzoOwner .cn-approved-estimate h2{font-size:17px;line-height:1.4;margin:18px 0 12px;overflow-wrap:anywhere}
+#colzoOwner .cn-approved-estimate p{color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin:0 0 5px}
+#colzoOwner .cn-approved-estimate>strong{font-size:32px;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:#fff}
+#colzoOwner .cn-approved-estimate>strong small{font-size:15px;font-weight:400;color:#94a3b8}
+#colzoOwner .cn-approved-quote-detail .cn-approved-info-card{margin:0;min-width:0}
+#colzoOwner .cn-approved-quote-detail .cn-approved-related{width:100%;min-height:72px;overflow-wrap:anywhere}
+#colzoOwner .cn-approved-quote-detail .cn-approved-related small{display:block;color:#94a3b8;font-size:12px}
+#colzoOwner .cn-approved-quote-detail .cn-approved-related strong{display:block;margin:4px 0}
+#colzoOwner .cn-approved-quote-boundary{margin:0;padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:#151a22;color:#aab7c6;font-size:12px;line-height:1.6}
+#colzoOwner .cn-approved-quote-actions{padding:8px 0 12px}
+#colzoOwner .cn-approved-quote-actions .cn-primary{width:100%;min-height:48px;border-radius:12px;background:#c8ff2e;color:#11170b}
+#colzoOwner .cn-approved-quote-detail button:focus-visible{outline:2px solid #c8ff2e;outline-offset:4px}
+@media(max-width:600px){#colzoOwner .cn-approved-quote-detail{gap:14px;padding:0 3px}#colzoOwner .cn-approved-estimate{padding:16px}}

@@ -84,7 +84,7 @@
   <section class="cn-detail-panel cf-detail-panel"><h2>Details</h2><dl><div><dt>▣　Enquiry source</dt><dd>${safe(lead.source||lead.enquiry_source||'Not recorded')}</dd></div><div><dt>▤　Submitted</dt><dd>${safe(day(lead.created_at))}</dd></div><div><dt>◇　Budget</dt><dd>${safe(lead.budget||'Not supplied')}</dd></div><div><dt>♧　Location</dt><dd>${safe(lead.location||'Not supplied')}</dd></div></dl></section>
   <section class="cn-detail-panel cf-detail-panel"><h2>Description</h2><p>${safe(lead.description||'No message has been recorded.')}</p></section>
   <div class="cf-detail-buttons"><button class="cf-button-muted" type="button" data-cn-screen="quotes">Create quote</button><button class="cf-button-volt" type="button" data-cn-edit-lead="${safe(lead.id)}">Edit enquiry</button></div>
-  <p class="cn-caption">Updates are confirmed in the existing enquiry editor. Draft quotes are not saved or sent.</p>`;
+  <p class="cn-caption">Draft quotes are saved to this business and are not sent automatically.</p>`;
  }
  function leadForm(){
   const current=state.leadForm?.lead||null,editing=state.leadForm?.mode==='edit'&&current;
@@ -168,6 +168,21 @@
   if(!record)return '<button class="cn-back" data-cn-screen="'+resource+'" type="button">← Back</button>'+empty('This record is no longer available in this workspace.');
   const back='<button class="cn-back" data-cn-screen="'+resource+'" type="button" aria-label="Back to '+(resource==='clients'?'customers':resource)+'">← '+(resource==='clients'?'Customers':resource==='projects'?'Projects':'Quotes')+'</button>';
   const edit=resource==='quotes'&&['sent','accepted'].includes(record.status)?'<p class="cn-caption">Quote terms are locked after issuing. Editing is unavailable here.</p>':'<button class="cn-primary" type="button" data-colzo-edit="'+resource+'" data-colzo-id="'+safe(record.id)+'">Edit details</button>';
+  if(resource==='quotes'){
+    // Accepted Stitch #008: estimate, linked records, notes and explicit draft boundary.
+    const lead=records().enquiries.find(item=>String(item.id)===String(record.lead_id));
+    return `<section class="cn-approved-quote-detail" aria-label="Saved quote details">
+      <header class="cn-approved-detail-top">${back}<h1>Quote details</h1></header>
+      <section class="cn-approved-estimate" aria-label="Saved quote estimate">
+        <div class="cn-approved-estimate-meta"><span>${safe(day(record.created_at))}</span><span class="cn-pill">${safe(record.status||'draft')}</span></div>
+        <h2>${safe(record.title||'Untitled quote')}</h2><p>Price estimate</p><strong>£${Number(record.amount_gbp||0).toFixed(2)} <small>GBP</small></strong>
+      </section>
+      <section class="cn-approved-info-card"><h2>LINKED RECORDS</h2>${lead?`<button type="button" class="cn-approved-related" data-cn-lead="${safe(lead.id)}"><span><small>Customer</small><strong>${safe(contact(lead))}</strong><small>Linked enquiry · ${safe(lead.job_type||'General enquiry')}</small></span><span aria-hidden="true">›</span></button>`:'<p class="cn-caption">No matching enquiry is available in this workspace.</p>'}</section>
+      <section class="cn-approved-info-card"><h2>WORK DESCRIPTION / NOTES</h2><p class="cn-approved-note">${safe(record.notes||'No quote notes recorded.')}</p></section>
+      <p class="cn-approved-quote-boundary">This is a saved quote record. Sending quotes and collecting customer payments are unavailable here. A saved status does not confirm delivery.</p>
+      <div class="cn-approved-quote-actions">${edit}</div>
+    </section>`;
+  }
   if(resource==='clients'){
     // Approved customer profile using actual tenant-scoped saved customer data.
     const norm=v=>String(v||'').trim().toLowerCase();

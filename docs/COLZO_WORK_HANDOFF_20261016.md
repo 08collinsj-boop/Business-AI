@@ -50,3 +50,7 @@ Outer Vercel access-wall HTTP 401 responses do NOT demonstrate that Colzo protec
 Report exact SHA, Preview URL, working vs failing route list, before/after screenshots, accepted vs flagged Stitch coverage, synthetic vs real authenticated evidence, test totals, outstanding P0 blockers, spending/data changes and the specific owner actions required.
 
 Public paid launch remains NO-GO until all release gates have real evidence.
+
+## Subsequent Dev browser acceptance - 17 October
+
+Read [COLZO_DEV_ACCEPTANCE_20261017.md](COLZO_DEV_ACCEPTANCE_20261017.md) before continuing. Existing owner sign-in and Microsoft Authenticator succeeded; five labelled Dev QA records were created, saved edits survived reload, and a two-editor stale project update was rejected. Customer-list fixes were committed as `8a65413`; the next batch updates quote details from accepted Stitch #008 and retains server-side edit locks. Final combined verification: 688/688 passed, 208 JS files checked. Updated-preview sign-in was cancelled; after screenshots, latest-candidate live regression, full mobile/design coverage and independent two-tenant checks remain pending. No Production, spending, messages or merges.
