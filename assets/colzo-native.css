@@ -312,3 +312,42 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-colzo-record-form .cn-secondary{border:1px solid var(--cn-border,#343c42);background:#252b31;color:var(--cn-text,#f4f6f7)}
 #colzoOwner .cn-colzo-record-form button:disabled{opacity:.6;cursor:wait}
 @media (prefers-reduced-motion:no-preference){#colzoOwner .cn-colzo-record-form{animation:cn-record-form-in .22s ease-out both}@keyframes cn-record-form-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
+
+/* Colzo #089: accessible bottom-anchored unsaved-changes sheet, independent of form content. */
+#colzoOwner .cn-unsaved-overlay{
+ position:fixed;inset:0;z-index:130;display:flex;align-items:flex-end;
+ justify-content:center;background:rgba(4,8,9,.76);padding:12px 10px 0;
+ backdrop-filter:blur(3px);
+}
+#colzoOwner .cn-unsaved-sheet{
+ width:min(100%,540px);max-height:calc(100dvh - 32px);overflow-y:auto;
+ padding:13px 19px calc(23px + env(safe-area-inset-bottom));
+ background:#20282b;color:var(--cn-white);
+ border:1px solid #4a5c4c;border-radius:23px 23px 0 0;
+ box-shadow:0 -15px 55px rgba(0,0,0,.5);
+}
+#colzoOwner .cn-unsaved-grip{
+ display:block;width:43px;height:4px;border-radius:99px;
+ margin:0 auto 19px;background:#788983;
+}
+#colzoOwner .cn-unsaved-sheet h2{
+ font-size:20px;line-height:1.3;font-weight:750;margin:0 0 9px;
+ letter-spacing:-.025em;
+}
+#colzoOwner .cn-unsaved-sheet p{
+ margin:0 0 22px;font-size:14px;line-height:1.55;color:#b4c3be;
+}
+#colzoOwner .cn-unsaved-actions{display:grid;gap:10px}
+#colzoOwner .cn-unsaved-actions button{
+ min-height:50px;width:100%;padding:12px 15px;border-radius:11px;
+ font-size:14px;font-weight:740;border:1px solid #56645d;
+ color:#edf3ef;background:#333e3f;
+}
+#colzoOwner .cn-unsaved-actions .cn-unsaved-keep{
+ background:var(--cn-volt);border-color:var(--cn-volt);color:#182010;
+}
+#colzoOwner .cn-unsaved-actions button:focus-visible{
+ outline:3px solid var(--cn-volt);outline-offset:3px;
+}
+
+#colzoOwner textarea:focus-visible{outline:3px solid var(--cn-volt);outline-offset:2px}
