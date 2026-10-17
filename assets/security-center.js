@@ -160,7 +160,7 @@
     const platformPaused=CONTROLS.filter(item=>incidentState.platform?.[item.key]);
     if(platformNotice){
       platformNotice.hidden=!platformPaused.length;
-      platformNotice.innerHTML=platformPaused.length?`<strong>Business AI platform protection active.</strong><span>${esc(platformPaused.map(item=>item.label).join(', '))} ${platformPaused.length===1?'is':'are'} paused centrally and cannot be resumed from this business.</span>`:'';
+      platformNotice.innerHTML=platformPaused.length?`<strong>Colzo platform protection active.</strong><span>${esc(platformPaused.map(item=>item.label).join(', '))} ${platformPaused.length===1?'is':'are'} paused centrally and cannot be resumed from this business.</span>`:'';
     }
     list.innerHTML=CONTROLS.map(item=>{
       const businessPaused=incidentState.controls?.[item.key]===true;
@@ -359,7 +359,7 @@
 
   async function removeMfaFactor(factor){
     const authClient=client();if(!authClient||!factor?.id)return;
-    if(!window.confirm('Remove this authenticator from your Business AI account?'))return;
+    if(!window.confirm('Remove this authenticator from your Colzo account?'))return;
     const verified=await ensureAal2ForAction();if(!verified)return;
     const {error}=await authClient.auth.mfa.unenroll({factorId:factor.id});
     if(error){notify(error.message||'Could not remove authenticator');return;}

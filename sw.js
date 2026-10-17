@@ -6,12 +6,7 @@ const SAFE_STATIC_PATHS = new Set([
   "/assets/icons/colzo-180.png",
   "/assets/icons/colzo-192.png",
   "/assets/icons/colzo-512.png",
-  "/assets/icons/colzo-mark.svg",
-  "/assets/icons/business-ai-16.png",
-  "/assets/icons/business-ai-32.png",
-  "/assets/icons/business-ai-180.png",
-  "/assets/icons/business-ai-192.png",
-  "/assets/icons/business-ai-512.png"
+  "/assets/icons/colzo-mark.svg"
 ]);
 
 self.addEventListener("install", (event) => {

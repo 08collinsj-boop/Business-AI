@@ -285,7 +285,7 @@ async function createRequestedBooking({ businessId, leadId, lead, conversationTe
     "Customer booking request";
   const context = bookingText(conversationText, 4200);
   const notes = bookingText(
-    `Customer requested a booking through Business AI. This is a request only; confirm availability before marking it confirmed.${context ? `\n\nCustomer enquiry:\n${context}` : ""}`,
+    `Customer requested a booking through Colzo. This is a request only; confirm availability before marking it confirmed.${context ? `\n\nCustomer enquiry:\n${context}` : ""}`,
     5000
   );
 
@@ -360,7 +360,7 @@ async function createAutomaticFollowUp({ businessId, lead, settings }) {
       business_id: businessId,
       lead_id: lead.id,
       title,
-      description: "Business AI created this private reminder for a new AI-captured lead. Review the enquiry and contact the customer using the details they supplied. No customer message is sent automatically.",
+      description: "Colzo created this private reminder for a new AI-captured lead. Review the enquiry and contact the customer using the details they supplied. No customer message is sent automatically.",
       action_type: "follow_up",
       due_at: dueAt,
       priority: "normal",
@@ -725,14 +725,14 @@ export async function saveLead(lead, trustedBusinessId = null, handling = null) 
     job_type: lead.job_type || "General enquiry",
     description:
       lead.description ||
-      "Customer enquiry captured by Business AI",
+      "Customer enquiry captured by Colzo",
     urgency: lead.urgency || "Normal",
     qualified: true,
     status: existing?.status || "New",
     priority: lead.priority || "Normal",
     notes:
       lead.notes ||
-      "Captured by Business AI AI receptionist",
+      "Captured by Colzo AI receptionist",
     estimated_value: 0
   };
 
@@ -1014,7 +1014,7 @@ export default async function handler(req, res) {
       share: "Shared smart link",
       qr: "QR code",
       website_widget: "Website widget",
-      directory: "Business AI directory",
+      directory: "Colzo directory",
       test: "Receptionist test"
     }[enquirySource];
 
@@ -1253,7 +1253,7 @@ Your response must follow the supplied JSON schema.
             urgency: null,
             qualified: true,
             priority: "Normal",
-            notes: "Captured by Business AI from complete customer details.",
+            notes: "Captured by Colzo from complete customer details.",
             handover_required: false
           }
         };
@@ -1349,7 +1349,7 @@ Your response must follow the supplied JSON schema.
             qualified: clearlyBusinessRequest,
             priority: "Normal",
             notes: clearlyBusinessRequest
-              ? "Captured by Business AI during a temporary AI provider failure."
+              ? "Captured by Colzo during a temporary AI provider failure."
               : null,
             handover_required: false
           }
@@ -1434,8 +1434,8 @@ Your response must follow the supplied JSON schema.
 
       notes:
         (handoverRequired
-          ? "Captured by Business AI AI receptionist. Human handover requested."
-          : (lead.notes || "Captured by Business AI AI receptionist")) + " Source: " + enquirySourceLabel + "."
+          ? "Captured by Colzo AI receptionist. Human handover requested."
+          : (lead.notes || "Captured by Colzo AI receptionist")) + " Source: " + enquirySourceLabel + "."
     };
 
     const hasContact =

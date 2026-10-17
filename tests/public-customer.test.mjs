@@ -89,10 +89,10 @@ test("different public routes keep customer branding isolated between businesses
   assert.equal("business_id" in res.body.business, false);
 });
 
-test("public directory matches the approved mascot-led reference while keeping search real", () => {
+test("public directory matches the approved Colzo directory structure while keeping search real", () => {
   const directoryMarkup = html.slice(html.indexOf('<main id="publicDirectoryScreen"'), html.indexOf('<main id="publicEnquiryScreen"'));
   assert.match(directoryMarkup, /class="public-directory-brand-mark"/);
-  assert.match(directoryMarkup, /business-ai-mascot\.png/);
+  assert.match(directoryMarkup, /colzo-mark\.svg/);
   assert.match(directoryMarkup, /class="public-directory-account-switch"/);
   assert.match(directoryMarkup, /<h2>Find the right business<\/h2>/);
   assert.match(directoryMarkup, /class="public-directory-hero-mascot"/);
@@ -175,9 +175,9 @@ test("customer visual hierarchy keeps messaging primary", () => {
   assert.match(publicMarkup, /id="publicEnquiryForm"/);
 });
 
-test("customer uses only the approved local mascot artwork", () => {
+test("customer uses only the existing local Colzo mark", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.match(publicMarkup, /\/assets\/icons\/business-ai-mascot\.png/);
+  assert.match(publicMarkup, /\/assets\/icons\/colzo-mark\.svg/);
   assert.doesNotMatch(publicMarkup, /https?:\/\/[^"' ]+\.(?:png|jpe?g|webp)/i);
 });
 
@@ -217,7 +217,7 @@ test("install guidance belongs only to the authenticated owner application", () 
   const ownerMarkup = html.slice(html.indexOf('<div id="dashboardApp"'));
   assert.doesNotMatch(publicMarkup, /Install Business AI|installAppCard|beforeinstallprompt/);
   assert.match(ownerMarkup, /id="installAppCard"/);
-  assert.match(ownerMarkup, /Add Business AI to your Home Screen for quick access\./);
+  assert.match(ownerMarkup, /Add Colzo to your Home Screen for quick access\./);
   assert.match(html, /window\.addEventListener\('beforeinstallprompt'/);
   assert.match(html, /\(display-mode: standalone\)/);
   assert.match(html, /window\.navigator\.standalone===true/);

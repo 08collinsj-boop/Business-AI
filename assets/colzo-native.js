@@ -1,4 +1,4 @@
-/* Colzo's native owner interface. Same authenticated Business AI account, same
+/* Colzo's native owner interface. Same authenticated Colzo account, same
  * existing authenticated APIs plus a tenant-scoped Colzo records API; no silent mutations.
  * The original feature-rich owner app remains one click away. */
 (()=>{
