@@ -18,7 +18,7 @@ Verdict: CHANGES REQUIRED. Overall UI acceptance 2/5: core directories and forms
 |---|---|---|
 | Enquiry contacts do not open a profile | High | Missing customer route allowlist entry corrected; DOM regression reproduces and passes. |
 | Help feedback shortcut returns to Settings | High | Connected to existing native feedback form. |
-| Both security-centre controls return to the same Security page | High | Existing secured controls mounted inside native Colzo, retaining handlers and auth gates. DOM lifecycle tests pass; new-candidate authenticated browser check pending. |
+| Both security-centre controls return to the same Security page | High | Existing secured controls mounted inside native Colzo, retaining handlers and auth gates. DOM lifecycle tests pass; authenticated candidate check passed after existing-owner password and Microsoft Authenticator verification. |
 | Security UI can retain setup fields across sessions | High | UI state removed on auth loss, stale read guarded; no credential/factor operation changed. Synthetic lifecycle regression passes. |
 | Website integration shortcut returns to Settings | Medium | Replaced misleading destination with honest unavailable status. Existing integration data preserved. |
 | Duplicate tool search and settings entries; outdated quote description | Medium | Duplicates removed; saved-record descriptions corrected. |
@@ -176,4 +176,22 @@ Both /marketing.html and /site/index.html were opened. They retain Business AI b
 
 Focused DOM regressions passed after reproducing failures. Final npm run verify passed 724/724 with 0 failures/skips after all changes, including security-view teardown; 234 JavaScript paths passed local checks. Draft PR #26 remains unmerged. New feature-branch automatic previews still lack branch-scoped Dev configuration; pinned previews use the existing configured PR19 Dev ref without copying credentials.
 
-Screenshots were captured internally during this run. Private/customer/account screenshots are not committed or published. No before/after acceptance is claimed for the new patch until its candidate is checked after secure sign-in.
+Screenshots were captured internally during this run. Private/customer/account screenshots are not committed or published. A matched, non-private directory Before/After comparison was captured after both snapshots were signed in. This validates static product label corrections only; the inherited blue mascot design still requires Graphite & Volt parity. Private account and customer screenshots remain internal.
+
+
+## Patched candidate acceptance
+
+- Code commit: 0bab97ff080dcaab8402a092388ef90315c5f4d0.
+- Verified Dev preview: https://business-e9l86v12c-buisness-ai1.vercel.app/
+- Deployment dpl_8BU2RAxLyQZRsStAykuv9TgKCd5n is READY, Preview, pinned to that exact code SHA using the existing PR19 Dev environment scope. No credential/env edits or Production changes.
+- /api/health 200; /api/public-config 200, frontendAuthEnabled true, exact https://mvwseobgkexzpmmkgcxe.supabase.co target.
+- Existing-owner password accepted, existing Microsoft Authenticator challenge completed securely, authenticated Home visibly loaded.
+- Repaired enquiry-contact selection opened the intended labelled QA profile on explicit settled-state recheck. One initial click during the directory's loading/reflow interval opened a different same-business contact; reproduction and loading-layout investigation remain required. No record was edited.
+- Help shortcut reached the native Feedback form. No feedback submitted.
+- Both security-centre entry points reached the existing account-security view. The first finished loading as MFA verified / Authenticator app enabled / This session has completed two-step verification. No factor removal/enrolment or safety-control changes performed.
+- Navigating away and reopening security retained the existing secured UI; synthetic lifecycle tests verify node retention and clearing on sign-out. Real sign-out was not repeated as it would end the owner session.
+- Website embed configuration now states unavailable rather than redirecting to Settings.
+- Settled project/quote counts render 1 saved project and 1 saved quote. New project range control is named Project progress.
+- Tool search contains one Feedback and one Knowledge destination.
+- Signed-in Customer Portal renders Colzo branding and its navigation. Saved business names are unchanged.
+- Still outstanding: the Home chart/month alignment; loading layout shifts; past-booking Upcoming label; stale Marketing schedule/knowledge summary; native Marketing approval; advanced settings and missing design states; old legal/promotional text; inherited blue customer visuals; full mobile/Safari/reduced-motion/performance/accessibility acceptance; independent two-tenant acceptance; all safe live persistence journeys on this exact candidate.
