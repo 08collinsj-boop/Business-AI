@@ -27,7 +27,7 @@
 - Added red-before/green-after component/controller tests for loading/error/no-match states, escaping, clamped progress, retained input nodes, reset filters, add/detail event contracts, existing create/save/reload flow, private-state reset and stale-session response rejection, quote locks and identity-bound customer activity.
 - Added red-before/green-after system/session reduced-motion tests and isolated Preview target test.
 - Combined `npm run verify`: 714/714 tests passed, zero failures/skips; 216 JavaScript files checked at that run. Final handoff verification repeated the full suite: 714/714 passed, 217 JavaScript files checked, zero failures/skips.
-- Generated production bundle: 221130 bytes uncompressed, 67070 bytes gzip in the measured build. This is a size measurement, not an FPS or interaction-performance claim.
+- Generated production bundle: 222413 bytes uncompressed, 67070 bytes gzip in the measured build. This is a size measurement, not an FPS or interaction-performance claim.
 - `git diff --check`: passed.
 - DOM tests use jsdom and synthetic fixtures. They do not measure browser layout, Safari, touch keyboards, frame rate, real database persistence, tenant isolation or delivered messages.
 
@@ -47,3 +47,7 @@ The full per-reference matrix is `COLZO_UI_IMPLEMENTATION_MATRIX_20261017.md` an
 To continue live acceptance: configure this new Preview branch for the existing Dev backend through an authorised secure configuration flow without rotating credentials; verify its exact public config; let the owner securely sign in to the existing account/Microsoft Authenticator; capture matched phone/desktop screenshots and test the candidate. Preserve existing QA records and avoid unrelated customer data. Complete remaining reference parity and functional journeys before any release proposal.
 
 No Production deployment, merge, paid service, external communication, credential modification, database mutation or real customer test write was performed in this implementation session.
+
+## Preview build correction
+
+The first React Preview build failed with STATIC_BUILD_NO_OUT_DIR because adding a build command made Vercel expect a public output folder. The build now copies an explicit static allowlist to public and sets outputDirectory accordingly. Backend code, dependencies, credentials and test files are excluded; the existing root API remains separately compiled by Vercel. Two red-before/green-after artifact tests were added. Final verification after this correction: **716/716 tests passed, zero failures/skips; 233 JavaScript paths checked including generated static copies**. No visual acceptance is inferred.

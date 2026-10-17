@@ -7,3 +7,4 @@ node_modules/
 assets/colzo-react.js
 assets/colzo-react.js.LEGAL.txt
 .colzo-test-build/
+public/

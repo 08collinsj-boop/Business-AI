@@ -16,9 +16,10 @@
     "verify:colzo-auth": "node scripts/colzo-auth-browser.cjs",
     "verify:colzo-leads": "node scripts/colzo-lead-save-browser.cjs",
     "verify:colzo-records": "node scripts/colzo-records-save-browser.cjs",
-    "verify": "npm run build && npm test && npm run verify:local",
+    "verify": "npm test && npm run verify:local",
     "load:smoke": "node scripts/load-smoke.mjs",
-    "build": "node scripts/build-colzo-react.mjs"
+    "build": "node scripts/build-colzo-react.mjs",
+    "pretest": "npm run build"
   },
   "dependencies": {
     "qrcode": "1.5.4",
