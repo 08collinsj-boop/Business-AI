@@ -62,3 +62,20 @@ test('POST is blocked and no secret leaves the server',{concurrency:false},async
  assert.equal(res.statusCode,405);assert.equal(calls.length,0);
 });
 
+test('Dev credentials accepted on apikey-only admin endpoint are identified without exposing key',{concurrency:false},async t=>{
+ env(t);const old=globalThis.fetch,calls=[];
+ globalThis.fetch=async (endpoint,opts)=>{
+  calls.push({endpoint:String(endpoint),opts});
+  if(calls.length===1)return {ok:false,status:401};
+  if(calls.length===2)return {ok:true,status:200};
+  throw Error('Unexpected request');
+ };
+ t.after(()=>globalThis.fetch=old);
+ const {request,res}=req();await operations(request,res);
+ assert.equal(res.statusCode,200);
+ assert.deepEqual(res.body,{status:'ready',backendCredential:'accepted_as_apikey_only'});
+ assert.equal(calls.length,2);
+ assert.equal(calls[1].endpoint,url+'/rest/v1/');
+ assert.deepEqual(calls[1].opts.headers,{apikey:'fixture-not-real'});
+ assert.equal(JSON.stringify(res.body).includes('fixture-not-real'),false);
+});
