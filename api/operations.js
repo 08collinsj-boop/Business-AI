@@ -28,6 +28,7 @@ import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
+import { isApprovedSupabaseTarget } from '../lib/public-config-handler.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -68,6 +69,12 @@ export default async function handler(req, res) {
   const operation = typeof req.query?.operation === "string" ? req.query.operation : "";
   const delegated = handlers[operation];
   if (!delegated) return res.status(404).json({ error: "Not found" });
+  // Fail closed at the Colzo Preview dispatcher before any authenticated
+  // operation touches a Supabase backend from an unexpected environment.
+  // This leaves the shared Business AI authentication module untouched.
+  if (!isApprovedSupabaseTarget()) {
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   const observation = observeOperation(req, res, operation);
   try {
     return await delegated(req, res);
