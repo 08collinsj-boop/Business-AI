@@ -11,7 +11,10 @@
   }catch{}
  }
  document.querySelectorAll('[data-colzo-app-link]').forEach(link=>{
-  if(target){link.href=target;return;}
+  if(target){
+   const path=['/','/customer','/customer/account'].includes(link.dataset.colzoAppPath)?link.dataset.colzoAppPath:'/';
+   link.href=new URL(path,new URL(target,location.origin)).href;return;
+  }
   link.removeAttribute('href');link.setAttribute('aria-disabled','true');link.textContent='App preview unavailable';
  });
 })();
