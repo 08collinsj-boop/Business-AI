@@ -8,18 +8,26 @@ const siteProject = process.env.VERCEL_PROJECT_ID === 'prj_BBQqpP9Kx1Q0u6n7WB7sX
 const isVercelBuild = ['preview', 'production'].includes(process.env.VERCEL_ENV || '');
 
 if (siteProject && isVercelBuild) {
-  await rm('public', { recursive: true, force: true });
-  await mkdir('public/assets/icons', { recursive: true });
-  await cp('site', 'public/site', { recursive: true });
-  // The existing host rewrite requests marketing.html on the public domain.
-  await cp('site/index.html', 'public/index.html');
-  await cp('site/index.html', 'public/marketing.html');
-  await cp('legal', 'public/legal', { recursive: true });
-  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js']) {
-    await cp('assets/' + asset, 'public/assets/' + asset);
+  // This Vercel project's configured Root Directory is site/, so its
+  // Output Directory 'public' resolves to site/public, not repo-root public.
+  const out = 'site/public';
+  await rm(out, { recursive: true, force: true });
+  await mkdir(out + '/assets/icons', { recursive: true });
+  await mkdir(out + '/site', { recursive: true });
+  for (const item of ['index.html', 'site.css', 'site.js',
+    'business-ai-icon.svg', 'business-ai-mark.webp', 'howto']) {
+    await cp('site/' + item, out + '/site/' + item, { recursive: true });
   }
-  await cp('assets/icons/colzo-mark.svg', 'public/assets/icons/colzo-mark.svg');
-  console.log('Colzo public-site static output prepared without application dependencies.');
+  // Public-domain rewrite points at marketing.html; relative paths in the
+  // Colzo landing page refer to /site and /assets.
+  await cp('site/index.html', out + '/index.html');
+  await cp('site/index.html', out + '/marketing.html');
+  await cp('legal', out + '/legal', { recursive: true });
+  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js']) {
+    await cp('assets/' + asset, out + '/assets/' + asset);
+  }
+  await cp('assets/icons/colzo-mark.svg', out + '/assets/icons/colzo-mark.svg');
+  console.log('Colzo public-site output prepared at site/public without npm dependencies.');
 } else {
   // The authenticated Colzo application MUST have a real compiled React bundle.
   // Import only in this branch: the separate public site deliberately installs

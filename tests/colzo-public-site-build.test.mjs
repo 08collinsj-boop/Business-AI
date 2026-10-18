@@ -25,12 +25,13 @@ test('separate public-site Preview builds its static Colzo website without esbui
     for (const file of ['index.html', 'marketing.html', 'site/site.css', 'site/site.js',
       'assets/colzo-public-site.css', 'assets/colzo-public-site.js',
       'assets/icons/colzo-mark.svg', 'legal/privacy.html']) {
-      assert.ok(existsSync(join(dir, 'public', file)), file);
+      assert.ok(existsSync(join(dir, 'site', 'public', file)), file);
     }
-    assert.equal(readFileSync(join(dir, 'public/index.html'), 'utf8'),
+    assert.equal(existsSync(join(dir, 'public')), false, 'output must be under site root');
+    assert.equal(readFileSync(join(dir, 'site/public/index.html'), 'utf8'),
       readFileSync('site/index.html', 'utf8'));
     for (const forbidden of ['api', 'lib', 'node_modules', 'src', 'tests', 'assets/colzo-react.js']) {
-      assert.equal(existsSync(join(dir, 'public', forbidden)), false, forbidden);
+      assert.equal(existsSync(join(dir, 'site', 'public', forbidden)), false, forbidden);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -48,7 +49,7 @@ test('owner-app build must not silently fall back to static site when esbuild is
         VERCEL_URL: 'business-qa-buisness-ai1.vercel.app' },
     });
     assert.notEqual(res.status, 0);
-    assert.equal(existsSync(join(dir, 'public/index.html')), false);
+    assert.equal(existsSync(join(dir, 'site/public/index.html')), false);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
