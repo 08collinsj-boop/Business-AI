@@ -71,3 +71,9 @@ test('an unsaved decision blocks any underlying form submission',async()=>{
  assert.equal(f.w.calls.some(call=>call.method==='POST'||call.method==='PATCH'),false);assert.equal(form.inert,true);
  f.click('.cn-unsaved-keep');assert.equal(form.inert,false);f.dom.window.close();
 });
+test('an editor cannot submit while its dismissal animation is pending',async()=>{
+ const f=fixture();f.click('[data-cn-screen="bookings"]');f.click('[data-cn-work-new]');
+ const form=f.w.document.querySelector('#cnWorkForm');form.querySelector('[name="title"]').value='Synthetic closing draft';
+ f.w.ColzoSurfaceMotion.leave=()=>{};f.click('.cn-work-dialog-x');assert.equal(form.inert,true);
+ form.dispatchEvent(new f.w.Event('submit',{bubbles:true,cancelable:true}));await f.settle();assert.equal(f.w.calls.some(call=>call.method==='POST'||call.method==='PATCH'),false);f.dom.window.close();
+});
