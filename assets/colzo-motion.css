@@ -40,7 +40,7 @@
   border:1px solid rgba(200,255,46,.16);
   box-shadow:inset 0 1px rgba(200,255,46,.2),0 0 23px rgba(200,255,46,.045);
   transform:translate3d(calc(var(--cn-active-index) * 100%),0,0);
-  transition:transform .5s var(--cz-spring);
+  transition:transform .22s var(--cz-spring);
   pointer-events:none;
 }
 #colzoOwner .cn-nav button{
@@ -55,7 +55,7 @@
   display:grid;
   place-items:center;
   width:25px;height:25px;
-  transition:transform .4s var(--cz-spring),color .25s ease;
+  transition:transform .2s var(--cz-spring),color .25s ease;
   transform-origin:50% 55%;
 }
 #colzoOwner .cn-navicon svg{width:21px;height:21px;display:block;overflow:visible}

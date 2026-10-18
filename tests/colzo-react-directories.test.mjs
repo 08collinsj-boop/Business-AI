@@ -69,3 +69,14 @@ test('singular saved-record counts and project progress have clear accessible na
  f.model.colzoForm=null;f.model.screen='quotes';f.model.colzoRecords.quotes=[{id:'q',title:'QA',status:'draft',amount_gbp:2}];f.render();
  assert.match(f.view.textContent,/1 saved quote(?!s)/);f.dom.window.close();
 });
+test('background refresh keeps saved rows mounted rather than replacing them with skeletons',()=>{
+ const f=fixture();f.model.colzoRecords.projects=[{id:'kept',title:'Retained project',status:'active'}];f.render();
+ const row=f.view.querySelector('[data-colzo-id="kept"]');f.model.colzoLoading='projects';f.render();
+ assert.equal(f.view.querySelector('[data-colzo-id="kept"]'),row);assert.equal(f.view.querySelector('.cr-loading'),null);
+ assert.ok(f.view.querySelector('[aria-busy="true"]'));f.dom.window.close();
+});
+test('failed background refresh keeps cached records and shows an honest retry',()=>{
+ const f=fixture();f.model.colzoRecords.projects=[{id:'kept',title:'Retained project',status:'active'}];f.render();
+ f.model.colzoError='Refresh unavailable';f.render();assert.match(f.view.textContent,/Retained project/);
+ assert.match(f.view.querySelector('[role="alert"]').textContent,/Refresh unavailable/);assert.ok(f.view.querySelector('[data-colzo-refresh="projects"]'));f.dom.window.close();
+});

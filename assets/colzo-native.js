@@ -727,8 +727,8 @@
    state.workSelected=id==null?null:String(id);state.workModal=screen;state.workFormError='';state.workFeedback='';
    render();root.querySelector('#cnWorkForm [name=title]')?.focus({preventScroll:true});
  }
- function closeWorkModal(){state.workModal=null;state.workSelected=null;state.workFormError='';render()}
- function changeWorkMonth(amount){if(!Number.isInteger(amount)||Math.abs(amount)>1)return;const [y,m]=state.workDate.split('-').map(Number),date=new Date(y,m-1+amount,1);state.workDate=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;render({motion:'filter'})}
+ function closeWorkModal(){const selected=state.workSelected;dismissSurface(root.querySelector('.cn-work-dialog'),()=>{state.workModal=null;state.workSelected=null;state.workFormError='';render();const opener=selected?[...content.querySelectorAll('[data-cn-work-edit]')].find(button=>button.dataset.cnWorkEdit===selected):content.querySelector('[data-cn-work-new]');opener?.focus({preventScroll:true})})}
+ function changeWorkMonth(amount){if(!Number.isInteger(amount)||Math.abs(amount)>1)return;const [y,m]=state.workDate.split('-').map(Number),date=new Date(y,m-1+amount,1);state.workDate=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;render({motion:'filter'});const calendar=content.querySelector('.cn-work-calendar');if(calendar&&allowMotion()&&typeof calendar.animate==='function')motionRun.push(calendar.animate([{opacity:.65,transform:`translate3d(${amount*8}px,0,0)`},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:200,easing:'cubic-bezier(.2,.85,.22,1)'}))}
  async function refreshWork(){
    state.workFeedback='Refreshing existing records…';render();
    try{if(typeof loadWorkItems==='function'){await loadWorkItems();state.workFeedback='Up to date.';render()}else throw new Error('Refresh unavailable.')}catch(error){state.workFeedback=error?.message||'Could not refresh.';render()}
@@ -776,7 +776,7 @@
    finally{state.workBusy=false;if(submit)submit.disabled=false}
  }
  const primaryScreens=['home','enquiries','bookings','clients','more'];
- const navPosition=screen=>screen==='lead'?1:['setting','quotes','projects','actions','marketing','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(screen)?4:Math.max(0,primaryScreens.indexOf(screen));
+ const navPosition=screen=>screen==='colzoDetail'?(state.colzoDetail?.resource==='clients'?3:4):['lead','leadForm'].includes(screen)?1:screen==='customer'?3:['setting','quotes','projects','actions','marketing','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(screen)?4:Math.max(0,primaryScreens.indexOf(screen));
  const allowMotion=()=>!state.quietMotion&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const scrollContainer=()=>{const overflow=getComputedStyle(root).overflowY;return /auto|scroll/.test(overflow)?root:window};
  const currentScroll=()=>{const container=scrollContainer();return container===window?window.scrollY:root.scrollTop};
@@ -786,24 +786,20 @@
  };
  let motionRun=[];
  function stopMotion(){for(const animation of motionRun){try{animation.cancel()}catch{}}motionRun=[]}
+ const motionPreference=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+ motionPreference?.addEventListener?.('change',event=>{if(event.matches)stopMotion()});
  function animateArrival(direction=1,kind='page'){
    stopMotion();
    if(!allowMotion()||typeof content.animate!=='function')return;
-   const entering=kind==='filter'?8:direction>=0?18:-18;
-   const duration=kind==='filter'?220:kind==='detail'?420:355;
-   const contentAnimation=content.animate([
-     {opacity:.62,transform:`translate3d(${entering}px,6px,0) scale(.992)`},
-     {opacity:1,transform:'translate3d(0,0,0) scale(1)'}
-   ],{duration,easing:'cubic-bezier(.2,.85,.22,1)'});
-   motionRun.push(contentAnimation);
-   const items=[...content.querySelectorAll('.cf-kpi,.cf-lead-card,.cf-project-card,.cf-quick-grid button,.cf-settings-list button,.cn-more-links button,.cn-detail-panel,.cn-record')].slice(0,16);
-   items.forEach((item,i)=>{
-     const a=item.animate([
-       {opacity:.28,transform:`translate3d(0,${kind==='filter'?5:11}px,0)`},
-       {opacity:1,transform:'translate3d(0,0,0)'}
-     ],{duration:320,delay:Math.min(i,8)*28,easing:'cubic-bezier(.17,.8,.24,1)',fill:'backwards'});
-     motionRun.push(a);
-   });
+   // Filters and search keep every target stationary. Tab changes use a short
+   // fade; only a list-to-detail transition has a small directional offset.
+   if(kind==='filter')return;
+   const entering=kind==='detail'?(direction>=0?12:-12):0;
+   const animation=content.animate([
+     {opacity:.72,transform:`translate3d(${entering}px,0,0)`},
+     {opacity:1,transform:'translate3d(0,0,0)'}
+   ],{duration:kind==='detail'?260:180,easing:'cubic-bezier(.2,.85,.22,1)'});
+   motionRun.push(animation);
  }
  function render({motion='none',direction=1}={}){
    if(!document.body.classList.contains('auth-ready'))return;
@@ -823,8 +819,8 @@
    const securityHost=content.querySelector('#cnSecurityCentreHost');
    if(securityHost&&typeof window.colzoMountSecurityCenter==='function')window.colzoMountSecurityCenter(securityHost);
    const dialog=content.querySelector('.cn-work-dialog-backdrop');if(dialog)root.appendChild(dialog);
-   content.dataset.cnIntro=state.screen;
-   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===state.screen||(state.screen==='lead'&&b.dataset.cnScreen==='enquiries')||(['quotes','setting','projects','actions','marketing','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(state.screen)&&b.dataset.cnScreen==='more');if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   content.dataset.cnIntro=motion==='none'||motion==='filter'?'':state.screen;
+   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===primaryScreens[navPosition(state.screen)];if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    if(motion!=='none')animateArrival(direction,motion);
  }
@@ -848,16 +844,19 @@
    overlay.innerHTML='<section class="cn-unsaved-sheet" role="dialog" aria-modal="true" aria-labelledby="cnUnsavedTitle" aria-describedby="cnUnsavedDescription"><span class="cn-unsaved-grip" aria-hidden="true"></span><h2 id="cnUnsavedTitle">Unsaved changes</h2><p id="cnUnsavedDescription">You have edited this form. Leaving now will discard your changes.</p><div class="cn-unsaved-actions"><button type="button" class="cn-unsaved-keep">Keep editing</button><button type="button" class="cn-unsaved-discard">Discard changes</button></div></section>';
    root.appendChild(overlay);
    const keep=overlay.querySelector('.cn-unsaved-keep'),discard=overlay.querySelector('.cn-unsaved-discard');
-   const close=(restore=true)=>{
-     overlay.remove();
-     if(restore&&previous?.isConnected&&typeof previous.focus==='function')previous.focus({preventScroll:true});
+   let closing=false;
+   const close=(restore=true,after=()=>{})=>{
+     if(closing)return;closing=true;
+     dismissSurface(overlay.querySelector('.cn-unsaved-sheet'),()=>{
+       overlay.remove();
+       if(restore&&previous?.isConnected&&typeof previous.focus==='function')previous.focus({preventScroll:true});
+       after();
+     });
    };
    keep.addEventListener('click',()=>close());
    discard.addEventListener('click',()=>{
      // A confirmed discard must not trigger a second prompt on the same form.
-     form.dataset.cnDirty='false';
-     close(false);
-     action();
+     close(false,()=>{form.dataset.cnDirty='false';action()});
    });
    overlay.addEventListener('keydown',event=>{
      if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return}
@@ -913,22 +912,27 @@
    const found=commandItems.filter(x=>!q||`${x.label} ${x.detail}`.toLowerCase().includes(q)).sort((a,b)=>q?(Number(b.label.toLowerCase().startsWith(q))-Number(a.label.toLowerCase().startsWith(q))):0);
    commandResults.innerHTML=found.length?found.map(item=>`<button type="button" ${item.screen?`data-cn-screen="${item.screen}"`:item.setting?`data-cn-setting="${item.setting}"`:`data-cn-legacy="${item.legacy}"`}><span class="cn-command-glyph" aria-hidden="true">${safe(item.glyph)}</span><span class="cn-command-name">${safe(item.label)}<small>${safe(item.detail)}</small></span><span class="cn-command-arrow" aria-hidden="true">›</span></button>`).join(''):'<p class="cn-command-empty">No matching tools. Try “Marketing” or “Enquiries”.</p>';
  }
+ function dismissSurface(element,done){
+   if(window.ColzoSurfaceMotion)window.ColzoSurfaceMotion.leave(element,done);else done();
+ }
  function closeCommand(restoreFocus=true){
    if(!sheet||sheet.hidden)return;
-   sheet.hidden=true;
-   root.classList.remove('cn-command-open');
-   if(restoreFocus&&focusBeforeCommand?.isConnected)focusBeforeCommand.focus({preventScroll:true});
-   focusBeforeCommand=null;
+   const previous=focusBeforeCommand;
+   const finish=()=>{
+     sheet.hidden=true;root.classList.remove('cn-command-open');
+     if(restoreFocus&&previous?.isConnected)previous.focus({preventScroll:true});
+     focusBeforeCommand=null;
+   };
+   // Navigation and auth teardown never leave a tool overlay over a new page.
+   if(!restoreFocus){window.ColzoSurfaceMotion?.cancel();finish();return}
+   dismissSurface(sheet.querySelector('.cn-command-panel'),finish);
  }
  function openCommand(){
    if(!sheet||!commandInput||!document.body.classList.contains('auth-ready')||document.body.classList.contains('colzo-legacy-mode')||document.body.classList.contains('security-mfa-required')||state.workModal)return;
-   focusBeforeCommand=document.activeElement;
-   sheet.hidden=false;
-   root.classList.add('cn-command-open');
+   if(sheet.hidden)focusBeforeCommand=document.activeElement;
+   sheet.hidden=false;root.classList.add('cn-command-open');
    commandInput.value='';drawCommandResults();commandInput.focus({preventScroll:true});
-   if(allowMotion()&&typeof sheet.querySelector('.cn-command-panel')?.animate==='function'){
-     sheet.querySelector('.cn-command-panel').animate([{opacity:0,transform:'translate3d(0,18px,0) scale(.97)'},{opacity:1,transform:'translate3d(0,0,0) scale(1)'}],{duration:335,easing:'cubic-bezier(.17,.85,.24,1)'});
-   }
+   window.ColzoSurfaceMotion?.enter(sheet.querySelector('.cn-command-panel'));
  }
  const screenShortcuts=e=>{
    if(root.querySelector('.cn-unsaved-overlay'))return;
@@ -1000,7 +1004,7 @@
   if(target.hasAttribute('data-marketing-cancel')){state.marketingForm=false;state.marketingEditing=null;render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-refresh')){loadMarketingDrafts(true);return}
   if(target.hasAttribute('data-cn-client-profile-tab')){const next=target.getAttribute('data-cn-client-profile-tab');if(state.screen==='colzoDetail'&&state.colzoDetail?.resource==='clients'&&['overview','activity'].includes(next)){state.customerProfileTab=next;render({motion:'filter'})}return}
-  if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});}return}
+  if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){state.scrollByScreen.set(state.screen,currentScroll());state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});restoreScroll(0);}return}
   if(target.hasAttribute('data-colzo-create')){const resource=target.getAttribute('data-colzo-create');state.colzoForm={resource,record:null};state.colzoFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
   if(target.hasAttribute('data-colzo-cancel')){confirmUnsaved(()=>{state.colzoForm=null;render({motion:'page'})});return}

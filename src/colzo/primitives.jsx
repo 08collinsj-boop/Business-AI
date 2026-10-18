@@ -38,10 +38,18 @@ export function SearchField({ id, value = '', label, onChange, className = 'cn-s
   </label>;
 }
 export function DirectoryState({ model, resource, filtered, empty, noMatch, children }) {
-  if (model.colzoError) return <EmptyState error action={<button type="button" data-colzo-refresh={resource}>Try again</button>}>{model.colzoError}</EmptyState>;
-  if (model.colzoLoading === resource) return <LoadingState label={`Loading saved ${resource === 'clients' ? 'customers' : resource}…`}/>;
-  if (!filtered.length) return <EmptyState>{(model.colzoRecords[resource] || []).length ? noMatch : empty}</EmptyState>;
-  return children;
+  const saved = model.colzoRecords[resource] || [];
+  const cached = saved.length > 0;
+  const loading = model.colzoLoading === resource;
+  const error = model.colzoError;
+  const label = resource === 'clients' ? 'customers' : resource;
+  if (error && !cached) return <EmptyState error action={<button type="button" data-colzo-refresh={resource}>Try again</button>}>{error}</EmptyState>;
+  if (loading && !cached) return <LoadingState label={`Loading saved ${label}…`}/>;
+  return <div className="cr-directory-state" aria-busy={loading}>
+    <span className="cn-visually-hidden" role="status">{loading ? `Refreshing saved ${label}…` : ''}</span>
+    {error && <p className="cn-work-message" role="alert">{error} Showing previously loaded records. <button type="button" data-colzo-refresh={resource}>Try again</button></p>}
+    {filtered.length ? children : <EmptyState>{saved.length ? noMatch : empty}</EmptyState>}
+  </div>;
 }
 export function StatusPill({ label }) {
   const group = stage({ status: label });

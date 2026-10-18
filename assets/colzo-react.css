@@ -79,3 +79,8 @@
 @media(min-width:920px){
   #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) .cn-content{padding-inline:max(35px,env(safe-area-inset-left)) max(35px,env(safe-area-inset-right))}
 }
+
+/* Preserve loaded rows and focus during a background refresh. The status line
+   overlays its container and never shifts a card or search field. */
+#colzoOwner .cr-directory-state{position:relative;display:grid;gap:inherit}
+#colzoOwner .cr-directory-state[aria-busy=true]::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:#c8ff2e;opacity:.55;pointer-events:none}

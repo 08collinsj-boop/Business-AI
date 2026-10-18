@@ -34,3 +34,13 @@ test('an old-account response arriving after sign out cannot repopulate the new 
  finishOld([{id:'stale',full_name:'Stale private customer'}]);await f.settle();
  assert.doesNotMatch(f.w.document.querySelector('#cnContent').textContent,/Stale private customer/);f.dom.window.close();
 });
+
+test('customer detail keeps Customers selected and Back restores the list position',async()=>{
+ const f=fixture();let position=0;Object.defineProperty(f.w,'scrollY',{get:()=>position});f.w.scrollTo=({top})=>{position=top};
+ f.click('[data-cn-screen="clients"]');await f.settle();position=420;
+ f.click('[data-colzo-detail="clients"]');
+ assert.equal(f.w.document.querySelector('.cn-nav [aria-current="page"]').dataset.cnScreen,'clients');
+ assert.equal(position,0);
+ f.click('#cnContent [data-cn-screen="clients"]');await f.settle();
+ assert.equal(position,420);assert.equal(f.w.document.querySelector('.cn-nav [aria-current="page"]').dataset.cnScreen,'clients');f.dom.window.close();
+});
