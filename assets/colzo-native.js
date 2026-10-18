@@ -802,6 +802,47 @@
    ],{duration:kind==='detail'?260:180,easing:'cubic-bezier(.2,.85,.22,1)'});
    motionRun.push(animation);
  }
+ // The mobile top bar is shared by all Colzo tool screens. Main sections
+ // retain the More menu + tool search, while nested pages get a true back
+ // action that uses the existing navigation/unsaved-changes protections.
+ function updateHeaderNavigation(){
+   const control=root.querySelector('.cn-header .cn-wordmark');
+   if(!control)return;
+   const parents={
+     more:['home','Home'],
+     setting:['more','More'],
+     lead:['enquiries','Enquiries'],
+     leadForm:[state.leadForm?.mode==='edit'?'lead':'enquiries',state.leadForm?.mode==='edit'?'Enquiry':'Enquiries'],
+     customer:['clients','Customers'],
+     colzoDetail:[state.colzoDetail?.resource||'more',state.colzoDetail?.resource==='clients'?'Customers':state.colzoDetail?.resource==='projects'?'Projects':state.colzoDetail?.resource==='quotes'?'Quotes':'More']
+   };
+   const dismiss=state.colzoForm ? ['colzo-form',state.screen==='clients'?'Customers':state.screen==='projects'?'Projects':'Quotes']
+     : state.knowledgeForm ? ['knowledge-form','Knowledge']
+     : state.knowledgeDetail ? ['knowledge-detail','Knowledge']
+     : state.marketingSchedulingDraft ? ['marketing-schedule','Marketing']
+     : state.marketingForm||state.marketingEditing ? ['marketing-form','Marketing']
+     : null;
+   const back=dismiss ? [null,dismiss[1]] : parents[state.screen]||null;
+   control.classList.toggle('cn-header-back',Boolean(back));
+   if(back){
+     control.removeAttribute('data-cn-screen');
+     if(dismiss){
+       control.removeAttribute('data-cn-header-back');
+       control.dataset.cnHeaderDismiss=dismiss[0];
+     }else{
+       control.removeAttribute('data-cn-header-dismiss');
+       control.dataset.cnHeaderBack=back[0];
+     }
+     control.setAttribute('aria-label','Back to '+back[1]);
+     control.title='Back to '+back[1];
+   }else{
+     control.removeAttribute('data-cn-header-back');
+     control.removeAttribute('data-cn-header-dismiss');
+     control.dataset.cnScreen='more';
+     control.setAttribute('aria-label','Open Colzo tools');
+     control.title='Open Colzo tools';
+   }
+ }
  function render({motion='none',direction=1}={}){
    if(!document.body.classList.contains('auth-ready'))return;
    if(state.workModal&&motion==='none'&&root.querySelector('#cnWorkForm'))return;
@@ -813,6 +854,7 @@
    stopMotion();
    window.colzoParkSecurityCenter?.();
    root.dataset.screen=state.screen;
+   updateHeaderNavigation();
    root.style.setProperty('--cn-active-index',String(navPosition(state.screen)));
    root.querySelector('.cn-work-dialog-backdrop')?.remove();
    const reactModel={...state,enquiries:records().enquiries,
@@ -1020,6 +1062,19 @@
   if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
   if(target.hasAttribute('data-colzo-cancel')){confirmUnsaved(()=>{state.colzoForm=null;render({motion:'page'})});return}
   if(target.hasAttribute('data-colzo-refresh')){loadColzoResource(target.getAttribute('data-colzo-refresh'),true);return}
+  if(target.hasAttribute('data-cn-header-dismiss')){
+    const kind=target.getAttribute('data-cn-header-dismiss');
+    confirmUnsaved(()=>{
+      if(kind==='colzo-form')state.colzoForm=null;
+      else if(kind==='knowledge-form')state.knowledgeForm=false;
+      else if(kind==='knowledge-detail'){state.knowledgeDetail=null;state.knowledgeError='';}
+      else if(kind==='marketing-schedule')state.marketingSchedulingDraft=null;
+      else if(kind==='marketing-form'){state.marketingForm=false;state.marketingEditing=null;}
+      render({motion:'page'});
+    });
+    return;
+  }
+  if(target.hasAttribute('data-cn-header-back')){navigate(target.getAttribute('data-cn-header-back'));return}
   if(target.hasAttribute('data-cn-command')){openCommand();return}
   if(target.hasAttribute('data-cn-close-command')){closeCommand();return}
   if(target.hasAttribute('data-cn-setting')){confirmUnsaved(()=>{state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam()});return}

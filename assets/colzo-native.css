@@ -156,10 +156,11 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-wordmark{width:38px;height:36px;color:#f5f7fa}
 #colzoOwner .cn-wordmark img,#colzoOwner .cn-wordmark>span{display:none}
 #colzoOwner .cn-wordmark:before{content:'☰';display:grid;place-items:center;font-size:22px;font-weight:400;width:38px;height:36px}
+#colzoOwner .cn-wordmark.cn-header-back:before{content:'←';font-size:31px;font-weight:350}
 #colzoOwner .cn-account{margin-left:auto;width:37px;height:37px;background:#39434b;border:0;color:#f5f7fa;font-size:14px}
 #colzoOwner .cn-account:before{content:'AM';font-size:11px;letter-spacing:0}
 #colzoOwner .cn-account>span{display:none}
-#colzoOwner:not([data-screen='home']) .cn-header{height:59px;min-height:59px;padding:0;overflow:hidden;visibility:hidden;pointer-events:none}
+#colzoOwner:not([data-screen='home']) .cn-header{height:91px;min-height:91px;padding:0 20px 9px;visibility:visible;pointer-events:auto;position:sticky;top:0}
 #colzoOwner:not([data-screen='home']) .cn-content{padding-top:18px}
 #colzoOwner .cf-home-head{margin:0 0 18px;min-height:85px}
 #colzoOwner .cf-home-head h1{margin:0 0 10px;font-size:23px;line-height:1.2;font-weight:650;letter-spacing:-.65px}
