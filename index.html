@@ -4562,7 +4562,13 @@ function classifyColzoPreviewApi401(body, responseHeaders, clientSentToken) {
     || body?.message === 'Protected by Vercel Authentication'
     || body?.error?.message === 'Protected deployment') return 'vercel-protection';
   if (!clientSentToken) return 'browser-token-missing';
-  if (body?.error === 'Authentication is required') return 'backend-token-missing';
+  if (body?.error === 'Authentication is required') {
+    const state = responseHeaders?.get?.('x-colzo-auth-transport');
+    if (state === 'alternate-missing') return 'preview-alternate-header-missing';
+    if (state === 'standard-not-bearer') return 'preview-standard-nonbearer';
+    if (state === 'alternate-invalid') return 'preview-alternate-invalid';
+    return 'backend-token-missing';
+  }
   if (body?.error === 'Authentication is invalid or expired') return 'backend-token-rejected';
   if (responseHeaders?.get?.('x-colzo-auth-handler') === 'legal') return 'backend-other-401';
   return 'unclassified';

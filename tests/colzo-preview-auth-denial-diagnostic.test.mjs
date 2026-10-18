@@ -36,3 +36,9 @@ test('Preview sign-in failure contains only classified codes, never bearer token
  assert.doesNotMatch(source,/colzoLoginFailure\s*=\s*\{[^}]*access_token/);
 });
 
+
+test('401 labels which preview header boundary is missing without revealing the token',()=>{
+ assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'alternate-missing'},true),'preview-alternate-header-missing');
+ assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'standard-not-bearer'},true),'preview-standard-nonbearer');
+ assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'alternate-invalid'},true),'preview-alternate-invalid');
+});

@@ -29,7 +29,7 @@ import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
-import { isApprovedSupabaseTarget, restorePreviewAuthToken } from '../lib/public-config-handler.js';
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, previewAuthTransportState } from '../lib/public-config-handler.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -80,6 +80,12 @@ export default async function handler(req, res) {
   const observation = observeOperation(req, res, operation);
   try {
     restorePreviewAuthToken(req);
+    // A read-only, token-free response hint for signed-in Preview diagnostics.
+    // Do not expose raw request headers, tokens, or this hint on Production.
+    if (operation === 'legal') {
+      const transportState = previewAuthTransportState(req);
+      if (transportState) res.setHeader?.('X-Colzo-Auth-Transport', transportState);
+    }
     return await delegated(req, res);
   } catch (error) {
     observation.fail(error);

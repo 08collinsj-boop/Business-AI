@@ -64,3 +64,29 @@ test('All protected direct API entry points restore the same verified Preview he
  }
 });
 
+
+test('Preview transport restores valid Supabase token when Vercel adds a non-Bearer Authorization header',{concurrency:false},async t=>{
+ env(t);const calls=network(t);
+ const {req,res}=reqWith({authorization:'Vercel session marker','x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);
+ assert.equal(res.statusCode,200);
+ assert.equal(calls[0]?.authorization,'Bearer fixture-jwt');
+});
+test('A Preview legal denial reports token transport metadata without any credential',{concurrency:false},async t=>{
+ env(t); const calls=network(t);
+ const {req,res}=reqWith({});
+ res.setHeader=function(key,value){this.responseHeaders??={};this.responseHeaders[key.toLowerCase()]=value;};
+ await operations(req,res);
+ assert.equal(res.statusCode,401);
+ assert.equal(res.responseHeaders?.['x-colzo-auth-transport'],'alternate-missing');
+ assert.equal(Object.values(res.responseHeaders||{}).some(v=>String(v).includes('Bearer')),false);
+ assert.deepEqual(calls,[]);
+});
+test('Preview legal denial reports a malformed upstream Authorization header',{concurrency:false},async t=>{
+ env(t);
+ const {req,res}=reqWith({authorization:'Vercel session marker'});
+ res.setHeader=function(key,value){this.responseHeaders??={};this.responseHeaders[key.toLowerCase()]=value;};
+ await operations(req,res);
+ assert.equal(res.statusCode,401);
+ assert.equal(res.responseHeaders?.['x-colzo-auth-transport'],'standard-not-bearer');
+});
