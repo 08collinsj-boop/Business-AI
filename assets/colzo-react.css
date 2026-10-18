@@ -36,6 +36,7 @@
   height:auto;min-height:44px;margin:0 0 var(--cn-page-gap);padding:0;
 }
 #colzoApp #colzoOwner .cn-page-heading{min-width:0;flex:1}
+#colzoApp #colzoOwner :is(.cn-approved-projects,.cn-approved-quotes){max-width:none;margin:0 0 22px;padding-inline:0}
 #colzoApp #colzoOwner .cn-page-header h1{
   margin:0;padding:4px 0;font-size:var(--cn-page-title);line-height:var(--cn-page-title-line);
   font-weight:var(--cn-page-title-weight);letter-spacing:var(--cn-page-title-tracking);
@@ -61,6 +62,10 @@
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) .cn-settings-detail-head{padding:0;margin:0 0 20px}
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) :is(.cn-settings-back,.cn-back){min-height:44px;display:inline-flex;align-items:center;gap:8px}
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) .cn-settings-detail-head>.cn-settings-back{margin:0 0 16px}
+#colzoApp #colzoOwner[data-screen="actions"] .cn-work-header{padding:0}
+#colzoApp #colzoOwner[data-screen="actions"] .cn-work-header>.cn-kicker{display:none}
+#colzoApp #colzoOwner[data-screen="actions"] .cn-work-header>.cn-settings-back{min-height:44px;margin:0 0 16px}
+#colzoApp #colzoOwner[data-screen="actions"] .cn-work-title-row{margin:0 0 16px}
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) :is(.cn-settings-panel-head h2,.cn-detail-panel>h2){font-size:17px;line-height:24px;font-weight:650;letter-spacing:-.25px}
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) :is(.cn-detail-panel,.cn-settings-panel){padding:18px;border-radius:18px;background:var(--cn-panel);border:1px solid var(--cn-border);box-shadow:none}
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) :is(.cn-caption,.cn-settings-note,.cn-settings-hint,.cn-settings-action small,.cn-settings-feedback){font-size:13px;line-height:1.5}
@@ -69,6 +74,8 @@
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) :is(.cf-search,.cn-stitch-search) input{min-height:46px;font-size:16px}
 #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) :is(.cn-primary,.cn-secondary,.cn-settings-save){min-height:48px;border-radius:14px;font-size:14px}
 #colzoApp #colzoOwner .cn-work-dialog>header h2{font-size:17px;line-height:24px;letter-spacing:-.25px;font-weight:650}
+#colzoApp #colzoOwner .cn-approved-form-header h2{font-size:17px;line-height:24px;letter-spacing:-.25px}
+#colzoApp #colzoOwner .cn-approved-client-form :is(input,textarea,select){font-size:16px}
 @media(min-width:920px){
   #colzoApp #colzoOwner:not([data-screen="home"]):not([data-screen="bookings"]) .cn-content{padding-inline:max(35px,env(safe-area-inset-left)) max(35px,env(safe-area-inset-right))}
 }
