@@ -76,7 +76,9 @@ export function createKpiMotion(root) {
     if (!before || before.screen !== root.dataset.screen || root.hidden || preference?.matches || root.classList.contains('cn-quiet-motion') || !view.requestAnimationFrame) return;
     for (const element of root.querySelectorAll('[data-cn-kpi]')) {
       const from = before.values.get(element.dataset.cnKpi), to = Number(element.textContent);
-      if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from < 0 || to < 0 || from === to) continue;
+      if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from <= 0 || to < 0 || from === to) continue;
+      // An unloaded dashboard can expose zero before its first response.
+      // Show any zero-to-value update directly rather than interpolate it.
       const visual = root.ownerDocument.createElement('span');
       visual.dataset.cnKpiVisual = ''; visual.setAttribute('aria-hidden','true');
       visual.className = 'cn-kpi-visual'; visual.textContent = String(from);

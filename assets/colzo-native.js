@@ -495,7 +495,7 @@
   if(!['clients','projects','quotes'].includes(resource)||state.colzoLoading===resource)return;
   if(!force&&Array.isArray(state.colzoRecords[resource]))return;
   state.colzoLoading=resource;state.colzoError='';
-  if(state.screen===resource)render();
+  if(state.screen===resource||(state.screen==='colzoDetail'&&state.colzoDetail?.resource===resource))render();
   try{
    if(typeof api!=='function')throw new Error('Colzo records are unavailable in this preview.');
    const data=await api(`/api/colzo-records?resource=${resource}`);if(requestEpoch!==sessionEpoch)return;

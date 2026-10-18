@@ -41,3 +41,7 @@ test('a short drag cannot accidentally activate the close button or steal an OS 
  f.send(handle,'pointerdown',120,100);f.send(handle,'pointerup',120,140);handle.click();assert.equal(clicked,0);
  const p=f.root.querySelector('p');f.send(p,'pointerdown',5,100);f.send(p,'pointerup',160,100);assert.equal(back,0);c.disconnect();f.dom.window.close();
 });
+test('zero baseline is displayed directly on first data arrival instead of counting up from an unloaded zero',()=>{
+ const f=fixture();let started=0;f.dom.window.requestAnimationFrame=()=>{started++;return 1};f.dom.window.cancelAnimationFrame=()=>{};
+ const value=f.root.querySelector('strong');value.textContent='0';const c=createKpiMotion(f.root),before=c.capture();value.textContent='9';c.update(before);assert.equal(started,0);assert.equal(value.textContent,'9');c.disconnect();f.dom.window.close();
+});
