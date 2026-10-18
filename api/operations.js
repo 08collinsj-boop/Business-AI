@@ -1,6 +1,7 @@
 import leadsHandler from "./leads.js";
 import legalHandler from '../lib/legal-handler.js';
 import legalPublicHandler from '../lib/legal-public-handler.js';
+import devAuthPreflightHandler from '../lib/colzo-dev-auth-preflight.js';
 import addonsHandler from '../lib/addons-handler.js';
 import marketingHandler from '../lib/marketing-handler.js';
 import knowledgeHandler from '../lib/knowledge-verified-handler.js';
@@ -63,6 +64,7 @@ const handlers = Object.freeze({
   feedback: feedbackHandler,
   "incident-controls": incidentControlsHandler,
   "business-profile": businessProfileHandler,
+  'dev-auth-preflight': devAuthPreflightHandler,
   legal: legalHandler,
   "legal-public": legalPublicHandler
 });
