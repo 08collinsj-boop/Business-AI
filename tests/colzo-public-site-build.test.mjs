@@ -1,0 +1,55 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+test('separate public-site Preview builds its static Colzo website without esbuild', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'colzo-site-build-'));
+  try {
+    mkdirSync(join(dir, 'scripts'), { recursive: true });
+    cpSync('scripts/build-colzo-react.mjs', join(dir, 'scripts/build-colzo-react.mjs'));
+    cpSync('site', join(dir, 'site'), { recursive: true });
+    cpSync('legal', join(dir, 'legal'), { recursive: true });
+    for (const file of ['colzo-public-site.css', 'colzo-public-site.js', 'icons/colzo-mark.svg']) {
+      mkdirSync(join(dir, 'assets', file.includes('/') ? 'icons' : ''), { recursive: true });
+      cpSync('assets/' + file, join(dir, 'assets', file));
+    }
+    const res = spawnSync(process.execPath, ['scripts/build-colzo-react.mjs'], {
+      cwd: dir, encoding: 'utf8',
+      env: { ...process.env, VERCEL_ENV: 'preview', VERCEL_PROJECT_ID: '',
+        VERCEL_URL: 'business-ai-site-qa-buisness-ai1.vercel.app' },
+    });
+    assert.equal(res.status, 0, res.stderr);
+    for (const file of ['index.html', 'marketing.html', 'site/site.css', 'site/site.js',
+      'assets/colzo-public-site.css', 'assets/colzo-public-site.js',
+      'assets/icons/colzo-mark.svg', 'legal/privacy.html']) {
+      assert.ok(existsSync(join(dir, 'public', file)), file);
+    }
+    assert.equal(readFileSync(join(dir, 'public/index.html'), 'utf8'),
+      readFileSync('site/index.html', 'utf8'));
+    for (const forbidden of ['api', 'lib', 'node_modules', 'src', 'tests', 'assets/colzo-react.js']) {
+      assert.equal(existsSync(join(dir, 'public', forbidden)), false, forbidden);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('owner-app build must not silently fall back to static site when esbuild is unavailable', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'colzo-owner-build-'));
+  try {
+    mkdirSync(join(dir, 'scripts'), { recursive: true });
+    cpSync('scripts/build-colzo-react.mjs', join(dir, 'scripts/build-colzo-react.mjs'));
+    const res = spawnSync(process.execPath, ['scripts/build-colzo-react.mjs'], {
+      cwd: dir, encoding: 'utf8',
+      env: { ...process.env, VERCEL_ENV: 'preview', VERCEL_PROJECT_ID: '',
+        VERCEL_URL: 'business-qa-buisness-ai1.vercel.app' },
+    });
+    assert.notEqual(res.status, 0);
+    assert.equal(existsSync(join(dir, 'public/index.html')), false);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

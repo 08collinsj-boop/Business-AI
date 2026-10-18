@@ -1,13 +1,38 @@
-import { build } from 'esbuild';
 import { cp, mkdir, rm } from 'node:fs/promises';
-const result = await build({ entryPoints: ['src/colzo/entry.jsx'], outfile: 'assets/colzo-react.js', bundle: true,
-  minify: true, format: 'iife', target: ['safari15', 'chrome100', 'firefox100'], legalComments: 'eof',
-  define: { 'process.env.NODE_ENV': '"production"' }, metafile: true });
-console.log(`Colzo React content bundle: ${result.metafile.outputs['assets/colzo-react.js'].bytes} bytes before compression.`);
-// Publish an explicit static allowlist, keeping backend code and dependencies
-// outside the web output. Vercel discovers the existing root /api separately.
-await rm('public', { recursive: true, force: true });
-await mkdir('public', { recursive: true });
-for (const path of ['index.html','marketing.html','widget.js','manifest.webmanifest','sw.js','assets','legal','site']) {
-  await cp(path, `public/${path}`, { recursive: true });
+
+// The independent public website's Vercel project points at site/. It has no
+// npm installation step. Keep its static build dependency-free and never let
+// it fall back to an incomplete owner app.
+const siteProject = process.env.VERCEL_PROJECT_ID === 'prj_BBQqpP9Kx1Q0u6n7WB7sXR65sN3g'
+  || /^business-ai-site-[a-z0-9-]+\.vercel\.app$/i.test(process.env.VERCEL_URL || '');
+const isVercelBuild = ['preview', 'production'].includes(process.env.VERCEL_ENV || '');
+
+if (siteProject && isVercelBuild) {
+  await rm('public', { recursive: true, force: true });
+  await mkdir('public/assets/icons', { recursive: true });
+  await cp('site', 'public/site', { recursive: true });
+  // The existing host rewrite requests marketing.html on the public domain.
+  await cp('site/index.html', 'public/index.html');
+  await cp('site/index.html', 'public/marketing.html');
+  await cp('legal', 'public/legal', { recursive: true });
+  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js']) {
+    await cp('assets/' + asset, 'public/assets/' + asset);
+  }
+  await cp('assets/icons/colzo-mark.svg', 'public/assets/icons/colzo-mark.svg');
+  console.log('Colzo public-site static output prepared without application dependencies.');
+} else {
+  // The authenticated Colzo application MUST have a real compiled React bundle.
+  // Import only in this branch: the separate public site deliberately installs
+  // no npm modules, while the owner-app project still runs the normal build.
+  const { build } = await import('esbuild');
+  const result = await build({ entryPoints: ['src/colzo/entry.jsx'], outfile: 'assets/colzo-react.js', bundle: true,
+    minify: true, format: 'iife', target: ['safari15', 'chrome100', 'firefox100'], legalComments: 'eof',
+    define: { 'process.env.NODE_ENV': '"production"' }, metafile: true });
+  console.log('Colzo React content bundle: ' + result.metafile.outputs['assets/colzo-react.js'].bytes + ' bytes before compression.');
+  // Explicit static allowlist; backend code and dependencies stay unpublished.
+  await rm('public', { recursive: true, force: true });
+  await mkdir('public', { recursive: true });
+  for (const path of ['index.html','marketing.html','widget.js','manifest.webmanifest','sw.js','assets','legal','site']) {
+    await cp(path, 'public/' + path, { recursive: true });
+  }
 }
