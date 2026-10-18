@@ -26,7 +26,7 @@ async function load({ memberships = [], routes = [{ route_value: "hartlepool-gar
     if (url.includes("rpc/create_business_for_owner_with_referral")) return typeof rpc === "function" ? rpc(url, options) : reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
-  const source = handlerSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
+  const source = handlerSource.replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 

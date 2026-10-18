@@ -1,3 +1,4 @@
+import { isApprovedSupabaseTarget } from "../lib/public-config-handler.js";
 import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "../lib/auth.js";
 import { getIndustryTemplates, validateBusinessConfiguration } from "../lib/business-configuration.js";
 import { BusinessImportError, importBusinessWebsite } from "../lib/business-import.js";
@@ -38,6 +39,10 @@ function onboardingState(configuration, settings) {
 }
 
 export default async function handler(req, res) {
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   if (!["GET", "PATCH", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
   let auth;
   try { auth = req.method === "GET" ? await requireBusinessMember(req) : await requireBusinessAdmin(req); } catch (error) { return sendAuthError(res, error); }

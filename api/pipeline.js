@@ -1,3 +1,4 @@
+import { isApprovedSupabaseTarget } from "../lib/public-config-handler.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -59,6 +60,10 @@ async function supabaseRequest(path) {
 
 
 export default async function handler(req, res) {
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
 
   try {
 

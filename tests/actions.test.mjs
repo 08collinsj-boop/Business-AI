@@ -21,7 +21,7 @@ async function load(enabled, api, membership = { business_id: "business-a", role
     if (url.includes("business_memberships")) return reply(membership ? [membership] : []);
     return api(url, options);
   };
-  const moduleSource = source.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
+  const moduleSource = source.replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(moduleSource).toString("base64")}#${Math.random()}`)).default;
 }
 

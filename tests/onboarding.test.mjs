@@ -34,7 +34,7 @@ async function load(role = "owner", enabled = "true", database = async () => rep
     return database(url, options);
   };
   const source = apiSource
-    .replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`)
+    .replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`)
     .replace('from "../lib/business-configuration.js"', `from "${configUrl}#${Math.random()}"`)
     .replace('from "../lib/business-import.js"', `from "${importUrl}#${Math.random()}"`)
     .replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);

@@ -12,7 +12,7 @@ const keys=['VERCEL_ENV','VERCEL_GIT_COMMIT_REF','SUPABASE_URL','FRONTEND_AUTH_E
 function env(t, overrides) {
   const old=keys.map(k=>process.env[k]);
   for(const name of keys) delete process.env[name];
-  Object.assign(process.env,{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:branch,FRONTEND_AUTH_ENABLED:'true',SUPABASE_PUBLISHABLE_KEY:'fixture-publishable',SUPABASE_URL:devUrl},overrides);
+  Object.assign(process.env,{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:branch,FRONTEND_AUTH_ENABLED:'true',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture_only',SUPABASE_URL:devUrl},overrides);
   t.after(()=>keys.forEach((key,i)=>old[i]===undefined?delete process.env[key]:process.env[key]=old[i]));
 }
 function request(operation='public-config') {

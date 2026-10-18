@@ -10,7 +10,7 @@ const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body)
 const result = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 async function load(enabled, fetchImpl) {
   process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = fetchImpl;
-  const source = historySource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`);
+  const source = historySource.replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 function tenantRouter(api) { return async (url, options = {}) => {

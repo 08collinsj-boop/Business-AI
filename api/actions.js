@@ -1,3 +1,4 @@
+import { isApprovedSupabaseTarget } from "../lib/public-config-handler.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -114,6 +115,10 @@ async function recordLeadHistory(leadId, businessId, action, oldValue = "", newV
 }
 
 export default async function handler(req, res) {
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   if (!["GET", "POST", "PATCH"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
   let auth;
   try { auth = await requireBusinessMember(req); } catch (error) { return sendAuthError(res, error); }

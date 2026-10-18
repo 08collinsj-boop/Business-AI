@@ -8,7 +8,7 @@ test('Passkeys are disabled by default in browser-safe project configuration',as
  const old=process.env.COLZO_PASSKEYS_ENABLED, oldAuth=process.env.FRONTEND_AUTH_ENABLED,oldUrl=process.env.SUPABASE_URL,oldKey=process.env.SUPABASE_PUBLISHABLE_KEY;
  const run=()=>{let status=0;let body=null;const res={setHeader(){},status(s){status=s;return this},json(v){body=v;return this}};config.default({},res);return{status,body}};
  try{
-  process.env.FRONTEND_AUTH_ENABLED='true';process.env.SUPABASE_URL='https://mock.supabase.co';process.env.SUPABASE_PUBLISHABLE_KEY='public-test-only';delete process.env.COLZO_PASSKEYS_ENABLED;
+  process.env.FRONTEND_AUTH_ENABLED='true';process.env.SUPABASE_URL='https://mock.supabase.co';process.env.SUPABASE_PUBLISHABLE_KEY='sb_publishable_fixture_only';delete process.env.COLZO_PASSKEYS_ENABLED;
   assert.equal(run().body.colzoPasskeysEnabled,false);
   process.env.COLZO_PASSKEYS_ENABLED='true';assert.equal(run().body.colzoPasskeysEnabled,true);
   process.env.COLZO_PASSKEYS_ENABLED='false';assert.equal(run().body.colzoPasskeysEnabled,false);

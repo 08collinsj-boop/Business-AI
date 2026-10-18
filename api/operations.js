@@ -1,3 +1,4 @@
+import leadsHandler from "./leads.js";
 import legalHandler from '../lib/legal-handler.js';
 import legalPublicHandler from '../lib/legal-public-handler.js';
 import addonsHandler from '../lib/addons-handler.js';
@@ -34,6 +35,7 @@ import { isApprovedSupabaseTarget } from '../lib/public-config-handler.js';
 // are preserved with rewrites in vercel.json; this dispatcher only combines
 // implementation packaging and does not relax the individual handlers' auth.
 const handlers = Object.freeze({
+  leads: leadsHandler,
   "colzo-records": colzoRecordsHandler,
   "audit-log": auditLogHandler,
   "data-lifecycle": dataLifecycleHandler,

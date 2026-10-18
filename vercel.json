@@ -149,6 +149,14 @@
     {
       "source": "/api/legal",
       "destination": "/api/operations?operation=legal"
+    },
+    {
+      "source": "/api/leads",
+      "destination": "/api/operations?operation=leads"
+    },
+    {
+      "source": "/api/leads.js",
+      "destination": "/api/operations?operation=leads"
     }
   ],
   "git": {
