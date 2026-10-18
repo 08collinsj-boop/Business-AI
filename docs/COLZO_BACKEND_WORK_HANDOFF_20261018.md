@@ -1,5 +1,10 @@
 # Colzo backend Work handover - 18 October 2026
 
+## Latest continuation — read this first
+
+The newer evidence and owner handoff are in [COLZO_PRELAUNCH_ACCEPTANCE_20261018.md](COLZO_PRELAUNCH_ACCEPTANCE_20261018.md). Runtime candidate `0171574d1194e463c8f36aaea30bfaf41f20495a` passes 791 local tests. Five non-secret Dev settings are now assigned to the current branch; its two write-only Dev keys still require private owner entry. Fresh Preview health is 200 but public-config remains 503: authentication/MFA acceptance is not complete. Direct API target safeguards, browser-key validation, website app navigation and a missing legal stylesheet were corrected without changing the approved UI or protected original modules. The current stable branch alias was added to the Dev Auth redirect allowlist; all other returned Auth configuration was preserved. No database records or Production settings changed and no spending was incurred. The older findings below are retained as historical context.
+
+
 ## Scope
 
 UI is complete and must not be redesigned. Focus on backend acceptance, security, data integrity and public launch readiness.
