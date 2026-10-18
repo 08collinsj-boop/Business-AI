@@ -58,3 +58,16 @@ test('editor swipe dismissal still requires the existing unsaved-change decision
  assert.ok(f.w.document.querySelector('.cn-unsaved-overlay'));assert.ok(f.w.document.querySelector('#cnWorkForm'));
  f.click('.cn-unsaved-keep');assert.ok(f.w.document.querySelector('#cnWorkForm'));assert.equal(f.w.calls.some(call=>call.method==='POST'||call.method==='PATCH'),false);f.dom.window.close();
 });
+test('authentication reset selects the visible Active bookings filter',async()=>{
+ const f=fixture();f.w.ColzoOwner.onAuthState('auth-required');f.w.ColzoOwner.onAuthState('auth-ready');f.click('[data-cn-screen="bookings"]');
+ assert.equal(f.w.document.querySelector('[data-cn-work-tab="Active"]').getAttribute('aria-pressed'),'true');
+ assert.match(f.w.document.querySelector('#cnContent').textContent,/Active bookings/);f.dom.window.close();
+});
+test('an unsaved decision blocks any underlying form submission',async()=>{
+ const f=fixture();f.click('[data-cn-screen="bookings"]');f.click('[data-cn-work-new]');
+ const form=f.w.document.querySelector('#cnWorkForm'),input=form.querySelector('[name="title"]');input.value='Unsaved synthetic draft';input.dispatchEvent(new f.w.Event('input',{bubbles:true}));f.click('.cn-work-dialog-x');
+ assert.ok(f.w.document.querySelector('.cn-unsaved-overlay'));
+ form.dispatchEvent(new f.w.Event('submit',{bubbles:true,cancelable:true}));await f.settle();
+ assert.equal(f.w.calls.some(call=>call.method==='POST'||call.method==='PATCH'),false);assert.equal(form.inert,true);
+ f.click('.cn-unsaved-keep');assert.equal(form.inert,false);f.dom.window.close();
+});

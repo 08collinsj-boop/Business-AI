@@ -315,7 +315,7 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 
 /* Colzo #089: accessible bottom-anchored unsaved-changes sheet, independent of form content. */
 #colzoOwner .cn-unsaved-overlay{
- position:fixed;inset:0;z-index:130;display:flex;align-items:flex-end;
+ position:fixed;inset:0;z-index:310;display:flex;align-items:flex-end;
  justify-content:center;background:rgba(4,8,9,.76);padding:12px 10px 0;
  backdrop-filter:blur(3px);
 }
