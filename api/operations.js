@@ -84,7 +84,22 @@ export default async function handler(req, res) {
     // Do not expose raw request headers, tokens, or this hint on Production.
     if (operation === 'legal') {
       const transportState = previewAuthTransportState(req);
-      if (transportState) res.setHeader?.('X-Colzo-Auth-Transport', transportState);
+      if (transportState) {
+        res.setHeader?.('X-Colzo-Auth-Transport', transportState);
+        // Some Preview proxies may not expose custom response headers.
+        // Add only a fixed, non-secret diagnostic code to the legal 401
+        // response. Never alter its HTTP status or authentication decision.
+        const originalJson = res.json.bind(res);
+        res.json = payload => {
+          if (res.statusCode === 401 && payload?.error === 'Authentication is required') {
+            return originalJson({ ...payload, preview_auth_transport: transportState });
+          }
+          if (res.statusCode === 401 && payload?.error === 'Authentication is invalid or expired') {
+            return originalJson({ ...payload, preview_auth_transport: transportState });
+          }
+          return originalJson(payload);
+        };
+      }
     }
     return await delegated(req, res);
   } catch (error) {

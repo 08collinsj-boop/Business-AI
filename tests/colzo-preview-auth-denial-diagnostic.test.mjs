@@ -42,3 +42,9 @@ test('401 labels which preview header boundary is missing without revealing the 
  assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'standard-not-bearer'},true),'preview-standard-nonbearer');
  assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'alternate-invalid'},true),'preview-alternate-invalid');
 });
+
+test('Preview body transport classification works when response headers are removed',()=>{
+ assert.equal(classify({error:'Authentication is required',preview_auth_transport:'alternate-missing'}, {}, true),'preview-alternate-header-missing');
+ assert.equal(classify({error:'Authentication is required',preview_auth_transport:'standard-not-bearer'}, {}, true),'preview-standard-nonbearer');
+ assert.equal(classify({error:'Authentication is required',preview_auth_transport:'alternate-invalid'}, {}, true),'preview-alternate-invalid');
+});

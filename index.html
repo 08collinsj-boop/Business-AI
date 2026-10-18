@@ -4563,7 +4563,7 @@ function classifyColzoPreviewApi401(body, responseHeaders, clientSentToken) {
     || body?.error?.message === 'Protected deployment') return 'vercel-protection';
   if (!clientSentToken) return 'browser-token-missing';
   if (body?.error === 'Authentication is required') {
-    const state = responseHeaders?.get?.('x-colzo-auth-transport');
+    const state = body?.preview_auth_transport || responseHeaders?.get?.('x-colzo-auth-transport');
     if (state === 'alternate-missing') return 'preview-alternate-header-missing';
     if (state === 'standard-not-bearer') return 'preview-standard-nonbearer';
     if (state === 'alternate-invalid') return 'preview-alternate-invalid';

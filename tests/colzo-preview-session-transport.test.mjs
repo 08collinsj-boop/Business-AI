@@ -90,3 +90,25 @@ test('Preview legal denial reports a malformed upstream Authorization header',{c
  assert.equal(res.statusCode,401);
  assert.equal(res.responseHeaders?.['x-colzo-auth-transport'],'standard-not-bearer');
 });
+
+test('Preview legal 401 includes safe transport state in JSON when response header is not visible',{concurrency:false},async t=>{
+ env(t);const calls=network(t);const {req,res}=reqWith({});
+ await operations(req,res);
+ assert.equal(res.statusCode,401);
+ assert.equal(res.body.error,'Authentication is required');
+ assert.equal(res.body.preview_auth_transport,'alternate-missing');
+ assert.deepEqual(calls,[]);
+});
+test('Other branches preserve original legal error response shape',{concurrency:false},async t=>{
+ env(t,{VERCEL_GIT_COMMIT_REF:'feature/unrelated-branch'});const {req,res}=reqWith({});
+ await operations(req,res);
+ assert.equal(res.statusCode,401);
+ assert.deepEqual(res.body,{error:'Authentication is required'});
+});
+test('Preview legal response never includes the submitted token',{concurrency:false},async t=>{
+ env(t);const calls=network(t,false);const {req,res}=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);
+ assert.equal(res.statusCode,401);
+ assert.equal(res.body.preview_auth_transport,'bearer-present');
+ assert.equal(JSON.stringify(res.body).includes('fixture-jwt'),false);
+});
