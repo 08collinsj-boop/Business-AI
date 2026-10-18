@@ -24,6 +24,27 @@ Never merge, deploy Production, alter real customer records, cut over domains, c
 - Earlier commit 1c5aa86 added checks that project/quote enquiry IDs belong to the authenticated business. Two-tenant live testing still pending.
 - Protected-host launch preflight previously returned UNVERIFIED. Do not mistake an access-control wall for an API authentication pass.
 
+## P0 - Colzo Preview owner authentication unavailable (18 October)
+
+The owner reports Authentication is temporarily unavailable on the latest motion Preview. The exact message originates from initializeAuthentication() in index.html when the public auth configuration cannot be obtained or the browser-side Supabase SDK cannot be initialised. Supabase Dev Auth, DB and REST services are healthy.
+
+Repository evidence in docs/COLZO_LIVE_PAGE_QA_20261017.md confirms motion-branch automatic previews lack the branch-specific Dev configuration; seven secure Preview values were configured on PR19 branch feature/colzo-account-journey-graphite-volt-20261016, NOT on feature/colzo-complete-ui-motion-20261017. The newest motion Vercel deployment reports READY, but the inner /api/public-config status cannot be observed anonymously due to Vercel Deployment Protection 401. The branch mismatch is a confirmed configuration gap and likely cause of the symptom, NOT yet a confirmed runtime 503.
+
+Work: Open Vercel business-ai project prj_d5DuC65u4hSITFRC54ygswiMW9ST with its authorised cloud browser. Safely provision the same seven Dev-only Preview settings for the current motion branch without altering the original PR19, shared Preview, Pilot or Production values. Required key names include SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SUPABASE_SERVICE_ROLE_KEY, TENANCY_AUTH_ENABLED and FRONTEND_AUTH_ENABLED, plus the other existing branch-specific flags. Do not show raw secrets in chat or logs, or copy Production/Pilot credentials. If a secret cannot be securely transferred by authorised tooling, stop that step for the owner to handle in the provider UI.
+
+After settings are saved, redeploy the CURRENT motion branch as a new Preview. Vercel environment updates do not change already-built previews. In a legitimately authorised protected browser, verify GET /api/public-config returns HTTP 200, frontendAuthEnabled=true and supabaseUrl=https://mvwseobgkexzpmmkgcxe.supabase.co, with a browser-safe publishable key present but not copied into output. Verify GET /api/health independently. Then owner may privately sign into EXISTING 08collinsj account and complete Microsoft Authenticator MFA. Do not recreate either.
+
+If /api/public-config is HTTP 200 yet the UI error remains, inspect failed JS SDK requests, CSP, browser errors and the effective response body before making a code change. Never remove the fail-closed database guard or bypass deployment protection.
+
+Previous independently verified signed-in Dev reference (old PR19 screens): https://business-dcgot7hjq-buisness-ai1.vercel.app/. This is an interim older UI reference and does not establish current live availability.
+
+### Runtime evidence
+
+- Colzo motion Preview: READY at a0673ff5 but current application auth/config routes UNVERIFIED behind deployment protection.
+- Supabase Dev Auth/REST/DB: ACTIVE_HEALTHY.
+- Synthetic guard tests: 10/10 passed in this investigation.
+- No Production changes, deployment protection changes, secret access or account/MFA reset.
+
 ## Work tasks, in priority order
 
 1. Open the latest app preview in the authorised cloud browser, verify its effective browser-safe public configuration points to the Dev Supabase ID above, and check the health endpoint. User must complete owner sign-in and MFA if requested; do not collect secret codes.
