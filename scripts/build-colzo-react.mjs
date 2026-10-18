@@ -1,4 +1,4 @@
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
 
 // The independent public website's Vercel project points at site/. It has no
 // npm installation step. Keep its static build dependency-free and never let
@@ -18,10 +18,16 @@ if (siteProject && isVercelBuild) {
     'business-ai-icon.svg', 'business-ai-mark.webp', 'howto']) {
     await cp('site/' + item, out + '/site/' + item, { recursive: true });
   }
+  if (process.env.VERCEL_ENV === 'preview' && process.env.COLZO_APP_PREVIEW_URL) {
+    const url = new URL(process.env.COLZO_APP_PREVIEW_URL);
+    if (url.protocol !== 'https:' || !url.hostname.endsWith('.vercel.app') || url.hostname.startsWith('business-ai-site-') || url.username || url.password || url.port || url.pathname !== '/' || url.search || url.hash) throw new Error('Invalid Colzo app Preview target');
+    const html = await readFile(out + '/site/index.html', 'utf8');
+    await writeFile(out + '/site/index.html', html.replace('</head>', '<meta name="colzo-app-preview-url" content="' + url.href + '"></head>'));
+  }
   // Public-domain rewrite points at marketing.html; relative paths in the
   // Colzo landing page refer to /site and /assets.
-  await cp('site/index.html', out + '/index.html');
-  await cp('site/index.html', out + '/marketing.html');
+  await cp(out + '/site/index.html', out + '/index.html');
+  await cp(out + '/site/index.html', out + '/marketing.html');
   await cp('legal', out + '/legal', { recursive: true });
   for (const asset of ['colzo-public-site.css', 'colzo-public-site.js']) {
     await cp('assets/' + asset, out + '/assets/' + asset);

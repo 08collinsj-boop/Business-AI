@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-test('separate public-site Preview builds its static Colzo website without esbuild', () => {
+for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('separate public-site Preview builds its static Colzo website without esbuild: ' + (appTarget ? 'configured app' : 'no app target'), () => {
   const dir = mkdtempSync(join(tmpdir(), 'colzo-site-build-'));
   try {
     mkdirSync(join(dir, 'scripts'), { recursive: true });
@@ -19,7 +19,7 @@ test('separate public-site Preview builds its static Colzo website without esbui
     const res = spawnSync(process.execPath, ['scripts/build-colzo-react.mjs'], {
       cwd: dir, encoding: 'utf8',
       env: { ...process.env, VERCEL_ENV: 'preview', VERCEL_PROJECT_ID: '',
-        VERCEL_URL: 'business-ai-site-qa-buisness-ai1.vercel.app' },
+        VERCEL_URL: 'business-ai-site-qa-buisness-ai1.vercel.app', COLZO_APP_PREVIEW_URL: appTarget },
     });
     assert.equal(res.status, 0, res.stderr);
     for (const file of ['index.html', 'marketing.html', 'site/site.css', 'site/site.js',
@@ -28,8 +28,11 @@ test('separate public-site Preview builds its static Colzo website without esbui
       assert.ok(existsSync(join(dir, 'site', 'public', file)), file);
     }
     assert.equal(existsSync(join(dir, 'public')), false, 'output must be under site root');
-    assert.equal(readFileSync(join(dir, 'site/public/index.html'), 'utf8'),
-      readFileSync('site/index.html', 'utf8'));
+    const html=readFileSync(join(dir, 'site/public/index.html'), 'utf8');
+    if(appTarget) {
+      assert.ok(html.includes('<meta name="colzo-app-preview-url" content="'+appTarget+'">'));
+      for(const page of ['index.html','marketing.html','site/index.html']) assert.equal(readFileSync(join(dir,'site/public',page),'utf8'),html);
+    } else assert.equal(html,readFileSync('site/index.html','utf8'));
     for (const forbidden of ['api', 'lib', 'node_modules', 'src', 'tests', 'assets/colzo-react.js']) {
       assert.equal(existsSync(join(dir, 'site', 'public', forbidden)), false, forbidden);
     }
