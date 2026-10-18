@@ -112,3 +112,32 @@ test('Preview legal response never includes the submitted token',{concurrency:fa
  assert.equal(res.body.preview_auth_transport,'bearer-present');
  assert.equal(JSON.stringify(res.body).includes('fixture-jwt'),false);
 });
+
+test('Preview legal requests produce one safe auth transport log without credentials or user identifiers',{concurrency:false},async t=>{
+ env(t);const calls=network(t);const {req,res}=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ const old=console.info, events=[];
+ console.info=(...args)=>events.push(args.join(' '));t.after(()=>console.info=old);
+ await operations(req,res);
+ assert.equal(res.statusCode,200);
+ const transport=events.filter(e=>e.includes('colzo.preview_legal_transport'));
+ assert.equal(transport.length,1);
+ const parsed=JSON.parse(transport[0]);
+ assert.deepEqual(parsed,{event:'colzo.preview_legal_transport',state:'bearer-present',route:'legal'});
+ assert.equal(JSON.stringify(events).includes('fixture-jwt'),false);
+ assert.equal(JSON.stringify(events).includes('fixture-user'),false);
+});
+test('Unauthenticated Preview legal requests log alternate-missing, without changing 401',{concurrency:false},async t=>{
+ env(t);network(t);const {req,res}=reqWith({});
+ const old=console.info,events=[];
+ console.info=(...args)=>events.push(args.join(' '));t.after(()=>console.info=old);
+ await operations(req,res);
+ assert.equal(res.statusCode,401);
+ assert.deepEqual(events.filter(e=>e.includes('colzo.preview_legal_transport')).map(JSON.parse),[{event:'colzo.preview_legal_transport',state:'alternate-missing',route:'legal'}]);
+});
+test('Other branches never emit Colzo Preview token transport logs',{concurrency:false},async t=>{
+ env(t,{VERCEL_GIT_COMMIT_REF:'feature/other'});network(t);const {req,res}=reqWith({});
+ const old=console.info,events=[];
+ console.info=(...args)=>events.push(args.join(' '));t.after(()=>console.info=old);
+ await operations(req,res);
+ assert.equal(events.some(e=>e.includes('colzo.preview_legal_transport')),false);
+});

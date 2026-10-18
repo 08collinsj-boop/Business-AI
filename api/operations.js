@@ -85,6 +85,13 @@ export default async function handler(req, res) {
     if (operation === 'legal') {
       const transportState = previewAuthTransportState(req);
       if (transportState) {
+        // Temporary, metadata-only Preview trace. No bearer value, user ID,
+        // email, cookie, request body or other credential is ever logged.
+        console.info(JSON.stringify({
+          event: 'colzo.preview_legal_transport',
+          state: transportState,
+          route: 'legal'
+        }));
         res.setHeader?.('X-Colzo-Auth-Transport', transportState);
         // Some Preview proxies may not expose custom response headers.
         // Add only a fixed, non-secret diagnostic code to the legal 401
