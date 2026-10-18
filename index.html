@@ -3951,6 +3951,9 @@ if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
 if(!window.supabase?.createClient||!config.supabaseUrl||!config.supabaseAnonKey)throw new Error('Authentication is temporarily unavailable.');
 frontendAuthEnabled=true;
 passwordRecoveryActive=passwordRecoveryIntentFromLocation();
+// Vercel Authentication on this isolated Preview can interfere with
+// application Bearer headers. Keep Supabase's server-side validation intact.
+window.colzoPreviewAuthTransportEnabled=config.previewAuthTransportEnabled===true;
 window.colzoPasskeysEnabled=config.colzoPasskeysEnabled===true;
 const passkeyLogin=$('colzoPasskeyLogin');
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey,
@@ -4561,7 +4564,14 @@ if(frontendAuthEnabled&&supabaseClient){
 if(requestUrl.origin!==window.location.origin)throw new Error('Invalid API request');
 const {data:{session}}=await supabaseClient.auth.getSession();
 if(!session){handleSession(null);throw new Error('Your session has expired.');}
-headers.set('Authorization',`Bearer ${session.access_token}`);
+if(window.colzoPreviewAuthTransportEnabled){
+  // HTTPS same-origin only. The dispatcher/direct entrypoints restore this
+  // as Authorization before the *existing* Supabase JWT verification.
+  headers.delete('Authorization');
+  headers.set('X-Colzo-Supabase-Authorization',`Bearer ${session.access_token}`);
+}else{
+  headers.set('Authorization',`Bearer ${session.access_token}`);
+}
 }
 
 const response=await window.colzoBackendFetch(url,{...options,headers});

@@ -29,7 +29,7 @@ import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
-import { isApprovedSupabaseTarget } from '../lib/public-config-handler.js';
+import { isApprovedSupabaseTarget, restorePreviewAuthToken } from '../lib/public-config-handler.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -79,6 +79,7 @@ export default async function handler(req, res) {
   }
   const observation = observeOperation(req, res, operation);
   try {
+    restorePreviewAuthToken(req);
     return await delegated(req, res);
   } catch (error) {
     observation.fail(error);

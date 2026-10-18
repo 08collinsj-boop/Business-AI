@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
 import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "../lib/auth.js";
 import { getIndustryTemplates, validateBusinessConfiguration } from "../lib/business-configuration.js";
 import { BusinessImportError, importBusinessWebsite } from "../lib/business-import.js";
@@ -39,6 +39,7 @@ function onboardingState(configuration, settings) {
 }
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
   if (!isApprovedSupabaseTarget()) {
     res.setHeader("Cache-Control", "no-store");
     return res.status(503).json({ error: "Colzo development environment unavailable" });

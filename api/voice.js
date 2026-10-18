@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
 import voiceCallsHandler from "../lib/voice-calls-handler.js";
 import voiceWebhookHandler, { config as voiceWebhookConfig } from "../lib/voice-webhook-handler.js";
 import voiceStatusHandler from "../lib/voice-status-handler.js";
@@ -9,6 +9,7 @@ import voiceStatusHandler from "../lib/voice-status-handler.js";
 export const config = voiceWebhookConfig;
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
   if (!isApprovedSupabaseTarget()) {
     res.setHeader("Cache-Control", "no-store");
     return res.status(503).json({ error: "Colzo development environment unavailable" });

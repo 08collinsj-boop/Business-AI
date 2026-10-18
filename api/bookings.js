@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -200,6 +200,7 @@ function noBookings(res) {
 }
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
   if (!isApprovedSupabaseTarget()) {
     res.setHeader("Cache-Control", "no-store");
     return res.status(503).json({ error: "Colzo development environment unavailable" });
