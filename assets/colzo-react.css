@@ -84,3 +84,18 @@
    overlays its container and never shifts a card or search field. */
 #colzoOwner .cr-directory-state{position:relative;display:grid;gap:inherit}
 #colzoOwner .cr-directory-state[aria-busy=true]::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:#c8ff2e;opacity:.55;pointer-events:none}
+
+/* Small screens retain the approved full-page details. Wide screens keep the
+   directory beside a nonmodal inspector, without duplicating form controls. */
+#colzoOwner .cn-record-context{display:none}
+#colzoOwner .cn-record-inspector{min-width:0;touch-action:pan-y}
+#colzoOwner .cn-record-inspector:focus{outline:none}
+#colzoOwner .cn-record-inspector:focus-visible{outline:2px solid #c8ff2e;outline-offset:6px}
+@media(min-width:1200px){
+  #colzoOwner .cn-record-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,420px);gap:28px;align-items:start}
+  #colzoOwner .cn-record-context{display:block;min-width:0}
+  #colzoOwner .cn-record-inspector{position:sticky;top:24px;max-height:calc(100dvh - 64px);overflow:auto;overscroll-behavior:contain;padding:20px;border:1px solid #364047;border-radius:18px;background:#151a22}
+  #colzoOwner .cn-record-inspector :is(.cn-approved-profile,.cn-approved-quote-detail){padding-inline:0;max-width:none}
+}
+
+#colzoOwner .cn-record-context button[aria-current=true]{border-color:#c8ff2e;box-shadow:inset 3px 0 #c8ff2e}

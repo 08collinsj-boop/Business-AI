@@ -18,7 +18,7 @@ export function Customers({ model }) {
     <div className="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>{filtered.length} record{filtered.length === 1 ? '' : 's'}</span></div>
     <div className="cn-stitch-customer-list"><DirectoryState model={model} resource="clients" filtered={filtered}
       empty="No saved customers yet. Add a customer to create a persistent profile." noMatch="No customers match your search. Try a different name, email or phone number.">
-      {filtered.map(c => <button className="cn-stitch-customer" type="button" key={c.id} data-colzo-detail="clients" data-colzo-id={c.id}>
+      {filtered.map(c => <button className="cn-stitch-customer" type="button" key={c.id} data-colzo-detail="clients" data-colzo-id={c.id} aria-current={model.screen === 'colzoDetail' && String(model.colzoDetail?.id) === String(c.id) ? 'true' : undefined}>
         <span className="cn-avatar">{initials(c.full_name)}</span><span className="cn-stitch-customer-copy"><strong>{c.full_name}</strong><small>{c.email || c.phone || 'No contact details'}</small><small>Saved customer · {day(c.created_at)}</small></span><span aria-hidden="true">›</span>
       </button>)}
     </DirectoryState></div>

@@ -80,3 +80,7 @@ test('failed background refresh keeps cached records and shows an honest retry',
  f.model.colzoError='Refresh unavailable';f.render();assert.match(f.view.textContent,/Retained project/);
  assert.match(f.view.querySelector('[role="alert"]').textContent,/Refresh unavailable/);assert.ok(f.view.querySelector('[data-colzo-refresh="projects"]'));f.dom.window.close();
 });
+test('saved record workspace retains the matching directory beside the inspector',()=>{
+ const f=fixture();f.model.screen='colzoDetail';f.model.colzoDetail={resource:'clients',id:'qa'};f.model.colzoRecords.clients=[{id:'qa',full_name:'Synthetic customer'}];f.render();
+ assert.ok(f.view.querySelector('.cn-record-context [data-colzo-id="qa"]'));assert.ok(f.view.querySelector('.cn-record-inspector [data-colzo-edit="clients"]'));f.dom.window.close();
+});

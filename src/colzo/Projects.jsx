@@ -17,7 +17,7 @@ export function Projects({ model }) {
       empty="No saved projects yet. Create a project to start tracking work." noMatch="No projects match your search or filter.">
       {filtered.map(p => {
         const progress = Math.max(0, Math.min(100, Number(p.progress) || 0));
-        return <button className="cf-project-card" type="button" key={p.id} data-colzo-detail="projects" data-colzo-id={p.id}>
+        return <button className="cf-project-card" type="button" key={p.id} data-colzo-detail="projects" data-colzo-id={p.id} aria-current={model.screen === 'colzoDetail' && String(model.colzoDetail?.id) === String(p.id) ? 'true' : undefined}>
           <span className="cn-avatar">{String(p.title || '?').slice(0, 1).toUpperCase()}</span>
           <span className="cf-project-text"><strong>{p.title}</strong><small>{p.client_name || 'Customer not recorded'} · {day(p.created_at)}</small>
             <span className="cf-progress" role="progressbar" aria-label="Project progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i style={{ width: `${progress}%` }}/></span>

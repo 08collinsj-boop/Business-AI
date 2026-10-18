@@ -44,3 +44,17 @@ test('customer detail keeps Customers selected and Back restores the list positi
  f.click('#cnContent [data-cn-screen="clients"]');await f.settle();
  assert.equal(position,420);assert.equal(f.w.document.querySelector('.cn-nav [aria-current="page"]').dataset.cnScreen,'clients');f.dom.window.close();
 });
+test('Escape closes a record inspector and restores focus to its directory row',async()=>{
+ const f=fixture();f.click('[data-cn-screen="clients"]');await f.settle();f.click('[data-colzo-detail="clients"]');
+ const inspector=f.w.document.querySelector('.cn-record-inspector');assert.ok(inspector);
+ inspector.dispatchEvent(new f.w.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));await f.settle();
+ assert.equal(f.w.ColzoOwner.getActiveScreen(),'clients');assert.equal(f.w.document.activeElement.dataset.colzoId,'qa');f.dom.window.close();
+});
+test('editor swipe dismissal still requires the existing unsaved-change decision',async()=>{
+ const f=fixture();f.w.innerWidth=390;f.click('[data-cn-screen="bookings"]');f.click('[data-cn-work-new]');
+ const input=f.w.document.querySelector('#cnWorkForm [name="title"]');input.value='Unsaved synthetic draft';input.dispatchEvent(new f.w.Event('input',{bubbles:true}));
+ const handle=f.w.document.querySelector('[data-cn-drag-handle]');assert.ok(handle);
+ for(const [type,y] of [['pointerdown',100],['pointerup',230]])handle.dispatchEvent(Object.assign(new f.w.Event(type,{bubbles:true}),{pointerId:1,pointerType:'touch',isPrimary:true,clientX:150,clientY:y}));
+ assert.ok(f.w.document.querySelector('.cn-unsaved-overlay'));assert.ok(f.w.document.querySelector('#cnWorkForm'));
+ f.click('.cn-unsaved-keep');assert.ok(f.w.document.querySelector('#cnWorkForm'));assert.equal(f.w.calls.some(call=>call.method==='POST'||call.method==='PATCH'),false);f.dom.window.close();
+});

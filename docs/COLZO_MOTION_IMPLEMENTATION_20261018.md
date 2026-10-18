@@ -31,3 +31,7 @@ Live authenticated checks of the new code, physical iPhone Safari/Android keyboa
 Desktop list/detail side panels, drag-to-dismiss, swipe navigation, animated KPI interpolation and new AI conversation effects are not added in this pass. They need reference/interaction acceptance and device testing; changes to approved layouts or simulated AI streaming would exceed a motion polish pass. Existing loading and server-confirmed save feedback remain functional rather than presenting optimistic success as persistence.
 
 Production, base branch, credentials, backend configuration and customer data are unchanged. PR26 remains draft.
+
+## Authorised follow-up
+
+The subsequent 18 October instruction authorised the remaining interaction pass. Desktop record inspectors, scoped touch back/calendar gestures, guarded editor-handle dismissal and verified-count KPI interpolation are now implemented. See `docs/COLZO_GESTURES_INSPECTOR_KPIS_20261018.md` for exact scope, test evidence and remaining live/device acceptance limits. The proposal list above describes the earlier pass only.

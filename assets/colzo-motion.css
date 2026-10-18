@@ -249,3 +249,13 @@ body.colzo-interface .auth-role-switch .auth-role-slider{transition:transform .4
   body.colzo-interface .auth-role-form-business .auth-input,
   body.colzo-interface .auth-role-switch .auth-role-slider{transition:none!important;transform:none!important}
 }
+
+#colzoOwner .cf-kpi{position:relative}
+#colzoOwner .cf-kpi [data-cn-kpi]{position:relative}
+#colzoOwner .cn-kpi-visual{position:absolute;pointer-events:none}
+#colzoOwner .cn-sheet-handle{display:none}
+#colzoOwner .cn-work-calendar{touch-action:pan-y}
+@media(max-width:700px){
+  #colzoOwner .cn-sheet-handle{display:grid;place-items:center;width:100%;height:32px;min-height:32px;flex:none;border:0;background:transparent;touch-action:none;cursor:grab}
+  #colzoOwner .cn-sheet-handle span{width:36px;height:4px;background:#69747e;border-radius:3px}
+}

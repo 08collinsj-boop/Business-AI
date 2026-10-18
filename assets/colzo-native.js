@@ -55,7 +55,7 @@
     <div class="cn-duo"><button data-cn-screen="bookings" type="button"><b>▣</b><strong>Bookings</strong><small>Open calendar →</small></button><button data-cn-screen="marketing" type="button"><b>✧</b><strong>AI marketing</strong><small>Open drafts →</small></button></div>
   </section>`;
  }
- function figmaStat(label,n,details,icon){return `<article class="cf-kpi"><span class="cf-kpi-label">${safe(label)}</span><strong>${safe(n)}</strong><span class="cf-kpi-sub">${safe(details)}</span></article>`}
+ function figmaStat(label,n,details,icon){return `<article class="cf-kpi"><span class="cf-kpi-label">${safe(label)}</span><strong data-cn-kpi="${safe(label)}">${safe(n)}</strong><span class="cf-kpi-sub">${safe(details)}</span></article>`}
  function figmaTrend(list){
   const months=Array.from({length:6},(_,i)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-(5-i));return{k:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,label:new Intl.DateTimeFormat('en-GB',{month:'short'}).format(d),count:0}});
   const map=new Map(months.map(m=>[m.k,m]));
@@ -502,7 +502,7 @@
    if(!Array.isArray(data))throw new Error('The server returned an unexpected records response.');
    state.colzoRecords[resource]=data;
   }catch(error){if(requestEpoch!==sessionEpoch)return;state.colzoError=error?.message||'Records could not be loaded.';}
-  finally{if(requestEpoch!==sessionEpoch)return;state.colzoLoading='';if(state.screen===resource)render()}
+  finally{if(requestEpoch!==sessionEpoch)return;state.colzoLoading='';if(state.screen===resource||(state.screen==='colzoDetail'&&state.colzoDetail?.resource===resource))render()}
  }
  async function saveColzoRecord(form){
   if(state.colzoBusy)return;
@@ -710,7 +710,7 @@
       <label>Description<textarea name="description" rows="3" maxlength="5000">${safe(entry?.description||'')}</textarea></label>`;
    return `<div class="cn-work-dialog-backdrop" role="presentation" data-cn-work-overlay>
       <section class="cn-work-dialog" role="dialog" aria-modal="true" aria-labelledby="cnWorkDialogTitle">
-        <header><div><span class="cn-kicker">${screen==='bookings'?'CALENDAR':'TASK MANAGEMENT'}</span><h2 id="cnWorkDialogTitle">${heading}</h2></div><button type="button" data-cn-work-close class="cn-work-dialog-x" aria-label="Close editor">×</button></header>
+        <button class="cn-sheet-handle" type="button" data-cn-drag-handle data-cn-work-close aria-label="Close editor, or drag down to dismiss"><span aria-hidden="true"></span></button><header><div><span class="cn-kicker">${screen==='bookings'?'CALENDAR':'TASK MANAGEMENT'}</span><h2 id="cnWorkDialogTitle">${heading}</h2></div><button type="button" data-cn-work-close class="cn-work-dialog-x" aria-label="Close editor">×</button></header>
         <form id="cnWorkForm" data-kind="${screen}" class="cn-work-form" ${editing?`data-id="${safe(entry.id)}"`:''}>${common}${fields}
           <label>Status<select name="status">${statusOptions.map(v=>`<option value="${v}" ${String(entry?.status||statusOptions[0])===v?'selected':''}>${v}</option>`).join('')}</select></label>
           <p class="cn-work-form-hint">${screen==='bookings'?'Completing a booking may prepare a review-request task if that option is enabled in your existing settings.':'Saving updates your existing business task, not a sample record.'}</p>
@@ -795,7 +795,8 @@
    // fade; only a list-to-detail transition has a small directional offset.
    if(kind==='filter')return;
    const entering=kind==='detail'?(direction>=0?12:-12):0;
-   const animation=content.animate([
+   const arrivalTarget=kind==='detail'?(content.querySelector('.cn-record-inspector')||content):content;
+   const animation=arrivalTarget.animate([
      {opacity:.72,transform:`translate3d(${entering}px,0,0)`},
      {opacity:1,transform:'translate3d(0,0,0)'}
    ],{duration:kind==='detail'?260:180,easing:'cubic-bezier(.2,.85,.22,1)'});
@@ -804,6 +805,8 @@
  function render({motion='none',direction=1}={}){
    if(!document.body.classList.contains('auth-ready'))return;
    if(state.workModal&&motion==='none'&&root.querySelector('#cnWorkForm'))return;
+   const previousKpis=window.ColzoKpiMotion?.capture();
+   window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();
    state.recordsReady=true;
    const pages={home,enquiries:enquiry,lead:leadDetails,leadForm,customer:customerProfile,projects,clients,quotes,colzoDetail:colzoRecordDetail,marketing,receptionist,billing,knowledge,analytics,feedback,automations,publicProfile,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
    const page=pages[state.screen]||home;
@@ -822,6 +825,7 @@
    content.dataset.cnIntro=motion==='none'||motion==='filter'?'':state.screen;
    root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===primaryScreens[navPosition(state.screen)];if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
+   window.ColzoKpiMotion?.update(previousKpis);
    if(motion!=='none')animateArrival(direction,motion);
  }
  // Approved-screen correction #089: preserve edited user input across navigation.
@@ -882,6 +886,9 @@
    const direction=navPosition(screen)<navPosition(before)?-1:1;
    render({motion:screen==='lead'?'detail':'page',direction});
    restoreScroll(state.scrollByScreen.get(screen)||0);
+   if(before==='colzoDetail'&&state.colzoDetail?.resource===screen){
+     [...content.querySelectorAll('[data-colzo-detail][data-colzo-id]')].find(button=>button.dataset.colzoId===String(state.colzoDetail.id))?.focus({preventScroll:true});
+   }
  }
  const commandItems=[
    {label:'Home',detail:'Overview, enquiries and insights',glyph:'⌂',screen:'home'},
@@ -950,7 +957,10 @@
      if(!e.shiftKey&&document.activeElement===focusable.at(-1)){e.preventDefault();focusable[0].focus()}
      return;
    }
-   if(sheet?.hidden)return;
+   if(!sheet||sheet.hidden){
+     if(e.key==='Escape'&&state.screen==='colzoDetail'&&!state.colzoForm&&!e.target?.closest?.('input,textarea,select,[contenteditable]')){e.preventDefault();navigate(state.colzoDetail?.resource||'clients')}
+     return;
+   }
    if(e.key==='Escape'){e.preventDefault();closeCommand();return}
    if(e.key!=='Tab')return;
    const focusable=[...sheet.querySelectorAll('button:not([disabled]),input:not([disabled])')].filter(el=>el.getBoundingClientRect().width>0);
@@ -1004,7 +1014,7 @@
   if(target.hasAttribute('data-marketing-cancel')){state.marketingForm=false;state.marketingEditing=null;render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-refresh')){loadMarketingDrafts(true);return}
   if(target.hasAttribute('data-cn-client-profile-tab')){const next=target.getAttribute('data-cn-client-profile-tab');if(state.screen==='colzoDetail'&&state.colzoDetail?.resource==='clients'&&['overview','activity'].includes(next)){state.customerProfileTab=next;render({motion:'filter'})}return}
-  if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){state.scrollByScreen.set(state.screen,currentScroll());state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});restoreScroll(0);}return}
+  if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){const listScroll=currentScroll();state.scrollByScreen.set(state.screen,listScroll);state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});restoreScroll(window.innerWidth>=1200?listScroll:0);content.querySelector('.cn-record-inspector')?.focus({preventScroll:true});}return}
   if(target.hasAttribute('data-colzo-create')){const resource=target.getAttribute('data-colzo-create');state.colzoForm={resource,record:null};state.colzoFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
   if(target.hasAttribute('data-colzo-cancel')){confirmUnsaved(()=>{state.colzoForm=null;render({motion:'page'})});return}
@@ -1039,7 +1049,7 @@
  root.addEventListener('submit',e=>{if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
  root.addEventListener('change',e=>{if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
- const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Upcoming',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
+ const onAuthState=auth=>{if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Upcoming',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
  window.ColzoOwner={render,onAuthState,openLegacy:original,error:()=>{if(document.body.classList.contains('auth-ready')){window.ColzoReact?.unmount(content);content.innerHTML=empty('Unable to load your business records. Please try again.','<button data-cn-refresh type="button">Retry loading</button>')}},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();
