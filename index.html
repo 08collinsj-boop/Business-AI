@@ -3909,7 +3909,7 @@ setAuthView('auth-ready');registerOwnerPwa();await loadAll();setAppLoading(false
 setAppLoading(false);
 if(error.message==='Your session has expired.')return;
 // Show the failed route/status only, not bearer tokens, customer data or raw API errors.
-const hint=colzoLoginFailure?colzoLoginFailure.path+' (HTTP '+colzoLoginFailure.status+')':loginStep+' ('+(error?.name==='TypeError'?'network':'response')+')';
+const hint=colzoLoginFailure?colzoLoginFailure.path+' (HTTP '+colzoLoginFailure.status+(colzoLoginFailure.reason?', '+colzoLoginFailure.reason:'')+')':loginStep+' ('+(error?.name==='TypeError'?'network':'response')+')';
 clearPrivateState();
 setAuthView('auth-required','Your business access is unavailable. Diagnostic: '+hint+'.');
 return;
@@ -4556,6 +4556,18 @@ else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();f
 });
 
 
+// Diagnostic labels only. Do not include bearer values or raw provider errors.
+function classifyColzoPreviewApi401(body, responseHeaders, clientSentToken) {
+  if (body?.protection?.vercel_auth_enabled === true
+    || body?.message === 'Protected by Vercel Authentication'
+    || body?.error?.message === 'Protected deployment') return 'vercel-protection';
+  if (!clientSentToken) return 'browser-token-missing';
+  if (body?.error === 'Authentication is required') return 'backend-token-missing';
+  if (body?.error === 'Authentication is invalid or expired') return 'backend-token-rejected';
+  if (responseHeaders?.get?.('x-colzo-auth-handler') === 'legal') return 'backend-other-401';
+  return 'unclassified';
+}
+
 const api=async(url,options={},mfaRetried=false)=>{
 
 const requestUrl=new URL(url,window.location.origin);
@@ -4582,6 +4594,12 @@ if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configu
 let result=null;
 
 try{result=await response.json()}catch{}
+if(response.status===401&&typeof colzoLoginFailure!=='undefined'&&colzoLoginFailure?.path===requestUrl.pathname&&window.colzoPreviewAuthTransportEnabled){
+  // Safe Preview-only label for the owner's acceptance screenshot.
+  const sent= headers.has('X-Colzo-Supabase-Authorization') || headers.has('Authorization');
+  colzoLoginFailure.reason=classifyColzoPreviewApi401(result,response.headers,sent);
+}
+
 
 if(response.status===401&&supabaseClient){
   // An application 401 is not proof that the Supabase login has expired.
