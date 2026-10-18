@@ -29,7 +29,7 @@ if (siteProject && isVercelBuild) {
   await cp(out + '/site/index.html', out + '/index.html');
   await cp(out + '/site/index.html', out + '/marketing.html');
   await cp('legal', out + '/legal', { recursive: true });
-  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js']) {
+  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js', 'colzo-surfaces.css']) {
     await cp('assets/' + asset, out + '/assets/' + asset);
   }
   await cp('assets/icons/colzo-mark.svg', out + '/assets/icons/colzo-mark.svg');
