@@ -551,14 +551,29 @@
    }
   }
   if(id)values.expected_updated_at=original.updated_at;
+  let writeConfirmed=false;
+  const showRefreshWarning=()=>{
+    state.colzoFeedback=id
+      ?'Changes saved, but the list could not be refreshed. Tap Try again.'
+      :'Record created, but the list could not be refreshed. Tap Try again.';
+    if(state.screen===resource||(state.screen==='colzoDetail'&&state.colzoDetail?.resource===resource))render();
+  };
   state.colzoBusy=true;form.setAttribute?.('aria-busy','true');if(button){button.disabled=true;button.textContent='Saving…'}if(feedback){feedback.setAttribute?.('role','status');feedback.textContent='Saving securely…'}
   try{
    if(typeof api!=='function')throw new Error('Saving is unavailable in this preview.');
    const result=await api(`/api/colzo-records?resource=${resource}${id?`&id=${encodeURIComponent(id)}`:''}`,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
    if(!result||!result.id)throw new Error('The server did not confirm the saved record.');
+   writeConfirmed=true;
    state.colzoForm=null;state.colzoFeedback=id?'Changes saved.':'Record created.';state.colzoError='';
    await loadColzoResource(resource,true);
-  }catch(error){showSaveError(error?.message||'Could not save. Your changes have not been confirmed.');state.colzoFeedback='';}
+   if(state.colzoError&&state.colzoErrorResource===resource)showRefreshWarning();
+  }catch(error){
+    if(writeConfirmed){
+      state.colzoErrorResource=resource;
+      state.colzoError=error?.message||'The saved list could not be refreshed.';
+      showRefreshWarning();
+    }else{showSaveError(error?.message||'Could not save. Your changes have not been confirmed.');state.colzoFeedback='';}
+  }
   finally{state.colzoBusy=false;form.setAttribute?.('aria-busy','false');if(button){button.disabled=false;button.textContent=originalButtonLabel}}
  }
  function colzoRecordForm(resource,record=null){
