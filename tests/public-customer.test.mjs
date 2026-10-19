@@ -13,10 +13,12 @@ const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const routeUrl = `data:text/javascript;base64,${Buffer.from(routeSource).toString("base64")}`;
 const billingUrl = `data:text/javascript;base64,${Buffer.from(billingSource).toString("base64")}`;
 const legalUrl = `data:text/javascript;base64,${Buffer.from(legalSource).toString("base64")}`;
+const dpaSource = await readFile(new URL("../lib/business-dpa-validation.js", import.meta.url), "utf8");
+const dpaUrl = `data:text/javascript;base64,${Buffer.from(dpaSource).toString("base64")}`;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
 const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
 
-async function load({ route, settings, configuration = {}, dpaAccepted = true } = {}) {
+async function load({ route, settings, configuration = {}, dpaAccepted = true, dpaRows = null } = {}) {
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   process.env.BILLING_ENABLED = "false";
@@ -27,13 +29,14 @@ async function load({ route, settings, configuration = {}, dpaAccepted = true } 
     if (url.includes("business_public_routes")) return reply(route ? [route] : []);
     if (url.includes("business_settings")) return reply(settings ? [settings] : []);
     if (url.includes("business_configurations")) return reply([configuration]);
-    if (url.includes("business_legal_acceptances")) return reply(dpaAccepted ? [{ id: 1 }] : []);
+    if (url.includes("business_legal_acceptances")) return reply(dpaRows ?? (dpaAccepted ? [{ id: 1, business_id: route?.business_id, document_key: "dpa", document_version: "1.1" }] : []));
     return reply({ hidden: true }, false);
   };
   const source = apiSource
     .replace('from "./public-tenant.js"', `from "${routeUrl}#${Math.random()}"`)
     .replace('from "./billing.js"', `from "${billingUrl}#${Math.random()}"`)
-    .replace('from "./legal.js"', `from "${legalUrl}#${Math.random()}"`);
+    .replace('from "./legal.js"', `from "${legalUrl}#${Math.random()}"`)
+    .replace('from "./business-dpa-validation.js"', `from "${dpaUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 
@@ -66,6 +69,27 @@ test("public assistant is unavailable until the business has accepted the curren
   assert.equal(res.body.business.assistant_available, false);
 });
 
+test("public assistant never activates from another business or outdated DPA acceptance", {concurrency:false},async()=>{
+ const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
+ const accepted={id:91,business_id:"business-a",document_key:"dpa",document_version:"1.1"};
+ for(const dpaRows of [
+   [{...accepted,business_id:"business-b"}],
+   [{...accepted,document_key:"terms"}],
+   [{...accepted,document_version:"1.0"}],
+   [{id:91}],
+   [accepted,{...accepted,business_id:"business-b"}],
+   {id:91}
+ ]){
+  const {handler}=await load({route,settings:{business_name:"Fixture"},dpaRows});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business.assistant_available,false);
+ }
+ const {handler}=await load({route,settings:{business_name:"Fixture"},dpaRows:[accepted]});
+ const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.business.assistant_available,true);
+});
 test("public business profile never shows another business's image or a banner used as an avatar", { concurrency:false }, async()=>{
  const name='88888888-8888-4888-8888-888888888888.webp';
  const {handler}=await load({

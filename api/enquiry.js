@@ -22,6 +22,7 @@ import { logOperationalEvent } from "../lib/operational-log.js";
 import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowance } from "../lib/billing.js";
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
 import { LEGAL_VERSIONS } from "../lib/legal.js";
+import { isCurrentBusinessDpa } from "../lib/business-dpa-validation.js";
 import { extractBearerToken, requireAuthenticatedUser, requireBusinessAdmin, sendAuthError } from "../lib/auth.js";
 import { assertIncidentFeatureAvailable, isIncidentFeaturePaused } from "../lib/incident-controls.js";
 
@@ -241,9 +242,9 @@ async function resolvePublicBusiness(req) {
 async function hasCurrentBusinessDpa(businessId) {
   if (process.env.TENANCY_AUTH_ENABLED !== "true") return true;
   const rows = await supabaseRequest(
-    `business_legal_acceptances?business_id=eq.${encodeURIComponent(String(businessId))}&document_key=eq.dpa&document_version=eq.${encodeURIComponent(LEGAL_VERSIONS.dpa)}&select=id&limit=1`
+    `business_legal_acceptances?business_id=eq.${encodeURIComponent(String(businessId))}&document_key=eq.dpa&document_version=eq.${encodeURIComponent(LEGAL_VERSIONS.dpa)}&select=id,business_id,document_key,document_version&limit=1`
   );
-  return Boolean(rows?.[0]?.id);
+  return isCurrentBusinessDpa(rows,businessId,LEGAL_VERSIONS.dpa);
 }
 
 async function optionalCustomerAccount(req) {
