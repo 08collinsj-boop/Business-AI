@@ -1,4 +1,5 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { confirmSettingsSave } from "../lib/colzo-settings-confirmation.js";
 import {
   requireBusinessMember,
   requireBusinessAdmin,
@@ -272,6 +273,14 @@ export default async function handler(req, res) {
         );
 
 
+      // Only the isolated Colzo Preview requires confirmed saved values.
+      // Production/Pilot retain their previous handler behaviour.
+      if (auth.enforced && isColzoPreviewAuthTransportEnabled()) {
+        const confirmation = confirmSettingsSave(updated, current, auth.businessId, updates);
+        if (confirmation.status !== 200) {
+          return res.status(confirmation.status).json({ error: confirmation.error });
+        }
+      }
       const result = Array.isArray(updated) ? updated[0] || null : updated;
       if (auth.enforced && result) await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "settings.updated", resourceType: "business_settings", resourceId: String(current.id), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
       return res.status(200).json(result);
