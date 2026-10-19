@@ -195,8 +195,13 @@ async function prepareReviewRequest({ businessId, booking, actorUserId }) {
       status: "pending"
     })
   });
-  const action = Array.isArray(created) ? created[0] || null : created || null;
-  if (!action?.id) return null;
+  // In Colzo Preview a successful database status is insufficient: only a
+  // saved, correctly linked action may generate review activity and audit.
+  const strict = isColzoPreviewAuthTransportEnabled();
+  const action = strict ? confirmedRecord(created, businessId)
+    : Array.isArray(created) ? created[0] || null : created || null;
+  if (!action?.id || (strict && (Number(action.booking_id) !== Number(booking.id)
+    || action.action_type !== "request_review"))) return null;
 
   await recordLeadHistory(booking.lead_id, businessId, "Review request prepared", "", destination.label);
   await recordAuditEvent({
