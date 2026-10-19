@@ -352,3 +352,11 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 }
 
 #colzoOwner textarea:focus-visible{outline:3px solid var(--cn-volt);outline-offset:2px}
+
+
+/* Input readability on mobile Safari without changing Graphite & Volt layout. */
+#colzoOwner .cn-colzo-record-form :is(input:not([type=range]),select,textarea){font-size:16px;min-width:0}
+@media(max-width:380px){#colzoOwner .cn-colzo-record-form{padding:14px}
+ #colzoOwner .cn-colzo-record-form .cn-form-actions{flex-wrap:wrap}
+ #colzoOwner .cn-colzo-record-form .cn-form-actions :is(.cn-primary,.cn-secondary){min-width:0;flex:1 1 140px}
+}
