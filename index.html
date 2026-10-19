@@ -4636,7 +4636,15 @@ throw new Error('Complete two-step verification in Account security, then try th
 }
 throw new Error('Two-step verification is required. Open Account security to verify your session.');
 }
-if(!response.ok)throw new Error(response.status===403?'You do not have permission for this action.':result?.error||'Something went wrong');
+if(!response.ok){
+  const error=new Error(response.status===403?'You do not have permission for this action.':result?.error||'Something went wrong');
+  const reason=response.status===403?'permission-denied':
+    response.status===404?'route-unavailable':
+    response.status===503?'service-unavailable':
+    response.status>=500?'server-error':'request-rejected';
+  if(window.colzoPreviewAuthTransportEnabled)throw annotateColzoDashboardFailure(error,requestUrl.pathname,response.status,reason,true);
+  throw error;
+}
 
 return result;
 
@@ -5617,14 +5625,37 @@ await loadBilling();
 }catch(error){toast(error.message||'Could not update billing');if(button){button.disabled=false;button.textContent=original;}}
 }
 
-// Preview-only, allowlisted diagnostics without tokens or response bodies.
+// Preview-only, allowlisted diagnostics. Never put tokens, provider response
+// bodies or untrusted URL fragments in the saved fields or displayed label.
+function annotateColzoDashboardFailure(error,path,status,reason,enabled){
+  if(!enabled||!error||typeof error!=='object')return error;
+  if(!['/api/leads','/api/pipeline','/api/settings'].includes(path))return error;
+  if(!Number.isInteger(status)||status<400||status>599)return error;
+  const known401=['vercel-protection','browser-token-missing','backend-session-unverified','backend-token-rejected','backend-other-401','unclassified'];
+  const valid=status===401?known401.includes(reason):
+    status===403?reason==='permission-denied':
+    status===404?reason==='route-unavailable':
+    status===503?reason==='service-unavailable':
+    status>=500?reason==='server-error':reason==='request-rejected';
+  if(!valid)return error;
+  error.colzoApiPath=path;
+  error.colzoApiStatus=status;
+  error.colzoApiReason=reason;
+  return error;
+}
 function colzoDashboardFailureLabel(error,enabled){
-  if(!enabled || error?.colzoApiStatus!==401)return '';
-  const path=error?.colzoApiPath;
+  if(!enabled)return '';
+  const path=error?.colzoApiPath, status=error?.colzoApiStatus;
   if(!['/api/leads','/api/pipeline','/api/settings'].includes(path))return '';
-  const allowed=['vercel-protection','browser-token-missing','backend-session-unverified','backend-token-rejected','backend-other-401','unclassified'];
-  const reason=allowed.includes(error?.colzoApiReason)?error.colzoApiReason:'unclassified';
-  return ' [Diagnostic: '+path+' HTTP 401, '+reason+']';
+  if(!Number.isInteger(status)||status<400||status>599)return '';
+  const reasons=status===401?['vercel-protection','browser-token-missing','backend-session-unverified','backend-token-rejected','backend-other-401','unclassified']:
+    status===403?['permission-denied']:
+    status===404?['route-unavailable']:
+    status===503?['service-unavailable']:
+    status>=500?['server-error']:['request-rejected'];
+  const reason=status===401&&!reasons.includes(error?.colzoApiReason)?'unclassified':error?.colzoApiReason;
+  if(!reasons.includes(reason))return '';
+  return ' [Diagnostic: '+path+' HTTP '+status+', '+reason+']';
 }
 
 async function loadAll(showFeedback=false){
