@@ -7,21 +7,21 @@ const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
 const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
 
-async function loadDirectory({imagePathA="",imagePathB=""}={}) {
+async function loadDirectory({imagePathA="",imagePathB="",searchEnabledA=true,searchEnabledB=true,routeA=null,routeB=null}={}) {
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'server-only';
   const calls = [];
   globalThis.fetch = async url => {
     calls.push(String(url));
     if (String(url).includes('business_public_routes')) return reply([
-      { business_id: 'business-a', route_value: 'collins-ltd' },
-      { business_id: 'business-b', route_value: 'harbour-cafe' }
+      routeA ?? { business_id: 'business-a', route_value: 'collins-ltd',route_type:'slug',active:true },
+      routeB ?? { business_id: 'business-b', route_value: 'harbour-cafe',route_type:'slug',active:true }
     ]);
     if (String(url).includes('business_settings')) {
       assert.match(String(url), /directory_search_enabled=eq.true/);
       return reply([
-        { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance', directory_search_enabled: true, profile_image_path: imagePathA },
-        { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch', directory_search_enabled: true, profile_image_path: imagePathB }
+        { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance', directory_search_enabled: searchEnabledA, profile_image_path: imagePathA },
+        { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch', directory_search_enabled: searchEnabledB, profile_image_path: imagePathB }
       ]);
     }
     if (String(url).includes('business_configurations')) return reply([
@@ -117,5 +117,29 @@ test('directory rejects image paths with traversal segments or an incorrect slot
  const {handler}=await loadDirectory({imagePathA:unsafe});
  const res=response();await handler({method:'GET',query:{q:'electrical'}},res);
  assert.equal(res.statusCode,200);assert.equal(res.body.businesses[0].profile_image_url,'');
+ }
+});
+
+
+test('public directory excludes opt-out businesses even if database accidentally returns them',{concurrency:false},async()=>{
+ for(const setting of [false,null,"false"]){
+  const {handler}=await loadDirectory({searchEnabledA:setting});
+  const res=response();await handler({method:'GET',query:{}},res);
+  assert.equal(res.statusCode,200);
+  assert.deepEqual(res.body.businesses.map(x=>x.slug),['harbour-cafe']);
+ }
+});
+test('public directory refuses inactive, non-slug and malformed routes despite database result',{concurrency:false},async()=>{
+ const variants=[
+  {business_id:'business-a',route_value:'collins-ltd',route_type:'slug',active:false},
+  {business_id:'business-a',route_value:'collins-ltd',route_type:'custom_domain',active:true},
+  {business_id:'business-a',route_value:'../private',route_type:'slug',active:true},
+  {business_id:'business-a',route_value:'COLLINS-LTD',route_type:'slug',active:true}
+ ];
+ for(const routeA of variants){
+  const {handler}=await loadDirectory({routeA});
+  const res=response();await handler({method:'GET',query:{}},res);
+  assert.equal(res.statusCode,200);
+  assert.deepEqual(res.body.businesses.map(x=>x.slug),['harbour-cafe']);
  }
 });
