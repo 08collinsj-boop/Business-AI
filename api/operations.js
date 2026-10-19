@@ -1,4 +1,5 @@
 import leadsHandler from "./leads.js";
+import colzoLeadsHandler from "./colzo-leads.js";
 import pipelineHandler from "./pipeline.js";
 import settingsHandler from "./settings.js";
 import legalHandler from '../lib/legal-handler.js';
@@ -31,7 +32,7 @@ import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
-import { isApprovedSupabaseTarget, restorePreviewAuthToken } from '../lib/public-config-handler.js';
+import { isApprovedSupabaseTarget, isColzoPreviewAuthTransportEnabled, restorePreviewAuthToken } from '../lib/public-config-handler.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -73,7 +74,10 @@ const handlers = Object.freeze({
 
 export default async function handler(req, res) {
   const operation = typeof req.query?.operation === "string" ? req.query.operation : "";
-  const delegated = handlers[operation];
+  // Keep the immutable Business AI Leads API unchanged. Colzo Preview alone
+  // uses confirmed-save semantics; every other environment retains legacy.
+  const delegated = operation === "leads" && isColzoPreviewAuthTransportEnabled()
+    ? colzoLeadsHandler : handlers[operation];
   if (!delegated) return res.status(404).json({ error: "Not found" });
   // Fail closed at the Colzo Preview dispatcher before any authenticated
   // operation touches a Supabase backend from an unexpected environment.
