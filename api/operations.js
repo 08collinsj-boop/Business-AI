@@ -1,7 +1,6 @@
 import leadsHandler from "./leads.js";
 import legalHandler from '../lib/legal-handler.js';
 import legalPublicHandler from '../lib/legal-public-handler.js';
-import devAuthPreflightHandler from '../lib/colzo-dev-auth-preflight.js';
 import addonsHandler from '../lib/addons-handler.js';
 import marketingHandler from '../lib/marketing-handler.js';
 import knowledgeHandler from '../lib/knowledge-verified-handler.js';
@@ -30,7 +29,7 @@ import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
-import { isApprovedSupabaseTarget, restorePreviewAuthToken, previewAuthTransportState } from '../lib/public-config-handler.js';
+import { isApprovedSupabaseTarget, restorePreviewAuthToken } from '../lib/public-config-handler.js';
 
 // Vercel Hobby allows twelve Serverless Functions. The public API paths below
 // are preserved with rewrites in vercel.json; this dispatcher only combines
@@ -64,7 +63,6 @@ const handlers = Object.freeze({
   feedback: feedbackHandler,
   "incident-controls": incidentControlsHandler,
   "business-profile": businessProfileHandler,
-  'dev-auth-preflight': devAuthPreflightHandler,
   legal: legalHandler,
   "legal-public": legalPublicHandler
 });
@@ -82,34 +80,6 @@ export default async function handler(req, res) {
   const observation = observeOperation(req, res, operation);
   try {
     restorePreviewAuthToken(req);
-    // A read-only, token-free response hint for signed-in Preview diagnostics.
-    // Do not expose raw request headers, tokens, or this hint on Production.
-    if (operation === 'legal') {
-      const transportState = previewAuthTransportState(req);
-      if (transportState) {
-        // Temporary, metadata-only Preview trace. No bearer value, user ID,
-        // email, cookie, request body or other credential is ever logged.
-        console.info(JSON.stringify({
-          event: 'colzo.preview_legal_transport',
-          state: transportState,
-          route: 'legal'
-        }));
-        res.setHeader?.('X-Colzo-Auth-Transport', transportState);
-        // Some Preview proxies may not expose custom response headers.
-        // Add only a fixed, non-secret diagnostic code to the legal 401
-        // response. Never alter its HTTP status or authentication decision.
-        const originalJson = res.json.bind(res);
-        res.json = payload => {
-          if (res.statusCode === 401 && payload?.error === 'Authentication is required') {
-            return originalJson({ ...payload, preview_auth_transport: transportState });
-          }
-          if (res.statusCode === 401 && payload?.error === 'Authentication is invalid or expired') {
-            return originalJson({ ...payload, preview_auth_transport: transportState });
-          }
-          return originalJson(payload);
-        };
-      }
-    }
     return await delegated(req, res);
   } catch (error) {
     observation.fail(error);

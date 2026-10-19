@@ -16,8 +16,8 @@ test('Preview diagnostic identifies an outer Vercel deployment protection denial
  assert.equal(classify({protection:{vercel_auth_enabled:true}},{}),'vercel-protection');
  assert.equal(classify({message:'Protected by Vercel Authentication',error:{code:'401'}},{}),'vercel-protection');
 });
-test('Preview diagnostic identifies a Colzo backend missing bearer despite client sending it',()=>{
- assert.equal(classify({error:'Authentication is required'},{},true),'backend-token-missing');
+test('Preview diagnostic does not misdiagnose a rejected session as a missing bearer',()=>{
+ assert.equal(classify({error:'Authentication is required'},{},true),'backend-session-unverified');
 });
 test('Preview diagnostic distinguishes invalid bearer tokens without displaying values',()=>{
  assert.equal(classify({error:'Authentication is invalid or expired'},{},true),'backend-token-rejected');
@@ -37,14 +37,6 @@ test('Preview sign-in failure contains only classified codes, never bearer token
 });
 
 
-test('401 labels which preview header boundary is missing without revealing the token',()=>{
- assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'alternate-missing'},true),'preview-alternate-header-missing');
- assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'standard-not-bearer'},true),'preview-standard-nonbearer');
- assert.equal(classify({error:'Authentication is required'},{'x-colzo-auth-transport':'alternate-invalid'},true),'preview-alternate-invalid');
-});
-
-test('Preview body transport classification works when response headers are removed',()=>{
- assert.equal(classify({error:'Authentication is required',preview_auth_transport:'alternate-missing'}, {}, true),'preview-alternate-header-missing');
- assert.equal(classify({error:'Authentication is required',preview_auth_transport:'standard-not-bearer'}, {}, true),'preview-standard-nonbearer');
- assert.equal(classify({error:'Authentication is required',preview_auth_transport:'alternate-invalid'}, {}, true),'preview-alternate-invalid');
+test('obsolete unauthenticated Preview transport hints cannot override the actual backend diagnosis',()=>{
+ assert.equal(classify({error:'Authentication is required',preview_auth_transport:'alternate-missing'}, {'x-colzo-auth-transport':'standard-not-bearer'},true),'backend-session-unverified');
 });
