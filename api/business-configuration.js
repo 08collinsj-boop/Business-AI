@@ -76,6 +76,12 @@ export default async function handler(req, res) {
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid request body" });
     const updates = validateBusinessConfiguration(body);
+    // Customer-visible website links cannot carry credentials or custom ports
+    // in the isolated Colzo Preview. Keep legacy customer settings unchanged.
+    if (isColzoPreviewAuthTransportEnabled() && updates.website) {
+      const website = new URL(updates.website);
+      if (website.username || website.password || website.port) return res.status(400).json({ error: "Invalid website" });
+    }
     updates.updated_at = new Date().toISOString();
     const rows = await request(`business_configurations?business_id=eq.${encodeURIComponent(auth.businessId)}`, { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) });
     // Require confirmed persistence only in the approved isolated Dev Preview.

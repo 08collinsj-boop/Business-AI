@@ -7,7 +7,7 @@ Object.assign(process.env,{TENANCY_AUTH_ENABLED:'true',SUPABASE_URL:'https://mvw
 const {default:handler}=await import('../lib/business-profile-handler.js');
 test.after(()=>{globalThis.fetch=oldFetch;for(const[k,v]of previous)v===undefined?delete process.env[k]:process.env[k]=v});
 const reply=data=>({ok:true,status:200,text:async()=>JSON.stringify(data),json:async()=>data});
-async function patchConfiguration({savedRows=[],hasExisting=true}={}){
+async function patchConfiguration({savedRows=[],hasExisting=true,body={description:'New description'}}={}){
  const calls=[];let configuration={business_id:tenant,description:'Original profile'};
  globalThis.fetch=async(input,init={})=>{
   const url=String(input),method=init.method||'GET';calls.push({url,method,body:init.body});
@@ -24,7 +24,7 @@ async function patchConfiguration({savedRows=[],hasExisting=true}={}){
   throw Error('Unexpected synthetic endpoint');
  };
  const res={statusCode:0,status(n){this.statusCode=n;return this},json(v){this.body=v;return this},setHeader(){}};
- await handler({method:'PATCH',headers:{authorization:'Bearer synthetic-token'},body:{description:'New description'}},res);
+ await handler({method:'PATCH',headers:{authorization:'Bearer synthetic-token'},body},res);
  return {res,calls};
 }
 test('configuration profile update cannot report success when database reports zero updated rows',async()=>{
@@ -48,4 +48,12 @@ test('configuration profile accepts correctly saved tenant values',async()=>{
 test('first-time profile configuration insert must also confirm correct stored tenant',async()=>{
  const {res}=await patchConfiguration({savedRows:[{business_id:'other-tenant',description:'New description'}],hasExisting:false});
  assert.equal(res.statusCode,503);
+});
+
+test('Preview rejects credential-bearing and custom-port profile website URLs before any write',async()=>{
+ for(const website of ['https://user:pass@legitimate.example/','https://legitimate.example:8443/']){
+  const {res,calls}=await patchConfiguration({body:{website}});
+  assert.equal(res.statusCode,400);
+  assert.equal(calls.some(c=>c.method==='PATCH'||c.method==='POST'),false);
+ }
 });

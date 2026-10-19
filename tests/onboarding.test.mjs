@@ -172,3 +172,14 @@ test("Dev Preview onboarding confirms a saved tenant configuration",{concurrency
  assert.equal(res.statusCode,200);
  assert.equal(res.body.configuration.description,"Saved");
 });
+
+test('Dev Preview configuration wizard rejects credential-bearing and custom-port website links', {concurrency:false}, async()=>{
+ for(const website of ['https://username:password@business.example/','https://business.example:8443/']){
+  const calls=[];
+  const handler=await load('owner','true',async(url,options={})=>{calls.push({url,method:options.method||'GET'});return reply([])},false,true);
+  const res=response();
+  await handler({method:'PATCH',headers:{authorization:'Bearer synthetic'},body:{website}},res);
+  assert.equal(res.statusCode,400);
+  assert.equal(calls.some(c=>c.method==='PATCH'||c.method==='POST'),false);
+ }
+});
