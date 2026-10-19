@@ -7,7 +7,7 @@ const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
 const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
 
-async function loadDirectory() {
+async function loadDirectory({imagePathA="",imagePathB=""}={}) {
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'server-only';
   const calls = [];
@@ -20,8 +20,8 @@ async function loadDirectory() {
     if (String(url).includes('business_settings')) {
       assert.match(String(url), /directory_search_enabled=eq.true/);
       return reply([
-        { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance', directory_search_enabled: true },
-        { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch', directory_search_enabled: true }
+        { business_id: 'business-a', business_name: 'Collins LTD', business_type: 'Electrical services', services: 'Electrical repairs and maintenance', directory_search_enabled: true, profile_image_path: imagePathA },
+        { business_id: 'business-b', business_name: 'Harbour Cafe', business_type: 'Cafe', services: 'Coffee and lunch', directory_search_enabled: true, profile_image_path: imagePathB }
       ]);
     }
     if (String(url).includes('business_configurations')) return reply([
@@ -97,4 +97,25 @@ test('directory visibility is server-enforced while direct public routes stay in
   assert.match(html, /id="s_directory_search_enabled"/);
   assert.match(html, /Show my business in customer search/);
   assert.match(html, /direct-link only/);
+});
+
+
+test('directory only publishes images owned by each displayed business', {concurrency:false}, async()=>{
+ const image='88888888-8888-4888-8888-888888888888.webp';
+ const {handler}=await loadDirectory({imagePathA:'business-b/avatar/'+image,imagePathB:'business-b/avatar/'+image});
+ const res=response();
+ await handler({method:'GET',query:{}},res);
+ assert.equal(res.statusCode,200);
+ const a=res.body.businesses.find(x=>x.slug==='collins-ltd');
+ const b=res.body.businesses.find(x=>x.slug==='harbour-cafe');
+ assert.equal(a.profile_image_url,'');
+ assert.match(b.profile_image_url,/business-b\/avatar\/88888888-8888-4888-8888-888888888888\.webp$/);
+});
+test('directory rejects image paths with traversal segments or an incorrect slot',{concurrency:false},async()=>{
+ for(const unsafe of ['business-a/banner/88888888-8888-4888-8888-888888888888.webp',
+ 'business-a/avatar/../../business-b/avatar/88888888-8888-4888-8888-888888888888.webp']){
+ const {handler}=await loadDirectory({imagePathA:unsafe});
+ const res=response();await handler({method:'GET',query:{q:'electrical'}},res);
+ assert.equal(res.statusCode,200);assert.equal(res.body.businesses[0].profile_image_url,'');
+ }
 });

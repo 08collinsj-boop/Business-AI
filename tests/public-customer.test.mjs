@@ -66,6 +66,17 @@ test("public assistant is unavailable until the business has accepted the curren
   assert.equal(res.body.business.assistant_available, false);
 });
 
+test("public business profile never shows another business's image or a banner used as an avatar", { concurrency:false }, async()=>{
+ const name='88888888-8888-4888-8888-888888888888.webp';
+ const {handler}=await load({
+  route:{business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true},
+  settings:{business_name:"Collins LTD",profile_image_path:"business-b/avatar/"+name,profile_banner_path:"business-a/banner/"+name}
+ });
+ const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.business.profile_image_url,"");
+ assert.match(res.body.business.profile_banner_url,/business-a\/banner\/88888888-8888-4888-8888-888888888888\.webp$/);
+});
 test("unknown or mismatched public routes fail without tenant disclosure", { concurrency: false }, async () => {
   let loaded = await load({ route: null }); let res = response();
   await loaded.handler({ method: "GET", query: { business: "missing-business" } }, res);
