@@ -2,7 +2,7 @@
 
 ## Latest continuation — read this first
 
-The newer evidence and owner handoff are in [COLZO_PRELAUNCH_ACCEPTANCE_20261018.md](COLZO_PRELAUNCH_ACCEPTANCE_20261018.md). Runtime candidate `0171574d1194e463c8f36aaea30bfaf41f20495a` passes 791 local tests. Five non-secret Dev settings are now assigned to the current branch; its two write-only Dev keys still require private owner entry. Fresh Preview health is 200 but public-config remains 503: authentication/MFA acceptance is not complete. Direct API target safeguards, browser-key validation, website app navigation and a missing legal stylesheet were corrected without changing the approved UI or protected original modules. The current stable branch alias was added to the Dev Auth redirect allowlist; all other returned Auth configuration was preserved. No database records or Production settings changed and no spending was incurred. The older findings below are retained as historical context.
+Current continuation: [COLZO_BACKEND_ACCEPTANCE_20261019.md](COLZO_BACKEND_ACCEPTANCE_20261019.md). Authentication configuration is recovered; see also [COLZO_AUTH_RECOVERY_CLEANUP_20261019.md](COLZO_AUTH_RECOVERY_CLEANUP_20261019.md). The current SHA526c9a1 Preview returns public-config 200 with frontend authentication enabled and the expected Dev project. The cloud browser renders Colzo sign-in without the temporary-unavailability error; this session has not verified owner login or MFA. The historical missing-credential findings below are superseded. Actions safe-ID and Actions/Bookings save-confirmation fixes pass 890 automated tests, zero failures, plus static verification. No customer records, Production settings or UI appearance changed; no spending.
 
 
 ## Scope

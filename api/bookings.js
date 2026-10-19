@@ -46,6 +46,17 @@ async function supabaseRequest(path, options = {}) {
   return data;
 }
 
+// A representation is required before emitting success or success side effects.
+// Never retry an unconfirmed write: the database may already have committed it.
+function confirmedRecord(value, businessId, expectedId = null) {
+  const rows = Array.isArray(value) ? value : [value];
+  if (rows.length !== 1) return null;
+  const row = rows[0];
+  if (!row || typeof row !== "object" || Array.isArray(row) || !positiveId(row.id) || row.business_id !== businessId) return null;
+  if (expectedId !== null && positiveId(row.id) !== expectedId) return null;
+  return row;
+}
+
 function parseBody(body) {
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body || {};
@@ -249,7 +260,8 @@ export default async function handler(req, res) {
       const created = await supabaseRequest("bookings", {
         method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(booking)
       });
-      const result = Array.isArray(created) ? created[0] : created;
+      const result = confirmedRecord(created, businessId);
+      if (!result) throw new Error("Created record could not be confirmed");
       await recordLeadHistory(result?.lead_id, businessId, "Booking created", "", result?.title || "");
       if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "booking.created", resourceType: "booking", resourceId: String(result.id), metadata: { status: result.status, source: result.source } });
       return res.status(201).json(result || null);
@@ -273,7 +285,9 @@ export default async function handler(req, res) {
       `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}`,
       { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) }
     );
-    const result = Array.isArray(updated) ? updated[0] : updated;
+    if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
+    const result = confirmedRecord(updated, businessId, bookingId);
+    if (!result) throw new Error("Updated record could not be confirmed");
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
     if (result && current.status !== "completed" && result.status === "completed") {
