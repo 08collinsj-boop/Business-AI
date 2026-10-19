@@ -1,4 +1,6 @@
 import leadsHandler from "./leads.js";
+import pipelineHandler from "./pipeline.js";
+import settingsHandler from "./settings.js";
 import legalHandler from '../lib/legal-handler.js';
 import legalPublicHandler from '../lib/legal-public-handler.js';
 import addonsHandler from '../lib/addons-handler.js';
@@ -36,6 +38,8 @@ import { isApprovedSupabaseTarget, restorePreviewAuthToken } from '../lib/public
 // implementation packaging and does not relax the individual handlers' auth.
 const handlers = Object.freeze({
   leads: leadsHandler,
+  pipeline: pipelineHandler,
+  settings: settingsHandler,
   "colzo-records": colzoRecordsHandler,
   "audit-log": auditLogHandler,
   "data-lifecycle": dataLifecycleHandler,

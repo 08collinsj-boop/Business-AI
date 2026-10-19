@@ -151,6 +151,14 @@
       "destination": "/api/operations?operation=legal"
     },
     {
+      "source": "/api/pipeline",
+      "destination": "/api/operations?operation=pipeline"
+    },
+    {
+      "source": "/api/settings",
+      "destination": "/api/operations?operation=settings"
+    },
+    {
       "source": "/api/leads",
       "destination": "/api/operations?operation=leads"
     },
