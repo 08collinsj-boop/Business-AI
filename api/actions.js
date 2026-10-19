@@ -1,5 +1,5 @@
 import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
-import { validWorkVersion, nextWorkVersion } from "../lib/colzo-work-version.js";
+import { validWorkVersion, nextWorkVersion, sameWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -214,7 +214,7 @@ export default async function handler(req, res) {
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, actionId);
     if (!result) throw new Error("Updated record could not be confirmed");
-    if (versioned && (!validWorkVersion(result.updated_at) || Date.parse(result.updated_at) !== Date.parse(updates.updated_at))) throw new Error("Updated version could not be confirmed");
+    if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "completed" ? "action.completed" : updates.status === "cancelled" ? "action.cancelled" : "action.updated", resourceType: "action", resourceId: String(actionId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at" && key !== "completed_at").sort().join(",") } });
