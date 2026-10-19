@@ -59,7 +59,10 @@ function parseBody(body) {
 
 function positiveId(value) {
   if (typeof value === "number" && Number.isSafeInteger(value) && value > 0) return value;
-  if (typeof value === "string" && /^(?:[1-9]\d*)$/.test(value)) return Number(value);
+  if (typeof value === "string" && /^(?:[1-9]\d*)$/.test(value)) {
+    const id = Number(value);
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
+  }
   return null;
 }
 

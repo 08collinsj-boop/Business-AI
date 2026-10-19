@@ -95,6 +95,26 @@ test("bookings validate, tenant-check related leads, and scope writes", { concur
   }
 });
 
+test("booking endpoints reject unsafe integer record and enquiry IDs before any database access", { concurrency: false }, async () => {
+  const databaseCalls = [];
+  const handler = await load("true", async (url, options) => {
+    databaseCalls.push({url, method: options?.method || "GET"});
+    throw new Error("Unsafe reference should be rejected before database access");
+  });
+  for (const id of ["9007199254740992", "9007199254740993", "99999999999999999999"]) {
+    let res = result();
+    await handler({method:"GET",headers:{authorization:"Bearer good"},query:{lead_id:id}},res);
+    assert.equal(res.statusCode,400,"GET lead ID "+id);
+    res = result();
+    await handler({method:"POST",headers:{authorization:"Bearer good"},body:{title:"Fixture only",lead_id:id}},res);
+    assert.equal(res.statusCode,400,"POST lead ID "+id);
+    res = result();
+    await handler({method:"PATCH",headers:{authorization:"Bearer good"},body:{id,status:"requested"}},res);
+    assert.equal(res.statusCode,400,"PATCH booking ID "+id);
+  }
+  assert.deepEqual(databaseCalls,[]);
+});
+
 test.after(() => {
   for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key];
   Object.assign(process.env, savedEnv);
