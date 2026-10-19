@@ -1,4 +1,5 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { validWorkVersion, nextWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -269,25 +270,30 @@ export default async function handler(req, res) {
 
     const bookingId = positiveId(body.id);
     if (!bookingId) return res.status(400).json({ error: "Invalid booking ID" });
-    const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id")), false);
+    const versioned = isColzoPreviewAuthTransportEnabled(), expected = body.expected_updated_at;
+    if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the booking before saving; expected_updated_at is required" });
+    const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(
       `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}&select=*&limit=1`
     );
     const current = Array.isArray(currentRows) ? currentRows[0] : null;
     if (!current) return res.status(404).json({ error: "Booking not found" });
+    if (versioned && !validWorkVersion(current.updated_at)) return res.status(503).json({ error: "Booking version is unavailable; reload before retrying" });
+    if (versioned && current.updated_at !== expected) return res.status(409).json({ error: "This booking changed. Your draft has not been saved. Reload before retrying." });
     const leadId = updates.lead_id === undefined ? current.lead_id : updates.lead_id;
     if (leadId && !await findLead(leadId, businessId)) return res.status(404).json({ error: "Lead not found" });
     const starts = updates.starts_at === undefined ? current.starts_at : updates.starts_at;
     const ends = updates.ends_at === undefined ? current.ends_at : updates.ends_at;
     if (starts && ends && new Date(ends) <= new Date(starts)) return res.status(400).json({ error: "End time must be after start time" });
-    updates.updated_at = new Date().toISOString();
+    updates.updated_at = versioned ? nextWorkVersion(expected) : new Date().toISOString();
     const updated = await supabaseRequest(
-      `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}`,
+      `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}${versioned ? '&updated_at=eq.' + encodeURIComponent(expected) : ''}`,
       { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) }
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, bookingId);
     if (!result) throw new Error("Updated record could not be confirmed");
+    if (versioned && (!validWorkVersion(result.updated_at) || Date.parse(result.updated_at) !== Date.parse(updates.updated_at))) throw new Error("Updated version could not be confirmed");
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
     if (result && current.status !== "completed" && result.status === "completed") {

@@ -1,4 +1,5 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { validWorkVersion, nextWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -183,12 +184,16 @@ export default async function handler(req, res) {
 
     const actionId = positiveId(body.id);
     if (!actionId) return res.status(400).json({ error: "Invalid action ID" });
-    const updates = validateAction(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id")), false);
+    const versioned = isColzoPreviewAuthTransportEnabled(), expected = body.expected_updated_at;
+    if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the action before saving; expected_updated_at is required" });
+    const updates = validateAction(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(
       `actions?id=eq.${encodeURIComponent(String(actionId))}&business_id=eq.${encodeURIComponent(String(businessId))}&select=*&limit=1`
     );
     const current = Array.isArray(currentRows) ? currentRows[0] : null;
     if (!current) return res.status(404).json({ error: "Action not found" });
+    if (versioned && !validWorkVersion(current.updated_at)) return res.status(503).json({ error: "Action version is unavailable; reload before retrying" });
+    if (versioned && current.updated_at !== expected) return res.status(409).json({ error: "This action changed. Your draft has not been saved. Reload before retrying." });
     if (current.action_type === "request_review" && updates.action_type && updates.action_type !== "request_review") {
       return res.status(400).json({ error: "Review request type cannot be changed" });
     }
@@ -201,14 +206,15 @@ export default async function handler(req, res) {
     if (bookingId && !await existsForBusiness("bookings", bookingId, businessId)) return res.status(404).json({ error: "Booking not found" });
     if (updates.status === "completed") updates.completed_at = new Date().toISOString();
     else if (updates.status && updates.status !== "completed") updates.completed_at = null;
-    updates.updated_at = new Date().toISOString();
+    updates.updated_at = versioned ? nextWorkVersion(expected) : new Date().toISOString();
     const updated = await supabaseRequest(
-      `actions?id=eq.${encodeURIComponent(String(actionId))}&business_id=eq.${encodeURIComponent(String(businessId))}`,
+      `actions?id=eq.${encodeURIComponent(String(actionId))}&business_id=eq.${encodeURIComponent(String(businessId))}${versioned ? '&updated_at=eq.' + encodeURIComponent(expected) : ''}`,
       { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) }
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, actionId);
     if (!result) throw new Error("Updated record could not be confirmed");
+    if (versioned && (!validWorkVersion(result.updated_at) || Date.parse(result.updated_at) !== Date.parse(updates.updated_at))) throw new Error("Updated version could not be confirmed");
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "completed" ? "action.completed" : updates.status === "cancelled" ? "action.cancelled" : "action.updated", resourceType: "action", resourceId: String(actionId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at" && key !== "completed_at").sort().join(",") } });

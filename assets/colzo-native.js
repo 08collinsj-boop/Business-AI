@@ -713,7 +713,7 @@
    return `<div class="cn-work-dialog-backdrop" role="presentation" data-cn-work-overlay>
       <section class="cn-work-dialog" role="dialog" aria-modal="true" aria-labelledby="cnWorkDialogTitle">
         <button class="cn-sheet-handle" type="button" data-cn-drag-handle data-cn-work-close aria-label="Close editor, or drag down to dismiss"><span aria-hidden="true"></span></button><header><div><span class="cn-kicker">${screen==='bookings'?'CALENDAR':'TASK MANAGEMENT'}</span><h2 id="cnWorkDialogTitle">${heading}</h2></div><button type="button" data-cn-work-close class="cn-work-dialog-x" aria-label="Close editor">×</button></header>
-        <form id="cnWorkForm" data-kind="${screen}" class="cn-work-form" ${editing?`data-id="${safe(entry.id)}"`:''}>${common}${fields}
+        <form id="cnWorkForm" data-kind="${screen}" class="cn-work-form" ${editing?`data-id="${safe(entry.id)}" data-version="${safe(entry.updated_at||'')}"`:''}>${common}${fields}
           <label>Status<select name="status">${statusOptions.map(v=>`<option value="${v}" ${String(entry?.status||statusOptions[0])===v?'selected':''}>${v}</option>`).join('')}</select></label>
           <p class="cn-work-form-hint">${screen==='bookings'?'Completing a booking may prepare a review-request task if that option is enabled in your existing settings.':'Saving updates your existing business task, not a sample record.'}</p>
           <p class="cn-work-form-error" role="alert" id="cnWorkFormError">${safe(state.workFormError||'')}</p>
@@ -760,6 +760,7 @@
      if(!window.confirm('Mark this booking completed? If review requests are enabled, a follow-up task may be prepared.'))return;
    }
    if(editing)body.id=Number(id);
+   if(editing&&window.colzoPreviewAuthTransportEnabled===true){body.expected_updated_at=form.dataset.version;if(!body.expected_updated_at){showWorkFormError('Reload this record before saving. Your draft has not been saved.');return}}
    state.workBusy=true;state.workFormError='';
    const submit=form.querySelector('button[type=submit]');if(submit)submit.disabled=true;
    const error=root.querySelector('#cnWorkFormError');if(error)error.textContent='Saving your changes…';

@@ -37,3 +37,19 @@ Synthetic customer `fe3e8e3c-38fd-4a85-aff3-6228ded43967` remains, with its earl
 Application rollback to 4a4b6b0 can retain the additive column and trigger; old handlers do not depend on either being absent. Do not drop version metadata as an automatic rollback. The old code still allows the reproduced lost update, so rolling back reopens that P0. A fully tested disaster restore remains a separate launch gate; this migration test is not a backup certificate.
 
 Both public free beta and paid launch remain **NO-GO** pending final-candidate authenticated acceptance, live tenancy/security and essential workflows, operator/legal/ICO decisions, suitable hosting and tested recovery. Keep PR #26 draft. No Production deployment, merge or paid upgrade.
+
+## Post-deployment evidence on 224603e
+
+Exact Preview `224603e414303e4a6f63374b892b2e3eb52a555f` was READY with 12 functions. Both existing signed-in views reloaded onto the stable branch Preview without creating/replacing an account. Dashboard loaded in both.
+
+The real two-view lead test now passes: first note `COLZO QA 224603e FIRST WRITER MUST BE PRESERVED. Synthetic only.` saved at `2026-10-19 16:38:30.953586+00`. A second stale form retained its different draft and displayed the server conflict message instead of success. Read-only Dev verification showed the first note and timestamp unchanged and zero history entries for the rejected draft. Screenshot: `colzo-enquiry-conflict-protected-20261019.jpg`. The HTTP status is established by the tested handler path; browser network inspection remains restricted.
+
+Project `6747fe41-a58f-43a1-927e-43067a585462` was created as `COLZO QA 20261019 Synthetic Project`, edited to active with a labelled QA note, confirmed in Dev and read back after a full browser reload. Draft quote `4b5e6ab8-2029-4ba6-836a-9f7643e486ed` was created at GBP 0, linked to lead 36, edited and confirmed in Dev and after full reload. It remains a draft. Sending/collection and final statuses are explicitly unavailable in that UI; no quote was issued, emailed or paid.
+
+## Actions and Bookings concurrency continuation
+
+Source review found their PATCH queries lacked an exact loaded-version filter too. Scoped Preview guards now require the loaded version, reject a stale read, atomically filter by tenant/id/version, advance the timestamp and verify the returned version before side effects. No database migration was needed: both already have `updated_at`. Outside the pinned Colzo Preview their prior request contract is unchanged.
+
+Native editors capture the viewed version on the form rather than deriving it from a potentially refreshed global array. Conflicts retain the editor/draft; duplicate submit protection remains. Legacy-view update and review-completion callers include the loaded version only in this Preview. The existing booking-completion confirmation and review guards are preserved; no review message is sent by these changes.
+
+17 focused handler, native-editor and legacy-contract tests passed. Full `npm run verify`: **984 PASS, zero failures/skips/cancellations**, React build and static/secret-marker checks. Two data-URL test harnesses were updated to resolve the new helper import; assertions were not removed or relaxed. No API function was added. Live Actions/Bookings acceptance of this successor commit remains pending until its deployment is verified.

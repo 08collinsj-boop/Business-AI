@@ -5062,7 +5062,7 @@ window.open(url,'_blank','noopener,noreferrer');
 }
 
 async function markReviewRequestSent(id){
-try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'completed'})});toast('Review request marked as sent');await loadWorkItems();if(frontendAuthEnabled)loadValueDashboard();}
+try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(colzoWorkUpdateBody('actions',id,{status:'completed'}))});toast('Review request marked as sent');await loadWorkItems();if(frontendAuthEnabled)loadValueDashboard();}
 catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}
 }
 
@@ -5105,7 +5105,7 @@ closeWorkDialog($('bookingsFormCard'),true);
 }
 
 async function updateBooking(id,updates){
-try{await api('/api/bookings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Booking updated');await loadWorkItems();}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+try{await api('/api/bookings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(colzoWorkUpdateBody('bookings',id,updates))});toast('Booking updated');await loadWorkItems();}catch(error){$('bookingsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 
 function editBooking(id){
 const booking=bookings.find(item=>String(item.id)===String(id));if(!booking)return;
@@ -5124,7 +5124,13 @@ closeWorkDialog($('actionsFormCard'),true);
 }
 
 async function updateAction(id,updates){
-try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});toast('Action updated');await loadWorkItems();}catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(colzoWorkUpdateBody('actions',id,updates))});toast('Action updated');await loadWorkItems();}catch(error){$('actionsStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+
+function colzoWorkUpdateBody(resource,id,updates){
+const body={id,...updates};
+if(window.colzoPreviewAuthTransportEnabled===true){const list=resource==='bookings'?bookings:resource==='actions'?businessActions:[];body.expected_updated_at=list.find(item=>String(item.id)===String(id))?.updated_at;if(!body.expected_updated_at)throw new Error('Reload this record before saving.');}
+return body;
+}
 
 function editAction(id){
 const action=businessActions.find(item=>String(item.id)===String(id));if(!action)return;
