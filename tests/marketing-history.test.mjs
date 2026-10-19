@@ -83,7 +83,7 @@ function setup({ role = 'owner', entitled = true, rows = generations, authValid 
       const single = value.match(/[?&]id=eq\.([0-9a-f-]+)/i);
       if (single) {
         const found = rows.filter(row => row.id === single[1] && value.includes('business_id=eq.business-a'));
-        return ok(found);
+        return ok((options.method || 'GET') === 'PATCH' ? found.map(row => ({ ...row, business_id: 'business-a', ...JSON.parse(options.body) })) : found);
       }
       if ((options.method || 'GET') === 'GET') {
         return ok(value.includes('business_id=eq.business-a') ? rows : []);

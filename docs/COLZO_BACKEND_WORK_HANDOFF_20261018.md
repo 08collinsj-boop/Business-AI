@@ -2,7 +2,7 @@
 
 ## Latest continuation — read this first
 
-Current continuation: [COLZO_BACKEND_ACCEPTANCE_20261019.md](COLZO_BACKEND_ACCEPTANCE_20261019.md). Authentication configuration is recovered; see also [COLZO_AUTH_RECOVERY_CLEANUP_20261019.md](COLZO_AUTH_RECOVERY_CLEANUP_20261019.md). The current SHA526c9a1 Preview returns public-config 200 with frontend authentication enabled and the expected Dev project. The cloud browser renders Colzo sign-in without the temporary-unavailability error; this session has not verified owner login or MFA. The historical missing-credential findings below are superseded. Actions safe-ID and Actions/Bookings save-confirmation fixes pass 890 automated tests, zero failures, plus static verification. No customer records, Production settings or UI appearance changed; no spending.
+Current continuation: [COLZO_BACKEND_ACCEPTANCE_20261019.md](COLZO_BACKEND_ACCEPTANCE_20261019.md). Authentication configuration is recovered; see also [COLZO_AUTH_RECOVERY_CLEANUP_20261019.md](COLZO_AUTH_RECOVERY_CLEANUP_20261019.md). The current SHA526c9a1 Preview returns public-config 200 with frontend authentication enabled and the expected Dev project. The cloud browser renders Colzo sign-in without the temporary-unavailability error; this session has not verified owner login or MFA. The historical missing-credential findings below are superseded. Actions safe-ID and Actions/Bookings save-confirmation fixes pass 935 automated tests, zero failures, plus static verification; Marketing false-save responses and the Actions/Bookings two-business matrix are also covered. No customer records, Production settings or UI appearance changed; no spending.
 
 
 ## Scope

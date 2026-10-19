@@ -16,6 +16,26 @@ An isolated local worktree preserves the earlier unrelated timeout experiment. C
 
 Regression evidence: before correction, 38 of the first 42 new cases failed. Final focused set: **53 passed, zero failed**. Full `npm run verify`: **890 passed, zero failed**; 254 JavaScript files checked. Includes build and historical release safeguards. All write tests use mocked fetch responses and synthetic identities, not the Dev database. No tests were removed or weakened.
 
+## Fix group 2: Marketing confirmations and tenant acceptance
+
+Marketing edit, owner approval and soft deletion previously returned locally fabricated success after `return=minimal` writes. New regressions reproduced the defect (15/15 initial cases failed; a second test caught unchanged saved states). These three paths now request `return=representation`, enforce exactly one matching record/business, verify the saved fields (timestamp comparisons allow equivalent database formatting), and return the saved state. Empty matches return 409; missing/mismatched states return 503. Success audit entries occur only after confirmation. Queries retain business/record scope and exclude soft-deleted drafts. Approval roles, preview fingerprints and paid-provider behaviour are unchanged. This does not fix or certify the separate provider generation completion path or concurrent edits.
+
+Two positive-path historical mocks were updated to return persisted representations instead of HTTP204/unchanged pre-write data. Existing assertions remain. New Marketing cases: **18 passed**; focused Marketing suites: **44 passed**.
+
+New two-business Actions/Bookings matrix: **27 passed**. Independent synthetic sessions are resolved through the existing Auth and membership lookups; collections and updates retain tenant predicates, foreign IDs and enquiry/booking links fail safely, forged body business IDs fail, and missing/expired authentication prevents business data access. Owner/admin/member own-tenant writes preserve the existing policy. These tests do not prove physical database RLS or a real second-account session.
+
+Final `npm run verify` completed successfully: **935 tests passed, 0 failed/skipped/cancelled**, React build and **256 JavaScript files** checked. `git diff --check` passed. All new application write tests used mocks; no paid provider calls or database writes.
+
+## Current read-only Dev security evidence
+
+Provider checks on 19 October confirm eight INFO `rls_enabled_no_policy` findings and one WARN leaked-password protection finding. The three Colzo record tables have RLS enabled, zero policies and no anon/authenticated SELECT or authenticated write grants: the server-only design is intentional, not a reason to add permissive policies. Actions, Bookings, Enquiries, Knowledge items and Marketing generations have RLS SELECT policies using an actual membership business/user match; Marketing also requires an active entitlement. All eight inspected tables deny anonymous SELECT and authenticated direct writes. This is a bounded metadata check, not live two-user isolation certification.
+
+Database SSL enforcement remains **false**. IPv4/IPv6 allowlists remain **0.0.0.0/0** and **::/0**, with network restriction entitlement reported `allowed`. No settings changed: an impact review is required before restricting database clients. Leaked-password protection remains disabled; current official Supabase documentation states it requires Pro or above, so enabling it without an existing eligible plan is **BLOCKED BY COST**. No upgrade was attempted. References: https://supabase.com/docs/guides/auth/password-security and https://vercel.com/docs/limits/fair-use-guidelines. Vercel Hobby remains restricted to non-commercial use; commercial launch requires compliant hosting/owner decision, not a silent paid upgrade. Current account plan and recoverability are not certified here.
+
+## Published first fix Preview
+
+Commit `d30d538947a4fd7afccddab41674fcdec41e24f7` is published to the existing feature branch and draft PR #26. Preview https://business-cuz8spidq-buisness-ai1.vercel.app/ is READY, Preview-only, matches that SHA, and returns **200** for `/api/health` and `/api/public-config`; auth is enabled, exact Dev project verified and browser-safe key present. A later source commit needs its own Preview verification.
+
 ## Authentication and real Dev acceptance
 
 Authorised connector read of base Preview `/api/public-config`: HTTP 200, `frontendAuthEnabled=true`, exact Dev Supabase URL and browser key present. Key values are intentionally omitted. Cloud browser renders the approved Colzo sign-in form without the temporary authentication error. The browser has no authenticated session; current-session owner sign-in, MFA, refresh, logout, live CRUD and mobile/desktop acceptance remain **UNVERIFIED** until the owner signs in securely. Existing owner account, business and MFA were not changed.
@@ -24,9 +44,10 @@ Authorised connector read of base Preview `/api/public-config`: HTTP 200, `front
 
 | Area | Evidence | Status / remaining work |
 |---|---|---|
-| Actions / Bookings | New handler regression tests | PASS in mocks; live Dev persistence pending |
+| Actions / Bookings | New handler regressions and 27 two-business cases | PASS in mocks; live Dev persistence pending |
 | Customers / Projects / Quotes | Existing two-business matrix and full suite | Mock coverage passes; real isolated-tenant acceptance pending |
-| Enquiries / Knowledge / Marketing / Receptionist | Existing suite preserved | Full suite passes; feature-level live acceptance pending; paid providers must stay mocked |
+| Marketing | 18 new save-confirmation cases and preserved safety suite | PASS in mocks; generation, scheduling and live acceptance remain pending |
+| Enquiries / Knowledge / Receptionist | Existing suite preserved | Full suite passes; feature-level live acceptance pending; paid providers must stay mocked |
 | Account / MFA / recovery / portal | Sign-in screen only this session | UNVERIFIED authenticated journeys |
 | Deployment | Base Preview configuration / rendered login | Source fixes require a new exact-SHA Preview verification |
 | Security advisors / backup / legal / commercial hosting | Historical documentation only | Recheck current provider evidence; do not treat old findings as a current PASS |
