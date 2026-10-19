@@ -3,7 +3,7 @@ import test from "node:test";
 
 const saved = ["TENANCY_AUTH_ENABLED", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"].map(k=>[k,process.env[k]]);
 Object.assign(process.env, {TENANCY_AUTH_ENABLED:"true", SUPABASE_URL:"https://fixture.supabase.co", SUPABASE_SERVICE_ROLE_KEY:"fixture-service-key"});
-const {default: handler} = await import("../api/colzo-leads.js");
+const {default: handler} = await import("../lib/colzo-leads-handler.js");
 const savedFetch=globalThis.fetch;
 test.after(()=>{globalThis.fetch=savedFetch; for(const [k,v] of saved) v===undefined?delete process.env[k]:process.env[k]=v;});
 const current={id:17,business_id:"synthetic-business",status:"New",priority:"Normal",notes:"",estimated_value:0,follow_up_date:null};

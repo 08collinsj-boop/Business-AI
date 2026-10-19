@@ -1,5 +1,5 @@
 import leadsHandler from "./leads.js";
-import colzoLeadsHandler from "./colzo-leads.js";
+import colzoLeadsHandler from "../lib/colzo-leads-handler.js";
 import pipelineHandler from "./pipeline.js";
 import settingsHandler from "./settings.js";
 import legalHandler from '../lib/legal-handler.js';
