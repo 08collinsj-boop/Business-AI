@@ -1,4 +1,5 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { confirmConfigurationSave } from "../lib/colzo-configuration-confirmation.js";
 import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "../lib/auth.js";
 import { getIndustryTemplates, validateBusinessConfiguration } from "../lib/business-configuration.js";
 import { BusinessImportError, importBusinessWebsite } from "../lib/business-import.js";
@@ -77,6 +78,12 @@ export default async function handler(req, res) {
     const updates = validateBusinessConfiguration(body);
     updates.updated_at = new Date().toISOString();
     const rows = await request(`business_configurations?business_id=eq.${encodeURIComponent(auth.businessId)}`, { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) });
+    // Require confirmed persistence only in the approved isolated Dev Preview.
+    // Original Pilot/Production configuration semantics are unchanged.
+    if (isColzoPreviewAuthTransportEnabled()) {
+      const confirmation=confirmConfigurationSave(rows,auth.businessId,updates);
+      if(confirmation.status!==200)return res.status(confirmation.status).json({error:confirmation.error});
+    }
     const configuration = Array.isArray(rows) ? rows[0] || null : rows;
     if (!configuration) return res.status(404).json({ error: "Business configuration not found" });
     await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "configuration.updated", resourceType: "business_configuration", resourceId: auth.businessId, metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
