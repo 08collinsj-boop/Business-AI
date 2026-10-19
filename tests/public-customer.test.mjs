@@ -77,6 +77,23 @@ test("public business profile never shows another business's image or a banner u
  assert.equal(res.body.business.profile_image_url,"");
  assert.match(res.body.business.profile_banner_url,/business-a\/banner\/88888888-8888-4888-8888-888888888888\.webp$/);
 });
+test("public profile does not publish unsafe stored website destinations", {concurrency:false}, async()=>{
+ const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
+ const unsafe=["https://owner:secret@business.example/path","https://business.example:8443/path",
+   "javascript:alert(1)","file:///etc/passwd","https://owner@business.example/"];
+ for(const website of unsafe){
+  const {handler}=await load({route,settings:{business_name:"Fixture"},configuration:{website}});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business.website,"");
+ }
+ for(const website of ["https://business.example/services","http://business.example/contact"]){
+  const {handler}=await load({route,settings:{business_name:"Fixture"},configuration:{website}});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business.website,website);
+ }
+});
 test("unknown or mismatched public routes fail without tenant disclosure", { concurrency: false }, async () => {
   let loaded = await load({ route: null }); let res = response();
   await loaded.handler({ method: "GET", query: { business: "missing-business" } }, res);
