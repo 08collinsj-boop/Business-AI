@@ -38,22 +38,36 @@ Commit `d30d538947a4fd7afccddab41674fcdec41e24f7` is published to the existing f
 
 ## Authentication and real Dev acceptance
 
-Authorised connector read of base Preview `/api/public-config`: HTTP 200, `frontendAuthEnabled=true`, exact Dev Supabase URL and browser key present. Key values are intentionally omitted. Cloud browser renders the approved Colzo sign-in form without the temporary authentication error. The browser has no authenticated session; current-session owner sign-in, MFA, refresh, logout, live CRUD and mobile/desktop acceptance remain **UNVERIFIED** until the owner signs in securely. Existing owner account, business and MFA were not changed.
+Runtime source `d3fa1b4224e42571eda5a2293324d56009650593`, Preview https://business-p2vkdzl65-buisness-ai1.vercel.app/, deployment `dpl_E2BqTA4BYtePiQxy84hDTxmdyRq3`: READY, Preview-only, correct SHA. Health and public-config returned HTTP200; frontend auth enabled, exact Dev project and browser-safe key present (values omitted).
+
+Owner used the secure browserAuth prompt; it returned submitted. Fresh visible evidence shows the authenticated Colzo owner workspace, and the session survives a new document. **The dashboard fails** with “Unable to load your business records.” Its underlying DOM-rendered error says “The application rejected a valid sign-in. Please retry or contact support.” This is a **P0 FAIL**, not an authentication acceptance pass. The client verifies Supabase identity after an application401, so do not reset the account or assume password expiry. The exact failing one of the initial Leads/Pipeline/Settings requests is not established; no speculative auth fix was made.
+
+Customers loaded independently. Through the actual browser UI, created then edited one clearly labelled synthetic Dev profile with no contact details:
+
+- Name: `COLZO QA 20261019 Synthetic Customer`
+- ID: `fe3e8e3c-38fd-4a85-aff3-6228ded43967`
+- Created: 19 October 11:17:28 UTC; edited: 11:17:59 UTC.
+- Updated notes contain the fixture marker `EDIT AND RELOAD VERIFIED 20261019` (a test marker, not a certification of the browser reload).
+
+A subsequent bounded read-only Dev query matching that exact synthetic name returned the same ID and edited notes: actual database persistence **PASS**. Browser reload was initiated, but the browser's credential protection then blocked further interaction. **Browser reload readback, MFA, logout/returning-session lifecycle, other live CRUD, mobile/desktop acceptance remain UNVERIFIED.** No MFA prompt was separately observed. Existing account/business/MFA were not recreated, reset or altered.
+
+Browser developer-log access was restricted after secure credential delivery. One explicit canonical navigation and a fresh-document check did not restore all diagnostic capabilities; no tokens, storage or hidden session data were inspected. Composio's runtime-log stream yielded no result and was stopped; the authorised Vercel connector fallback returned only a slow legal200 event and Node deprecation warnings, without the failing dashboard request. An empty error log is not proof that the request passed. Secure owner browser handoff is needed to continue diagnosing this exact live failure. Screenshots could not be completed under the credential-observation restriction; no UI appearance changed.
 
 ## Acceptance limits and next priorities
 
 | Area | Evidence | Status / remaining work |
 |---|---|---|
 | Actions / Bookings | New handler regressions and 27 two-business cases | PASS in mocks; live Dev persistence pending |
-| Customers / Projects / Quotes | Existing two-business matrix and full suite | Mock coverage passes; real isolated-tenant acceptance pending |
+| Customers | Existing matrix plus actual synthetic UI creation/edit and read-only Dev readback | Persistence PASS; browser reload/second tenant pending |
+| Projects / Quotes | Existing two-business matrix and full suite | Mock coverage passes; live acceptance pending |
 | Marketing | 18 new save-confirmation cases and preserved safety suite | PASS in mocks; generation, scheduling and live acceptance remain pending |
 | Enquiries / Knowledge / Receptionist | Existing suite preserved | Full suite passes; feature-level live acceptance pending; paid providers must stay mocked |
-| Account / MFA / recovery / portal | Sign-in screen only this session | UNVERIFIED authenticated journeys |
-| Deployment | Base Preview configuration / rendered login | Source fixes require a new exact-SHA Preview verification |
+| Account / MFA / recovery / portal | Sign-in reached owner workspace; fresh document retained session | Basic sign-in observed; MFA/lifecycle/recovery/portal UNVERIFIED |
+| Deployment | d3fa1b4 READY + health/config200 | Source Preview verified; dashboard workflow FAIL |
 | Security advisors / backup / legal / commercial hosting | Historical documentation only | Recheck current provider evidence; do not treat old findings as a current PASS |
 
-**PUBLIC LAUNCH: NO-GO.** P0: authenticated persistence, server-side tenant/role acceptance and release/restore evidence remain incomplete. P1: investigate concurrent writes, duplicate submission/idempotency, provider failures and current security advisories. P2: remaining noncritical features after core acceptance. Legal operator identity, commercial hosting eligibility and launch authorisation require owner decisions; paid services remain blocked by cost.
+**PUBLIC LAUNCH: NO-GO.** P0: authenticated dashboard fails; complete persistence, server-side tenant/role acceptance and release/restore evidence remain incomplete. P1: investigate concurrent writes, duplicate submission/idempotency, provider failures and current security advisories. P2: remaining noncritical features after core acceptance. Legal operator identity, commercial hosting eligibility and launch authorisation require owner decisions; paid services remain blocked by cost.
 
 ## Data and cost safety
 
-No Dev database records were created or modified in this fix group. The existing synthetic booking “Unsaved motion check” and all earlier fixtures remain untouched. No accounts or memberships created. No external messages, chargeable provider calls, subscriptions, Production changes or merges. Additional spending: **£0**.
+One synthetic Dev customer was created and edited through the authorised UI as recorded above; cleanup is pending. No real customer records changed. The existing synthetic booking “Unsaved motion check” and all earlier fixtures remain untouched. No accounts or memberships created. No external messages, chargeable provider calls, subscriptions, Production changes or merges. Additional spending: **£0**.
