@@ -6,7 +6,7 @@ Object.assign(process.env, {TENANCY_AUTH_ENABLED:"true", SUPABASE_URL:"https://f
 const {default: handler} = await import("../lib/colzo-leads-handler.js");
 const savedFetch=globalThis.fetch;
 test.after(()=>{globalThis.fetch=savedFetch; for(const [k,v] of saved) v===undefined?delete process.env[k]:process.env[k]=v;});
-const current={id:17,business_id:"synthetic-business",status:"New",priority:"Normal",notes:"",estimated_value:0,follow_up_date:null};
+const current={id:17,business_id:"synthetic-business",status:"New",priority:"Normal",notes:"",estimated_value:0,follow_up_date:null,updated_at:"2026-10-19T12:00:00.123456+00:00"};
 const reply=data=>({ok:true,text:async()=>JSON.stringify(data),json:async()=>data});
 function mock({created=[],updated=[],found=[current]}={}){
  const calls=[];
@@ -22,6 +22,7 @@ function mock({created=[],updated=[],found=[current]}={}){
  return calls;
 }
 async function run(method,body){
+ if(method==='PATCH')body={expected_updated_at:current.updated_at,...body};
  const req={method,body,headers:{authorization:"Bearer synthetic-token"}};
  const res={statusCode:200,body:null,status(n){this.statusCode=n;return this},json(b){this.body=b;return this}};
  await handler(req,res);return res;
@@ -52,7 +53,7 @@ test("confirmed creation and update preserve success and history",{concurrency:f
  const a=mock({created:[{id:23,business_id:"synthetic-business",name:"Synthetic",status:"New"}]});
  const cr=await run("POST",{name:"Synthetic"});assert.equal(cr.statusCode,201);assert.equal(cr.body.id,23);
  assert.equal(effects(a).filter(c=>c.path.includes("business_audit_events")).length,1);
- const b=mock({updated:[{...current,status:"Contacted"}]});
+ const b=mock({updated:[{...current,status:"Contacted",updated_at:"2026-10-19T12:00:01.123456+00:00"}]});
  const up=await run("PATCH",{id:17,status:"Contacted"});assert.equal(up.statusCode,200);
  assert.equal(effects(b).filter(c=>c.path.includes("lead_history")).length,1);
 });

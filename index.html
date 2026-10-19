@@ -5222,7 +5222,9 @@ async function updateLead(id,updates){
 
 try{
 
-await api('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,...updates})});
+const body={id,...updates};
+if(window.colzoPreviewAuthTransportEnabled===true){body.expected_updated_at=leads.find(lead=>String(lead.id)===String(id))?.updated_at;if(!body.expected_updated_at)throw new Error('Reload the enquiry before saving.');}
+await api('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 
 toast('Lead updated');
 
