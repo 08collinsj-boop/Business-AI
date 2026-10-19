@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -112,15 +112,16 @@
  }
  function projects(){
   const saved=Array.isArray(state.colzoRecords.projects)?state.colzoRecords.projects:[];
+  const loading=Boolean(state.colzoPending?.['projects'] || state.colzoLoading==='projects');
   const loadError=state.colzoError && (!state.colzoErrorResource || state.colzoErrorResource==='projects') ? state.colzoError : '';
   const filtered=saved.filter(p=>[p.title,p.client_name,p.status,p.notes].join(' ').toLowerCase().includes(state.projectSearch.toLowerCase())&&(state.projectFilter==='All'||(state.projectFilter==='Completed'?p.status==='completed':p.status!=='completed')));
-  const projectEmpty=state.colzoLoading==='projects'&&!Array.isArray(state.colzoRecords.projects)
+  const projectEmpty=loading&&!Array.isArray(state.colzoRecords.projects)
     ?'<div class="cn-empty" role="status" aria-live="polite">Loading saved projects…</div>'
     :loadError&&!Array.isArray(state.colzoRecords.projects)?''
     :saved.length?empty('No projects match your search or filter.','<button type="button" data-cn-reset-projects>Clear filters</button>')
     :empty('No saved projects yet. Create a project to start tracking work.');
   return `<div class="cn-approved-projects"><div class="cf-screen-top"><h1>Projects</h1><button type="button" class="cf-icon-button volt" data-colzo-create="projects" aria-label="Create project">+</button></div>
-  <p class="cn-caption">${state.colzoLoading==='projects'?'Loading saved projects…':`${saved.length} saved projects`}</p>
+  <p class="cn-caption">${loading?'Loading saved projects…':`${saved.length} saved projects`}</p>
   ${state.colzoFeedback?`<p class="cn-work-message" role="status">${safe(state.colzoFeedback)}</p>`:''}
   <label class="cn-search cf-search"><span aria-hidden="true">⌕</span><input id="cnProjectSearch" type="search" placeholder="Search saved projects…" aria-label="Search projects" value="${safe(state.projectSearch)}"></label>
   <div class="cf-tabs cf-project-tabs" role="group" aria-label="Filter projects">${['All','Active','Completed'].map(t=>`<button type="button" data-cn-project-filter="${t}" aria-pressed="${(state.projectFilter||'All')===t}">${t}</button>`).join('')}</div>
@@ -131,18 +132,19 @@
  }
  function clients(){
   const saved=Array.isArray(state.colzoRecords.clients)?state.colzoRecords.clients:[];
+  const loading=Boolean(state.colzoPending?.['clients'] || state.colzoLoading==='clients');
   const loadError=state.colzoError && (!state.colzoErrorResource || state.colzoErrorResource==='clients') ? state.colzoError : '';
   const entries=records().enquiries.filter(l=>l.name||l.email||l.phone).slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   const unique=new Map();for(const l of entries){const k=String(l.email||l.phone||l.name||'').trim().toLowerCase();if(k&&!unique.has(k))unique.set(k,l)}
   const contacts=[...unique.values()];
   const filtered=saved.filter(c=>[c.full_name,c.email,c.phone].join(' ').toLowerCase().includes(state.clientSearch.toLowerCase())).sort((a,b)=>String(a.full_name).localeCompare(String(b.full_name)));
   const row=c=>`<button class="cn-stitch-customer" type="button" data-colzo-detail="clients" data-colzo-id="${safe(c.id)}"><span class="cn-avatar">${safe(String(c.full_name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(c.full_name)}</strong><small>${safe(c.email||c.phone||'No contact details')}</small><small>Saved customer · ${safe(day(c.created_at))}</small></span><span aria-hidden="true">›</span></button>`;
-  return `<div class="cn-stitch-title"><div><h1>Customers</h1><p>${state.colzoLoading==='clients'?'Loading saved customers…':`${saved.length} saved customer${saved.length===1?'':'s'}`}</p></div><button class="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button></div>
+  return `<div class="cn-stitch-title"><div><h1>Customers</h1><p>${loading?'Loading saved customers…':`${saved.length} saved customer${saved.length===1?'':'s'}`}</p></div><button class="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button></div>
   ${state.colzoFeedback?`<p class="cn-work-message" role="status">${safe(state.colzoFeedback)}</p>`:''}
   <label class="cn-stitch-search"><span aria-hidden="true">⌕</span><input id="cnClientSearch" type="search" aria-label="Search saved customers" value="${safe(state.clientSearch)}" placeholder="Search saved customers…"></label>
   ${state.colzoForm?.resource==='clients'?colzoRecordForm('clients',state.colzoForm.record):''}
   ${loadError?empty(loadError,'<button type="button" data-colzo-refresh="clients">Try again</button>'):''}
-  <div class="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>${filtered.length} record${filtered.length===1?'':'s'}</span></div><div class="cn-stitch-customer-list">${filtered.length?filtered.map(row).join(''):loadError&&!Array.isArray(state.colzoRecords.clients)?'':empty(state.colzoLoading==='clients'?'Loading saved customers…':saved.length?'No customers match your search. Try a different name, email or phone number.':'No saved customers yet. Add a customer to create a persistent profile.')}</div>
+  <div class="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>${filtered.length} record${filtered.length===1?'':'s'}</span></div><div class="cn-stitch-customer-list">${filtered.length?filtered.map(row).join(''):loadError&&!Array.isArray(state.colzoRecords.clients)?'':empty(loading?'Loading saved customers…':saved.length?'No customers match your search. Try a different name, email or phone number.':'No saved customers yet. Add a customer to create a persistent profile.')}</div>
   <section class="cn-detail-panel"><h2>Enquiry contacts</h2><p class="cn-caption">These contacts are derived from existing enquiries and are not saved customer profiles.</p><div class="cn-stitch-customer-list">${contacts.filter(l=>[l.name,l.email,l.phone].join(' ').toLowerCase().includes(state.clientSearch.toLowerCase())).slice(0,8).map(l=>`<button class="cn-stitch-customer" type="button" data-cn-customer="${safe(l.id)}"><span class="cn-avatar">${safe(contact(l).slice(0,1).toUpperCase())}</span><span class="cn-stitch-customer-copy"><strong>${safe(contact(l))}</strong><small>${safe(l.email||l.phone||'Enquiry contact')}</small></span><span>›</span></button>`).join('')||empty('No matching enquiry contacts.')}</div></section>`;
  }
  function customerProfile(){
@@ -161,16 +163,17 @@
  }
  function quotes(){
   const saved=Array.isArray(state.colzoRecords.quotes)?state.colzoRecords.quotes:[];
+  const loading=Boolean(state.colzoPending?.['quotes'] || state.colzoLoading==='quotes');
   const loadError=state.colzoError && (!state.colzoErrorResource || state.colzoErrorResource==='quotes') ? state.colzoError : '';
   const filtered=saved.filter(q=>[q.title,q.status,q.notes].join(' ').toLowerCase().includes(state.search.toLowerCase()));
-  const quoteEmpty=state.colzoLoading==='quotes'&&!Array.isArray(state.colzoRecords.quotes)
+  const quoteEmpty=loading&&!Array.isArray(state.colzoRecords.quotes)
     ?'<div class="cn-empty" role="status" aria-live="polite">Loading saved quotes…</div>'
     :loadError&&!Array.isArray(state.colzoRecords.quotes)?''
     :saved.length?empty('No quotes match your search.','<button type="button" data-cn-reset-quotes>Clear search</button>')
     :empty('No saved quotes yet. Create a draft quote linked to an existing enquiry.');
   return `<div class="cn-approved-quotes">${title('Quotes','ESTIMATES / QUOTES','Create and manage saved quote records.')}
   ${state.colzoFeedback?`<p class="cn-work-message" role="status">${safe(state.colzoFeedback)}</p>`:''}
-  <div class="cn-section-bar"><span class="cn-caption">${state.colzoLoading==='quotes'?'Loading saved quotes…':`${saved.length} saved quotes`}</span><button class="cn-primary" type="button" data-colzo-create="quotes">+ New quote</button></div>
+  <div class="cn-section-bar"><span class="cn-caption">${loading?'Loading saved quotes…':`${saved.length} saved quotes`}</span><button class="cn-primary" type="button" data-colzo-create="quotes">+ New quote</button></div>
   ${state.colzoForm?.resource==='quotes'?colzoRecordForm('quotes',state.colzoForm.record):''}
   ${loadError?empty(loadError,'<button type="button" data-colzo-refresh="quotes">Try again</button>'):''}
   <label class="cn-search cf-search"><span aria-hidden="true">⌕</span><input id="cnQuoteSearch" type="search" aria-label="Search quotes" placeholder="Search saved quotes…" value="${safe(state.search)}"></label>
@@ -507,9 +510,9 @@
  }
  async function loadColzoResource(resource,force=false){
   const requestEpoch=sessionEpoch;
-  if(!['clients','projects','quotes'].includes(resource)||state.colzoLoading===resource)return;
+  if(!['clients','projects','quotes'].includes(resource)||state.colzoPending[resource])return;
   if(!force&&Array.isArray(state.colzoRecords[resource]))return;
-  state.colzoLoading=resource;state.colzoError='';state.colzoErrorResource=resource;
+  state.colzoPending[resource]=true;state.colzoLoading=resource;state.colzoError='';state.colzoErrorResource=resource;
   if(state.screen===resource||(state.screen==='colzoDetail'&&state.colzoDetail?.resource===resource))render();
   try{
    if(typeof api!=='function')throw new Error('Colzo records are unavailable in this preview.');
@@ -517,7 +520,7 @@
    if(!Array.isArray(data))throw new Error('The server returned an unexpected records response.');
    state.colzoRecords[resource]=data;
   }catch(error){if(requestEpoch!==sessionEpoch)return;state.colzoErrorResource=resource;state.colzoError=error?.message||'Records could not be loaded.';}
-  finally{if(requestEpoch!==sessionEpoch)return;state.colzoLoading='';if(state.screen===resource||(state.screen==='colzoDetail'&&state.colzoDetail?.resource===resource))render()}
+  finally{if(requestEpoch!==sessionEpoch)return;state.colzoPending[resource]=false;if(state.colzoLoading===resource)state.colzoLoading='';if(state.screen===resource||(state.screen==='colzoDetail'&&state.colzoDetail?.resource===resource))render()}
  }
  async function saveColzoRecord(form){
   if(state.colzoBusy)return;
