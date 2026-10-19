@@ -18,7 +18,7 @@ const dpaUrl = `data:text/javascript;base64,${Buffer.from(dpaSource).toString("b
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
 const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
 
-async function load({ route, settings, configuration = {}, dpaAccepted = true, dpaRows = null } = {}) {
+async function load({ route, settings, configuration = {}, dpaAccepted = true, dpaRows = null, settingsRows = null, configurationRows = null } = {}) {
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   process.env.BILLING_ENABLED = "false";
@@ -27,8 +27,8 @@ async function load({ route, settings, configuration = {}, dpaAccepted = true, d
   globalThis.fetch = async (url) => {
     calls.push(url);
     if (url.includes("business_public_routes")) return reply(route ? [route] : []);
-    if (url.includes("business_settings")) return reply(settings ? [settings] : []);
-    if (url.includes("business_configurations")) return reply([configuration]);
+    if (url.includes("business_settings")) return reply(settingsRows ?? (settings ? [{business_id:route?.business_id,...settings}] : []));
+    if (url.includes("business_configurations")) return reply(configurationRows ?? [{business_id:route?.business_id,...configuration}]);
     if (url.includes("business_legal_acceptances")) return reply(dpaRows ?? (dpaAccepted ? [{ id: 1, business_id: route?.business_id, document_key: "dpa", document_version: "1.1" }] : []));
     return reply({ hidden: true }, false);
   };
@@ -56,6 +56,22 @@ test("a verified public slug returns only its business-facing identity", { concu
   assert.ok(calls.every((url) => !url.includes("business-b")), "request-supplied tenant IDs never affect the lookup");
 });
 
+test("public profile rejects service-role responses with foreign settings or descriptions", {concurrency:false},async()=>{
+ const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
+ const attacks=[
+  {settingsRows:[{business_id:"business-b",business_name:"Private business B"}]},
+  {settingsRows:[{business_id:"business-a",business_name:"Owned"},{business_id:"business-b",business_name:"Private business B"}]},
+  {configurationRows:[{business_id:"business-b",description:"Confidential business B notes"}]},
+  {configurationRows:[{business_id:"business-a",description:"Owned"},{business_id:"business-b",description:"Confidential business B notes"}]}
+ ];
+ for(const attack of attacks){
+  const {handler,calls}=await load({route,settings:{business_name:"Owned"},configuration:{description:"Public"},...attack});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,503);
+  assert.equal(JSON.stringify(res.body).includes("business B"),false);
+  assert.equal(calls.some(x=>String(x).includes("business_legal_acceptances")),false);
+ }
+});
 test("public assistant is unavailable until the business has accepted the current DPA", { concurrency: false }, async () => {
   const { handler } = await load({
     route: { business_id: "business-a", route_type: "slug", route_value: "collins-ltd", active: true },
