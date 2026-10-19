@@ -38,3 +38,31 @@ test('Bridge sends same-origin API calls to this deployment and preserves method
  assert.equal(calls[4][0],'/assets/logo.png');
  assert.equal(window.colzoBackendUrl('/api/settings?tab=team'),'/api/settings?tab=team');
 });
+
+test('Only approved Preview dashboard strings use the same-origin dispatcher and preserve request options',async()=>{
+ const source=await readFile(new URL('../assets/colzo-backend-bridge.js',import.meta.url),'utf8');
+ const calls=[];
+ const window={location:{origin:'https://fixture.vercel.app'},colzoPreviewAuthTransportEnabled:true,
+   fetch:async(...args)=>{calls.push(args);return {ok:true}}};
+ vm.runInNewContext(source,{window,URL,Request});
+ const options={method:'PATCH',headers:{'X-Colzo-Supabase-Authorization':'Bearer synthetic-only'},body:'{"id":1}'};
+ await window.colzoBackendFetch('/api/leads?filter=open&operation=team',options);
+ assert.equal(calls[0][0],'/api/operations?filter=open&operation=leads');
+ assert.equal(calls[0][1],options,'never clone or drop body/auth/method');
+ for(const route of ['pipeline','settings']){
+   const target=new URL(window.colzoBackendUrl('/api/'+route+'?tab=all'),window.location.origin);
+   assert.equal(target.origin,window.location.origin);assert.equal(target.pathname,'/api/operations');
+   assert.equal(target.searchParams.get('operation'),route);assert.equal(target.searchParams.get('tab'),'all');
+ }
+ for(const input of ['/api/team','/api/leads-extra','https://external.invalid/api/leads','//external.invalid/api/settings','/assets/logo.png']){
+   assert.equal(window.colzoBackendUrl(input),input);
+ }
+ const request=new Request('https://fixture.vercel.app/api/leads');
+ assert.equal(window.colzoBackendUrl(request),request,'unhandled Request objects retain native fetch semantics');
+ for(const flag of [false,undefined,'true']){
+   window.colzoPreviewAuthTransportEnabled=flag;
+   assert.equal(window.colzoBackendUrl('/api/leads'),'/api/leads','no routing change outside enabled Preview');
+ }
+ window.colzoPreviewAuthTransportEnabled=true;window.location.origin='http://fixture.invalid';
+ assert.equal(window.colzoBackendUrl('/api/leads'),'/api/leads','HTTPS is required');
+});

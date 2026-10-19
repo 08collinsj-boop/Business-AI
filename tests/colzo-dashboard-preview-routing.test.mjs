@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
+import { runInNewContext } from "node:vm";
 
 // This file stays synthetic; it does not connect to Dev or use customer credentials.
 const branch = "feature/colzo-complete-ui-motion-20261017";
@@ -12,6 +13,9 @@ Object.assign(process.env, { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: branc
   SUPABASE_SERVICE_ROLE_KEY: "synthetic-only-key", TENANCY_AUTH_ENABLED: "true" });
 delete process.env.COLZO_EXPECTED_SUPABASE_PROJECT_REF;
 const { default: operations } = await import("../api/operations.js");
+const { default: legacyLeads } = await import("../api/leads.js");
+const { default: legacyPipeline } = await import("../api/pipeline.js");
+const { default: legacySettings } = await import("../api/settings.js");
 test.after(() => { for (const [key, value] of previous) {
   if (value === undefined) delete process.env[key]; else process.env[key] = value;
 } });
@@ -97,4 +101,31 @@ test("Dashboard routes reject unauthenticated, invalid and unrelated Preview tok
       globalThis.fetch = oldFetch;
       process.env.VERCEL_GIT_COMMIT_REF = oldBranch;
     }
+  });
+
+test("Browser Dashboard requests reach the checked dispatcher even when physical API files take precedence",
+  { concurrency: false }, async () => {
+    const oldFetch = globalThis.fetch, calls=[];
+    globalThis.fetch=network(calls);
+    const source=await readFile(new URL('../assets/colzo-backend-bridge.js',import.meta.url),'utf8');
+    const legacy={leads:legacyLeads,pipeline:legacyPipeline,settings:legacySettings};
+    const window={location:{origin:'https://fixture.vercel.app'},colzoPreviewAuthTransportEnabled:true,
+      fetch:async(input,init={})=>{
+        const url=new URL(input,window.location.origin);
+        const operation=url.pathname==='/api/operations'?url.searchParams.get('operation'):null;
+        const handler=operation?operations:legacy[url.pathname.split('/').pop()];
+        assert.ok(handler,'expected dashboard handler');
+        const req={method:init.method||'GET',headers:Object.fromEntries(new Headers(init.headers)),query:Object.fromEntries(url.searchParams)};
+        const res={statusCode:200,headersSent:false,status(n){this.statusCode=n;return this},
+          setHeader(){},json(body){this.body=body;this.headersSent=true;return this}};
+        await handler(req,res);return response(res.statusCode,res.body);
+      }};
+    runInNewContext(source,{window,URL,Request});
+    try{
+      for(const route of paths){
+        const result=await window.colzoBackendFetch('/api/'+route,{headers:{'X-Colzo-Supabase-Authorization':'Bearer fixture-valid-token'}});
+        assert.equal(result.status,200,route+' must not hit an immutable physical API entrypoint');
+      }
+      assert.equal(calls.filter(c=>c.uri.endsWith('/auth/v1/user')).length,3);
+    }finally{globalThis.fetch=oldFetch;}
   });
