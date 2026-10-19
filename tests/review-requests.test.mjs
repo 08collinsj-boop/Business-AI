@@ -14,6 +14,17 @@ test("review links accept supported HTTPS destinations and reject unsafe hosts",
   assert.equal(normaliseReviewUrl("facebook", "https://example.com/reviews"), null);
 });
 
+test("review URLs cannot contain hidden account credentials or nonstandard ports", () => {
+  for (const [platform, link] of [
+    ["google", "https://owner:secret@g.page/r/example/review"],
+    ["google", "https://g.page:8443/r/example/review"],
+    ["facebook", "https://name:pass@facebook.com/example/reviews"],
+    ["facebook", "https://www.facebook.com:8443/example/reviews"]
+  ]) assert.equal(normaliseReviewUrl(platform,link),null);
+  assert.match(normaliseReviewUrl("google","https://g.page/r/example/review"), /^https:/);
+  assert.match(normaliseReviewUrl("facebook","https://www.facebook.com/example/reviews"), /^https:/);
+});
+
 test("review request copy stays neutral and uses configured business destination", () => {
   const destination = reviewDestination({
     review_preferred_platform: "google",
