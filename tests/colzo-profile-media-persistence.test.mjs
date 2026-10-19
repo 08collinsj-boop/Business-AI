@@ -9,8 +9,8 @@ const {default:handler}=await import('../lib/business-profile-handler.js');
 test.after(()=>{globalThis.fetch=originalFetch;for(const [key,value] of previous)if(value===undefined)delete process.env[key];else process.env[key]=value});
 const previousPath=`${tenant}/avatar/old-image.webp`;
 const reply=data=>({ok:true,status:200,text:async()=>JSON.stringify(data),json:async()=>data});
-async function run({writeResult=[]}={}){
- let currentPath=previousPath;const requests=[];
+async function run({writeResult=[],storedPath=previousPath}={}){
+ let currentPath=storedPath;const requests=[];
  globalThis.fetch=async(input,init={})=>{
   const path=String(input),method=init.method||'GET';requests.push({path,method,body:init.body});
   if(path.endsWith('/auth/v1/user'))return reply({id:'synthetic-owner'});
@@ -44,4 +44,15 @@ test('Preview removes old image only after confirmed tenant-scoped update',async
  const {res,requests}=await run({writeResult:[{id:7,business_id:tenant,profile_image_path:''}]});
  assert.equal(res.statusCode,200);
  assert.equal(requests.filter(r=>r.method==='DELETE').length,1);
+});
+
+test('Preview never deletes a previous image belonging to another business',async()=>{
+ const {res,requests}=await run({storedPath:'another-business/avatar/private-image.webp',writeResult:[{id:7,business_id:tenant,profile_image_path:''}]});
+ assert.equal(res.statusCode,200);
+ assert.equal(requests.filter(r=>r.method==='DELETE').length,0);
+});
+test('Preview never deletes a previous image from another media slot',async()=>{
+ const {res,requests}=await run({storedPath:tenant+'/banner/old-banner.webp',writeResult:[{id:7,business_id:tenant,profile_image_path:''}]});
+ assert.equal(res.statusCode,200);
+ assert.equal(requests.filter(r=>r.method==='DELETE').length,0);
 });
