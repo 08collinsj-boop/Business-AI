@@ -56,3 +56,19 @@ test('Preview never deletes a previous image from another media slot',async()=>{
  assert.equal(res.statusCode,200);
  assert.equal(requests.filter(r=>r.method==='DELETE').length,0);
 });
+
+test('Preview refuses historical stored image paths containing traversal or nested segments', async()=>{
+ const unsafe=[
+  tenant+'/avatar/../../other-business/avatar/old.webp',
+  tenant+'/avatar/%2e%2e%2fother-business%2favatar%2fsecret.webp',
+  tenant+'/avatar/nested/image.webp',
+  tenant+'/avatar/..',
+  tenant+'/avatar/image.webp?foreign=1',
+  tenant+'/avatar/image.svg'
+ ];
+ for(const storedPath of unsafe){
+  const {res,requests}=await run({storedPath,writeResult:[{id:7,business_id:tenant,profile_image_path:''}]});
+  assert.equal(res.statusCode,200);
+  assert.equal(requests.some(r=>r.method==='DELETE'),false,'must not delete unsafe '+storedPath);
+ }
+});
