@@ -7,7 +7,7 @@ const html=readFileSync('index.html','utf8');
 const helper=html.slice(html.indexOf('function colzoDashboardFailureLabel('),html.indexOf('\nasync function loadAll('));
 const controller=readFileSync('assets/colzo-native.js','utf8');
 function fixture(preview=true){
- const dom=new JSDOM('<body class="auth-ready"><section id="colzoOwner"><div id="cnContent"></div></section></body>',{runScripts:'outside-only',url:'https://qa.invalid'});
+ const dom=new JSDOM('<body class="auth-ready"><section id="colzoOwner"><div id="cnContent"></div><nav class="cn-nav"><button data-cn-screen="home">Home</button><button data-cn-screen="enquiries">Enquiries</button><button data-cn-screen="clients">Customers</button></nav></section></body>',{runScripts:'outside-only',url:'https://qa.invalid'});
  const w=dom.window;
  w.matchMedia=()=>({matches:true});w.scrollTo=()=>{};
  w.colzoPreviewAuthTransportEnabled=preview;
@@ -47,4 +47,21 @@ test('native owner error tolerates absent metadata and does not render signed-ou
  f.content.textContent='Signed out';f.w.document.body.classList.remove('auth-ready');
  f.w.ColzoOwner.error({colzoApiPath:'/api/leads',colzoApiStatus:401,colzoApiReason:'unclassified'});
  assert.equal(f.content.textContent,'Signed out');f.w.close();
+});
+
+test('navigation cannot turn a failed Dashboard fetch into zero-valued metrics or an empty enquiry list',()=>{
+ const f=fixture();
+ f.w.ColzoOwner.error({colzoApiPath:'/api/leads',colzoApiStatus:401,colzoApiReason:'backend-session-unverified'});
+ f.w.document.querySelector('[data-cn-screen="clients"]').click();
+ assert.match(f.content.textContent,/Customers/,'independently fetched customer profiles remain accessible');
+ for(const screen of ['home','enquiries']){
+   f.w.document.querySelector('[data-cn-screen="'+screen+'"]').click();
+   assert.match(f.content.textContent,/Unable to load your business records/);
+   assert.doesNotMatch(f.content.textContent,/No enquiries|Business overview|All recorded/);
+   assert.ok(f.content.querySelector('[data-cn-refresh]'),'retry remains available');
+ }
+ f.w.ColzoOwner.dashboardLoaded();f.w.ColzoOwner.render();
+ assert.doesNotMatch(f.content.textContent,/Unable to load your business records/);
+ assert.match(f.content.textContent,/No enquiries/,'a confirmed successful empty response may show an empty state');
+ f.w.close();
 });
