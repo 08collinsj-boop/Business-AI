@@ -966,6 +966,8 @@
    if(!commandResults)return;
    const q=(commandInput?.value||'').trim().toLowerCase();
    const found=commandItems.filter(x=>!q||`${x.label} ${x.detail}`.toLowerCase().includes(q)).sort((a,b)=>q?(Number(b.label.toLowerCase().startsWith(q))-Number(a.label.toLowerCase().startsWith(q))):0);
+   const announcement=root.querySelector('#cnCommandStatus');
+   if(announcement)announcement.textContent=!found.length?'No matching tools':q?`${found.length} matching tool${found.length===1?'':'s'}`:`${found.length} available tools`;
    commandResults.innerHTML=found.length?found.map(item=>`<button type="button" ${item.screen?`data-cn-screen="${item.screen}"`:item.setting?`data-cn-setting="${item.setting}"`:`data-cn-legacy="${item.legacy}"`}><span class="cn-command-glyph" aria-hidden="true">${safe(item.glyph)}</span><span class="cn-command-name">${safe(item.label)}<small>${safe(item.detail)}</small></span><span class="cn-command-arrow" aria-hidden="true">›</span></button>`).join(''):'<p class="cn-command-empty">No matching tools. Try “Marketing” or “Enquiries”.</p>';
  }
  function dismissSurface(element,done){
@@ -1011,6 +1013,27 @@
      return;
    }
    if(e.key==='Escape'){e.preventDefault();closeCommand();return}
+   // Keyboard users can search, then select a tool without reaching for the
+   // mouse. Keep navigation inside the visible results and the search field.
+   if(['ArrowDown','ArrowUp'].includes(e.key)
+       && (e.target===commandInput||commandResults?.contains(e.target))){
+     const results=[...commandResults.querySelectorAll('button:not([disabled])')];
+     if(!results.length)return;
+     e.preventDefault();
+     const current=results.indexOf(document.activeElement);
+     if(e.key==='ArrowDown')results[current<0?0:(current+1)%results.length].focus();
+     else if(current===0)commandInput.focus();
+     else results[current<0?results.length-1:current-1].focus();
+     return;
+   }
+   if(e.key==='Enter'&&e.target===commandInput){
+     const first=commandResults?.querySelector('button:not([disabled])');
+     if(first){e.preventDefault();first.click()}
+     return;
+   }
+   if(e.key==='Enter'&&commandResults?.contains(e.target)&&e.target.matches('button')){
+     e.preventDefault();e.target.click();return;
+   }
    if(e.key!=='Tab')return;
    const focusable=[...sheet.querySelectorAll('button:not([disabled]),input:not([disabled])')].filter(el=>el.getBoundingClientRect().width>0);
    if(!focusable.length)return;

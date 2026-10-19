@@ -3554,9 +3554,10 @@ Save business settings
     <section class="cn-command-panel" role="dialog" aria-modal="true" aria-labelledby="cnCommandTitle">
       <header><span class="cn-kicker">COLZO / SHORTCUTS</span><button type="button" data-cn-close-command aria-label="Close search">×</button></header>
       <h2 id="cnCommandTitle">Where would you like to go?</h2>
-      <label class="cn-command-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg><input id="cnCommandSearch" autocomplete="off" aria-label="Search Colzo tools" placeholder="Search screens and tools…"/></label>
+      <label class="cn-command-input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg><input id="cnCommandSearch" autocomplete="off" aria-label="Search Colzo tools" aria-describedby="cnCommandHelp cnCommandStatus" placeholder="Search screens and tools…"/></label>
+      <div id="cnCommandStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
       <div id="cnCommandResults" class="cn-command-results"></div>
-      <footer><span>Find your next action, faster.</span><span>ESC to close</span></footer>
+      <footer><span id="cnCommandHelp">↑ ↓ move · Enter open</span><span>Esc to close</span></footer>
     </section>
   </div>
 </section>
