@@ -4607,7 +4607,16 @@ if(response.status===401&&supabaseClient){
   let verificationError=null;
   try{
     const verification=await supabaseClient.auth.getUser();
-    if(verification?.data?.user)throw new Error('The application rejected a valid sign-in. Please retry or contact support.');
+    if(verification?.data?.user){
+      const diagnosticError=new Error('The application rejected a valid sign-in. Please retry or contact support.');
+      if(window.colzoPreviewAuthTransportEnabled){
+        const sent=headers.has('X-Colzo-Supabase-Authorization')||headers.has('Authorization');
+        diagnosticError.colzoApiPath=requestUrl.pathname;
+        diagnosticError.colzoApiStatus=401;
+        diagnosticError.colzoApiReason=classifyColzoPreviewApi401(result,response.headers,sent);
+      }
+      throw diagnosticError;
+    }
     verificationError=verification?.error||null;
   }catch(error){
     if(error?.message==='The application rejected a valid sign-in. Please retry or contact support.')throw error;
@@ -5608,6 +5617,16 @@ await loadBilling();
 }catch(error){toast(error.message||'Could not update billing');if(button){button.disabled=false;button.textContent=original;}}
 }
 
+// Preview-only, allowlisted diagnostics without tokens or response bodies.
+function colzoDashboardFailureLabel(error,enabled){
+  if(!enabled || error?.colzoApiStatus!==401)return '';
+  const path=error?.colzoApiPath;
+  if(!['/api/leads','/api/pipeline','/api/settings'].includes(path))return '';
+  const allowed=['vercel-protection','browser-token-missing','backend-session-unverified','backend-token-rejected','backend-other-401','unclassified'];
+  const reason=allowed.includes(error?.colzoApiReason)?error.colzoApiReason:'unclassified';
+  return ' [Diagnostic: '+path+' HTTP 401, '+reason+']';
+}
+
 async function loadAll(showFeedback=false){
 
 try{
@@ -5645,7 +5664,8 @@ if(showFeedback)toast('Dashboard refreshed');
 
 }catch(error){
 
-const message=`<div class="error">${esc(error.message||'Unable to load dashboard data.')}</div>`;
+const detail=colzoDashboardFailureLabel(error,window.colzoPreviewAuthTransportEnabled);
+const message=`<div class="error">${esc((error.message||'Unable to load dashboard data.')+detail)}</div>`;
 
 $('stats').innerHTML=message;
 
