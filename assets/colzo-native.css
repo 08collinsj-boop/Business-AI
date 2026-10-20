@@ -397,3 +397,31 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-knowledge-related{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:18px 0;padding:14px;border:1px solid #3e4b45;border-radius:15px;background:#222a2a}
 #colzoOwner .cn-knowledge-related span{flex:1 1 170px;color:#b9c8c8;font-size:13px}
 #colzoOwner .cn-knowledge-related button{min-height:44px}
+
+/* Native AI Receptionist - status-first controls, no phone-provider activation. */
+#colzoOwner .cn-reception-faq{min-width:0;display:grid;gap:12px;margin:16px 0;padding:15px;border-radius:15px;border:1px solid #3d4a4a;background:#1c2528}
+#colzoOwner .cn-reception-faq .cn-section-bar{gap:10px;align-items:center}
+#colzoOwner .cn-reception-faq .cn-section-bar strong{font-size:14px;color:#f1f6f4}
+#colzoOwner .cn-reception-faq .cn-section-bar button{flex:none;min-height:44px}
+#colzoOwner .cn-reception-faq label{display:grid;gap:6px;min-width:0;font-size:13px;color:#bac8cb}
+#colzoOwner .cn-reception-faq input,#colzoOwner .cn-reception-faq textarea{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:12px;border:1px solid #546264;border-radius:11px;background:#10171b;color:#fafcff;font:inherit;font-size:15px}
+#colzoOwner .cn-reception-handover{min-width:0;overflow-wrap:anywhere;padding:15px 0;border-bottom:1px solid #384445}
+#colzoOwner .cn-reception-handover:last-of-type{border-bottom:0}
+#colzoOwner .cn-reception-handover p{color:#c6d1d3;font-size:14px;line-height:1.55}
+#colzoOwner .cn-reception-handover .cn-section-bar{align-items:flex-start;gap:8px}
+#colzoOwner .cn-reception-handover .cn-pill{flex:none;white-space:nowrap}
+#colzoOwner .cn-reception-handover .cn-form-actions{flex-wrap:wrap;margin-top:12px}
+#colzoOwner .cn-reception-handover .cn-form-actions button{min-height:44px}
+#colzoOwner #cnReceptionForm select,#colzoOwner #cnReceptionForm textarea{width:100%;min-width:0}
+
+/* Owner-reviewed marketing caption; never represents actual publication. */
+#colzoOwner .cn-marketing-approval{min-width:0}
+#colzoOwner .cn-marketing-approval .cn-section-bar{align-items:flex-start;gap:10px}
+#colzoOwner .cn-marketing-approval .cn-pill{flex:none}
+#colzoOwner .cn-marketing-caption{margin:14px 0;border:1px solid #485454;border-radius:15px;padding:15px;background:#121b1e;overflow-wrap:anywhere}
+#colzoOwner .cn-marketing-caption p{margin:0;color:#f4f7f8;font-size:15px;line-height:1.65;white-space:normal}
+#colzoOwner .cn-marketing-review-link{box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:58px;margin:7px 0;padding:11px 13px;border:1px solid #44544b;border-radius:13px;background:#212a29;color:#eef5f1;text-align:left}
+#colzoOwner .cn-marketing-review-link strong{display:block;overflow-wrap:anywhere;font-size:14px}
+#colzoOwner .cn-marketing-review-link small{display:block;margin-top:5px;color:#aebfbd;font-size:12px}
+#colzoOwner .cn-marketing-approval .cn-form-actions{flex-wrap:wrap}
+#colzoOwner .cn-marketing-approval button{min-height:44px}
