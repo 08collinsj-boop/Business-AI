@@ -450,3 +450,13 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-profile-media-controls .cn-form-actions{display:flex;flex-wrap:wrap;gap:10px;margin:13px 0}
 #colzoOwner .cn-profile-media-controls button{flex:1 1 135px;min-height:44px}
 #colzoOwner .cn-profile-media-controls button[disabled]{opacity:.55;cursor:not-allowed}
+
+
+/* Native Marketing planning, separate from any publishing controls. */
+#colzoOwner #cnAutomationStrategyForm{min-width:0}
+#colzoOwner #cnAutomationStrategyForm label{min-width:0}
+#colzoOwner #cnAutomationStrategyForm :is(input,textarea,select){box-sizing:border-box;width:100%;min-width:0}
+#colzoOwner .cn-automation-pillar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+#colzoOwner .cn-automation-pillar-grid input{min-height:44px}
+#colzoOwner #cnAutomationStrategyForm .cn-form-actions{flex-wrap:wrap}
+#colzoOwner #cnAutomationStrategyForm button{min-height:44px}
