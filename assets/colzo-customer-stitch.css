@@ -226,3 +226,27 @@ body#colzoApp.colzo-customer-legal :is(th,td){font-size:14px;line-height:1.5}
  body#colzoApp:is(.customer-account,.public-directory,.public-enquiry,.public-business-profile) *,
  body#colzoApp.colzo-customer-legal *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Customer account: iOS Safari needs a real touch-scroll container for long
+   sign-up forms. Keep the scroll boundary off owner auth and signed-in portal. */
+body#colzoApp.customer-account.customer-auth-active{
+  height:100dvh!important;
+  min-height:100dvh;
+  padding-bottom:0!important;
+  overflow:hidden!important;
+}
+body#colzoApp.customer-account.customer-auth-active #authScreen.auth-screen{
+  box-sizing:border-box;
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+  scroll-padding-bottom:calc(32px + env(safe-area-inset-bottom));
+}
+body#colzoApp.customer-account.customer-auth-active #authScreen #sharedAuthShell{
+  flex:0 0 auto;
+  align-self:flex-start;
+}
