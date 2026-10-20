@@ -52,6 +52,14 @@
         add(box, 'Company number', company);
         add(box, 'VAT number', vat);
       });
+      // Keep the data rights contact consistent with the validated operator
+      // identity. Until approved, retain the legacy public Business AI inbox.
+      if (legal.identity_configured && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.querySelectorAll('[data-legal-contact-email]').forEach(link => {
+          link.textContent = email;
+          link.setAttribute('href', 'mailto:' + email);
+        });
+      }
       document.querySelectorAll('[data-legal-readiness]').forEach(box => {
         box.textContent = legal.identity_configured
           ? 'Service-provider identity is configured. Public launch still depends on completing the organisation-specific compliance checklist, provider transfer review and any required ICO fee registration.'
