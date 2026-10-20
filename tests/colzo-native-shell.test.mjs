@@ -56,7 +56,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('Estimated value of enquiries created in this period, not confirmed revenue.'));
  assert.ok(js.includes('async function approveKnowledge'));
  assert.ok(js.includes('async function saveManualKnowledge'));
- assert.ok(js.includes("confirmation_version:'knowledge_accuracy_v1'"));
+ assert.ok(js.includes("body:JSON.stringify({action:'approve',source_id:source.id,items})"));
  assert.ok(js.includes('function billing()'));
  assert.ok(js.includes("const result=await api('/api/billing')"));
  assert.ok(js.includes('const moreItems=['));

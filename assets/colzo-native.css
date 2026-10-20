@@ -360,3 +360,40 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
  #colzoOwner .cn-colzo-record-form .cn-form-actions{flex-wrap:wrap}
  #colzoOwner .cn-colzo-record-form .cn-form-actions :is(.cn-primary,.cn-secondary){min-width:0;flex:1 1 140px}
 }
+
+
+/* Native Knowledge workspace. Scoped to the owner screen; never the shared
+   auth shell, customer portal, or original Business AI settings. */
+#colzoOwner .cn-knowledge-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 18px}
+#colzoOwner .cn-knowledge-stats>div{min-width:0;padding:14px 11px;border-radius:16px;border:1px solid #394447;background:#20272d;display:flex;flex-direction:column;gap:5px}
+#colzoOwner .cn-knowledge-stats strong{font-size:25px;line-height:1.15;color:#f6f8fa;font-variant-numeric:tabular-nums}
+#colzoOwner .cn-knowledge-stats span{font-size:11px;line-height:1.35;color:#b1bdc4;overflow-wrap:anywhere}
+#colzoOwner .cn-knowledge-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 12px}
+#colzoOwner .cn-knowledge-actions>button{min-height:44px;flex:1 1 140px}
+#colzoOwner .cn-knowledge-filters{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding:4px 0 12px;scrollbar-width:thin}
+#colzoOwner .cn-knowledge-filters button{flex:none;min-height:42px;padding:9px 13px;border:1px solid #465353;border-radius:999px;background:#20272d;color:#cbd5d9;font-size:13px}
+#colzoOwner .cn-knowledge-filters button[aria-pressed=true]{background:#c8ff2e;border-color:#c8ff2e;color:#101612;font-weight:700}
+#colzoOwner .cn-knowledge-source{min-width:0;overflow-wrap:anywhere}
+#colzoOwner .cn-knowledge-source .cn-section-bar{align-items:flex-start;gap:10px}
+#colzoOwner .cn-knowledge-filename{font-size:15px;font-weight:650;line-height:1.4;min-width:0;overflow-wrap:anywhere}
+#colzoOwner .cn-knowledge-source .cn-pill{flex:none}
+#colzoOwner .cn-knowledge-source .cn-form-actions{flex-wrap:wrap}
+#colzoOwner .cn-knowledge-source .cn-form-actions button{min-height:44px}
+#colzoOwner .cn-knowledge-fact{display:grid;gap:13px;margin:16px 0;padding:16px;border:1px solid #3a4548;border-radius:16px;background:#1c2428}
+#colzoOwner .cn-knowledge-fact label{display:grid;gap:6px;min-width:0;color:#cdd8dc;font-size:13px}
+#colzoOwner .cn-knowledge-fact input:not([type=checkbox]),#colzoOwner .cn-knowledge-fact textarea,#colzoOwner .cn-knowledge-fact select{box-sizing:border-box;min-width:0;width:100%;border:1px solid #505d5e;border-radius:11px;background:#10171b;padding:12px;color:#f7fafb;font:inherit;font-size:15px;line-height:1.4}
+#colzoOwner .cn-knowledge-fact :is(input,textarea,select):focus-visible{outline:2px solid #c8ff2e;outline-offset:2px}
+#colzoOwner .cn-knowledge-fact .cn-knowledge-include{display:flex;gap:12px;align-items:center;min-height:44px}
+#colzoOwner .cn-knowledge-include input{width:20px;height:20px;accent-color:#c8ff2e}
+#colzoOwner .cn-knowledge-source button[disabled],#colzoOwner .cn-knowledge-actions button[disabled]{opacity:.5;cursor:not-allowed}
+@media(max-width:390px){#colzoOwner .cn-knowledge-stats{gap:7px}#colzoOwner .cn-knowledge-stats>div{padding:12px 9px}#colzoOwner .cn-knowledge-stats strong{font-size:22px}}
+
+
+#colzoOwner .cn-knowledge-shortcut{margin:14px 0 18px}
+#colzoOwner .cn-knowledge-shortcut>button{display:grid;grid-template-columns:43px minmax(0,1fr) 20px;align-items:center;gap:13px;min-height:74px;width:100%;padding:13px 16px;text-align:left;background:#252e29;border:1px solid rgba(200,255,46,.24);border-radius:17px;color:#f4f8f6}
+#colzoOwner .cn-knowledge-shortcut .cn-knowledge-glyph{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#34432d;color:#c8ff2e;font-size:26px}
+#colzoOwner .cn-knowledge-shortcut strong{display:block;font-size:15px}
+#colzoOwner .cn-knowledge-shortcut small{display:block;margin-top:4px;color:#abbcba;font-size:12px;line-height:1.35}
+#colzoOwner .cn-knowledge-related{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:18px 0;padding:14px;border:1px solid #3e4b45;border-radius:15px;background:#222a2a}
+#colzoOwner .cn-knowledge-related span{flex:1 1 170px;color:#b9c8c8;font-size:13px}
+#colzoOwner .cn-knowledge-related button{min-height:44px}

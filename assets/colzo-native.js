@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -311,7 +311,7 @@
   const scheduleList=schedules.map(item=>'<article class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">'+safe(item.platform||'facebook')+' · '+safe(item.status||'scheduled')+'</span><span class="cn-pill '+(item.status==='posted'?'success':item.status==='failed'?'attention':'progress')+'">'+safe(item.status||'scheduled')+'</span></div><h2>'+safe(item.generation?.request_text||'Scheduled post')+'</h2><p>'+safe(item.generation?.main_copy||'Saved content unavailable.')+'</p><p class="cn-caption">'+safe(item.scheduled_for?new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeStyle:'short'}).format(new Date(item.scheduled_for)):'Time not recorded')+'</p>'+(item.status==='scheduled'?'<button type="button" class="cn-secondary" data-marketing-cancel-item="'+safe(item.id)+'">Cancel schedule</button>':'')+(item.failure_message?'<p class="cn-caption" role="status">'+safe(item.failure_message)+'</p>':'')+'</article>').join('');
   const nav='<div class="cf-tabs cf-project-tabs" role="group" aria-label="Marketing sections"><button type="button" data-marketing-view="drafts" aria-pressed="'+(state.marketingView==='drafts')+'">Draft library</button><button type="button" data-marketing-view="schedule" aria-pressed="'+(state.marketingView==='schedule')+'">Schedule</button></div>';
   const listBody=state.marketingView==='drafts'?(state.marketingLoading?empty('Loading saved drafts…'):state.marketingError?empty(state.marketingError,'<button type="button" data-marketing-refresh>Try again</button>'):(list||empty('No saved marketing drafts yet. Create one when you are ready.'))):(state.marketingSchedulesLoading?empty('Loading scheduled posts…'):state.marketingScheduleError?empty(state.marketingScheduleError,'<button type="button" data-marketing-refresh-schedules>Try again</button>'):(scheduleList||empty('No scheduled posts found.')));
-  return '<header class="cf-screen-top"><div><span class="cn-kicker">CONTENT STUDIO</span><h1>Marketing</h1></div><button type="button" class="cf-icon-button volt" data-marketing-create aria-label="Create marketing draft">+</button></header><p class="cn-caption">Create, review and manage saved drafts and scheduled posts.</p>'+nav+(state.marketingFeedback?'<p class="cn-work-message" role="status">'+safe(state.marketingFeedback)+'</p>':'')+create+editor+scheduleForm+listBody+'<p class="cn-caption">Draft generation never auto-publishes. Scheduling is explicit and only permitted for approved drafts.</p>';
+  return '<header class="cf-screen-top"><div><span class="cn-kicker">CONTENT STUDIO</span><h1>Marketing</h1></div><button type="button" class="cf-icon-button volt" data-marketing-create aria-label="Create marketing draft">+</button></header><p class="cn-caption">Create, review and manage saved drafts and scheduled posts.</p>'+nav+(state.marketingFeedback?'<p class="cn-work-message" role="status">'+safe(state.marketingFeedback)+'</p>':'')+create+editor+scheduleForm+listBody+'<p class="cn-caption"><div class="cn-knowledge-related"><span>AI drafts rely on approved business facts.</span><button class="cn-secondary" type="button" data-cn-screen="knowledge">Manage Business Knowledge →</button></div>Draft generation never auto-publishes. Scheduling is explicit and only permitted for approved drafts.</p>';
  }
  async function loadPublicProfile(force=false){
   const requestEpoch=sessionEpoch;
@@ -379,7 +379,7 @@
   const requestEpoch=sessionEpoch;
   if(state.knowledgeLoading||(!force&&Array.isArray(state.knowledgeSources)))return;
   state.knowledgeLoading=true;state.knowledgeError='';if(state.screen==='knowledge')render();
-  try{const result=await api('/api/knowledge');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.sources))throw new Error('Unexpected business knowledge response.');state.knowledgeSources=result.sources;state.knowledgeCanManage=result.can_manage===true}
+  try{const result=await api('/api/knowledge');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.sources))throw new Error('Unexpected business knowledge response.');state.knowledgeSources=result.sources;state.knowledgeCanManage=result.can_manage===true;state.knowledgeCanAddManual=result.can_add_manual===true;state.knowledgeLimits=result.limits||null}
   catch(error){if(requestEpoch!==sessionEpoch)return;state.knowledgeError=error?.message||'Business knowledge could not be loaded.'}
   finally{if(requestEpoch!==sessionEpoch)return;state.knowledgeLoading=false;if(state.screen==='knowledge')render()}
  }
@@ -400,17 +400,96 @@
   finally{state.knowledgeBusy=false;if(state.screen==='knowledge')render()}
  }
  async function approveKnowledge(){
-  const detail=state.knowledgeDetail;if(state.knowledgeBusy||!detail?.source?.id)return;
-  const items=(detail.items||[]).map(item=>({id:item.id,item_type:item.item_type,title:item.title,content:item.content,include:state.knowledgeIncludes[item.id]===true}));
-  if(!items.some(item=>item.include)){state.knowledgeFeedback='Select at least one accurate fact to keep.';render();return}
-  if(!window.confirm('Confirm that you reviewed every fact and that the selected facts are accurate and authorised for your business assistant to use?'))return;
+  const detail=state.knowledgeDetail,source=detail?.source;
+  if(state.knowledgeBusy||!state.knowledgeCanManage||!source?.id||!['active','needs_review'].includes(source.status))return;
+  const form=content.querySelector('#cnKnowledgeReviewForm');
+  if(!form)return;
+  const items=[...form.querySelectorAll('[data-knowledge-item]')].map(row=>({
+   id:row.dataset.knowledgeItem,
+   item_type:row.querySelector('[data-k-field="type"]')?.value||'',
+   title:row.querySelector('[data-k-field="title"]')?.value.trim()||'',
+   content:row.querySelector('[data-k-field="content"]')?.value.trim()||'',
+   include:row.querySelector('[data-k-field="include"]')?.checked===true
+  }));
+  const feedback=form.querySelector('#cnKnowledgeReviewFeedback');
+  if(items.length!==(detail.items||[]).length||items.some(item=>!item.title||!item.content||item.title.length>300||item.content.length>3000)){
+   if(feedback)feedback.textContent='Review the title and content of every fact before saving.';return;
+  }
+  if(!items.some(item=>item.include)){if(feedback)feedback.textContent='Choose at least one accurate fact, or remove this source.';return}
+  if(!window.confirm('Approve the selected facts as accurate and authorised for your AI receptionist and Marketing?'))return;
   state.knowledgeBusy=true;
-  try{const result=await api('/api/knowledge',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',source_id:detail.source.id,items,confirmation:true,confirmation_version:'knowledge_accuracy_v1'})});if(!result?.source?.id)throw new Error('The server did not confirm the review.');state.knowledgeDetail=result;state.knowledgeIncludes=Object.fromEntries(result.items.map(item=>[item.id,item.status==='active']));state.knowledgeFeedback='Knowledge review saved. Only selected facts are active.';await loadKnowledge(true)}
-  catch(error){state.knowledgeError=error?.message||'The review was not confirmed.'}
-  finally{state.knowledgeBusy=false;if(state.screen==='knowledge')render()}
+  const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
+  if(feedback)feedback.textContent='Saving the reviewed facts…';
+  try{
+   // Keep the exact existing API contract. Human confirmation happens above,
+   // not in unrecognised request properties the server will reject.
+   const result=await api('/api/knowledge',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',source_id:source.id,items})});
+   if(!result?.source?.id||!Array.isArray(result.items))throw new Error('The server did not confirm the review.');
+   state.knowledgeDetail=result;state.knowledgeIncludes=Object.fromEntries(result.items.map(item=>[item.id,item.status==='active']));
+   state.knowledgeFeedback='Reviewed knowledge saved. Only approved facts may be used by the assistant.';
+   await loadKnowledge(true);
+   render({motion:'detail'});
+  }catch(error){if(feedback)feedback.textContent=error?.message||'The reviewed facts could not be saved.';}
+  finally{state.knowledgeBusy=false;if(button?.isConnected)button.disabled=false}
+ }
+ async function uploadNativeKnowledgeFile(file,replaceId=null){
+  if(state.knowledgeBusy||!state.knowledgeCanManage||!file)return;
+  const mimetypes={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',txt:'text/plain',csv:'text/csv'};
+  const ext=String(file.name||'').split('.').pop().toLowerCase();
+  const expected=mimetypes[ext];
+  if(!expected||file.size<1||file.size>(state.knowledgeLimits?.max_file_bytes||10485760)||file.name.length>240||String(file.name).includes('/')){
+   state.knowledgeFeedback='Choose a supported PDF, image, TXT or CSV file between 1 byte and 10 MB.';render();return;
+  }
+  if(file.type&&file.type.toLowerCase()!==expected){
+   state.knowledgeFeedback='The selected file type does not match its extension.';render();return;
+  }
+  if(typeof supabaseClient==='undefined'||!supabaseClient?.storage?.from){
+   state.knowledgeFeedback='Private file uploads are unavailable. Your document has not been sent.';render();return;
+  }
+  const epoch=sessionEpoch;let prepared=null,uploaded=false;
+  state.knowledgeBusy=true;state.knowledgeFeedback='Preparing a private upload…';render();
+  try{
+   const body={action:'create_upload',file_name:file.name,mime_type:file.type||expected,size_bytes:file.size};
+   if(replaceId)body.replace_source_id=replaceId;
+   prepared=await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   if(epoch!==sessionEpoch)return;
+   if(!prepared?.source?.id||!prepared.bucket||!prepared.path||!prepared.token)throw new Error('The private upload was not prepared correctly.');
+   state.knowledgeFeedback='Uploading securely…';render();
+   const result=await supabaseClient.storage.from(prepared.bucket).uploadToSignedUrl(prepared.path,prepared.token,file,{contentType:file.type||expected});
+   if(result?.error)throw new Error('The private upload could not be completed.');
+   uploaded=true;
+   if(epoch!==sessionEpoch)return;
+   // Intentionally do not call 'finalize' here. Extraction can use a provider
+   // and must remain a separate, explicit user action.
+   state.knowledgeFeedback='File uploaded privately. It is not approved and has not been processed. Select “Extract facts” only after reviewing possible provider usage.';
+   await loadKnowledge(true);
+  }catch(error){
+   if(epoch===sessionEpoch&&prepared?.source?.id&&!uploaded){
+    try{await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'remove',source_id:prepared.source.id})})}catch{}
+   }
+   if(epoch===sessionEpoch){await loadKnowledge(true);state.knowledgeError=error?.message||'Upload did not complete.';}
+  }finally{if(epoch===sessionEpoch){state.knowledgeBusy=false;render()}}
+ }
+ async function extractNativeKnowledge(id){
+  if(state.knowledgeBusy||!state.knowledgeCanManage||!id)return;
+  const source=state.knowledgeSources?.find(item=>item.id===id);
+  if(!source||!['pending_upload','failed'].includes(source.status))return;
+  if(!window.confirm('Extraction may use a paid AI provider. Proceed only if its usage is authorised. No facts will become active without your review. Continue?'))return;
+  state.knowledgeBusy=true;state.knowledgeFeedback='Extracting facts for review…';render();
+  const epoch=sessionEpoch;
+  try{
+   const result=await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finalize',source_id:id})});
+   if(epoch!==sessionEpoch)return;
+   if(!result?.source?.id||!Array.isArray(result.items))throw new Error('Extraction was not confirmed.');
+   state.knowledgeDetail=result;
+   state.knowledgeIncludes=Object.fromEntries(result.items.map(item=>[item.id,item.status==='needs_review'||item.status==='active']));
+   state.knowledgeFeedback='Extraction complete. Review every fact before approval.';
+   await loadKnowledge(true);
+  }catch(error){if(epoch===sessionEpoch){await loadKnowledge(true);state.knowledgeError=error?.message||'Extraction is unavailable. The source remains available for review or retry.';}}
+  finally{if(epoch===sessionEpoch){state.knowledgeBusy=false;render({motion:'detail'})}}
  }
  async function removeKnowledgeSource(id){
-  if(state.knowledgeBusy||!id||!window.confirm('Remove this knowledge source and its associated facts from this business?'))return;
+  if(state.knowledgeBusy||!state.knowledgeCanManage||!id||!window.confirm('Remove this knowledge source and its associated facts from this business?'))return;
   state.knowledgeBusy=true;
   try{const result=await api('/api/knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'remove',source_id:id})});if(result?.removed!==true)throw new Error('The server did not confirm removal.');state.knowledgeDetail=null;state.knowledgeFeedback='Knowledge source removed.';await loadKnowledge(true)}
   catch(error){state.knowledgeError=error?.message||'Removal was not confirmed.'}
@@ -418,10 +497,72 @@
  }
  function knowledge(){
   const detail=state.knowledgeDetail,source=detail?.source,items=detail?.items||[],sources=state.knowledgeSources||[];
-  const form=state.knowledgeForm?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnKnowledgeForm"><h2>Add a business fact</h2><label>Fact type<select name="item_type">'+['service','product','price','hours','policy','faq','contact','location','dietary','other'].map(v=>'<option value="'+v+'">'+v[0].toUpperCase()+v.slice(1)+'</option>').join('')+'</select></label><label>Short title<input name="title" maxlength="200" required placeholder="e.g. Opening hours"></label><label>Fact details<textarea name="content" rows="5" maxlength="3000" required placeholder="Enter accurate information you are authorised to share with your assistant."></textarea></label><p class="cn-caption" id="cnKnowledgeFeedback" role="status">New facts start in needs review and are not active until approved.</p><div class="cn-form-actions"><button class="cn-primary" type="submit">Save for review</button><button class="cn-secondary" type="button" data-knowledge-cancel>Cancel</button></div></form></section>':'';
-  if(detail&&source){return '<header class="cf-screen-top"><button class="cn-back" type="button" data-knowledge-back>← Business knowledge</button></header><header class="cn-screen-heading"><span class="cn-kicker">KNOWLEDGE REVIEW</span><h1>'+safe(source.file_name||'Knowledge source')+'</h1><p>'+safe(source.status||'Status unavailable')+' · '+items.length+' facts</p></header><section class="cn-detail-panel"><h2>Source summary</h2><p>'+safe(source.extracted_summary||'No summary recorded.')+'</p>'+(source.error_message?'<p class="cn-caption">'+safe(source.error_message)+'</p>':'')+'</section><section class="cn-detail-panel"><h2>Review each fact</h2><p class="cn-caption">Checked facts will be active after you confirm the review. Unchecked facts will be rejected.</p>'+items.map(item=>'<label class="cn-settings-toggle"><span><strong>'+safe(item.title||item.item_type)+'</strong><small>'+safe(item.item_type)+' · '+safe(item.content)+'</small></span><input type="checkbox" data-knowledge-include="'+safe(item.id)+'" '+(state.knowledgeIncludes[item.id]?'checked':'')+'></label>').join('')+'<p class="cn-caption" role="status">'+safe(state.knowledgeFeedback||'')+'</p><div class="cn-form-actions"><button class="cn-primary" type="button" data-knowledge-approve '+(!state.knowledgeCanManage?'disabled':'')+'>Confirm reviewed facts</button><button class="cn-secondary" type="button" data-knowledge-remove="'+safe(source.id)+'">Remove source</button></div></section>'}
-  const rows=sources.map(item=>'<article class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">'+safe(item.file_name)+'</span><span class="cn-pill '+(item.status==='active'?'success':item.status==='failed'?'attention':'progress')+'">'+safe(item.status)+'</span></div><p>'+safe(item.extracted_summary||'No summary available.')+'</p><small class="cn-caption">'+Number(item.item_counts?.total||0)+' facts · '+safe(day(item.created_at))+'</small><div class="cn-form-actions"><button class="cn-secondary" type="button" data-knowledge-open="'+safe(item.id)+'">Review details</button><button class="cn-secondary" type="button" data-knowledge-remove="'+safe(item.id)+'">Remove</button></div></article>').join('');
-  return '<header class="cf-screen-top"><div><span class="cn-kicker">BUSINESS KNOWLEDGE</span><h1>Knowledge</h1></div><button class="cf-icon-button volt" type="button" data-knowledge-create aria-label="Add a fact">+</button></header><p class="cn-caption">Keep the assistant grounded in accurate business information. New facts require owner review before use.</p>'+(state.knowledgeFeedback?'<p class="cn-work-message" role="status">'+safe(state.knowledgeFeedback)+'</p>':'')+form+(state.knowledgeLoading?empty('Loading business knowledge…'):'')+(state.knowledgeError?empty(state.knowledgeError,'<button type="button" data-knowledge-refresh>Try again</button>'):'')+(rows||(!state.knowledgeLoading&&!state.knowledgeError?empty('No knowledge sources saved yet. Add a manual fact to get started.'):''))+'<p class="cn-caption">This screen supports manual facts and review of existing sources. File upload and extraction are not yet integrated here.</p>';
+  const canManage=state.knowledgeCanManage,canAddManual=state.knowledgeCanAddManual;
+  const typeOptions=(current='other')=>['service','product','price','hours','policy','faq','contact','location','dietary','other']
+    .map(type=>'<option value="'+type+'" '+(type===current?'selected':'')+'>'+type[0].toUpperCase()+type.slice(1)+'</option>').join('');
+  const status=state.knowledgeError?'<p class="cn-settings-error" role="alert">'+safe(state.knowledgeError)+'</p>':'';
+  const progress=state.knowledgeFeedback?'<p class="cn-work-message" role="status" aria-live="polite">'+safe(state.knowledgeFeedback)+'</p>':'';
+  const readable=v=>String(v||'').replace(/_/g,' ');
+  const badge=s=>'<span class="cn-pill '+(s==='active'?'success':s==='failed'?'attention':'progress')+'">'+safe(readable(s||'unknown'))+'</span>';
+  const countActive=sources.reduce((sum,item)=>sum+Math.max(0,Number(item.item_counts?.active)||0),0);
+  const countReview=sources.reduce((sum,item)=>sum+Math.max(0,Number(item.item_counts?.needs_review)||0),0);
+  const uploadMax=Math.min(10,Math.round((state.knowledgeLimits?.max_file_bytes||10485760)/1048576));
+  const input='<input id="cnKnowledgeFileInput" type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.csv,application/pdf,image/jpeg,image/png,image/webp,text/plain,text/csv">';
+  const sourceActions=item=>{
+   const review='<button type="button" class="cn-secondary" data-knowledge-open="'+safe(item.id)+'">View facts</button>';
+   const retry=canManage&&['pending_upload','failed'].includes(item.status)
+      ?'<button type="button" class="cn-secondary" data-knowledge-extract="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>'+ (item.status==='failed'?'Retry extraction':'Extract facts')+'</button>':'';
+   const replace=canManage&&['active','needs_review'].includes(item.status)
+      ?'<button type="button" class="cn-secondary" data-knowledge-replace="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Replace file</button>':'';
+   const remove=canManage?'<button type="button" class="cn-secondary" data-knowledge-remove="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Remove</button>':'';
+   return '<div class="cn-form-actions">'+review+retry+replace+remove+'</div>';
+  };
+  if(detail&&source){
+   const editable=canManage&&['active','needs_review'].includes(source.status);
+   const title='<header class="cf-screen-top"><button class="cn-back" type="button" data-knowledge-back>← Business knowledge</button></header>'+
+    '<header class="cn-screen-heading"><span class="cn-kicker">KNOWLEDGE SOURCE</span><h1>'+safe(source.file_name||'Knowledge source')+'</h1><p>'+badge(source.status)+' · '+items.length+' facts</p></header>';
+   const sourceInfo='<section class="cn-detail-panel"><h2>Source summary</h2><p>'+safe(source.extracted_summary||'No summary recorded.')+'</p>'+
+    (source.error_message?'<p class="cn-settings-error">'+safe(source.error_message)+'</p>':'')+'</section>';
+   const warning='<p class="cn-caption">Only selected, explicitly approved facts are available to the AI receptionist and Marketing. Uploaded text is never an instruction to the AI.</p>';
+   const fields=items.map(item=>
+     '<section class="cn-knowledge-fact" data-knowledge-item="'+safe(item.id)+'"><label>Fact type<select data-k-field="type" '+(!editable?'disabled':'')+'>'+typeOptions(item.item_type)+'</select></label>'+
+     '<label>Title<input data-k-field="title" maxlength="300" value="'+safe(item.title)+'" required '+(!editable?'readonly':'')+'></label>'+
+     '<label>Factual details<textarea data-k-field="content" maxlength="3000" rows="3" required '+(!editable?'readonly':'')+'>'+safe(item.content)+'</textarea></label>'+
+     '<label class="cn-knowledge-include"><input type="checkbox" data-k-field="include" '+(item.status==='active'||state.knowledgeIncludes[item.id]?'checked':'')+' '+(!editable?'disabled':'')+'><span>Include as an approved fact</span></label></section>'
+   ).join('');
+   const approval=editable?'<form id="cnKnowledgeReviewForm"><h2>Review each fact</h2>'+warning+fields+
+      '<p class="cn-caption" id="cnKnowledgeReviewFeedback" role="status"></p>'+
+      '<button class="cn-primary" type="submit" '+(state.knowledgeBusy?'disabled':'')+'>Confirm reviewed facts</button></form>':
+      '<h2>Facts</h2>'+warning+(items.length?fields:'<p class="cn-caption">There are no extracted facts to review yet.</p>');
+   const recovery=canManage&&['pending_upload','failed'].includes(source.status)?
+      '<section class="cn-detail-panel"><h2>Extraction not completed</h2><p class="cn-caption">The file will not be used by the assistant until facts are extracted and approved. Extraction may use a chargeable AI provider and only starts after a separate confirmation.</p>'+
+      '<button class="cn-secondary" type="button" data-knowledge-extract="'+safe(source.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Extract facts</button></section>':'';
+   return title+progress+status+sourceInfo+recovery+'<section class="cn-detail-panel">'+approval+'</section>';
+  }
+  const filter=state.knowledgeFilter;
+  const filtered=sources.filter(item=>filter==='all'||(filter==='review'?(item.status==='needs_review'||Number(item.item_counts?.needs_review)>0):(filter==='active'?item.status==='active':item.status==='failed'||item.status==='pending_upload')));
+  const options=[['all','All sources'],['review','Needs review'],['active','Active'],['issues','To process']];
+  const filters='<div class="cn-knowledge-filters" role="group" aria-label="Filter knowledge sources">'+options.map(([key,label])=>'<button type="button" data-knowledge-filter="'+key+'" aria-pressed="'+(filter===key)+'">'+label+'</button>').join('')+'</div>';
+  const rows=filtered.map(item=>'<article class="cn-detail-panel cn-knowledge-source"><div class="cn-section-bar"><span class="cn-knowledge-filename">'+safe(item.file_name)+'</span>'+badge(item.status)+'</div>'+
+    '<p>'+safe(item.extracted_summary||'No extracted summary yet.')+'</p><small class="cn-caption">'+Math.max(0,Number(item.item_counts?.total)||0)+' facts · '+safe(day(item.created_at))+'</small>'+sourceActions(item)+'</article>').join('');
+  const form=state.knowledgeForm&&canAddManual?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnKnowledgeForm"><h2>Add a business fact</h2>'+
+    '<p class="cn-caption">Manual entry uses no extraction provider. Facts remain inactive until approved.</p>'+
+    '<label>Fact type<select name="item_type">'+typeOptions('service')+'</select></label>'+
+    '<label>Short title<input name="title" maxlength="200" required placeholder="e.g. Opening hours"></label>'+
+    '<label>Fact details<textarea name="content" rows="5" maxlength="3000" required placeholder="Enter accurate information for customers."></textarea></label>'+
+    '<p class="cn-caption" id="cnKnowledgeFeedback" role="status"></p><div class="cn-form-actions">'+
+    '<button class="cn-primary" type="submit" '+(state.knowledgeBusy?'disabled':'')+'>Save for review</button>'+
+    '<button class="cn-secondary" type="button" data-knowledge-cancel>Cancel</button></div></form></section>':'';
+  const buttons='<div class="cn-knowledge-actions">'+
+   (canAddManual?'<button class="cn-primary" type="button" data-knowledge-create '+(state.knowledgeBusy?'disabled':'')+'>+ Add fact</button>':'')+
+   (canManage?'<button class="cn-secondary" type="button" data-knowledge-upload '+(state.knowledgeBusy?'disabled':'')+'>Upload document</button>':'')+'</div>';
+  const limits=state.knowledgeLimits?'<p class="cn-caption">Upload limits: '+state.knowledgeLimits.max_sources+' sources, '+uploadMax+' MB per file. Supported: PDF, JPG, PNG, WebP, TXT and CSV.</p>':'';
+  return '<header class="cf-screen-top"><h1>Business Knowledge</h1><button class="cf-icon-button" type="button" data-knowledge-refresh aria-label="Refresh business knowledge">↻</button></header>'+
+   '<p class="cn-caption">The facts Colzo can use to answer customers and prepare grounded marketing. Nothing becomes active without your review.</p>'+
+   '<div class="cn-knowledge-stats"><div><strong>'+countActive+'</strong><span>Approved facts</span></div><div><strong>'+countReview+'</strong><span>Awaiting review</span></div><div><strong>'+sources.length+'</strong><span>Sources</span></div></div>'+
+   progress+status+buttons+(canManage?input:'')+form+limits+filters+
+   (state.knowledgeLoading?empty('Loading business knowledge…'):'')+
+   (rows||(!state.knowledgeLoading&&!state.knowledgeError?empty(sources.length?'No sources match this filter.':'No knowledge sources saved yet. Add a manual fact or upload a document to begin.'):''));
  }
  async function loadBilling(force=false){
   const requestEpoch=sessionEpoch;
@@ -448,16 +589,19 @@
   const v=state.voiceStatus;
   const {enquiries}=records();
   const active=Boolean(v?.enabled&&v?.provider_connected&&v?.live_calls_enabled);
-  return '<header class="cf-screen-top"><div><span class="cn-kicker">AI ASSISTANT</span><h1>AI receptionist</h1></div><button class="cf-icon-button" type="button" data-voice-refresh aria-label="Refresh receptionist status">↻</button></header><p class="cn-caption">A clear view of your current phone-reception setup.</p>'+(state.voiceLoading?empty('Checking live configuration…'):'')+(state.voiceError?empty(state.voiceError,'<button type="button" data-voice-refresh>Try again</button>'):'')+(v?'<section class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">PHONE RECEPTION</span><span class="cn-pill '+(active?'success':'attention')+'">'+(active?'Connected':'Not connected')+'</span></div><h2>'+(active?'Voice receptionist is enabled':'Voice receptionist is not active')+'</h2><p>'+safe(v.message||'Live phone handling is not configured.')+'</p><dl><div><dt>Provider connection</dt><dd>'+ (v.provider_connected?'Connected':'Not connected')+'</dd></div><div><dt>Live calling</dt><dd>'+ (v.live_calls_enabled?'Enabled':'Disabled')+'</dd></div><div><dt>Environment gate</dt><dd>'+ (v.environment_gate_enabled?'Enabled':'Disabled')+'</dd></div></dl></section>':'')+'<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Enquiry handover</h2><span class="cn-pill progress">'+enquiries.length+' recorded</span></div><p class="cn-caption">These are existing business enquiries, not a fabricated call transcript or voice-call count.</p><button class="cn-primary" type="button" data-cn-screen="enquiries">View enquiries</button></section><section class="cn-detail-panel"><h2>What is available?</h2><p class="cn-caption">The existing web enquiry assistant and owner workflows remain separate from live phone answering. This screen will only show voice features that the server confirms are enabled.</p><button class="cn-secondary" type="button" data-cn-setting="integrations">Review integrations</button></section>';
+  return '<header class="cf-screen-top"><div><span class="cn-kicker">AI ASSISTANT</span><h1>AI receptionist</h1></div><button class="cf-icon-button" type="button" data-voice-refresh aria-label="Refresh receptionist status">↻</button></header><p class="cn-caption">A clear view of your current phone-reception setup.</p>'+(state.voiceLoading?empty('Checking live configuration…'):'')+(state.voiceError?empty(state.voiceError,'<button type="button" data-voice-refresh>Try again</button>'):'')+(v?'<section class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">PHONE RECEPTION</span><span class="cn-pill '+(active?'success':'attention')+'">'+(active?'Connected':'Not connected')+'</span></div><h2>'+(active?'Voice receptionist is enabled':'Voice receptionist is not active')+'</h2><p>'+safe(v.message||'Live phone handling is not configured.')+'</p><dl><div><dt>Provider connection</dt><dd>'+ (v.provider_connected?'Connected':'Not connected')+'</dd></div><div><dt>Live calling</dt><dd>'+ (v.live_calls_enabled?'Enabled':'Disabled')+'</dd></div><div><dt>Environment gate</dt><dd>'+ (v.environment_gate_enabled?'Enabled':'Disabled')+'</dd></div></dl></section>':'')+'<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Enquiry handover</h2><span class="cn-pill progress">'+enquiries.length+' recorded</span></div><p class="cn-caption">These are existing business enquiries, not a fabricated call transcript or voice-call count.</p><button class="cn-primary" type="button" data-cn-screen="enquiries">View enquiries</button></section><section class="cn-detail-panel"><h2>What is available?</h2><p class="cn-caption">The existing web enquiry assistant and owner workflows remain separate from live phone answering. This screen will only show voice features that the server confirms are enabled.</p><button class="cn-secondary" type="button" data-cn-screen="knowledge">Business Knowledge</button><button class="cn-secondary" type="button" data-cn-setting="integrations">Review integrations</button></section>';
  }
  function more(){
   const moreItems=[['analytics','▥','Analytics','Recorded activity and opportunity value'],['publicProfile','◈','Public profile','Customer-facing business details'],['feedback','?','Help and feedback','Send a secure feedback report'],['automations','↻','Automations','Read current automation status'],['billing','◈','Billing','Current plan and feature access'],['knowledge','◇','Business knowledge','Facts and accuracy review'],['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
   const business=typeof settings!=='undefined'?String(settings?.business_name||'Your business'):'Your business';
   const choices=[['▤','Business profile','Manage your business details','profile'],['♧','Team members','Invite and manage your team','team'],['⌁','Integrations','Manage connected services','integrations'],['◐','Notifications','Device alerts and preferences','notifications'],['◐','Appearance','Motion, contrast and display','appearance'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','help']];
   return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1><button type="button" class="cf-icon-button cn-settings-search" data-cn-command aria-label="Search Colzo tools">⌕</button></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-setting="profile" aria-label="Open business profile" type="button">›</button></div>
+  <section class="cn-knowledge-shortcut" aria-label="AI knowledge">
+    <button type="button" data-cn-screen="knowledge"><span class="cn-knowledge-glyph" aria-hidden="true">◇</span><span><strong>Business Knowledge</strong><small>Keep AI answers and marketing factual</small></span><span aria-hidden="true">›</span></button>
+  </section>
   <div class="cf-settings-list">${choices.map(([glyph,label,detail,view])=>`<button type="button" data-cn-setting="${view}"><span class="cf-settings-icon">${glyph}</span><span class="cf-settings-label"><strong>${label}</strong><small>${detail}</small></span><span class="cf-settings-arrow">›</span></button>`).join('')}</div>
   <button class="cf-signout" type="button" data-cn-signout>Sign out</button>
-  <section class="cf-tools-extra"><h2>Other business tools</h2><div class="cn-more-links">${moreItems.filter(([id])=>!choices.some(choice=>choice[3]===id)).map(([id,icon,label,detail])=>`<button type="button" ${['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)?`data-cn-screen="${id}"`:['profile','team','integrations','notifications','appearance','security','help'].includes(id)?`data-cn-setting="${id}"`:`data-cn-legacy="${id}"`}><span class="cn-more-icon">${icon}</span><span><strong>${label}</strong><small>${detail}</small></span><b>›</b></button>`).join('')}</div></section>`;
+  <section class="cf-tools-extra"><h2>Other business tools</h2><div class="cn-more-links">${moreItems.filter(([id])=>id!=='knowledge'&&!choices.some(choice=>choice[3]===id)).map(([id,icon,label,detail])=>`<button type="button" ${['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)?`data-cn-screen="${id}"`:['profile','team','integrations','notifications','appearance','security','help'].includes(id)?`data-cn-setting="${id}"`:`data-cn-legacy="${id}"`}><span class="cn-more-icon">${icon}</span><span><strong>${label}</strong><small>${detail}</small></span><b>›</b></button>`).join('')}</div></section>`;
  }
  const nativeSettingMeta={
   profile:['Business profile','YOUR BUSINESS','The details that represent your business.'],
@@ -912,10 +1056,10 @@
  }
  // Approved-screen correction #089: preserve edited user input across navigation.
  // This dialog never claims to save or persist data; it only prevents accidental loss.
- const dirtyFormSelector='#cnLeadForm[data-cn-dirty="true"], #cnColzoForm[data-cn-dirty="true"], #cnBusinessSettings[data-cn-dirty="true"], #cnWorkForm[data-cn-dirty="true"]';
+ const dirtyFormSelector='#cnLeadForm[data-cn-dirty="true"], #cnColzoForm[data-cn-dirty="true"], #cnBusinessSettings[data-cn-dirty="true"], #cnWorkForm[data-cn-dirty="true"], #cnKnowledgeForm[data-cn-dirty="true"], #cnKnowledgeReviewForm[data-cn-dirty="true"]';
  function markUnsavedDraft(event){
    const form=event.target.closest?.('form');
-   if(form&&['cnLeadForm','cnColzoForm','cnBusinessSettings','cnWorkForm'].includes(form.id)){
+   if(form&&['cnLeadForm','cnColzoForm','cnBusinessSettings','cnWorkForm','cnKnowledgeForm','cnKnowledgeReviewForm'].includes(form.id)){
      form.dataset.cnDirty='true';
    }
  }
@@ -1102,11 +1246,22 @@
   if(target.hasAttribute('data-public-profile-refresh')){loadPublicProfile(true);return}
   if(target.hasAttribute('data-automation-refresh')){loadAutomation(true);return}
   if(target.hasAttribute('data-analytics-refresh')){loadAnalytics(true);return}
-  if(target.hasAttribute('data-knowledge-create')){state.knowledgeForm=true;state.knowledgeFeedback='';render({motion:'detail'});return}
-  if(target.hasAttribute('data-knowledge-cancel')){state.knowledgeForm=false;render({motion:'page'});return}
+  if(target.hasAttribute('data-knowledge-create')){if(!state.knowledgeCanAddManual)return;state.knowledgeForm=true;state.knowledgeFeedback='';render({motion:'detail'});return}
+  if(target.hasAttribute('data-knowledge-upload')||target.hasAttribute('data-knowledge-replace')){
+   if(state.knowledgeBusy||!state.knowledgeCanManage)return;
+   state.knowledgeReplaceId=target.getAttribute('data-knowledge-replace')||null;
+   content.querySelector('#cnKnowledgeFileInput')?.click();return;
+  }
+  if(target.hasAttribute('data-knowledge-extract')){extractNativeKnowledge(target.getAttribute('data-knowledge-extract'));return}
+  if(target.hasAttribute('data-knowledge-filter')){
+   const filter=target.getAttribute('data-knowledge-filter');
+   if(['all','review','active','issues'].includes(filter)){state.knowledgeFilter=filter;render({motion:'filter'});}
+   return;
+  }
+  if(target.hasAttribute('data-knowledge-cancel')){confirmUnsaved(()=>{state.knowledgeForm=false;render({motion:'page'})});return}
   if(target.hasAttribute('data-knowledge-refresh')){loadKnowledge(true);return}
   if(target.hasAttribute('data-knowledge-open')){openKnowledgeSource(target.getAttribute('data-knowledge-open'));return}
-  if(target.hasAttribute('data-knowledge-back')){state.knowledgeDetail=null;state.knowledgeError='';render({motion:'page'});return}
+  if(target.hasAttribute('data-knowledge-back')){confirmUnsaved(()=>{state.knowledgeDetail=null;state.knowledgeError='';render({motion:'page'})});return}
   if(target.hasAttribute('data-knowledge-approve')){approveKnowledge();return}
   if(target.hasAttribute('data-knowledge-remove')){removeKnowledgeSource(target.getAttribute('data-knowledge-remove'));return}
   if(target.hasAttribute('data-billing-refresh')){loadBilling(true);return}
@@ -1130,7 +1285,7 @@
     confirmUnsaved(()=>{
       if(kind==='colzo-form')state.colzoForm=null;
       else if(kind==='knowledge-form')state.knowledgeForm=false;
-      else if(kind==='knowledge-detail'){state.knowledgeDetail=null;state.knowledgeError='';}
+      else if(kind==='knowledge-detail'){state.knowledgeDetail=null;state.knowledgeError='';state.knowledgeFeedback='';}
       else if(kind==='marketing-schedule')state.marketingSchedulingDraft=null;
       else if(kind==='marketing-form'){state.marketingForm=false;state.marketingEditing=null;}
       render({motion:'page'});
@@ -1167,8 +1322,15 @@
   if(target.hasAttribute('data-cn-signout')){confirmUnsaved(()=>document.getElementById('logoutButton')?.click());return}
  });
  root.addEventListener('input',e=>{if(e.target.matches?.('#cnColzoForm input[name=\"progress\"][type=\"range\"]')){const output=e.target.closest('label')?.querySelector('output');if(output)output.value=e.target.value+'%';return}if(e.target.hasAttribute('data-react-field'))return;if(e.target.id==='cnClientSearch'){const pos=e.target.selectionStart;state.clientSearch=e.target.value;render();const field=content.querySelector('#cnClientSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnWorkSearch'){state.workSearch[state.screen]=e.target.value;const start=e.target.selectionStart;render();const field=content.querySelector('#cnWorkSearch');if(field){field.focus();field.setSelectionRange(Math.min(start,field.value.length),Math.min(start,field.value.length))}return}if(e.target.id==='cnQuoteSearch'){state.search=e.target.value;const pos=e.target.selectionStart;render();const field=content.querySelector('#cnQuoteSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
- root.addEventListener('submit',e=>{if(e.target.inert||root.querySelector('.cn-unsaved-overlay')){e.preventDefault();e.stopPropagation();return}if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
- root.addEventListener('change',e=>{if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
+ root.addEventListener('submit',e=>{if(e.target.inert||root.querySelector('.cn-unsaved-overlay')){e.preventDefault();e.stopPropagation();return}if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnKnowledgeReviewForm'){e.preventDefault();approveKnowledge();return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
+ root.addEventListener('change',e=>{
+   if(e.target.id==='cnKnowledgeFileInput'){
+    const file=e.target.files?.[0]||null;
+    const replaceId=state.knowledgeReplaceId;state.knowledgeReplaceId=null;
+    e.target.value='';
+    if(file)uploadNativeKnowledgeFile(file,replaceId);return;
+   }
+   if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
  const onAuthState=auth=>{if(auth!=='auth-ready')dashboardFailure=null;if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Active',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
  window.ColzoOwner={render,onAuthState,openLegacy:original,dashboardLoaded:()=>{dashboardFailure=null},error:(error)=>{if(document.body.classList.contains('auth-ready')){const detail=typeof colzoDashboardFailureLabel==='function'?colzoDashboardFailureLabel(error,window.colzoPreviewAuthTransportEnabled):'';dashboardFailure='Unable to load your business records. Please try again.'+detail;render()}},getActiveScreen:()=>state.screen};
