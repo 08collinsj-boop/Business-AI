@@ -14,7 +14,11 @@ test('public site links stay on Dev previews and retain the established app doma
 test('every deployed entry loads Colzo surface styling after its older styles',()=>{
  for(const file of ['index.html','marketing.html','site/index.html',...['index','terms','privacy','dpa','data-deletion','storage','acceptable-use','subprocessors'].map(p=>`legal/${p}.html`)]){
   const dom=new JSDOM(read(file));const links=[...dom.window.document.querySelectorAll('link[rel="stylesheet"]')];
-  assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-(surfaces|public-site)\.css/,file);
+  const customerEntries=new Set(['index.html','legal/index.html','legal/dpa.html','legal/data-deletion.html','legal/storage.html','legal/subprocessors.html']);
+  if(customerEntries.has(file)){
+   assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
+   assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
+  }else assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-(surfaces|public-site)\.css/,file);
   assert.doesNotMatch(dom.window.document.title,/Business AI/,file);
   for(const img of dom.window.document.querySelectorAll('img'))assert.doesNotMatch(img.getAttribute('src')||'',/business-ai-(mascot|icon|mark)/,file);
   dom.window.close();

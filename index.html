@@ -2197,6 +2197,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-approved-functional.css?v=20261016-visual-batch-1">
 <link rel="stylesheet" href="/assets/colzo-account-journey.css?v=20261016-journey-1">
 <link rel="stylesheet" href="/assets/colzo-surfaces.css?v=20261017-colzo-complete-1">
+<link rel="stylesheet" href="/assets/colzo-customer-stitch.css?v=20261020-customer-1">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" id="colzoApp" aria-busy="true">
@@ -2226,7 +2227,7 @@ input.switch,input.switch:before{transition:none}
   </div>
   <div class="auth-role-description" aria-live="polite">
     <p class="auth-business-copy">Access your dashboard, manage enquiries, bookings and AI assistant settings.</p>
-    <p class="auth-customer-copy">Message businesses, track your enquiries and manage your bookings.</p>
+    <p class="auth-customer-copy">Message businesses and track your enquiries.</p>
   </div>
   <div class="auth-role-stage">
     <form id="loginForm" class="auth-role-form auth-role-form-business">
@@ -2241,6 +2242,7 @@ input.switch,input.switch:before{transition:none}
       <div class="auth-role-footer">Secure access to your Colzo workspace.</div>
     </form>
     <form id="customerSignInForm" class="customer-auth-form auth-role-form auth-role-form-customer">
+      <div class="customer-auth-intro"><h2>Welcome back</h2><p>Message businesses and track your enquiries.</p></div>
       <label class="auth-input" for="customerSignInEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="customerSignInEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
       <label class="auth-input" for="customerSignInPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="customerSignInPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button class="auth-password-toggle" type="button" data-password-toggle="customerSignInPassword" aria-label="Show password">◉</button></label>
       <div class="auth-utility-row"><span class="auth-remember"><input type="checkbox" checked disabled aria-label="Session stays signed in on this device">Keep me signed in</span><button id="customerForgotPassword" type="button">Forgot password?</button></div>
@@ -2249,13 +2251,17 @@ input.switch,input.switch:before{transition:none}
       <div class="auth-divider">or</div>
       <a class="auth-secondary-action" href="/customer"><strong>Continue as guest</strong>&nbsp;→</a>
       <div class="auth-role-footer">Don’t have an account? <button id="customerShowSignUp" type="button">Create account&nbsp;→</button></div>
+      <a class="customer-auth-privacy" href="/legal/privacy.html" target="_blank" rel="noopener">Privacy notice</a>
     </form>
     <form id="customerSignUpForm" class="customer-auth-form auth-role-form auth-role-form-customer" hidden>
+      <div class="customer-auth-intro"><h2>Create account</h2><p>Create your customer account to track enquiries with businesses.</p></div>
       <label class="auth-input" for="customerSignUpName"><i aria-hidden="true">♙</i><span>Your name</span><input id="customerSignUpName" maxlength="120" autocomplete="name" placeholder="Enter your name" required></label>
       <label class="auth-input" for="customerSignUpEmail"><i aria-hidden="true">✉</i><span>Email address</span><input id="customerSignUpEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
-      <label class="auth-input" for="customerSignUpPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="customerSignUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="Create a strong password" required><button class="auth-password-toggle" type="button" data-password-toggle="customerSignUpPassword" aria-label="Show password">◉</button></label>
+      <label class="auth-input" for="customerSignUpPassword"><i aria-hidden="true">⌑</i><span>Password</span><input id="customerSignUpPassword" aria-describedby="customerPasswordHelp" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="Create a strong password" required><button class="auth-password-toggle" type="button" data-password-toggle="customerSignUpPassword" aria-label="Show password">◉</button></label>
+      <p class="customer-password-help" id="customerPasswordHelp">Use 12-128 characters with uppercase and lowercase letters, a number and a symbol.</p>
       <label class="auth-input" for="customerSignUpConfirm"><i aria-hidden="true">⌑</i><span>Confirm password</span><input id="customerSignUpConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="Confirm your password" required></label>
-      <label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the <a href="/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>. Customer accounts are used to provide account access and enquiry tracking.</span></label>
+      <label class="customer-auth-note"><input id="customerPrivacyAcknowledgement" type="checkbox" required><span>I have read the Privacy Notice. Customer accounts are used to provide account access and enquiry tracking.</span></label>
+      <a class="customer-auth-privacy" href="/legal/privacy.html" target="_blank" rel="noopener">Read Privacy Notice</a>
       <button class="auth-main-action" type="submit">Create account&nbsp;&nbsp;→</button>
       <div id="customerSignUpMessage" class="auth-role-message customer-auth-message" role="alert"></div>
       <p id="customerConfirmationActions" class="customer-auth-switch" hidden>Didn’t receive a confirmation email? <button id="customerResendConfirmation" type="button">Resend confirmation</button></p>
@@ -2375,10 +2381,10 @@ input.switch,input.switch:before{transition:none}
 </header>
 
 <nav class="customer-portal-nav" aria-label="Customer portal">
-<button class="active" type="button" data-customer-tab="home" aria-current="page"><span aria-hidden="true">⌂</span><small>Overview</small></button>
-<button type="button" data-customer-tab="find"><span aria-hidden="true">⌕</span><small>Find</small></button>
-<button type="button" data-customer-tab="enquiries"><span aria-hidden="true">◉</span><small>My enquiries</small></button>
-<button type="button" data-customer-tab="account"><span aria-hidden="true">○</span><small>Account</small></button>
+<button class="active" type="button" data-customer-tab="home" aria-current="page"><span aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3z"/></svg></span><small>Overview</small></button>
+<button type="button" data-customer-tab="find"><span aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><small>Find</small></button>
+<button type="button" data-customer-tab="enquiries"><span aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></span><small>My enquiries</small></button>
+<button type="button" data-customer-tab="account"><span aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg></span><small>Account</small></button>
 </nav>
 
 <section class="customer-portal-pane" data-customer-pane="home">
@@ -2399,7 +2405,7 @@ input.switch,input.switch:before{transition:none}
 <label class="sr-only" for="customerPortalSearchInput">Search businesses</label>
 <form id="customerPortalSearchForm" class="customer-search-box customer-search-box-premium"><span aria-hidden="true">⌕</span><input id="customerPortalSearchInput" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" placeholder="Business, service or area"><button type="submit">Search</button></form>
 <div class="customer-search-hints" aria-hidden="true"><span>Business name</span><span>Services</span><span>Areas</span></div>
-<div id="customerPortalSearchResults" class="customer-search-results"><div class="customer-empty customer-search-prompt">Start typing to find a business.</div></div>
+<div id="customerPortalSearchResults" class="customer-search-results" role="status" aria-live="polite" aria-busy="false"><div class="customer-empty customer-search-prompt">Start typing to find a business.</div></div>
 </section>
 </section>
 

@@ -6,6 +6,7 @@ let client=null;
 let session=null;
 let customerRuntimeBound=false;
 let portalState={customer:null,enquiries:[]};
+let customerSearchSequence=0;
 const byId=id=>document.getElementById(id);
 const wait=ms=>new Promise(resolve=>window.setTimeout(resolve,ms));
 
@@ -166,19 +167,25 @@ function showPortalTab(name){
 
 function resetCustomerBusinessSearch(){
   const target=byId('customerPortalSearchResults');if(!target)return;
+  target.setAttribute('aria-busy','false');
   target.innerHTML='<div class="customer-empty customer-search-prompt">Start typing to find a business.</div>';
 }
 
 async function searchBusinesses(query){
   const target=byId('customerPortalSearchResults');if(!target)return;
+  const sequence=++customerSearchSequence;
   const normalized=String(query||'').trim().slice(0,80);
   if(normalized.length<2){resetCustomerBusinessSearch();return;}
+  target.setAttribute('aria-busy','true');
   target.innerHTML='<div class="customer-empty">Searching businesses…</div>';
   try{
     const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
     const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
-    const data=await response.json();target.replaceChildren();
-    const rows=Array.isArray(data.businesses)?data.businesses:[];
+    const data=await response.json();
+    if(sequence!==customerSearchSequence)return;
+    if(!response.ok||!Array.isArray(data?.businesses))throw new Error('Search unavailable');
+    target.replaceChildren();
+    const rows=data.businesses;
     if(!rows.length){target.innerHTML='<div class="customer-empty">No matching businesses found.</div>';return;}
     for(const business of rows){
       const card=document.createElement('article');card.className='customer-search-result';
@@ -187,7 +194,16 @@ async function searchBusinesses(query){
       const link=document.createElement('a');link.href=business.profile_path||business.message_path||('/customer?business='+encodeURIComponent(business.slug||'')+'&view=profile');link.textContent='View profile';
       card.append(mark,copy,link);target.append(card);
     }
-  }catch{target.innerHTML='<div class="customer-empty">Business search is temporarily unavailable.</div>';}
+  }catch{
+    if(sequence!==customerSearchSequence)return;
+    const panel=document.createElement('div');panel.className='customer-empty customer-search-error';panel.setAttribute('role','alert');
+    const message=document.createElement('p');message.textContent='Business search is temporarily unavailable. Please try again shortly.';
+    const retry=document.createElement('button');retry.type='button';retry.className='customer-search-retry';retry.textContent='Retry search';
+    retry.addEventListener('click',()=>searchBusinesses(byId('customerPortalSearchInput').value));
+    panel.append(message,retry);target.replaceChildren(panel);
+  }finally{
+    if(sequence===customerSearchSequence)target.setAttribute('aria-busy','false');
+  }
 }
 
 function setCustomerSurface(portalReady){
@@ -247,6 +263,20 @@ const customerPasswordPolicyIssue=password=>{
   if(!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)||! /[^A-Za-z0-9\s]/.test(password))return 'Include an uppercase letter, lowercase letter, number and symbol.';
   return '';
 };
+
+function bindCustomerFormValidity(){
+  for(const id of ['customerSignInForm','customerSignUpForm']){
+    const form=byId(id);if(!form)continue;
+    const submit=form.querySelector('[type="submit"]');if(!submit)continue;
+    const update=()=>{
+      const password=byId('customerSignUpPassword')?.value||'';
+      const signupValid=id!=='customerSignUpForm'||(!customerPasswordPolicyIssue(password)&&password===byId('customerSignUpConfirm')?.value);
+      submit.disabled=!form.checkValidity()||!signupValid;
+    };
+    form.addEventListener('input',update);form.addEventListener('change',update);update();
+  }
+}
+bindCustomerFormValidity();
 
 async function bindCustomerRuntime(){
   if(customerRuntimeBound)return;
