@@ -27,7 +27,7 @@ test('image presentation refuses unsafe media URLs and never calls provider or p
 });
 test('owner-only pause cannot enable automation or run it',()=>{
  const begin=js.indexOf('async function pauseNativeMarketingAutomation()');
- const end=js.indexOf('function automations(){',begin);
+ const end=js.indexOf('async function saveNativeMarketingStrategy',begin);
  assert.ok(begin>0&&end>begin);
  const body=js.slice(begin,end);
  assert.match(body,/data\?\.can_pause!==true/);
