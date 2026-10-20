@@ -159,7 +159,16 @@ async function loadPortal(){
 }
 
 function showPortalTab(name){
-  const shell=document.querySelector('.customer-portal-shell');if(shell)shell.dataset.customerActiveTab=name;
+  // Navigation direction is purely presentational: hidden panes, account
+  // state, search and existing focus/scroll controls remain authoritative.
+  const shell=document.querySelector('.customer-portal-shell');
+  const order=['home','find','enquiries','account'];
+  if(!order.includes(name))return;
+  const previous=shell?.dataset.customerActiveTab||'home';
+  if(shell){
+    shell.dataset.customerDirection=order.indexOf(name)<order.indexOf(previous)?'backward':'forward';
+    shell.dataset.customerActiveTab=name;
+  }
   document.querySelectorAll('[data-customer-pane]').forEach(p=>p.hidden=p.dataset.customerPane!==name);
   document.querySelectorAll('[data-customer-tab]').forEach(b=>{const active=b.dataset.customerTab===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   if(name==='find'){const input=byId('customerPortalSearchInput');if(input&&!input.value.trim())resetCustomerBusinessSearch();}

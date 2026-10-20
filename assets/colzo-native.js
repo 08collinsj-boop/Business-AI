@@ -1411,22 +1411,57 @@
    else root.scrollTo({top:position,behavior:'instant'});
  };
  let motionRun=[];
- function stopMotion(){for(const animation of motionRun){try{animation.cancel()}catch{}}motionRun=[]}
+ let detailSourceRect=null;
+ function rememberDetailSource(element){
+   detailSourceRect=null;
+   if(!allowMotion()||!element?.getBoundingClientRect)return;
+   const rect=element.getBoundingClientRect();
+   if(!rect.width||!rect.height)return;
+   detailSourceRect={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+ }
+ function stopMotion(){
+   for(const animation of motionRun){try{animation.cancel()}catch{}}
+   motionRun=[];
+ }
  const motionPreference=window.matchMedia?.('(prefers-reduced-motion: reduce)');
- motionPreference?.addEventListener?.('change',event=>{if(event.matches)stopMotion()});
+ motionPreference?.addEventListener?.('change',event=>{
+   if(event.matches){detailSourceRect=null;stopMotion();}
+ });
  function animateArrival(direction=1,kind='page'){
    stopMotion();
-   if(!allowMotion()||typeof content.animate!=='function')return;
-   // Filters and search keep every target stationary. Tab changes use a short
-   // fade; only a list-to-detail transition has a small directional offset.
-   if(kind==='filter')return;
-   const entering=kind==='detail'?(direction>=0?12:-12):0;
-   const arrivalTarget=kind==='detail'?(content.querySelector('.cn-record-inspector')||content):content;
-   const animation=arrivalTarget.animate([
-     {opacity:.72,transform:`translate3d(${entering}px,0,0)`},
-     {opacity:1,transform:'translate3d(0,0,0)'}
-   ],{duration:kind==='detail'?260:180,easing:'cubic-bezier(.2,.85,.22,1)'});
-   motionRun.push(animation);
+   const source=detailSourceRect;detailSourceRect=null;
+   // No motion on data refresh, field edits, search, filtering or accessibility
+   // reduced-motion. The existing render, focus and scroll logic is untouched.
+   if(kind==='none'||kind==='filter'||!allowMotion()||typeof content.animate!=='function')return;
+   const detail=kind==='detail';
+   const target=detail
+     ?(content.querySelector('.cn-record-inspector,.cf-detail-panel,.cn-detail-panel')||content)
+     :content;
+   let x=detail?(direction>=0?12:-12):0;
+   let y=detail?8:6;
+   if(detail&&source&&target.getBoundingClientRect){
+     const rect=target.getBoundingClientRect();
+     if(rect.width&&rect.height){
+       // A restrained shared-element hint. Never position or scale the actual
+       // app layout to the card's dimensions, which would cause scroll jumps.
+       x=Math.max(-36,Math.min(36,source.x-(rect.left+rect.width/2)));
+       y=Math.max(-28,Math.min(28,source.y-(rect.top+rect.height/2)));
+     }
+   }
+   try{
+     const animation=target.animate([
+       {opacity:detail?.58:.66,transform:'translate3d('+x+'px,'+y+'px,0) scale('+(detail?.975:.995)+')'},
+       {opacity:1,transform:'translate3d(0,0,0) scale(1)'}
+     ],{
+       duration:detail?300:215,
+       easing:detail?'cubic-bezier(.2,.86,.25,1)':'cubic-bezier(.22,.68,.3,1)',
+       fill:'none'
+     });
+     motionRun.push(animation);
+     const cleanup=()=>{motionRun=motionRun.filter(item=>item!==animation)};
+     animation.addEventListener?.('finish',cleanup,{once:true});
+     animation.addEventListener?.('cancel',cleanup,{once:true});
+   }catch{/* A lack of WAAPI must never interrupt navigation. */}
  }
  // The mobile top bar is shared by all Colzo tool screens. Main sections
  // retain the More menu + tool search, while nested pages get a true back
@@ -1552,6 +1587,7 @@
    if(root.querySelector(dirtyFormSelector)){confirmUnsaved(()=>navigate(screen));return}
    if(screen===state.screen){render();return}
    const before=state.screen;
+   detailSourceRect=null;
    state.scrollByScreen.set(before,currentScroll());
    state.screen=screen;state.notification='';state.focusSearch=false;state.colzoForm=null;state.colzoFeedback='';
   if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}if(screen==='receptionist'){loadVoiceStatus();loadReceptionConfig();loadNativeHandovers();}if(screen==='growth')loadGrowth();if(screen==='billing')loadBilling();if(screen==='knowledge')loadKnowledge();if(screen==='analytics')loadAnalytics();if(screen==='automations')loadAutomation();if(screen==='publicProfile')loadPublicProfile();
@@ -1762,7 +1798,7 @@
   if(target.hasAttribute('data-marketing-cancel')){state.marketingForm=false;state.marketingEditing=null;render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-refresh')){loadMarketingDrafts(true);return}
   if(target.hasAttribute('data-cn-client-profile-tab')){const next=target.getAttribute('data-cn-client-profile-tab');if(state.screen==='colzoDetail'&&state.colzoDetail?.resource==='clients'&&['overview','activity'].includes(next)){state.customerProfileTab=next;render({motion:'filter'})}return}
-  if(target.hasAttribute('data-colzo-detail')){const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){const listScroll=currentScroll();state.scrollByScreen.set(state.screen,listScroll);state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});restoreScroll(window.innerWidth>=1200?listScroll:0);content.querySelector('.cn-record-inspector')?.focus({preventScroll:true});}return}
+  if(target.hasAttribute('data-colzo-detail')){rememberDetailSource(target);const resource=target.getAttribute('data-colzo-detail'),id=target.getAttribute('data-colzo-id');if(['clients','projects','quotes'].includes(resource)&&(state.colzoRecords[resource]||[]).some(x=>String(x.id)===String(id))){const listScroll=currentScroll();state.scrollByScreen.set(state.screen,listScroll);state.colzoDetail={resource,id};state.customerProfileTab='overview';state.colzoForm=null;state.screen='colzoDetail';render({motion:'detail'});restoreScroll(window.innerWidth>=1200?listScroll:0);content.querySelector('.cn-record-inspector')?.focus({preventScroll:true});}else detailSourceRect=null;return}
   if(target.hasAttribute('data-colzo-create')){const resource=target.getAttribute('data-colzo-create');state.colzoForm={resource,record:null};state.colzoFeedback='';render({motion:'detail'});return}
   if(target.hasAttribute('data-colzo-edit')){const resource=target.getAttribute('data-colzo-edit'),id=target.getAttribute('data-colzo-id');const record=state.colzoRecords[resource]?.find(x=>String(x.id)===String(id));if(record){state.colzoForm={resource,record};state.colzoFeedback='';if(state.screen==='colzoDetail')state.screen=resource;state.colzoDetail=null;render({motion:'detail'})}return}
   if(target.hasAttribute('data-colzo-cancel')){confirmUnsaved(()=>{state.colzoForm=null;render({motion:'page'})});return}
@@ -1797,7 +1833,7 @@
   if(target.hasAttribute('data-cn-screen')){navigate(target.getAttribute('data-cn-screen'));return}
   if(target.hasAttribute('data-cn-legacy')){confirmUnsaved(()=>original(target.getAttribute('data-cn-legacy')));return}
   if(target.hasAttribute('data-cn-customer')){state.activeLead=target.getAttribute('data-cn-customer');navigate('customer');return}
-  if(target.hasAttribute('data-cn-lead')){state.activeLead=target.getAttribute('data-cn-lead');navigate('lead');return}
+  if(target.hasAttribute('data-cn-lead')){rememberDetailSource(target);state.activeLead=target.getAttribute('data-cn-lead');navigate('lead');return}
   if(target.hasAttribute('data-cn-filter')){const next=target.getAttribute('data-cn-filter');if(state.filter!==next){state.filter=next;render({motion:'filter'})}return}
   if(target.hasAttribute('data-cn-reset-projects')){state.projectFilter='All';state.projectSearch='';render({motion:'filter'});return}
   if(target.hasAttribute('data-cn-reset-quotes')){state.search='';render({motion:'filter'});return}
