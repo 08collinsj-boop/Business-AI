@@ -86,3 +86,21 @@ body#colzoApp.customer-account.customer-portal-ready :is(.customer-quick-card,.c
     transform:none!important;
   }
 }
+
+/* iPhone owner bottom-nav correction.
+   The older Stitch layer colours the active button while the Motion layer
+   already draws a sliding selection plate. Showing both created two displaced
+   lime pills at the rightmost More tab, including 2px visual overflow.
+   Keep the single animated plate and match the five actual grid columns. */
+@media (max-width:919px){
+  #colzoOwner .cn-nav::before{
+    box-sizing:border-box;
+    left:6px;
+    width:calc((100% - 10px) / 5);
+  }
+  #colzoOwner .cn-nav button[aria-current="page"]{
+    background:transparent!important;
+    box-shadow:none!important;
+    border-color:transparent!important;
+  }
+}
