@@ -34,5 +34,6 @@ test('full customer sign-up and privacy controls remain inside the scrollable au
   for(const id of ['customerSignUpForm','customerSignUpName','customerSignUpEmail','customerSignUpPassword','customerSignUpConfirm','customerPrivacyAcknowledgement','customerSignUpMessage']){
     assert.match(auth,new RegExp('id="'+id+'"'));
   }
-  assert.match(auth,/id="customerSignUpForm"[\\s\\S]*id="customerPrivacyAcknowledgement"[\\s\\S]*type="submit">Create account/);
+  assert.ok(auth.indexOf('id="customerPrivacyAcknowledgement"')>auth.indexOf('id="customerSignUpForm"'));
+  assert.ok(auth.indexOf('type="submit">Create account')>auth.indexOf('id="customerPrivacyAcknowledgement"'));
 });
