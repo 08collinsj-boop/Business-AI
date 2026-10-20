@@ -444,3 +444,9 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-marketing-media-preview{display:block;max-width:100%;width:auto;max-height:440px;object-fit:contain;border:1px solid #4a5556;border-radius:14px;margin:15px auto}
 #colzoOwner .cn-marketing-media button{min-height:44px}
 #colzoOwner .cn-automation-pause{display:block;min-height:44px;margin-top:15px;border-color:#a79061;color:#f3d7a2}
+
+/* Public business profile media controls, scoped to authenticated owner. */
+#colzoOwner .cn-profile-media-controls{min-width:0}
+#colzoOwner .cn-profile-media-controls .cn-form-actions{display:flex;flex-wrap:wrap;gap:10px;margin:13px 0}
+#colzoOwner .cn-profile-media-controls button{flex:1 1 135px;min-height:44px}
+#colzoOwner .cn-profile-media-controls button[disabled]{opacity:.55;cursor:not-allowed}
