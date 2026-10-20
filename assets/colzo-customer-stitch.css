@@ -226,3 +226,26 @@ body#colzoApp.colzo-customer-legal :is(th,td){font-size:14px;line-height:1.5}
  body#colzoApp:is(.customer-account,.public-directory,.public-enquiry,.public-business-profile) *,
  body#colzoApp.colzo-customer-legal *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Customer auth document-flow scrolling.
+   The legacy mobile rule fixes every .auth-screen to the viewport.
+   Long customer forms must instead expand the document, otherwise the final
+   privacy acknowledgement/submit controls may be unreachable in iOS Safari.
+   Only the unauthenticated customer route is affected. */
+body#colzoApp.customer-account.customer-auth-active{
+  height:auto!important;
+  min-height:100dvh!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom))!important;
+}
+body#colzoApp.customer-account.customer-auth-active #authScreen.auth-screen{
+  position:relative!important;
+  inset:auto!important;
+  height:auto!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  overflow:visible!important;
+  overscroll-behavior:auto!important;
+  touch-action:pan-y!important;
+}
