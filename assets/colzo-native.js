@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:''});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:''});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -431,11 +431,75 @@
   catch(error){if(feedback)feedback.textContent=error?.message||'The public profile was not confirmed as saved.'}
   finally{state.publicProfileBusy=false;const btn=content.querySelector('#cnPublicProfileForm [type=submit]');if(btn)btn.disabled=false}
  }
+ async function uploadNativeProfileMedia(file,slot){
+  if(state.publicMediaBusy||state.publicProfileBusy||state.publicProfileData?.can_edit!==true||!['avatar','banner'].includes(slot)||!file)return;
+  const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
+  const name=String(file.name||''),ext=name.split('.').pop().toLowerCase(),mime=types[ext];
+  if(!mime||mime!==file.type||file.size<1||file.size>8*1024*1024||name.length>240||name.includes('/')||name.includes('\\')){
+    state.publicMediaFeedback='Choose a JPG, PNG or WebP image up to 8 MB with a matching file extension.';render();return;
+  }
+  if(typeof supabaseClient==='undefined'||!supabaseClient?.storage?.from){
+    state.publicMediaFeedback='Private image uploads are unavailable. Nothing was uploaded.';render();return;
+  }
+  const epoch=sessionEpoch;
+  state.publicMediaBusy=true;state.publicMediaFeedback='Preparing a private image upload…';render();
+  try{
+   const metadata={slot,file_name:name,mime_type:mime,size_bytes:file.size};
+   const prepared=await api('/api/business-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'prepare_upload',...metadata})});
+   if(epoch!==sessionEpoch)return;
+   if(prepared?.bucket!=='business-profile-media'||!prepared.path||!prepared.token||prepared.slot!==slot)throw new Error('The private image upload could not be prepared.');
+   state.publicMediaFeedback='Uploading privately…';render();
+   const storage=supabaseClient.storage.from(prepared.bucket);
+   const result=await storage.uploadToSignedUrl(prepared.path,prepared.token,file,{contentType:mime});
+   if(result?.error)throw new Error('The file was not uploaded successfully.');
+   if(epoch!==sessionEpoch)return;
+   state.publicMediaFeedback='Verifying your saved image…';render();
+   const confirmed=await api('/api/business-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'finalize_upload',path:prepared.path,...metadata})});
+   if(epoch!==sessionEpoch)return;
+   const column=slot==='avatar'?'profile_image_path':'profile_banner_path';
+   if(!confirmed?.profile||confirmed.profile[column]!==prepared.path)throw new Error('The server did not confirm the saved image.');
+   state.publicProfileData=confirmed;
+   state.publicMediaFeedback=slot==='avatar'?'Business logo saved.':'Business cover image saved.';
+   state.publicProfileError='';
+  }catch(error){
+   if(epoch===sessionEpoch)state.publicMediaFeedback=error?.message||'Image upload could not be confirmed. Your previous image is unchanged.';
+  }finally{
+   if(epoch===sessionEpoch){state.publicMediaBusy=false;if(state.screen==='publicProfile')render({motion:'page'});}
+  }
+ }
+ async function removeNativeProfileMedia(slot){
+  if(state.publicMediaBusy||state.publicProfileBusy||state.publicProfileData?.can_edit!==true||!['avatar','banner'].includes(slot))return;
+  const current=state.publicProfileData.profile,column=slot==='avatar'?'profile_image_path':'profile_banner_path';
+  if(!current?.[column])return;
+  if(!window.confirm('Remove this '+(slot==='avatar'?'business logo':'cover image')+'? Customers will no longer see it.'))return;
+  const epoch=sessionEpoch;
+  state.publicMediaBusy=true;state.publicMediaFeedback='Removing the saved image…';render();
+  try{
+   const result=await api('/api/business-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'remove_media',slot})});
+   if(epoch!==sessionEpoch)return;
+   if(!result?.profile||result.profile[column])throw new Error('The server did not confirm image removal.');
+   state.publicProfileData=result;state.publicMediaFeedback='Image removed from the business profile.';
+   state.publicProfileError='';
+  }catch(error){
+   if(epoch===sessionEpoch)state.publicMediaFeedback=error?.message||'Could not confirm image removal.';
+  }finally{
+   if(epoch===sessionEpoch){state.publicMediaBusy=false;if(state.screen==='publicProfile')render({motion:'page'});}
+  }
+ }
  function publicProfile(){
   const d=state.publicProfileData?.profile,canEdit=state.publicProfileData?.can_edit===true;
   const field=(name,label,type='text',max=500)=>'<label>'+label+'<input name="'+name+'" type="'+type+'" maxlength="'+max+'" value="'+safe(d?.[name]||'')+'" '+(!canEdit?'disabled':'')+'></label>';
+  const mediaDisabled=(state.publicMediaBusy||state.publicProfileBusy)?'disabled':'';
   const area=(name,label,max)=>'<label>'+label+'<textarea name="'+name+'" rows="3" maxlength="'+max+'" '+(!canEdit?'disabled':'')+'>'+safe(d?.[name]||'')+'</textarea></label>';
-  return '<header class="cf-screen-top"><div><span class="cn-kicker">PUBLIC BUSINESS PAGE</span><h1>Public profile</h1></div><button class="cf-icon-button" type="button" data-public-profile-refresh aria-label="Refresh public profile">↻</button></header><p class="cn-caption">Manage the verified details customers see on your business page.</p>'+(state.publicProfileLoading?empty('Loading public profile…'):'')+(state.publicProfileError?empty(state.publicProfileError,'<button type="button" data-public-profile-refresh>Try again</button>'):'')+(d?'<section class="cn-detail-panel"><h2>Customer-facing preview</h2>'+(d.profile_banner_url?'<img class="cn-public-banner" src="'+safe(d.profile_banner_url)+'" alt="Business banner">':'')+(d.profile_image_url?'<img class="cn-public-avatar" src="'+safe(d.profile_image_url)+'" alt="Business profile image">':'')+'<h3>'+safe(d.business_name||'Business name not set')+'</h3><p>'+safe(d.description||'No public description yet.')+'</p><p class="cn-caption">'+safe(d.public_slug?'Public link is configured':'Public link not configured')+'</p>'+(d.preview_path?'<a class="cn-text-action" href="'+safe(d.preview_path)+'" target="_blank" rel="noopener">Preview public page ↗</a>':'')+'</section><section class="cn-detail-panel cn-colzo-record-form"><form id="cnPublicProfileForm">'+field('business_name','Business name','text',120)+field('business_type','Business type','text',120)+field('phone','Phone','tel',80)+field('email','Contact email','email',160)+field('website','Website','url',2048)+area('description','Public description',2000)+area('services','Services',4000)+area('opening_hours','Opening hours',500)+area('service_areas','Service areas',500)+'<p class="cn-caption" id="cnPublicProfileFeedback" role="status">'+safe(state.publicProfileFeedback)+'</p>'+(canEdit?'<button class="cn-primary" type="submit">Save public profile</button>':'<p class="cn-caption">You have read-only access to this profile.</p>')+'</form></section>':'');
+  return '<header class="cf-screen-top"><div><span class="cn-kicker">PUBLIC BUSINESS PAGE</span><h1>Public profile</h1></div><button class="cf-icon-button" type="button" data-public-profile-refresh aria-label="Refresh public profile">↻</button></header><p class="cn-caption">Manage the verified details customers see on your business page.</p>'+(state.publicProfileLoading?empty('Loading public profile…'):'')+(state.publicProfileError?empty(state.publicProfileError,'<button type="button" data-public-profile-refresh>Try again</button>'):'')+(d?'<section class="cn-detail-panel"><h2>Customer-facing preview</h2>'+(d.profile_banner_url?'<img class="cn-public-banner" src="'+safe(d.profile_banner_url)+'" alt="Business banner">':'')+(d.profile_image_url?'<img class="cn-public-avatar" src="'+safe(d.profile_image_url)+'" alt="Business profile image">':'')+'<h3>'+safe(d.business_name||'Business name not set')+'</h3><p>'+safe(d.description||'No public description yet.')+'</p><p class="cn-caption">'+safe(d.public_slug?'Public link is configured':'Public link not configured')+'</p>'+(d.preview_path?'<a class="cn-text-action" href="'+safe(d.preview_path)+'" target="_blank" rel="noopener">Preview public page ↗</a>':'')+'</section><section class="cn-detail-panel cn-profile-media-controls"><h2>Logo and cover image</h2><p class="cn-caption">Use your own JPG, PNG or WebP images (maximum 8 MB). The server checks the actual file content before changing your public profile.</p>'+
+  (state.publicMediaFeedback?'<p class="cn-work-message" role="status">'+safe(state.publicMediaFeedback)+'</p>':'')+
+  (canEdit?'<input type="file" id="cnPublicMediaInput" hidden accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">'+
+    '<div class="cn-form-actions"><button type="button" class="cn-secondary" data-public-media-upload="avatar" '+mediaDisabled+'>Upload logo</button>'+
+    (d.profile_image_path?'<button type="button" class="cn-secondary" data-public-media-remove="avatar" '+mediaDisabled+'>Remove logo</button>':'')+'</div>'+
+    '<div class="cn-form-actions"><button type="button" class="cn-secondary" data-public-media-upload="banner" '+mediaDisabled+'>Upload cover</button>'+
+    (d.profile_banner_path?'<button type="button" class="cn-secondary" data-public-media-remove="banner" '+mediaDisabled+'>Remove cover</button>':'')+'</div>':
+    '<p class="cn-caption">Only owners and administrators can change these images.</p>')+
+  '</section><section class="cn-detail-panel cn-colzo-record-form"><form id="cnPublicProfileForm">'+field('business_name','Business name','text',120)+field('business_type','Business type','text',120)+field('phone','Phone','tel',80)+field('email','Contact email','email',160)+field('website','Website','url',2048)+area('description','Public description',2000)+area('services','Services',4000)+area('opening_hours','Opening hours',500)+area('service_areas','Service areas',500)+'<p class="cn-caption" id="cnPublicProfileFeedback" role="status">'+safe(state.publicProfileFeedback)+'</p>'+(canEdit?'<button class="cn-primary" type="submit">Save public profile</button>':'<p class="cn-caption">You have read-only access to this profile.</p>')+'</form></section>':'');
  }
  async function loadAutomation(force=false){
   const requestEpoch=sessionEpoch;
@@ -1630,7 +1694,16 @@
   if(target.hasAttribute('data-cn-create-lead')){state.leadForm={mode:'create',lead:null};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});return}
   if(target.hasAttribute('data-cn-edit-lead')){const id=target.getAttribute('data-cn-edit-lead'),lead=records().enquiries.find(x=>String(x.id)===String(id));if(lead){state.leadForm={mode:'edit',lead};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});}return}
   if(target.hasAttribute('data-cn-lead-cancel')){confirmUnsaved(()=>{const editing=state.leadForm?.mode==='edit';state.leadForm=null;state.leadFeedback='';state.screen=editing?'lead':'enquiries';render({motion:'page'})});return}
-  if(target.hasAttribute('data-public-profile-refresh')){loadPublicProfile(true);return}
+  if(target.hasAttribute('data-public-media-upload')){
+   const slot=target.getAttribute('data-public-media-upload');
+   if(!['avatar','banner'].includes(slot)||state.publicProfileData?.can_edit!==true||state.publicMediaBusy)return;
+   confirmUnsaved(()=>{state.publicMediaSlot=slot;content.querySelector('#cnPublicMediaInput')?.click()});return;
+  }
+  if(target.hasAttribute('data-public-media-remove')){
+   const slot=target.getAttribute('data-public-media-remove');
+   confirmUnsaved(()=>removeNativeProfileMedia(slot));return;
+  }
+  if(target.hasAttribute('data-public-profile-refresh')){confirmUnsaved(()=>loadPublicProfile(true));return}
   if(target.hasAttribute('data-automation-refresh')){loadAutomation(true);return}
   if(target.hasAttribute('data-automation-pause')){pauseNativeMarketingAutomation();return}
   if(target.hasAttribute('data-analytics-refresh')){loadAnalytics(true);return}
@@ -1738,6 +1811,12 @@
  root.addEventListener('input',e=>{if(e.target.matches?.('#cnColzoForm input[name=\"progress\"][type=\"range\"]')){const output=e.target.closest('label')?.querySelector('output');if(output)output.value=e.target.value+'%';return}if(e.target.hasAttribute('data-react-field'))return;if(e.target.id==='cnClientSearch'){const pos=e.target.selectionStart;state.clientSearch=e.target.value;render();const field=content.querySelector('#cnClientSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnWorkSearch'){state.workSearch[state.screen]=e.target.value;const start=e.target.selectionStart;render();const field=content.querySelector('#cnWorkSearch');if(field){field.focus();field.setSelectionRange(Math.min(start,field.value.length),Math.min(start,field.value.length))}return}if(e.target.id==='cnQuoteSearch'){state.search=e.target.value;const pos=e.target.selectionStart;render();const field=content.querySelector('#cnQuoteSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
  root.addEventListener('submit',e=>{if(e.target.inert||root.querySelector('.cn-unsaved-overlay')){e.preventDefault();e.stopPropagation();return}if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnKnowledgeReviewForm'){e.preventDefault();approveKnowledge();return}if(e.target.id==='cnReceptionForm'){e.preventDefault();saveReceptionConfig();return}if(['cnGrowthReviewForm','cnGrowthFollowupForm'].includes(e.target.id)){e.preventDefault();saveGrowthSettings(e.target);return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
  root.addEventListener('change',e=>{
+   if(e.target.id==='cnPublicMediaInput'){
+    const file=e.target.files?.[0]||null,slot=state.publicMediaSlot;
+    e.target.value='';state.publicMediaSlot=null;
+    if(file)uploadNativeProfileMedia(file,slot);
+    return;
+   }
    if(e.target.id==='cnKnowledgeFileInput'){
     const file=e.target.files?.[0]||null;
     const replaceId=state.knowledgeReplaceId;state.knowledgeReplaceId=null;
