@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingDrafts:null,marketingCanApprove:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationLoading:false,automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -241,7 +241,7 @@
   if(state.marketingLoading||(!force&&Array.isArray(state.marketingDrafts)))return;
   state.marketingLoading=true;state.marketingError='';
   if(state.screen==='marketing')render();
-  try{if(typeof api!=='function')throw new Error('Marketing is unavailable in this preview.');const result=await api('/api/marketing?limit=50');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.generations))throw new Error('Unexpected marketing response.');state.marketingDrafts=result.generations}
+  try{if(typeof api!=='function')throw new Error('Marketing is unavailable in this preview.');const result=await api('/api/marketing?limit=50');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.generations))throw new Error('Unexpected marketing response.');state.marketingDrafts=result.generations;state.marketingCanApprove=result.can_approve===true}
   catch(error){if(requestEpoch!==sessionEpoch)return;state.marketingError=error?.message||'Saved marketing drafts could not be loaded.'}
   finally{if(requestEpoch!==sessionEpoch)return;state.marketingLoading=false;if(state.screen==='marketing')render()}
  }
@@ -301,17 +301,78 @@
   catch(error){state.marketingError=error?.message||'Draft could not be deleted.'}
   finally{state.marketingBusy=false;if(state.screen==='marketing')render()}
  }
+ async function prepareMarketingApproval(id){
+  if(!state.marketingCanApprove||state.marketingBusy)return;
+  const draft=state.marketingDrafts?.find(item=>String(item.id)===String(id)&&item.approval_status!=='approved');
+  if(!draft||!draft.output)return;
+  state.marketingApprovalDraft=draft;state.marketingApprovalPreview=null;state.marketingApprovalError='';state.marketingApprovalLoading=draft.platform==='facebook';
+  render({motion:'detail'});
+  if(draft.platform!=='facebook'){
+   // Non-Facebook channels have no caption review hash in the existing backend.
+   // Display exactly the saved text and ask for separate explicit approval.
+   state.marketingApprovalPreview={caption:String(draft.output.main_copy||draft.output.text||''),caption_sha256:null};
+   state.marketingApprovalLoading=false;render();return;
+  }
+  const epoch=sessionEpoch;
+  try{
+   const output=draft.output||{};
+   const response=await api('/api/marketing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    action:'preview',generation_id:draft.id,output:{
+     main_copy:String(output.main_copy||''),
+     call_to_action:String(output.call_to_action||''),
+     hashtags:Array.isArray(output.hashtags)?output.hashtags:[]
+    }
+   })});
+   if(epoch!==sessionEpoch||state.marketingApprovalDraft?.id!==draft.id)return;
+   if(typeof response?.caption!=='string'||!/^[0-9a-f]{64}$/i.test(response.caption_sha256||''))throw new Error('The reviewed Facebook caption was not verified.');
+   state.marketingApprovalPreview=response;
+  }catch(error){if(epoch===sessionEpoch)state.marketingApprovalError=error?.message||'Could not verify this Facebook preview.'}
+  finally{if(epoch===sessionEpoch){state.marketingApprovalLoading=false;if(state.screen==='marketing')render()}}
+ }
+ async function approveMarketingDraft(){
+  const draft=state.marketingApprovalDraft,preview=state.marketingApprovalPreview;
+  if(!state.marketingCanApprove||state.marketingBusy||!draft||!preview)return;
+  if(draft.platform==='facebook'&&!/^[0-9a-f]{64}$/i.test(preview.caption_sha256||''))return;
+  if(!window.confirm('Approve this exact saved draft? This does not schedule or publish a post.'))return;
+  state.marketingBusy=true;state.marketingApprovalError='';
+  const epoch=sessionEpoch;
+  try{
+   const body={action:'approve',generation_id:draft.id};
+   if(draft.platform==='facebook')body.preview_sha256=preview.caption_sha256;
+   const result=await api('/api/marketing',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   if(epoch!==sessionEpoch)return;
+   if(result?.generation?.id!==draft.id||result?.generation?.approval_status!=='approved')throw new Error('The approval was not confirmed by the server.');
+   state.marketingApprovalDraft=null;state.marketingApprovalPreview=null;
+   state.marketingFeedback='Draft approved. It is not scheduled or published.';
+   await loadMarketingDrafts(true);
+  }catch(error){if(epoch===sessionEpoch)state.marketingApprovalError=error?.message||'Approval could not be confirmed. The draft remains unapproved.'}
+  finally{if(epoch===sessionEpoch){state.marketingBusy=false;if(state.screen==='marketing')render()}}
+ }
  function marketing(){
   const drafts=Array.isArray(state.marketingDrafts)?state.marketingDrafts:[];
   const schedules=Array.isArray(state.marketingSchedules)?state.marketingSchedules:[];
   const scheduleForm=state.marketingSchedulingDraft?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnMarketingScheduleForm"><h2>Schedule approved draft</h2><p class="cn-caption">'+safe(state.marketingSchedulingDraft.request_text||'Approved marketing draft')+'</p><label>Facebook publish date and time<input name="scheduled_for" type="datetime-local" required></label><input type="hidden" name="generation_id" value="'+safe(state.marketingSchedulingDraft.id)+'"><p class="cn-caption">Scheduling can publish this approved content on Facebook at the chosen time. The server will verify connection, approval and daily limits before saving.</p><p id="cnMarketingScheduleFeedback" class="cn-caption" role="status"></p><div class="cn-form-actions"><button class="cn-primary" type="submit">Schedule post</button><button class="cn-secondary" type="button" data-marketing-cancel-schedule>Cancel</button></div></form></section>':'';
   const create=state.marketingForm?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnMarketingForm"><h2>Create a marketing draft</h2><label>Content type<select name="content_type"><option value="social_post">Social post</option><option value="caption">Caption</option><option value="promotional_post">Promotional post</option><option value="announcement">Announcement</option><option value="offer">Offer</option><option value="event">Event</option><option value="update">Update</option></select></label><label>Platform<select name="platform"><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="linkedin">LinkedIn</option><option value="general">General</option></select></label><label>Tone<select name="tone"><option value="friendly">Friendly</option><option value="professional">Professional</option><option value="casual">Casual</option><option value="promotional">Promotional</option></select></label><label>What should the post cover?<textarea name="prompt" rows="4" maxlength="2000" required placeholder="Describe the service, update or offer. Avoid unverified claims."></textarea></label><label>Extra instructions (optional)<textarea name="extra_instructions" rows="2" maxlength="1000"></textarea></label><p id="cnMarketingFeedback" class="cn-caption" role="status">Generation uses your existing AI Marketing allowance. Nothing publishes automatically.</p><div class="cn-form-actions"><button class="cn-primary" type="submit">Generate and save draft</button><button class="cn-secondary" type="button" data-marketing-cancel>Cancel</button></div></form></section>':'';
   const editor=state.marketingEditing?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnMarketingEditForm"><h2>Edit saved draft</h2><label>Main post text<textarea name="main_copy" rows="6" maxlength="5000" required>'+safe(state.marketingEditing.output?.main_copy||'')+'</textarea></label><label>Short alternative<textarea name="short_alternative" rows="3" maxlength="2000">'+safe(state.marketingEditing.output?.short_alternative||'')+'</textarea></label><label>Call to action<input name="call_to_action" maxlength="500" value="'+safe(state.marketingEditing.output?.call_to_action||'')+'"></label><label>Hashtags<textarea name="hashtags" rows="2" maxlength="1000">'+safe((state.marketingEditing.output?.hashtags||[]).join(' '))+'</textarea></label><p id="cnMarketingEditFeedback" class="cn-caption" role="status">Saving edits resets approval. This will not publish the post.</p><div class="cn-form-actions"><button class="cn-primary" type="submit">Save edits</button><button class="cn-secondary" type="button" data-marketing-cancel>Cancel</button></div></form></section>':'';
+  const review=state.marketingApprovalDraft?(()=>{
+    const draft=state.marketingApprovalDraft,p=state.marketingApprovalPreview;
+    return '<section class="cn-detail-panel cn-marketing-approval" aria-label="Review saved marketing draft">'+
+     '<div class="cn-section-bar"><h2>Review before approving</h2><span class="cn-pill attention">Not published</span></div>'+
+     '<p class="cn-caption">Platform: '+safe(draft.platform||'general')+'. Approval does not publish or schedule the post.</p>'+
+     (state.marketingApprovalLoading?'<p class="cn-caption" role="status">Verifying the saved caption…</p>':'')+
+     (state.marketingApprovalError?'<p class="cn-settings-error" role="alert">'+safe(state.marketingApprovalError)+'</p>':'')+
+     (p?'<div class="cn-marketing-caption"><p>'+safe(p.caption||'').replace(/\n/g,'<br>')+'</p></div>'+
+        '<p class="cn-caption">'+(draft.platform==='facebook'?'This is the verified Facebook caption, including the saved call to action and hashtags.':'This is the saved content for review. Platform publication remains separately configured.')+'</p>':'')+
+     '<div class="cn-form-actions"><button type="button" class="cn-primary" data-marketing-approve '+(!p||state.marketingBusy?'disabled':'')+'>Approve draft</button><button type="button" class="cn-secondary" data-marketing-cancel-review>Close review</button></div></section>';
+   })():'';
+  const approvalQueue=state.marketingCanApprove?drafts.filter(d=>d.approval_status!=='approved'&&d.output).map(d=>
+   '<button type="button" class="cn-marketing-review-link" data-marketing-review="'+safe(d.id)+'"><span><strong>'+safe(d.request_text||'Saved marketing draft')+'</strong><small>'+safe(d.platform||'general')+' · Needs approval</small></span><span aria-hidden="true">Review ›</span></button>').join(''):'';
+  const reviewQueue=approvalQueue?'<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Awaiting approval</h2><span class="cn-pill attention">Owner review</span></div><p class="cn-caption">Review the exact saved draft before it may be scheduled. Nothing publishes automatically.</p>'+approvalQueue+'</section>':'';
   const list=drafts.map(d=>'<article class="cn-detail-panel cn-marketing-card"><div class="cn-section-bar"><span class="cn-kicker">'+safe(d.platform||'general')+' · '+safe(d.content_type||'post')+'</span><span class="cn-pill '+(d.approval_status==='approved'?'success':'attention')+'">'+safe(d.approval_status||'draft')+'</span></div><h2>'+safe(d.request_text||'Marketing draft')+'</h2><p>'+safe(d.output?.main_copy||d.output?.text||'Draft content unavailable.')+'</p><small class="cn-caption">Created '+safe(day(d.created_at))+' · Not published by this screen</small><div class="cn-form-actions"><button class="cn-secondary" type="button" data-marketing-edit="'+safe(d.id)+'">Edit draft</button><button class="cn-secondary" type="button" data-marketing-delete="'+safe(d.id)+'">Delete</button>'+(d.approval_status==='approved'?'<button class="cn-primary" type="button" data-marketing-schedule="'+safe(d.id)+'">Schedule</button>':'')+'</div></article>').join('');
   const scheduleList=schedules.map(item=>'<article class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">'+safe(item.platform||'facebook')+' · '+safe(item.status||'scheduled')+'</span><span class="cn-pill '+(item.status==='posted'?'success':item.status==='failed'?'attention':'progress')+'">'+safe(item.status||'scheduled')+'</span></div><h2>'+safe(item.generation?.request_text||'Scheduled post')+'</h2><p>'+safe(item.generation?.main_copy||'Saved content unavailable.')+'</p><p class="cn-caption">'+safe(item.scheduled_for?new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeStyle:'short'}).format(new Date(item.scheduled_for)):'Time not recorded')+'</p>'+(item.status==='scheduled'?'<button type="button" class="cn-secondary" data-marketing-cancel-item="'+safe(item.id)+'">Cancel schedule</button>':'')+(item.failure_message?'<p class="cn-caption" role="status">'+safe(item.failure_message)+'</p>':'')+'</article>').join('');
   const nav='<div class="cf-tabs cf-project-tabs" role="group" aria-label="Marketing sections"><button type="button" data-marketing-view="drafts" aria-pressed="'+(state.marketingView==='drafts')+'">Draft library</button><button type="button" data-marketing-view="schedule" aria-pressed="'+(state.marketingView==='schedule')+'">Schedule</button></div>';
   const listBody=state.marketingView==='drafts'?(state.marketingLoading?empty('Loading saved drafts…'):state.marketingError?empty(state.marketingError,'<button type="button" data-marketing-refresh>Try again</button>'):(list||empty('No saved marketing drafts yet. Create one when you are ready.'))):(state.marketingSchedulesLoading?empty('Loading scheduled posts…'):state.marketingScheduleError?empty(state.marketingScheduleError,'<button type="button" data-marketing-refresh-schedules>Try again</button>'):(scheduleList||empty('No scheduled posts found.')));
-  return '<header class="cf-screen-top"><div><span class="cn-kicker">CONTENT STUDIO</span><h1>Marketing</h1></div><button type="button" class="cf-icon-button volt" data-marketing-create aria-label="Create marketing draft">+</button></header><p class="cn-caption">Create, review and manage saved drafts and scheduled posts.</p>'+nav+(state.marketingFeedback?'<p class="cn-work-message" role="status">'+safe(state.marketingFeedback)+'</p>':'')+create+editor+scheduleForm+listBody+'<p class="cn-caption"><div class="cn-knowledge-related"><span>AI drafts rely on approved business facts.</span><button class="cn-secondary" type="button" data-cn-screen="knowledge">Manage Business Knowledge →</button></div>Draft generation never auto-publishes. Scheduling is explicit and only permitted for approved drafts.</p>';
+  return '<header class="cf-screen-top"><div><span class="cn-kicker">CONTENT STUDIO</span><h1>Marketing</h1></div><button type="button" class="cf-icon-button volt" data-marketing-create aria-label="Create marketing draft">+</button></header><p class="cn-caption">Create, review and manage saved drafts and scheduled posts.</p>'+nav+(state.marketingFeedback?'<p class="cn-work-message" role="status">'+safe(state.marketingFeedback)+'</p>':'')+create+editor+scheduleForm+review+reviewQueue+listBody+'<p class="cn-caption"><div class="cn-knowledge-related"><span>AI drafts rely on approved business facts.</span><button class="cn-secondary" type="button" data-cn-screen="knowledge">Manage Business Knowledge →</button></div>Draft generation never auto-publishes. Scheduling is explicit and only permitted for approved drafts.</p>';
  }
  async function loadPublicProfile(force=false){
   const requestEpoch=sessionEpoch;
@@ -585,11 +646,149 @@
   catch(error){if(requestEpoch!==sessionEpoch)return;state.voiceError=error?.message||'Receptionist status could not be loaded.'}
   finally{if(requestEpoch!==sessionEpoch)return;state.voiceLoading=false;if(state.screen==='receptionist')render()}
  }
+ async function loadReceptionConfig(force=false){
+  const epoch=sessionEpoch;
+  if(state.receptionLoading||(!force&&state.receptionConfig))return;
+  state.receptionLoading=true;state.receptionError='';
+  if(state.screen==='receptionist'&&!state.receptionEditing)render();
+  try{
+   const result=await api('/api/business-configuration');
+   if(epoch!==sessionEpoch)return;
+   if(!result||!result.configuration||typeof result.configuration!=='object')throw new Error('Business configuration is not available for this workspace.');
+   state.receptionConfig=result.configuration;
+   state.receptionCanManage=result.can_manage===true;
+  }catch(error){if(epoch!==sessionEpoch)return;state.receptionError=error?.message||'AI receptionist settings could not be loaded.'}
+  finally{if(epoch!==sessionEpoch)return;state.receptionLoading=false;if(state.screen==='receptionist'&&!state.receptionEditing)render()}
+ }
+ async function loadNativeHandovers(force=false){
+  const epoch=sessionEpoch;
+  if(state.handoverLoading||(!force&&Array.isArray(state.handoverRows)))return;
+  state.handoverLoading=true;state.handoverError='';
+  if(state.screen==='receptionist'&&!state.receptionEditing)render();
+  try{
+   const result=await api('/api/handovers');
+   if(epoch!==sessionEpoch)return;
+   if(!Array.isArray(result))throw new Error('Unexpected handover response.');
+   state.handoverRows=result;
+  }catch(error){if(epoch!==sessionEpoch)return;state.handoverError=error?.message||'Handovers could not be loaded.'}
+  finally{if(epoch!==sessionEpoch)return;state.handoverLoading=false;if(state.screen==='receptionist'&&!state.receptionEditing)render()}
+ }
+ const receptionistModeLabels={
+  human_first:['Human-first','Answer approved basic facts and pass genuine enquiries to your team.'],
+  balanced:['Balanced','Answer supported questions, collect enquiries and hand over personalised commitments.'],
+  ai_first:['AI-first','Handle supported enquiries independently. Safety and human handovers still take priority.']
+ };
+ function startReceptionEdit(){
+  if(!state.receptionCanManage||!state.receptionConfig||state.receptionBusy)return;
+  const c=state.receptionConfig;
+  state.receptionDraft={ai_handling_mode:['human_first','balanced','ai_first'].includes(c.ai_handling_mode)?c.ai_handling_mode:'balanced',
+   customer_enquiry_instructions:String(c.customer_enquiry_instructions||''),
+   handover_instructions:String(c.handover_instructions||''),
+   faqs:Array.isArray(c.faqs)?c.faqs.slice(0,40).map(item=>({question:String(item.question||''),answer:String(item.answer||'')})):[]};
+  state.receptionEditing=true;state.receptionFeedback='';render({motion:'detail'});
+ }
+ function captureReceptionDraft(){
+  const form=content.querySelector('#cnReceptionForm');
+  if(!form||!state.receptionDraft)return null;
+  const mode=form.querySelector('[name="ai_handling_mode"]')?.value||'balanced';
+  const faqs=[...form.querySelectorAll('[data-reception-faq]')].map(row=>({
+   question:row.querySelector('[data-reception-question]')?.value.trim()||'',
+   answer:row.querySelector('[data-reception-answer]')?.value.trim()||''
+  }));
+  return {
+   ai_handling_mode:mode,
+   customer_enquiry_instructions:form.querySelector('[name="customer_enquiry_instructions"]')?.value.trim()||'',
+   handover_instructions:form.querySelector('[name="handover_instructions"]')?.value.trim()||'',
+   faqs
+  };
+ }
+ async function saveReceptionConfig(){
+  if(!state.receptionCanManage||state.receptionBusy||!state.receptionEditing)return;
+  const next=captureReceptionDraft();if(!next)return;
+  const feedback=content.querySelector('#cnReceptionFeedback'),form=content.querySelector('#cnReceptionForm');
+  if(!receptionistModeLabels[next.ai_handling_mode]||next.customer_enquiry_instructions.length>6000||next.handover_instructions.length>4000||
+     next.faqs.length>40||next.faqs.some(f=>!f.question||!f.answer||f.question.length>500||f.answer.length>2000)){
+   if(feedback)feedback.textContent='Check the selected mode and complete every FAQ. Each question and answer must be within its length limit.';return;
+  }
+  state.receptionBusy=true;
+  form.querySelector('[type="submit"]').disabled=true;
+  if(feedback)feedback.textContent='Saving receptionist configuration…';
+  const epoch=sessionEpoch;
+  try{
+   // Only the four supported fields. Never change voice enablement,
+   // provider connection, system safeguards or onboarding state here.
+   const result=await api('/api/business-configuration',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(next)});
+   if(epoch!==sessionEpoch)return;
+   if(!result?.configuration||result.configuration.ai_handling_mode!==next.ai_handling_mode)throw new Error('The server did not confirm the saved handling mode.');
+   state.receptionConfig=result.configuration;
+   state.receptionDraft=null;state.receptionEditing=false;
+   state.receptionFeedback='Configuration saved. Existing safety rules and provider status have not changed.';
+  }catch(error){if(epoch!==sessionEpoch)return;state.receptionError=error?.message||'The configuration could not be saved. Your edits are still here.';state.receptionDraft=next;}
+  finally{if(epoch===sessionEpoch){state.receptionBusy=false;render({motion:'page'})}}
+ }
+ async function updateNativeHandover(id,status){
+  if(state.handoverBusy||!['acknowledged','resolved'].includes(status)||!Array.isArray(state.handoverRows))return;
+  const row=state.handoverRows.find(item=>String(item.id)===String(id));
+  if(!row||!['requires_attention','acknowledged'].includes(row.status))return;
+  if(status==='acknowledged'&&row.status!=='requires_attention')return;
+  if(!window.confirm(status==='resolved'?'Mark this handover as resolved? This does not send a message to the customer.':'Acknowledge this handover as received?'))return;
+  state.handoverBusy=true;state.handoverError='';render();
+  const epoch=sessionEpoch;
+  try{
+   const result=await api('/api/handovers',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+   if(epoch!==sessionEpoch)return;
+   if(String(result?.id)!==String(id)||result?.status!==status)throw new Error('The server did not confirm the handover update.');
+   state.handoverRows=state.handoverRows.map(item=>String(item.id)===String(id)?result:item);
+  }catch(error){if(epoch===sessionEpoch)state.handoverError=error?.message||'The handover update was not saved.'}
+  finally{if(epoch===sessionEpoch){state.handoverBusy=false;render()}}
+ }
  function receptionist(){
-  const v=state.voiceStatus;
-  const {enquiries}=records();
+  const c=state.receptionConfig,v=state.voiceStatus,editable=state.receptionCanManage;
   const active=Boolean(v?.enabled&&v?.provider_connected&&v?.live_calls_enabled);
-  return '<header class="cf-screen-top"><div><span class="cn-kicker">AI ASSISTANT</span><h1>AI receptionist</h1></div><button class="cf-icon-button" type="button" data-voice-refresh aria-label="Refresh receptionist status">↻</button></header><p class="cn-caption">A clear view of your current phone-reception setup.</p>'+(state.voiceLoading?empty('Checking live configuration…'):'')+(state.voiceError?empty(state.voiceError,'<button type="button" data-voice-refresh>Try again</button>'):'')+(v?'<section class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">PHONE RECEPTION</span><span class="cn-pill '+(active?'success':'attention')+'">'+(active?'Connected':'Not connected')+'</span></div><h2>'+(active?'Voice receptionist is enabled':'Voice receptionist is not active')+'</h2><p>'+safe(v.message||'Live phone handling is not configured.')+'</p><dl><div><dt>Provider connection</dt><dd>'+ (v.provider_connected?'Connected':'Not connected')+'</dd></div><div><dt>Live calling</dt><dd>'+ (v.live_calls_enabled?'Enabled':'Disabled')+'</dd></div><div><dt>Environment gate</dt><dd>'+ (v.environment_gate_enabled?'Enabled':'Disabled')+'</dd></div></dl></section>':'')+'<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Enquiry handover</h2><span class="cn-pill progress">'+enquiries.length+' recorded</span></div><p class="cn-caption">These are existing business enquiries, not a fabricated call transcript or voice-call count.</p><button class="cn-primary" type="button" data-cn-screen="enquiries">View enquiries</button></section><section class="cn-detail-panel"><h2>What is available?</h2><p class="cn-caption">The existing web enquiry assistant and owner workflows remain separate from live phone answering. This screen will only show voice features that the server confirms are enabled.</p><button class="cn-secondary" type="button" data-cn-screen="knowledge">Business Knowledge</button><button class="cn-secondary" type="button" data-cn-setting="integrations">Review integrations</button></section>';
+  const mode=['human_first','balanced','ai_first'].includes(c?.ai_handling_mode)?c.ai_handling_mode:'balanced';
+  const header='<header class="cf-screen-top"><div><span class="cn-kicker">AI ASSISTANT</span><h1>AI receptionist</h1></div><button type="button" class="cf-icon-button" data-reception-refresh aria-label="Refresh receptionist settings">↻</button></header>';
+  const intro='<p class="cn-caption">Control how your web assistant responds to business enquiries. Live telephone calls are a separate provider service.</p>';
+  const notice=state.receptionFeedback?'<p class="cn-work-message" role="status">'+safe(state.receptionFeedback)+'</p>':'';
+  const error=state.receptionError?'<p class="cn-settings-error" role="alert">'+safe(state.receptionError)+'</p>':'';
+  const loading=state.receptionLoading?empty('Loading assistant configuration…'):'';
+  const summary=c?'<section class="cn-detail-panel"><div class="cn-section-bar"><span class="cn-kicker">WEB ASSISTANT</span><span class="cn-pill success">Configured</span></div>'+
+   '<h2>'+safe(receptionistModeLabels[mode][0])+'</h2><p class="cn-caption">'+safe(receptionistModeLabels[mode][1])+'</p>'+
+   '<dl><div><dt>FAQs</dt><dd>'+Math.min(40,Array.isArray(c.faqs)?c.faqs.length:0)+'</dd></div><div><dt>Custom instructions</dt><dd>'+(c.customer_enquiry_instructions?'Saved':'Not set')+'</dd></div><div><dt>Human handover</dt><dd>'+(c.handover_instructions?'Instructions saved':'Standard safeguards')+'</dd></div></dl>'+
+   (editable&&!state.receptionEditing?'<button type="button" class="cn-primary" data-reception-edit>Edit assistant settings</button>':'')+
+   (!editable?'<p class="cn-caption">You have read-only access to these settings.</p>':'')+'</section>':'';
+  const draft=state.receptionDraft;
+  const modes=Object.entries(receptionistModeLabels).map(([value,description])=>'<option value="'+value+'" '+(draft?.ai_handling_mode===value?'selected':'')+'>'+safe(description[0])+'</option>').join('');
+  const faqs=(draft?.faqs||[]).map((faq,i)=>'<div class="cn-reception-faq" data-reception-faq><div class="cn-section-bar"><strong>FAQ '+(i+1)+'</strong><button type="button" class="cn-secondary" data-reception-remove-faq="'+i+'">Remove</button></div>'+
+   '<label>Customer question<input maxlength="500" data-reception-question required value="'+safe(faq.question)+'"></label><label>Approved answer<textarea maxlength="2000" rows="3" data-reception-answer required>'+safe(faq.answer)+'</textarea></label></div>').join('');
+  const editor=state.receptionEditing&&draft?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnReceptionForm"><h2>Assistant configuration</h2>'+
+    '<p class="cn-caption">Changing handling mode never overrides safety routing or enables phone answering.</p>'+
+    '<label>How should Colzo respond?<select name="ai_handling_mode">'+modes+'</select></label>'+
+    '<label>Enquiry instructions<textarea name="customer_enquiry_instructions" rows="4" maxlength="6000" placeholder="What should Colzo ask customers about?">'+safe(draft.customer_enquiry_instructions)+'</textarea></label>'+
+    '<label>Human handover instructions<textarea name="handover_instructions" rows="4" maxlength="4000" placeholder="When and how should the team follow up?">'+safe(draft.handover_instructions)+'</textarea></label>'+
+    '<h3>Frequently asked questions</h3><p class="cn-caption">Approved FAQs belong to this business. The assistant cannot invent prices or availability.</p>'+faqs+
+    '<button type="button" class="cn-secondary" data-reception-add-faq '+(draft.faqs.length>=40?'disabled':'')+'>+ Add FAQ</button>'+
+    '<p id="cnReceptionFeedback" role="status" class="cn-caption"></p><div class="cn-form-actions"><button type="submit" class="cn-primary" '+(state.receptionBusy?'disabled':'')+'>Save assistant settings</button>'+
+    '<button type="button" class="cn-secondary" data-reception-cancel>Cancel</button></div></form></section>':'';
+  const phone='<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Telephone reception</h2><span class="cn-pill '+(active?'success':'attention')+'">'+(active?'Connected':'Not connected')+'</span></div>'+
+   (state.voiceLoading?'<p class="cn-caption">Checking connection…</p>':'')+
+   (state.voiceError?'<p class="cn-settings-error">'+safe(state.voiceError)+'</p>':'')+
+   (v?'<p>'+safe(v.message||'Voice provider status is not available.')+'</p><dl><div><dt>Provider</dt><dd>'+(v.provider_connected?'Connected':'Not connected')+'</dd></div><div><dt>Live calls</dt><dd>'+(v.live_calls_enabled?'Enabled':'Disabled')+'</dd></div><div><dt>Environment gate</dt><dd>'+(v.environment_gate_enabled?'Enabled':'Disabled')+'</dd></div></dl>':'<p class="cn-caption">Live calling is not confirmed and remains unavailable from this screen.</p>')+
+   '<p class="cn-caption">This screen cannot enable calls or provision a phone number.</p></section>';
+  const rows=Array.isArray(state.handoverRows)?state.handoverRows:[];
+  const pending=rows.filter(row=>row.status==='requires_attention');
+  const recent=rows.slice(0,15).map(row=>'<article class="cn-reception-handover"><div class="cn-section-bar"><strong>'+safe((row.reason||'Human handover').replace(/_/g,' '))+'</strong><span class="cn-pill '+(row.status==='resolved'?'success':'attention')+'">'+safe((row.status||'requires_attention').replace(/_/g,' '))+'</span></div>'+
+   '<p>'+safe(row.summary||'Review the linked enquiry for context.')+'</p><small class="cn-caption">'+safe(row.created_at?day(row.created_at):'')+'</small>'+
+   (['requires_attention','acknowledged'].includes(row.status)?'<div class="cn-form-actions">'+(row.status==='requires_attention'?'<button class="cn-secondary" type="button" data-reception-handover="'+safe(row.id)+'" data-reception-handover-status="acknowledged">Acknowledge</button>':'')+
+    '<button class="cn-secondary" type="button" data-reception-handover="'+safe(row.id)+'" data-reception-handover-status="resolved">Resolve</button></div>':'')+'</article>').join('');
+  const handover='<section class="cn-detail-panel"><div class="cn-section-bar"><h2>Human handovers</h2><span class="cn-pill progress">'+pending.length+' need attention</span></div>'+
+   '<p class="cn-caption">Records are loaded from your existing business handover service, not simulated call counts.</p>'+
+   (state.handoverLoading?'<p class="cn-caption">Loading handovers…</p>':'')+
+   (state.handoverError?'<p class="cn-settings-error" role="alert">'+safe(state.handoverError)+'</p>':'')+
+   (recent||(!state.handoverLoading&&!state.handoverError?'<p class="cn-caption">No handovers recorded for this business.</p>':''))+
+   '<button class="cn-secondary" type="button" data-cn-screen="enquiries">View enquiries</button></section>';
+  return header+intro+notice+error+loading+summary+editor+phone+handover+
+    '<section class="cn-detail-panel"><h2>Trusted answers</h2><p class="cn-caption">Only approved Business Knowledge can ground the assistant and Marketing. Unsupported requests and emergencies still require safe routing.</p>'+
+    '<div class="cn-form-actions"><button class="cn-secondary" type="button" data-cn-screen="knowledge">Business Knowledge</button><button class="cn-secondary" type="button" data-cn-setting="integrations">Integrations</button></div></section>';
  }
  function more(){
   const moreItems=[['analytics','▥','Analytics','Recorded activity and opportunity value'],['publicProfile','◈','Public profile','Customer-facing business details'],['feedback','?','Help and feedback','Send a secure feedback report'],['automations','↻','Automations','Read current automation status'],['billing','◈','Billing','Current plan and feature access'],['knowledge','◇','Business knowledge','Facts and accuracy review'],['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
@@ -1056,10 +1255,10 @@
  }
  // Approved-screen correction #089: preserve edited user input across navigation.
  // This dialog never claims to save or persist data; it only prevents accidental loss.
- const dirtyFormSelector='#cnLeadForm[data-cn-dirty="true"], #cnColzoForm[data-cn-dirty="true"], #cnBusinessSettings[data-cn-dirty="true"], #cnWorkForm[data-cn-dirty="true"], #cnKnowledgeForm[data-cn-dirty="true"], #cnKnowledgeReviewForm[data-cn-dirty="true"]';
+ const dirtyFormSelector='#cnLeadForm[data-cn-dirty="true"], #cnColzoForm[data-cn-dirty="true"], #cnBusinessSettings[data-cn-dirty="true"], #cnWorkForm[data-cn-dirty="true"], #cnKnowledgeForm[data-cn-dirty="true"], #cnKnowledgeReviewForm[data-cn-dirty="true"], #cnReceptionForm[data-cn-dirty="true"]';
  function markUnsavedDraft(event){
    const form=event.target.closest?.('form');
-   if(form&&['cnLeadForm','cnColzoForm','cnBusinessSettings','cnWorkForm','cnKnowledgeForm','cnKnowledgeReviewForm'].includes(form.id)){
+   if(form&&['cnLeadForm','cnColzoForm','cnBusinessSettings','cnWorkForm','cnKnowledgeForm','cnKnowledgeReviewForm','cnReceptionForm'].includes(form.id)){
      form.dataset.cnDirty='true';
    }
  }
@@ -1108,7 +1307,7 @@
    const before=state.screen;
    state.scrollByScreen.set(before,currentScroll());
    state.screen=screen;state.notification='';state.focusSearch=false;state.colzoForm=null;state.colzoFeedback='';
-  if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}if(screen==='receptionist')loadVoiceStatus();if(screen==='billing')loadBilling();if(screen==='knowledge')loadKnowledge();if(screen==='analytics')loadAnalytics();if(screen==='automations')loadAutomation();if(screen==='publicProfile')loadPublicProfile();
+  if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}if(screen==='receptionist'){loadVoiceStatus();loadReceptionConfig();loadNativeHandovers();}if(screen==='billing')loadBilling();if(screen==='knowledge')loadKnowledge();if(screen==='analytics')loadAnalytics();if(screen==='automations')loadAutomation();if(screen==='publicProfile')loadPublicProfile();
    const announcement=root.querySelector('#cnScreenAnnounce');if(announcement)announcement.textContent=`${{lead:'Enquiry details',more:'Settings',bookings:'Bookings',actions:'Actions',setting:nativeSettingMeta[state.setting]?.[0]||'Settings',clients:'Customers',quotes:'Quotes'}[screen]||screen.replace(/^./,x=>x.toUpperCase())} screen`;
    const direction=navPosition(screen)<navPosition(before)?-1:1;
    render({motion:screen==='lead'?'detail':'page',direction});
@@ -1238,6 +1437,9 @@
  }
  root.addEventListener('click',e=>{
   const target=e.target.closest('button');if(!target||!root.contains(target))return;
+  if(target.hasAttribute('data-marketing-review')){prepareMarketingApproval(target.getAttribute('data-marketing-review'));return}
+  if(target.hasAttribute('data-marketing-approve')){approveMarketingDraft();return}
+  if(target.hasAttribute('data-marketing-cancel-review')){state.marketingApprovalDraft=null;state.marketingApprovalPreview=null;state.marketingApprovalError='';render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-edit')){const id=target.getAttribute('data-marketing-edit');state.marketingEditing=state.marketingDrafts?.find(d=>String(d.id)===String(id))||null;state.marketingForm=false;render({motion:'detail'});return}
   if(target.hasAttribute('data-marketing-delete')){deleteMarketingDraft(target.getAttribute('data-marketing-delete'));return}
   if(target.hasAttribute('data-cn-create-lead')){state.leadForm={mode:'create',lead:null};state.leadFeedback='';state.screen='leadForm';render({motion:'detail'});return}
@@ -1265,6 +1467,24 @@
   if(target.hasAttribute('data-knowledge-approve')){approveKnowledge();return}
   if(target.hasAttribute('data-knowledge-remove')){removeKnowledgeSource(target.getAttribute('data-knowledge-remove'));return}
   if(target.hasAttribute('data-billing-refresh')){loadBilling(true);return}
+  if(target.hasAttribute('data-reception-refresh')){
+    if(state.receptionEditing)return;
+    loadVoiceStatus(true);loadReceptionConfig(true);loadNativeHandovers(true);return;
+  }
+  if(target.hasAttribute('data-reception-edit')){startReceptionEdit();return}
+  if(target.hasAttribute('data-reception-cancel')){confirmUnsaved(()=>{state.receptionEditing=false;state.receptionDraft=null;render({motion:'page'})});return}
+  if(target.hasAttribute('data-reception-add-faq')){
+    const next=captureReceptionDraft();if(!next||next.faqs.length>=40)return;
+    state.receptionDraft={...next,faqs:[...next.faqs,{question:'',answer:''}]};render({motion:'detail'});return;
+  }
+  if(target.hasAttribute('data-reception-remove-faq')){
+    const index=Number(target.getAttribute('data-reception-remove-faq'));
+    const next=captureReceptionDraft();if(!next||!Number.isSafeInteger(index)||index<0||index>=next.faqs.length)return;
+    next.faqs.splice(index,1);state.receptionDraft=next;render({motion:'detail'});return;
+  }
+  if(target.hasAttribute('data-reception-handover')){
+    if(state.receptionEditing){confirmUnsaved(()=>{state.receptionEditing=false;state.receptionDraft=null;updateNativeHandover(target.getAttribute('data-reception-handover'),target.getAttribute('data-reception-handover-status'))});}else updateNativeHandover(target.getAttribute('data-reception-handover'),target.getAttribute('data-reception-handover-status'));return;
+  }
   if(target.hasAttribute('data-voice-refresh')){loadVoiceStatus(true);return}
   if(target.hasAttribute('data-marketing-view')){state.marketingView=target.getAttribute('data-marketing-view');state.marketingSchedulingDraft=null;if(state.marketingView==='schedule')loadMarketingSchedules();render({motion:'filter'});return}
   if(target.hasAttribute('data-marketing-schedule')){const id=target.getAttribute('data-marketing-schedule');state.marketingSchedulingDraft=state.marketingDrafts?.find(d=>String(d.id)===String(id)&&d.approval_status==='approved')||null;state.marketingView='drafts';render({motion:'detail'});return}
@@ -1322,7 +1542,7 @@
   if(target.hasAttribute('data-cn-signout')){confirmUnsaved(()=>document.getElementById('logoutButton')?.click());return}
  });
  root.addEventListener('input',e=>{if(e.target.matches?.('#cnColzoForm input[name=\"progress\"][type=\"range\"]')){const output=e.target.closest('label')?.querySelector('output');if(output)output.value=e.target.value+'%';return}if(e.target.hasAttribute('data-react-field'))return;if(e.target.id==='cnClientSearch'){const pos=e.target.selectionStart;state.clientSearch=e.target.value;render();const field=content.querySelector('#cnClientSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnCommandSearch'){drawCommandResults();return}if(e.target.id==='cnWorkSearch'){state.workSearch[state.screen]=e.target.value;const start=e.target.selectionStart;render();const field=content.querySelector('#cnWorkSearch');if(field){field.focus();field.setSelectionRange(Math.min(start,field.value.length),Math.min(start,field.value.length))}return}if(e.target.id==='cnQuoteSearch'){state.search=e.target.value;const pos=e.target.selectionStart;render();const field=content.querySelector('#cnQuoteSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id==='cnProjectSearch'){const pos=e.target.selectionStart;state.projectSearch=e.target.value;render();const field=document.getElementById('cnProjectSearch');if(field){field.focus();field.setSelectionRange(Math.min(pos,field.value.length),Math.min(pos,field.value.length))}return}if(e.target.id!=='cnSearch')return;const pos=e.target.selectionStart;state.search=e.target.value;state.focusSearch=true;render();const i=document.getElementById('cnSearch');if(i)i.setSelectionRange(Math.min(pos,i.value.length),Math.min(pos,i.value.length));});
- root.addEventListener('submit',e=>{if(e.target.inert||root.querySelector('.cn-unsaved-overlay')){e.preventDefault();e.stopPropagation();return}if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnKnowledgeReviewForm'){e.preventDefault();approveKnowledge();return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
+ root.addEventListener('submit',e=>{if(e.target.inert||root.querySelector('.cn-unsaved-overlay')){e.preventDefault();e.stopPropagation();return}if(e.target.id==='cnLeadForm'){e.preventDefault();saveNativeLead(e.target);return}if(e.target.id==='cnPublicProfileForm'){e.preventDefault();savePublicProfile(e.target);return}if(e.target.id==='cnFeedbackForm'){e.preventDefault();submitNativeFeedback(e.target);return}if(e.target.id==='cnKnowledgeForm'){e.preventDefault();saveManualKnowledge(e.target);return}if(e.target.id==='cnKnowledgeReviewForm'){e.preventDefault();approveKnowledge();return}if(e.target.id==='cnReceptionForm'){e.preventDefault();saveReceptionConfig();return}if(e.target.id==='cnMarketingScheduleForm'){e.preventDefault();saveMarketingSchedule(e.target);return}if(e.target.id==='cnMarketingForm'){e.preventDefault();generateMarketingDraft(e.target);return}if(e.target.id==='cnMarketingEditForm'){e.preventDefault();saveMarketingEdit(e.target);return}if(e.target.id==='cnColzoForm'){e.preventDefault();saveColzoRecord(e.target);return}if(e.target.id==='cnWorkForm'){e.preventDefault();saveWork(e.target);return}if(e.target.id==='cnBusinessSettings'){e.preventDefault();saveNativeBusiness(e.target);return}if(e.target.id==='cnInviteTeam'){e.preventDefault();inviteNativeMember(e.target);return}if(e.target.id!=='cnDraftForm')return;e.preventDefault();copyDraft(e.target)});
  root.addEventListener('change',e=>{
    if(e.target.id==='cnKnowledgeFileInput'){
     const file=e.target.files?.[0]||null;

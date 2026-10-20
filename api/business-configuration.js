@@ -71,7 +71,7 @@ export default async function handler(req, res) {
       const configuration = await getConfiguration(auth.businessId);
       if (!configuration) return res.status(404).json({ error: "Business configuration not found" });
       const settings = await getSettings(auth.businessId);
-      return res.status(200).json({ configuration, onboarding: { state: onboardingState(configuration, settings), completed: onboardingState(configuration, settings) === "completed" }, templates: getIndustryTemplates() });
+      return res.status(200).json({ configuration, can_manage: ['owner','admin'].includes(auth.role), onboarding: { state: onboardingState(configuration, settings), completed: onboardingState(configuration, settings) === "completed" }, templates: getIndustryTemplates() });
     }
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid request body" });
