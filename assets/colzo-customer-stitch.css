@@ -72,12 +72,14 @@ body#colzoApp.customer-account #authScreen #sharedAuthShell .auth-role-message:e
 
 /* Shared customer/public containers. No selectors touch the owner workspace. */
 body#colzoApp :is(#customerPortalScreen,#publicDirectoryScreen,#publicBusinessProfileScreen,#publicEnquiryScreen){font-size:16px!important}
+body#colzoApp :is(#customerPortalScreen,#publicDirectoryScreen,#publicBusinessProfileScreen,#publicEnquiryScreen) [hidden]{display:none!important}
 body#colzoApp :is(.customer-portal-shell,.public-directory-shell,.public-business-profile-shell,.public-customer-shell){
   width:min(100%,640px)!important;max-width:640px!important;min-height:100dvh;
   margin:0 auto!important;padding:max(16px,env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom))!important;
   box-sizing:border-box;background:transparent!important;border:0!important;box-shadow:none!important;
 }
 body#colzoApp :is(.customer-portal-top,.public-directory-header,.public-business-profile-top){min-height:56px!important;padding:0 0 12px!important;margin:0 0 20px!important;gap:12px!important;border:0!important;flex-wrap:wrap}
+body#colzoApp :is(.customer-portal-top,.public-directory-header,.public-business-profile-top) :is(a,button){min-height:44px!important;min-width:44px!important}
 body#colzoApp :is(.customer-portal-mark,.public-directory-brand-mark,.public-profile-top-brand>img){display:none!important}
 body#colzoApp :is(.customer-portal-brand strong,.public-directory-brand h1,.public-profile-top-brand strong){font-size:19px!important;font-weight:600!important;color:#FFFFFF!important}
 body#colzoApp #customerPortalEmail{display:none!important}
@@ -141,6 +143,7 @@ body#colzoApp .customer-account-links a:last-child{border-bottom:0!important}
 body#colzoApp :is(.public-directory-hero,.public-directory-results-panel){background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important}
 body#colzoApp .public-directory-hero h2{font-size:24px!important;margin:0 0 12px!important;line-height:1.25!important}
 body#colzoApp .public-directory-hero p{font-size:15px!important;margin:0 0 20px!important;line-height:1.5!important}
+body#colzoApp .public-directory-section-head h3{font-size:17px!important;line-height:1.4!important;color:#FFFFFF!important}
 body#colzoApp :is(.public-directory-kicker,.public-directory-search-types,.customer-search-hints,.public-directory-prompt-icon){display:none!important}
 body#colzoApp :is(.public-directory-search,.customer-search-box){display:flex!important;align-items:stretch!important;gap:8px!important;padding:0!important;margin:16px 0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;width:100%}
 body#colzoApp :is(.public-directory-search>span,.customer-search-box>span){display:none!important}
