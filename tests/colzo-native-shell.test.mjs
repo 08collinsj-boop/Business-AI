@@ -60,7 +60,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('function billing()'));
  assert.ok(js.includes("const result=await api('/api/billing')"));
  assert.ok(js.includes('const moreItems=['));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
  assert.ok(js.includes('async function saveNativeLead'));
  assert.ok(js.includes("method:editing?'PATCH':'POST'"));
  assert.ok(js.includes("['New','Contacted','Converted']"));
@@ -72,7 +72,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('async function loadVoiceStatus'));
  assert.ok(js.includes('function receptionist()'));
  assert.ok(js.includes("api('/api/voice-status')"));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
  assert.ok(js.includes('async function saveMarketingSchedule'));
  assert.ok(js.includes('async function cancelMarketingSchedule'));
  assert.ok(js.includes("action:'create',generation_id:draftId,platform:'facebook'"));
