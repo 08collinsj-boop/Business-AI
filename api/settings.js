@@ -116,7 +116,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Business settings not found" });
       }
 
-      return res.status(200).json(settings);
+      return res.status(200).json(auth.enforced ? { ...settings, can_manage: ['owner','admin'].includes(auth.role) } : settings);
     }
 
 

@@ -425,3 +425,13 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-marketing-review-link small{display:block;margin-top:5px;color:#aebfbd;font-size:12px}
 #colzoOwner .cn-marketing-approval .cn-form-actions{flex-wrap:wrap}
 #colzoOwner .cn-marketing-approval button{min-height:44px}
+
+/* Native Growth & Sharing tools, scoped to signed-in business workspace. */
+#colzoOwner .cn-growth-field{display:grid;gap:8px;min-width:0;margin:14px 0;color:#bfcbd0;font-size:13px}
+#colzoOwner .cn-growth-field input,#colzoOwner .cn-growth-field textarea{box-sizing:border-box;width:100%;min-width:0;border:1px solid #435352;border-radius:12px;background:#131c1f;color:#f5f8f7;padding:12px;font:inherit;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+#colzoOwner .cn-growth-field textarea{resize:vertical;min-height:88px}
+#colzoOwner .cn-growth-toggle{display:flex!important;align-items:flex-start;gap:12px;padding:13px;border:1px solid #435250;border-radius:12px;background:#212b28;min-height:48px;margin-bottom:16px;line-height:1.45}
+#colzoOwner .cn-growth-toggle input{width:22px;height:22px;min-width:22px;accent-color:#c8ff2e}
+#colzoOwner a.cn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;text-decoration:none;padding:9px 13px;box-sizing:border-box}
+#colzoOwner .cn-detail-panel .cn-form-actions{flex-wrap:wrap}
+#colzoOwner .cn-detail-panel form :is(input,select,textarea):focus-visible{outline:2px solid #c8ff2e;outline-offset:2px}
