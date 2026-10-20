@@ -48,7 +48,7 @@ body#colzoApp #authScreen #sharedAuthShell .auth-input>span{position:static!impo
 body#colzoApp #authScreen #sharedAuthShell .auth-input>input{
   box-sizing:border-box;width:100%!important;min-width:0;min-height:52px!important;height:52px!important;
   margin:0!important;padding:14px!important;background:#151A22!important;border:1px solid #28313D!important;
-  border-radius:18px!important;color:#FFFFFF!important;font-size:16px!important;line-height:22px!important;box-shadow:none!important;
+  border-radius:18px!important;color:#FFFFFF!important;font-size:16px!important;font-weight:700!important;line-height:22px!important;box-shadow:none!important;
 }
 body#colzoApp #authScreen #sharedAuthShell .auth-input:has(.auth-password-toggle)>input{padding-right:60px!important}
 body#colzoApp #authScreen #sharedAuthShell .auth-password-toggle{position:absolute!important;right:4px!important;bottom:4px!important;top:auto!important;transform:none!important;min-width:44px!important;width:44px!important;height:44px!important;min-height:44px!important;padding:10px!important;color:#94A3B8!important;background:transparent!important;border:0!important;box-shadow:none!important}
