@@ -435,3 +435,12 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner a.cn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;text-decoration:none;padding:9px 13px;box-sizing:border-box}
 #colzoOwner .cn-detail-panel .cn-form-actions{flex-wrap:wrap}
 #colzoOwner .cn-detail-panel form :is(input,select,textarea):focus-visible{outline:2px solid #c8ff2e;outline-offset:2px}
+
+
+/* Saved Marketing imagery stays a read-only opt-in inspection surface. */
+#colzoOwner .cn-marketing-media{min-width:0}
+#colzoOwner .cn-marketing-media .cn-section-bar{align-items:flex-start;gap:12px}
+#colzoOwner .cn-marketing-media .cn-pill{flex:none}
+#colzoOwner .cn-marketing-media-preview{display:block;max-width:100%;width:auto;max-height:440px;object-fit:contain;border:1px solid #4a5556;border-radius:14px;margin:15px auto}
+#colzoOwner .cn-marketing-media button{min-height:44px}
+#colzoOwner .cn-automation-pause{display:block;min-height:44px;margin-top:15px;border-color:#a79061;color:#f3d7a2}
