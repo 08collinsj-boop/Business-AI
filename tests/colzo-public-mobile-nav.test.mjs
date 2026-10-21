@@ -43,3 +43,15 @@ test('selecting an internal menu destination dismisses the overlay',()=>{
  assert.equal(details.open,false);
 });
 
+
+
+test('signin guide never directs development testers to the old live application', () => {
+  const guide = [...doc.querySelectorAll('details.guide-card')].find(card =>
+    card.querySelector('summary')?.textContent.includes('Sign in and get started')
+  );
+  assert.ok(guide, 'sign-in guide must exist');
+  assert.doesNotMatch(guide.textContent, /app\.getbusiness-ai\.com/i);
+  assert.match(guide.textContent, /Business sign in/);
+  assert.ok(doc.querySelector('[data-colzo-app-link][data-colzo-app-path="/"]'),
+    'the managed app-link must exist above the guide');
+});
