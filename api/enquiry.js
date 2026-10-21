@@ -646,7 +646,7 @@ function trustedBusinessFAQReply(message, settings, configuration) {
   }
 
   const services = approvedFactEntries(settings?.services);
-  if (/\b(?:what|which) (?:services?|work) (?:do you|does (?:the business|your team)) (?:offer|provide|do)\b|\b(?:list|tell me about) (?:your|the) services\b|\bwhat (?:do you|does your business) do\b/i.test(value)) {
+  if (/\b(?:what|which) (?:services?|work) (?:do you|does (?:the business|your team)) (?:offer|provide|do)\b|\b(?:list|tell me about) (?:your|the) services\b|\bwhat (?:do you|does your business) do\b|\bwhat service(?:s)? do you provide\b/i.test(value)) {
     return services.length ? { type: 'services', reply: `${businessName} lists these services: ${services.join(', ')}.` } : null;
   }
 
@@ -1257,10 +1257,13 @@ overridden by business configuration.
 Your response must follow the supplied JSON schema.
 `;
 
-    const knownHandover = customerHandoverReason(conversationText) || previousHandover;
     const trustedCoverage = trustedCoverageReply(message, settings, configuration);
     const trustedFAQ = trustedCoverage ? null : trustedBusinessFAQReply(message, settings, configuration);
     const trustedBasicReply = trustedCoverage || trustedFAQ?.reply;
+    const currentHandover = customerHandoverReason(message);
+    // Do not let an old request for a person suppress a new factual FAQ.
+    // Safety and complaint continuations remain sticky.
+    const knownHandover = currentHandover || (previousHandover === "human_requested" && trustedBasicReply ? null : previousHandover);
     const hasAiSession = readAiSession(body.session, businessId, clientAddress);
     let aiSession = hasAiSession ? body.session : null;
     let billingReservation = null;
@@ -1474,8 +1477,8 @@ Your response must follow the supplied JSON schema.
     const explicitCaptureHasJob = Boolean(lead.job_type || lead.description || detectedJob);
     const clearlyOffTopic = looksClearlyOffTopic(message, settings, configuration);
     const offTopic = !knownHandover && (clearlyOffTopic || (modelSaysOffTopic(result.intent) && !deterministicBusinessEnquiry));
-    const decision = offTopic ? null : decideAIHandover(mode, result.intent, conversationText, Boolean(lead.handover_required));
-    let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : previousHandover || decision);
+    const decision = offTopic ? null : decideAIHandover(mode, result.intent, message, Boolean(lead.handover_required));
+    let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : knownHandover || decision);
     let handoverRequired = Boolean(reason);
     const ordinaryQuoteHandover = reason === "quote_or_commitment";
     const finalLead = {
