@@ -479,24 +479,35 @@ function findEmailInConversation(conversationText) {
 }
 
 function findNameInConversation(conversationText) {
-  const patterns = [
-    /my name is\s+([A-Za-z][A-Za-z '-]{1,50})/i,
-    /i'm\s+(?!in\b)([A-Za-z][A-Za-z '-]{1,50})/i,
-    /i am\s+(?!in\b)([A-Za-z][A-Za-z '-]{1,50})/i
-  ];
-
-  for (const pattern of patterns) {
-    const match = conversationText.match(pattern);
-
-    if (match?.[1]) {
+  const nonNameStarts = new Set([
+    'a', 'an', 'the', 'after', 'looking', 'trying', 'hoping', 'interested',
+    'wanting', 'needing', 'seeking', 'asking', 'calling', 'checking',
+    'wondering', 'thinking', 'planning', 'considering', 'searching',
+    'waiting', 'following', 'working', 'living', 'moving', 'based',
+    'located', 'in', 'at', 'from', 'on', 'here', 'there', 'not', 'just',
+    'going', 'having', 'getting', 'feeling', 'currently', 'very',
+    'really', 'free', 'available', 'happy', 'sorry', 'someone', 'one',
+    'booking', 'looking', 'inquiring', 'enquiring', 'unsure', 'new'
+  ]);
+  const lines = String(conversationText || '').split(/\n/).filter(line => /^user:\s*/i.test(line));
+  for (const line of lines.reverse()) {
+    const message = line.replace(/^user:\s*/i, '');
+    const patterns = [
+      /\bmy name is\s+([A-Za-z][A-Za-z' -]{0,70})/i,
+      /\b(?:i'm|i am)\s+([A-Za-z][A-Za-z' -]{0,70})/i
+    ];
+    for (const pattern of patterns) {
+      const match = message.match(pattern);
+      if (!match?.[1]) continue;
       const clean = match[1]
-        .split(/\s+(?:and\s+)?(?:my\s+)?(?:email|e-mail|phone|mobile|number|contact)\b/i)[0]
-        .replace(/[,.!?]+$/g, "")
+        .split(/[,.;!?]|\s+\b(?:and|but|because|with|for|from|in|at|to|about|my|our|your|phone|email|e-mail|number|contact|i|we)\b/i)[0]
         .trim();
-      if (clean) return clean;
+      const words = clean.split(/\s+/).filter(Boolean);
+      if (!words.length || words.length > 3 || nonNameStarts.has(words[0].toLowerCase())) continue;
+      if (!words.every(word => /^[A-Za-z]+(?:['-][A-Za-z]+)*$/.test(word))) continue;
+      return words.join(' ');
     }
   }
-
   return null;
 }
 
