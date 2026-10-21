@@ -36,3 +36,232 @@ body.colzo-public-site:before,.ambient,.site-bg,.aurora,.wave,.hero-glow{display
 .colzo-public-site .reveal{opacity:1!important;transform:none!important}
 @media(max-width:600px){.colzo-public-site .howto-screens{grid-template-columns:1fr}.colzo-public-site :is(.site-header,.nav-wrap){flex-wrap:wrap;gap:14px;height:auto;padding-block:16px}.colzo-public-site .hero h1{font-size:42px}.colzo-public-site .hero{min-height:0!important}.colzo-public-site :is(.hero-grid,.hero){gap:28px}.colzo-public-site .dashboard-frame{min-height:0!important}.colzo-public-site .hero-actions{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.colzo-public-site *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* Colzo public homepage - staged implementation of 21 October Stitch comparison.
+   Scope is the marketing site only, not the authenticated application. */
+.colzo-public-site .hero{
+  min-height:790px;
+  padding:156px 0 110px;
+  background:radial-gradient(ellipse at 79% 45%,rgba(200,255,46,.052),transparent 51%);
+}
+.colzo-public-site .hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.07fr) minmax(0,.93fr);
+  align-items:center;
+  gap:clamp(28px,5vw,82px);
+}
+.colzo-public-site .hero-copy{min-width:0}
+.colzo-public-site .hero .eyebrow{
+  background:transparent!important;
+  color:#c8ff2e!important;
+  border:1px solid #354330!important;
+  border-radius:999px;
+  padding:9px 13px;
+  letter-spacing:.11em;
+  font-weight:650;
+}
+.colzo-public-site .hero h1{
+  max-width:760px;
+  font-size:clamp(52px,5.7vw,86px)!important;
+  line-height:1.02;
+  letter-spacing:-.064em;
+  font-weight:740;
+  margin:26px 0 26px;
+}
+.colzo-public-site .hero h1 span{
+  color:#f5f7fa!important;
+  -webkit-text-fill-color:#f5f7fa!important;
+  text-shadow:none;
+}
+.colzo-public-site .hero h1 em{
+  color:#c8ff2e;
+  -webkit-text-fill-color:#c8ff2e;
+  font-style:normal;
+}
+.colzo-public-site .hero-lede{
+  max-width:600px;
+  font-size:clamp(16px,1.6vw,19px);
+  line-height:1.7;
+  color:#b2bccb!important;
+}
+.colzo-public-site .hero-actions{gap:12px;align-items:center}
+.colzo-public-site .hero-actions .button-primary{
+  min-height:54px;
+  padding-inline:23px;
+}
+.colzo-public-site .hero-actions .button-ghost{
+  background:transparent!important;
+  color:#f5f7fa!important;
+  border:1px solid #3c4654!important;
+  box-shadow:none!important;
+}
+.colzo-public-site .pilot-note{
+  margin:17px 0 0;
+  max-width:560px;
+  color:#8f9dac!important;
+  font-size:12px;
+  line-height:1.65;
+}
+.colzo-public-site .hero-points{
+  margin-top:25px;
+  color:#aeb9c7;
+  gap:13px 20px;
+}
+.colzo-public-site .hero-points li:before{
+  content:"";
+  display:inline-block;
+  width:6px;height:6px;
+  margin-right:10px;
+  vertical-align:middle;
+  background:#c8ff2e!important;
+  border-radius:100%;
+}
+.colzo-public-site .flow-stage{
+  min-height:540px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:none;
+  width:100%;
+  padding:15px 0;
+}
+.colzo-public-site .flow-window{
+  position:relative;
+  width:100%;
+  max-width:565px;
+  background:#151a22;
+  color:#f5f7fa;
+  border:1px solid #35403c;
+  border-radius:25px;
+  padding:24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.18);
+}
+.colzo-public-site .flow-window-head,.colzo-public-site .flow-brand{
+  display:flex;
+  align-items:center;
+}
+.colzo-public-site .flow-window-head{
+  gap:16px;
+  justify-content:space-between;
+  padding-bottom:22px;
+  border-bottom:1px solid #2c363f;
+}
+.colzo-public-site .flow-brand{gap:12px;min-width:0}
+.colzo-public-site .flow-brand img{display:block;flex-shrink:0;border-radius:12px}
+.colzo-public-site .flow-brand div{display:grid;gap:3px;min-width:0}
+.colzo-public-site .flow-brand strong{font-size:15px}
+.colzo-public-site .flow-brand small{font-size:10px;color:#9aa8b5;line-height:1.3}
+.colzo-public-site .flow-demo-tag{
+  background:#273126;
+  border:1px solid #4b5b3c;
+  color:#c8ff2e;
+  padding:5px 10px;
+  border-radius:99px;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.colzo-public-site .flow-timeline{
+  list-style:none;
+  margin:0;
+  padding:5px 0 0;
+}
+.colzo-public-site .flow-step-row{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:23px 0;
+  border-bottom:1px solid #29343c;
+}
+.colzo-public-site .flow-step-num{
+  width:38px;height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid #52663b;
+  color:#c8ff2e;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:700;
+}
+.colzo-public-site .flow-step-copy{min-width:0}
+.colzo-public-site .flow-step-label{
+  display:block;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.11em;
+  color:#9ba9b5;
+  margin-bottom:7px;
+}
+.colzo-public-site .flow-step-copy strong{
+  color:#f7f9fa;
+  font-size:14px;
+  font-weight:700;
+}
+.colzo-public-site .flow-step-copy p{
+  font-size:11px;
+  line-height:1.5;
+  margin:5px 0 0;
+  color:#99a6b5!important;
+}
+.colzo-public-site .flow-step-state{
+  color:#c4d0bd;
+  border:1px solid #3b493a;
+  background:#202b20;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:10px;
+  white-space:nowrap;
+}
+.colzo-public-site .flow-step-state-owner{
+  color:#d5e4ba;
+  border-color:#5a6e45;
+}
+.colzo-public-site .flow-window-foot{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding-top:22px;
+  font-size:11px;
+  color:#a5b0be;
+  line-height:1.5;
+}
+.colzo-public-site .flow-foot-indicator{
+  display:inline-block;
+  flex-shrink:0;
+  width:7px;height:7px;
+  background:#c8ff2e;
+  border-radius:100%;
+}
+.colzo-public-site .flow-step-row:last-child{border-bottom:0}
+.colzo-public-site .nav-links a[href="#pilot"]{color:#c8ff2e}
+.colzo-public-site .final-cta .cta-panel{
+  background:#151a22!important;
+  border:1px solid #384334!important;
+  box-shadow:none!important;
+}
+@media(max-width:980px){
+  .colzo-public-site .hero-grid{grid-template-columns:1fr;gap:45px}
+  .colzo-public-site .hero{padding:135px 0 82px;min-height:0}
+  .colzo-public-site .flow-stage{min-height:0;padding:0}
+  .colzo-public-site .flow-window{max-width:680px}
+}
+@media(max-width:720px){
+  .colzo-public-site .hero{padding:136px 0 66px}
+  .colzo-public-site .hero h1{font-size:clamp(45px,10vw,62px)!important;line-height:1.05}
+  .colzo-public-site .hero .eyebrow{font-size:9px;letter-spacing:.065em}
+  .colzo-public-site .flow-window{padding:18px;border-radius:19px}
+  .colzo-public-site .flow-step-row{grid-template-columns:32px minmax(0,1fr);gap:10px 12px;padding:18px 0}
+  .colzo-public-site .flow-step-state{grid-column:2;justify-self:start}
+  .colzo-public-site .flow-step-num{width:32px;height:32px;border-radius:10px}
+  .colzo-public-site .flow-window-head{align-items:flex-start}
+  .colzo-public-site .flow-brand small{font-size:9px}
+  .colzo-public-site .pilot-note{font-size:12px}
+  .colzo-public-site .nav-actions .text-link{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .colzo-public-site .flow-stage,
+  .colzo-public-site .flow-window,
+  .colzo-public-site .hero :is(a,button){animation:none!important;transition:none!important;transform:none!important}
+}
