@@ -4,18 +4,32 @@ import {readFile,stat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 
-// Exact unmodified modules from live Business AI SHA 91b0d6ef: no hidden backend switch.
+// Original production-sensitive modules intentionally unchanged in the Dev branch.
+// The customer-portal handler now has a separately tested, intentional Dev-only
+// security fix; it must not be incorrectly represented as byte-identical.
 const frozen={
  'lib/auth.js':'9ac5a0bc7def893469dfd9773136146490a5c32a6c892f220aa6a7536f2276d8',
  'api/leads.js':'9efdf1759c41ffbdd561f9e43eaa1be1828fa97e4e17e6360381ef7029828888',
- 'lib/billing-handler.js':'410689630b152cf363dc4e2083aed09753f34ba38fb122078913890d6f2758f5',
- 'lib/customer-portal-handler.js':'e514567ae43b5fcab6356ad42c800cd09b392ab42b283dc26626a6e3cb708c34'
+ 'lib/billing-handler.js':'410689630b152cf363dc4e2083aed09753f34ba38fb122078913890d6f2758f5'
 };
-test('auth, owner/customer data APIs, billing and customer portal handlers remain byte-identical to current live release',async()=>{
+test('unchanged authentication, leads and billing modules preserve their original reviewed bytes',async()=>{
  for(const [path,expected] of Object.entries(frozen)){
   const contents=await readFile(new URL('../'+path,import.meta.url));
   assert.equal(createHash('sha256').update(contents).digest('hex'),expected,`Production backend unexpectedly modified: ${path}`);
  }
+});
+test('intentional Development customer portal change enforces cross-tenant joins and race-safe profiles',async()=>{
+ const source=await read('lib/customer-portal-handler.js');
+ assert.match(source,/lead\.business_id !== link\.business_id/);
+ assert.match(source,/business\.business_id !== link\.business_id/);
+ assert.match(source,/row\.business_id !== lead\.business_id/);
+ assert.match(source,/resolution=ignore-duplicates,return=representation/);
+ // The accompanying executed tests supply synthetic mismatches and
+ // a duplicate-profile race, not just static source assertions.
+ const matrix=await read('tests/colzo-customer-portal-tenant-joins.test.mjs');
+ assert.match(matrix,/accessBusiness:B,leadBusiness:A/);
+ assert.match(matrix,/reviewBusiness:B/);
+ assert.match(matrix,/parallel first visits/);
 });
 test('Colzo visual-only shell preserves the five original Business AI navigation actions and working authentication',async()=>{
  const html=await read('index.html');
