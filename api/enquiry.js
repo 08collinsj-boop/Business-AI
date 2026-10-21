@@ -512,18 +512,37 @@ function findNameInConversation(conversationText) {
 }
 
 function findLocationInConversation(conversationText) {
-  const value = String(conversationText || "");
+  // Only customer messages can supply the customer's location. Scan newest
+  // first so explicit corrections beat earlier, outdated locations.
+  const userMessages = String(conversationText || "").split(/\n/)
+    .filter((line) => /^user:\s*/i.test(line))
+    .map((line) => line.replace(/^user:\s*/i, ""))
+    .reverse();
 
-  const direct = value.match(
-    /(?:i(?:'m| am)|we(?:'re| are)|located|based|live|work)\s+(?:in|near|around|at)\s+([A-Za-z][A-Za-z '-]{2,60})/i
-  );
-  if (direct?.[1]) return direct[1].replace(/[,.!?]+$/g, "").trim();
+  const normaliseLocation = (raw) => {
+    const location = String(raw || "")
+      .split(/[,.;!?]|\s+\b(?:and|but|because|so|then|when|where|while|which|my|our|with|for|to|about)\b/i)[0]
+      .trim();
+    if (!location || location.length > 70) return null;
+    // Phrases such as "I'm in trouble" are not a location.
+    if (/^(?:trouble|need|pain|danger|a\s+(?:hurry|rush|bind|jam)|the\s+(?:middle|process|wrong|dark|mood))\b/i.test(location)) return null;
+    return location;
+  };
 
-  const serviceLocation = value.match(
-    /\b(?:quote|repair|replace|install|installation|maintenance|service|work|job|booking|appointment)\b[^.!?\n]{0,160}?\b(?:in|near|around)\s+([A-Za-z][A-Za-z '-]{2,60}?)(?=[,.!?]|\s+(?:and\s+)?(?:my|our|with|for|because)\b|$)/i
-  );
+  for (const message of userMessages) {
+    const direct = message.match(
+      /\b(?:(?:i'm|i am|we're|we are)\s+(?:(?:based|located)\s+)?|(?:i|we)\s+(?:live|work)\s+)(?:in|near|around|at)\s+([A-Za-z][A-Za-z '-]{1,70})/i
+    );
+    const directLocation = normaliseLocation(direct?.[1]);
+    if (directLocation) return directLocation;
 
-  return serviceLocation?.[1]?.trim() || null;
+    const service = message.match(
+      /\b(?:need|want|would like|quote|repair|replace|install|installation|maintenance|service|job|booking|appointment)\b[^.!?\n]{0,160}?\b(?:in|near|around)\s+([A-Za-z][A-Za-z '-]{1,70})/i
+    );
+    const serviceLocation = normaliseLocation(service?.[1]);
+    if (serviceLocation) return serviceLocation;
+  }
+  return null;
 }
 
 function findJobDetails(conversationText) {
