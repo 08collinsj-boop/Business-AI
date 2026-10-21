@@ -321,3 +321,53 @@ body.colzo-public-site :is(h1,h2,h3){text-wrap:balance}
     .colzo-public-site .hero-photograph,.colzo-public-site .editorial-feature,
     .colzo-public-site .hero .reveal{animation:none!important;transform:none!important;transition:none!important}
 }
+
+/* Accessible native mobile navigation: desktop links remain unchanged. */
+.colzo-public-site .mobile-site-nav{display:none}
+.colzo-public-site .mobile-site-nav summary{
+  list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;
+  justify-content:center;gap:9px;padding:0 11px;color:#f1f2ef;
+  border:1px solid #546057;border-radius:9px;background:#1c2323;
+  font-size:12px;font-weight:650;-webkit-tap-highlight-color:transparent;
+}
+.colzo-public-site .mobile-site-nav summary::-webkit-details-marker{display:none}
+.colzo-public-site .mobile-site-nav summary:focus-visible{
+  outline:2px solid #c8ff2e;outline-offset:4px
+}
+.colzo-public-site .mobile-site-nav-icon{width:15px;height:15px;display:grid;align-content:center;gap:4px}
+.colzo-public-site .mobile-site-nav-icon span{display:block;width:15px;height:1px;background:#c8ff2e}
+.colzo-public-site .mobile-site-nav-panel{
+  position:absolute;z-index:101;top:calc(100% + 10px);right:0;
+  width:min(320px,calc(100vw - 36px));padding:12px;
+  display:grid;gap:2px;border:1px solid #4e5a54;border-radius:15px;
+  background:#171c1d;box-shadow:0 22px 55px rgba(0,0,0,.42);
+}
+.colzo-public-site .mobile-site-nav-panel a{
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:48px;padding:12px 13px;border-radius:9px;
+  color:#e9ede9;text-decoration:none;font-size:14px;font-weight:560;
+}
+.colzo-public-site .mobile-site-nav-panel a:hover,
+.colzo-public-site .mobile-site-nav-panel a:focus-visible{
+  color:#c8ff2e;background:#293229;
+}
+.colzo-public-site .mobile-site-nav-divider{
+  display:block;height:1px;background:#414c48;margin:9px 4px;
+}
+.colzo-public-site .mobile-site-nav-panel a.mobile-site-nav-pilot{
+  color:#151b17;background:#c8ff2e;font-weight:750;margin-top:5px;
+}
+.colzo-public-site .mobile-site-nav-panel a.mobile-site-nav-pilot:hover,
+.colzo-public-site .mobile-site-nav-panel a.mobile-site-nav-pilot:focus-visible{
+  color:#111710;background:#ddff85;
+}
+@media(max-width:720px){
+  .colzo-public-site .mobile-site-nav{display:block;position:relative;flex-shrink:0}
+  .colzo-public-site .nav-actions{margin-left:auto}
+}
+@media(max-width:380px){
+  .colzo-public-site .nav-actions .button-small{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .colzo-public-site .mobile-site-nav-panel{transition:none!important;animation:none!important}
+}
