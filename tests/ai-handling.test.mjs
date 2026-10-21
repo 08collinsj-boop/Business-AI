@@ -786,3 +786,34 @@ test('unauthorised dollar, euro and pounds amounts are never presented as firm p
     assert.ok(!res.body.reply.includes(invented));
   }
 });
+
+test('human handover does not trap later ordinary service questions in a repeated contact request',async()=>{
+  const {handler,calls}=await load('balanced');
+  let res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.193'},query:{business:'business-a'},body:{message:'I want to speak to someone'}},res);
+  assert.equal(res.statusCode,200);
+  assert.match(res.body.reply,/phone number or email/i);
+  const continuation=res.body.continuation;
+  assert.ok(continuation);
+  res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.193'},query:{business:'business-a'},body:{message:'What service do you provide?',messages:[{role:'user',content:'I want to speak to someone'},{role:'assistant',content:'What phone number or email should they use?'}],continuation}},res);
+  assert.equal(res.statusCode,200);
+  assert.match(res.body.reply,/Repairs.*Socket replacement/i);
+  assert.doesNotMatch(res.body.reply,/phone number or email should they use/i);
+  assert.equal(res.body.leadCaptured,false);
+  assert.ok(!calls.some(c=>c.url.includes('api.openai.com')));
+});
+
+test('genuine emergency continuation still takes precedence over a subsequent ordinary FAQ',async()=>{
+  const {handler}=await load('balanced');
+  let res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.194'},query:{business:'business-a'},body:{message:'My socket is sparking'}},res);
+  assert.equal(res.statusCode,200);
+  const continuation=res.body.continuation;
+  assert.ok(continuation);
+  res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.194'},query:{business:'business-a'},body:{message:'What service do you provide?',continuation}},res);
+  assert.equal(res.statusCode,200);
+  assert.doesNotMatch(res.body.reply,/lists these services/i);
+  assert.match(res.body.reply,/phone number or email|immediate danger/i);
+});
