@@ -650,6 +650,23 @@ function looksClearlyOffTopic(message, settings, configuration) {
   return false;
 }
 
+// A refusal/correction is not consent to create records, even when history
+// or a provider incorrectly classifies a prior message as a booking.
+function isExplicitNoActionMessage(message) {
+  const value = String(message || '').trim();
+  if (/\b(?:but|however|instead|also)\b/i.test(value)) return false;
+  return /^(?:(?:no[,.!]?)\s*)?(?:please\s+)?(?:(?:do not|don't|dont|never)\s+[^.!?\n]{0,120}|cancel\s+(?:my|the|that)\s+(?:request|booking|appointment|callback))\s*[.!?]*$/i.test(value) && /\b(?:book|booking|arrange|schedule|appointment|callback|call me back)\b|^cancel\s+(?:my|the|that)\s+request/i.test(value);
+}
+
+// Only this current message can authorise a new booking write.
+// Generic booking questions, quoted examples and model guesses do not suffice.
+function hasPositiveBookingRequest(message) {
+  const value = String(message || '').replace(/[“"][^”"]*[”"]/g, ' ').trim();
+  if (!value) return false;
+  if (/\b(?:do not|don't|dont|never|without)\s+(?:[^.!?\n]{0,65}\s+)?(?:book|booking|schedule|arrange|appointment)\b|\b(?:no|not)\s+(?:new\s+)?(?:booking|appointment)\b/i.test(value)) return false;
+  return /\b(?:book|schedule|arrange|make)\s+(?:me\s+|us\s+)?(?:in\s+|an?\s+|the\s+)?(?:booking|appointment|visit|slot|meeting)\b|\b(?:i|we)\s+(?:need|want|would like)\s+(?:an?\s+)?(?:booking|appointment|visit|slot)\b|\b(?:can|could|may)\s+i\s+book\s+(?:you|an?\s+appointment|a\s+slot)\b|\b(?:book|schedule)\s+me\s+in\b/i.test(value);
+}
+
 // Answer simple questions directly from owner-approved public business facts.
 // Never guess live status, prices, availability or service commitments.
 // Complicated requests still go through the ordinary intent/lead workflow.
@@ -666,16 +683,23 @@ function trustedBusinessFAQReply(message, settings, configuration) {
     /\b(?:telephone|phone|call|ring)\b/i,
     /\b(?:email|e-mail)\b/i
   ].filter(pattern => pattern.test(value)).length;
-  if (requestedFacts > 1) return null;
   const businessName = String(settings?.business_name || 'The business').trim() || 'The business';
 
   const hours = String(settings?.opening_hours || '').trim();
+  const services = approvedFactEntries(settings?.services);
+  if (requestedFacts > 1) {
+    const asksHours = /\b(?:opening hours?|business hours?|what (?:are|is) your hours|when (?:are|do) you open)\b/i.test(value);
+    const asksServices = /\b(?:what|which) services? (?:do you|does (?:the business|your team)) (?:offer|provide|do)\b|\bwhat service(?:s)? do you provide\b/i.test(value);
+    if (requestedFacts === 2 && asksHours && asksServices && hours && services.length) {
+      return { type: 'services_and_hours', reply: businessName + ' lists these services: ' + services.join(', ') + '. The listed opening hours are ' + hours + '.' };
+    }
+    return null;
+  }
   if (/\b(?:what|which|when|tell me|could you|can you|please|your|opening|business)\b/i.test(value) &&
       /\b(?:opening hours?|business hours?|hours? (?:are|do)|when (?:are|do) you open|when (?:are|do) you close|what time (?:do you|are you) open|what time (?:do you|are you) close)\b/i.test(value)) {
     return hours ? { type: 'opening_hours', reply: `The listed opening hours for ${businessName} are ${hours}.` } : null;
   }
 
-  const services = approvedFactEntries(settings?.services);
   if (/\b(?:what|which) (?:services?|work) (?:do you|does (?:the business|your team)) (?:offer|provide|do)\b|\b(?:list|tell me about) (?:your|the) services\b|\bwhat (?:do you|does your business) do\b|\bwhat service(?:s)? do you provide\b/i.test(value)) {
     return services.length ? { type: 'services', reply: `${businessName} lists these services: ${services.join(', ')}.` } : null;
   }
@@ -1290,10 +1314,11 @@ Your response must follow the supplied JSON schema.
     const trustedCoverage = trustedCoverageReply(message, settings, configuration);
     const trustedFAQ = trustedCoverage ? null : trustedBusinessFAQReply(message, settings, configuration);
     const trustedBasicReply = trustedCoverage || trustedFAQ?.reply;
-    const currentHandover = customerHandoverReason(message);
+    const explicitNoAction = isExplicitNoActionMessage(message);
+    const currentHandover = explicitNoAction ? null : customerHandoverReason(message);
     // Do not let an old request for a person suppress a new factual FAQ.
     // Safety and complaint continuations remain sticky.
-    const knownHandover = currentHandover || (previousHandover === "human_requested" && trustedBasicReply ? null : previousHandover);
+    const knownHandover = explicitNoAction ? null : (currentHandover || (previousHandover === "human_requested" && trustedBasicReply ? null : previousHandover));
     const hasAiSession = readAiSession(body.session, businessId, clientAddress);
     let aiSession = hasAiSession ? body.session : null;
     let billingReservation = null;
@@ -1307,7 +1332,13 @@ Your response must follow the supplied JSON schema.
       if (!billingAccess.allowed) return billingFailureResponse(res, billingAccess.code);
     }
 
-    if (knownHandover) {
+    if (explicitNoAction) {
+      result = {
+        reply: "Understood. I won't arrange a new booking or callback. To cancel an existing request, please contact the business directly.",
+        intent: { type: "basic_faq", supported: true, requires_human: false, safety_reason: "none", unsupported_reason: "none" },
+        lead: { qualified: false, handover_required: false }
+      };
+    } else if (knownHandover) {
       result = {
         reply: "",
         intent: { type: "normal_enquiry", supported: true, requires_human: true, safety_reason: "none", unsupported_reason: "none" },
@@ -1569,10 +1600,8 @@ Your response must follow the supplied JSON schema.
     let savedLead = null;
     let trackingAvailable = false;
     let bookingRequested = false;
-    const customerAskedToBook =
-      result.intent?.type === "booking" ||
-      /\b(?:book|booking|appointment|schedule|arrange)\b/i.test(message);
-    const wouldCaptureLead = !offTopic && finalLead.qualified && hasContact && (hasJob || handoverRequired);
+    const customerAskedToBook = !explicitNoAction && hasPositiveBookingRequest(message);
+    const wouldCaptureLead = !explicitNoAction && !offTopic && finalLead.qualified && hasContact && (hasJob || handoverRequired);
     const wouldRequestBooking = wouldCaptureLead && customerAskedToBook;
     const wouldCreateHandover = wouldCaptureLead && handoverRequired;
     const automaticFollowUpEligible = wouldCaptureLead && Boolean(settings.automatic_follow_up_enabled);
