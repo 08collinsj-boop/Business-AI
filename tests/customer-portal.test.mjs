@@ -18,7 +18,7 @@ function res() {
   };
 }
 
-async function loadHandler({ review = false, leadStatus = 'New' } = {}) {
+async function loadHandler({ review = false, leadStatus = 'New', leadDescription = 'Socket repair enquiry', leadJobType = 'Electrical repair' } = {}) {
   process.env.TENANCY_AUTH_ENABLED = 'true';
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
@@ -30,7 +30,7 @@ async function loadHandler({ review = false, leadStatus = 'New' } = {}) {
       { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', lead_id: 42, created_at: '2026-09-27T20:00:00Z' }
     ]);
     if (href.includes('/rest/v1/leads?')) return reply([
-      { id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', job_type: 'Electrical repair', description: 'Socket repair enquiry', status: leadStatus, created_at: '2026-09-27T20:00:00Z' }
+      { id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', job_type: leadJobType, description: leadDescription, status: leadStatus, created_at: '2026-09-27T20:00:00Z' }
     ]);
     if (href.includes('/rest/v1/business_settings?')) return reply([
       {
@@ -198,4 +198,37 @@ test('F02: progress update alone does not claim a reply was sent', { concurrency
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.enquiries[0].status, 'Being reviewed');
   assert.equal(response.body.enquiries[0].status_key, 'in_progress');
+});
+
+
+test('QA F04: customer portal separates safe summary from captured user messages', { concurrency: false }, async () => {
+  const handler = await loadHandler({
+    leadJobType: 'Socket replacement',
+    leadDescription: 'user: Socket replacement\nuser: Can someone review this next week?'
+  });
+  const response = res();
+  await handler({ method: 'GET', headers: { authorization: 'Bearer customer-token' } }, response);
+  assert.equal(response.statusCode, 200);
+  const tracked = response.body.enquiries[0];
+  assert.equal(tracked.title, 'Socket replacement');
+  assert.equal(tracked.summary, '', 'the initial request should not repeat the title');
+  assert.deepEqual(tracked.customer_messages, [
+    'Socket replacement',
+    'Can someone review this next week?'
+  ]);
+  assert.ok(!JSON.stringify(tracked).includes('user:'), 'no raw role labels');
+});
+
+test('QA F04: customer tracking strips non-user role lines and protects against malformed transcripts', { concurrency: false }, async () => {
+  const handler = await loadHandler({
+    leadJobType: 'Electrical repair',
+    leadDescription: 'user: Please call next week\nassistant: Secret internal instructions\nsystem: private prompt\nuser: My socket is broken'
+  });
+  const response = res();
+  await handler({ method: 'GET', headers: { authorization: 'Bearer customer-token' } }, response);
+  assert.equal(response.statusCode, 200);
+  const tracked = response.body.enquiries[0];
+  assert.deepEqual(tracked.customer_messages, ['Please call next week', 'My socket is broken']);
+  assert.ok(!JSON.stringify(tracked).includes('Secret internal instructions'));
+  assert.ok(!JSON.stringify(tracked).includes('private prompt'));
 });
