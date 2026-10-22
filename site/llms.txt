@@ -1,0 +1,39 @@
+# Colzo
+
+Colzo is a UK-focused small-business software platform for website enquiries, lead capture, bookings, business knowledge and optional AI-assisted marketing.
+
+Canonical website: https://getbusiness-ai.com/
+App: https://app.getbusiness-ai.com/
+
+## Main product pages
+- AI Receptionist: https://getbusiness-ai.com/ai-receptionist/
+- Small Colzo: https://getbusiness-ai.com/small-business-ai/
+- AI Marketing: https://getbusiness-ai.com/ai-marketing/
+- AI for Trades: https://getbusiness-ai.com/ai-for-trades/
+- Teesside small-business AI: https://getbusiness-ai.com/teesside/
+
+## Resources and guides
+- Resources hub: https://getbusiness-ai.com/resources/
+- AI website receptionist guide: https://getbusiness-ai.com/resources/ai-website-receptionist-small-business/
+- Website enquiry automation guide: https://getbusiness-ai.com/resources/automate-website-enquiries-small-business/
+- AI lead capture for trades guide: https://getbusiness-ai.com/resources/ai-lead-capture-trades/
+
+## Product scope
+- AI Receptionist currently focuses on web enquiries.
+- Business owners can choose human-first, balanced or AI-first handling.
+- Business Knowledge can provide context such as services, FAQs and pricing.
+- AI Marketing is an optional add-on for content drafts and planning.
+- Human review and handover remain part of the product design.
+
+Support: support@getbusiness-ai.com
+## About and contact
+- About: https://getbusiness-ai.com/about/
+- Contact: https://getbusiness-ai.com/contact/
+- Public support email: support@getbusiness-ai.com
+- Colzo is UK-focused. The public site does not claim a company number, VAT registration, postal address or public telephone number.
+
+
+## Pilot
+- Pilot recruitment: https://getbusiness-ai.com/pilot/
+- The pilot is for a small number of businesses using Colzo in normal day-to-day workflows and giving honest feedback.
+- Public pilot messaging does not claim live phone answering, guaranteed results, free access, company registration or VAT registration.
