@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
-import { AI_HANDLING_MODES, getAIHandlingPolicy, normaliseAIHandlingMode, validateBusinessConfiguration, decideAIHandover, handlingModeInstructions } from '../lib/business-configuration.js';
+import { AI_HANDLING_MODES, getAIHandlingPolicy, normaliseAIHandlingMode, validateBusinessConfiguration, decideAIHandover, handlingModeInstructions, customerHandoverReason } from '../lib/business-configuration.js';
 const supported = { type: 'normal_enquiry', supported: true, requires_human: false, safety_reason: 'none', unsupported_reason: 'none' };
 const modes = Object.values(AI_HANDLING_MODES);
 test('mode defaults, policies and configuration allowlist', () => {
@@ -43,7 +43,7 @@ for (const mode of modes) {
 const savedEnv = { ...process.env }, savedFetch = globalThis.fetch;
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 const reply = body => ({ ok: true, text: async () => JSON.stringify(body), json: async () => body });
-async function load(mode, intent = supported, model = null) {
+async function load(mode, intent = supported, model = null, fixtureOptions = {}) {
   process.env.SUPABASE_URL = 'https://test.invalid'; process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-secret'; process.env.OPENAI_API_KEY = 'test-openai'; delete process.env.OPENROUTER_API_KEY;
   process.env.BILLING_ENABLED = 'false'; process.env.PUBLIC_ENQUIRY_RATE_LIMIT_MODE = 'memory';
   const calls = [];
@@ -53,8 +53,8 @@ async function load(mode, intent = supported, model = null) {
     if (url.includes('business_public_routes')) return reply([{ business_id: 'business-a', route_type: 'slug', route_value: 'business-a', active: true }]);
     if (url.includes('business_incident_controls')) return reply([]);
     if (url.includes('platform_incident_controls')) return reply([{ id: 'global' }]);
-    if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Always ask which appliance needs repair.' }]);
-    if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode, service_areas: 'Hartlepool' }]);
+    if (url.includes('business_settings')) return reply([{ business_name: 'Business A', business_type: 'Electrical services', phone: '01429 000000', email: 'hello@example.test', services: 'Repairs, Socket replacement', opening_hours: 'Monday 9–5', ai_instructions: 'Always ask which appliance needs repair.', ...(fixtureOptions.settings || {}) }]);
+    if (url.includes('business_configurations')) return reply([{ ai_handling_mode: mode, service_areas: 'Hartlepool', ...(fixtureOptions.configuration || {}) }]);
     if (url.includes('api.openai.com')) return reply({ output_text: JSON.stringify(model || { reply: 'Approved answer', intent, lead: { phone: '07000000000', job_type: 'Repair', handover_required: false } }) });
     if (url.includes('rpc/save_public_enquiry')) return reply({ id: 1, handover_reason: JSON.parse(options.body).p_reason });
     if (url.includes('bookings?')) return reply(requestedBooking ? [requestedBooking] : []);
@@ -360,7 +360,7 @@ test('one customer AI session consumes one advertised enquiry allowance unit acr
   await handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.25' }, query: { business: 'business-a' }, body: { message: 'And what services do you offer?', messages: [{ role: 'user', content: 'Are you open on Monday?' }, { role: 'assistant', content: 'Approved answer' }], session } }, res);
   assert.equal(res.statusCode, 200); assert.equal(res.body.session, session);
   assert.equal(calls.filter(c => c.url.includes('consume_billing_ai_enquiry_allowance')).length, 1);
-  assert.equal(calls.filter(c => c.url.includes('api.openai.com')).length, 2);
+  assert.equal(calls.filter(c => c.url.includes('api.openai.com')).length, 1, 'follow-up approved FAQ no longer requires a second model call');
 });
 
 test('OpenAI authentication failures fall back to OpenRouter when it is configured', async () => {
@@ -646,4 +646,174 @@ test('owner UI uses dedicated receptionist test mode and exposes an outcome insp
   assert.match(html, /What Colzo would do/);
   assert.match(html, /business-ai-receptionist-test:/);
   assert.match(html, /qa\.customer@example\.test/);
+});
+
+// Receptionist V1 conversation-quality acceptance: verified facts first,
+// without charging a provider call or silently creating customer records.
+for (const example of [
+  { question: 'What are your opening hours?', answer: /listed opening hours.*Monday 9–5/i },
+  { question: 'When do you open?', answer: /listed opening hours.*Monday 9–5/i },
+  { question: 'What services do you offer?', answer: /Repairs, Socket replacement/ },
+  { question: "What's your phone number?", answer: /01429 000000/ },
+  { question: 'What is your email address?', answer: /hello@example\.test/ },
+  { question: 'Do you offer socket replacement?', answer: /lists Socket replacement as a service/i }
+]) {
+  test(`approved receptionist fact: ${example.question}`, async () => {
+    process.env.TENANCY_AUTH_ENABLED='false';
+    const {handler,calls}=await load('balanced');
+    const res=response();
+    await handler({method:'POST',query:{business:'business-a'},headers:{'x-forwarded-for':'203.0.113.53'},body:{message:example.question}},res);
+    assert.equal(res.statusCode,200);
+    assert.match(res.body.reply,example.answer);
+    assert.equal(res.body.leadCaptured,false);
+    assert.equal(res.body.bookingRequested,false);
+    assert.ok(!calls.some(c=>c.url.includes('api.openai.com')||c.url.includes('openrouter.ai')),'approved facts must not require an AI provider');
+    assert.ok(!calls.some(c=>c.url.includes('rpc/save_public_enquiry')),'a factual answer must not create a lead');
+  });
+}
+for(const question of [
+  'What are your opening hours and prices?',
+  'Can I book you tomorrow to replace a socket?',
+  'Can you install a socket in Hartlepool? Email me at alex.qa@example.test.',
+  'What is the email address of the president of France?'
+]){
+  test(`complex receptionist question never shortcuts into a fabricated simple FAQ: ${question}`,async()=>{
+    process.env.TENANCY_AUTH_ENABLED='false';
+    const {handler,calls}=await load('balanced');
+    const res=response();
+    await handler({method:'POST',query:{business:'business-a'},headers:{'x-forwarded-for':'203.0.113.54'},body:{message:question}},res);
+    assert.equal(res.statusCode,200);
+    assert.ok(calls.some(c=>c.url.includes('api.openai.com')),'complex question must use the existing safeguarded intent flow');
+  });
+}
+test('receptionist reasoning prompt answers the question before collecting unnecessary contact details',async()=>{
+  process.env.TENANCY_AUTH_ENABLED='false';
+  const {handler,calls}=await load('balanced');
+  const res=response();
+  await handler({method:'POST',query:{business:'business-a'},body:{message:'Can you explain how a socket replacement works?'}},res);
+  assert.equal(res.statusCode,200);
+  const provider=calls.find(c=>c.url.includes('api.openai.com'));
+  assert.ok(provider);
+  const prompt=JSON.parse(provider.options.body).instructions;
+  for(const phrase of ['Answer the customer\'s actual question first','one or two short sentences','ask at most one useful follow-up question','Never pretend to be a human','Never manufacture prices','contact details before answering a simple'])assert.ok(prompt.includes(phrase),phrase);
+});
+
+function priceModelReply(replyText){
+ return {
+  reply:replyText,
+  intent:{...supported,type:'basic_faq'},
+  lead:{name:null,phone:null,email:null,location:null,job_type:null,description:null,urgency:null,qualified:false,priority:'Normal',notes:null,handover_required:false}
+ };
+}
+test('invented monetary price is suppressed unless supported by owner-approved facts',async()=>{
+  process.env.TENANCY_AUTH_ENABLED='false';
+  const {handler,calls}=await load('balanced',supported,priceModelReply('A socket replacement will cost £175 including VAT.'));
+  const res=response();
+  await handler({method:'POST',query:{business:'business-a'},body:{message:'How much would it cost for socket replacement?'}},res);
+  assert.equal(res.statusCode,200);
+  assert.match(res.body.reply,/don't have a confirmed price/i);
+  assert.doesNotMatch(res.body.reply,/£175|VAT/);
+  assert.equal(res.body.leadCaptured,false);
+  assert.ok(calls.some(c=>c.url.includes('api.openai.com')));
+});
+test('approved FAQ price can be repeated exactly but a different invented price is rejected',async()=>{
+  process.env.TENANCY_AUTH_ENABLED='false';
+  const opts={configuration:{faqs:[{question:'What is the call-out fee?',answer:'The verified call-out fee is £80.'}]}};
+  for(const [replyText,expected] of [
+    ['The published call-out fee is £80.',/£80/],
+    ['The call-out fee is £90.',/don't have a confirmed price/i]
+  ]){
+    const {handler}=await load('balanced',supported,priceModelReply(replyText),opts);
+    const res=response();
+    await handler({method:'POST',query:{business:'business-a'},body:{message:'What is the call-out fee?'}},res);
+    assert.equal(res.statusCode,200);
+    assert.match(res.body.reply,expected);
+    if(replyText.includes('£90'))assert.doesNotMatch(res.body.reply,/£90/);
+  }
+});
+test('service-area questions with contact details still take the enquiry workflow',async()=>{
+  process.env.TENANCY_AUTH_ENABLED='false';
+  const {handler,calls}=await load('balanced');
+  const res=response();
+  await handler({method:'POST',query:{business:'business-a'},body:{message:'Do you cover Hartlepool for a socket repair? You can reach me at alex.qa@example.test.'}},res);
+  assert.equal(res.statusCode,200);
+  assert.ok(calls.some(c=>c.url.includes('rpc/save_public_enquiry')),'customer contact and work request must not disappear into a service-area FAQ answer');
+});
+test('compound hours and services question is not reduced to an incomplete single-fact reply',async()=>{
+  process.env.TENANCY_AUTH_ENABLED='false';
+  const {handler,calls}=await load('balanced');
+  const res=response();
+  await handler({method:'POST',query:{business:'business-a'},body:{message:'What are your opening hours and what services do you offer?'}},res);
+  assert.equal(res.statusCode,200);
+  assert.ok(calls.some(c=>c.url.includes('api.openai.com')),'model should handle the two-part question in its existing structured answer path');
+});
+
+test('real safety hazards trigger immediate human handling even when phrased casually',()=>{
+  for(const message of [
+    'My socket is sparking',
+    'The plug is smoking',
+    'There is a burning smell coming from the fuse box',
+    'I can smell gas in the kitchen',
+    'I think there may be a gas leak',
+    'Gas is leaking out of the boiler',
+    'Can you help fix a gas leak?',
+    'There are exposed live wires behind the socket'
+  ]){
+    assert.equal(customerHandoverReason(message),'emergency_or_high_risk',message);
+  }
+});
+test('ordinary safety equipment enquiries do not trigger false emergency escalations',()=>{
+  for(const message of [
+    'Do you install fire alarms?',
+    'Can you quote for an emergency callout?',
+    'Do you offer gas leak detector installation?',
+    'Do you offer gas leak detection systems and testing?',
+    'Can you install a smoke alarm?',
+    'We need exposed wire testing at our college as part of a training course'
+  ]){
+    assert.notEqual(customerHandoverReason(message),'emergency_or_high_risk',message);
+  }
+});
+
+test('unauthorised dollar, euro and pounds amounts are never presented as firm prices',async()=>{
+  process.env.TENANCY_AUTH_ENABLED='false';
+  for (const [i,invented] of ['£250','USD 300','€150','90 pounds'].entries()) {
+    const {handler}=await load('balanced',supported,priceModelReply(`The fixed fee is ${invented}.`));
+    const res=response();
+    await handler({method:'POST',headers:{'x-forwarded-for':`203.0.113.${120+i}`},query:{business:'business-a'},body:{message:'How much will it cost?'}},res);
+    assert.equal(res.statusCode,200);
+    assert.match(res.body.reply,/don't have a confirmed price/i,invented);
+    assert.ok(!res.body.reply.includes(invented));
+  }
+});
+
+test('human handover does not trap later ordinary service questions in a repeated contact request',async()=>{
+  const {handler,calls}=await load('balanced');
+  let res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.193'},query:{business:'business-a'},body:{message:'I want to speak to someone'}},res);
+  assert.equal(res.statusCode,200);
+  assert.match(res.body.reply,/phone number or email/i);
+  const continuation=res.body.continuation;
+  assert.ok(continuation);
+  res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.193'},query:{business:'business-a'},body:{message:'What service do you provide?',messages:[{role:'user',content:'I want to speak to someone'},{role:'assistant',content:'What phone number or email should they use?'}],continuation}},res);
+  assert.equal(res.statusCode,200);
+  assert.match(res.body.reply,/Repairs.*Socket replacement/i);
+  assert.doesNotMatch(res.body.reply,/phone number or email should they use/i);
+  assert.equal(res.body.leadCaptured,false);
+  assert.ok(!calls.some(c=>c.url.includes('api.openai.com')));
+});
+
+test('genuine emergency continuation still takes precedence over a subsequent ordinary FAQ',async()=>{
+  const {handler}=await load('balanced');
+  let res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.194'},query:{business:'business-a'},body:{message:'My socket is sparking'}},res);
+  assert.equal(res.statusCode,200);
+  const continuation=res.body.continuation;
+  assert.ok(continuation);
+  res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'203.0.113.194'},query:{business:'business-a'},body:{message:'What service do you provide?',continuation}},res);
+  assert.equal(res.statusCode,200);
+  assert.doesNotMatch(res.body.reply,/lists these services/i);
+  assert.match(res.body.reply,/phone number or email|immediate danger/i);
 });

@@ -1,0 +1,106 @@
+/* Colzo Fluid Motion Pack v1 - Flutter/Material-motion-inspired web transitions.
+   Presentation only. No positions, scroll locks, auth, data, API or event logic.
+   Loaded after the approved Graphite & Volt skins so the small motion rules win.
+   Input changes and server refreshes should never animate whole screens. */
+#colzoOwner{
+  --cz-pack-fast:140ms;
+  --cz-pack-tab:215ms;
+  --cz-pack-detail:300ms;
+  --cz-pack-sheet:290ms;
+  --cz-pack-spring:cubic-bezier(.2,.86,.25,1);
+}
+/* Tactile press feedback. Existing buttons and data screens remain in place. */
+#colzoOwner :is(.cn-primary,.cn-secondary,.cn-record,.cf-lead-card,.cf-project-card,.cn-work-record,.cn-knowledge-shortcut button,.cn-more-links button){
+  -webkit-tap-highlight-color:transparent;
+}
+@media (pointer:coarse){
+  #colzoOwner :is(.cn-record,.cf-lead-card,.cf-project-card,.cn-work-record):active{
+    transform:scale(.986);
+    transition:transform var(--cz-pack-fast) var(--cz-pack-spring);
+  }
+}
+/* Dialog/sheet arrival and scrim: never alter modal height, touch handling,
+   trapping focus, z-index or dismissibility. Existing drag-to-close wins. */
+#colzoOwner .cn-work-dialog-backdrop{
+  animation:cz-pack-scrim-in 200ms ease-out both;
+}
+#colzoOwner .cn-work-dialog-backdrop>.cn-work-dialog{
+  animation:cz-pack-sheet-in var(--cz-pack-sheet) var(--cz-pack-spring) both;
+  transform-origin:center bottom;
+}
+#colzoOwner .cn-command-sheet:not([hidden]) .cn-command-scrim{
+  animation:cz-pack-scrim-in 180ms ease-out both;
+}
+#colzoOwner .cn-command-sheet:not([hidden]) .cn-command-panel{
+  animation:cz-pack-sheet-in var(--cz-pack-sheet) var(--cz-pack-spring) both;
+}
+@keyframes cz-pack-scrim-in{
+  from{opacity:0}to{opacity:1}
+}
+@keyframes cz-pack-sheet-in{
+  from{opacity:.6;transform:translate3d(0,15px,0) scale(.985)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+/* Customer tabs: Fade Through and short Shared Axis direction, with actual
+   content order and DOM switching still handled by customer-portal.js. */
+body#colzoApp.customer-account.customer-portal-ready .customer-portal-shell{
+  --cz-portal-shift:10px;
+}
+body#colzoApp.customer-account.customer-portal-ready .customer-portal-shell[data-customer-direction=backward]{
+  --cz-portal-shift:-10px;
+}
+body#colzoApp.customer-account.customer-portal-ready .customer-portal-pane:not([hidden]){
+  animation:cz-pack-customer-tab var(--cz-pack-tab,215ms) cubic-bezier(.22,.68,.3,1) both;
+}
+body#colzoApp.customer-account.customer-portal-ready .customer-portal-nav button{
+  transition:color 180ms ease,background-color 180ms ease,border-color 180ms ease;
+}
+body#colzoApp.customer-account.customer-portal-ready .customer-portal-nav button svg{
+  transition:transform 220ms cubic-bezier(.2,.86,.25,1);
+}
+body#colzoApp.customer-account.customer-portal-ready .customer-portal-nav button.active svg{
+  transform:translateY(-2px) scale(1.08);
+}
+body#colzoApp.customer-account.customer-portal-ready :is(.customer-quick-card,.customer-search-result a,.customer-profile-actions button):active{
+  transform:scale(.985);
+  transition:transform 140ms cubic-bezier(.2,.86,.25,1);
+}
+@keyframes cz-pack-customer-tab{
+  from{opacity:.68;transform:translate3d(var(--cz-portal-shift),5px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+/* Never animate forms, keyboard geometry or scroll positions. No effects for
+   reduced motion even if JS and CSS media-query listeners race. */
+@media (prefers-reduced-motion:reduce){
+  #colzoOwner .cn-work-dialog-backdrop,
+  #colzoOwner .cn-work-dialog-backdrop>.cn-work-dialog,
+  #colzoOwner .cn-command-sheet:not([hidden]) :is(.cn-command-scrim,.cn-command-panel),
+  body#colzoApp.customer-account.customer-portal-ready .customer-portal-pane:not([hidden]){
+    animation:none!important;
+    transform:none!important;
+  }
+  body#colzoApp.customer-account.customer-portal-ready .customer-portal-nav button,
+  body#colzoApp.customer-account.customer-portal-ready .customer-portal-nav button svg,
+  body#colzoApp.customer-account.customer-portal-ready :is(.customer-quick-card,.customer-search-result a,.customer-profile-actions button){
+    transition:none!important;
+    transform:none!important;
+  }
+}
+
+/* iPhone owner bottom-nav correction.
+   The older Stitch layer colours the active button while the Motion layer
+   already draws a sliding selection plate. Showing both created two displaced
+   lime pills at the rightmost More tab, including 2px visual overflow.
+   Keep the single animated plate and match the five actual grid columns. */
+@media (max-width:919px){
+  #colzoOwner .cn-nav::before{
+    box-sizing:border-box;
+    left:6px;
+    width:calc((100% - 10px) / 5);
+  }
+  #colzoOwner .cn-nav button[aria-current="page"]{
+    background:transparent!important;
+    box-shadow:none!important;
+    border-color:transparent!important;
+  }
+}

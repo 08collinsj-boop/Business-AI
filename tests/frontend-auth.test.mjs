@@ -13,8 +13,8 @@ test("public config is gated and exposes only browser-safe Supabase config", { c
   const handler = await configHandler(); let res = response();
   for (const value of ["false", "TRUE", "1", "yes"]) { process.env.FRONTEND_AUTH_ENABLED = value; res = response(); await handler({}, res); assert.equal(res.statusCode, 404); }
   process.env.FRONTEND_AUTH_ENABLED = "true"; delete process.env.SUPABASE_URL; delete process.env.SUPABASE_ANON_KEY; res = response(); await handler({}, res); assert.equal(res.statusCode, 503);
-  process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_ANON_KEY = "browser-safe-key"; res = response(); await handler({}, res);
-  assert.deepEqual(res.body, { frontendAuthEnabled: true, supabaseUrl: "https://example.supabase.co", supabaseAnonKey: "browser-safe-key", pilotFreeAccess: process.env.PILOT_FREE_STARTER_MARKETING === "true", colzoPasskeysEnabled: process.env.COLZO_PASSKEYS_ENABLED === "true" }); assert.equal(res.headers["Cache-Control"], "no-store");
+  process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_ANON_KEY = "sb_publishable_fixture_only"; res = response(); await handler({}, res);
+  assert.deepEqual(res.body, { frontendAuthEnabled: true, supabaseUrl: "https://example.supabase.co", supabaseAnonKey: "sb_publishable_fixture_only", pilotFreeAccess: process.env.PILOT_FREE_STARTER_MARKETING === "true", colzoPasskeysEnabled: process.env.COLZO_PASSKEYS_ENABLED === "true" }); assert.equal(res.headers["Cache-Control"], "no-store");
 });
 
 test("frontend auth uses Supabase sessions only for private API requests", () => {

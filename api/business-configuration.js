@@ -1,3 +1,5 @@
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { confirmConfigurationSave } from "../lib/colzo-configuration-confirmation.js";
 import { requireBusinessAdmin, requireBusinessMember, sendAuthError } from "../lib/auth.js";
 import { getIndustryTemplates, validateBusinessConfiguration } from "../lib/business-configuration.js";
 import { BusinessImportError, importBusinessWebsite } from "../lib/business-import.js";
@@ -38,6 +40,11 @@ function onboardingState(configuration, settings) {
 }
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   if (!["GET", "PATCH", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
   let auth;
   try { auth = req.method === "GET" ? await requireBusinessMember(req) : await requireBusinessAdmin(req); } catch (error) { return sendAuthError(res, error); }
@@ -64,13 +71,25 @@ export default async function handler(req, res) {
       const configuration = await getConfiguration(auth.businessId);
       if (!configuration) return res.status(404).json({ error: "Business configuration not found" });
       const settings = await getSettings(auth.businessId);
-      return res.status(200).json({ configuration, onboarding: { state: onboardingState(configuration, settings), completed: onboardingState(configuration, settings) === "completed" }, templates: getIndustryTemplates() });
+      return res.status(200).json({ configuration, can_manage: ['owner','admin'].includes(auth.role), onboarding: { state: onboardingState(configuration, settings), completed: onboardingState(configuration, settings) === "completed" }, templates: getIndustryTemplates() });
     }
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid request body" });
     const updates = validateBusinessConfiguration(body);
+    // Customer-visible website links cannot carry credentials or custom ports
+    // in the isolated Colzo Preview. Keep legacy customer settings unchanged.
+    if (isColzoPreviewAuthTransportEnabled() && updates.website) {
+      const website = new URL(updates.website);
+      if (website.username || website.password || website.port) return res.status(400).json({ error: "Invalid website" });
+    }
     updates.updated_at = new Date().toISOString();
     const rows = await request(`business_configurations?business_id=eq.${encodeURIComponent(auth.businessId)}`, { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) });
+    // Require confirmed persistence only in the approved isolated Dev Preview.
+    // Original Pilot/Production configuration semantics are unchanged.
+    if (isColzoPreviewAuthTransportEnabled()) {
+      const confirmation=confirmConfigurationSave(rows,auth.businessId,updates);
+      if(confirmation.status!==200)return res.status(confirmation.status).json({error:confirmation.error});
+    }
     const configuration = Array.isArray(rows) ? rows[0] || null : rows;
     if (!configuration) return res.status(404).json({ error: "Business configuration not found" });
     await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "configuration.updated", resourceType: "business_configuration", resourceId: auth.businessId, metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });

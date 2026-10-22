@@ -1,3 +1,5 @@
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { confirmSettingsSave } from "../lib/colzo-settings-confirmation.js";
 import {
   requireBusinessMember,
   requireBusinessAdmin,
@@ -93,6 +95,11 @@ async function getSettings(businessId = null) {
 }
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   try {
 
     // GET SETTINGS
@@ -109,7 +116,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Business settings not found" });
       }
 
-      return res.status(200).json(settings);
+      return res.status(200).json(auth.enforced ? { ...settings, can_manage: ['owner','admin'].includes(auth.role) } : settings);
     }
 
 
@@ -266,6 +273,14 @@ export default async function handler(req, res) {
         );
 
 
+      // Only the isolated Colzo Preview requires confirmed saved values.
+      // Production/Pilot retain their previous handler behaviour.
+      if (auth.enforced && isColzoPreviewAuthTransportEnabled()) {
+        const confirmation = confirmSettingsSave(updated, current, auth.businessId, updates);
+        if (confirmation.status !== 200) {
+          return res.status(confirmation.status).json({ error: confirmation.error });
+        }
+      }
       const result = Array.isArray(updated) ? updated[0] || null : updated;
       if (auth.enforced && result) await recordAuditEvent({ businessId: auth.businessId, actorUserId: auth.userId, action: "settings.updated", resourceType: "business_settings", resourceId: String(current.id), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
       return res.status(200).json(result);

@@ -1,3 +1,4 @@
+import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public-config-handler.js";
 import { requireAuthenticatedUser, sendAuthError } from "../lib/auth.js";
 import { normalisePublicBusinessSlug } from "../lib/public-tenant.js";
 import { recordAuditEvent } from "../lib/audit.js";
@@ -72,6 +73,11 @@ async function activePublicSlug(businessId) {
 }
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   if (!["GET", "POST"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
   let auth;
   try { auth = await requireAuthenticatedUser(req); } catch (error) { return sendAuthError(res, error); }

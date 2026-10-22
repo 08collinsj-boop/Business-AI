@@ -12,7 +12,7 @@ const reviewUrl = `data:text/javascript;base64,${Buffer.from(reviewSource).toStr
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const result = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
-async function load(enabled, role, api, rejectAuth = false) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = async (url, options = {}) => { if (url.endsWith("/auth/v1/user")) return reply(rejectAuth ? {} : { id: "user-a" }, !rejectAuth); if (url.includes("business_memberships")) return reply([{ business_id: "business-a", role }]); return api(url, options); }; const source = settingsSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`).replace('from "../lib/review-requests.js"', `from "${reviewUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
+async function load(enabled, role, api, rejectAuth = false, preview = false) { process.env.TENANCY_AUTH_ENABLED = enabled; process.env.VERCEL_ENV = preview ? "preview" : ""; process.env.VERCEL_GIT_COMMIT_REF = preview ? "feature/colzo-complete-ui-motion-20261017" : ""; process.env.SUPABASE_URL = preview ? "https://mvwseobgkexzpmmkgcxe.supabase.co" : "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"; globalThis.fetch = async (url, options = {}) => { if (url.endsWith("/auth/v1/user")) return reply(rejectAuth ? {} : { id: "user-a" }, !rejectAuth); if (url.includes("business_memberships")) return reply([{ business_id: "business-a", role }]); return api(url, options); }; const source = settingsSource.replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/colzo-settings-confirmation.js"', `from "${new URL('../lib/colzo-settings-confirmation.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`).replace('from "../lib/review-requests.js"', `from "${reviewUrl}#${Math.random()}"`); return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default; }
 const current = { id: 4, business_id: "business-a", business_name: "A", urgent_jobs_enabled: true, directory_search_enabled: true };
 
 test("settings gate, reads, and owner/admin writes are tenant scoped", { concurrency: false }, async () => {
@@ -54,4 +54,32 @@ test("directory visibility is owner-only and remains tenant scoped", { concurren
   res = result();
   await handler({ method: "PATCH", headers: { authorization: "Bearer good" }, body: { directory_search_enabled: "no" } }, res);
   assert.equal(res.statusCode, 400);
+});
+
+
+test('Colzo Preview Settings reports an empty saved response as conflict instead of false success', { concurrency: false }, async () => {
+  const api = async (url, options = {}) => options.method === 'PATCH' ? reply([]) : reply([current]);
+  const handler = await load('true', 'owner', api, false, true);
+  const res = result();
+  await handler({ method: 'PATCH', headers: {authorization: 'Bearer synthetic'}, body: {business_name: 'New business'} }, res);
+  assert.equal(res.statusCode, 409);
+  assert.match(res.body.error, /Reload/i);
+});
+
+test('Colzo Preview Settings rejects wrong-tenant and stale persisted representations', { concurrency: false }, async () => {
+  for (const returned of [{...current,business_id:'other-business',business_name:'New business'}, {...current,business_name:'Original'}]) {
+    const handler = await load('true','owner',async (url, options={}) => options.method==='PATCH'?reply([returned]):reply([current]),false,true);
+    const res = result();
+    await handler({method:'PATCH', headers:{authorization:'Bearer synthetic'}, body:{business_name:'New business'}},res);
+    assert.equal(res.statusCode,503);
+    assert.match(res.body.error,/Reload/i);
+  }
+});
+
+test('Colzo Preview Settings succeeds only with a saved, matching business value', { concurrency: false }, async () => {
+  const handler = await load('true','owner',async (url, options={}) => options.method==='PATCH'?reply([{...current,business_name:'New business'}]):reply([current]),false,true);
+  const res = result();
+  await handler({method:'PATCH', headers:{authorization:'Bearer synthetic'}, body:{business_name:'New business'}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business_name,'New business');
 });

@@ -34,7 +34,7 @@
   const dialog=document.getElementById('shotDialog');
   if(dialog&&typeof dialog.showModal==='function'){
     const image=dialog.querySelector('img');
-    document.querySelectorAll('[data-shot]').forEach(button=>button.addEventListener('click',()=>{image.src=button.dataset.shot;image.alt=button.dataset.shotAlt||'Business AI screenshot';dialog.showModal();}));
+    document.querySelectorAll('[data-shot]').forEach(button=>button.addEventListener('click',()=>{image.src=button.dataset.shot;image.alt=button.dataset.shotAlt||'Colzo screenshot';dialog.showModal();}));
     dialog.querySelector('.shot-dialog-close')?.addEventListener('click',()=>dialog.close());
     dialog.addEventListener('click',e=>{const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();});
   }

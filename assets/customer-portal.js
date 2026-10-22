@@ -5,7 +5,11 @@ const isCustomerRoute=()=>currentPath()==='/customer'||isCustomerAccountRoute()|
 let client=null;
 let session=null;
 let customerRuntimeBound=false;
+let customerSignInBusy=false;
+let customerSignUpBusy=false;
+let customerConfirmationResendBusy=false;
 let portalState={customer:null,enquiries:[]};
+let customerSearchSequence=0;
 const byId=id=>document.getElementById(id);
 const wait=ms=>new Promise(resolve=>window.setTimeout(resolve,ms));
 
@@ -158,7 +162,16 @@ async function loadPortal(){
 }
 
 function showPortalTab(name){
-  const shell=document.querySelector('.customer-portal-shell');if(shell)shell.dataset.customerActiveTab=name;
+  // Navigation direction is purely presentational: hidden panes, account
+  // state, search and existing focus/scroll controls remain authoritative.
+  const shell=document.querySelector('.customer-portal-shell');
+  const order=['home','find','enquiries','account'];
+  if(!order.includes(name))return;
+  const previous=shell?.dataset.customerActiveTab||'home';
+  if(shell){
+    shell.dataset.customerDirection=order.indexOf(name)<order.indexOf(previous)?'backward':'forward';
+    shell.dataset.customerActiveTab=name;
+  }
   document.querySelectorAll('[data-customer-pane]').forEach(p=>p.hidden=p.dataset.customerPane!==name);
   document.querySelectorAll('[data-customer-tab]').forEach(b=>{const active=b.dataset.customerTab===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   if(name==='find'){const input=byId('customerPortalSearchInput');if(input&&!input.value.trim())resetCustomerBusinessSearch();}
@@ -166,19 +179,25 @@ function showPortalTab(name){
 
 function resetCustomerBusinessSearch(){
   const target=byId('customerPortalSearchResults');if(!target)return;
+  target.setAttribute('aria-busy','false');
   target.innerHTML='<div class="customer-empty customer-search-prompt">Start typing to find a business.</div>';
 }
 
 async function searchBusinesses(query){
   const target=byId('customerPortalSearchResults');if(!target)return;
+  const sequence=++customerSearchSequence;
   const normalized=String(query||'').trim().slice(0,80);
   if(normalized.length<2){resetCustomerBusinessSearch();return;}
+  target.setAttribute('aria-busy','true');
   target.innerHTML='<div class="customer-empty">Searching businesses…</div>';
   try{
     const url=new URL('/api/public-businesses',window.location.origin);url.searchParams.set('q',normalized);
     const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});
-    const data=await response.json();target.replaceChildren();
-    const rows=Array.isArray(data.businesses)?data.businesses:[];
+    const data=await response.json();
+    if(sequence!==customerSearchSequence)return;
+    if(!response.ok||!Array.isArray(data?.businesses))throw new Error('Search unavailable');
+    target.replaceChildren();
+    const rows=data.businesses;
     if(!rows.length){target.innerHTML='<div class="customer-empty">No matching businesses found.</div>';return;}
     for(const business of rows){
       const card=document.createElement('article');card.className='customer-search-result';
@@ -187,7 +206,16 @@ async function searchBusinesses(query){
       const link=document.createElement('a');link.href=business.profile_path||business.message_path||('/customer?business='+encodeURIComponent(business.slug||'')+'&view=profile');link.textContent='View profile';
       card.append(mark,copy,link);target.append(card);
     }
-  }catch{target.innerHTML='<div class="customer-empty">Business search is temporarily unavailable.</div>';}
+  }catch{
+    if(sequence!==customerSearchSequence)return;
+    const panel=document.createElement('div');panel.className='customer-empty customer-search-error';panel.setAttribute('role','alert');
+    const message=document.createElement('p');message.textContent='Business search is temporarily unavailable. Please try again shortly.';
+    const retry=document.createElement('button');retry.type='button';retry.className='customer-search-retry';retry.textContent='Retry search';
+    retry.addEventListener('click',()=>searchBusinesses(byId('customerPortalSearchInput').value));
+    panel.append(message,retry);target.replaceChildren(panel);
+  }finally{
+    if(sequence===customerSearchSequence)target.setAttribute('aria-busy','false');
+  }
 }
 
 function setCustomerSurface(portalReady){
@@ -248,15 +276,49 @@ const customerPasswordPolicyIssue=password=>{
   return '';
 };
 
+function updateCustomerSubmitState(form){
+  if(!form)return;
+  const submit=form.querySelector('[type="submit"]');if(!submit)return;
+  const isSignUp=form.id==='customerSignUpForm';
+  const password=byId('customerSignUpPassword')?.value||'';
+  const signupValid=!isSignUp||(!customerPasswordPolicyIssue(password)&&password===byId('customerSignUpConfirm')?.value);
+  submit.disabled=(isSignUp?customerSignUpBusy:customerSignInBusy)||!form.checkValidity()||!signupValid;
+}
+function bindCustomerFormValidity(){
+  for(const id of ['customerSignInForm','customerSignUpForm']){
+    const form=byId(id);if(!form)continue;
+    const update=()=>updateCustomerSubmitState(form);
+    form.addEventListener('input',update);
+    form.addEventListener('change',update);
+    update();
+  }
+}
+bindCustomerFormValidity();
+
 async function bindCustomerRuntime(){
   if(customerRuntimeBound)return;
   customerRuntimeBound=true;
   byId('customerShowSignIn')?.addEventListener('click',()=>setCustomerAuthMode('signin'));
   byId('customerShowSignUp')?.addEventListener('click',()=>setCustomerAuthMode('signup'));
   byId('customerSignInForm')?.addEventListener('submit',async event=>{
-    event.preventDefault();const message=byId('customerSignInMessage');message.textContent='Signing in…';
-    const result=await client.auth.signInWithPassword({email:byId('customerSignInEmail').value.trim(),password:byId('customerSignInPassword').value});
-    message.textContent=result.error?'Unable to sign in with those details.':'';if(!result.error)await refreshRoute();
+    event.preventDefault();
+    const form=event.currentTarget;
+    if(customerSignInBusy||!form.checkValidity())return;
+    const message=byId('customerSignInMessage');
+    customerSignInBusy=true;updateCustomerSubmitState(form);
+    message.textContent='Signing in…';
+    try{
+      const result=await client.auth.signInWithPassword({email:byId('customerSignInEmail').value.trim(),password:byId('customerSignInPassword').value});
+      if(result?.error){message.textContent='Unable to sign in with those details.';return;}
+      if(!result?.data?.session){message.textContent='Your session could not be verified. Please try signing in again.';return;}
+      session=result.data.session;
+      await refreshRoute();
+      message.textContent='';
+    }catch{
+      message.textContent='Sign in is temporarily unavailable. Please try again.';
+    }finally{
+      customerSignInBusy=false;updateCustomerSubmitState(form);
+    }
   });
   byId('customerForgotPassword')?.addEventListener('click',async()=>{
     const button=byId('customerForgotPassword');const message=byId('customerSignInMessage');const email=byId('customerSignInEmail')?.value.trim();
@@ -277,44 +339,86 @@ async function bindCustomerRuntime(){
     }
   });
   byId('customerSignUpForm')?.addEventListener('submit',async event=>{
-    event.preventDefault();const message=byId('customerSignUpMessage');const password=byId('customerSignUpPassword').value;const confirm=byId('customerSignUpConfirm').value;const policyIssue=customerPasswordPolicyIssue(password);
-    if(policyIssue||password!==confirm){message.textContent=password!==confirm?'Passwords do not match.':policyIssue;return;}
-    if(!byId('customerPrivacyAcknowledgement').checked){message.textContent='Please acknowledge the Privacy Notice.';return;}
+    event.preventDefault();
+    const form=event.currentTarget;
+    if(customerSignUpBusy||!form.checkValidity())return;
+    const message=byId('customerSignUpMessage');
+    const password=byId('customerSignUpPassword').value;
+    const confirm=byId('customerSignUpConfirm').value;
+    const policyIssue=customerPasswordPolicyIssue(password);
+    if(policyIssue||password!==confirm){
+      message.textContent=password!==confirm?'Passwords do not match.':policyIssue;
+      return;
+    }
+    if(!byId('customerPrivacyAcknowledgement').checked){
+      message.textContent='Please acknowledge the Privacy Notice.';
+      return;
+    }
+    customerSignUpBusy=true;updateCustomerSubmitState(form);
     message.textContent='Creating your customer account…';
-    const email=byId('customerSignUpEmail').value.trim();const displayName=byId('customerSignUpName').value.trim();
-    const result=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('/customer/account',window.location.origin).toString()}});
-    if(result.error){message.textContent='We could not create the account. Check the details and try again.';return;}
-    if(result.data.session){
-      session=result.data.session;
-      if(displayName){try{await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:displayName})});}catch{}}
-      await refreshRoute();
-      return;
-    }
+    const email=byId('customerSignUpEmail').value.trim();
+    const displayName=byId('customerSignUpName').value.trim();
+    try{
+      const result=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('/customer/account',window.location.origin).toString()}});
+      if(result?.error){
+        message.textContent='We could not create the account. Check the details and try again.';
+        return;
+      }
+      if(result?.data?.session){
+        session=result.data.session;
+        if(displayName){
+          try{
+            await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:displayName})});
+          }catch{/* Account is created; the profile can be completed later. */}
+        }
+        await refreshRoute();
+        return;
+      }
 
-    // Business and Customer access share one Business AI identity. If these
-    // credentials already belong to a confirmed business user, reuse that
-    // same account for the Customer portal instead of creating a duplicate.
-    const existingSignIn=await client.auth.signInWithPassword({email,password});
-    if(!existingSignIn.error&&existingSignIn.data.session){
-      session=existingSignIn.data.session;
-      if(displayName){try{await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:displayName})});}catch{}}
-      await refreshRoute();
-      return;
+      // Reuse an existing confirmed Colzo identity across both account views,
+      // but never invent a session or reveal whether this email is registered.
+      const existingSignIn=await client.auth.signInWithPassword({email,password});
+      if(!existingSignIn?.error&&existingSignIn?.data?.session){
+        session=existingSignIn.data.session;
+        if(displayName){
+          try{
+            await portalApi('/api/customer-portal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'profile',display_name:displayName})});
+          }catch{/* Account remains accessible if the optional profile save fails. */}
+        }
+        await refreshRoute();
+        return;
+      }
+      const confirmationActions=byId('customerConfirmationActions');
+      if(confirmationActions)confirmationActions.hidden=false;
+      message.textContent='If this is a new email, check your inbox to confirm it. If you already use this email for Colzo, sign in with your existing password — the same account works for Customer.';
+    }catch{
+      message.textContent='Customer registration is temporarily unavailable. Please try again.';
+    }finally{
+      customerSignUpBusy=false;updateCustomerSubmitState(form);
     }
-
-    const confirmationActions=byId('customerConfirmationActions');if(confirmationActions)confirmationActions.hidden=false;
-    message.textContent='If this is a new email, check your inbox to confirm it. If you already use this email for Business AI, sign in with your existing password — the same account works for Customer.';
   });
   byId('customerPortalLogout')?.addEventListener('click',async()=>{await client.auth.signOut();location.href='/customer/account';});
   document.querySelectorAll('[data-customer-tab]').forEach(button=>button.addEventListener('click',()=>showPortalTab(button.dataset.customerTab)));
   document.querySelectorAll('[data-customer-go]').forEach(button=>button.addEventListener('click',()=>showPortalTab(button.dataset.customerGo)));
   byId('customerPortalSearchForm')?.addEventListener('submit',event=>{event.preventDefault();searchBusinesses(byId('customerPortalSearchInput').value.trim().slice(0,80));});
   byId('customerResendConfirmation')?.addEventListener('click',async()=>{
-    const message=byId('customerSignUpMessage');const email=byId('customerSignUpEmail')?.value.trim();
+    if(customerConfirmationResendBusy)return;
+    const button=byId('customerResendConfirmation');
+    const message=byId('customerSignUpMessage');
+    const email=byId('customerSignUpEmail')?.value.trim();
     if(!email){message.textContent='Enter your email address first.';return;}
+    customerConfirmationResendBusy=true;
+    if(button)button.disabled=true;
     message.textContent='Requesting another confirmation email…';
-    const {error}=await client.auth.resend({type:'signup',email,options:{emailRedirectTo:new URL('/customer/account',window.location.origin).toString()}});
-    message.textContent=error?'We could not request another confirmation email. Please wait a moment and try again.':'If this address has an unconfirmed account, a new confirmation email will arrive shortly. Already confirmed? Sign in instead.';
+    try{
+      const {error}=await client.auth.resend({type:'signup',email,options:{emailRedirectTo:new URL('/customer/account',window.location.origin).toString()}});
+      message.textContent=error?'We could not request another confirmation email. Please wait a moment and try again.':'If this address has an unconfirmed account, a new confirmation email will arrive shortly. Already confirmed? Sign in instead.';
+    }catch{
+      message.textContent='We could not request another confirmation email. Please try again shortly.';
+    }finally{
+      customerConfirmationResendBusy=false;
+      if(button)button.disabled=false;
+    }
   });
   byId('customerProfileForm')?.addEventListener('submit',async event=>{
     event.preventDefault();const message=byId('customerProfileMessage');message.textContent='Saving…';

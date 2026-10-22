@@ -26,7 +26,7 @@ test('authenticated owner data and access gates are unchanged; Colzo content nev
  assert.match(html,/window\.ColzoOwner\?\.onAuthState\(state\)/);
  assert.match(html,/window\.ColzoOwner\?\.render\(\)/);
  assert.match(js,/if\(auth==='auth-ready'\)/);
- assert.match(js,/root\.hidden=true;content\.replaceChildren\(\)/);
+ assert.match(js,/root\.hidden=true;window\.colzoParkSecurityCenter\?\.\(\);window\.ColzoReact\?\.unmount\(content\);content\.replaceChildren\(\)/);
  assert.match(js,/document\.body\.classList\.remove\('colzo-owner-enabled','colzo-legacy-mode'\)/);
  assert.match(js,/body/); // no auth methods replaced; only original session controls access
 });
@@ -56,11 +56,11 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('Estimated value of enquiries created in this period, not confirmed revenue.'));
  assert.ok(js.includes('async function approveKnowledge'));
  assert.ok(js.includes('async function saveManualKnowledge'));
- assert.ok(js.includes("confirmation_version:'knowledge_accuracy_v1'"));
+ assert.ok(js.includes("body:JSON.stringify({action:'approve',source_id:source.id,items})"));
  assert.ok(js.includes('function billing()'));
  assert.ok(js.includes("const result=await api('/api/billing')"));
  assert.ok(js.includes('const moreItems=['));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
  assert.ok(js.includes('async function saveNativeLead'));
  assert.ok(js.includes("method:editing?'PATCH':'POST'"));
  assert.ok(js.includes("['New','Contacted','Converted']"));
@@ -72,7 +72,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.ok(js.includes('async function loadVoiceStatus'));
  assert.ok(js.includes('function receptionist()'));
  assert.ok(js.includes("api('/api/voice-status')"));
- assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
+ assert.ok(js.includes("['projects','clients','quotes','bookings','actions','marketing','enquiries','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile'].includes(id)"));
  assert.ok(js.includes('async function saveMarketingSchedule'));
  assert.ok(js.includes('async function cancelMarketingSchedule'));
  assert.ok(js.includes("action:'create',generation_id:draftId,platform:'facebook'"));

@@ -109,3 +109,7 @@
 #colzoOwner .cn-approved-quote-actions .cn-primary{width:100%;min-height:48px;border-radius:12px;background:#c8ff2e;color:#11170b}
 #colzoOwner .cn-approved-quote-detail button:focus-visible{outline:2px solid #c8ff2e;outline-offset:4px}
 @media(max-width:600px){#colzoOwner .cn-approved-quote-detail{gap:14px;padding:0 3px}#colzoOwner .cn-approved-estimate{padding:16px}}
+
+
+/* The approved customer form keeps the same layout, with zoom-safe inputs. */
+#colzoOwner .cn-approved-form-group :is(input,textarea){font-size:16px}

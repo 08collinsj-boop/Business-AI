@@ -24,9 +24,11 @@ const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body), json: async () => body });
 const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 
-async function load(role = "owner", enabled = "true", database = async () => reply([]), rejectAuth = false) {
+async function load(role = "owner", enabled = "true", database = async () => reply([]), rejectAuth = false, preview = false) {
   process.env.TENANCY_AUTH_ENABLED = enabled;
-  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.VERCEL_ENV = preview ? "preview" : "";
+  process.env.VERCEL_GIT_COMMIT_REF = preview ? "feature/colzo-complete-ui-motion-20261017" : "";
+  process.env.SUPABASE_URL = preview ? "https://mvwseobgkexzpmmkgcxe.supabase.co" : "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   globalThis.fetch = async (url, options = {}) => {
     if (url.endsWith("/auth/v1/user")) return reply(rejectAuth ? {} : { id: "user-a" }, !rejectAuth);
@@ -34,8 +36,9 @@ async function load(role = "owner", enabled = "true", database = async () => rep
     return database(url, options);
   };
   const source = apiSource
-    .replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`)
+    .replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`)
     .replace('from "../lib/business-configuration.js"', `from "${configUrl}#${Math.random()}"`)
+    .replace('from "../lib/colzo-configuration-confirmation.js"', `from "${new URL('../lib/colzo-configuration-confirmation.js',import.meta.url).href}"`)
     .replace('from "../lib/business-import.js"', `from "${importUrl}#${Math.random()}"`)
     .replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
@@ -145,4 +148,38 @@ test("handling mode configuration writes remain owner/admin-only and tenant scop
   const handler = await load("owner", "true", async () => reply([]), true);
   const res = response(); await handler({ method: "PATCH", headers: { authorization: "Bearer invalid" }, body: { ai_handling_mode: "ai_first" } }, res);
   assert.equal(res.statusCode, 401);
+});
+
+
+test("Dev Preview onboarding refuses an unconfirmed configuration PATCH",{concurrency:false},async()=>{
+ const handler=await load("owner","true",async()=>reply([]),false,true);
+ const res=response();
+ await handler({method:"PATCH",headers:{authorization:"Bearer synthetic"},body:{description:"Saved?"}},res);
+ assert.equal(res.statusCode,404);
+});
+test("Dev Preview rejects returned configuration belonging to another tenant",{concurrency:false},async()=>{
+ for(const stored of [{business_id:"foreign",description:"Saved"},{business_id:"business-a",description:"Old"}]){
+  const handler=await load("owner","true",async()=>reply([stored]),false,true);
+  const res=response();
+  await handler({method:"PATCH",headers:{authorization:"Bearer synthetic"},body:{description:"Saved"}},res);
+  assert.equal(res.statusCode,503);
+ }
+});
+test("Dev Preview onboarding confirms a saved tenant configuration",{concurrency:false},async()=>{
+ const handler=await load("owner","true",async(url,options={})=>reply([{business_id:"business-a",description:"Saved",updated_at: options.method==="PATCH" ? JSON.parse(options.body).updated_at : "2026-10-19T12:00:00Z"}]),false,true);
+ const res=response();
+ await handler({method:"PATCH",headers:{authorization:"Bearer synthetic"},body:{description:"Saved"}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.configuration.description,"Saved");
+});
+
+test('Dev Preview configuration wizard rejects credential-bearing and custom-port website links', {concurrency:false}, async()=>{
+ for(const website of ['https://username:password@business.example/','https://business.example:8443/']){
+  const calls=[];
+  const handler=await load('owner','true',async(url,options={})=>{calls.push({url,method:options.method||'GET'});return reply([])},false,true);
+  const res=response();
+  await handler({method:'PATCH',headers:{authorization:'Bearer synthetic'},body:{website}},res);
+  assert.equal(res.statusCode,400);
+  assert.equal(calls.some(c=>c.method==='PATCH'||c.method==='POST'),false);
+ }
 });

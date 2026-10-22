@@ -24,7 +24,7 @@ async function load(enabled, api, membership = { business_id: "business-a", role
     if (url.includes("business_memberships")) return reply(membership ? [membership] : []);
     return api(url, options);
   };
-  const moduleSource = source.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`).replace('from "../lib/review-requests.js"', `from "${reviewUrl}#${Math.random()}"`);
+  const moduleSource = source.replace('from "../lib/colzo-work-version.js"', `from "${new URL('../lib/colzo-work-version.js', import.meta.url).href}"`).replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`).replace('from "../lib/review-requests.js"', `from "${reviewUrl}#${Math.random()}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(moduleSource).toString("base64")}#${Math.random()}`)).default;
 }
 
@@ -93,6 +93,26 @@ test("bookings validate, tenant-check related leads, and scope writes", { concur
     await handler({ method: "POST", headers: { authorization: "Bearer good" }, body }, res);
     assert.equal(res.statusCode, 400);
   }
+});
+
+test("booking endpoints reject unsafe integer record and enquiry IDs before any database access", { concurrency: false }, async () => {
+  const databaseCalls = [];
+  const handler = await load("true", async (url, options) => {
+    databaseCalls.push({url, method: options?.method || "GET"});
+    throw new Error("Unsafe reference should be rejected before database access");
+  });
+  for (const id of ["9007199254740992", "9007199254740993", "99999999999999999999"]) {
+    let res = result();
+    await handler({method:"GET",headers:{authorization:"Bearer good"},query:{lead_id:id}},res);
+    assert.equal(res.statusCode,400,"GET lead ID "+id);
+    res = result();
+    await handler({method:"POST",headers:{authorization:"Bearer good"},body:{title:"Fixture only",lead_id:id}},res);
+    assert.equal(res.statusCode,400,"POST lead ID "+id);
+    res = result();
+    await handler({method:"PATCH",headers:{authorization:"Bearer good"},body:{id,status:"requested"}},res);
+    assert.equal(res.statusCode,400,"PATCH booking ID "+id);
+  }
+  assert.deepEqual(databaseCalls,[]);
 });
 
 test.after(() => {

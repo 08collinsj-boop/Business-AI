@@ -10,6 +10,8 @@
   let incidentState=null;
   let pendingEnrollment=null;
   let mounted=false;
+  let securityShellHome=null;
+  let securityViewEpoch=0;
   let authReadyCheckRunning=false;
   let activeChallenge=null;
 
@@ -104,11 +106,32 @@
     byId('incidentSaveControls')?.addEventListener('click',saveIncidentControls);
     byId('incidentRefreshControls')?.addEventListener('click',()=>loadIncidentControls(true));
     byId('securityActivityRefresh')?.addEventListener('click',()=>loadSecurityActivity(true));
+    securityShellHome=shell.parentElement;
     mounted=true;
     return true;
   }
 
   window.colzoOpenSecurityCenter=()=>{if(injectUi())openSecurityCenter();};
+  // Reuse the existing secured controls and their listeners within native Colzo.
+  // Park them before the owner content is replaced; never clone credential fields.
+  window.colzoResetSecurityView=()=>{
+    securityViewEpoch++;
+    pendingEnrollment=null;incidentState=null;
+    byId('securityCenterShell')?.remove();byId('securityCenterHubButton')?.remove();
+    byId('securityPauseBanner')?.remove();
+    mounted=false;securityShellHome=null;
+  };
+  window.colzoParkSecurityCenter=()=>{
+    const shell=byId('securityCenterShell');
+    if(shell&&securityShellHome&&shell.parentElement!==securityShellHome)securityShellHome.appendChild(shell);
+  };
+  window.colzoMountSecurityCenter=host=>{
+    if(!document.body.classList.contains('auth-ready')||host?.id!=='cnSecurityCentreHost'||!injectUi())return false;
+    const shell=byId('securityCenterShell');
+    host.replaceChildren(shell);
+    openSecurityCenter();
+    return true;
+  };
   function openSecurityCenter(){
     const card=byId('accountSecurityCard');
     card?.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
@@ -137,7 +160,7 @@
     const platformPaused=CONTROLS.filter(item=>incidentState.platform?.[item.key]);
     if(platformNotice){
       platformNotice.hidden=!platformPaused.length;
-      platformNotice.innerHTML=platformPaused.length?`<strong>Business AI platform protection active.</strong><span>${esc(platformPaused.map(item=>item.label).join(', '))} ${platformPaused.length===1?'is':'are'} paused centrally and cannot be resumed from this business.</span>`:'';
+      platformNotice.innerHTML=platformPaused.length?`<strong>Colzo platform protection active.</strong><span>${esc(platformPaused.map(item=>item.label).join(', '))} ${platformPaused.length===1?'is':'are'} paused centrally and cannot be resumed from this business.</span>`:'';
     }
     list.innerHTML=CONTROLS.map(item=>{
       const businessPaused=incidentState.controls?.[item.key]===true;
@@ -155,13 +178,17 @@
   }
 
   async function loadIncidentControls(showFeedback=false){
+    const requestEpoch=securityViewEpoch;
     if(!['owner','admin'].includes(currentRole()))return;
     if(!incidentState)renderIncidentControls();
     try{
-      incidentState=await authorisedFetch('/api/incident-controls',{headers:{Accept:'application/json'},cache:'no-store'});
+      const result=await authorisedFetch('/api/incident-controls',{headers:{Accept:'application/json'},cache:'no-store'});
+      if(requestEpoch!==securityViewEpoch)return;
+      incidentState=result;
       renderIncidentControls();
       if(showFeedback)notify('Incident controls refreshed');
     }catch(error){
+      if(requestEpoch!==securityViewEpoch)return;
       const status=byId('incidentCentreStatus');
       if(status)status.textContent=error.message||'Incident controls are unavailable.';
       const badge=byId('incidentCentreBadge');if(badge)badge.textContent='Unavailable';
@@ -286,8 +313,8 @@
     const state=byId('securityMfaState');if(!state)return;
     state.innerHTML='<div class="security-loading">Checking two-step verification…</div>';
     renderSecurityMethods();
-    try{renderMfaSnapshot(await mfaSnapshot());}
-    catch(error){state.innerHTML=`<div class="error">${esc(error.message||'Account security is unavailable.')}</div>`;const badge=byId('securityMfaBadge');if(badge)badge.textContent='Unavailable';}
+    try{const snapshot=await mfaSnapshot();if(state!==byId('securityMfaState'))return;renderMfaSnapshot(snapshot);}
+    catch(error){if(state!==byId('securityMfaState'))return;state.innerHTML=`<div class="error">${esc(error.message||'Account security is unavailable.')}</div>`;const badge=byId('securityMfaBadge');if(badge)badge.textContent='Unavailable';}
   }
 
   async function beginMfaEnrollment(){
@@ -332,7 +359,7 @@
 
   async function removeMfaFactor(factor){
     const authClient=client();if(!authClient||!factor?.id)return;
-    if(!window.confirm('Remove this authenticator from your Business AI account?'))return;
+    if(!window.confirm('Remove this authenticator from your Colzo account?'))return;
     const verified=await ensureAal2ForAction();if(!verified)return;
     const {error}=await authClient.auth.mfa.unenroll({factorId:factor.id});
     if(error){notify(error.message||'Could not remove authenticator');return;}
@@ -458,7 +485,7 @@
   const bodyObserver=new MutationObserver(()=>{
     if(document.body.classList.contains('security-mfa-required'))byId('colzoNewAccountSecurity')?.remove();
     if(document.body.classList.contains('auth-ready'))refreshForAuthenticatedState();
-    else if(activeChallenge)finishChallenge(false);
+    else {window.colzoResetSecurityView();if(activeChallenge)finishChallenge(false);}
   });
   bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
   window.addEventListener('pageshow',refreshForAuthenticatedState);

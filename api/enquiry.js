@@ -1,6 +1,6 @@
 // Anonymous enquiries must not target a different database on an isolated Colzo Preview.
 function isApprovedSupabaseTarget() {
-  const expected = process.env.COLZO_EXPECTED_SUPABASE_PROJECT_REF;
+  const expected = (process.env.VERCEL_ENV === 'preview' && /^(?:feature|fix|qa|release|backup)\/colzo(?:[-/]|$)/.test(String(process.env.VERCEL_GIT_COMMIT_REF || '')) ? 'mvwseobgkexzpmmkgcxe' : process.env.COLZO_EXPECTED_SUPABASE_PROJECT_REF);
   if (!expected) return true;
   if (!/^[a-z0-9]{20}$/.test(String(expected))) return false;
   try {
@@ -22,6 +22,7 @@ import { logOperationalEvent } from "../lib/operational-log.js";
 import { getAiEnquiryAccess, reserveAiEnquiryAllowance, releaseAiEnquiryAllowance } from "../lib/billing.js";
 import { getApprovedKnowledgeSafe } from "../lib/knowledge.js";
 import { LEGAL_VERSIONS } from "../lib/legal.js";
+import { isCurrentBusinessDpa } from "../lib/business-dpa-validation.js";
 import { extractBearerToken, requireAuthenticatedUser, requireBusinessAdmin, sendAuthError } from "../lib/auth.js";
 import { assertIncidentFeatureAvailable, isIncidentFeaturePaused } from "../lib/incident-controls.js";
 
@@ -241,9 +242,9 @@ async function resolvePublicBusiness(req) {
 async function hasCurrentBusinessDpa(businessId) {
   if (process.env.TENANCY_AUTH_ENABLED !== "true") return true;
   const rows = await supabaseRequest(
-    `business_legal_acceptances?business_id=eq.${encodeURIComponent(String(businessId))}&document_key=eq.dpa&document_version=eq.${encodeURIComponent(LEGAL_VERSIONS.dpa)}&select=id&limit=1`
+    `business_legal_acceptances?business_id=eq.${encodeURIComponent(String(businessId))}&document_key=eq.dpa&document_version=eq.${encodeURIComponent(LEGAL_VERSIONS.dpa)}&select=id,business_id,document_key,document_version&limit=1`
   );
-  return Boolean(rows?.[0]?.id);
+  return isCurrentBusinessDpa(rows,businessId,LEGAL_VERSIONS.dpa);
 }
 
 async function optionalCustomerAccount(req) {
@@ -285,7 +286,7 @@ async function createRequestedBooking({ businessId, leadId, lead, conversationTe
     "Customer booking request";
   const context = bookingText(conversationText, 4200);
   const notes = bookingText(
-    `Customer requested a booking through Business AI. This is a request only; confirm availability before marking it confirmed.${context ? `\n\nCustomer enquiry:\n${context}` : ""}`,
+    `Customer requested a booking through Colzo. This is a request only; confirm availability before marking it confirmed.${context ? `\n\nCustomer enquiry:\n${context}` : ""}`,
     5000
   );
 
@@ -360,7 +361,7 @@ async function createAutomaticFollowUp({ businessId, lead, settings }) {
       business_id: businessId,
       lead_id: lead.id,
       title,
-      description: "Business AI created this private reminder for a new AI-captured lead. Review the enquiry and contact the customer using the details they supplied. No customer message is sent automatically.",
+      description: "Colzo created this private reminder for a new AI-captured lead. Review the enquiry and contact the customer using the details they supplied. No customer message is sent automatically.",
       action_type: "follow_up",
       due_at: dueAt,
       priority: "normal",
@@ -478,40 +479,70 @@ function findEmailInConversation(conversationText) {
 }
 
 function findNameInConversation(conversationText) {
-  const patterns = [
-    /my name is\s+([A-Za-z][A-Za-z '-]{1,50})/i,
-    /i'm\s+(?!in\b)([A-Za-z][A-Za-z '-]{1,50})/i,
-    /i am\s+(?!in\b)([A-Za-z][A-Za-z '-]{1,50})/i
-  ];
-
-  for (const pattern of patterns) {
-    const match = conversationText.match(pattern);
-
-    if (match?.[1]) {
+  const nonNameStarts = new Set([
+    'a', 'an', 'the', 'after', 'looking', 'trying', 'hoping', 'interested',
+    'wanting', 'needing', 'seeking', 'asking', 'calling', 'checking',
+    'wondering', 'thinking', 'planning', 'considering', 'searching',
+    'waiting', 'following', 'working', 'living', 'moving', 'based',
+    'located', 'in', 'at', 'from', 'on', 'here', 'there', 'not', 'just',
+    'going', 'having', 'getting', 'feeling', 'currently', 'very',
+    'really', 'free', 'available', 'happy', 'sorry', 'someone', 'one',
+    'booking', 'looking', 'inquiring', 'enquiring', 'unsure', 'new'
+  ]);
+  const lines = String(conversationText || '').split(/\n/).filter(line => /^user:\s*/i.test(line));
+  for (const line of lines.reverse()) {
+    const message = line.replace(/^user:\s*/i, '');
+    const patterns = [
+      /\bmy name is\s+([A-Za-z][A-Za-z' -]{0,70})/i,
+      /\b(?:i'm|i am)\s+([A-Za-z][A-Za-z' -]{0,70})/i
+    ];
+    for (const pattern of patterns) {
+      const match = message.match(pattern);
+      if (!match?.[1]) continue;
       const clean = match[1]
-        .split(/\s+(?:and\s+)?(?:my\s+)?(?:email|e-mail|phone|mobile|number|contact)\b/i)[0]
-        .replace(/[,.!?]+$/g, "")
+        .split(/[,.;!?]|\s+\b(?:and|but|because|with|for|from|in|at|to|about|my|our|your|phone|email|e-mail|number|contact|i|we)\b/i)[0]
         .trim();
-      if (clean) return clean;
+      const words = clean.split(/\s+/).filter(Boolean);
+      if (!words.length || words.length > 3 || nonNameStarts.has(words[0].toLowerCase())) continue;
+      if (!words.every(word => /^[A-Za-z]+(?:['-][A-Za-z]+)*$/.test(word))) continue;
+      return words.join(' ');
     }
   }
-
   return null;
 }
 
 function findLocationInConversation(conversationText) {
-  const value = String(conversationText || "");
+  // Only customer messages can supply the customer's location. Scan newest
+  // first so explicit corrections beat earlier, outdated locations.
+  const userMessages = String(conversationText || "").split(/\n/)
+    .filter((line) => /^user:\s*/i.test(line))
+    .map((line) => line.replace(/^user:\s*/i, ""))
+    .reverse();
 
-  const direct = value.match(
-    /(?:i(?:'m| am)|we(?:'re| are)|located|based|live|work)\s+(?:in|near|around|at)\s+([A-Za-z][A-Za-z '-]{2,60})/i
-  );
-  if (direct?.[1]) return direct[1].replace(/[,.!?]+$/g, "").trim();
+  const normaliseLocation = (raw) => {
+    const location = String(raw || "")
+      .split(/[,.;!?]|\s+\b(?:and|but|because|so|then|when|where|while|which|my|our|with|for|to|about)\b/i)[0]
+      .trim();
+    if (!location || location.length > 70) return null;
+    // Phrases such as "I'm in trouble" are not a location.
+    if (/^(?:trouble|need|pain|danger|a\s+(?:hurry|rush|bind|jam)|the\s+(?:middle|process|wrong|dark|mood))\b/i.test(location)) return null;
+    return location;
+  };
 
-  const serviceLocation = value.match(
-    /\b(?:quote|repair|replace|install|installation|maintenance|service|work|job|booking|appointment)\b[^.!?\n]{0,160}?\b(?:in|near|around)\s+([A-Za-z][A-Za-z '-]{2,60}?)(?=[,.!?]|\s+(?:and\s+)?(?:my|our|with|for|because)\b|$)/i
-  );
+  for (const message of userMessages) {
+    const direct = message.match(
+      /\b(?:(?:i'm|i am|we're|we are)\s+(?:(?:based|located)\s+)?|(?:i|we)\s+(?:live|work)\s+)(?:in|near|around|at)\s+([A-Za-z][A-Za-z '-]{1,70})/i
+    );
+    const directLocation = normaliseLocation(direct?.[1]);
+    if (directLocation) return directLocation;
 
-  return serviceLocation?.[1]?.trim() || null;
+    const service = message.match(
+      /\b(?:need|want|would like|quote|repair|replace|install|installation|maintenance|service|job|booking|appointment)\b[^.!?\n]{0,160}?\b(?:in|near|around)\s+([A-Za-z][A-Za-z '-]{1,70})/i
+    );
+    const serviceLocation = normaliseLocation(service?.[1]);
+    if (serviceLocation) return serviceLocation;
+  }
+  return null;
 }
 
 function findJobDetails(conversationText) {
@@ -619,6 +650,53 @@ function looksClearlyOffTopic(message, settings, configuration) {
   return false;
 }
 
+// Answer simple questions directly from owner-approved public business facts.
+// Never guess live status, prices, availability or service commitments.
+// Complicated requests still go through the ordinary intent/lead workflow.
+function trustedBusinessFAQReply(message, settings, configuration) {
+  const value = String(message || '').trim();
+  if (!value || customerHandoverReason(value) || looksClearlyOffTopic(value, settings, configuration)) return null;
+  if (/\b(?:quote|quotation|estimate|costs?|prices?|pricing|charges?|fees?|book|booking|appointment|schedule|availability|available|today|tomorrow|tonight|right now|now|urgent|emergency|refund|complaint|cancel|reschedule)\b/i.test(value)) return null;
+  // Answers to mixed enquiry + contact requests must not silently skip lead capture.
+  if (findPhoneInConversation(value) || findEmailInConversation(value)) return null;
+  // Compound questions belong to the model so no requested topic is dropped.
+  const requestedFacts = [
+    /\b(?:hours?|when .*open|when .*close|what time)\b/i,
+    /\b(?:services?|what .*do you (?:offer|do))\b/i,
+    /\b(?:telephone|phone|call|ring)\b/i,
+    /\b(?:email|e-mail)\b/i
+  ].filter(pattern => pattern.test(value)).length;
+  if (requestedFacts > 1) return null;
+  const businessName = String(settings?.business_name || 'The business').trim() || 'The business';
+
+  const hours = String(settings?.opening_hours || '').trim();
+  if (/\b(?:what|which|when|tell me|could you|can you|please|your|opening|business)\b/i.test(value) &&
+      /\b(?:opening hours?|business hours?|hours? (?:are|do)|when (?:are|do) you open|when (?:are|do) you close|what time (?:do you|are you) open|what time (?:do you|are you) close)\b/i.test(value)) {
+    return hours ? { type: 'opening_hours', reply: `The listed opening hours for ${businessName} are ${hours}.` } : null;
+  }
+
+  const services = approvedFactEntries(settings?.services);
+  if (/\b(?:what|which) (?:services?|work) (?:do you|does (?:the business|your team)) (?:offer|provide|do)\b|\b(?:list|tell me about) (?:your|the) services\b|\bwhat (?:do you|does your business) do\b|\bwhat service(?:s)? do you provide\b/i.test(value)) {
+    return services.length ? { type: 'services', reply: `${businessName} lists these services: ${services.join(', ')}.` } : null;
+  }
+
+  const phone = String(settings?.phone || '').trim();
+  if (/\b(?:what(?:'s| is) (?:your|the) (?:phone|telephone|contact) number|(?:your|the) (?:phone|telephone|contact) number\??|how (?:do|can) i (?:phone|call|ring) (?:you|the business))\b/i.test(value) && phone) {
+    return { type: 'phone', reply: `You can reach ${businessName} on ${phone}.` };
+  }
+
+  const email = String(settings?.email || '').trim();
+  if (/\b(?:what(?:'s| is) (?:your|the) (?:email|e-mail) (?:address)?|(?:your|the) (?:email|e-mail) address\??|how (?:do|can) i email (?:you|the business))\b/i.test(value) && email) {
+    return { type: 'email', reply: `You can email ${businessName} at ${email}.` };
+  }
+
+  const service = services.find(entry => messageMatchesApprovedFact(value, entry));
+  if (service && /\b(?:do you (?:offer|provide|do)|is .{1,100} (?:a service|something you (?:offer|do))|can you (?:supply|install|provide))\b/i.test(value)) {
+    return { type: 'service', reply: `Yes, ${businessName} lists ${service} as a service. If you'd like to enquire about it, I can help with that.` };
+  }
+  return null;
+}
+
 function approvedFactEntries(value) {
   const raw = Array.isArray(value) ? value : [value];
   return raw
@@ -637,7 +715,8 @@ function trustedCoverageReply(message, settings, configuration) {
   const value = String(message || '').trim();
   if (!value || customerHandoverReason(value)) return null;
   if (!/\b(?:cover|covers|serve|serves|service areas?|work in|travel to|operate in)\b/i.test(value)) return null;
-  if (/\b(?:quote|price|cost|book|booking|appointment|schedule|availability|available when|urgent|emergency|call me|speak to|person|human)\b/i.test(value)) return null;
+  if (/\b(?:quote|quotation|estimate|prices?|pricing|costs?|book|booking|appointment|schedule|availability|available when|urgent|emergency|call me|speak to|person|human)\b/i.test(value)) return null;
+  if (findPhoneInConversation(value) || findEmailInConversation(value)) return null;
 
   const areas = approvedFactEntries(configuration?.serviceAreas);
   if (!areas.length) return null;
@@ -725,14 +804,14 @@ export async function saveLead(lead, trustedBusinessId = null, handling = null) 
     job_type: lead.job_type || "General enquiry",
     description:
       lead.description ||
-      "Customer enquiry captured by Business AI",
+      "Customer enquiry captured by Colzo",
     urgency: lead.urgency || "Normal",
     qualified: true,
     status: existing?.status || "New",
     priority: lead.priority || "Normal",
     notes:
       lead.notes ||
-      "Captured by Business AI AI receptionist",
+      "Captured by Colzo AI receptionist",
     estimated_value: 0
   };
 
@@ -841,6 +920,22 @@ const ENQUIRY_RESPONSE_SCHEMA = {
   },
   required: ["reply", "lead", "intent"]
 };
+
+// Do not allow a model to invent a customer-facing price. Exact amounts in
+// owner-approved FAQs or verified knowledge are acceptable; prompt/configuration
+// instructions alone are not price evidence. If uncertain, ask for a quote.
+const CURRENCY_AMOUNT_PATTERN = /(?:[£$€]\s*|\b(?:GBP|USD|EUR)\s*)\d[\d,]*(?:\.\d{1,2})?|\b\d[\d,]*(?:\.\d{1,2})?\s*(?:pounds?|euros?|dollars?)\b/gi;
+function unverifiedPriceClaim(reply, configuration, approvedKnowledge) {
+  const amounts = String(reply || '').match(CURRENCY_AMOUNT_PATTERN) || [];
+  if (!amounts.length) return false;
+  const normalize = value => value.toUpperCase().replace(/[\s,]/g, '');
+  const approved = [
+    ...(Array.isArray(configuration?.faqs) ? configuration.faqs.map(item => item?.answer || '') : []),
+    ...(Array.isArray(approvedKnowledge) ? approvedKnowledge.map(item => JSON.stringify(item)) : [])
+  ];
+  const supported = new Set(approved.flatMap(text => String(text).match(CURRENCY_AMOUNT_PATTERN) || []).map(normalize));
+  return amounts.some(amount => !supported.has(normalize(amount)));
+}
 
 function providerError(message, status = 0) {
   const error = new Error(message);
@@ -1014,7 +1109,7 @@ export default async function handler(req, res) {
       share: "Shared smart link",
       qr: "QR code",
       website_widget: "Website widget",
-      directory: "Business AI directory",
+      directory: "Colzo directory",
       test: "Receptionist test"
     }[enquirySource];
 
@@ -1122,9 +1217,28 @@ export default async function handler(req, res) {
 You are the AI customer assistant for ${businessName}.
 
 Your job is to:
-1. Have a natural conversation with the customer.
-2. Collect enough information for a business lead.
+1. Answer the customer's actual question first, using only approved facts.
+2. Have a natural, warm, clear conversation, then collect only the details
+   genuinely needed for a useful business enquiry.
 3. Extract lead information from the ENTIRE conversation.
+
+Conversation style:
+- You are an AI receptionist. Never pretend to be a human or claim you took a
+  real-world action that the application has not verified.
+- Sound like a helpful receptionist, not a form, sales pitch or automated script.
+  Use natural British English unless the customer uses another language.
+- Usually keep replies to one or two short sentences. Avoid repetitive
+  greetings, exaggerated enthusiasm and needless apologies.
+- If the customer asks several questions, address each supported question
+  briefly, then ask at most one useful follow-up question.
+- If the information is not in approved business facts, say you would need
+  the business to confirm it. Never manufacture prices, availability, policies
+  or a certain answer.
+- Acknowledge corrections and changes of mind. Never ask for details already
+  in the conversation; don't ask for contact details before answering a simple
+  question where no enquiry has been requested.
+- If you need a contact method, ask whether email or phone is preferred.
+- Be reassuring about problems without making technical safety assurances.
 
 Remember every detail already provided anywhere in the conversation. These
 details were deterministically found in the transcript: ${JSON.stringify(knownDetails)}.
@@ -1173,8 +1287,13 @@ overridden by business configuration.
 Your response must follow the supplied JSON schema.
 `;
 
-    const knownHandover = customerHandoverReason(conversationText) || previousHandover;
-    const trustedBasicReply = trustedCoverageReply(message, settings, configuration);
+    const trustedCoverage = trustedCoverageReply(message, settings, configuration);
+    const trustedFAQ = trustedCoverage ? null : trustedBusinessFAQReply(message, settings, configuration);
+    const trustedBasicReply = trustedCoverage || trustedFAQ?.reply;
+    const currentHandover = customerHandoverReason(message);
+    // Do not let an old request for a person suppress a new factual FAQ.
+    // Safety and complaint continuations remain sticky.
+    const knownHandover = currentHandover || (previousHandover === "human_requested" && trustedBasicReply ? null : previousHandover);
     const hasAiSession = readAiSession(body.session, businessId, clientAddress);
     let aiSession = hasAiSession ? body.session : null;
     let billingReservation = null;
@@ -1201,7 +1320,7 @@ Your response must follow the supplied JSON schema.
         lead: { qualified: false, handover_required: false }
       };
       aiSession = aiSession || aiSessionToken(businessId, clientAddress);
-      logOperationalEvent("enquiry.trusted_fact_answered", { businessId, fact_type: "service_area" });
+      logOperationalEvent("enquiry.trusted_fact_answered", { businessId, fact_type: trustedCoverage ? "service_area" : trustedFAQ.type });
     } else {
       if (!hasAiSession && !testMode) {
         // Reserve atomically only when a real customer session is about to use
@@ -1253,7 +1372,7 @@ Your response must follow the supplied JSON schema.
             urgency: null,
             qualified: true,
             priority: "Normal",
-            notes: "Captured by Business AI from complete customer details.",
+            notes: "Captured by Colzo from complete customer details.",
             handover_required: false
           }
         };
@@ -1349,7 +1468,7 @@ Your response must follow the supplied JSON schema.
             qualified: clearlyBusinessRequest,
             priority: "Normal",
             notes: clearlyBusinessRequest
-              ? "Captured by Business AI during a temporary AI provider failure."
+              ? "Captured by Colzo during a temporary AI provider failure."
               : null,
             handover_required: false
           }
@@ -1388,8 +1507,8 @@ Your response must follow the supplied JSON schema.
     const explicitCaptureHasJob = Boolean(lead.job_type || lead.description || detectedJob);
     const clearlyOffTopic = looksClearlyOffTopic(message, settings, configuration);
     const offTopic = !knownHandover && (clearlyOffTopic || (modelSaysOffTopic(result.intent) && !deterministicBusinessEnquiry));
-    const decision = offTopic ? null : decideAIHandover(mode, result.intent, conversationText, Boolean(lead.handover_required));
-    let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : previousHandover || decision);
+    const decision = offTopic ? null : decideAIHandover(mode, result.intent, message, Boolean(lead.handover_required));
+    let reason = offTopic ? null : (["emergency_or_high_risk", "complaint_or_dispute"].includes(decision) ? decision : knownHandover || decision);
     let handoverRequired = Boolean(reason);
     const ordinaryQuoteHandover = reason === "quote_or_commitment";
     const finalLead = {
@@ -1434,8 +1553,8 @@ Your response must follow the supplied JSON schema.
 
       notes:
         (handoverRequired
-          ? "Captured by Business AI AI receptionist. Human handover requested."
-          : (lead.notes || "Captured by Business AI AI receptionist")) + " Source: " + enquirySourceLabel + "."
+          ? "Captured by Colzo AI receptionist. Human handover requested."
+          : (lead.notes || "Captured by Colzo AI receptionist")) + " Source: " + enquirySourceLabel + "."
     };
 
     const hasContact =
@@ -1546,6 +1665,12 @@ Your response must follow the supplied JSON schema.
     if (safeModelReply !== rawModelReply) {
       logOperationalEvent('enquiry.unverified_persistence_claim_suppressed', { businessId, intent: result.intent?.type || 'unknown' });
     }
+    const groundedReply = unverifiedPriceClaim(safeModelReply, configuration, approvedUploadedKnowledge)
+      ? "I don't have a confirmed price for that. I can help you request a quote from the business."
+      : safeModelReply;
+    if (groundedReply !== safeModelReply) {
+      logOperationalEvent('enquiry.unverified_price_suppressed', { businessId });
+    }
     const customerReply = offTopic
       ? `I can help with questions and enquiries about ${businessName}. For anything unrelated, please use the appropriate service or source.`
       : reason === "emergency_or_high_risk" || reason === "complaint_or_dispute"
@@ -1556,8 +1681,8 @@ Your response must follow the supplied JSON schema.
             ? `${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : effectiveLeadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
             : effectiveLeadCaptured
               ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
-              : safeModelReply
-                ? safeModelReply
+              : groundedReply
+                ? groundedReply
                 : "Thanks. I have your details.";
 
     if (testMode) {

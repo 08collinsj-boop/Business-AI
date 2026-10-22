@@ -13,10 +13,12 @@ const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const routeUrl = `data:text/javascript;base64,${Buffer.from(routeSource).toString("base64")}`;
 const billingUrl = `data:text/javascript;base64,${Buffer.from(billingSource).toString("base64")}`;
 const legalUrl = `data:text/javascript;base64,${Buffer.from(legalSource).toString("base64")}`;
+const dpaSource = await readFile(new URL("../lib/business-dpa-validation.js", import.meta.url), "utf8");
+const dpaUrl = `data:text/javascript;base64,${Buffer.from(dpaSource).toString("base64")}`;
 const reply = (body, ok = true) => ({ ok, text: async () => JSON.stringify(body) });
 const response = () => ({ statusCode: 0, body: null, headers: {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader(key, value) { this.headers[key] = value; } });
 
-async function load({ route, settings, configuration = {}, dpaAccepted = true } = {}) {
+async function load({ route, settings, configuration = {}, dpaAccepted = true, dpaRows = null, settingsRows = null, configurationRows = null } = {}) {
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   process.env.BILLING_ENABLED = "false";
@@ -25,15 +27,16 @@ async function load({ route, settings, configuration = {}, dpaAccepted = true } 
   globalThis.fetch = async (url) => {
     calls.push(url);
     if (url.includes("business_public_routes")) return reply(route ? [route] : []);
-    if (url.includes("business_settings")) return reply(settings ? [settings] : []);
-    if (url.includes("business_configurations")) return reply([configuration]);
-    if (url.includes("business_legal_acceptances")) return reply(dpaAccepted ? [{ id: 1 }] : []);
+    if (url.includes("business_settings")) return reply(settingsRows ?? (settings ? [{business_id:route?.business_id,...settings}] : []));
+    if (url.includes("business_configurations")) return reply(configurationRows ?? [{business_id:route?.business_id,...configuration}]);
+    if (url.includes("business_legal_acceptances")) return reply(dpaRows ?? (dpaAccepted ? [{ id: 1, business_id: route?.business_id, document_key: "dpa", document_version: "1.1" }] : []));
     return reply({ hidden: true }, false);
   };
   const source = apiSource
     .replace('from "./public-tenant.js"', `from "${routeUrl}#${Math.random()}"`)
     .replace('from "./billing.js"', `from "${billingUrl}#${Math.random()}"`)
-    .replace('from "./legal.js"', `from "${legalUrl}#${Math.random()}"`);
+    .replace('from "./legal.js"', `from "${legalUrl}#${Math.random()}"`)
+    .replace('from "./business-dpa-validation.js"', `from "${dpaUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 
@@ -53,6 +56,22 @@ test("a verified public slug returns only its business-facing identity", { concu
   assert.ok(calls.every((url) => !url.includes("business-b")), "request-supplied tenant IDs never affect the lookup");
 });
 
+test("public profile rejects service-role responses with foreign settings or descriptions", {concurrency:false},async()=>{
+ const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
+ const attacks=[
+  {settingsRows:[{business_id:"business-b",business_name:"Private business B"}]},
+  {settingsRows:[{business_id:"business-a",business_name:"Owned"},{business_id:"business-b",business_name:"Private business B"}]},
+  {configurationRows:[{business_id:"business-b",description:"Confidential business B notes"}]},
+  {configurationRows:[{business_id:"business-a",description:"Owned"},{business_id:"business-b",description:"Confidential business B notes"}]}
+ ];
+ for(const attack of attacks){
+  const {handler,calls}=await load({route,settings:{business_name:"Owned"},configuration:{description:"Public"},...attack});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,503);
+  assert.equal(JSON.stringify(res.body).includes("business B"),false);
+  assert.equal(calls.some(x=>String(x).includes("business_legal_acceptances")),false);
+ }
+});
 test("public assistant is unavailable until the business has accepted the current DPA", { concurrency: false }, async () => {
   const { handler } = await load({
     route: { business_id: "business-a", route_type: "slug", route_value: "collins-ltd", active: true },
@@ -66,6 +85,55 @@ test("public assistant is unavailable until the business has accepted the curren
   assert.equal(res.body.business.assistant_available, false);
 });
 
+test("public assistant never activates from another business or outdated DPA acceptance", {concurrency:false},async()=>{
+ const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
+ const accepted={id:91,business_id:"business-a",document_key:"dpa",document_version:"1.1"};
+ for(const dpaRows of [
+   [{...accepted,business_id:"business-b"}],
+   [{...accepted,document_key:"terms"}],
+   [{...accepted,document_version:"1.0"}],
+   [{id:91}],
+   [accepted,{...accepted,business_id:"business-b"}],
+   {id:91}
+ ]){
+  const {handler}=await load({route,settings:{business_name:"Fixture"},dpaRows});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business.assistant_available,false);
+ }
+ const {handler}=await load({route,settings:{business_name:"Fixture"},dpaRows:[accepted]});
+ const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.business.assistant_available,true);
+});
+test("public business profile never shows another business's image or a banner used as an avatar", { concurrency:false }, async()=>{
+ const name='88888888-8888-4888-8888-888888888888.webp';
+ const {handler}=await load({
+  route:{business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true},
+  settings:{business_name:"Collins LTD",profile_image_path:"business-b/avatar/"+name,profile_banner_path:"business-a/banner/"+name}
+ });
+ const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.business.profile_image_url,"");
+ assert.match(res.body.business.profile_banner_url,/business-a\/banner\/88888888-8888-4888-8888-888888888888\.webp$/);
+});
+test("public profile does not publish unsafe stored website destinations", {concurrency:false}, async()=>{
+ const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
+ const unsafe=["https://owner:secret@business.example/path","https://business.example:8443/path",
+   "javascript:alert(1)","file:///etc/passwd","https://owner@business.example/"];
+ for(const website of unsafe){
+  const {handler}=await load({route,settings:{business_name:"Fixture"},configuration:{website}});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business.website,"");
+ }
+ for(const website of ["https://business.example/services","http://business.example/contact"]){
+  const {handler}=await load({route,settings:{business_name:"Fixture"},configuration:{website}});
+  const res=response();await handler({method:"GET",query:{business:"collins-ltd"}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.business.website,website);
+ }
+});
 test("unknown or mismatched public routes fail without tenant disclosure", { concurrency: false }, async () => {
   let loaded = await load({ route: null }); let res = response();
   await loaded.handler({ method: "GET", query: { business: "missing-business" } }, res);
@@ -89,10 +157,10 @@ test("different public routes keep customer branding isolated between businesses
   assert.equal("business_id" in res.body.business, false);
 });
 
-test("public directory matches the approved mascot-led reference while keeping search real", () => {
+test("public directory matches the approved Colzo directory structure while keeping search real", () => {
   const directoryMarkup = html.slice(html.indexOf('<main id="publicDirectoryScreen"'), html.indexOf('<main id="publicEnquiryScreen"'));
   assert.match(directoryMarkup, /class="public-directory-brand-mark"/);
-  assert.match(directoryMarkup, /business-ai-mascot\.png/);
+  assert.match(directoryMarkup, /colzo-mark\.svg/);
   assert.match(directoryMarkup, /class="public-directory-account-switch"/);
   assert.match(directoryMarkup, /<h2>Find the right business<\/h2>/);
   assert.match(directoryMarkup, /class="public-directory-hero-mascot"/);
@@ -144,7 +212,7 @@ test("public quick actions only guide the existing public conversation", () => {
 
 test("approved chat-first customer layout keeps quick actions collapsed with an animated reveal", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.match(publicMarkup, /<h1>Business AI assistant<\/h1>/);
+  assert.match(publicMarkup, /<h1>Colzo assistant<\/h1>/);
   assert.match(publicMarkup, /id="publicQuickActionsToggle"/);
   assert.match(publicMarkup, /aria-expanded="false"/);
   assert.match(publicMarkup, /id="publicQuickActionsBody" class="public-quick-actions-body" aria-hidden="true"/);
@@ -162,7 +230,7 @@ test("public enquiry uses the approved dark chat-first theme", () => {
   assert.match(publicMarkup, /class="public-assistant-hero"/);
   assert.match(publicMarkup, /class="public-quick-actions-panel"/);
   assert.match(publicMarkup, /class="public-chat-card public-chat-primary"/);
-  assert.match(publicMarkup, /Business AI assistant/);
+  assert.match(publicMarkup, /Colzo assistant/);
   assert.match(html, /\.public-quick-actions-toggle\{[\s\S]{0,900}backdrop-filter:blur\(18px\)/);
 });
 
@@ -175,9 +243,9 @@ test("customer visual hierarchy keeps messaging primary", () => {
   assert.match(publicMarkup, /id="publicEnquiryForm"/);
 });
 
-test("customer uses only the approved local mascot artwork", () => {
+test("customer uses only the existing local Colzo mark", () => {
   const publicMarkup = html.slice(html.indexOf('<main id="publicEnquiryScreen"'), html.indexOf('<div id="dashboardApp"'));
-  assert.match(publicMarkup, /\/assets\/icons\/business-ai-mascot\.png/);
+  assert.match(publicMarkup, /\/assets\/icons\/colzo-mark\.svg/);
   assert.doesNotMatch(publicMarkup, /https?:\/\/[^"' ]+\.(?:png|jpe?g|webp)/i);
 });
 
@@ -217,7 +285,7 @@ test("install guidance belongs only to the authenticated owner application", () 
   const ownerMarkup = html.slice(html.indexOf('<div id="dashboardApp"'));
   assert.doesNotMatch(publicMarkup, /Install Business AI|installAppCard|beforeinstallprompt/);
   assert.match(ownerMarkup, /id="installAppCard"/);
-  assert.match(ownerMarkup, /Add Business AI to your Home Screen for quick access\./);
+  assert.match(ownerMarkup, /Add Colzo to your Home Screen for quick access\./);
   assert.match(html, /window\.addEventListener\('beforeinstallprompt'/);
   assert.match(html, /\(display-mode: standalone\)/);
   assert.match(html, /window\.navigator\.standalone===true/);

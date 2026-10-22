@@ -1,0 +1,74 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import operations from '../api/operations.js';
+
+const branch='feature/colzo-complete-ui-motion-20261017';
+const fields=['VERCEL_ENV','VERCEL_GIT_COMMIT_REF','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','TENANCY_AUTH_ENABLED','FRONTEND_AUTH_ENABLED','SUPABASE_PUBLISHABLE_KEY','COLZO_EXPECTED_SUPABASE_PROJECT_REF'];
+function env(t,changes={}) {
+ const old=fields.map(k=>process.env[k]);fields.forEach(k=>delete process.env[k]);
+ Object.assign(process.env,{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:branch,SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'dev-only-test-fixture',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fake_test_key',TENANCY_AUTH_ENABLED:'true',FRONTEND_AUTH_ENABLED:'true'},changes);
+ t.after(()=>fields.forEach((k,i)=>old[i]===undefined?delete process.env[k]:process.env[k]=old[i]));
+}
+function reqWith(headers={}) {
+ const req={method:'GET',query:{operation:'legal'},headers};
+ const res={statusCode:200,body:null,headersSent:false,status(code){this.statusCode=code;return this},json(data){this.body=data;this.headersSent=true;return this},setHeader(){}};
+ return {req,res};
+}
+function network(t, valid=true){
+ const old=globalThis.fetch;const calls=[];
+ globalThis.fetch=async (url,init={})=>{
+  const location=String(url);calls.push({location,authorization:init.headers?.Authorization});
+  if(location.endsWith('/auth/v1/user'))return {ok:valid,status:valid?200:401,json:async()=>valid?{id:'fixture-user'}:{message:'Invalid token'}};
+  if(location.includes('/rest/v1/'))return {ok:true,status:200,text:async()=>'[]'};
+  throw Error('Unexpected network call');
+ };
+ t.after(()=>globalThis.fetch=old);
+ return calls;
+}
+test('Preview alternate bearer transport reaches legal handler but still verifies JWT with Supabase',{concurrency:false},async t=>{
+ env(t);const calls=network(t);const {req,res}=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body?.needs_user_acceptance,true);
+ assert.equal(calls[0]?.authorization,'Bearer fixture-jwt');
+});
+test('Preview bearer helper never grants unauthenticated requests',{concurrency:false},async t=>{
+ env(t);const calls=network(t);const {req,res}=reqWith({});
+ await operations(req,res);assert.equal(res.statusCode,401);assert.deepEqual(calls,[]);
+});
+test('Preview alternate token is still refused if Supabase rejects it',{concurrency:false},async t=>{
+ env(t);const calls=network(t,false);const {req,res}=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);assert.equal(res.statusCode,401);assert.equal(calls.length,1);
+});
+test('Unrelated Preview branches ignore Colzo-only alternate auth header',{concurrency:false},async t=>{
+ env(t,{VERCEL_GIT_COMMIT_REF:'feature/unrelated-branch'});const calls=network(t);const {req,res}=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);assert.equal(res.statusCode,401);assert.deepEqual(calls,[]);
+});
+test('An explicit Authorization header remains authoritative over Preview compatibility header',{concurrency:false},async t=>{
+ env(t);const calls=network(t);const {req,res}=reqWith({authorization:'Bearer official-jwt','x-colzo-supabase-authorization':'Bearer fake-token'});
+ await operations(req,res);assert.equal(res.statusCode,200);assert.equal(calls[0]?.authorization,'Bearer official-jwt');
+});
+test('Browser-side compatibility header is selected only with server-approved Preview flag',async()=>{
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ const config=await readFile(new URL('../lib/public-config-handler.js',import.meta.url),'utf8');
+ assert.match(config,/previewAuthTransportEnabled/);
+ assert.match(html,/colzoPreviewAuthTransportEnabled/);
+ assert.match(html,/X-Colzo-Supabase-Authorization/);
+ assert.match(html,/headers\.delete\('Authorization'\)/);
+});
+test('All protected direct API entry points restore the same verified Preview header',async()=>{
+ for(const path of ['api/business-onboarding.js','api/business-configuration.js','api/actions.js','api/bookings.js','api/history.js','api/pipeline.js','api/settings.js','api/voice.js']){
+  const src=await readFile(new URL('../'+path,import.meta.url),'utf8');
+  assert.match(src,/restorePreviewAuthToken\(req\)/,path);
+ }
+});
+
+
+test('Preview transport restores valid Supabase token when Vercel adds a non-Bearer Authorization header',{concurrency:false},async t=>{
+ env(t);const calls=network(t);
+ const {req,res}=reqWith({authorization:'Vercel session marker','x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);
+ assert.equal(res.statusCode,200);
+ assert.equal(calls[0]?.authorization,'Bearer fixture-jwt');
+});

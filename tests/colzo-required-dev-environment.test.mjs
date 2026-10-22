@@ -23,14 +23,14 @@ test('Exact HTTPS expected project is accepted, but generic and other projects a
  assert.equal(isApprovedSupabaseTarget({expectedRef:'bad',supabaseUrl:'https://'+ref+'.supabase.co'}),false);
 });
 test('Public auth config fails closed to HTTP 503 with no browser-accessible credentials on mismatched preview',()=>{
- withEnv({FRONTEND_AUTH_ENABLED:'true',COLZO_EXPECTED_SUPABASE_PROJECT_REF:ref,SUPABASE_URL:'https://fxpultshnyvbfjjgaxwv.supabase.co',SUPABASE_PUBLISHABLE_KEY:'fixture-pub'},()=>{
+ withEnv({FRONTEND_AUTH_ENABLED:'true',COLZO_EXPECTED_SUPABASE_PROJECT_REF:ref,SUPABASE_URL:'https://fxpultshnyvbfjjgaxwv.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture_only'},()=>{
   const response=fakeRes();publicConfig({},response);
   assert.equal(response.code,503);assert.equal(response.body.error,'Authentication is unavailable');
   assert.equal(response.body.supabaseAnonKey,undefined);
  });
 });
 test('Correct isolated environment serves expected browser-safe config',()=>{
- withEnv({FRONTEND_AUTH_ENABLED:'true',COLZO_EXPECTED_SUPABASE_PROJECT_REF:ref,SUPABASE_URL:'https://'+ref+'.supabase.co',SUPABASE_PUBLISHABLE_KEY:'fixture-pub'},()=>{
+ withEnv({FRONTEND_AUTH_ENABLED:'true',COLZO_EXPECTED_SUPABASE_PROJECT_REF:ref,SUPABASE_URL:'https://'+ref+'.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture_only'},()=>{
   const response=fakeRes();publicConfig({},response);
   assert.equal(response.code,200);assert.equal(response.body.supabaseUrl,'https://'+ref+'.supabase.co');
  });

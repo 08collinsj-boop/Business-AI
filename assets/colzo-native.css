@@ -121,8 +121,8 @@ body.colzo-owner-enabled.auth-ready:before{background:#15181d!important}
 #colzoOwner .cn-form{display:grid;gap:13px}
 #colzoOwner .cn-form label{display:grid;gap:7px;font-size:12px;color:#c5ced1}
 #colzoOwner .cn-form input,#colzoOwner .cn-form select{width:100%;min-width:0;min-height:46px;border:1px solid #4a555e;background:#2a333b;border-radius:12px;color:#f5f7fa;padding:10px;font-size:13px}
-#colzoOwner .cn-nav{position:fixed;z-index:49;bottom:max(11px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:min(calc(100% - 22px),530px);padding:8px;border:1px solid #455056;border-radius:20px;background:rgba(31,37,43,.98);box-shadow:0 13px 30px rgba(0,0,0,.45)}
-#colzoOwner .cn-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:52px;border:0;border-radius:13px;color:#a2afb4;background:transparent;font-size:10px;font-weight:730;white-space:nowrap}
+#colzoOwner .cn-nav{position:fixed;z-index:49;bottom:max(11px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;width:min(calc(100% - 22px),530px);padding:8px;border:1px solid #455056;border-radius:20px;background:rgba(31,37,43,.98);box-shadow:0 13px 30px rgba(0,0,0,.45)}
+#colzoOwner .cn-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;overflow:hidden;min-height:52px;border:0;border-radius:13px;color:#a2afb4;background:transparent;font-size:10px;font-weight:730;white-space:nowrap}
 #colzoOwner .cn-nav button[aria-current=page]{color:#d6ff7c;background:#374430;box-shadow:inset 0 3px var(--cn-volt)}
 #colzoOwner .cn-navicon{font-size:21px;font-weight:500;line-height:1}
 #cnReturnToColzo.cn-back-to-colzo{display:none;position:fixed;z-index:85;right:20px;bottom:max(24px,env(safe-area-inset-bottom));padding:11px 17px;border-radius:13px;background:var(--cn-volt);color:#182019;border:0;font-size:12px;font-weight:820;box-shadow:0 8px 24px rgba(0,0,0,.55)}
@@ -156,10 +156,11 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-wordmark{width:38px;height:36px;color:#f5f7fa}
 #colzoOwner .cn-wordmark img,#colzoOwner .cn-wordmark>span{display:none}
 #colzoOwner .cn-wordmark:before{content:'☰';display:grid;place-items:center;font-size:22px;font-weight:400;width:38px;height:36px}
+#colzoOwner .cn-wordmark.cn-header-back:before{content:'←';font-size:31px;font-weight:350}
 #colzoOwner .cn-account{margin-left:auto;width:37px;height:37px;background:#39434b;border:0;color:#f5f7fa;font-size:14px}
 #colzoOwner .cn-account:before{content:'AM';font-size:11px;letter-spacing:0}
 #colzoOwner .cn-account>span{display:none}
-#colzoOwner:not([data-screen='home']) .cn-header{height:59px;min-height:59px;padding:0;overflow:hidden;visibility:hidden;pointer-events:none}
+#colzoOwner:not([data-screen='home']) .cn-header{height:91px;min-height:91px;padding:0 20px 9px;visibility:visible;pointer-events:auto;position:sticky;top:0}
 #colzoOwner:not([data-screen='home']) .cn-content{padding-top:18px}
 #colzoOwner .cf-home-head{margin:0 0 18px;min-height:85px}
 #colzoOwner .cf-home-head h1{margin:0 0 10px;font-size:23px;line-height:1.2;font-weight:650;letter-spacing:-.65px}
@@ -243,8 +244,8 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cf-detail-buttons button{width:100%;height:49px;border-radius:14px;border:0;font-size:12px;font-weight:650}
 #colzoOwner .cf-button-muted{background:#20272d;color:#f5f7fa}
 #colzoOwner .cf-button-volt{background:#c8ff2e;color:#141b11}
-#colzoOwner .cn-nav{background:#161c20;border:1px solid #364047;border-radius:20px;left:50%;bottom:max(8px,env(safe-area-inset-bottom));width:min(calc(100% - 16px),530px);gap:1px;padding:4px 6px;height:70px}
-#colzoOwner .cn-nav button{border:0;border-radius:14px;min-height:59px;font-size:10px;gap:3px;font-weight:500}
+#colzoOwner .cn-nav{background:#161c20;border:1px solid #364047;border-radius:20px;left:50%;bottom:max(8px,env(safe-area-inset-bottom));width:min(calc(100% - 16px),530px);grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:4px 5px;height:70px}
+#colzoOwner .cn-nav button{border:0;border-radius:14px;min-width:0;min-height:59px;font-size:10px;gap:3px;font-weight:500}
 #colzoOwner .cn-nav button[aria-current=page]{color:#c8ff2e;background:#25321f;box-shadow:none;font-weight:680}
 #colzoOwner .cn-navicon{font-size:23px}
 @media(min-width:920px){
@@ -312,3 +313,150 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-colzo-record-form .cn-secondary{border:1px solid var(--cn-border,#343c42);background:#252b31;color:var(--cn-text,#f4f6f7)}
 #colzoOwner .cn-colzo-record-form button:disabled{opacity:.6;cursor:wait}
 @media (prefers-reduced-motion:no-preference){#colzoOwner .cn-colzo-record-form{animation:cn-record-form-in .22s ease-out both}@keyframes cn-record-form-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
+
+/* Colzo #089: accessible bottom-anchored unsaved-changes sheet, independent of form content. */
+#colzoOwner .cn-unsaved-overlay{
+ position:fixed;inset:0;z-index:310;display:flex;align-items:flex-end;
+ justify-content:center;background:rgba(4,8,9,.76);padding:12px 10px 0;
+ backdrop-filter:blur(3px);
+}
+#colzoOwner .cn-unsaved-sheet{
+ width:min(100%,540px);max-height:calc(100dvh - 32px);overflow-y:auto;
+ padding:13px 19px calc(23px + env(safe-area-inset-bottom));
+ background:#20282b;color:var(--cn-white);
+ border:1px solid #4a5c4c;border-radius:23px 23px 0 0;
+ box-shadow:0 -15px 55px rgba(0,0,0,.5);
+}
+#colzoOwner .cn-unsaved-grip{
+ display:block;width:43px;height:4px;border-radius:99px;
+ margin:0 auto 19px;background:#788983;
+}
+#colzoOwner .cn-unsaved-sheet h2{
+ font-size:20px;line-height:1.3;font-weight:750;margin:0 0 9px;
+ letter-spacing:-.025em;
+}
+#colzoOwner .cn-unsaved-sheet p{
+ margin:0 0 22px;font-size:14px;line-height:1.55;color:#b4c3be;
+}
+#colzoOwner .cn-unsaved-actions{display:grid;gap:10px}
+#colzoOwner .cn-unsaved-actions button{
+ min-height:50px;width:100%;padding:12px 15px;border-radius:11px;
+ font-size:14px;font-weight:740;border:1px solid #56645d;
+ color:#edf3ef;background:#333e3f;
+}
+#colzoOwner .cn-unsaved-actions .cn-unsaved-keep{
+ background:var(--cn-volt);border-color:var(--cn-volt);color:#182010;
+}
+#colzoOwner .cn-unsaved-actions button:focus-visible{
+ outline:3px solid var(--cn-volt);outline-offset:3px;
+}
+
+#colzoOwner textarea:focus-visible{outline:3px solid var(--cn-volt);outline-offset:2px}
+
+
+/* Input readability on mobile Safari without changing Graphite & Volt layout. */
+#colzoOwner .cn-colzo-record-form :is(input:not([type=range]),select,textarea){font-size:16px;min-width:0}
+@media(max-width:380px){#colzoOwner .cn-colzo-record-form{padding:14px}
+ #colzoOwner .cn-colzo-record-form .cn-form-actions{flex-wrap:wrap}
+ #colzoOwner .cn-colzo-record-form .cn-form-actions :is(.cn-primary,.cn-secondary){min-width:0;flex:1 1 140px}
+}
+
+
+/* Native Knowledge workspace. Scoped to the owner screen; never the shared
+   auth shell, customer portal, or original Business AI settings. */
+#colzoOwner .cn-knowledge-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 18px}
+#colzoOwner .cn-knowledge-stats>div{min-width:0;padding:14px 11px;border-radius:16px;border:1px solid #394447;background:#20272d;display:flex;flex-direction:column;gap:5px}
+#colzoOwner .cn-knowledge-stats strong{font-size:25px;line-height:1.15;color:#f6f8fa;font-variant-numeric:tabular-nums}
+#colzoOwner .cn-knowledge-stats span{font-size:11px;line-height:1.35;color:#b1bdc4;overflow-wrap:anywhere}
+#colzoOwner .cn-knowledge-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 12px}
+#colzoOwner .cn-knowledge-actions>button{min-height:44px;flex:1 1 140px}
+#colzoOwner .cn-knowledge-filters{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding:4px 0 12px;scrollbar-width:thin}
+#colzoOwner .cn-knowledge-filters button{flex:none;min-height:42px;padding:9px 13px;border:1px solid #465353;border-radius:999px;background:#20272d;color:#cbd5d9;font-size:13px}
+#colzoOwner .cn-knowledge-filters button[aria-pressed=true]{background:#c8ff2e;border-color:#c8ff2e;color:#101612;font-weight:700}
+#colzoOwner .cn-knowledge-source{min-width:0;overflow-wrap:anywhere}
+#colzoOwner .cn-knowledge-source .cn-section-bar{align-items:flex-start;gap:10px}
+#colzoOwner .cn-knowledge-filename{font-size:15px;font-weight:650;line-height:1.4;min-width:0;overflow-wrap:anywhere}
+#colzoOwner .cn-knowledge-source .cn-pill{flex:none}
+#colzoOwner .cn-knowledge-source .cn-form-actions{flex-wrap:wrap}
+#colzoOwner .cn-knowledge-source .cn-form-actions button{min-height:44px}
+#colzoOwner .cn-knowledge-fact{display:grid;gap:13px;margin:16px 0;padding:16px;border:1px solid #3a4548;border-radius:16px;background:#1c2428}
+#colzoOwner .cn-knowledge-fact label{display:grid;gap:6px;min-width:0;color:#cdd8dc;font-size:13px}
+#colzoOwner .cn-knowledge-fact input:not([type=checkbox]),#colzoOwner .cn-knowledge-fact textarea,#colzoOwner .cn-knowledge-fact select{box-sizing:border-box;min-width:0;width:100%;border:1px solid #505d5e;border-radius:11px;background:#10171b;padding:12px;color:#f7fafb;font:inherit;font-size:15px;line-height:1.4}
+#colzoOwner .cn-knowledge-fact :is(input,textarea,select):focus-visible{outline:2px solid #c8ff2e;outline-offset:2px}
+#colzoOwner .cn-knowledge-fact .cn-knowledge-include{display:flex;gap:12px;align-items:center;min-height:44px}
+#colzoOwner .cn-knowledge-include input{width:20px;height:20px;accent-color:#c8ff2e}
+#colzoOwner .cn-knowledge-source button[disabled],#colzoOwner .cn-knowledge-actions button[disabled]{opacity:.5;cursor:not-allowed}
+@media(max-width:390px){#colzoOwner .cn-knowledge-stats{gap:7px}#colzoOwner .cn-knowledge-stats>div{padding:12px 9px}#colzoOwner .cn-knowledge-stats strong{font-size:22px}}
+
+
+#colzoOwner .cn-knowledge-shortcut{margin:14px 0 18px}
+#colzoOwner .cn-knowledge-shortcut>button{display:grid;grid-template-columns:43px minmax(0,1fr) 20px;align-items:center;gap:13px;min-height:74px;width:100%;padding:13px 16px;text-align:left;background:#252e29;border:1px solid rgba(200,255,46,.24);border-radius:17px;color:#f4f8f6}
+#colzoOwner .cn-knowledge-shortcut .cn-knowledge-glyph{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#34432d;color:#c8ff2e;font-size:26px}
+#colzoOwner .cn-knowledge-shortcut strong{display:block;font-size:15px}
+#colzoOwner .cn-knowledge-shortcut small{display:block;margin-top:4px;color:#abbcba;font-size:12px;line-height:1.35}
+#colzoOwner .cn-knowledge-related{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:18px 0;padding:14px;border:1px solid #3e4b45;border-radius:15px;background:#222a2a}
+#colzoOwner .cn-knowledge-related span{flex:1 1 170px;color:#b9c8c8;font-size:13px}
+#colzoOwner .cn-knowledge-related button{min-height:44px}
+
+/* Native AI Receptionist - status-first controls, no phone-provider activation. */
+#colzoOwner .cn-reception-faq{min-width:0;display:grid;gap:12px;margin:16px 0;padding:15px;border-radius:15px;border:1px solid #3d4a4a;background:#1c2528}
+#colzoOwner .cn-reception-faq .cn-section-bar{gap:10px;align-items:center}
+#colzoOwner .cn-reception-faq .cn-section-bar strong{font-size:14px;color:#f1f6f4}
+#colzoOwner .cn-reception-faq .cn-section-bar button{flex:none;min-height:44px}
+#colzoOwner .cn-reception-faq label{display:grid;gap:6px;min-width:0;font-size:13px;color:#bac8cb}
+#colzoOwner .cn-reception-faq input,#colzoOwner .cn-reception-faq textarea{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:12px;border:1px solid #546264;border-radius:11px;background:#10171b;color:#fafcff;font:inherit;font-size:15px}
+#colzoOwner .cn-reception-handover{min-width:0;overflow-wrap:anywhere;padding:15px 0;border-bottom:1px solid #384445}
+#colzoOwner .cn-reception-handover:last-of-type{border-bottom:0}
+#colzoOwner .cn-reception-handover p{color:#c6d1d3;font-size:14px;line-height:1.55}
+#colzoOwner .cn-reception-handover .cn-section-bar{align-items:flex-start;gap:8px}
+#colzoOwner .cn-reception-handover .cn-pill{flex:none;white-space:nowrap}
+#colzoOwner .cn-reception-handover .cn-form-actions{flex-wrap:wrap;margin-top:12px}
+#colzoOwner .cn-reception-handover .cn-form-actions button{min-height:44px}
+#colzoOwner #cnReceptionForm select,#colzoOwner #cnReceptionForm textarea{width:100%;min-width:0}
+
+/* Owner-reviewed marketing caption; never represents actual publication. */
+#colzoOwner .cn-marketing-approval{min-width:0}
+#colzoOwner .cn-marketing-approval .cn-section-bar{align-items:flex-start;gap:10px}
+#colzoOwner .cn-marketing-approval .cn-pill{flex:none}
+#colzoOwner .cn-marketing-caption{margin:14px 0;border:1px solid #485454;border-radius:15px;padding:15px;background:#121b1e;overflow-wrap:anywhere}
+#colzoOwner .cn-marketing-caption p{margin:0;color:#f4f7f8;font-size:15px;line-height:1.65;white-space:normal}
+#colzoOwner .cn-marketing-review-link{box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:58px;margin:7px 0;padding:11px 13px;border:1px solid #44544b;border-radius:13px;background:#212a29;color:#eef5f1;text-align:left}
+#colzoOwner .cn-marketing-review-link strong{display:block;overflow-wrap:anywhere;font-size:14px}
+#colzoOwner .cn-marketing-review-link small{display:block;margin-top:5px;color:#aebfbd;font-size:12px}
+#colzoOwner .cn-marketing-approval .cn-form-actions{flex-wrap:wrap}
+#colzoOwner .cn-marketing-approval button{min-height:44px}
+
+/* Native Growth & Sharing tools, scoped to signed-in business workspace. */
+#colzoOwner .cn-growth-field{display:grid;gap:8px;min-width:0;margin:14px 0;color:#bfcbd0;font-size:13px}
+#colzoOwner .cn-growth-field input,#colzoOwner .cn-growth-field textarea{box-sizing:border-box;width:100%;min-width:0;border:1px solid #435352;border-radius:12px;background:#131c1f;color:#f5f8f7;padding:12px;font:inherit;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+#colzoOwner .cn-growth-field textarea{resize:vertical;min-height:88px}
+#colzoOwner .cn-growth-toggle{display:flex!important;align-items:flex-start;gap:12px;padding:13px;border:1px solid #435250;border-radius:12px;background:#212b28;min-height:48px;margin-bottom:16px;line-height:1.45}
+#colzoOwner .cn-growth-toggle input{width:22px;height:22px;min-width:22px;accent-color:#c8ff2e}
+#colzoOwner a.cn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;text-decoration:none;padding:9px 13px;box-sizing:border-box}
+#colzoOwner .cn-detail-panel .cn-form-actions{flex-wrap:wrap}
+#colzoOwner .cn-detail-panel form :is(input,select,textarea):focus-visible{outline:2px solid #c8ff2e;outline-offset:2px}
+
+
+/* Saved Marketing imagery stays a read-only opt-in inspection surface. */
+#colzoOwner .cn-marketing-media{min-width:0}
+#colzoOwner .cn-marketing-media .cn-section-bar{align-items:flex-start;gap:12px}
+#colzoOwner .cn-marketing-media .cn-pill{flex:none}
+#colzoOwner .cn-marketing-media-preview{display:block;max-width:100%;width:auto;max-height:440px;object-fit:contain;border:1px solid #4a5556;border-radius:14px;margin:15px auto}
+#colzoOwner .cn-marketing-media button{min-height:44px}
+#colzoOwner .cn-automation-pause{display:block;min-height:44px;margin-top:15px;border-color:#a79061;color:#f3d7a2}
+
+/* Public business profile media controls, scoped to authenticated owner. */
+#colzoOwner .cn-profile-media-controls{min-width:0}
+#colzoOwner .cn-profile-media-controls .cn-form-actions{display:flex;flex-wrap:wrap;gap:10px;margin:13px 0}
+#colzoOwner .cn-profile-media-controls button{flex:1 1 135px;min-height:44px}
+#colzoOwner .cn-profile-media-controls button[disabled]{opacity:.55;cursor:not-allowed}
+
+
+/* Native Marketing planning, separate from any publishing controls. */
+#colzoOwner #cnAutomationStrategyForm{min-width:0}
+#colzoOwner #cnAutomationStrategyForm label{min-width:0}
+#colzoOwner #cnAutomationStrategyForm :is(input,textarea,select){box-sizing:border-box;width:100%;min-width:0}
+#colzoOwner .cn-automation-pillar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+#colzoOwner .cn-automation-pillar-grid input{min-height:44px}
+#colzoOwner #cnAutomationStrategyForm .cn-form-actions{flex-wrap:wrap}
+#colzoOwner #cnAutomationStrategyForm button{min-height:44px}

@@ -26,7 +26,7 @@ async function load({ memberships = [], routes = [{ route_value: "hartlepool-gar
     if (url.includes("rpc/create_business_for_owner_with_referral")) return typeof rpc === "function" ? rpc(url, options) : reply(rpc);
     return reply({ hidden: true }, false, 500);
   };
-  const source = handlerSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
+  const source = handlerSource.replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`).replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/public-tenant.js"', `from "${routeUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
   return { handler: (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default, calls };
 }
 
@@ -137,7 +137,7 @@ test("public enquiry maps a slug to its server-resolved business and scopes lead
     if (url.includes("business_public_routes")) return reply([{ business_id: "business-b", route_type: "slug", route_value: "garage-b", active: true }]);
     if (url.includes("business_incident_controls")) return reply([]);
     if (url.includes("platform_incident_controls")) return reply([{ id: "global" }]);
-    if (url.includes("business_legal_acceptances")) return reply([{ id: 1 }]);
+    if (url.includes("business_legal_acceptances")) return reply([{ id: 1, business_id: "business-b", document_key: "dpa", document_version: "1.1" }]);
     if (url.includes("business_settings")) return reply([{ business_name: "Garage B", business_type: "Garage" }]);
     if (url.includes("business_configurations")) return reply([{ business_id: "business-b", industry_template_id: "automotive" }]);
     if (url === "https://api.openai.com/v1/responses") return reply({ output_text: JSON.stringify({ reply: "Thanks", intent: { type: "normal_enquiry", supported: true, requires_human: false, safety_reason: "none" }, lead: { name: "Test Customer", phone: "07000000000", email: null, location: "Hartlepool", job_type: "MOT", description: "MOT request", urgency: "Normal", qualified: true, priority: "Normal", notes: "" } }) });

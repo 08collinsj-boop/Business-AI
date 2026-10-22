@@ -35,7 +35,7 @@ test('Marketing UI offers owner photo upload, replacement, removal and private s
   assert.match(script, /action:'create_upload'/);
   assert.match(script, /action:'finalize_upload'/);
   assert.match(script, /action:'remove'/);
-  assert.match(script, /Business AI used the visible photo context to refresh the caption/);
+  assert.match(script, /Colzo used the visible photo context to refresh the caption/);
   assert.match(css, /marketing-composer-photo/);
   assert.match(css, /marketing-image-options/);
   assert.match(css, /grid-template-columns:1fr/);

@@ -1,3 +1,5 @@
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { validWorkVersion, nextWorkVersion, sameWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
   sendAuthError
@@ -45,6 +47,17 @@ async function supabaseRequest(path, options = {}) {
   return data;
 }
 
+// A representation is required before emitting success or success side effects.
+// Never retry an unconfirmed write: the database may already have committed it.
+function confirmedRecord(value, businessId, expectedId = null) {
+  const rows = Array.isArray(value) ? value : [value];
+  if (rows.length !== 1) return null;
+  const row = rows[0];
+  if (!row || typeof row !== "object" || Array.isArray(row) || !positiveId(row.id) || row.business_id !== businessId) return null;
+  if (expectedId !== null && positiveId(row.id) !== expectedId) return null;
+  return row;
+}
+
 function parseBody(body) {
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body || {};
@@ -58,7 +71,10 @@ function parseBody(body) {
 
 function positiveId(value) {
   if (typeof value === "number" && Number.isSafeInteger(value) && value > 0) return value;
-  if (typeof value === "string" && /^(?:[1-9]\d*)$/.test(value)) return Number(value);
+  if (typeof value === "string" && /^(?:[1-9]\d*)$/.test(value)) {
+    const id = Number(value);
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
+  }
   return null;
 }
 
@@ -179,8 +195,13 @@ async function prepareReviewRequest({ businessId, booking, actorUserId }) {
       status: "pending"
     })
   });
-  const action = Array.isArray(created) ? created[0] || null : created || null;
-  if (!action?.id) return null;
+  // In Colzo Preview a successful database status is insufficient: only a
+  // saved, correctly linked action may generate review activity and audit.
+  const strict = isColzoPreviewAuthTransportEnabled();
+  const action = strict ? confirmedRecord(created, businessId)
+    : Array.isArray(created) ? created[0] || null : created || null;
+  if (!action?.id || (strict && (Number(action.booking_id) !== Number(booking.id)
+    || action.action_type !== "request_review"))) return null;
 
   await recordLeadHistory(booking.lead_id, businessId, "Review request prepared", "", destination.label);
   await recordAuditEvent({
@@ -199,6 +220,11 @@ function noBookings(res) {
 }
 
 export default async function handler(req, res) {
+  restorePreviewAuthToken(req);
+  if (!isApprovedSupabaseTarget()) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
   if (!["GET", "POST", "PATCH"].includes(req.method)) return res.status(405).json({ error: "Method not allowed" });
   let auth;
   try { auth = await requireBusinessMember(req); } catch (error) { return sendAuthError(res, error); }
@@ -240,7 +266,8 @@ export default async function handler(req, res) {
       const created = await supabaseRequest("bookings", {
         method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(booking)
       });
-      const result = Array.isArray(created) ? created[0] : created;
+      const result = confirmedRecord(created, businessId);
+      if (!result) throw new Error("Created record could not be confirmed");
       await recordLeadHistory(result?.lead_id, businessId, "Booking created", "", result?.title || "");
       if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "booking.created", resourceType: "booking", resourceId: String(result.id), metadata: { status: result.status, source: result.source } });
       return res.status(201).json(result || null);
@@ -248,23 +275,30 @@ export default async function handler(req, res) {
 
     const bookingId = positiveId(body.id);
     if (!bookingId) return res.status(400).json({ error: "Invalid booking ID" });
-    const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id")), false);
+    const versioned = isColzoPreviewAuthTransportEnabled(), expected = body.expected_updated_at;
+    if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the booking before saving; expected_updated_at is required" });
+    const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(
       `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}&select=*&limit=1`
     );
     const current = Array.isArray(currentRows) ? currentRows[0] : null;
     if (!current) return res.status(404).json({ error: "Booking not found" });
+    if (versioned && !validWorkVersion(current.updated_at)) return res.status(503).json({ error: "Booking version is unavailable; reload before retrying" });
+    if (versioned && current.updated_at !== expected) return res.status(409).json({ error: "This booking changed. Your draft has not been saved. Reload before retrying." });
     const leadId = updates.lead_id === undefined ? current.lead_id : updates.lead_id;
     if (leadId && !await findLead(leadId, businessId)) return res.status(404).json({ error: "Lead not found" });
     const starts = updates.starts_at === undefined ? current.starts_at : updates.starts_at;
     const ends = updates.ends_at === undefined ? current.ends_at : updates.ends_at;
     if (starts && ends && new Date(ends) <= new Date(starts)) return res.status(400).json({ error: "End time must be after start time" });
-    updates.updated_at = new Date().toISOString();
+    updates.updated_at = versioned ? nextWorkVersion(expected) : new Date().toISOString();
     const updated = await supabaseRequest(
-      `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}`,
+      `bookings?id=eq.${encodeURIComponent(String(bookingId))}&business_id=eq.${encodeURIComponent(String(businessId))}${versioned ? '&updated_at=eq.' + encodeURIComponent(expected) : ''}`,
       { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) }
     );
-    const result = Array.isArray(updated) ? updated[0] : updated;
+    if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
+    const result = confirmedRecord(updated, businessId, bookingId);
+    if (!result) throw new Error("Updated record could not be confirmed");
+    if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
     if (result && current.status !== "completed" && result.status === "completed") {

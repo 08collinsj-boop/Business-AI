@@ -27,7 +27,7 @@ function fakeResponse() {
     json(body) { this.body = body; return this; }
   };
 }
-const baseConfig = { FRONTEND_AUTH_ENABLED: 'true', SUPABASE_URL: 'https://example.supabase.co', SUPABASE_ANON_KEY: 'public-test-placeholder' };
+const baseConfig = { FRONTEND_AUTH_ENABLED: 'true', SUPABASE_URL: 'https://example.supabase.co', SUPABASE_ANON_KEY: 'sb_publishable_fixture_only' };
 
 test('public config shows free Pilot offer only with server flag enabled', () => withEnvironment({ ...baseConfig, PILOT_FREE_STARTER_MARKETING: 'true' }, () => {
   const res = fakeResponse();
