@@ -1,0 +1,29 @@
+name: Colzo receptionist isolated verification
+
+on:
+  push:
+    branches:
+      - qa/colzo-receptionist-ci-20261022
+
+permissions:
+  contents: read
+
+concurrency:
+  group: colzo-receptionist-ci
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact QA branch
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run full build, tests and static checks
+        run: npm run verify
