@@ -1,6 +1,6 @@
 // Anonymous enquiries must not target a different database on an isolated Colzo Preview.
 function isApprovedSupabaseTarget() {
-  const expected = (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-complete-ui-motion-20261017' ? 'mvwseobgkexzpmmkgcxe' : process.env.COLZO_EXPECTED_SUPABASE_PROJECT_REF);
+  const expected = (process.env.VERCEL_ENV === 'preview' && /^(?:feature|fix|qa|release|backup)\/colzo(?:[-/]|$)/.test(String(process.env.VERCEL_GIT_COMMIT_REF || '')) ? 'mvwseobgkexzpmmkgcxe' : process.env.COLZO_EXPECTED_SUPABASE_PROJECT_REF);
   if (!expected) return true;
   if (!/^[a-z0-9]{20}$/.test(String(expected))) return false;
   try {
