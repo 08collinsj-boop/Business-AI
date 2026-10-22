@@ -745,7 +745,10 @@ test('compound hours and services question is not reduced to an incomplete singl
   const res=response();
   await handler({method:'POST',query:{business:'business-a'},body:{message:'What are your opening hours and what services do you offer?'}},res);
   assert.equal(res.statusCode,200);
-  assert.ok(calls.some(c=>c.url.includes('api.openai.com')),'model should handle the two-part question in its existing structured answer path');
+  assert.match(res.body.reply, /services: Repairs, Socket replacement/i);
+  assert.match(res.body.reply, /opening hours are Monday 9–5/i);
+  assert.equal(res.body.leadCaptured, false);
+  assert.ok(!calls.some(c=>c.url.includes('api.openai.com')),'both approved facts should work without provider availability');
 });
 
 test('real safety hazards trigger immediate human handling even when phrased casually',()=>{
@@ -816,4 +819,56 @@ test('genuine emergency continuation still takes precedence over a subsequent or
   assert.equal(res.statusCode,200);
   assert.doesNotMatch(res.body.reply,/lists these services/i);
   assert.match(res.body.reply,/phone number or email|immediate danger/i);
+});
+
+test('F01: explicit refusal never creates a booking, handover or follow-up', async () => {
+  const model = {
+    reply: 'I have saved your booking.',
+    intent: { ...supported, type: 'booking', requires_human: true },
+    lead: { name: 'QA Customer', email: 'qa@example.test', job_type: 'callback', description: 'callback', qualified: true, handover_required: true }
+  };
+  let iteration = 0;
+  for (const message of [
+    'Do not arrange a callback',
+    "Don't book anything",
+    'Please do not schedule an appointment',
+    'Cancel my request'
+  ]) {
+    const { handler, calls } = await load('balanced', supported, model);
+    const res = response();
+    await handler({method:'POST', headers:{'x-forwarded-for':'203.0.113.' + (110 + ++iteration)}, query:{business:'business-a'}, body:{ message }}, res);
+    assert.equal(res.statusCode, 200, message);
+    assert.equal(res.body.bookingRequested, false, message);
+    assert.equal(res.body.leadCaptured, false, message);
+    assert.ok(!calls.some(c => c.url.endsWith('/rest/v1/bookings') && c.options.method === 'POST'), message);
+    assert.ok(!calls.some(c => c.url.includes('rpc/save_public_enquiry')), 'no lead or handover: ' + message);
+  }
+});
+
+test('F01: previous or quoted booking mentions cannot authorise a booking', async () => {
+  let iteration = 0;
+  for (const message of ['How does booking work?', 'You said "book an appointment" as an example.', 'Do you offer appointments?']) {
+    const { handler, calls } = await load('balanced', { ...supported, type: 'booking' });
+    const res = response();
+    await handler({method:'POST', headers:{'x-forwarded-for':'203.0.113.' + (130 + ++iteration)}, query:{business:'business-a'}, body:{
+      message, messages: [{role:'user',content:'I want to book an appointment, my email is qa@example.test'}]
+    }}, res);
+    assert.equal(res.body.bookingRequested, false, message);
+    assert.ok(!calls.some(c => c.url.endsWith('/rest/v1/bookings') && c.options.method === 'POST'), message);
+  }
+});
+
+test('F03: mixed approved services and opening hours are answered without capturing an enquiry', async () => {
+  const { handler, calls } = await load('balanced', supported, null);
+  const res = response();
+  await handler({method:'POST', headers:{'x-forwarded-for':'203.0.113.140'}, query:{business:'business-a'}, body:{
+    message:'What services do you offer and what are your opening hours?'
+  }}, res);
+  assert.equal(res.statusCode, 200);
+  assert.match(res.body.reply, /Repairs, Socket replacement/i);
+  assert.match(res.body.reply, /Monday 9–5/i);
+  assert.equal(res.body.leadCaptured, false);
+  assert.equal(res.body.bookingRequested, false);
+  assert.ok(!calls.some(c => c.url.includes('rpc/save_public_enquiry')));
+  assert.ok(!calls.some(c => c.url.includes('api.openai.com')));
 });
