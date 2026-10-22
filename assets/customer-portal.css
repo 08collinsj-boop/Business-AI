@@ -405,7 +405,7 @@ body.customer-account.customer-portal-ready{
 }
 .customer-status.received{background:rgba(39,135,255,.13);color:#6cb0ff}
 .customer-status.awaiting_business{background:rgba(244,181,62,.12);color:#f3c76f}
-.customer-status.response_received{background:rgba(49,196,141,.12);color:#75ddb6}
+.customer-status.in_progress{background:rgba(49,196,141,.12);color:#75ddb6}
 .customer-status.completed{background:rgba(136,151,168,.13);color:#a7b4c1}
 .customer-review-request{
   display:flex;

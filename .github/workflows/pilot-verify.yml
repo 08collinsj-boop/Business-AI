@@ -22,5 +22,8 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
       - name: Verify Pilot
         run: npm run verify

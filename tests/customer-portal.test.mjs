@@ -18,7 +18,7 @@ function res() {
   };
 }
 
-async function loadHandler({ review = false } = {}) {
+async function loadHandler({ review = false, leadStatus = 'New' } = {}) {
   process.env.TENANCY_AUTH_ENABLED = 'true';
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
@@ -30,7 +30,7 @@ async function loadHandler({ review = false } = {}) {
       { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', lead_id: 42, created_at: '2026-09-27T20:00:00Z' }
     ]);
     if (href.includes('/rest/v1/leads?')) return reply([
-      { id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', job_type: 'Electrical repair', description: 'Socket repair enquiry', status: 'New', created_at: '2026-09-27T20:00:00Z' }
+      { id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', job_type: 'Electrical repair', description: 'Socket repair enquiry', status: leadStatus, created_at: '2026-09-27T20:00:00Z' }
     ]);
     if (href.includes('/rest/v1/business_settings?')) return reply([
       {
@@ -188,4 +188,14 @@ test.after(() => {
   for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key];
   Object.assign(process.env, savedEnv);
   globalThis.fetch = savedFetch;
+});
+
+
+test('F02: progress update alone does not claim a reply was sent', { concurrency: false }, async () => {
+  const handler = await loadHandler({ leadStatus: 'Contacted' });
+  const response = res();
+  await handler({method:'GET',headers:{authorization:'Bearer customer-token'}}, response);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.enquiries[0].status, 'Being reviewed');
+  assert.equal(response.body.enquiries[0].status_key, 'in_progress');
 });
