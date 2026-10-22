@@ -24,6 +24,8 @@ if (siteProject && isVercelBuild) {
     const html = await readFile(out + '/site/index.html', 'utf8');
     await writeFile(out + '/site/index.html', html.replace('</head>', '<meta name="colzo-app-preview-url" content="' + url.href + '"></head>'));
   }
+  // Preserve the standalone free-pilot interest deep link.
+  await cp('site/pilot', out + '/pilot', { recursive: true });
   // Public-domain rewrite points at marketing.html; relative paths in the
   // Colzo landing page refer to /site and /assets.
   await cp(out + '/site/index.html', out + '/index.html');

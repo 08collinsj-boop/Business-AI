@@ -22,7 +22,7 @@ test('hero uses a real licensed workshop photograph, not a fictional AI product 
 });
 test('honest pre-pilot interest link is not a paid signup', () => {
   assert.equal(hero.querySelector('.hero-actions .button-primary')?.getAttribute('href'),
-    'mailto:support@getbusiness-ai.com?subject=Colzo%20pilot%20interest');
+    '/pilot/');
   assert.match(hero.textContent, /pilot.*prepar/i);
   assert.ok(doc.querySelector('#pilot'));
 });

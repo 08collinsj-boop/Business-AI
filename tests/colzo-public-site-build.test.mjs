@@ -25,7 +25,7 @@ for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('s
     assert.equal(res.status, 0, res.stderr);
     for (const file of ['index.html', 'marketing.html', 'site/site.css', 'site/site.js',
       'assets/colzo-public-site.css', 'assets/colzo-public-site.js', 'assets/colzo-surfaces.css',
-      'assets/icons/colzo-mark.svg', 'site/media/workshop-pexels.jpg', 'legal/privacy.html']) {
+      'assets/icons/colzo-mark.svg', 'site/media/workshop-pexels.jpg', 'pilot/index.html', 'legal/privacy.html']) {
       assert.ok(existsSync(join(dir, 'site', 'public', file)), file);
     }
     assert.equal(existsSync(join(dir, 'public')), false, 'output must be under site root');
