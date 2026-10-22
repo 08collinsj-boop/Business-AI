@@ -13,7 +13,7 @@ for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('s
     cpSync('site', join(dir, 'site'), { recursive: true });
     cpSync('legal', join(dir, 'legal'), { recursive: true });
     if (existsSync('site/media/workshop-pexels.jpg')) cpSync('site/media', join(dir, 'site/media'), { recursive: true });
-    for (const file of ['colzo-public-site.css', 'colzo-public-site.js', 'colzo-surfaces.css', 'icons/colzo-mark.svg']) {
+    for (const file of ['colzo-public-site.css', 'colzo-public-site.js', 'colzo-surfaces.css', 'colzo-customer-stitch.css', 'icons/colzo-mark.svg']) {
       mkdirSync(join(dir, 'assets', file.includes('/') ? 'icons' : ''), { recursive: true });
       cpSync('assets/' + file, join(dir, 'assets', file));
     }
@@ -24,7 +24,7 @@ for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('s
     });
     assert.equal(res.status, 0, res.stderr);
     for (const file of ['index.html', 'marketing.html', 'site/site.css', 'site/site.js',
-      'assets/colzo-public-site.css', 'assets/colzo-public-site.js', 'assets/colzo-surfaces.css',
+      'assets/colzo-public-site.css', 'assets/colzo-public-site.js', 'assets/colzo-surfaces.css', 'assets/colzo-customer-stitch.css',
       'assets/icons/colzo-mark.svg', 'site/media/workshop-pexels.jpg', 'pilot/index.html', 'legal/privacy.html']) {
       assert.ok(existsSync(join(dir, 'site', 'public', file)), file);
     }

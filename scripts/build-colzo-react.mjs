@@ -26,12 +26,24 @@ if (siteProject && isVercelBuild) {
   }
   // Preserve the standalone free-pilot interest deep link.
   await cp('site/pilot', out + '/pilot', { recursive: true });
+  // Preserve legacy search and contact routes so a rebrand never breaks indexed links.
+  for (const route of ['about', 'contact', 'resources', 'ai-receptionist', 'ai-for-trades',
+    'teesside', 'small-business-ai', 'ai-marketing', 'ai-marketing-small-business',
+    'customer-enquiry-management']) {
+    await cp('site/' + route, out + '/' + route, { recursive: true });
+  }
+  for (const file of ['seo.css', 'site.css', 'robots.txt', 'sitemap.xml', 'llms.txt',
+    '6a7bc765020b23425780898c1d0d9d18.txt']) {
+    await cp('site/' + file, out + '/' + file);
+  }
+  // Keep older informational pages' script separate from the redesigned homepage.
+  await cp('site/legacy-site.js', out + '/legacy-site.js');
   // Public-domain rewrite points at marketing.html; relative paths in the
   // Colzo landing page refer to /site and /assets.
   await cp(out + '/site/index.html', out + '/index.html');
   await cp(out + '/site/index.html', out + '/marketing.html');
   await cp('legal', out + '/legal', { recursive: true });
-  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js', 'colzo-surfaces.css']) {
+  for (const asset of ['colzo-public-site.css', 'colzo-public-site.js', 'colzo-surfaces.css', 'colzo-customer-stitch.css']) {
     await cp('assets/' + asset, out + '/assets/' + asset);
   }
   await cp('assets/icons/colzo-mark.svg', out + '/assets/icons/colzo-mark.svg');
