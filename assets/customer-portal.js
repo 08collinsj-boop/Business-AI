@@ -134,7 +134,23 @@ function renderEnquiries(target,items,limit=null){
     const top=document.createElement('div');top.className='customer-enquiry-top';
     const copy=document.createElement('div');const title=document.createElement('h4');title.textContent=item.business?.name||'Business';const meta=document.createElement('div');meta.className='meta';meta.textContent=(item.title||'Enquiry')+' · '+statusDate(item.submitted_at);copy.append(title,meta);
     const badge=document.createElement('span');badge.className='customer-status '+String(item.status_key||'received');badge.textContent=item.status||'Received';top.append(copy,badge);card.append(top);
-    if(item.summary){const summary=document.createElement('p');summary.textContent=item.summary;card.append(summary);}
+    if(item.summary){const summary=document.createElement('p');summary.className='customer-enquiry-summary';summary.textContent=item.summary;card.append(summary);}
+    const progress=document.createElement('ol');progress.className='customer-enquiry-timeline';progress.setAttribute('aria-label','Enquiry progress');
+    const steps=[{label:'Received',key:'received',date:item.submitted_at}];
+    if(item.status_key&&item.status_key!=='received')steps.push({label:item.status||'Being reviewed',key:item.status_key});
+    for(const step of steps){const entry=document.createElement('li');entry.className='customer-enquiry-step'+(step.key===item.status_key?' current':'');
+      const name=document.createElement('span');name.textContent=step.label;entry.append(name);
+      if(step.date){const date=document.createElement('time');date.dateTime=step.date;date.textContent=statusDate(step.date);entry.append(date);}
+      progress.append(entry);
+    }
+    card.append(progress);
+    if(Array.isArray(item.customer_messages)&&item.customer_messages.length){
+      const thread=document.createElement('details');thread.className='customer-enquiry-thread';
+      const toggle=document.createElement('summary');toggle.textContent='Your submitted messages ('+item.customer_messages.length+')';thread.append(toggle);
+      const messages=document.createElement('ol');messages.className='customer-enquiry-messages';
+      for(const message of item.customer_messages){const entry=document.createElement('li');entry.textContent=message;messages.append(entry);}
+      thread.append(messages);card.append(thread);
+    }
     if(item.review_request?.url){
       const review=document.createElement('div');review.className='customer-review-request';
       const copy=document.createElement('div');const strong=document.createElement('strong');strong.textContent='How did we do?';const note=document.createElement('span');note.textContent='If you would like, share honest feedback about your experience.';copy.append(strong,note);

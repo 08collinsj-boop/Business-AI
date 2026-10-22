@@ -232,3 +232,15 @@ test('QA F04: customer tracking strips non-user role lines and protects against 
   assert.ok(!JSON.stringify(tracked).includes('Secret internal instructions'));
   assert.ok(!JSON.stringify(tracked).includes('private prompt'));
 });
+
+
+test('QA F04: customer tracking uses an accessible timeline and expandable customer-only messages', async () => {
+  const script = await readFile(new URL('../assets/customer-portal.js', import.meta.url), 'utf8');
+  const styles = await readFile(new URL('../assets/customer-portal.css', import.meta.url), 'utf8');
+  assert.match(script, /customer-enquiry-timeline/);
+  assert.match(script, /setAttribute\('aria-label','Enquiry progress'\)/);
+  assert.match(script, /createElement\('details'\)/);
+  assert.match(script, /customer_messages/);
+  assert.match(styles, /\.customer-enquiry-step\.current/);
+  assert.match(styles, /\.customer-enquiry-thread>summary:focus-visible/);
+});
