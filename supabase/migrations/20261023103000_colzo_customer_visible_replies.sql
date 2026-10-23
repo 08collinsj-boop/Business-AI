@@ -16,6 +16,9 @@ create table if not exists public.customer_visible_replies (
 create index if not exists customer_visible_replies_lead_idx
  on public.customer_visible_replies(business_id,lead_id,created_at);
 alter table public.customer_visible_replies enable row level security;
+drop policy if exists customer_visible_replies_server_only on public.customer_visible_replies;
+create policy customer_visible_replies_server_only on public.customer_visible_replies
+ for all to anon, authenticated using (false) with check (false);
 revoke all on public.customer_visible_replies from public, anon, authenticated;
 -- The application service role enforces customer grants and business membership.
 -- No direct anonymous or authenticated Supabase client writes are permitted.

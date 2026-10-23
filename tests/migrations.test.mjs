@@ -64,7 +64,8 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots.sql",
     "20261008215744_pilot_identify_and_block_automatic_marketing_publications.sql",
     "20261010_pilot_free_starter_marketing.sql",
-    "20261019162954_colzo_lead_write_versions.sql"
+    "20261019162954_colzo_lead_write_versions.sql",
+    "20261023103000_colzo_customer_visible_replies.sql"
   ]);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
@@ -76,6 +77,10 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
   assert.match(contents.get("20260913233511_add_business_settings.sql"), /create table if not exists public\.business_settings/i);
   const directoryVisibility = contents.get("20260927232000_add_directory_visibility.sql");
   assert.match(directoryVisibility, /add column if not exists directory_search_enabled boolean not null default true/i);
+  const replyMigration = contents.get("20261023103000_colzo_customer_visible_replies.sql");
+  assert.match(replyMigration,/create table if not exists public\.customer_visible_replies/i);
+  assert.match(replyMigration,/enable row level security/i);
+  assert.match(replyMigration,/revoke all on public\.customer_visible_replies from public, anon, authenticated/i);
   const customerPortal = contents.get("20260927235000_add_customer_portal.sql");
   assert.match(customerPortal, /create table if not exists public\.customer_profiles/i);
   assert.match(customerPortal, /create table if not exists public\.customer_enquiry_access/i);
