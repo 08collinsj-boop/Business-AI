@@ -565,3 +565,9 @@ body.customer-account.customer-portal-ready{
 .customer-auth-forgot button{color:#79b9ff;font-size:10px;font-weight:750}
 .customer-card{border-radius:18px;background:linear-gradient(155deg,#101d2c,#0a1724)}
 .customer-portal-user button:focus-visible,.customer-auth-primary:focus-visible,.customer-guest-link:focus-visible,.customer-search-result a:focus-visible{outline:2px solid #48a7ff;outline-offset:2px}
+
+/* Verified customer-visible business replies, separate from submitted enquiries. */
+.customer-business-reply{border-color:#426c60;background:#12231f}
+.customer-business-reply>summary{color:#a9f0cd}
+.customer-business-reply .customer-enquiry-messages li{background:#173028;border-color:#38574e}
+.customer-business-reply .customer-enquiry-messages time{display:block;margin-top:6px;color:#a0bbaf;font-size:11px}
