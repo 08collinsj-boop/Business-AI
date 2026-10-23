@@ -102,3 +102,47 @@ test('reply endpoint fails closed without a server-side feature enablement flag'
    assert.equal(calls.filter(x=>x.u.includes('/rest/v1/')).length,0,'no reply or enquiry tables should be queried');
  }finally{if(prior===undefined)delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;else process.env.COLZO_CUSTOMER_REPLIES_ENABLED=prior}
 });
+
+
+test('simultaneous same-ID saves confirm the first insert instead of showing an ambiguous error',async()=>{
+ const calls=fixture();
+ let lookups=0;
+ const saved={id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',business_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lead_id:42,body:'We can review on Friday',created_at:'2026-10-23T11:00:00Z'};
+ const base=globalThis.fetch;
+ globalThis.fetch=async(url,options={})=>{
+  const u=String(url),method=options.method||'GET';
+  if(u.includes('/rest/v1/customer_visible_replies?')&&method==='GET'&&u.includes('request_id=')){
+   lookups++;
+   return reply(lookups===1?[]:[saved]);
+  }
+  if(u.includes('/rest/v1/customer_visible_replies')&&method==='POST'){
+   assert.match(u,/on_conflict=business_id,request_id/);
+   assert.match(options.headers.Prefer,/resolution=ignore-duplicates/);
+   return reply([],201);
+  }
+  return base(url,options);
+ };
+ const out=await invoke({method:'POST',headers:{authorization:'Bearer valid'},body:{lead_id:42,message:'We can review on Friday',request_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}});
+ assert.equal(out.statusCode,200);
+ assert.equal(out.body.reply.message,'We can review on Friday');
+ assert.equal(lookups,2);
+ assert.equal(calls.filter(x=>x.method==='POST').length,0,'stubbed conflicting insert must not create a second row');
+});
+
+test('race-lost request ID with different content does not falsely confirm delivery',async()=>{
+ fixture();
+ const prior=globalThis.fetch;
+ let reads=0;
+ globalThis.fetch=async(url,options={})=>{
+  const u=String(url),method=options.method||'GET';
+  if(u.includes('/rest/v1/customer_visible_replies?')&&method==='GET'&&u.includes('request_id=')){
+   reads++;
+   return reply(reads===1?[]:[{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',business_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lead_id:42,body:'Previous message',created_at:'2026-10-23T11:00:00Z'}]);
+  }
+  if(u.includes('/rest/v1/customer_visible_replies')&&method==='POST')return reply([],201);
+  return prior(url,options);
+ };
+ const out=await invoke({method:'POST',headers:{authorization:'Bearer valid'},body:{lead_id:42,message:'Different message',request_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}});
+ assert.equal(out.statusCode,409);
+ assert.match(out.body.error,/request ID/i);
+});
