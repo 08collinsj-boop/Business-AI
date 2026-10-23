@@ -131,7 +131,7 @@
   ${state.colzoForm?.resource==='projects'?colzoRecordForm('projects',state.colzoForm.record):''}
   ${loadError?empty(loadError,'<button type="button" data-colzo-refresh="projects">Try again</button>'):''}
   <div class="cn-stack cf-project-list">${filtered.length?filtered.map(p=>`<button class="cf-project-card" type="button" data-colzo-detail="projects" data-colzo-id="${safe(p.id)}"><span class="cn-avatar">${safe(String(p.title||'?').slice(0,1).toUpperCase())}</span><span class="cf-project-text"><strong>${safe(p.title)}</strong><small>${safe(p.client_name||'Customer not recorded')} · ${safe(day(p.created_at))}</small><span class="cf-progress"><i style="width:${Number(p.progress)||0}%"></i></span><span class="cf-project-status">${safe(p.status)} · ${Number(p.progress)||0}%</span></span><span>›</span></button>`).join(''):projectEmpty}</div>
-  <p class="cn-caption cn-approved-honesty">Projects are stored as tenant-scoped Colzo records. Changes are confirmed by the server.</p></div>`;
+  <p class="cn-caption cn-approved-honesty">Projects and progress are saved to your business workspace.</p></div>`;
  }
  function clients(){
   const saved=Array.isArray(state.colzoRecords.clients)?state.colzoRecords.clients:[];
@@ -640,7 +640,7 @@
  function analytics(){
   const d=state.analyticsData,fmt=n=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',maximumFractionDigits:0}).format(Number(n)||0);
   const activity=d?.activity,values=d?.values,sources=d?.sources;
-  const sourceLabels=[['website_widget','Website'],['qr','QR code'],['share','Shared link'],['directory','Directory'],['direct','Direct'],['untracked','Untracked']];
+  const sourceLabels=[['website_widget','Website widget'],['qr','QR code'],['share','Shared link'],['directory','Colzo directory'],['direct','Direct customer link'],['untracked','Not recorded']];
   return '<header class="cf-screen-top"><div><span class="cn-kicker">BUSINESS INSIGHTS</span><h1>Analytics</h1></div><button class="cf-icon-button" type="button" data-analytics-refresh aria-label="Refresh analytics">↻</button></header><p class="cn-caption">'+safe(d?.period?.label||'Last 30 days')+' · Calculated from your recorded business data.</p>'+(state.analyticsLoading?empty('Loading verified analytics…'):'')+(state.analyticsError?empty(state.analyticsError,'<button type="button" data-analytics-refresh>Try again</button>'):'')+(d?'<div class="cf-kpis">'+figmaStat('New enquiries',activity.enquiries,'Last 30 days','▤')+figmaStat('Booking requests',activity.ai_booking_requests,'AI-originated requests','▣')+figmaStat('Completed actions',activity.actions_completed,'Last 30 days','✓')+'</div><section class="cn-detail-panel"><span class="cn-kicker">OPPORTUNITY VALUE</span><h2>'+fmt(values.period_opportunity_value)+'</h2><p class="cn-caption">Estimated value of enquiries created in this period, not confirmed revenue.</p><dl><div><dt>Open pipeline</dt><dd>'+fmt(values.open_pipeline_value)+'</dd></div><div><dt>Converted opportunities</dt><dd>'+fmt(values.converted_opportunity_value)+'</dd></div><div><dt>Enquiries with an estimate</dt><dd>'+Number(values.valued_leads||0)+'</dd></div></dl></section><section class="cn-detail-panel"><h2>Enquiry sources</h2><p class="cn-caption">Counts are based on recorded attribution events. Untracked means the source was not captured.</p><div class="cn-stack">'+sourceLabels.map(([key,label])=>'<div class="cn-settings-status"><span>'+label+'</span><strong>'+Number(sources[key]||0)+'</strong></div>').join('')+'</div></section><section class="cn-detail-panel"><h2>Operational activity</h2><dl><div><dt>Automatic follow-ups created</dt><dd>'+Number(activity.automatic_follow_ups_created||0)+'</dd></div><div><dt>Automatic follow-ups completed</dt><dd>'+Number(activity.automatic_follow_ups_completed||0)+'</dd></div><div><dt>Review requests prepared</dt><dd>'+Number(activity.review_requests_prepared||0)+'</dd></div><div><dt>Review requests marked sent</dt><dd>'+Number(activity.review_requests_marked_sent||0)+'</dd></div></dl><p class="cn-caption">“Marked sent” reflects the saved action status, not independent proof of delivery.</p></section>':'')+'<p class="cn-caption">Colzo does not estimate revenue from enquiry counts or fill missing data with demo numbers.</p>';
  }
  async function loadKnowledge(force=false){
@@ -1267,7 +1267,7 @@
         <div class="cn-approved-form-group"><h3>CONTACT DETAILS <small>Optional</small></h3>${email}${phone}</div>
         <div class="cn-approved-form-group"><h3>NOTES <small>Optional</small></h3>${notes}</div>
         <p id="cnColzoFeedback" class="cn-caption" role="status" aria-live="polite">${safe(state.colzoFeedback)}</p>
-        <p class="cn-approved-form-limit">Company and location fields are not yet stored by the current customer API.</p>
+        <p class="cn-approved-form-limit">Customer profiles save contact details and private notes. Add company or work location information to notes if needed.</p>
       </form>
     </section>`;
   }
