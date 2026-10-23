@@ -89,3 +89,16 @@ test('reply interface includes a saved, customer-visible owner form and customer
  assert.match(portal,/Replies from the business/);
  assert.match(portal,/business_replies/);
 });
+
+
+test('reply endpoint fails closed without a server-side feature enablement flag',async()=>{
+ const prior=process.env.COLZO_CUSTOMER_REPLIES_ENABLED;
+ delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;
+ try{
+   const calls=fixture();
+   const out=await invoke({method:'POST',headers:{authorization:'Bearer valid'},body:{lead_id:42,message:'Do not send',request_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}});
+   assert.equal(out.statusCode,503);
+   assert.match(out.body.error,/not enabled/i);
+   assert.equal(calls.filter(x=>x.u.includes('/rest/v1/')).length,0,'no reply or enquiry tables should be queried');
+ }finally{if(prior===undefined)delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;else process.env.COLZO_CUSTOMER_REPLIES_ENABLED=prior}
+});

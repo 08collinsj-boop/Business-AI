@@ -258,3 +258,23 @@ test('customer sees only replies belonging to a granted enquiry and the same bus
  assert.equal('lead_id' in out.body.enquiries[0],false);
  assert.ok(!JSON.stringify(out.body).includes('PRIVATE'));
 });
+
+
+test('customer tracking continues working when reply feature is disabled and reply table is missing', {concurrency:false},async()=>{
+ const old=process.env.COLZO_CUSTOMER_REPLIES_ENABLED;
+ const handler=await loadHandler();
+ delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;
+ const saved=globalThis.fetch;
+ const paths=[];
+ globalThis.fetch=async(url,options)=>{
+   paths.push(String(url));
+   if(String(url).includes('/rest/v1/customer_visible_replies'))return reply({error:'Missing table'},404);
+   return saved(url,options);
+ };
+ try{
+  const output=res();await handler({method:'GET',headers:{authorization:'Bearer customer-token'}},output);
+  assert.equal(output.statusCode,200);
+  assert.deepEqual(output.body.enquiries[0].business_replies,[]);
+  assert.ok(!paths.some(path=>path.includes('/rest/v1/customer_visible_replies')),'disabled feature must never read unavailable table');
+ }finally{globalThis.fetch=saved;if(old===undefined)delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;else process.env.COLZO_CUSTOMER_REPLIES_ENABLED=old}
+});
