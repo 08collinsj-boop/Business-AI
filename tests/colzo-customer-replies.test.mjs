@@ -19,7 +19,7 @@ function fixture({actor='owner',leadBusiness='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa
   if(u.includes('/leads?'))return reply(leadBusiness?[{id:42,business_id:leadBusiness}]:[]);
   if(u.includes('/customer_enquiry_access?'))return reply(customerGrant?[{id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lead_id:42,business_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}]:[]);
   if(u.includes('/customer_visible_replies?')&&method==='GET')return reply(stored?[stored]:[]);
-  if(u.endsWith('/customer_visible_replies')&&method==='POST')return reply([{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',business_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lead_id:42,body:'We can review on Friday',created_at:'2026-10-23T11:00:00Z'}],201);
+  if(u.includes('/customer_visible_replies?on_conflict=business_id,request_id')&&method==='POST')return reply([{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',business_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lead_id:42,body:'We can review on Friday',created_at:'2026-10-23T11:00:00Z'}],201);
   throw Error('Unexpected '+u);
  };return calls;
 }
@@ -28,7 +28,7 @@ test('only an authenticated business member can create a reply for its own lead'
  const out=await invoke({method:'POST',headers:{authorization:'Bearer valid'},body:{lead_id:42,message:'We can review on Friday',request_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}});
  assert.equal(out.statusCode,201);
  assert.equal(out.body.reply.message,'We can review on Friday');
- assert.ok(calls.some(x=>x.method==='POST'&&x.u.endsWith('/customer_visible_replies')));
+ assert.ok(calls.some(x=>x.method==='POST'&&x.u.includes('/customer_visible_replies?on_conflict=business_id,request_id')));
  assert.ok(calls.some(x=>x.u.includes('/leads?')&&x.u.includes('business_id=eq.aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')));
 });
 test('an enquiry in another business is never replied to',async()=>{
