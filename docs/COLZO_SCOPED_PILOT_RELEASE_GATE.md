@@ -1,5 +1,5 @@
 # Colzo: per-business free pilot access - draft release gate
-Date: 23 October 2026
+Date: 24 October 2026
 Target branch: feature/colzo-scoped-pilot-access-20261023
 Based on free-pilot QA branch qa/colzo-free-pilot-scope-20261023 (2337495db537d44ad8f66f017347495807e3e09f)
 
@@ -31,7 +31,11 @@ The proposed SQL is at docs/colzo-pilot-review/scoped-pilot-access.STAGED.sql, d
 ## Verification
 - RED: billing integration tests initially failed before the scoped access branch was wired into billing and add-ons.
 - GREEN: 11 new scoped tests passed; targeted billing/add-on/onboarding/Stripe group: 75 passed; React build and static validation passed.
-- Full test suite is NOT certified: the remote Composio runner timed out before completion during large batch testing. Smaller batches should be run and GitHub CI reviewed before changing readiness status.
+- Full local regression completed: **1,259 passed; zero failed, skipped or cancelled** on Node 24.19.0. Build passed. Static verification checks 323 JavaScript files, secret patterns and temporary markers.
+- The earlier remote timeout did not reproduce natively. The existing PGlite migration regression passed both independently and in full runs; no timeout or migration code was altered.
+- The inherited-paid-account add-on mutation gap was reproduced with a synthetic failing test and fixed. Both billing and add-on mutations are now blocked in scoped mode; original non-scoped paid billing paths are preserved.
+- Detailed account-system review, privilege caveats, seat-race/acceptance gaps and remaining invitation blockers: [24 October review](colzo-pilot-review/REVIEW_20261024.md).
+- Existing GitHub regression workflows do not target this branch/base. Local verification is not GitHub CI or deployed acceptance.
 - Do not infer real-account acceptance from synthetic tests.
 
 ## Safe release/rollback

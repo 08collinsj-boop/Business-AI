@@ -4,7 +4,9 @@ import { readFile, stat } from "node:fs/promises";
 
 const apiSource = await readFile(new URL("../lib/public-business-handler.js", import.meta.url), "utf8");
 const routeSource = await readFile(new URL("../lib/public-tenant.js", import.meta.url), "utf8");
-const billingSource = await readFile(new URL("../lib/billing.js", import.meta.url), "utf8");
+// Data URL fixtures need absolute URLs for transitive file imports.
+const billingSource = (await readFile(new URL("../lib/billing.js", import.meta.url), "utf8"))
+  .replace("'./colzo-scoped-pilot.js'", JSON.stringify(new URL("../lib/colzo-scoped-pilot.js", import.meta.url).href));
 const legalSource = await readFile(new URL("../lib/legal.js", import.meta.url), "utf8");
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const manifest = JSON.parse(await readFile(new URL("../manifest.webmanifest", import.meta.url), "utf8"));
@@ -22,6 +24,8 @@ async function load({ route, settings, configuration = {}, dpaAccepted = true, d
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
   process.env.BILLING_ENABLED = "false";
+  process.env.COLZO_SCOPED_PILOT_ACCESS = "false";
+  process.env.PILOT_FREE_STARTER_MARKETING = "false";
   process.env.TENANCY_AUTH_ENABLED = "true";
   const calls = [];
   globalThis.fetch = async (url) => {

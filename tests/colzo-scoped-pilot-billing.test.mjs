@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {isScopedPilotRequested} from '../lib/colzo-scoped-pilot.js';
 
 const originalEnv={...process.env};
@@ -83,10 +84,75 @@ test('authenticated owner receives pilot status without checkout; team member is
  assert.equal(out.body.pilot_free_access,true);
  assert.equal(out.body.account,null);
  assert.equal(out.body.entitlements.trialExpiresAt,live.expires_at);
- out=res();await handler({...req,method:'POST',body:{action:'checkout',plan:'starter'}},out);
- assert.equal(out.statusCode,403);
+ for(const action of ['checkout','change_plan','cancel_plan_change','portal','cancel']){
+  out=res();await handler({...req,method:'POST',query:{business_id:b},body:{action,plan:'starter'}},out);
+  assert.equal(out.statusCode,403);
+ }
  assert.ok(calls.every(href=>!href.includes('checkout/sessions')));
  role='member';out=res();await handler(req,out);
  assert.equal(out.statusCode,403);
+});
+test('scoped allowance exhaustion and atomic reservation refusal cannot grant an enquiry',async()=>{
+ enable();const billing=await import('../lib/billing.js');
+ let calls=[];globalThis.fetch=backend(calls,{quantity:250});
+ assert.equal((await billing.reserveAiEnquiryAllowance(a,when)).allowed,false);
+ assert.ok(calls.every(call=>!call.href.includes('consume_billing_ai_enquiry_allowance')));
+ calls=[];const normal=backend(calls,{quantity:249});
+ globalThis.fetch=async(url,opts)=>String(url).includes('rpc/consume_billing_ai_enquiry_allowance')?response(false):normal(url,opts);
+ const refused=await billing.reserveAiEnquiryAllowance(a,when);
+ assert.equal(refused.allowed,false);assert.equal(refused.reservation,null);
+ assert.equal(refused.code,'AI_ENQUIRY_ALLOWANCE_REACHED');
+});
+test('scoped staff checks allow a second seat, reject a third and reject expired grants',async()=>{
+ enable();const billing=await import('../lib/billing.js');
+ const start=new Date(Date.now()-86400000).toISOString();
+ const live={...row,activated_at:start,expires_at:new Date(Date.parse(start)+14*86400000).toISOString()};
+ globalThis.fetch=backend([],{grant:live});
+ assert.equal((await billing.assertStaffSeatAvailable(a,1)).staffAllowance,2);
+ await assert.rejects(()=>billing.assertStaffSeatAvailable(a,2),{status:409});
+ const expired={...row,activated_at:new Date(Date.now()-15*86400000).toISOString(),expires_at:new Date(Date.now()-86400000).toISOString()};
+ globalThis.fetch=backend([],{grant:expired});
+ await assert.rejects(()=>billing.assertStaffSeatAvailable(a,0),{status:402});
+});
+test('scoped pilot never reads or mutates Stripe through add-on management, even with an inherited paid account',async()=>{
+ enable();process.env.TENANCY_AUTH_ENABLED='true';process.env.BILLING_ENABLED='true';
+ process.env.STRIPE_PRICE_ADDON_AI_MARKETING='price_synthetic_marketing';
+ const start=new Date(Date.now()-86400000).toISOString();
+ const live={...row,activated_at:start,expires_at:new Date(Date.parse(start)+14*86400000).toISOString()};
+ const calls=[];let existing=false;
+ globalThis.fetch=async(url,opts={})=>{
+  const href=String(url);calls.push({href,method:opts.method||'GET'});
+  if(href.endsWith('/auth/v1/user'))return response({id:'owner-verified'});
+  if(href.includes('business_memberships'))return response([{business_id:a,role:'owner'}]);
+  if(href.includes('colzo_pilot_access'))return response([live]);
+  if(href.includes('business_billing_usage'))return response([{quantity:0}]);
+  if(href.includes('business_billing_accounts'))return response([{business_id:a,plan:'starter',status:'active',stripe_subscription_id:'sub_synthetic',current_period_started_at:start,current_period_ends_at:live.expires_at}]);
+  if(href.includes('business_feature_entitlements'))return response(existing?[{feature_key:'ai_marketing',status:'active',source:'stripe',expires_at:live.expires_at}]:[]);
+  if(href.includes('audit_events'))return response([]);
+  throw Error('Unexpected network call '+href);
+ };
+ // Stripe is entirely synthetic; even a regressed purchase cannot contact a provider.
+ const stripe=`export const stripeConfigured=()=>true;
+ export const addonPriceDetails=async()=>{globalThis.__pilotStripeCalls++;return {amount:1999,currency:'GBP',interval:'month'}};
+ export const addSubscriptionAddon=async()=>{globalThis.__pilotStripeCalls++};
+ export const removeSubscriptionAddon=async()=>{globalThis.__pilotStripeCalls++};`;
+ const stripeUrl='data:text/javascript;base64,'+Buffer.from(stripe).toString('base64');
+ const source=(await readFile(new URL('../lib/addons-handler.js',import.meta.url),'utf8'))
+  .replace(/from '([^']+)'/g,(_,path)=>'from '+JSON.stringify(path==='./stripe.js'?stripeUrl:new URL('../lib/'+path,import.meta.url).href));
+ const handler=(await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'))).default;
+ const res=()=>({statusCode:0,body:null,setHeader(){},status(code){this.statusCode=code;return this;},json(body){this.body=body;return this;}});
+ globalThis.__pilotStripeCalls=0;
+ try{
+  for(const action of ['purchase','cancel']){
+   existing=action==='cancel';const out=res();
+   await handler({method:'POST',headers:{authorization:'Bearer synthetic'},query:{},body:{action,key:'ai_marketing'}},out);
+   assert.equal(out.statusCode,403,action+' must be blocked before paid processing');
+  }
+  const out=res();await handler({method:'GET',headers:{authorization:'Bearer synthetic'},query:{}},out);
+  assert.equal(out.statusCode,200);
+  assert.ok(out.body.addons.every(addon=>!addon.purchasable&&!addon.cancellable&&addon.entitlement!=='active'));
+  assert.equal(globalThis.__pilotStripeCalls,0);
+  assert.ok(calls.every(call=>!call.href.includes('business_billing_accounts')&&!call.href.includes('business_feature_entitlements')));
+ }finally{delete globalThis.__pilotStripeCalls;}
 });
 test.after(()=>{for(const key of Object.keys(process.env))if(!(key in originalEnv))delete process.env[key];Object.assign(process.env,originalEnv);globalThis.fetch=originalFetch;});

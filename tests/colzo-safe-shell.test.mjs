@@ -9,14 +9,26 @@ const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 // security fix; it must not be incorrectly represented as byte-identical.
 const frozen={
  'lib/auth.js':'9ac5a0bc7def893469dfd9773136146490a5c32a6c892f220aa6a7536f2276d8',
- 'api/leads.js':'9efdf1759c41ffbdd561f9e43eaa1be1828fa97e4e17e6360381ef7029828888',
- 'lib/billing-handler.js':'410689630b152cf363dc4e2083aed09753f34ba38fb122078913890d6f2758f5'
+ 'api/leads.js':'9efdf1759c41ffbdd561f9e43eaa1be1828fa97e4e17e6360381ef7029828888'
 };
-test('unchanged authentication, leads and billing modules preserve their original reviewed bytes',async()=>{
+test('unchanged authentication and leads modules preserve their original reviewed bytes',async()=>{
  for(const [path,expected] of Object.entries(frozen)){
   const contents=await readFile(new URL('../'+path,import.meta.url));
   assert.equal(createHash('sha256').update(contents).digest('hex'),expected,`Production backend unexpectedly modified: ${path}`);
  }
+});
+test('billing preserves every original reviewed byte outside the isolated scoped-pilot guard',async()=>{
+ const source=await read('lib/billing-handler.js');
+ const scopedImport='import {isScopedPilotRequested} from "./colzo-scoped-pilot.js";\n';
+ const start=source.indexOf('  if (isScopedPilotRequested()) {\n');
+ const end=source.indexOf('  if (isPilotFreeStarterMarketingEnabled()) {\n',start);
+ assert.ok(start>source.indexOf('if (!auth.enforced)'), 'owner authentication must precede pilot handling');
+ assert.ok(end>start, 'pilot guard must end before the legacy billing path');
+ assert.equal(source.split(scopedImport).length,2);
+ const original=(source.slice(0,start)+source.slice(end)).replace(scopedImport,'');
+ assert.equal(createHash('sha256').update(original).digest('hex'),
+  '410689630b152cf363dc4e2083aed09753f34ba38fb122078913890d6f2758f5',
+  'Original billing logic or security safeguards unexpectedly modified');
 });
 test('intentional Development customer portal change enforces cross-tenant joins and race-safe profiles',async()=>{
  const source=await read('lib/customer-portal-handler.js');
