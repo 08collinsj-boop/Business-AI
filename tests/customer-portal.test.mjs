@@ -20,6 +20,7 @@ function res() {
 
 async function loadHandler({ review = false, leadStatus = 'New', leadDescription = 'Socket repair enquiry', leadJobType = 'Electrical repair', replyRows = [] } = {}) {
   process.env.TENANCY_AUTH_ENABLED = 'true';
+  process.env.COLZO_CUSTOMER_REPLIES_ENABLED = 'true';
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
   globalThis.fetch = async (url, options = {}) => {

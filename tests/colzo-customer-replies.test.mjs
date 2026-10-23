@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 const original = {...process.env}, beforeFetch=globalThis.fetch;
-Object.assign(process.env,{TENANCY_AUTH_ENABLED:'true',SUPABASE_URL:'https://synthetic.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'synthetic-role'});
+Object.assign(process.env,{TENANCY_AUTH_ENABLED:'true',COLZO_CUSTOMER_REPLIES_ENABLED:'true',SUPABASE_URL:'https://synthetic.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'synthetic-role'});
 test.after(()=>{globalThis.fetch=beforeFetch;for(const k of Object.keys(process.env))if(!(k in original))delete process.env[k];Object.assign(process.env,original);});
 const reply=(body,status=200)=>({ok:status>=200&&status<300,status,json:async()=>body,text:async()=>JSON.stringify(body)});
 const response=()=>({statusCode:0,body:null,status(n){this.statusCode=n;return this},json(x){this.body=x;return this},setHeader(){}});
