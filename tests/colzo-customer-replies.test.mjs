@@ -10,7 +10,7 @@ async function invoke({method='GET',headers={},body={},query={}}){
  const {default:handler}=await import('../lib/customer-replies-handler.js?qa='+Math.random());
  const res=response();await handler({method,headers,body,query},res);return res;
 }
-function fixture({actor='owner',leadBusiness='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',customerGrant=false,stored=null}={}){
+function fixture({actor='owner',leadBusiness='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',customerGrant=true,stored=null}={}){
  const calls=[];
  globalThis.fetch=async (url,options={})=>{
   const u=String(url),method=options.method||'GET';calls.push({u,method,body:options.body&&JSON.parse(options.body)});
@@ -55,4 +55,37 @@ test('invalid request and unauthenticated calls cannot write anything',async()=>
  const denied=await invoke({method:'POST',body:{lead_id:42,message:'Hello',request_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}});
  assert.equal(denied.statusCode,401);
  assert.ok(!calls.some(x=>x.method==='POST'));
+});
+
+test('owner reply endpoint reports whether the enquiry has a linked customer account',async()=>{
+ fixture({actor:'owner',customerGrant:true,stored:{id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',business_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',lead_id:42,body:'Friday suits',created_at:'2026-10-23T11:00:00Z'}});
+ const response=await invoke({method:'GET',headers:{authorization:'Bearer valid'},query:{view:'business',lead_id:'42'}});
+ assert.equal(response.statusCode,200);
+ assert.equal(response.body.customer_portal_linked,true);
+ assert.equal(response.body.replies[0].message,'Friday suits');
+});
+test('cannot claim customer delivery for an enquiry without a customer portal link',async()=>{
+ const calls=fixture({customerGrant:false});
+ const out=await invoke({method:'POST',headers:{authorization:'Bearer valid'},body:{lead_id:42,message:'Please confirm',request_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'}});
+ assert.equal(out.statusCode,409);
+ assert.match(out.body.error,/customer.*link/i);
+ assert.ok(!calls.some(x=>x.method==='POST'));
+});
+test('owner history cannot be read from another business',async()=>{
+ const calls=fixture({actor:'owner',leadBusiness:null});
+ const out=await invoke({method:'GET',headers:{authorization:'Bearer valid'},query:{view:'business',lead_id:'42'}});
+ assert.equal(out.statusCode,404);
+ assert.ok(!calls.some(x=>x.u.includes('/customer_visible_replies?')));
+});
+test('reply interface includes a saved, customer-visible owner form and customer account message thread',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const owner=await readFile(new URL('../assets/colzo-native.js',import.meta.url),'utf8');
+ const portal=await readFile(new URL('../assets/customer-portal.js',import.meta.url),'utf8');
+ assert.match(owner,/id="cnCustomerReplyForm"/);
+ assert.match(owner,/data-cn-replies-refresh/);
+ assert.match(owner,/customer_portal_linked/);
+ assert.match(owner,/\/api\/customer-replies\?view=business/);
+ assert.match(owner,/Confirmed in customer portal/);
+ assert.match(portal,/Replies from the business/);
+ assert.match(portal,/business_replies/);
 });
