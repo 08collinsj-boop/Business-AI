@@ -42,7 +42,7 @@ async function setup(){
   if(path==='leads')return reply([{id:r.lead_id,business_id:r.business_id,job_type:r.description,description:r.description,status:'New'}]);
   if(path==='business_settings')return reply([{business_id:r.business_id,business_name:r.business_name,business_type:'Services',review_requests_enabled:false}]);
   if(path==='business_public_routes')return reply([{business_id:r.business_id,route_value:'shop-'+leadId}]);
-  if(path==='lead_handovers'||path==='actions')return reply([]);
+  if(path==='lead_handovers'||path==='actions'||path==='customer_visible_replies')return reply([]);
   throw Error('Unexpected: '+href);
  };
  const handler=(await import('../lib/customer-portal-handler.js?two-users='+Math.random())).default;
