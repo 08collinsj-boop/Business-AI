@@ -15,7 +15,7 @@ if (siteProject && isVercelBuild) {
   await mkdir(out + '/assets/icons', { recursive: true });
   await mkdir(out + '/site', { recursive: true });
   for (const item of ['index.html', 'site.css', 'site.js',
-    'business-ai-icon.svg', 'business-ai-mark.webp', 'howto']) {
+    'business-ai-icon.svg', 'business-ai-mark.webp', 'howto', 'media']) {
     await cp('site/' + item, out + '/site/' + item, { recursive: true });
   }
   if (process.env.VERCEL_ENV === 'preview' && process.env.COLZO_APP_PREVIEW_URL) {
