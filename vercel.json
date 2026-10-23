@@ -55,6 +55,10 @@
       "destination": "/api/operations?operation=public-businesses"
     },
     {
+      "source": "/api/customer-replies",
+      "destination": "/api/operations?operation=customer-replies"
+    },
+    {
       "source": "/api/customer-portal",
       "destination": "/api/operations?operation=customer-portal"
     },
