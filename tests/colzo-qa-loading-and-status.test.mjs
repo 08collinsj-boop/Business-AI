@@ -37,5 +37,5 @@ test('QA F06: initial dashboard does not claim zero records before first success
 
 test('QA F06: enquiry directory displays loading rather than an empty list before data arrives', () => {
   assert.match(enquiries, /LoadingState/);
-  assert.match(enquiries, /if\(!model.recordsReady\)return <LoadingState/);
+  assert.match(enquiries, /if\(model.recordsReady===false\)return <LoadingState/);
 });

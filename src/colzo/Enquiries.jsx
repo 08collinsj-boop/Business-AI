@@ -1,7 +1,8 @@
 import React from 'react';
-import { contact, day, EmptyState, initials, PageHeader, SearchField, stage, StatusPill } from './primitives.jsx';
+import { contact, day, EmptyState, LoadingState, initials, PageHeader, SearchField, stage, StatusPill } from './primitives.jsx';
 
 export function Enquiries({ model }) {
+  if(model.recordsReady===false)return <LoadingState label="Loading enquiries…"/>;
   const all = model.enquiries;
   const filter = model.filter || 'All';
   const filtered = all.filter(l => (filter === 'All' || stage(l) === filter)
