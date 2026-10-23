@@ -57,8 +57,10 @@ test('two independent authenticated customer sessions see only their own authori
  assert.equal(second.statusCode,200);
  assert.deepEqual(first.body.enquiries.map(e=>e.business.name),['Synthetic Shop One']);
  assert.deepEqual(second.body.enquiries.map(e=>e.business.name),['Synthetic Shop Two']);
- assert.match(first.body.enquiries[0].summary,/One/);
- assert.match(second.body.enquiries[0].summary,/Two/);
+ assert.match(first.body.enquiries[0].title,/One/);
+ assert.match(second.body.enquiries[0].title,/Two/);
+ assert.equal(first.body.enquiries[0].summary,'','a title must not repeat itself as a summary');
+ assert.equal(second.body.enquiries[0].summary,'','a title must not repeat itself as a summary');
  assert.doesNotMatch(JSON.stringify(first.body),/Shop Two|Enquiry Two/);
  assert.doesNotMatch(JSON.stringify(second.body),/Shop One|Enquiry One/);
  assert.equal(queryLog.filter(x=>x.path==='customer_enquiry_access').length,2);

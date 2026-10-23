@@ -24,7 +24,7 @@ export function RecordForm({ model }) {
         <Field name="phone" label="Phone number" type="tel" value={record?.phone} maxLength={80} autoComplete="tel"/></div>
       <div className="cn-approved-form-group"><h3>NOTES <small>Optional</small></h3><Notes value={record?.notes}/></div>
       <p id="cnColzoFeedback" className="cn-caption" role="status" aria-live="polite">{model.colzoFeedback}</p>
-      <p className="cn-approved-form-limit">Company and location fields are not yet stored by the current customer API.</p>
+      <p className="cn-approved-form-limit">Customer profiles save contact details and private notes. Add company or work location information to notes if needed.</p>
     </form>
   </section>;
   const isQuote = resource === 'quotes';

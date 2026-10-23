@@ -28,7 +28,8 @@ test('approved Add/Edit Customer form never offers unsavable customer fields',()
  assert.match(customerForm,/data-resource="clients"/);
  assert.match(customerForm,/data-colzo-cancel/);
  assert.match(customerForm,/type="submit"/);
- assert.match(customerForm,/Company and location fields are not yet stored/);
+ assert.match(customerForm,/Customer profiles save contact details and private notes/);
+ assert.match(customerForm,/Add company or work location information to notes if needed/);
  assert.doesNotMatch(customerForm,/name="(?:company|location|client_type|business_category)"/);
 });
 test('owner client create/update still use verified, tenant-scoped server API with conflict handling',()=>{

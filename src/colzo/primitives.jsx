@@ -53,7 +53,7 @@ export function DirectoryState({ model, resource, filtered, empty, noMatch, chil
 }
 export function StatusPill({ label }) {
   const group = stage({ status: label });
-  return <span className={`cn-pill ${group === 'Won' ? 'success' : group === 'New' ? 'attention' : 'progress'}`}>{label || 'New'}</span>;
+  return <span className={`cn-pill ${group === 'Won' ? 'success' : group === 'New' ? 'attention' : 'progress'}`}>{group}</span>;
 }
 export function Feedback({ model }) {
   return model.colzoFeedback ? <p className="cn-work-message" role="status">{model.colzoFeedback}</p> : null;

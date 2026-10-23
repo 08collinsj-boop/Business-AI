@@ -86,7 +86,7 @@ test('Colzo quotes remain copy-only, projects derived from bookings/actions and 
  assert.match(js,/DRAFT ESTIMATE — NOT ISSUED/);
  assert.match(js,/not been saved, approved or sent/);
  assert.match(js,/No draft was saved or sent/);
- assert.match(js,/Projects are stored as tenant-scoped Colzo records/);
+ assert.match(js,/Projects and progress are saved to your business workspace/);
  assert.match(js,/No saved customers yet/);
  assert.ok(js.includes('function customerProfile()'));
  assert.match(js,/customer:customerProfile/);

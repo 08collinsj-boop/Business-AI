@@ -11,6 +11,7 @@ function fixture(){
  const dom=new JSDOM('<body class="auth-ready"><section id="colzoOwner"><header class="cn-header"><button type="button" class="cn-wordmark" data-cn-screen="more" aria-label="Open Colzo tools">colzo.</button><button type="button" class="cn-command-trigger" data-cn-command aria-label="Find a Colzo tool">Search</button></header><div id="cnContent"></div><div id="cnCommandSheet" hidden><div class="cn-command-panel"><input id="cnCommandSearch"><div id="cnCommandResults"></div></div></div><nav class="cn-nav">'+['home','enquiries','bookings','clients','more'].map(x=>'<button type="button" data-cn-screen="'+x+'">'+x+'</button>').join('')+'</nav><div id="cnScreenAnnounce"></div></section>',{runScripts:'outside-only',pretendToBeVisual:true,url:'https://test.invalid'});
  const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:true,addEventListener(){}});
  w.eval('let leads=[],bookings=[],businessActions=[],settings={business_name:"QA"};async function api(){return []};'+controller);
+ w.ColzoOwner.dashboardLoaded();w.ColzoOwner.render();
  const header=()=>w.document.querySelector('.cn-header .cn-wordmark');
  const navigate=screen=>{const button=w.document.querySelector('[data-cn-screen="'+screen+'"]');assert.ok(button,'navigation target '+screen);button.click()};
  return {dom,w,header,navigate};

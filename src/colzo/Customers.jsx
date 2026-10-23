@@ -15,7 +15,7 @@ export function Customers({ model }) {
     <PageHeader title="Customers" subtitle={`${saved.length} saved customer${saved.length === 1 ? '' : 's'}`} className="cn-stitch-title"
       actions={<button className="cn-stitch-add" data-colzo-create="clients" type="button" aria-label="Add customer">+</button>}/>
     <Feedback model={model}/><SearchField id="cnClientSearch" value={model.clientSearch} label="Search saved customers" className="cn-stitch-search" onChange={v => model.onSearch('clientSearch', v)}/>
-    <div className="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>{filtered.length} record{filtered.length === 1 ? '' : 's'}</span></div>
+    <div className="cn-stitch-directory-label"><b>SAVED CUSTOMERS</b><span>{`${filtered.length} ${filtered.length === 1 ? 'record' : 'records'}`}</span></div>
     <div className="cn-stitch-customer-list"><DirectoryState model={model} resource="clients" filtered={filtered}
       empty="No saved customers yet. Add a customer to create a persistent profile." noMatch="No customers match your search. Try a different name, email or phone number.">
       {filtered.map(c => <button className="cn-stitch-customer" type="button" key={c.id} data-colzo-detail="clients" data-colzo-id={c.id} aria-current={model.screen === 'colzoDetail' && String(model.colzoDetail?.id) === String(c.id) ? 'true' : undefined}>

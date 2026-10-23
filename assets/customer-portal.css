@@ -391,22 +391,39 @@ body.customer-account.customer-portal-ready{
   background:#091724;
   padding:14px;
 }
-.customer-enquiry-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.customer-enquiry-card h4{margin:0;color:#edf4fb;font-size:13px}
-.customer-enquiry-card .meta{margin-top:4px;color:#71869b;font-size:9px}
-.customer-enquiry-card p{margin:8px 0 0;color:#8699ac;font-size:10px;line-height:1.45}
+.customer-enquiry-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px 14px}
+.customer-enquiry-top>div{min-width:0;flex:1 1 180px}
+.customer-enquiry-card h4{margin:0;color:#edf4fb;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.customer-enquiry-card .meta{margin-top:5px;color:#9aafc3;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.customer-enquiry-card p{margin:10px 0 0;color:#b4c6d6;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
 .customer-status{
   display:inline-flex;
-  padding:5px 7px;
+  align-items:center;
+  max-width:100%;
+  padding:6px 10px;
   border-radius:999px;
-  font-size:8px;
-  font-weight:850;
-  white-space:nowrap;
+  font-size:11px;
+  font-weight:750;
+  line-height:1.45;
+  white-space:normal;
+  overflow-wrap:anywhere;
 }
 .customer-status.received{background:rgba(39,135,255,.13);color:#6cb0ff}
 .customer-status.awaiting_business{background:rgba(244,181,62,.12);color:#f3c76f}
 .customer-status.in_progress{background:rgba(49,196,141,.12);color:#75ddb6}
 .customer-status.completed{background:rgba(136,151,168,.13);color:#a7b4c1}
+.customer-enquiry-timeline{list-style:none;display:grid;gap:10px;margin:14px 0 0;padding:12px 0 0;border-top:1px solid #203649}
+.customer-enquiry-step{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-left:18px;color:#879cb0;font-size:12px;line-height:1.5}
+.customer-enquiry-step::before{position:absolute;left:0;top:6px;content:"";width:8px;height:8px;border:1px solid #4e708e;border-radius:50%;background:#10263a}
+.customer-enquiry-step.current{color:#e3f1ff;font-weight:700}
+.customer-enquiry-step.current::before{border-color:#419dff;background:#419dff}
+.customer-enquiry-step time{font-size:11px;color:#8ca2b7;flex:none}
+.customer-enquiry-thread{margin-top:14px;border:1px solid #294761;background:#0b1b29;border-radius:12px;overflow:hidden}
+.customer-enquiry-thread>summary{cursor:pointer;padding:12px 13px;font-size:12px;font-weight:700;color:#85c2ff;line-height:1.5}
+.customer-enquiry-thread>summary:focus-visible{outline:2px solid #85c2ff;outline-offset:-3px}
+.customer-enquiry-messages{list-style:none;display:grid;gap:8px;margin:0;padding:0 12px 12px}
+.customer-enquiry-messages li{border:1px solid #253d53;border-radius:10px;padding:10px 12px;background:#10263b;color:#d6e8f7;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:440px){.customer-enquiry-step{flex-wrap:wrap}.customer-enquiry-top .customer-status{max-width:100%}}
 .customer-review-request{
   display:flex;
   align-items:center;
