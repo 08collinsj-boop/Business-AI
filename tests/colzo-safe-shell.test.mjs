@@ -2,20 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,stat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
+import {withoutScopedPilotGuards} from './helpers/reviewed-auth.mjs';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 
-// Original production-sensitive modules intentionally unchanged in the Dev branch.
+// Preserve reviewed original code outside explicitly tested scoped-pilot denials.
 // The customer-portal handler now has a separately tested, intentional Dev-only
 // security fix; it must not be incorrectly represented as byte-identical.
 const frozen={
- 'lib/auth.js':'9ac5a0bc7def893469dfd9773136146490a5c32a6c892f220aa6a7536f2276d8',
  'api/leads.js':'9efdf1759c41ffbdd561f9e43eaa1be1828fa97e4e17e6360381ef7029828888'
 };
-test('unchanged authentication and leads modules preserve their original reviewed bytes',async()=>{
+test('unchanged leads module preserves its original reviewed bytes',async()=>{
  for(const [path,expected] of Object.entries(frozen)){
   const contents=await readFile(new URL('../'+path,import.meta.url));
   assert.equal(createHash('sha256').update(contents).digest('hex'),expected,`Production backend unexpectedly modified: ${path}`);
  }
+});
+test('authentication preserves original reviewed bytes outside two scoped-pilot denial guards',async()=>{
+ const source=withoutScopedPilotGuards(await read('lib/auth.js'));
+ assert.equal(createHash('sha256').update(source).digest('hex'),'9ac5a0bc7def893469dfd9773136146490a5c32a6c892f220aa6a7536f2276d8');
 });
 test('billing preserves every original reviewed byte outside the isolated scoped-pilot guard',async()=>{
  const source=await read('lib/billing-handler.js');

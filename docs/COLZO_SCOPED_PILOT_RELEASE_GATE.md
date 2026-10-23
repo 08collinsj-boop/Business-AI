@@ -4,6 +4,7 @@ Target branch: feature/colzo-scoped-pilot-access-20261023
 Based on free-pilot QA branch qa/colzo-free-pilot-scope-20261023 (2337495db537d44ad8f66f017347495807e3e09f)
 
 **Status: Development draft only. NOT APPROVED to deploy, merge, invite testers or apply SQL.**
+Latest continuation: [GitHub recovery, workspace enforcement and acceptance gates](colzo-pilot-review/RECOVERY_AND_SECURITY_20261024.md).
 This change does not create pilot accounts, trigger messages, activate Stripe or change Supabase.
 
 ## Behaviour
@@ -24,7 +25,8 @@ The proposed SQL is at docs/colzo-pilot-review/scoped-pilot-access.STAGED.sql, d
 2. Review and approve the SQL in isolation, install on a disposable database and test permissions, grants and recovery before touching Dev.
 3. Create a controlled, audited operator approval process for grants. There is intentionally no public self-grant endpoint, and no real invite or user account was created.
 4. Verify a fresh exact-SHA Preview and two real independent authorised accounts, signup confirmation, MFA, owner/member permissions, iPhone Safari, cross-tenant denials, expiry and review-flow behaviour.
-5. Verify all app routes respect expiry. **This draft gates AI enquiries and protected add-ons only; other screen/record access is not automatically suspended by pilot expiry.**
+5. Retest the new shared workspace expiry gate on an approved exact-SHA Preview. It denies protected business reads/writes; account recovery and customer-owned history remain separate. Team mutations are blocked until an audited atomic seat workflow is independently approved.
+   Repository baseline authenticated SELECT/RLS policies do not check pilot expiry: direct database access remains a blocker until independently reviewed database enforcement and recovery are verified.
 6. Update the public/signup copy. Existing free Pilot banner is tied to the legacy broad flag, so do not claim this scoped mode is an end-to-end, self-service trial.
 7. Final acceptance with legal, hosting, billing, support and operational decision recorded. Production, older Pilot, DNS and paid providers remain out of scope.
 

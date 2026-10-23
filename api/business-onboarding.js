@@ -82,6 +82,7 @@ export default async function handler(req, res) {
   let auth;
   try { auth = await requireAuthenticatedUser(req); } catch (error) { return sendAuthError(res, error); }
   if (!auth.enforced) return res.status(503).json({ error: "Business onboarding is not enabled" });
+  if (process.env.COLZO_SCOPED_PILOT_ACCESS === "true" && req.method === "POST") return res.status(403).json({ error: "Pilot business setup requires operator approval", code: "PILOT_PROVISIONING_MANAGED" });
   let stage = "memberships";
   try {
     const existing = await memberships(auth.userId);

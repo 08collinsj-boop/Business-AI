@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import operations from '../api/operations.js';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { withoutScopedPilotGuards } from './helpers/reviewed-auth.mjs';
 
 const lockedAuthHash='9ac5a0bc7def893469dfd9773136146490a5c32a6c892f220aa6a7536f2276d8';
 const branch='feature/colzo-complete-ui-motion-20261017';
@@ -50,8 +51,8 @@ test('other previews are unaffected when no project constraint is configured',{c
   assert.equal(res.body?.frontendAuthEnabled,true);
 });
 
-test('legacy authentication source remains byte-identical',{concurrency:false},async()=>{
-  const data=await readFile(new URL('../lib/auth.js',import.meta.url));
+test('legacy authentication source remains byte-identical outside scoped-pilot denials',{concurrency:false},async()=>{
+  const data=withoutScopedPilotGuards(await readFile(new URL('../lib/auth.js',import.meta.url),'utf8'));
   assert.equal(createHash('sha256').update(data).digest('hex'),lockedAuthHash);
 });
 
