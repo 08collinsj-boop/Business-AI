@@ -9,6 +9,7 @@ function fixture({withVersion=true,preview=true}={}){
  const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:true});w.colzoPreviewAuthTransportEnabled=preview;
  w.calls=[];w.nextRequest=()=>new Promise((_resolve,reject)=>{w.rejectSave=reject});
  w.eval('var leads='+JSON.stringify([{id:17,name:'Synthetic QA',status:'New',notes:'Original',...(withVersion?{updated_at:version}:{})}])+',bookings=[],businessActions=[],settings={};const api=async(url,options)=>{window.calls.push(JSON.parse(options.body));return window.nextRequest()};'+source);
+ w.ColzoOwner.dashboardLoaded();w.ColzoOwner.render();
  const click=s=>{const e=w.document.querySelector(s);assert.ok(e,s);e.click()};
  click('[data-cn-screen="enquiries"]');click('[data-cn-lead="17"]');click('[data-cn-edit-lead="17"]');
  const form=w.document.querySelector('#cnLeadForm');
