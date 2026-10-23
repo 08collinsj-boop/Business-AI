@@ -151,6 +151,17 @@ function renderEnquiries(target,items,limit=null){
       for(const message of item.customer_messages){const entry=document.createElement('li');entry.textContent=message;messages.append(entry);}
       thread.append(messages);card.append(thread);
     }
+    if(Array.isArray(item.business_replies)&&item.business_replies.length){
+      const thread=document.createElement('details');thread.className='customer-enquiry-thread customer-business-reply';
+      const summary=document.createElement('summary');summary.textContent='Replies from the business ('+item.business_replies.length+')';thread.append(summary);
+      const messages=document.createElement('ol');messages.className='customer-enquiry-messages';
+      for(const reply of item.business_replies){
+        const entry=document.createElement('li');const body=document.createElement('span');body.textContent=String(reply.message||'');entry.append(body);
+        if(reply.created_at){const sent=document.createElement('time');sent.dateTime=String(reply.created_at);sent.textContent=statusDate(reply.created_at);entry.append(sent);}
+        messages.append(entry);
+      }
+      thread.append(messages);card.append(thread);
+    }
     if(item.review_request?.url){
       const review=document.createElement('div');review.className='customer-review-request';
       const copy=document.createElement('div');const strong=document.createElement('strong');strong.textContent='How did we do?';const note=document.createElement('span');note.textContent='If you would like, share honest feedback about your experience.';copy.append(strong,note);

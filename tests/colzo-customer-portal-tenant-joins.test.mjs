@@ -23,6 +23,7 @@ async function portalFixture({accessBusiness=A,leadBusiness=A,reviewBusiness=A,r
   if(p.endsWith('/business_settings'))return response([{business_id:accessBusiness,business_name:accessBusiness===A?'Business A':'Business B',business_type:'Services',review_requests_enabled:reviewEnabled,review_google_url:'https://g.page/r/example/review',review_facebook_url:'',review_preferred_platform:'google'}]);
   if(p.endsWith('/business_public_routes'))return response([{business_id:accessBusiness,route_value:'business-a'}]);
   if(p.endsWith('/lead_handovers'))return response(handoverBusiness?[{business_id:handoverBusiness,lead_id:42,status:'requires_attention'}]:[]);
+  if(p.endsWith('/customer_visible_replies'))return response([]);
   if(p.endsWith('/actions'))return response([{id:17,business_id:reviewBusiness,lead_id:42,booking_id:0,status:'completed',completed_at:'2026-10-20T01:00:00Z'}]);
   throw Error('Unexpected fetch: '+url);
  };

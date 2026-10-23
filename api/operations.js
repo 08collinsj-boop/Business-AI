@@ -16,6 +16,7 @@ import handoverHandler from "../lib/handover-handler.js";
 import publicBusinessHandler from "../lib/public-business-handler.js";
 import publicBusinessesHandler from "../lib/public-businesses-handler.js";
 import customerPortalHandler from "../lib/customer-portal-handler.js";
+import customerRepliesHandler from "../lib/customer-replies-handler.js";
 import billingHandler from "../lib/billing-handler.js";
 import referralsHandler from "../lib/referrals-handler.js";
 import qrCodeHandler from "../lib/qr-code-handler.js";
@@ -51,6 +52,7 @@ const handlers = Object.freeze({
   "public-business": publicBusinessHandler,
   "public-businesses": publicBusinessesHandler,
   "customer-portal": customerPortalHandler,
+  "customer-replies": customerRepliesHandler,
   billing: billingHandler,
   referrals: referralsHandler,
   "qr-code": qrCodeHandler,

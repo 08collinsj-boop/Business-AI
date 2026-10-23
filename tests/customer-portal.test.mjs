@@ -18,8 +18,9 @@ function res() {
   };
 }
 
-async function loadHandler({ review = false, leadStatus = 'New', leadDescription = 'Socket repair enquiry', leadJobType = 'Electrical repair' } = {}) {
+async function loadHandler({ review = false, leadStatus = 'New', leadDescription = 'Socket repair enquiry', leadJobType = 'Electrical repair', replyRows = [] } = {}) {
   process.env.TENANCY_AUTH_ENABLED = 'true';
+  process.env.COLZO_CUSTOMER_REPLIES_ENABLED = 'true';
   process.env.SUPABASE_URL = 'https://example.supabase.co';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
   globalThis.fetch = async (url, options = {}) => {
@@ -49,6 +50,7 @@ async function loadHandler({ review = false, leadStatus = 'New', leadDescription
     if (href.includes('/rest/v1/lead_handovers?')) return reply([
       { lead_id: 42, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', status: 'requires_attention', reason: 'human_first_mode' }
     ]);
+    if (href.includes('/rest/v1/customer_visible_replies?')) return reply(replyRows);
     if (href.includes('/rest/v1/actions?')) return reply(review ? [
       { id: 17, business_id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', lead_id: 42, booking_id: 9, status: 'completed', completed_at: '2026-09-28T20:00:00Z' }
     ] : []);
@@ -243,4 +245,37 @@ test('QA F04: customer tracking uses an accessible timeline and expandable custo
   assert.match(script, /customer_messages/);
   assert.match(styles, /\.customer-enquiry-step\.current/);
   assert.match(styles, /\.customer-enquiry-thread>summary:focus-visible/);
+});
+
+test('customer sees only replies belonging to a granted enquiry and the same business', {concurrency:false},async()=>{
+ const handler=await loadHandler({replyRows:[
+   {id:'11111111-1111-4111-8111-111111111111',business_id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',lead_id:42,body:'We have availability on Friday',created_at:'2026-10-23T11:20:00Z'},
+   {id:'22222222-2222-4222-8222-222222222222',business_id:'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',lead_id:42,body:'OTHER BUSINESS PRIVATE',created_at:'2026-10-23T11:23:00Z'},
+   {id:'33333333-3333-4333-8333-333333333333',business_id:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',lead_id:43,body:'OTHER ENQUIRY PRIVATE',created_at:'2026-10-23T11:24:00Z'}
+ ]});
+ const out=res();await handler({method:'GET',headers:{authorization:'Bearer customer-token'}},out);
+ assert.equal(out.statusCode,200);
+ assert.deepEqual(out.body.enquiries[0].business_replies,[{message:'We have availability on Friday',created_at:'2026-10-23T11:20:00Z'}]);
+ assert.equal('lead_id' in out.body.enquiries[0],false);
+ assert.ok(!JSON.stringify(out.body).includes('PRIVATE'));
+});
+
+
+test('customer tracking continues working when reply feature is disabled and reply table is missing', {concurrency:false},async()=>{
+ const old=process.env.COLZO_CUSTOMER_REPLIES_ENABLED;
+ const handler=await loadHandler();
+ delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;
+ const saved=globalThis.fetch;
+ const paths=[];
+ globalThis.fetch=async(url,options)=>{
+   paths.push(String(url));
+   if(String(url).includes('/rest/v1/customer_visible_replies'))return reply({error:'Missing table'},404);
+   return saved(url,options);
+ };
+ try{
+  const output=res();await handler({method:'GET',headers:{authorization:'Bearer customer-token'}},output);
+  assert.equal(output.statusCode,200);
+  assert.deepEqual(output.body.enquiries[0].business_replies,[]);
+  assert.ok(!paths.some(path=>path.includes('/rest/v1/customer_visible_replies')),'disabled feature must never read unavailable table');
+ }finally{globalThis.fetch=saved;if(old===undefined)delete process.env.COLZO_CUSTOMER_REPLIES_ENABLED;else process.env.COLZO_CUSTOMER_REPLIES_ENABLED=old}
 });

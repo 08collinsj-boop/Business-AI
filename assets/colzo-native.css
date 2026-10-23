@@ -460,3 +460,16 @@ body.colzo-owner-enabled.auth-ready{background:#0d1115!important}
 #colzoOwner .cn-automation-pillar-grid input{min-height:44px}
 #colzoOwner #cnAutomationStrategyForm .cn-form-actions{flex-wrap:wrap}
 #colzoOwner #cnAutomationStrategyForm button{min-height:44px}
+
+/* Linked customer replies use existing Graphite and Volt detail panel controls. */
+#colzoOwner .cn-customer-replies{min-width:0}
+#colzoOwner .cn-customer-replies form{display:grid;gap:10px;margin-top:16px}
+#colzoOwner .cn-customer-replies label{color:#eef3ee;font-size:13px;font-weight:700}
+#colzoOwner .cn-customer-replies textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;padding:13px;border:1px solid #4b5b54;border-radius:12px;background:#19221e;color:#fff;font:inherit;line-height:1.5}
+#colzoOwner .cn-customer-replies textarea:focus-visible{outline:2px solid #c8ff2e;outline-offset:2px}
+#colzoOwner .cn-customer-replies .cn-form-actions{display:flex;flex-wrap:wrap;gap:10px}
+#colzoOwner .cn-customer-replies .cn-form-actions button{min-height:44px;flex:1 1 180px}
+#colzoOwner .cn-reply-history{list-style:none;display:grid;gap:10px;margin:14px 0;padding:0}
+#colzoOwner .cn-reply-history li{padding:12px 14px;border:1px solid #405247;border-radius:12px;background:#1d2923;overflow-wrap:anywhere}
+#colzoOwner .cn-reply-history p{margin:0;color:#e5f2e8;white-space:pre-wrap;line-height:1.55}
+#colzoOwner .cn-reply-history time{display:block;color:#b5c7ba;margin-top:8px;font-size:11px}
