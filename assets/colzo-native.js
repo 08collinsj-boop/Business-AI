@@ -772,6 +772,16 @@
   const progress=state.knowledgeFeedback?'<p class="cn-work-message" role="status" aria-live="polite">'+safe(state.knowledgeFeedback)+'</p>':'';
   const readable=v=>String(v||'').replace(/_/g,' ');
   const badge=s=>'<span class="cn-pill '+(s==='active'?'success':s==='failed'?'attention':'progress')+'">'+safe(readable(s||'unknown'))+'</span>';
+  // Source processing and approval of individual facts are different states.
+  // Use the server-supplied item counts; never change what the backend may use.
+  const factCount=(source,key)=>Math.max(0,Number(source?.item_counts?.[key])||0);
+  const factBadge=source=>{
+   if(['failed','pending_upload','superseded'].includes(source?.status))return badge(source.status);
+   if(factCount(source,'needs_review')>0)return '<span class="cn-pill progress">Review needed</span>';
+   if(factCount(source,'active')>0)return '<span class="cn-pill success">Facts approved</span>';
+   return badge(source?.status);
+  };
+  const factSummary=source=>factCount(source,'active')+' approved facts · '+factCount(source,'needs_review')+' awaiting review';
   const countActive=sources.reduce((sum,item)=>sum+Math.max(0,Number(item.item_counts?.active)||0),0);
   const countReview=sources.reduce((sum,item)=>sum+Math.max(0,Number(item.item_counts?.needs_review)||0),0);
   const uploadMax=Math.min(10,Math.round((state.knowledgeLimits?.max_file_bytes||10485760)/1048576));
@@ -787,8 +797,13 @@
   };
   if(detail&&source){
    const editable=canManage&&['active','needs_review'].includes(source.status);
+   const detailCounts={
+    active:items.filter(item=>item.status==='active').length,
+    needs_review:items.filter(item=>item.status==='needs_review').length
+   };
+   const detailedSource={...source,item_counts:detailCounts};
    const title='<header class="cf-screen-top"><button class="cn-back" type="button" data-knowledge-back>← Business knowledge</button></header>'+
-    '<header class="cn-screen-heading"><span class="cn-kicker">KNOWLEDGE SOURCE</span><h1>'+safe(source.file_name||'Knowledge source')+'</h1><p>'+badge(source.status)+' · '+items.length+' facts</p></header>';
+    '<header class="cn-screen-heading"><span class="cn-kicker">KNOWLEDGE SOURCE</span><h1>'+safe(source.file_name||'Knowledge source')+'</h1><p>'+factBadge(detailedSource)+' · '+items.length+' facts · '+factSummary(detailedSource)+'</p></header>';
    const sourceInfo='<section class="cn-detail-panel"><h2>Source summary</h2><p>'+safe(source.extracted_summary||'No summary recorded.')+'</p>'+
     (source.error_message?'<p class="cn-settings-error">'+safe(source.error_message)+'</p>':'')+'</section>';
    const warning='<p class="cn-caption">Only selected, explicitly approved facts are available to the AI receptionist and Marketing. Uploaded text is never an instruction to the AI.</p>';
@@ -808,11 +823,11 @@
    return title+progress+status+sourceInfo+recovery+'<section class="cn-detail-panel">'+approval+'</section>';
   }
   const filter=state.knowledgeFilter;
-  const filtered=sources.filter(item=>filter==='all'||(filter==='review'?(item.status==='needs_review'||Number(item.item_counts?.needs_review)>0):(filter==='active'?item.status==='active':item.status==='failed'||item.status==='pending_upload')));
+  const filtered=sources.filter(item=>filter==='all'||(filter==='review'?(item.item_counts?factCount(item,'needs_review')>0:item.status==='needs_review'):(filter==='active'?factCount(item,'active')>0||item.status==='active':item.status==='failed'||item.status==='pending_upload')));
   const options=[['all','All sources'],['review','Needs review'],['active','Active'],['issues','To process']];
   const filters='<div class="cn-knowledge-filters" role="group" aria-label="Filter knowledge sources">'+options.map(([key,label])=>'<button type="button" data-knowledge-filter="'+key+'" aria-pressed="'+(filter===key)+'">'+label+'</button>').join('')+'</div>';
-  const rows=filtered.map(item=>'<article class="cn-detail-panel cn-knowledge-source"><div class="cn-section-bar"><span class="cn-knowledge-filename">'+safe(item.file_name)+'</span>'+badge(item.status)+'</div>'+
-    '<p>'+safe(item.extracted_summary||'No extracted summary yet.')+'</p><small class="cn-caption">'+Math.max(0,Number(item.item_counts?.total)||0)+' facts · '+safe(day(item.created_at))+'</small>'+sourceActions(item)+'</article>').join('');
+  const rows=filtered.map(item=>'<article class="cn-detail-panel cn-knowledge-source"><div class="cn-section-bar"><span class="cn-knowledge-filename">'+safe(item.file_name)+'</span>'+factBadge(item)+'</div>'+
+    '<p>'+safe(item.extracted_summary||'No extracted summary yet.')+'</p><small class="cn-caption">'+Math.max(0,Number(item.item_counts?.total)||0)+' facts · '+factSummary(item)+' · '+safe(day(item.created_at))+'</small>'+sourceActions(item)+'</article>').join('');
   const form=state.knowledgeForm&&canAddManual?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnKnowledgeForm"><h2>Add a business fact</h2>'+
     '<p class="cn-caption">Manual entry uses no extraction provider. Facts remain inactive until approved.</p>'+
     '<label>Fact type<select name="item_type">'+typeOptions('service')+'</select></label>'+
