@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, rm, readFile, writeFile, readdir } from 'node:fs/promises';
 
 // The independent public website's Vercel project points at site/. It has no
 // npm installation step. Keep its static build dependency-free and never let
@@ -47,6 +47,23 @@ if (siteProject && isVercelBuild) {
     await cp('assets/' + asset, out + '/assets/' + asset);
   }
   await cp('assets/icons/colzo-mark.svg', out + '/assets/icons/colzo-mark.svg');
+  // Preview copies are review environments, never search landing pages.
+  // Apply to every emitted HTML page, including legacy routes and aliases.
+  if (process.env.VERCEL_ENV === 'preview') {
+    async function preventIndexing(dir) {
+      for (const entry of await readdir(dir, { withFileTypes: true })) {
+        const path = dir + '/' + entry.name;
+        if (entry.isDirectory()) await preventIndexing(path);
+        else if (entry.name.endsWith('.html')) {
+          const html = await readFile(path, 'utf8');
+          await writeFile(path, html.replace(/<meta\b[^>]*name=["']robots["'][^>]*>/gi, '')
+            .replace('</head>', '<meta name="robots" content="noindex, nofollow"></head>'));
+        }
+      }
+    }
+    await preventIndexing(out);
+    await writeFile(out + '/robots.txt', 'User-agent: *\nDisallow: /\n');
+  }
   console.log('Colzo public-site output prepared at site/public without npm dependencies.');
 } else {
   // The authenticated Colzo application MUST have a real compiled React bundle.

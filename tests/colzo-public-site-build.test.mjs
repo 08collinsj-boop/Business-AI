@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('separate public-site Preview builds its static Colzo website without esbuild: ' + (appTarget ? 'configured app' : 'no app target'), () => {
+for (const environment of ['preview', 'production']) for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('separate public-site ' + environment + ' builds its static Colzo website without esbuild: ' + (appTarget ? 'configured app' : 'no app target'), () => {
   const dir = mkdtempSync(join(tmpdir(), 'colzo-site-build-'));
   try {
     mkdirSync(join(dir, 'scripts'), { recursive: true });
@@ -19,7 +19,7 @@ for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('s
     }
     const res = spawnSync(process.execPath, ['scripts/build-colzo-react.mjs'], {
       cwd: dir, encoding: 'utf8',
-      env: { ...process.env, VERCEL_ENV: 'preview', VERCEL_PROJECT_ID: '',
+      env: { ...process.env, VERCEL_ENV: environment, VERCEL_PROJECT_ID: '',
         VERCEL_URL: 'business-ai-site-qa-buisness-ai1.vercel.app', COLZO_APP_PREVIEW_URL: appTarget },
     });
     assert.equal(res.status, 0, res.stderr);
@@ -30,10 +30,23 @@ for (const appTarget of ['', 'https://colzo-app-synthetic.vercel.app/']) test('s
     }
     assert.equal(existsSync(join(dir, 'public')), false, 'output must be under site root');
     const html=readFileSync(join(dir, 'site/public/index.html'), 'utf8');
-    if(appTarget) {
+    if(appTarget && environment === 'preview') {
       assert.ok(html.includes('<meta name="colzo-app-preview-url" content="'+appTarget+'">'));
       for(const page of ['index.html','marketing.html','site/index.html']) assert.equal(readFileSync(join(dir,'site/public',page),'utf8'),html);
-    } else assert.equal(html,readFileSync('site/index.html','utf8'));
+    } else assert.equal(html.replace('<meta name="robots" content="noindex, nofollow">', ''),readFileSync('site/index.html','utf8'));
+    if (environment === 'preview') {
+      assert.match(html, /<meta name="robots" content="noindex, nofollow">/);
+      assert.equal(readFileSync(join(dir, 'site/public/robots.txt'), 'utf8'), 'User-agent: *\nDisallow: /\n');
+      for (const page of ['ai-receptionist/index.html', 'resources/ai-lead-capture-trades/index.html', 'pilot/index.html']) {
+        const content = readFileSync(join(dir, 'site/public', page), 'utf8');
+        assert.match(content, /<meta name="robots" content="noindex, nofollow">/);
+        assert.doesNotMatch(content, /content="index,follow/);
+      }
+    } else {
+      assert.doesNotMatch(html, /noindex/);
+      assert.equal(readFileSync(join(dir, 'site/public/robots.txt'), 'utf8'), readFileSync('site/robots.txt', 'utf8'));
+      assert.equal(readFileSync(join(dir, 'site/public/ai-receptionist/index.html'), 'utf8'), readFileSync('site/ai-receptionist/index.html', 'utf8'));
+    }
     for (const forbidden of ['api', 'lib', 'node_modules', 'src', 'tests', 'assets/colzo-react.js']) {
       assert.equal(existsSync(join(dir, 'site', 'public', forbidden)), false, forbidden);
     }
