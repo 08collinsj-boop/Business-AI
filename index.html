@@ -2293,6 +2293,7 @@ input.switch,input.switch:before{transition:none}
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/colzo-mark.svg" alt="" aria-hidden="true"></div>
 <h2>Create your account</h2>
 <p>After confirming your email, you will set up your secure Colzo workspace.</p>
+<p id="scopedPilotApprovalNotice" class="auth-switch" hidden>Colzo is preparing a limited pilot. Approved businesses receive 14 days from activation, with no payment card or automatic paid conversion. Creating a login does not grant business access. Request a demonstration at support@getbusiness-ai.com without sending customer data.</p>
 <p id="pilotFreeSignUpOffer" class="auth-switch" hidden><strong>Free Pilot:</strong> Starter and AI Marketing are included at no charge during testing. No subscription or payment details are required.</p>
 <div class="auth-field"><label for="signUpEmail">Business email</label><input id="signUpEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
@@ -3952,9 +3953,18 @@ if(response.status===404){setAuthView('auth-ready');return false;}
 if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
 const config=await response.json();
 const pilotFree=Boolean(config?.pilotFreeAccess);
+const approvalOnly=config?.pilotAccess?.approvalRequired===true;
+window.colzoPilotApprovalRequired=approvalOnly;
+const approvalNotice=$('scopedPilotApprovalNotice');
+if(approvalNotice)approvalNotice.hidden=!approvalOnly;
+if(approvalOnly){
+ const setupDescription=$('signUpForm')?.querySelector('h2+p');
+ if(setupDescription)setupDescription.textContent='Business access requires approval. Existing users can continue to sign in.';
+}
 const pilotOffer=$('pilotFreeSignUpOffer');
 if(pilotOffer){pilotOffer.hidden=!pilotFree;pilotOffer.style.display=pilotFree?'':'none';}
 const onboardingPilotHint=$('onboardingPilotHint');
+if(onboardingPilotHint&&approvalOnly)onboardingPilotHint.textContent='Pilot business setup requires approval. Your 14 days start at activation. No card is required and access does not convert automatically to a paid subscription.';
 if(onboardingPilotHint&&pilotFree)onboardingPilotHint.textContent='Free Pilot access includes Starter and AI Marketing at no charge. No plan, paid trial or checkout is required during testing.';
 document.documentElement.classList.toggle('pilot-free-access',pilotFree);
 if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
@@ -4053,6 +4063,7 @@ try{const {error}=await supabaseClient.auth.updateUser({password});if(error)thro
 
 $('signUpForm').addEventListener('submit',async event=>{
 event.preventDefault();
+if(window.colzoPilotApprovalRequired){$('signUpMessage').textContent='Pilot access requires approval. Request a demonstration at support@getbusiness-ai.com without sending customer data.';return;}
 if(!supabaseClient)return;
 const email=$('signUpEmail').value.trim();
 const password=$('signUpPassword').value;
@@ -4647,6 +4658,14 @@ throw new Error('Complete two-step verification in Account security, then try th
 throw new Error('Two-step verification is required. Open Account security to verify your session.');
 }
 if(!response.ok){
+  if(response.status===403){
+    const pilotMessages={
+      PILOT_ACCESS_REQUIRED:'Pilot access is unavailable. Your 14 days may have ended or access may still require approval. Contact support@getbusiness-ai.com. Sign-in and account recovery remain available.',
+      PILOT_TEAM_MANAGED:'Pilot team access requires operator approval. Contact support@getbusiness-ai.com to arrange an authorised team member.',
+      PILOT_PROVISIONING_MANAGED:'Pilot business setup requires approval. Request a demonstration at support@getbusiness-ai.com without sending customer data.'
+    };
+    if(Object.hasOwn(pilotMessages,result?.code)){const error=new Error(pilotMessages[result.code]);error.code=result.code;throw error;}
+  }
   const error=new Error(response.status===403?'You do not have permission for this action.':result?.error||'Something went wrong');
   const reason=response.status===403?'permission-denied':
     response.status===404?'route-unavailable':

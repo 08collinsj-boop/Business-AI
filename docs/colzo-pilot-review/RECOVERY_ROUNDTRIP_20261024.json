@@ -1,0 +1,18 @@
+{
+  "scope": "Synthetic reconstructed schema with minimal Auth/Storage fixtures. No real login, TOTP, object byte restore or shared backup.",
+  "checks": [
+    "source TCP disabled",
+    "source version 17",
+    "archive contents readable",
+    "independent target TCP disabled",
+    "all table counts and complete row fingerprints survive",
+    "Auth fixture includes both users, identity and factor material",
+    "Storage metadata fixture survives",
+    "restored tenant 1 sees exactly own lead",
+    "restored tenant 2 sees exactly own lead",
+    "browser still denied owner provisioning"
+  ],
+  "tables_fingerprinted": 57,
+  "duration_seconds": 1.622,
+  "archive_sha256": "06fe6096b40ed2f007d26b15da2ffa89f2c2452300b140d29109b0eae6cf401b"
+}

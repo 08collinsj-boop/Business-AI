@@ -1,0 +1,2290 @@
+{
+  "scope": "Offline diagnostic schema reconstruction, not a source backup, not full Supabase acceptance. Failed migrations were attempted and retained; downstream replay only diagnoses additional differences.",
+  "server": "PostgreSQL 17.11 (Debian 17.11-0+deb13u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "results": {
+    "repository": {
+      "status": "BLOCKED",
+      "attempts": [
+        {
+          "id": "20260911230000_create_initial_lead_schema.sql",
+          "sql_sha256": "0cda3eea8a36dac3ddb3bcf790a07d7bb4019ecdcea42b4da4c2cc507e086568",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260911235034_add_lead_status.sql",
+          "sql_sha256": "83f605e97726794ca1cb35f6ca8933ee8158fdfeaaef2ac7b51ade01d0bd55f0",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260913233511_add_business_settings.sql",
+          "sql_sha256": "dc25033db0fdec875ecdf4bedbba0b5fcf3c95c8cb638ca9cb73b4398c5fa41c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260914195529_enable_rls_business_settings.sql",
+          "sql_sha256": "07e928e2b45f26dd1a5244cc2ab43128a4b819cba7e7a284ac19dd0279064790",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260915000000_add_multi_tenant_auth.sql",
+          "sql_sha256": "0b97961aa9eac760e22925a106dfb4247d755aa7237d347b0f1ee946207b0e89",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260915010000_add_bookings_actions.sql",
+          "sql_sha256": "e9a4c18c836e186dce099b4571481e561f1e5318a55a95cec4f4a5444a123cea",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916153249_add_voice_receptionist_foundation.sql",
+          "sql_sha256": "e0ae72082d3b8351649b103631ebbe0fc4ed4cec68463c7ab436f8b8537ea09d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916154907_add_voice_foreign_key_indexes.sql",
+          "sql_sha256": "5e0ae6d19b445c8254b11502c2de67bd0895a825cedb078628730183dc22da45",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916170000_add_business_configuration_onboarding.sql",
+          "sql_sha256": "fc3cd5a2c262a2db3fdb75952cc677bfcea03238ce946a49d8ddd04177d4868f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916180000_add_business_creation_and_public_routes.sql",
+          "sql_sha256": "0f237838b933736292b3e1171c9431447648d10deb388dcf836c72e9094222ec",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916190000_add_pilot_hardening_foundation.sql",
+          "sql_sha256": "c65cac736c8db58f4233514ccb91044d665c988f1b80e5c87ea171f546bec64e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916191000_add_lifecycle_policy_for_new_businesses.sql",
+          "sql_sha256": "de4bc41ee2a7f8eedee95f2af4b43abacf71b657d548fc1085384034344dec20",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917113857_add_pilot_team_and_handover_operations.sql",
+          "sql_sha256": "559c3980d1d4130439dae3ae4fd42bbf363fca0dea4088e753241cd5383f056e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917202438_add_stripe_billing_foundation.sql",
+          "sql_sha256": "d4085d2b764b5f64ecbe70146e73ae819ac511bfe06417e11077ce71ce903565",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917203724_add_atomic_paid_trial_activation.sql",
+          "sql_sha256": "ec9d735bca562ea4a179f0f77e8ea105b319f21daaea96544fe68a10c3832881",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917221830_add_resumable_business_onboarding_state.sql",
+          "sql_sha256": "d880743c8b44cca3d68e0b0a1620d1ded004054782326a24006333c7e9664483",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260922160645_add_ai_handling_modes.sql",
+          "sql_sha256": "fd4b55dfb6006f3b2652350fa0e773afa7198121713d46ce5a0743245dd1cd59",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923120000_add_addons_marketing.sql",
+          "sql_sha256": "8ce6cb4f988f744513b889990ce0de2067c9085ae6c6ebada41a569248fa98e9",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923190000_add_ai_enquiry_reservation_release.sql",
+          "sql_sha256": "133cdcd15d2ac20a267b85545b6ef3ffae1487870add609eb7deee2309c1472a",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923193000_add_business_knowledge_uploads.sql",
+          "sql_sha256": "994a73d18aba1ffc30f0abab21632f755e9eb22791410e54b94d71a0d34979ac",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923200000_add_marketing_publishing_and_feedback.sql",
+          "sql_sha256": "a7d5259a48c634bda875cf2d4a6ec84f5f5ed70ef085234ada2616b00e255f9e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923213424_add_marketing_billing_period_allowances.sql",
+          "sql_sha256": "6c0f36b6cb2a099ce1b1426dc05bf8ceb6f9ecb1adabde80ac76896240134605",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260925174629_fix_stripe_marketing_entitlement_sync.sql",
+          "sql_sha256": "7bea142e5df53b3b0414b597cd92e724fee5bb4e139aa952bf69906cb30d6280",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260925174915_align_stripe_entitlement_expiry_constraint.sql",
+          "sql_sha256": "50be8b5c17b3b1ce3a6d00611d2b02a321635e42e5a28d54d4178cc70fdaaee8",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260925200000_add_marketing_schedules.sql",
+          "sql_sha256": "9a6b58199c9533e4ee35fe268bd6db32b856be7c09a29d61d43756a82519b9fc",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260925210000_add_feedback_title_and_other.sql",
+          "sql_sha256": "1a6956ec895a40a0601e5fe7e544f431e08a4ffef080928790837c5bdf2fe5b6",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260926233524_add_marketing_automation_images.sql",
+          "sql_sha256": "e1b9708b78c67295d0bd835763cd4364b6350d69df9af23635a5aa3ecae91517",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927110000_add_legal_acceptances.sql",
+          "sql_sha256": "26469e2a8e6eb82953a352435ee144b2464d5db6f01022b4520f72355cc4f378",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927171000_process_due_marketing_schedules.sql",
+          "sql_sha256": "7f82da5032e8395cbe046354e6670531f49b0a3aea0ba08d384f63698e83cde9",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927173500_meta_native_marketing_schedules.sql",
+          "sql_sha256": "4324b12c41ddb0d57f413eaf280dda6c43e127ef8d68ba76c0555330e1322533",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927175200_allow_cloudflare_marketing_images.sql",
+          "sql_sha256": "993e6e76d178aad00301ede217c5a0ec38fd0249d35096fde5b38b58f3cfb411",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927202500_add_marketing_usage_limits.sql",
+          "sql_sha256": "5b00c9eb4728403d071cef0c0791866536c44ea3af1e897f3cae6110eec7001d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927232000_add_directory_visibility.sql",
+          "sql_sha256": "2e69b2028a6d52df9535b6e0159e8e1985d0d7fa85f9fd2dd2304c385ce84186",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927235000_add_customer_portal.sql",
+          "sql_sha256": "8cff08f9ad180331f2a28787da384b36dcff7a619d6f0d5fb3e14cc6f425848d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260928183625_refine_public_enquiry_quote_followups.sql",
+          "sql_sha256": "2ea4a21373dd82ffedfc49e5110b92989fa5735b6912fa6a8dee1c53d165b944",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260928231500_allow_owner_uploaded_marketing_photos.sql",
+          "sql_sha256": "77b6f10e127d1907003d44d9eea6bf9a5a3c6e731dd4269f88037d7bb4381fc5",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260929103000_add_business_referrals.sql",
+          "sql_sha256": "a8a648883e0d60805686e24010ea42144d55baf5be1a6a6af858a67f5b48880c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260929124200_add_automatic_follow_up_settings.sql",
+          "sql_sha256": "e199ddbf13458aa9935e23b6b870f6f89f1bdcfb70f2c598789f7e94077f9676",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260929144034_add_review_requests.sql",
+          "sql_sha256": "9e9d50b1eeda5545197c53e28793bcc5b60e6e7e78f0c75b25e9b285e82e839a",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260930190000_fix_referral_profile_conflict_ambiguity.sql",
+          "sql_sha256": "2824b0a1775dcfa00451999f8585d5e76e093ee96544692a487520754c45b02d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261001200000_add_contextual_handover_summaries.sql",
+          "sql_sha256": "0efbb336b175c9a2fcc522d1eabe2a4b572bd8f4e1d247c78f7e1c62e5257f04",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261001214000_remove_unused_pg_net.sql",
+          "sql_sha256": "755690e2240b0e413ff45949498ea7fab16ec6ad8ee670574a0dab80a18c7b37",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261001214100_document_server_only_rls_policies.sql",
+          "sql_sha256": "01eba998160ede398c0b3e885adb8bfa05ca44605b4413831499c2cc0b5e3856",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261002193000_add_marketing_automation_media.sql",
+          "sql_sha256": "e7f96f990c59dcf957654cc365acaff48335a514fb5af5bfa03dfa554dfe10c5",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261002194000_harden_marketing_automation_media.sql",
+          "sql_sha256": "2938803aace81221fe1c564059f3037b03b3fed827e2993ae7bb02fe0e7e3234",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261002223000_add_marketing_strategy_planning.sql",
+          "sql_sha256": "04a651425ae216c59b1fb2e225e808a9a72fb9e78c648029789f335aaeba9615",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261003212959_add_incident_controls.sql",
+          "sql_sha256": "1e1a914b601498d1aa88d214667e918356534ee00ebe3aaff0e8448128852d21",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261004231500_add_business_public_profile_media.sql",
+          "sql_sha256": "d023fa955f2ec500ee5a744829a71573c8cb5282c33255f148da912264837187",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261005090954_add_platform_ops_snapshot.sql",
+          "sql_sha256": "680205cc1c183dcd02f8248dc7adfed8bcedf0d5d601cb811685bc98ea184f71",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261005221447_enable_pg_net_for_marketing_scheduler.sql",
+          "sql_sha256": "1e9e2fdad48b3d820885f404abea95676fdd03b05b0bf64aa90d216d5a01842f",
+          "ok": false,
+          "error": "ERROR:  extension \"pg_net\" is not available\nDETAIL:  Could not open extension control file \"/tmp/colzo-pg-runtime/usr/share/postgresql/17/extension/pg_net.control\": No such file or directory.\nHINT:  The extension must first be installed on the system where PostgreSQL is running."
+        },
+        {
+          "id": "20261005221500_add_marketing_automation_frequency.sql",
+          "sql_sha256": "708501cd55418e253a09a738ce87db2413a10f36251518f37d06407ab9aeb161",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261008214459_pilot_block_unattended_marketing_publishing.sql",
+          "sql_sha256": "45d6e4c4d92d84b1dc61656e1bc75db47b27ccbae7e5eb55212a75261e8d3f71",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261008214658_pilot_prevent_duplicate_marketing_scheduled_slots.sql",
+          "sql_sha256": "3f383938e069cbdc782f94b2266b638992b23ffbdda4cf3e1fdedbfd0f7c012e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots.sql",
+          "sql_sha256": "b2fd404eeae30fa5ff03f4fe1dc99721499e38b04412ad8f0741091724b97580",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261008215744_pilot_identify_and_block_automatic_marketing_publications.sql",
+          "sql_sha256": "28f21a3e6b594cdf78c0509328b77988793cb4eb0ac8e40644e4713f0781687e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261010_pilot_free_starter_marketing.sql",
+          "sql_sha256": "032e8afe33e67f074188645532bde5ba0fae7186b2d23684ea9ecf700748ed81",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261019162954_colzo_lead_write_versions.sql",
+          "sql_sha256": "202d0f4ba3956e6ab4eb2703c3d9887e5db128a7f329ffab1b63cfc29e0ec1e9",
+          "ok": true,
+          "error": null
+        }
+      ],
+      "diff": {
+        "tables": {
+          "actual_only": [
+            [
+              "public",
+              "colzo_clients"
+            ],
+            [
+              "public",
+              "colzo_projects"
+            ],
+            [
+              "public",
+              "colzo_quotes"
+            ],
+            [
+              "public",
+              "colzo_whatsapp_demo_threads"
+            ],
+            [
+              "public",
+              "customer_complaints"
+            ],
+            [
+              "public",
+              "review_email_outbox"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "columns": {
+          "actual_only": [
+            [
+              "bookings",
+              "review_email_allowed"
+            ],
+            [
+              "business_settings",
+              "review_email_auto_enabled"
+            ],
+            [
+              "business_settings",
+              "review_email_delay_hours"
+            ],
+            [
+              "business_settings",
+              "review_trustpilot_url"
+            ],
+            [
+              "colzo_clients",
+              "business_id"
+            ],
+            [
+              "colzo_clients",
+              "created_at"
+            ],
+            [
+              "colzo_clients",
+              "email"
+            ],
+            [
+              "colzo_clients",
+              "full_name"
+            ],
+            [
+              "colzo_clients",
+              "id"
+            ],
+            [
+              "colzo_clients",
+              "notes"
+            ],
+            [
+              "colzo_clients",
+              "phone"
+            ],
+            [
+              "colzo_clients",
+              "updated_at"
+            ],
+            [
+              "colzo_projects",
+              "business_id"
+            ],
+            [
+              "colzo_projects",
+              "client_name"
+            ],
+            [
+              "colzo_projects",
+              "created_at"
+            ],
+            [
+              "colzo_projects",
+              "id"
+            ],
+            [
+              "colzo_projects",
+              "lead_id"
+            ],
+            [
+              "colzo_projects",
+              "notes"
+            ],
+            [
+              "colzo_projects",
+              "progress"
+            ],
+            [
+              "colzo_projects",
+              "status"
+            ],
+            [
+              "colzo_projects",
+              "title"
+            ],
+            [
+              "colzo_projects",
+              "updated_at"
+            ],
+            [
+              "colzo_quotes",
+              "amount_gbp"
+            ],
+            [
+              "colzo_quotes",
+              "business_id"
+            ],
+            [
+              "colzo_quotes",
+              "created_at"
+            ],
+            [
+              "colzo_quotes",
+              "id"
+            ],
+            [
+              "colzo_quotes",
+              "lead_id"
+            ],
+            [
+              "colzo_quotes",
+              "notes"
+            ],
+            [
+              "colzo_quotes",
+              "status"
+            ],
+            [
+              "colzo_quotes",
+              "title"
+            ],
+            [
+              "colzo_quotes",
+              "updated_at"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "business_id"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "customer_label"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "draft"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "fixture_key"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "messages"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "received_at"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "state"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "synthetic"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "tag"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "updated_at"
+            ],
+            [
+              "customer_complaints",
+              "business_id"
+            ],
+            [
+              "customer_complaints",
+              "created_at"
+            ],
+            [
+              "customer_complaints",
+              "customer_user_id"
+            ],
+            [
+              "customer_complaints",
+              "description"
+            ],
+            [
+              "customer_complaints",
+              "id"
+            ],
+            [
+              "customer_complaints",
+              "lead_id"
+            ],
+            [
+              "customer_complaints",
+              "resolved_at"
+            ],
+            [
+              "customer_complaints",
+              "responded_at"
+            ],
+            [
+              "customer_complaints",
+              "response_note"
+            ],
+            [
+              "customer_complaints",
+              "status"
+            ],
+            [
+              "customer_complaints",
+              "subject"
+            ],
+            [
+              "customer_complaints",
+              "updated_at"
+            ],
+            [
+              "review_email_outbox",
+              "attempted_at"
+            ],
+            [
+              "review_email_outbox",
+              "booking_id"
+            ],
+            [
+              "review_email_outbox",
+              "business_id"
+            ],
+            [
+              "review_email_outbox",
+              "business_name"
+            ],
+            [
+              "review_email_outbox",
+              "created_at"
+            ],
+            [
+              "review_email_outbox",
+              "customer_email"
+            ],
+            [
+              "review_email_outbox",
+              "id"
+            ],
+            [
+              "review_email_outbox",
+              "review_platform"
+            ],
+            [
+              "review_email_outbox",
+              "review_url"
+            ],
+            [
+              "review_email_outbox",
+              "send_after"
+            ],
+            [
+              "review_email_outbox",
+              "sent_at"
+            ],
+            [
+              "review_email_outbox",
+              "status"
+            ],
+            [
+              "review_email_outbox",
+              "updated_at"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "constraints": {
+          "actual_only": [
+            [
+              "business_settings",
+              "business_settings_review_email_delay_hours_check"
+            ],
+            [
+              "business_settings",
+              "business_settings_review_trustpilot_url_length_check"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_business_id_fkey"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_email_check"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_full_name_check"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_notes_check"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_phone_check"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_pkey"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_business_id_fkey"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_client_name_check"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_lead_tenant_fkey"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_notes_check"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_pkey"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_progress_check"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_status_check"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_title_check"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_amount_gbp_check"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_business_id_fkey"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_lead_tenant_fkey"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_notes_check"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_pkey"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_status_check"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_title_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_business_id_fkey"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_customer_label_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_draft_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_fixture_key_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_messages_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_pkey"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_state_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_synthetic_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_tag_check"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_human_has_no_draft"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_business_id_fkey"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_customer_lead_unique"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_customer_user_id_fkey"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_description_check"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_lead_tenant_fkey"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_pkey"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_response_note_check"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_status_check"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_subject_check"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_business_id_fkey"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_business_name_check"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_customer_email_check"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_one_per_booking"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_pkey"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_review_platform_check"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_review_url_check"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_status_check"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_tenant_booking_fk"
+            ]
+          ],
+          "replay_only": [],
+          "changed": [
+            {
+              "key": [
+                "business_settings",
+                "business_settings_review_preferred_platform_check"
+              ],
+              "fields": [
+                "definition"
+              ],
+              "replay_sha256": "316ae6740cc45c17015fa2bbf0a1d413f006fc21552442408e19bae2f724cf40",
+              "actual_sha256": "9dd11ac992a8b2f3fbedb09026823cee5a637b1e915833d51f7de217235e4d0d"
+            }
+          ]
+        },
+        "indexes": {
+          "actual_only": [
+            [
+              "colzo_clients",
+              "colzo_clients_business_idx"
+            ],
+            [
+              "colzo_clients",
+              "colzo_clients_pkey"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_pkey"
+            ],
+            [
+              "colzo_projects",
+              "colzo_projects_tenant_status_idx"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_pkey"
+            ],
+            [
+              "colzo_quotes",
+              "colzo_quotes_tenant_lead_idx"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_wa_demo_tenant_recent_idx"
+            ],
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo_whatsapp_demo_threads_pkey"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_business_status_idx"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_customer_idx"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_customer_lead_unique"
+            ],
+            [
+              "customer_complaints",
+              "customer_complaints_pkey"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_due_idx"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_one_per_booking"
+            ],
+            [
+              "review_email_outbox",
+              "review_email_outbox_pkey"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "policies": {
+          "actual_only": [
+            [
+              "colzo_whatsapp_demo_threads",
+              "colzo whatsapp admin read synthetic demo"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "functions": {
+          "actual_only": [
+            [
+              "claim_due_review_emails",
+              "p_limit integer"
+            ]
+          ],
+          "replay_only": [],
+          "changed": [
+            {
+              "key": [
+                "save_public_enquiry",
+                "p_business_id uuid, p_lead jsonb, p_mode text, p_reason text"
+              ],
+              "fields": [
+                "definition"
+              ],
+              "replay_sha256": "04fbffcbe0d8ddcae1e24f78286c29cefe06ea066a9e351a00624c8a394a7efa",
+              "actual_sha256": "0cc58ce149a06fd3ea0c11e5a188ff33edfe5dc57726898a7b88ed4404fcbb1b"
+            }
+          ]
+        },
+        "triggers": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        }
+      },
+      "catalog_sha256": "26e3b89ba240210df90eaaf1b14d73d26e2634e55b66994d2b933d0899a14033"
+    },
+    "ledger": {
+      "status": "BLOCKED",
+      "attempts": [
+        {
+          "id": "20260911230000_create_initial_lead_schema",
+          "sql_sha256": "e9fcadb7f674835bdcb92ff34150560f21e68ee6ffeaccd7229f038e0e0c050e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260911235034_add_lead_status",
+          "sql_sha256": "6498ba48962d783c5741ad35597b274d534e361092036ff92ae163e28b592052",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260913233511_add_business_settings",
+          "sql_sha256": "cf86a56cf915e82697c0168184285d0e765375e0612e789f062c4f740e11c5be",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260914195529_enable_rls_business_settings",
+          "sql_sha256": "b8236fc5ee761cfbc96f082a5a200fc856b2aac6a3f6f610de201a34c9281901",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260915000000_add_multi_tenant_auth",
+          "sql_sha256": "3b48ad5a165f3a13932fcc48d31fcc88c96954c5567d47c0b09e2a0942463f7d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260915010000_add_bookings_actions",
+          "sql_sha256": "5af9b6c602b01dfe7fdb237ea184d602cd37e618529bb970fe04427d4ab9100d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916153249_add_voice_receptionist_foundation",
+          "sql_sha256": "754d0dcbc4c9361fc9e333d10d4211c95b3c203a23d2201ff9ce0d4a21e55bff",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916154907_add_voice_foreign_key_indexes",
+          "sql_sha256": "dfdf175822f1ce193de6f04936c69b18febd0198f5c6bb86828f5ce831d972e5",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916170000_add_business_configuration_onboarding",
+          "sql_sha256": "a29b96f877a2cc54f9c3cad1cbe3971e54927e965f51279b93ca7298e74ea0de",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916180000_add_business_creation_and_public_routes",
+          "sql_sha256": "d58fe32b1278ac6c279fd8f2115ca7b68f986bb1e009f82d55b72ece6c74008f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916190000_add_pilot_hardening_foundation",
+          "sql_sha256": "fcc95406b7c50bfe4b4afd56991f6a75724640f0e383d57c9c6ab01c139b163c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260916191000_add_lifecycle_policy_for_new_businesses",
+          "sql_sha256": "eba04ded1a253ed21bbe0b612ca16de2cbabff50421414fbb319fdcd38f10010",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917113857_add_pilot_team_and_handover_operations",
+          "sql_sha256": "effb38c8f1d359a8070363c9fb8d81b4ee23e4b1a0d3765a96185f2c56ccdc39",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917202438_add_stripe_billing_foundation",
+          "sql_sha256": "1cf96a05102fbd0f08d7836b40e2310e100eba3dd356f43020ebf66aed280abc",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917203724_add_atomic_paid_trial_activation",
+          "sql_sha256": "3a32327ccbb0bdcb1c3c78b23ea4807fe5d4361fe574949a6f2cd78f63c2b741",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260917221830_add_resumable_business_onboarding_state",
+          "sql_sha256": "077611b0329b43cc61d36eb0d2750d232b599f6d03b609e26f786c4a44055faf",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260922160645_add_ai_handling_modes",
+          "sql_sha256": "9376750610cbb12af775625852fdb890042ef3553087c8462d3ec873e28709f9",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923120000_add_addons_marketing",
+          "sql_sha256": "7750c503cd5b7af7f3d2d4788e2e9d51170871a199a9eb947a9e7b68b0ceaf4d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923190000_add_ai_enquiry_reservation_release",
+          "sql_sha256": "5df99995a2ac11e79d0723929babf6f82df982ec8d7d451f0296d14a75a6b87b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923193000_add_business_knowledge_uploads",
+          "sql_sha256": "a43192f19774996eeed7c086eb222d11554b24d0af6033c67b40f143f2e37d1c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923200000_add_marketing_publishing_and_feedback",
+          "sql_sha256": "b54b79a0ebbc57a246b46c69ee4666001bfea4970d89d8449d0795f9834d1e1d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260923213424_add_marketing_billing_period_allowances",
+          "sql_sha256": "30f1646a77b260b654330036498239346b9f7734892bb10176253e3d569d6787",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260925174629_fix_stripe_marketing_entitlement_sync",
+          "sql_sha256": "22961f2ba5fef1b25d400c52eb1f403b3eece2fd7471639f1b6ada2a7136b966",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260925174915_align_stripe_entitlement_expiry_constraint",
+          "sql_sha256": "97615883b536ae18e7034b592d5b2a59216e8ca61aac6adfb940b5615c0acc04",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927105141_add_legal_acceptances",
+          "sql_sha256": "3b21f405d2893940b933f18f8b3b314b90e7093f7ed9c6a77d3a79ac75c015b2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927170722_add_marketing_schedules",
+          "sql_sha256": "79a391c25edd797a6fbdf41ba8bcc5c99b45e2d983a09f697be2213e104b1fa7",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927170938_process_due_marketing_schedules",
+          "sql_sha256": "292be3fb5795071c4443be05ca71ac369b7d63dbc4db5e5f7f054e3345f0800b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927171406_enable_marketing_scheduler_extensions",
+          "sql_sha256": "4dea9e330202171ac651365f89789d869d393a17a3787d7d5b922147fcf44426",
+          "ok": false,
+          "error": "ERROR:  extension \"pg_cron\" is not available\nDETAIL:  Could not open extension control file \"/tmp/colzo-pg-runtime/usr/share/postgresql/17/extension/pg_cron.control\": No such file or directory.\nHINT:  The extension must first be installed on the system where PostgreSQL is running."
+        },
+        {
+          "id": "20260927171656_meta_native_marketing_schedules",
+          "sql_sha256": "ccf9251b2312562622ebcea29e6fed46be85888c8df6db7fe4527514b9782928",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927183105_allow_cloudflare_marketing_images",
+          "sql_sha256": "211f33ad3fad72f3d6c4f2a9de3b365f02f16951262d1edb237ec8813b4a7dc1",
+          "ok": false,
+          "error": "ERROR:  relation \"public.marketing_images\" does not exist"
+        },
+        {
+          "id": "20260927193707_add_marketing_usage_limits",
+          "sql_sha256": "5e3becc5223fc21e5726bbf012e4389f98ad7c23d9e6d72205ff0bd1bdeb75fb",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927194353_add_marketing_usage_limits",
+          "sql_sha256": "2195fa17cbb933d33d68f0a3c4550a91dc470cd83820a97e8ce779f3e6b5ee32",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927224235_add_directory_visibility",
+          "sql_sha256": "e6a08c3d93665f428ef5becafb99ef19647629275725a8dd4dbea851ed26ba10",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260927231059_add_customer_portal",
+          "sql_sha256": "b0793df1e5a6e6211518acf2efa37d20ee1e2e60d90d5c5574d569d139a7acdb",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260928183625_refine_public_enquiry_quote_followups",
+          "sql_sha256": "98ca6601c1e9dbfc019cb18119fadd64096a435e1700c07055132f1ec551a0f4",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260928233058_allow_owner_uploaded_marketing_photos",
+          "sql_sha256": "fee69cf28780605b27ae7c4686f949726d0adbc7cfb37b97690138071dc5d96f",
+          "ok": false,
+          "error": "ERROR:  relation \"public.marketing_images\" does not exist"
+        },
+        {
+          "id": "20260929102437_add_business_referrals",
+          "sql_sha256": "7bf99e5bef179106a43abd9406ebe55cec00befe0736b96cb1ac4e73151811a1",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20260930185802_fix_referral_profile_conflict_ambiguity",
+          "sql_sha256": "96990f8f7b4e9d2c48e1dfeb0270b9527877bd49b20d47f85f48f0c1a7731f84",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261001201424_add_contextual_handover_summaries",
+          "sql_sha256": "523afa22509ff7dbabf3306f903bf15dca777b9ba14ec5f77a54d68d01000cab",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261001213801_remove_unused_pg_net",
+          "sql_sha256": "0920528168d2e6dbc48b4a1d6ed1ad6bc8273b1503bee8c3282a78306c4aea17",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261001213843_document_server_only_rls_policies",
+          "sql_sha256": "aa5fb59adf422127b83abe9f736e0ac922a0c2406e31a20958f9d1524cfd1777",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261002192840_add_marketing_automation_media",
+          "sql_sha256": "8f27433b7ccb03c9164ab722efec17cd1e446eff5ab63484aca1e22b739a7a4f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261002193007_harden_marketing_automation_media",
+          "sql_sha256": "573b65b91fc8714a4273f180cb8587ea30c0d8286985c6deba214c501129d779",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261002225450_add_marketing_strategy_planning",
+          "sql_sha256": "4d1de1a7db94a4eaf38a002f67168dfa1f6c1210584c41a7c5d604113571589b",
+          "ok": false,
+          "error": "ERROR:  relation \"public.marketing_automation_settings\" does not exist"
+        },
+        {
+          "id": "20261002231245_add_marketing_strategy",
+          "sql_sha256": "4ff546d041183f45748276b4a7f3041c0bb5aca0417029445ad61f33826776f2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261003212959_add_incident_controls",
+          "sql_sha256": "6ad37a9c4353e7af8b2af489e5939c8107550298e009fbfbf03228b318b1f036",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261004163922_add_feedback_title_and_other",
+          "sql_sha256": "3686ccf6546c38e168e029620a32a0feca9a90d656685ccbf50b2490c9300329",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261005090954_add_platform_ops_snapshot",
+          "sql_sha256": "c6510ccdfe6b8c4b55af1785435775a0fc03743435d2c8f8bf1c68b3efb0147b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261005220853_add_marketing_automation_frequency",
+          "sql_sha256": "a1867eab5809abf8a5c85e418fdd611f3c552c43096c72fad5daca244043563b",
+          "ok": false,
+          "error": "ERROR:  relation \"public.marketing_automation_settings\" does not exist"
+        },
+        {
+          "id": "20261005221447_enable_pg_net_for_marketing_scheduler",
+          "sql_sha256": "ff918bab993bbca2d66e1d12277c27fbd4845011972fd336fef3b566b86065a0",
+          "ok": false,
+          "error": "ERROR:  extension \"pg_net\" is not available\nDETAIL:  Could not open extension control file \"/tmp/colzo-pg-runtime/usr/share/postgresql/17/extension/pg_net.control\": No such file or directory.\nHINT:  The extension must first be installed on the system where PostgreSQL is running."
+        },
+        {
+          "id": "20261008214459_pilot_block_unattended_marketing_publishing",
+          "sql_sha256": "cd0defe521c0eaf33cd004d307e54195e9f4a611da23faba574c1e0cbc5cb9b2",
+          "ok": false,
+          "error": "ERROR:  relation \"public.marketing_automation_settings\" does not exist"
+        },
+        {
+          "id": "20261008214658_pilot_prevent_duplicate_marketing_scheduled_slots",
+          "sql_sha256": "ec931f9f82d8003a5a55bf00412b4688a3dd68f638730791597b78d5ae5376b7",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots",
+          "sql_sha256": "e3159361604a24ba6ddc2879d4edae644d174310bc5a4bddd4ae43ab8545683e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261008215744_pilot_identify_and_block_automatic_marketing_publications",
+          "sql_sha256": "b0926abe5753d31ade6436125223d37fca6bbc2f050c078a2e8c5da87f10d01c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261012215816_post_pilot_trustpilot_review_destinations",
+          "sql_sha256": "5ee2c5958fde6020a62cf9a49d1005052aecbfc7a02954b1a74e95e49f58bd76",
+          "ok": false,
+          "error": "NOTICE:  constraint \"business_settings_review_trustpilot_url_length_check\" of relation \"business_settings\" does not exist, skipping\nNOTICE:  constraint \"business_settings_review_preferred_platform_check\" of relation \"business_settings\" does not exist, skipping\nERROR:  column \"review_preferred_platform\" does not exist"
+        },
+        {
+          "id": "20261012215824_post_pilot_customer_complaints",
+          "sql_sha256": "bbf62d095dcfc961d4f06ede770a3d149c1d6eb61e8787e7dbc4a6f03c95270d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261012215830_post_pilot_review_email_queue",
+          "sql_sha256": "f6a5fdb1331c69b0dc0c063a502e01603582d9fe8324212ff2db2a2eb46eff8e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261012223925_post_pilot_colzo_projects_quotes_clients",
+          "sql_sha256": "e56146262479290615b447b1ea211abea98247565ae542d33e12636068ff7665",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "20261016153313_colzo_whatsapp_synthetic_inbox_dev_20261016",
+          "sql_sha256": "6a968ae47d44ecf4085fa4950f9638dd508134385671225a53f4be1856d02399",
+          "ok": true,
+          "error": null
+        }
+      ],
+      "diff": {
+        "tables": {
+          "actual_only": [
+            [
+              "public",
+              "marketing_automation_settings"
+            ],
+            [
+              "public",
+              "marketing_images"
+            ],
+            [
+              "public",
+              "pilot_free_access_config"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "columns": {
+          "actual_only": [
+            [
+              "business_settings",
+              "automatic_follow_up_enabled"
+            ],
+            [
+              "business_settings",
+              "automatic_follow_up_hours"
+            ],
+            [
+              "business_settings",
+              "profile_banner_path"
+            ],
+            [
+              "business_settings",
+              "profile_image_path"
+            ],
+            [
+              "business_settings",
+              "review_facebook_url"
+            ],
+            [
+              "business_settings",
+              "review_google_url"
+            ],
+            [
+              "business_settings",
+              "review_preferred_platform"
+            ],
+            [
+              "business_settings",
+              "review_requests_enabled"
+            ],
+            [
+              "business_settings",
+              "review_trustpilot_url"
+            ],
+            [
+              "leads",
+              "updated_at"
+            ],
+            [
+              "marketing_automation_settings",
+              "business_id"
+            ],
+            [
+              "marketing_automation_settings",
+              "cadence"
+            ],
+            [
+              "marketing_automation_settings",
+              "created_at"
+            ],
+            [
+              "marketing_automation_settings",
+              "created_by"
+            ],
+            [
+              "marketing_automation_settings",
+              "enabled"
+            ],
+            [
+              "marketing_automation_settings",
+              "image_enabled"
+            ],
+            [
+              "marketing_automation_settings",
+              "last_content_angle"
+            ],
+            [
+              "marketing_automation_settings",
+              "last_error_code"
+            ],
+            [
+              "marketing_automation_settings",
+              "last_generation_id"
+            ],
+            [
+              "marketing_automation_settings",
+              "last_run_at"
+            ],
+            [
+              "marketing_automation_settings",
+              "last_status"
+            ],
+            [
+              "marketing_automation_settings",
+              "mode"
+            ],
+            [
+              "marketing_automation_settings",
+              "platform"
+            ],
+            [
+              "marketing_automation_settings",
+              "posts_per_day"
+            ],
+            [
+              "marketing_automation_settings",
+              "strategy"
+            ],
+            [
+              "marketing_automation_settings",
+              "tone"
+            ],
+            [
+              "marketing_automation_settings",
+              "updated_at"
+            ],
+            [
+              "marketing_automation_settings",
+              "updated_by"
+            ],
+            [
+              "marketing_automation_settings",
+              "weekly_plan"
+            ],
+            [
+              "marketing_images",
+              "business_id"
+            ],
+            [
+              "marketing_images",
+              "completed_at"
+            ],
+            [
+              "marketing_images",
+              "created_at"
+            ],
+            [
+              "marketing_images",
+              "created_by"
+            ],
+            [
+              "marketing_images",
+              "failure_code"
+            ],
+            [
+              "marketing_images",
+              "failure_message"
+            ],
+            [
+              "marketing_images",
+              "generation_id"
+            ],
+            [
+              "marketing_images",
+              "height"
+            ],
+            [
+              "marketing_images",
+              "id"
+            ],
+            [
+              "marketing_images",
+              "mime_type"
+            ],
+            [
+              "marketing_images",
+              "model"
+            ],
+            [
+              "marketing_images",
+              "prompt"
+            ],
+            [
+              "marketing_images",
+              "provider"
+            ],
+            [
+              "marketing_images",
+              "provider_image_id"
+            ],
+            [
+              "marketing_images",
+              "status"
+            ],
+            [
+              "marketing_images",
+              "storage_bucket"
+            ],
+            [
+              "marketing_images",
+              "storage_path"
+            ],
+            [
+              "marketing_images",
+              "updated_at"
+            ],
+            [
+              "marketing_images",
+              "width"
+            ],
+            [
+              "pilot_free_access_config",
+              "enabled"
+            ],
+            [
+              "pilot_free_access_config",
+              "id"
+            ],
+            [
+              "pilot_free_access_config",
+              "updated_at"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "constraints": {
+          "actual_only": [
+            [
+              "business_settings",
+              "business_settings_automatic_follow_up_hours_check"
+            ],
+            [
+              "business_settings",
+              "business_settings_profile_banner_path_length"
+            ],
+            [
+              "business_settings",
+              "business_settings_profile_image_path_length"
+            ],
+            [
+              "business_settings",
+              "business_settings_review_facebook_url_length_check"
+            ],
+            [
+              "business_settings",
+              "business_settings_review_google_url_length_check"
+            ],
+            [
+              "business_settings",
+              "business_settings_review_preferred_platform_check"
+            ],
+            [
+              "business_settings",
+              "business_settings_review_trustpilot_url_length_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_business_id_fkey"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_cadence_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_created_by_fkey"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_last_content_angle_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_last_error_code_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_last_status_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_mode_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_pkey"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_platform_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_posts_per_day_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_tone_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_updated_by_fkey"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_strategy_object_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_weekly_plan_array_check"
+            ],
+            [
+              "marketing_automation_settings",
+              "pilot_prevent_fully_automated_publishing"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_business_id_fkey"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_business_id_generation_id_key"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_created_by_fkey"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_failure_code_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_failure_message_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_generation_business_fkey"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_height_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_id_business_id_key"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_mime_type_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_model_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_pkey"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_prompt_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_provider_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_provider_image_id_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_status_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_storage_bucket_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_storage_path_check"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_width_check"
+            ],
+            [
+              "pilot_free_access_config",
+              "pilot_free_access_config_id_check"
+            ],
+            [
+              "pilot_free_access_config",
+              "pilot_free_access_config_pkey"
+            ]
+          ],
+          "replay_only": [],
+          "changed": [
+            {
+              "key": [
+                "actions",
+                "actions_action_type_check"
+              ],
+              "fields": [
+                "definition"
+              ],
+              "replay_sha256": "e770af13393b9f230572984d9f0bbb1f88a006234886851c995e0a763ea06fff",
+              "actual_sha256": "8bf9220a937ef75500ccd248800db89f6249fbd4a942689bc034b918ec8f7422"
+            }
+          ]
+        },
+        "indexes": {
+          "actual_only": [
+            [
+              "actions",
+              "actions_one_pending_automatic_follow_up_idx"
+            ],
+            [
+              "actions",
+              "actions_one_review_request_per_booking_idx"
+            ],
+            [
+              "marketing_automation_settings",
+              "marketing_automation_settings_pkey"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_business_created_idx"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_business_id_generation_id_key"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_id_business_id_key"
+            ],
+            [
+              "marketing_images",
+              "marketing_images_pkey"
+            ],
+            [
+              "pilot_free_access_config",
+              "pilot_free_access_config_pkey"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "policies": {
+          "actual_only": [
+            [
+              "marketing_automation_settings",
+              "members read own marketing automation settings"
+            ],
+            [
+              "marketing_images",
+              "members read own marketing image metadata"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        },
+        "functions": {
+          "actual_only": [
+            [
+              "colzo_stamp_lead_version",
+              ""
+            ]
+          ],
+          "replay_only": [],
+          "changed": [
+            {
+              "key": [
+                "reserve_marketing_generation",
+                "p_business_id uuid, p_actor_user_id uuid, p_request jsonb, p_request_hash text"
+              ],
+              "fields": [
+                "definition"
+              ],
+              "replay_sha256": "b68599e87eaa164809b55af9fdb777420a2a1c406701a10c27cb20bdec45d32c",
+              "actual_sha256": "fee8c6db65404f17933f83bb7d8632f56224ba6391a996ab04f86f1cca6b3591"
+            }
+          ]
+        },
+        "triggers": {
+          "actual_only": [
+            [
+              "leads",
+              "colzo_lead_write_version"
+            ]
+          ],
+          "replay_only": [],
+          "changed": []
+        }
+      },
+      "catalog_sha256": "15f71e464e3c21e54ea349806c975de527956dd7baf22bbd00a49a7182e108be"
+    },
+    "candidate": {
+      "status": "BLOCKED",
+      "attempts": [
+        {
+          "id": "RECORDED:20260911230000_create_initial_lead_schema",
+          "sql_sha256": "e9fcadb7f674835bdcb92ff34150560f21e68ee6ffeaccd7229f038e0e0c050e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260911235034_add_lead_status",
+          "sql_sha256": "6498ba48962d783c5741ad35597b274d534e361092036ff92ae163e28b592052",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260913233511_add_business_settings",
+          "sql_sha256": "cf86a56cf915e82697c0168184285d0e765375e0612e789f062c4f740e11c5be",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260914195529_enable_rls_business_settings",
+          "sql_sha256": "b8236fc5ee761cfbc96f082a5a200fc856b2aac6a3f6f610de201a34c9281901",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260915000000_add_multi_tenant_auth",
+          "sql_sha256": "3b48ad5a165f3a13932fcc48d31fcc88c96954c5567d47c0b09e2a0942463f7d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260915010000_add_bookings_actions",
+          "sql_sha256": "5af9b6c602b01dfe7fdb237ea184d602cd37e618529bb970fe04427d4ab9100d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916153249_add_voice_receptionist_foundation",
+          "sql_sha256": "754d0dcbc4c9361fc9e333d10d4211c95b3c203a23d2201ff9ce0d4a21e55bff",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916154907_add_voice_foreign_key_indexes",
+          "sql_sha256": "dfdf175822f1ce193de6f04936c69b18febd0198f5c6bb86828f5ce831d972e5",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916170000_add_business_configuration_onboarding",
+          "sql_sha256": "a29b96f877a2cc54f9c3cad1cbe3971e54927e965f51279b93ca7298e74ea0de",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916180000_add_business_creation_and_public_routes",
+          "sql_sha256": "d58fe32b1278ac6c279fd8f2115ca7b68f986bb1e009f82d55b72ece6c74008f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916190000_add_pilot_hardening_foundation",
+          "sql_sha256": "fcc95406b7c50bfe4b4afd56991f6a75724640f0e383d57c9c6ab01c139b163c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916191000_add_lifecycle_policy_for_new_businesses",
+          "sql_sha256": "eba04ded1a253ed21bbe0b612ca16de2cbabff50421414fbb319fdcd38f10010",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917113857_add_pilot_team_and_handover_operations",
+          "sql_sha256": "effb38c8f1d359a8070363c9fb8d81b4ee23e4b1a0d3765a96185f2c56ccdc39",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917202438_add_stripe_billing_foundation",
+          "sql_sha256": "1cf96a05102fbd0f08d7836b40e2310e100eba3dd356f43020ebf66aed280abc",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917203724_add_atomic_paid_trial_activation",
+          "sql_sha256": "3a32327ccbb0bdcb1c3c78b23ea4807fe5d4361fe574949a6f2cd78f63c2b741",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917221830_add_resumable_business_onboarding_state",
+          "sql_sha256": "077611b0329b43cc61d36eb0d2750d232b599f6d03b609e26f786c4a44055faf",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260922160645_add_ai_handling_modes",
+          "sql_sha256": "9376750610cbb12af775625852fdb890042ef3553087c8462d3ec873e28709f9",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923120000_add_addons_marketing",
+          "sql_sha256": "7750c503cd5b7af7f3d2d4788e2e9d51170871a199a9eb947a9e7b68b0ceaf4d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923190000_add_ai_enquiry_reservation_release",
+          "sql_sha256": "5df99995a2ac11e79d0723929babf6f82df982ec8d7d451f0296d14a75a6b87b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923193000_add_business_knowledge_uploads",
+          "sql_sha256": "a43192f19774996eeed7c086eb222d11554b24d0af6033c67b40f143f2e37d1c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923200000_add_marketing_publishing_and_feedback",
+          "sql_sha256": "b54b79a0ebbc57a246b46c69ee4666001bfea4970d89d8449d0795f9834d1e1d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923213424_add_marketing_billing_period_allowances",
+          "sql_sha256": "30f1646a77b260b654330036498239346b9f7734892bb10176253e3d569d6787",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260925174629_fix_stripe_marketing_entitlement_sync",
+          "sql_sha256": "22961f2ba5fef1b25d400c52eb1f403b3eece2fd7471639f1b6ada2a7136b966",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260925174915_align_stripe_entitlement_expiry_constraint",
+          "sql_sha256": "97615883b536ae18e7034b592d5b2a59216e8ca61aac6adfb940b5615c0acc04",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20260926233524_add_marketing_automation_images.sql",
+          "sql_sha256": "e1b9708b78c67295d0bd835763cd4364b6350d69df9af23635a5aa3ecae91517",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927105141_add_legal_acceptances",
+          "sql_sha256": "3b21f405d2893940b933f18f8b3b314b90e7093f7ed9c6a77d3a79ac75c015b2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927170722_add_marketing_schedules",
+          "sql_sha256": "79a391c25edd797a6fbdf41ba8bcc5c99b45e2d983a09f697be2213e104b1fa7",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927170938_process_due_marketing_schedules",
+          "sql_sha256": "292be3fb5795071c4443be05ca71ac369b7d63dbc4db5e5f7f054e3345f0800b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927171406_enable_marketing_scheduler_extensions",
+          "sql_sha256": "4dea9e330202171ac651365f89789d869d393a17a3787d7d5b922147fcf44426",
+          "ok": false,
+          "error": "ERROR:  extension \"pg_cron\" is not available\nDETAIL:  Could not open extension control file \"/tmp/colzo-pg-runtime/usr/share/postgresql/17/extension/pg_cron.control\": No such file or directory.\nHINT:  The extension must first be installed on the system where PostgreSQL is running."
+        },
+        {
+          "id": "RECORDED:20260927171656_meta_native_marketing_schedules",
+          "sql_sha256": "ccf9251b2312562622ebcea29e6fed46be85888c8df6db7fe4527514b9782928",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927183105_allow_cloudflare_marketing_images",
+          "sql_sha256": "211f33ad3fad72f3d6c4f2a9de3b365f02f16951262d1edb237ec8813b4a7dc1",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927193707_add_marketing_usage_limits",
+          "sql_sha256": "5e3becc5223fc21e5726bbf012e4389f98ad7c23d9e6d72205ff0bd1bdeb75fb",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927194353_add_marketing_usage_limits",
+          "sql_sha256": "2195fa17cbb933d33d68f0a3c4550a91dc470cd83820a97e8ce779f3e6b5ee32",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927224235_add_directory_visibility",
+          "sql_sha256": "e6a08c3d93665f428ef5becafb99ef19647629275725a8dd4dbea851ed26ba10",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927231059_add_customer_portal",
+          "sql_sha256": "b0793df1e5a6e6211518acf2efa37d20ee1e2e60d90d5c5574d569d139a7acdb",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260928183625_refine_public_enquiry_quote_followups",
+          "sql_sha256": "98ca6601c1e9dbfc019cb18119fadd64096a435e1700c07055132f1ec551a0f4",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260928233058_allow_owner_uploaded_marketing_photos",
+          "sql_sha256": "fee69cf28780605b27ae7c4686f949726d0adbc7cfb37b97690138071dc5d96f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260929102437_add_business_referrals",
+          "sql_sha256": "7bf99e5bef179106a43abd9406ebe55cec00befe0736b96cb1ac4e73151811a1",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20260929124200_add_automatic_follow_up_settings.sql",
+          "sql_sha256": "e199ddbf13458aa9935e23b6b870f6f89f1bdcfb70f2c598789f7e94077f9676",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20260929144034_add_review_requests.sql",
+          "sql_sha256": "9e9d50b1eeda5545197c53e28793bcc5b60e6e7e78f0c75b25e9b285e82e839a",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260930185802_fix_referral_profile_conflict_ambiguity",
+          "sql_sha256": "96990f8f7b4e9d2c48e1dfeb0270b9527877bd49b20d47f85f48f0c1a7731f84",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261001201424_add_contextual_handover_summaries",
+          "sql_sha256": "523afa22509ff7dbabf3306f903bf15dca777b9ba14ec5f77a54d68d01000cab",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261001213801_remove_unused_pg_net",
+          "sql_sha256": "0920528168d2e6dbc48b4a1d6ed1ad6bc8273b1503bee8c3282a78306c4aea17",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261001213843_document_server_only_rls_policies",
+          "sql_sha256": "aa5fb59adf422127b83abe9f736e0ac922a0c2406e31a20958f9d1524cfd1777",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002192840_add_marketing_automation_media",
+          "sql_sha256": "8f27433b7ccb03c9164ab722efec17cd1e446eff5ab63484aca1e22b739a7a4f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002193007_harden_marketing_automation_media",
+          "sql_sha256": "573b65b91fc8714a4273f180cb8587ea30c0d8286985c6deba214c501129d779",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002225450_add_marketing_strategy_planning",
+          "sql_sha256": "4d1de1a7db94a4eaf38a002f67168dfa1f6c1210584c41a7c5d604113571589b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002231245_add_marketing_strategy",
+          "sql_sha256": "4ff546d041183f45748276b4a7f3041c0bb5aca0417029445ad61f33826776f2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261003212959_add_incident_controls",
+          "sql_sha256": "6ad37a9c4353e7af8b2af489e5939c8107550298e009fbfbf03228b318b1f036",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261004163922_add_feedback_title_and_other",
+          "sql_sha256": "3686ccf6546c38e168e029620a32a0feca9a90d656685ccbf50b2490c9300329",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20261004231500_add_business_public_profile_media.sql",
+          "sql_sha256": "d023fa955f2ec500ee5a744829a71573c8cb5282c33255f148da912264837187",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261005090954_add_platform_ops_snapshot",
+          "sql_sha256": "c6510ccdfe6b8c4b55af1785435775a0fc03743435d2c8f8bf1c68b3efb0147b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261005220853_add_marketing_automation_frequency",
+          "sql_sha256": "a1867eab5809abf8a5c85e418fdd611f3c552c43096c72fad5daca244043563b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261005221447_enable_pg_net_for_marketing_scheduler",
+          "sql_sha256": "ff918bab993bbca2d66e1d12277c27fbd4845011972fd336fef3b566b86065a0",
+          "ok": false,
+          "error": "ERROR:  extension \"pg_net\" is not available\nDETAIL:  Could not open extension control file \"/tmp/colzo-pg-runtime/usr/share/postgresql/17/extension/pg_net.control\": No such file or directory.\nHINT:  The extension must first be installed on the system where PostgreSQL is running."
+        },
+        {
+          "id": "RECORDED:20261008214459_pilot_block_unattended_marketing_publishing",
+          "sql_sha256": "cd0defe521c0eaf33cd004d307e54195e9f4a611da23faba574c1e0cbc5cb9b2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008214658_pilot_prevent_duplicate_marketing_scheduled_slots",
+          "sql_sha256": "ec931f9f82d8003a5a55bf00412b4688a3dd68f638730791597b78d5ae5376b7",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots",
+          "sql_sha256": "e3159361604a24ba6ddc2879d4edae644d174310bc5a4bddd4ae43ab8545683e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008215744_pilot_identify_and_block_automatic_marketing_publications",
+          "sql_sha256": "b0926abe5753d31ade6436125223d37fca6bbc2f050c078a2e8c5da87f10d01c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20261010_pilot_free_starter_marketing.sql",
+          "sql_sha256": "032e8afe33e67f074188645532bde5ba0fae7186b2d23684ea9ecf700748ed81",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012215816_post_pilot_trustpilot_review_destinations",
+          "sql_sha256": "5ee2c5958fde6020a62cf9a49d1005052aecbfc7a02954b1a74e95e49f58bd76",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012215824_post_pilot_customer_complaints",
+          "sql_sha256": "bbf62d095dcfc961d4f06ede770a3d149c1d6eb61e8787e7dbc4a6f03c95270d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012215830_post_pilot_review_email_queue",
+          "sql_sha256": "f6a5fdb1331c69b0dc0c063a502e01603582d9fe8324212ff2db2a2eb46eff8e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012223925_post_pilot_colzo_projects_quotes_clients",
+          "sql_sha256": "e56146262479290615b447b1ea211abea98247565ae542d33e12636068ff7665",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261016153313_colzo_whatsapp_synthetic_inbox_dev_20261016",
+          "sql_sha256": "6a968ae47d44ecf4085fa4950f9638dd508134385671225a53f4be1856d02399",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20261019162954_colzo_lead_write_versions.sql",
+          "sql_sha256": "202d0f4ba3956e6ab4eb2703c3d9887e5db128a7f329ffab1b63cfc29e0ec1e9",
+          "ok": true,
+          "error": null
+        }
+      ],
+      "diff": {
+        "tables": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "columns": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "constraints": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "indexes": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "policies": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "functions": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "triggers": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        }
+      },
+      "catalog_sha256": "243c0cd8d44f17cefb58ed06d28cbfb7f205ba42dfaab25ecf7395a5a1cc5860",
+      "privilege_differences": {
+        "table_privileges": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "function_privileges": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        }
+      }
+    }
+  }
+}
