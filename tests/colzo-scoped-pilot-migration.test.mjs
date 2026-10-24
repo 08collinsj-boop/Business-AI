@@ -5,7 +5,7 @@ const sql=readFileSync(new URL('../docs/colzo-pilot-review/scoped-pilot-access.S
 test('pilot table has exact expiry, RLS and no direct browser privileges, without touching paid billing',()=>{
  assert.match(sql,/CREATE TABLE public\.colzo_pilot_access/);
  assert.match(sql,/business_id uuid PRIMARY KEY REFERENCES public\.businesses/);
- assert.match(sql,/expires_at = activated_at \+ interval '14 days'/);
+ assert.match(sql,/expires_at = activated_at \+ interval '336 hours'/);
  assert.match(sql,/ENABLE ROW LEVEL SECURITY/);
  assert.match(sql,/REVOKE ALL ON TABLE public\.colzo_pilot_access FROM PUBLIC, anon, authenticated/);
  assert.doesNotMatch(sql,/ALTER TABLE public\.business_billing_accounts/i);

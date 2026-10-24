@@ -28,6 +28,9 @@ if (siteProject && isVercelBuild) {
   // Colzo landing page refer to /site and /assets.
   await cp(out + '/site/index.html', out + '/index.html');
   await cp(out + '/site/index.html', out + '/marketing.html');
+  for (const page of ['contact','pilot']) {
+    await cp('site/' + page, out + '/' + page, {recursive:true});
+  }
   await cp('legal', out + '/legal', { recursive: true });
   for (const asset of ['colzo-public-site.css', 'colzo-public-site.js', 'colzo-surfaces.css']) {
     await cp('assets/' + asset, out + '/assets/' + asset);

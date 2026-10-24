@@ -7,7 +7,7 @@ CREATE TABLE public.colzo_pilot_access (
  granted_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
  created_at timestamptz NOT NULL DEFAULT now(),
  updated_at timestamptz NOT NULL DEFAULT now(),
- CONSTRAINT colzo_pilot_exact_fourteen_days CHECK (expires_at = activated_at + interval '14 days')
+ CONSTRAINT colzo_pilot_exact_fourteen_days CHECK (expires_at = activated_at + interval '336 hours')
 );
 ALTER TABLE public.colzo_pilot_access ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.colzo_pilot_access FROM PUBLIC, anon, authenticated;
