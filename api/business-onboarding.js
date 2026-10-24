@@ -83,15 +83,31 @@ export default async function handler(req, res) {
   try { auth = await requireAuthenticatedUser(req); } catch (error) { return sendAuthError(res, error); }
   if (!auth.enforced) return res.status(503).json({ error: "Business onboarding is not enabled" });
   if (process.env.COLZO_SCOPED_PILOT_ACCESS === "true" && req.method === "POST") return res.status(403).json({ error: "Pilot business setup requires operator approval", code: "PILOT_PROVISIONING_MANAGED" });
+  res.setHeader("Cache-Control", "no-store");
   let stage = "memberships";
   try {
     const existing = await memberships(auth.userId);
     if (req.method === "GET") {
+      const scoped = process.env.COLZO_SCOPED_PILOT_ACCESS === "true";
+      let pilotAccess;
+      if (existing.length > 1 || (existing.length === 1 && (!existing[0]?.business_id || !["owner","admin","member"].includes(existing[0].role)))) {
+        return res.status(403).json({ error: "No authorised business membership" });
+      }
+      if (scoped) {
+        const { isScopedPilotEligibleTarget, scopedPilotEntitlement } = await import("../lib/colzo-scoped-pilot.js");
+        if (!isScopedPilotEligibleTarget()) return res.status(503).json({ error: "Pilot status is unavailable" });
+        stage = "pilot-status";
+        const businessId = existing[0]?.business_id;
+        const rows = businessId ? await request(`colzo_pilot_access?business_id=eq.${encodeURIComponent(businessId)}&select=business_id,status,activated_at,expires_at&limit=2`) : [];
+        const entitlement = scopedPilotEntitlement(Array.isArray(rows) && rows.length === 1 ? rows[0] : null,0,new Date(),businessId);
+        pilotAccess = { active: entitlement.active, status: entitlement.status, expires_at: entitlement.trialExpiresAt };
+        if (!pilotAccess.active) return res.status(200).json({ needs_business: existing.length === 0, pilot_access: pilotAccess });
+      }
       if (existing.length === 0) return res.status(200).json({ needs_business: true });
       stage = "public-route";
       const publicSlug = await activePublicSlug(existing[0].business_id);
       if (!publicSlug) return res.status(503).json({ error: "Business public route is unavailable" });
-      return res.status(200).json({ needs_business: false, public_slug: publicSlug, role: existing[0].role });
+      return res.status(200).json({ needs_business: false, public_slug: publicSlug, role: existing[0].role, ...(pilotAccess ? { pilot_access: pilotAccess } : {}) });
     }
     if (existing.length) return res.status(409).json({ error: "This account already belongs to a business" });
     stage = "validate-input";
@@ -123,6 +139,7 @@ export default async function handler(req, res) {
     await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
     return res.status(201).json({ public_slug: publicSlug, public_path: `/customer?business=${encodeURIComponent(publicSlug)}` });
   } catch (error) {
+    if (stage === "pilot-status") return res.status(503).json({ error: "Pilot status is unavailable" });
     if (/^Invalid referral code/.test(error?.message || "")) return res.status(400).json({ error: "Referral code is not valid" });
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
     if (error?.code === "PUBLIC_ROUTE_CONFLICT") return res.status(409).json({ error: "Could not create a unique customer link. Please try again." });

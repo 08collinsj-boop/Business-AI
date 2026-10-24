@@ -258,3 +258,62 @@ test('an idempotency-key collision cannot silently suppress an expiry audit even
   assert.equal((await readAs(db,U)).length,0,'audit failure must not restore expired access');
  }finally{await db.close();}
 });
+
+test('a revoked owner cannot restart free access through a different business',async()=>{
+ const db=await fixture();try{
+  await provision(db);await grant(db);
+  await db.query('select colzo_pilot_private.revoke_access($1,$2,$3,$4)',[A,U,'withdraw-a','synthetic withdrawal']);
+  // Simulate an authorised membership transfer; historical grant/audit remains.
+  await db.query('delete from business_memberships where business_id=$1',[A]);
+  await db.query('insert into businesses values($1)',['10000000-0000-4000-8000-000000000003']);
+  await db.query('insert into business_memberships values($1,$2,$3)',['10000000-0000-4000-8000-000000000003',U,'owner']);
+  await assert.rejects(grant(db,'10000000-0000-4000-8000-000000000003',U,'restart-free-access'),/owner already received pilot access/);
+  assert.equal((await db.query('select count(*)::int n from colzo_pilot_access')).rows[0].n,1);
+  assert.equal((await db.query("select count(*)::int n from colzo_pilot_private.audit where action='granted'")).rows[0].n,1);
+ }finally{await db.close();}
+});
+
+test('invitation acceptance audit failure rolls back both membership and token consumption',async()=>{
+ const db=await fixture();try{
+  await provision(db);await grant(db);
+  const W='20000000-0000-4000-8000-000000000003';
+  await db.query('insert into auth.users values($1,$2,now())',[W,'member@example.invalid']);
+  await db.query('select colzo_pilot_private.invite($1,$2,$3,$4,$5)',[A,U,'member@example.invalid','d'.repeat(64),'invite-atomic']);
+  await db.exec(`create function colzo_pilot_private.fail_accept_audit() returns trigger language plpgsql as $$begin if NEW.action='accepted' then raise exception 'audit unavailable'; end if; return NEW; end$$;
+   create trigger fail_accept_audit before insert on colzo_pilot_private.audit for each row execute function colzo_pilot_private.fail_accept_audit();`);
+  await assert.rejects(db.query('select colzo_pilot_private.accept_invite($1,$2,$3,$4)',[A,W,'d'.repeat(64),'accept-atomic']),/audit unavailable/);
+  assert.equal((await db.query('select count(*)::int n from business_memberships where user_id=$1',[W])).rows[0].n,0);
+  assert.equal((await db.query("select status from colzo_pilot_private.invitations where token_hash=$1",['d'.repeat(64)])).rows[0].status,'pending');
+  await db.exec('drop trigger fail_accept_audit on colzo_pilot_private.audit');
+  await db.query('select colzo_pilot_private.accept_invite($1,$2,$3,$4)',[A,W,'d'.repeat(64),'accept-atomic']);
+  assert.equal((await db.query('select count(*)::int n from business_memberships where user_id=$1',[W])).rows[0].n,1);
+ }finally{await db.close();}
+});
+
+test('legacy writers cannot give an existing pilot member access to an unmarked business',async()=>{
+ const db=await fixture();try{
+  await provision(db);await grant(db);
+  await assert.rejects(db.query("insert into business_memberships(business_id,user_id,role) values($1,$2,'member')",[B,U]),/cross business membership/);
+  await assert.rejects(db.query('update business_memberships set business_id=$1 where business_id=$2 and user_id=$3',[B,A,U]),/cross business membership/);
+  await db.query('select colzo_pilot_private.revoke_access($1,$2,$3,$4)',[A,U,'withdraw-before-legacy-add','synthetic withdrawal']);
+  await assert.rejects(db.query("insert into business_memberships(business_id,user_id,role) values($1,$2,'member')",[B,U]),/cross business membership/);
+  assert.equal((await db.query('select count(*)::int n from business_memberships where user_id=$1',[U])).rows[0].n,1);
+ }finally{await db.close();}
+});
+
+test('operator and legacy membership writers reject stale-snapshot transaction modes',async()=>{
+ const db=await fixture();try{
+  await provision(db);
+  const W='20000000-0000-4000-8000-000000000003';
+  await db.query('insert into auth.users values($1,$2,now())',[W,'isolation@example.invalid']);
+  for(const isolation of ['REPEATABLE READ','SERIALIZABLE']){
+   await db.exec('BEGIN ISOLATION LEVEL '+isolation);
+   try{await assert.rejects(db.query('select colzo_pilot_private.grant_access($1,$2,$3,$4)',[A,U,'isolation-grant','synthetic reviewed ownership']),/read committed required/);}
+   finally{await db.exec('ROLLBACK');}
+   await db.exec('BEGIN ISOLATION LEVEL '+isolation);
+   try{await assert.rejects(db.query("insert into business_memberships values($1,$2,'member')",[B,W]),/read committed required/);}
+   finally{await db.exec('ROLLBACK');}
+  }
+  assert.equal((await db.query('select count(*)::int n from colzo_pilot_access')).rows[0].n,0);
+ }finally{await db.close();}
+});

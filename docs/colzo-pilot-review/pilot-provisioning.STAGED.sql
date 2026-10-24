@@ -32,6 +32,7 @@ FOR EACH STATEMENT EXECUTE FUNCTION colzo_pilot_private.immutable_audit();
 
 CREATE FUNCTION colzo_pilot_private.replay(p_key text,p_business uuid,p_action text,p_actor uuid,p_payload jsonb)
 RETURNS jsonb LANGUAGE plpgsql SET search_path='' AS $$DECLARE e colzo_pilot_private.audit%rowtype; BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'read committed required'; END IF;
  IF p_key IS NULL OR length(p_key) NOT BETWEEN 1 AND 200 THEN RAISE EXCEPTION 'invalid idempotency key'; END IF;
  -- Serialize identical keys even across different businesses.
  PERFORM pg_advisory_xact_lock(hashtextextended(p_key,0));
@@ -59,6 +60,11 @@ DECLARE result jsonb; payload jsonb:=jsonb_build_object('evidence',p_evidence); 
  OR EXISTS(SELECT 1 FROM public.business_memberships WHERE user_id=p_owner AND business_id<>p_business)
  THEN RAISE EXCEPTION 'exactly one verified owner required'; END IF;
  IF EXISTS(SELECT 1 FROM public.colzo_pilot_access WHERE business_id=p_business) THEN RAISE EXCEPTION 'business already designated'; END IF;
+ -- The verified identity lock above serializes grants across businesses. Keep
+ -- the append-only award history as the authority even after membership moves.
+ IF EXISTS(SELECT 1 FROM colzo_pilot_private.audit WHERE actor=p_owner AND action='granted')
+ OR EXISTS(SELECT 1 FROM public.colzo_pilot_access WHERE granted_by=p_owner)
+ THEN RAISE EXCEPTION 'owner already received pilot access'; END IF;
  IF EXISTS(SELECT 1 FROM public.business_billing_accounts WHERE business_id=p_business AND
   (stripe_customer_id IS NOT NULL OR stripe_subscription_id IS NOT NULL OR plan<>'none' OR status<>'inactive' OR trial_purchased))
  THEN RAISE EXCEPTION 'paid history excludes free pilot'; END IF;
@@ -153,6 +159,10 @@ END$$;
 -- Protect legacy/service membership writers as well as the new operator RPC.
 CREATE FUNCTION colzo_pilot_private.enforce_seat() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$ BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'read committed required'; END IF;
+ -- Serialize against initial designation before deciding whether pilot rules
+ -- apply. A foreign-key wait after that decision would use stale rules.
+ PERFORM 1 FROM public.businesses WHERE id=NEW.business_id FOR UPDATE;
  IF EXISTS(SELECT 1 FROM public.colzo_pilot_access WHERE business_id=NEW.business_id) THEN
   PERFORM colzo_pilot_private.lock_active(NEW.business_id);
   PERFORM 1 FROM auth.users WHERE id=NEW.user_id FOR UPDATE;
@@ -160,6 +170,15 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$ BEGIN
   IF (SELECT count(*) FROM public.business_memberships WHERE business_id=NEW.business_id AND user_id<>NEW.user_id)
     +(SELECT count(*) FROM colzo_pilot_private.invitations WHERE business_id=NEW.business_id AND status='pending' AND expires_at>clock_timestamp())>=2
   THEN RAISE EXCEPTION 'seat capacity'; END IF;
+ ELSE
+  -- Legacy destinations must not accept a member already assigned to any
+  -- designated pilot, including revoked/expired pilots. Lock the identity as
+  -- pilot acceptance does, so competing writers cannot both pass this check.
+  PERFORM 1 FROM auth.users WHERE id=NEW.user_id FOR UPDATE;
+  IF EXISTS(SELECT 1 FROM public.business_memberships m
+    JOIN public.colzo_pilot_access p ON p.business_id=m.business_id
+    WHERE m.user_id=NEW.user_id AND m.business_id<>NEW.business_id)
+  THEN RAISE EXCEPTION 'cross business membership'; END IF;
  END IF;
  RETURN NEW;
 END$$;

@@ -1,3 +1,7 @@
+## Latest verified continuation - 24 October 2026
+
+See [current implementation, recovery blockers and Preview evidence](CONTINUATION_20261024.md). Full regression: **1,294 passed**, zero failed/skipped; native PostgreSQL: **38 checks across nine concurrent scenarios**, synthetic restore passed. Independent final isolated-code review found no remaining Critical/Important issue. Real-source recovery and pilot onboarding remain **NO-GO**. A necessary public-key configuration correction produced the same-SHA Preview at https://business-89p8aur0u-buisness-ai1.vercel.app/; it does not contain the new staged SQL/status code. Earlier evidence below retains its original scope.
+
 ## Database recovery continuation - 24 October 2026
 
 See [verified SQL/recovery findings and exact remaining gates](RECOVERY_AND_RECONCILIATION_20261024.md). Public-schema reconstruction and 222 effective privileges match the read-only captured Dev baseline; independent synthetic restore passed ten checks across 57 fingerprinted tables. Full source backup, object bytes, genuine Auth recovery and extension replay remain BLOCKED. Latest regression: 1,285 passed, zero failures/skips; build/static checks passed. Earlier checks below retain their original scopes. No shared changes or release actions occurred.

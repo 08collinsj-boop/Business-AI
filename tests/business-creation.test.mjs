@@ -13,7 +13,7 @@ const routeUrl = `data:text/javascript;base64,${Buffer.from(routeSource).toStrin
 const auditUrl = `data:text/javascript;base64,${Buffer.from(auditSource).toString("base64")}`;
 const savedEnv = { ...process.env }; const savedFetch = globalThis.fetch;
 const reply = (body, ok = true, status = ok ? 200 : 500) => ({ ok, status, text: async () => JSON.stringify(body), json: async () => body });
-const response = () => ({ statusCode: 0, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
+const response = () => ({ statusCode: 0, body: null, headers: {}, setHeader(key,value) { this.headers[key]=value; }, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 
 async function load({ memberships = [], routes = [{ route_value: "hartlepool-garage" }], rpc = [{ business_id: "business-new", public_slug: "hartlepool-garage" }], invalid = false } = {}) {
   process.env.TENANCY_AUTH_ENABLED = "true"; process.env.SUPABASE_URL = "https://example.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "server-only";
@@ -123,7 +123,7 @@ test("an authenticated user without a membership is sent only to onboarding", { 
 });
 
 test("an existing business without an active public route fails safely", { concurrency: false }, async () => {
-  const { handler } = await load({ memberships: [{ business_id: "business-a" }], routes: [] }); const res = response();
+  const { handler } = await load({ memberships: [{ business_id: "business-a", role: "owner" }], routes: [] }); const res = response();
   await handler({ method: "GET", headers: { authorization: "Bearer verified" } }, res);
   assert.equal(res.statusCode, 503);
   assert.deepEqual(res.body, { error: "Business public route is unavailable" });

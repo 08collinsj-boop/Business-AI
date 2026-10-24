@@ -48,7 +48,7 @@ def check(name, condition):
     checks.append(name)
 
 
-def race(sqls, hold_sql):
+def race(sqls, hold_sql, first_must_wait=False):
     # A separate backend holds the row so workers must overlap in the database.
     holder = subprocess.Popen(base, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, text=True, env=env)
@@ -58,7 +58,19 @@ def race(sqls, hold_sql):
         if not holder.stdout.readline().strip():
             raise AssertionError('holder failed before acquiring the test lock')
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(sqls)) as pool:
-            jobs = [pool.submit(query, sql, True) for sql in sqls]
+            if first_must_wait:
+                jobs = [pool.submit(query, sqls[0], True)]
+                deadline = time.monotonic() + 1.5
+                waiting = 0
+                while time.monotonic() < deadline:
+                    waiting = int(scalar("SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock'"))
+                    if waiting >= 1:
+                        break
+                    time.sleep(0.02)
+                check('first backend waits before competing writers start', waiting >= 1)
+                jobs += [pool.submit(query, sql, True) for sql in sqls[1:]]
+            else:
+                jobs = [pool.submit(query, sql, True) for sql in sqls]
             waiting = 0
             deadline = time.monotonic() + 1.5
             while time.monotonic() < deadline:
@@ -148,6 +160,48 @@ for i, owner in enumerate(owners):
 results = race(cross, f"SELECT id FROM auth.users WHERE id='{shared}' FOR UPDATE")
 check('same verified recipient cannot join two businesses concurrently', sum(r.returncode == 0 for r in results) == 1 and scalar(f"SELECT count(*) FROM business_memberships WHERE user_id='{shared}'") == '1')
 
+# New negative cases also cover legacy destinations, not just pilot targets.
+legacy = '60000000-0000-4000-8000-000000000001'
+query(f"INSERT INTO businesses(id) VALUES('{legacy}')")
+legacy_add = f"INSERT INTO business_memberships VALUES('{legacy}','{U}','member')"
+denied = query(legacy_add, True)
+check('legacy destination rejects an existing expired pilot member', denied.returncode != 0 and 'cross business membership' in denied.stderr)
+results = race([legacy_add] * 8, f"SELECT id FROM auth.users WHERE id='{U}' FOR UPDATE")
+check('eight legacy writers cannot add an existing pilot member', all(r.returncode != 0 and 'cross business membership' in r.stderr for r in results))
+
+recipient = '60000000-0000-4000-8000-000000000002'
+owner = '60000000-0000-4000-8000-000000000003'
+query(f"INSERT INTO auth.users VALUES('{recipient}','mixed-recipient@example.invalid',now()),('{owner}','mixed-owner@example.invalid',now())")
+business = json.loads(scalar(f"SELECT colzo_pilot_private.provision_workspace('{owner}','Synthetic mixed','Service','synthetic-mixed','mixed-workspace','synthetic verified ownership')"))['business_id']
+query(f"SELECT colzo_pilot_private.invite('{business}','{owner}','mixed-recipient@example.invalid','{'e'*64}','mixed-invite')")
+results = race([f"SELECT colzo_pilot_private.accept_invite('{business}','{recipient}','{'e'*64}','mixed-accept')",
+                f"INSERT INTO business_memberships VALUES('{legacy}','{recipient}','member')"],
+               f"SELECT id FROM auth.users WHERE id='{recipient}' FOR UPDATE")
+check('pilot acceptance racing a legacy destination permits one membership only', sum(r.returncode == 0 for r in results) == 1 and scalar(f"SELECT count(*) FROM business_memberships WHERE user_id='{recipient}'") == '1')
+
+query(f"DELETE FROM business_memberships WHERE business_id='{A}' AND user_id='{U}'")
+before = scalar('SELECT count(*) FROM businesses')
+restart = query(f"SELECT colzo_pilot_private.provision_workspace('{U}','Synthetic restart','Service','synthetic-restart','restart-workspace','synthetic verified ownership')", True)
+check('expired owner cannot restart pilot through atomic workspace creation', restart.returncode != 0 and 'owner already received pilot access' in restart.stderr and scalar('SELECT count(*) FROM businesses') == before)
+
+transition_business = '70000000-0000-4000-8000-000000000001'
+transition_owner = '70000000-0000-4000-8000-000000000002'
+query(f"INSERT INTO auth.users VALUES('{transition_owner}','transition-owner@example.invalid',now())")
+query(f"INSERT INTO businesses(id) VALUES('{transition_business}');INSERT INTO business_memberships VALUES('{transition_business}','{transition_owner}','owner')")
+transition_users = ['70000000-0000-4000-8000-' + f'{i+10:012d}' for i in range(8)]
+for i, user in enumerate(transition_users):
+    query(f"INSERT INTO auth.users VALUES('{user}','transition-{i}@example.invalid',now())")
+transition_grant = f"SELECT colzo_pilot_private.grant_access('{transition_business}','{transition_owner}','transition-grant','synthetic verified ownership')"
+results = race([transition_grant] + [f"INSERT INTO business_memberships VALUES('{transition_business}','{user}','member')" for user in transition_users],
+               f"SELECT id FROM businesses WHERE id='{transition_business}' FOR UPDATE", first_must_wait=True)
+check('designation transition serializes against eight legacy writers', results[0].returncode == 0 and sum(r.returncode == 0 for r in results[1:]) == 1 and scalar(f"SELECT count(*) FROM business_memberships WHERE business_id='{transition_business}'") == '2')
+
+for isolation in ['REPEATABLE READ', 'SERIALIZABLE']:
+    denied = query(f"BEGIN ISOLATION LEVEL {isolation};SELECT colzo_pilot_private.grant_access('{A}','{U}','isolation-denied','synthetic verified ownership');COMMIT", True)
+    check('operator rejects stale snapshot mode: ' + isolation, denied.returncode != 0 and 'read committed required' in denied.stderr)
+    denied = query(f"BEGIN ISOLATION LEVEL {isolation};INSERT INTO business_memberships VALUES('{legacy}','{U}','member');COMMIT", True)
+    check('legacy writer rejects stale snapshot mode: ' + isolation, denied.returncode != 0 and 'read committed required' in denied.stderr)
+
 # Restore actual SQL/data/ACL/RLS into another empty disposable database.
 # Cluster roles are retained in this local test, not claimed as an Auth backup.
 dump = subprocess.run([str(Path(args.bin) / 'pg_dump'), '-h', args.socket, '-p', '55432',
@@ -171,6 +225,6 @@ check('restored RLS still denies expired A', restored_reads == '0')
 check('restored operator privileges remain denied to browser role', query("SELECT has_function_privilege('authenticated','colzo_pilot_private.grant_access(uuid,uuid,text,text)','EXECUTE')", database=restored_name).stdout.strip() == 'f')
 
 print(json.dumps({'status': 'PASS', 'checks': len(checks), 'postgres_version': scalar('SHOW server_version'),
-                  'backend_races': 6, 'workers_per_race': [8, 8, 8, 8, 8, 2], 'shared_database_used': False,
+                  'backend_races': 9, 'workers_per_race': [8, 8, 8, 8, 8, 2, 8, 2, 9], 'shared_database_used': False,
                   'dump_restore_verified': True,
                   'evidence': checks}, indent=2))
