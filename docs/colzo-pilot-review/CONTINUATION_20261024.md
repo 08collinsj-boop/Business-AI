@@ -113,3 +113,9 @@ Composio worked for the investigation, read-only source checks, necessary Previe
 
 No Production/older-Pilot operations, shared database writes/resets/restores, real-account activation, invitations, emails, provider activation, merge or paid resources occurred. The sole deployment was the necessary isolated configuration-corrected Preview above.
 
+
+## Publication outcome
+
+Tested implementation commit: `298ebb27c4f82fb8c69f98789786c4c1903bdcd5`; tree `a16011fc02cd57910b062e4244fed84cc6556c71`; parent `35a0edafab22753c2584c535a3950c70b02c4e96`. This commit is **local only**. The separate GitHub connector also returned HTTP403 `Resource not accessible by integration` for both Git blob creation and PR metadata update. Neither attempted write succeeded. PR63 remains draft at the original remote head; its body was not updated.
+
+The correction package contains a standard Git format-patch against the pinned base, this report and native evidence. Apply it only to the authorised feature branch in a clean checkout at the pinned base (or review conflicts against any newer head); rerun verification, then publish through an authorised write connection. Do not force-push or apply shared SQL. The new API/UI changes must receive a later final-SHA Preview acceptance after recovery prerequisites permit it.
