@@ -250,3 +250,11 @@ test('disposable snapshot restores data and protections; transaction rollback re
   assert.equal((await restored.query("select to_regnamespace('rollback_probe') n")).rows[0].n,null);
  }finally{if(restored)await restored.close();await db.close();}
 });
+test('an idempotency-key collision cannot silently suppress an expiry audit event',async()=>{
+ const db=await fixture();try{
+  await provision(db);await grant(db,A,U,'expiry:'+A);
+  await db.exec("update colzo_pilot_access set activated_at=now()-interval '15 days',expires_at=now()-interval '1 day'");
+  await assert.rejects(db.query('select colzo_pilot_private.record_expiry($1)',[A]),/idempotency conflict/);
+  assert.equal((await readAs(db,U)).length,0,'audit failure must not restore expired access');
+ }finally{await db.close();}
+});

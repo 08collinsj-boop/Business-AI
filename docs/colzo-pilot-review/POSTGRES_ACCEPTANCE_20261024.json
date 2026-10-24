@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "checks": 25,
+  "postgres_version": "17.11 (Debian 17.11-0+deb13u1)",
+  "backend_races": 6,
+  "workers_per_race": [
+    8,
+    8,
+    8,
+    8,
+    8,
+    2
+  ],
+  "shared_database_used": false,
+  "dump_restore_verified": true,
+  "evidence": [
+    "independent backends actually waited concurrently",
+    "eight identical grant requests return one unchanged result",
+    "grant audit is unique",
+    "independent backends actually waited concurrently",
+    "eight competing invitations allocate exactly one remaining seat",
+    "independent backends actually waited concurrently",
+    "eight concurrent acceptance retries are idempotent",
+    "acceptance audit and two-seat limit persist",
+    "independent backends actually waited concurrently",
+    "legacy concurrent membership writers cannot allocate a third seat",
+    "independent backends actually waited concurrently",
+    "different concurrent workspace requests create one owner workspace",
+    "failed competing creation leaves no orphan businesses",
+    "expired A cannot read directly while independent active B can",
+    "transaction rollback leaves no new business or owner membership",
+    "independent backends actually waited concurrently",
+    "same verified recipient cannot join two businesses concurrently",
+    "restored row count: businesses",
+    "restored row count: business_memberships",
+    "restored row count: leads",
+    "restored row count: colzo_pilot_access",
+    "restored row count: colzo_pilot_private.audit",
+    "restored row count: colzo_pilot_private.invitations",
+    "restored RLS still denies expired A",
+    "restored operator privileges remain denied to browser role"
+  ]
+}

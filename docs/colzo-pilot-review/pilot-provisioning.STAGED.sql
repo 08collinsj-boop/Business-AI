@@ -135,11 +135,18 @@ END$$;
 
 -- Expiry enforcement is immediate and does not depend on this audit collector.
 CREATE FUNCTION colzo_pilot_private.record_expiry(p_business uuid) RETURNS void
-LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$BEGIN
+LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
+DECLARE prior jsonb;
+BEGIN
+ -- Check collisions rather than reporting success after ON CONFLICT skipped
+ -- an event with a different action. Use the same key-before-business lock
+ -- ordering as other operator operations.
+ prior:=colzo_pilot_private.replay('expiry:'||p_business,p_business,'expired',NULL,'{}');
+ IF prior IS NOT NULL THEN RETURN; END IF;
  PERFORM 1 FROM public.businesses WHERE id=p_business FOR UPDATE;
  IF EXISTS(SELECT 1 FROM public.colzo_pilot_access WHERE business_id=p_business AND expires_at<=clock_timestamp()) THEN
   INSERT INTO colzo_pilot_private.audit(request_key,business_id,actor,action,payload,result)
-  VALUES('expiry:'||p_business,p_business,NULL,'expired','{}','{}') ON CONFLICT(request_key) DO NOTHING;
+  VALUES('expiry:'||p_business,p_business,NULL,'expired','{}','{}');
  END IF;
 END$$;
 
