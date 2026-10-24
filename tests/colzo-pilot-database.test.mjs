@@ -82,6 +82,53 @@ test('paid legacy access is unchanged and browser roles cannot write grants or i
 });
 export {fixture,install,readAs,A,B,U,V};
 
+async function workspaceFixture(){
+ const db=await fixture();
+ await db.exec(`alter table businesses alter column id set default gen_random_uuid();
+ alter table businesses add column name text; alter table businesses add column created_at timestamptz default now();
+ create sequence synthetic_settings_id start 3;
+ alter table business_settings alter column id set default nextval('synthetic_settings_id');
+ alter table business_settings add column business_name text; alter table business_settings add column business_type text;
+ create table business_configurations(business_id uuid primary key references businesses); alter table business_configurations enable row level security;`);
+ // Execute the actual existing creation migration, not a mocked provisioning RPC.
+ await db.exec(await readFile(new URL('../supabase/migrations/20260916180000_add_business_creation_and_public_routes.sql',import.meta.url),'utf8'));
+ await provision(db);
+ const sql=await readFile(new URL('../docs/colzo-pilot-review/pilot-workspace-provisioning.STAGED.sql',import.meta.url),'utf8').catch(e=>{if(e.code==='ENOENT')return '';throw e;});
+ await db.exec(sql);
+ assert.ok((await db.query("select to_regprocedure('colzo_pilot_private.provision_workspace(uuid,text,text,text,text,text)') fn")).rows[0].fn,'atomic workspace provisioning must exist');
+ return db;
+}
+test('new workspaces and grants commit together with two independent synthetic owners',async()=>{
+ const db=await workspaceFixture();try{
+  const W='20000000-0000-4000-8000-000000000003',X='20000000-0000-4000-8000-000000000004';
+  await db.exec(`insert into auth.users values('${W}','new-a@example.invalid',now()),('${X}','new-b@example.invalid',now());`);
+  const create=(u,name,slug,key)=>db.query('select colzo_pilot_private.provision_workspace($1,$2,$3,$4,$5,$6) result',[u,name,'Synthetic service',slug,key,'synthetic operator ownership approval']);
+  const a=(await create(W,'Synthetic Pilot A','synthetic-pilot-a','workspace-a')).rows[0].result;
+  const b=(await create(X,'Synthetic Pilot B','synthetic-pilot-b','workspace-b')).rows[0].result;
+  assert.notEqual(a.business_id,b.business_id);
+  assert.deepEqual((await create(W,'Synthetic Pilot A','synthetic-pilot-a','workspace-a')).rows[0].result,a);
+  await db.query('insert into leads values(3,$1,$2),(4,$3,$4)',[a.business_id,'new A record',b.business_id,'new B record']);
+  assert.deepEqual((await readAs(db,W)).map(r=>r.payload),['new A record']);
+  assert.deepEqual((await readAs(db,X)).map(r=>r.payload),['new B record']);
+  await db.query("update colzo_pilot_access set activated_at=now()-interval '15 days',expires_at=now()-interval '1 day' where business_id=$1",[a.business_id]);
+  assert.equal((await readAs(db,W)).length,0);
+  assert.deepEqual((await readAs(db,X)).map(r=>r.payload),['new B record']);
+  assert.equal((await db.query('select count(*)::int n from business_public_routes where business_id in ($1,$2)',[a.business_id,b.business_id])).rows[0].n,2);
+ }finally{await db.close();}
+});
+test('new workspace provisioning rolls back the business, route and owner if audit persistence fails',async()=>{
+ const db=await workspaceFixture();try{
+  const W='20000000-0000-4000-8000-000000000003';
+  await db.query('insert into auth.users values($1,$2,now())',[W,'new-a@example.invalid']);
+  const before=(await db.query('select count(*)::int n from businesses')).rows[0].n;
+  await db.exec(`create function colzo_pilot_private.fail_workspace_audit() returns trigger language plpgsql as $$begin raise exception 'audit unavailable'; end$$; create trigger synthetic_workspace_audit_failure before insert on colzo_pilot_private.audit for each row execute function colzo_pilot_private.fail_workspace_audit();`);
+  await assert.rejects(db.query('select colzo_pilot_private.provision_workspace($1,$2,$3,$4,$5,$6)',[W,'Synthetic A','Service','synthetic-a','workspace-a','synthetic ownership approval']),/audit unavailable/);
+  assert.equal((await db.query('select count(*)::int n from businesses')).rows[0].n,before);
+  assert.equal((await db.query('select count(*)::int n from business_memberships where user_id=$1',[W])).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from business_public_routes where route_value='synthetic-a'")).rows[0].n,0);
+ }finally{await db.close();}
+});
+
 async function provision(db){
  await install(db);
  const sql=await readFile(new URL('../docs/colzo-pilot-review/pilot-provisioning.STAGED.sql',import.meta.url),'utf8').catch(e=>{if(e.code==='ENOENT')return '';throw e;});
