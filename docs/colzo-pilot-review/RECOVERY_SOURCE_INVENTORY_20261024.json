@@ -1,0 +1,32 @@
+{
+  "project": "mvwseobgkexzpmmkgcxe",
+  "source_commit": "65a8f51d5990041c2f8bcdb296e85859c98bd8d9",
+  "schema_counts": {
+    "tables": 71,
+    "columns": 560,
+    "indexes": 173,
+    "policies": 44,
+    "triggers": 5,
+    "functions": 22,
+    "extensions": 7,
+    "constraints": 413
+  },
+  "actual_public_tables": 52,
+  "auth_counts": {
+    "users": 16,
+    "identities": 16,
+    "mfa_factors": 2
+  },
+  "storage_counts": {
+    "buckets": 3,
+    "objects": 12
+  },
+  "catalog_sha256": "b4b8dfa3c617199552c26cbd1f776a0f56913916fd35d0cda43b51f2cc310cd8",
+  "managed_backups": 0,
+  "pitr_enabled": false,
+  "exposed_schemas": [
+    "public",
+    "graphql_public"
+  ],
+  "scope": "Read-only definitions and aggregate counts, not a database backup."
+}

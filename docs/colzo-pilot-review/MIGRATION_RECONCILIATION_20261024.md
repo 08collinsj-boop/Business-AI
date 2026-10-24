@@ -1,5 +1,11 @@
 # Development migration reconciliation - 24 October 2026
 
+## SQL-level continuation
+
+The original name-only inventory below is superseded for SQL analysis by [Recovery and reconciliation](RECOVERY_AND_RECONCILIATION_20261024.md), [all-file SQL matrix](MIGRATION_SQL_AUDIT_20261024.json) and [PostgreSQL reconstruction](RECOVERY_SCHEMA_AUDIT_20261024.json). All 57 files and 59 recorded SQL entries were compared. Forty-six files match conservatively normalised SQL; two same-version/name pairs have different statements. A diagnostic combined reconstruction matches captured public schema and 222 effective privilege rows. Genuine extension and actual-source recovery gates remain BLOCKED. No migration history was changed.
+
+## Earlier name/version inventory
+
 Pinned branch: 57 migration files. Shared Dev ledger: 59 entries. Exact version/name matches: 32.
 
 **BLOCKED for shared database changes.** Name/version matching is not SQL equivalence. No ledger repair or migration application was performed. Applied SQL hashes and full schema diff still need review after a privately verified shared Dev backup restore.

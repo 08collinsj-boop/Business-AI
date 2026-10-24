@@ -1,3 +1,7 @@
+## Database recovery continuation - 24 October 2026
+
+See [verified SQL/recovery findings and exact remaining gates](RECOVERY_AND_RECONCILIATION_20261024.md). Public-schema reconstruction and 222 effective privileges match the read-only captured Dev baseline; independent synthetic restore passed ten checks across 57 fingerprinted tables. Full source backup, object bytes, genuine Auth recovery and extension replay remain BLOCKED. Latest regression: 1,285 passed, zero failures/skips; build/static checks passed. Earlier checks below retain their original scopes. No shared changes or release actions occurred.
+
 # Colzo pilot engineering acceptance - 24 October 2026
 
 **Release decision: NO-GO for pilot invitations.** Substantial isolated engineering is complete, but two real pilot accounts are not ready or certified. Nothing was merged, deployed, provisioned on shared Dev, sent to a customer or applied to Production.
