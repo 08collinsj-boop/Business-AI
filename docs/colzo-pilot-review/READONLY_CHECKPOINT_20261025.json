@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-25",
+  "project": "mvwseobgkexzpmmkgcxe",
+  "mode": "read-only",
+  "server": "PostgreSQL 17.6.1.166",
+  "ledger_matches_archive": true,
+  "repository_files": 57,
+  "recorded_migrations": 59,
+  "strict_sql_matches": 46,
+  "same_version_different_sql": [
+    "20261008214459_pilot_block_unattended_marketing_publishing",
+    "20261008215744_pilot_identify_and_block_automatic_marketing_publications"
+  ],
+  "catalog_counts": {
+    "tables": 71,
+    "columns": 560,
+    "indexes": 173,
+    "policies": 44,
+    "triggers": 5,
+    "functions": 22,
+    "extensions": 7,
+    "constraints": 413,
+    "publications": null
+  },
+  "catalog_sha256_python_sorted_json": "dcc095adcd0d85a4382f797dc97b766db76dec393e2095c1510e78274452ed42",
+  "auth_users": 16,
+  "mfa_factors": 2,
+  "storage_objects": 12,
+  "storage_buckets": 3,
+  "scoped_grants_installed": false,
+  "operator_schema_installed": false,
+  "managed_backup_count": 0,
+  "pitr_enabled": false,
+  "complete_source_backup_created": false,
+  "source_restore_completed": false,
+  "scope": "Metadata/SQL only; no real record, Auth secret or Storage-byte export. Fingerprint matches latest saved checkpoint, not the older differently computed b4b8 hash."
+}

@@ -1,0 +1,197 @@
+{
+  "scope": "Read-only effective table privileges on the eight RLS-enabled no-policy public tables; does not certify every privileged server route.",
+  "rows": [
+    {
+      "relname": "business_incident_controls",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "business_incident_controls",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "business_incident_controls",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "colzo_clients",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "colzo_clients",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "colzo_clients",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "colzo_projects",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "colzo_projects",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "colzo_projects",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "colzo_quotes",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "colzo_quotes",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "colzo_quotes",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "customer_complaints",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "customer_complaints",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "customer_complaints",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "pilot_free_access_config",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "pilot_free_access_config",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "pilot_free_access_config",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "platform_incident_controls",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "platform_incident_controls",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "platform_incident_controls",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    },
+    {
+      "relname": "review_email_outbox",
+      "role": "anon",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "review_email_outbox",
+      "role": "authenticated",
+      "select_allowed": false,
+      "insert_allowed": false,
+      "update_allowed": false,
+      "delete_allowed": false
+    },
+    {
+      "relname": "review_email_outbox",
+      "role": "service_role",
+      "select_allowed": true,
+      "insert_allowed": true,
+      "update_allowed": true,
+      "delete_allowed": true
+    }
+  ]
+}
