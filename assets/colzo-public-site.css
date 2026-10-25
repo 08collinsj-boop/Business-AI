@@ -36,3 +36,338 @@ body.colzo-public-site:before,.ambient,.site-bg,.aurora,.wave,.hero-glow{display
 .colzo-public-site .reveal{opacity:1!important;transform:none!important}
 @media(max-width:600px){.colzo-public-site .howto-screens{grid-template-columns:1fr}.colzo-public-site :is(.site-header,.nav-wrap){flex-wrap:wrap;gap:14px;height:auto;padding-block:16px}.colzo-public-site .hero h1{font-size:42px}.colzo-public-site .hero{min-height:0!important}.colzo-public-site :is(.hero-grid,.hero){gap:28px}.colzo-public-site .dashboard-frame{min-height:0!important}.colzo-public-site .hero-actions{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.colzo-public-site *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+
+/* Colzo editorial v2 - deliberately quiet, human and specific. */
+/* Graphite & Volt appears as typography and fine rules, not synthetic lighting. */
+body.colzo-public-site{--paper:#ebeae4;--ink:#14171a;--volt:#c8ff2e;background:#121517!important;color:#eff0ec!important;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,ui-sans-serif,system-ui,sans-serif!important;}
+body.colzo-public-site :is(h1,h2,h3){text-wrap:balance}
+.colzo-public-site .site-header{background:rgba(18,21,23,.96)!important;border-bottom:1px solid #343b3d!important;box-shadow:none!important;backdrop-filter:blur(18px)}
+.colzo-public-site .nav-wrap{height:79px;max-width:1360px;gap:24px}
+.colzo-public-site .brand{gap:8px;letter-spacing:-.05em;font-size:24px!important;font-weight:750}
+.colzo-public-site .brand-mark{width:37px;height:37px}
+.colzo-public-site .nav-links{gap:clamp(16px,2.4vw,33px);margin-left:clamp(12px,3vw,65px);font-size:13px;font-weight:500;letter-spacing:.005em}
+.colzo-public-site .nav-links a{color:#bfc5c5}
+.colzo-public-site .nav-links a:hover{color:#f0f2f0}
+.colzo-public-site .nav-actions{gap:23px;font-size:13px}
+.colzo-public-site .nav-actions .text-link{color:#d7d9d8}
+.colzo-public-site .nav-actions .button-small{
+    border:1px solid #c8ff2e!important;border-radius:3px!important;
+    padding:0 16px;min-height:39px;background:transparent!important;
+    color:#c8ff2e!important;box-shadow:none!important;
+    font-size:12px;font-weight:650;
+}
+.colzo-public-site .shell{width:min(1320px,calc(100% - 80px))}
+.colzo-public-site .section{padding:115px 0}
+.colzo-public-site .hero{
+    padding:137px 0 0!important;
+    min-height:0!important;
+    background:#121517!important;
+    overflow:visible;
+}
+.colzo-public-site .hero-meta,.colzo-public-site .hero-rule{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:15px;line-height:1.5;
+    color:#8f989a;font:600 10px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.1em;
+}
+.colzo-public-site .hero-meta{padding:3px 0 18px;border-bottom:1px solid #404747}
+.colzo-public-site .editorial-hero-grid{
+    display:grid;grid-template-columns:minmax(0,1.17fr) minmax(330px,.83fr);
+    align-items:center;gap:clamp(48px,7.6vw,118px);padding:55px 0 57px;
+}
+.colzo-public-site .hero-copy{min-width:0}
+.colzo-public-site .hero-kicker,.colzo-public-site .section-number{
+    color:#c8ff2e!important;
+    font:650 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+    letter-spacing:.105em;
+    margin:0 0 32px;
+}
+.colzo-public-site .hero h1{
+    color:#f4f4ef!important;font-size:clamp(58px,6.3vw,105px)!important;
+    letter-spacing:-.079em!important;line-height:.99!important;
+    font-weight:750!important;margin:0 0 36px!important;
+    max-width:800px;
+}
+.colzo-public-site .hero h1 span{
+    color:#c8ff2e!important;-webkit-text-fill-color:#c8ff2e!important;
+    background:none!important;text-shadow:none!important;
+}
+.colzo-public-site .hero-lede{
+    max-width:560px;font-size:clamp(17px,1.46vw,20px)!important;
+    line-height:1.62!important;color:#c5ccca!important;margin:0 0 30px!important;
+    font-weight:400;
+}
+.colzo-public-site .hero-actions{display:flex;align-items:center;gap:29px;flex-wrap:wrap}
+.colzo-public-site :is(.hero-actions,.editorial-final) .button-primary{
+    min-height:51px!important;border:0!important;border-radius:4px!important;
+    background:#c8ff2e!important;box-shadow:none!important;
+    color:#151819!important;padding:0 21px;font-weight:700;
+    text-decoration:none;transition:background .2s,transform .2s!important;
+}
+.colzo-public-site :is(.hero-actions,.editorial-final) .button-primary:hover{background:#e1ff89!important;transform:translateY(-1px)}
+.colzo-public-site .editorial-text-link{
+    display:inline-flex;gap:16px;align-items:center;min-height:48px;
+    border-bottom:1px solid #666e6e;color:#f0f2f0!important;
+    font-size:14px;font-weight:650;text-decoration:none;
+}
+.colzo-public-site .editorial-text-link:hover{border-color:#c8ff2e}
+.colzo-public-site .pilot-note{
+    color:#858f91!important;max-width:520px;
+    margin:23px 0 0;font-size:12px;line-height:1.6
+}
+.colzo-public-site .hero-photograph{
+    position:relative;margin:0;align-self:stretch;
+    min-width:0;display:flex;flex-direction:column;
+}
+.colzo-public-site .hero-photograph img{
+    display:block;width:100%;height:min(635px,48vw);
+    min-height:490px;object-fit:cover;object-position:center 42%;
+    filter:saturate(.74) contrast(1.1);
+    background:#2c2e31;
+}
+.colzo-public-site .hero-photograph figcaption{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:13px 0 0;border-top:0;
+    font:500 10px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+    color:#868f90;letter-spacing:.035em;
+}
+.colzo-public-site .hero-photograph figcaption a{
+    color:#a9b0b1;text-decoration:underline;text-underline-offset:3px
+}
+.colzo-public-site .hero-rule{
+    padding:20px 0;border-top:1px solid #404747;
+    font-size:10px;
+}
+.colzo-public-site .hero-rule a{display:inline-flex;gap:18px;align-items:center;color:#d7dedd}
+.colzo-public-site .trust-strip{background:var(--paper)!important;border:0!important;backdrop-filter:none!important}
+.colzo-public-site .editorial-intro{display:grid;grid-template-columns:1fr 2.6fr;column-gap:40px;padding:91px 0 90px}
+.colzo-public-site .editorial-intro .section-number{color:#404845!important;grid-row:span 2;margin-top:10px}
+.colzo-public-site .editorial-intro>p:not(.section-number){
+    font-size:clamp(31px,3.3vw,58px);font-weight:670;line-height:1.15;
+    letter-spacing:-.05em;color:#1a211e!important;margin:0 0 20px;
+}
+.colzo-public-site .editorial-intro em{font-style:normal;color:#667269}
+.colzo-public-site .editorial-intro>span{font-size:15px;color:#535d57}
+.colzo-public-site .features{background:#111516!important;padding:119px 0!important}
+.colzo-public-site .editorial-section-heading{
+    display:grid;grid-template-columns:190px minmax(0,1fr) minmax(0,270px);
+    gap:24px;align-items:end;margin-bottom:57px
+}
+.colzo-public-site .editorial-section-heading .section-number{align-self:start;margin:10px 0 0}
+.colzo-public-site .editorial-section-heading h2{
+    font-size:clamp(44px,5vw,76px)!important;
+    line-height:1.06;letter-spacing:-.063em;margin:0;color:#f0f2f0!important;
+    font-weight:700;
+}
+.colzo-public-site .editorial-section-heading h2 span{color:#8c9894}
+.colzo-public-site .editorial-section-heading>p:last-child{
+    margin:0 0 8px;color:#9aa4a4!important;font-size:15px;line-height:1.55
+}
+.colzo-public-site .editorial-feature-list{border-top:1px solid #3c4545}
+.colzo-public-site .editorial-feature{
+    display:grid;grid-template-columns:190px minmax(0,1fr) 54px;
+    gap:24px;padding:33px 0 34px;
+    align-items:start;border-bottom:1px solid #3c4545;
+}
+.colzo-public-site .feature-index,.colzo-public-site .feature-end{
+    font:600 13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+    color:#c8ff2e;
+}
+.colzo-public-site .feature-end{justify-self:end;font-size:25px;line-height:1}
+.colzo-public-site .editorial-feature h3{
+    font-size:clamp(24px,2.35vw,36px);line-height:1.13;
+    letter-spacing:-.045em;margin:0 0 8px;color:#f2f4ef!important;
+}
+.colzo-public-site .editorial-feature p{max-width:685px;font-size:15px;line-height:1.65;color:#a7b2b0!important;margin:0}
+.colzo-public-site .how{
+    background:#e7e6df!important;border:0!important;padding:112px 0!important;
+}
+.colzo-public-site .how .section-number{color:#47564a!important}
+.colzo-public-site .how .editorial-section-heading h2{color:#161c1c!important}
+.colzo-public-site .how .editorial-section-heading h2 span{color:#626b64}
+.colzo-public-site .how .editorial-section-heading>p:last-child{color:#505a55!important}
+.colzo-public-site .editorial-steps{
+    margin:0;padding:0;list-style:none;
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:0;border-top:1px solid #a6ada6;
+}
+.colzo-public-site .editorial-steps li{padding:34px 35px 10px 0;margin-right:30px;border-right:1px solid #b9bfb7}
+.colzo-public-site .editorial-steps li:last-child{border-right:0;margin-right:0}
+.colzo-public-site .editorial-steps span{
+    color:#3a583e!important;font:600 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.colzo-public-site .editorial-steps h3{
+    font-size:clamp(22px,2.1vw,30px);line-height:1.15;
+    letter-spacing:-.045em;margin:30px 0 14px;color:#1b201d!important
+}
+.colzo-public-site .editorial-steps p{font-size:15px;line-height:1.7;color:#525e57!important;margin:0}
+.colzo-public-site .howto{background:#181e1f!important;border:0!important}
+.colzo-public-site .howto .howto-heading h2{color:#f1f2ef!important}
+.colzo-public-site .howto-grid{gap:0!important;grid-template-columns:repeat(2,minmax(0,1fr))}
+.colzo-public-site .guide-card{
+    border:0!important;border-bottom:1px solid #43504b!important;
+    border-radius:0!important;background:transparent!important;
+    box-shadow:none!important
+}
+.colzo-public-site .guide-card summary{padding:17px 13px}
+.colzo-public-site .guide-icon{
+    border:1px solid #58664d!important;border-radius:4px!important;
+    background:transparent!important;color:#c8ff2e!important;box-shadow:none!important
+}
+.colzo-public-site .control{background:#121517!important;padding:112px 0!important}
+.colzo-public-site .control-options{
+    border-top:1px solid #3e4845;
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0
+}
+.colzo-public-site .control-options article{
+    padding:30px 30px 10px 0;border-right:1px solid #3e4845;margin-right:30px
+}
+.colzo-public-site .control-options article:last-child{border:0;margin-right:0}
+.colzo-public-site .control-options span{
+    font:600 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c8ff2e
+}
+.colzo-public-site .control-options h3{
+    font-size:clamp(22px,2.2vw,30px);letter-spacing:-.045em;
+    margin:30px 0 12px;color:#f2f3ef!important
+}
+.colzo-public-site .control-options p{
+    color:#a5b0ae!important;font-size:14px;line-height:1.7;margin:0
+}
+.colzo-public-site .pricing{
+    padding:80px 0!important;border-top:1px solid #323c3a;
+    background:#121517!important
+}
+.colzo-public-site .final-cta{
+    background:#d9f4a9!important;padding:115px 0 100px!important
+}
+.colzo-public-site .editorial-final{max-width:1320px}
+.colzo-public-site .editorial-final .section-number{color:#3e5f25!important;margin:0 0 28px}
+.colzo-public-site .editorial-final h2{
+    max-width:1040px;font-size:clamp(50px,6.6vw,98px);
+    line-height:1.05;letter-spacing:-.074em;font-weight:740;
+    color:#14201b!important;margin:0 0 27px
+}
+.colzo-public-site .editorial-final h2 span{color:#475e40}
+.colzo-public-site .editorial-final>p:not(.section-number):not(.final-footnote){
+    color:#384a37!important;font-size:17px;max-width:690px;line-height:1.6;margin:0 0 29px
+}
+.colzo-public-site .editorial-final .button-primary{
+    color:#f2f6ed!important;background:#18211b!important;border:0!important;
+    min-height:54px!important;display:inline-flex
+}
+.colzo-public-site .editorial-final .button-primary:hover{background:#324331!important}
+.colzo-public-site .editorial-final .final-footnote{
+    color:#4a6246!important;margin-top:55px;
+    font:600 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.colzo-public-site .site-footer{background:#111517!important;border-top:1px solid #3b4744!important}
+.colzo-public-site :is(a,button,input,summary):focus-visible{
+    outline:2px solid #c8ff2e!important;outline-offset:3px
+}
+@media(max-width:1030px){
+    .colzo-public-site .editorial-hero-grid{grid-template-columns:1fr 0.75fr;gap:34px}
+    .colzo-public-site .hero h1{font-size:clamp(53px,6.4vw,77px)!important}
+    .colzo-public-site .editorial-section-heading{grid-template-columns:145px minmax(0,1fr);gap:20px}
+    .colzo-public-site .editorial-section-heading>p:last-child{grid-column:2}
+    .colzo-public-site .editorial-feature{grid-template-columns:145px minmax(0,1fr) 45px}
+    .colzo-public-site .hero-photograph img{height:565px}
+}
+@media(max-width:720px){
+    .colzo-public-site .shell{width:calc(100% - 40px)}
+    .colzo-public-site .site-header .nav-wrap{height:auto;min-height:73px;padding:11px 0;gap:12px;flex-wrap:nowrap}
+    .colzo-public-site .nav-links{display:none!important}
+    .colzo-public-site .nav-actions{gap:10px}
+    .colzo-public-site .nav-actions .button-small{font-size:11px;min-height:38px;padding:0 11px}
+    .colzo-public-site .hero{padding:112px 0 0!important}
+    .colzo-public-site .hero-meta{font-size:9px;gap:8px}
+    .colzo-public-site .hero-meta span:last-child{white-space:nowrap}
+    .colzo-public-site .editorial-hero-grid{display:flex;flex-direction:column;align-items:stretch;gap:37px;padding:35px 0 35px}
+    .colzo-public-site .hero-kicker{font-size:10px;margin-bottom:22px}
+    .colzo-public-site .hero h1{font-size:clamp(45px,10.2vw,66px)!important;line-height:1.04!important;margin-bottom:25px!important}
+    .colzo-public-site .hero-lede{font-size:16px!important}
+    .colzo-public-site .hero-actions{gap:18px}
+    .colzo-public-site .hero-actions .button-primary{min-height:50px!important}
+    .colzo-public-site .hero-photograph img{height:min(110vw,550px);min-height:340px;object-position:center 30%}
+    .colzo-public-site .hero-photograph figcaption{font-size:9px}
+    .colzo-public-site .hero-rule{font-size:9px}
+    .colzo-public-site .editorial-intro{display:block;padding:66px 0}
+    .colzo-public-site .editorial-intro .section-number{margin:0 0 27px}
+    .colzo-public-site .editorial-intro>p:not(.section-number){font-size:clamp(34px,8vw,51px)}
+    .colzo-public-site .editorial-intro>span{font-size:13px;line-height:1.5;display:block}
+    .colzo-public-site .section{padding:78px 0}
+    .colzo-public-site .features,.colzo-public-site .how,.colzo-public-site .control,.colzo-public-site .final-cta{padding:77px 0!important}
+    .colzo-public-site .editorial-section-heading{display:block;margin-bottom:37px}
+    .colzo-public-site .editorial-section-heading .section-number{margin:0 0 25px}
+    .colzo-public-site .editorial-section-heading h2{font-size:clamp(40px,9.2vw,57px)!important}
+    .colzo-public-site .editorial-section-heading>p:last-child{margin-top:18px;max-width:450px}
+    .colzo-public-site .editorial-feature{grid-template-columns:38px 1fr 19px;gap:9px;padding:24px 0}
+    .colzo-public-site .feature-index{font-size:11px;padding-top:4px}
+    .colzo-public-site .feature-end{font-size:18px}
+    .colzo-public-site .editorial-feature h3{font-size:23px}
+    .colzo-public-site .editorial-feature p{font-size:13px}
+    .colzo-public-site .editorial-steps,.colzo-public-site .control-options{display:block}
+    .colzo-public-site .editorial-steps li,.colzo-public-site .control-options article{
+        border-right:0;border-bottom:1px solid #abb3a9;margin:0;padding:25px 0 27px
+    }
+    .colzo-public-site .control-options article{border-color:#3c4743}
+    .colzo-public-site .editorial-steps li:last-child,.colzo-public-site .control-options article:last-child{border-bottom:0}
+    .colzo-public-site .editorial-steps h3,.colzo-public-site .control-options h3{margin:16px 0 8px}
+    .colzo-public-site .howto-grid{grid-template-columns:1fr}
+    .colzo-public-site .editorial-final h2{font-size:clamp(44px,10vw,66px)}
+}
+@media(prefers-reduced-motion:reduce){
+    .colzo-public-site .hero-photograph,.colzo-public-site .editorial-feature,
+    .colzo-public-site .hero .reveal{animation:none!important;transform:none!important;transition:none!important}
+}
+
+/* Accessible native mobile navigation: desktop links remain unchanged. */
+.colzo-public-site .mobile-site-nav{display:none}
+.colzo-public-site .mobile-site-nav summary{
+  list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;
+  justify-content:center;gap:9px;padding:0 11px;color:#f1f2ef;
+  border:1px solid #546057;border-radius:9px;background:#1c2323;
+  font-size:12px;font-weight:650;-webkit-tap-highlight-color:transparent;
+}
+.colzo-public-site .mobile-site-nav summary::-webkit-details-marker{display:none}
+.colzo-public-site .mobile-site-nav summary:focus-visible{
+  outline:2px solid #c8ff2e;outline-offset:4px
+}
+.colzo-public-site .mobile-site-nav-icon{width:15px;height:15px;display:grid;align-content:center;gap:4px}
+.colzo-public-site .mobile-site-nav-icon span{display:block;width:15px;height:1px;background:#c8ff2e}
+.colzo-public-site .mobile-site-nav-panel{
+  position:absolute;z-index:101;top:calc(100% + 10px);right:0;
+  width:min(320px,calc(100vw - 36px));padding:12px;
+  display:grid;gap:2px;border:1px solid #4e5a54;border-radius:15px;
+  background:#171c1d;box-shadow:0 22px 55px rgba(0,0,0,.42);
+}
+.colzo-public-site .mobile-site-nav-panel a{
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:48px;padding:12px 13px;border-radius:9px;
+  color:#e9ede9;text-decoration:none;font-size:14px;font-weight:560;
+}
+.colzo-public-site .mobile-site-nav-panel a:hover,
+.colzo-public-site .mobile-site-nav-panel a:focus-visible{
+  color:#c8ff2e;background:#293229;
+}
+.colzo-public-site .mobile-site-nav-divider{
+  display:block;height:1px;background:#414c48;margin:9px 4px;
+}
+.colzo-public-site .mobile-site-nav-panel a.mobile-site-nav-pilot{
+  color:#151b17;background:#c8ff2e;font-weight:750;margin-top:5px;
+}
+.colzo-public-site .mobile-site-nav-panel a.mobile-site-nav-pilot:hover,
+.colzo-public-site .mobile-site-nav-panel a.mobile-site-nav-pilot:focus-visible{
+  color:#111710;background:#ddff85;
+}
+@media(max-width:720px){
+  .colzo-public-site .mobile-site-nav{display:block;position:relative;flex-shrink:0}
+  .colzo-public-site .nav-actions{margin-left:auto}
+}
+@media(max-width:380px){
+  .colzo-public-site .nav-actions .button-small{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .colzo-public-site .mobile-site-nav-panel{transition:none!important;animation:none!important}
+}
