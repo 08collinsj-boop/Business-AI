@@ -20,3 +20,8 @@ test('home and contact preserve approval-only pilot terms after website integrat
   assert.match(body,/approval|approved/i,path);
  }
 });
+test('public homepage does not mislabel live access as Development or promise deferred replies',()=>{
+ const body=text('site/index.html');
+ assert.doesNotMatch(body,/Development preview|existing development account|enquiries and replies/i);
+ assert.match(body,/Track your enquiries and progress/i);
+});
