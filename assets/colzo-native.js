@@ -790,7 +790,7 @@
   const input='<input id="cnKnowledgeFileInput" type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.csv,application/pdf,image/jpeg,image/png,image/webp,text/plain,text/csv">';
   const sourceActions=item=>{
    const review='<button type="button" class="cn-secondary" data-knowledge-open="'+safe(item.id)+'">View facts</button>';
-   const retry=canManage&&['pending_upload','failed'].includes(item.status)
+   const retry=canUpload&&['pending_upload','failed'].includes(item.status)
       ?'<button type="button" class="cn-secondary" data-knowledge-extract="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>'+ (item.status==='failed'?'Retry extraction':'Extract facts')+'</button>':'';
    const replace=canUpload&&['active','needs_review'].includes(item.status)
       ?'<button type="button" class="cn-secondary" data-knowledge-replace="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Replace file</button>':'';
@@ -819,7 +819,7 @@
       '<p class="cn-caption" id="cnKnowledgeReviewFeedback" role="status"></p>'+
       '<button class="cn-primary" type="submit" '+(state.knowledgeBusy?'disabled':'')+'>Confirm reviewed facts</button></form>':
       '<h2>Facts</h2>'+warning+(items.length?fields:'<p class="cn-caption">There are no extracted facts to review yet.</p>');
-   const recovery=canManage&&['pending_upload','failed'].includes(source.status)?
+   const recovery=canUpload&&['pending_upload','failed'].includes(source.status)?
       '<section class="cn-detail-panel"><h2>Extraction not completed</h2><p class="cn-caption">The file will not be used by the assistant until facts are extracted and approved. Extraction may use a chargeable AI provider and only starts after a separate confirmation.</p>'+
       '<button class="cn-secondary" type="button" data-knowledge-extract="'+safe(source.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Extract facts</button></section>':'';
    return title+progress+status+sourceInfo+recovery+'<section class="cn-detail-panel">'+approval+'</section>';
@@ -847,7 +847,7 @@
    '<div class="cn-knowledge-stats"><div><strong>'+countActive+'</strong><span>Approved facts</span></div><div><strong>'+countReview+'</strong><span>Awaiting review</span></div><div><strong>'+sources.length+'</strong><span>Sources</span></div></div>'+
    progress+status+buttons+(canUpload?input:'')+form+limits+filters+
    (state.knowledgeLoading?empty('Loading business knowledge…'):'')+
-   (rows||(!state.knowledgeLoading&&!state.knowledgeError?empty(sources.length?'No sources match this filter.':'No knowledge sources saved yet. Add a manual fact or upload a document to begin.'):''));
+   (rows||(!state.knowledgeLoading&&!state.knowledgeError?empty(sources.length?'No sources match this filter.':'No knowledge sources saved yet. Add a business fact to begin.'):''));
  }
  async function loadBilling(force=false){
   const requestEpoch=sessionEpoch;

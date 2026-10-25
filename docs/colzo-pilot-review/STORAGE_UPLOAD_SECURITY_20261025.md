@@ -23,3 +23,9 @@ Both Vercel configurations explicitly disable automatic deployment for `fix/colz
 - Website help copy now labels Marketing outside the scoped pilot and explains that public paid subscriptions are unavailable, with no card or automatic conversion. Existing guides remain present; full website build/link checks passed with this copy.
 
 No actual expired/revoked-token Storage exploit, real Auth/MFA flow, accepted matching Preview, physical iPhone or genuine-data recovery was tested. Overall onboarding remains NO-GO.
+
+## Remote-head reconciliation
+
+A fresh check before publication found PR #63 had advanced separately to `db4e5ebc7cfb719615118c9efafcaf23f848767e`, through `4c8931a` (Knowledge upload/finalisation guard and legacy UI), `3e73ff6` (auxiliary Marketing boundaries) and `db4e5eb` (Voice flag lock). The isolated continuation now includes that exact head through a local two-parent merge; PR #63's source branch was not changed here. Removed the duplicate Knowledge import and overlapping token guard, preserving the existing broader create/finalise restriction with the denial code. Native extraction retry is hidden when uploads are unavailable. Added an explicit scoped/manual-fact explanation to the website guide.
+
+Fresh consolidated `npm run verify`: **1,350 passed, zero failures, skipped or cancelled; build passed; 349 JavaScript files passed static verification; exit 0.** This supersedes the earlier 1,346 count for the combined candidate. Exact merge/documentation SHA and publication evidence are recorded in the continuation report.
