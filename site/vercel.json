@@ -2,7 +2,8 @@
   "git": {
     "deploymentEnabled": {
       "feature/colzo-scoped-pilot-access-20261023": false,
-      "integration/colzo-pilot-readiness-20261025": false
+      "integration/colzo-pilot-readiness-20261025": false,
+      "fix/colzo-pilot-continuation-20261025": false
     }
   }
 }

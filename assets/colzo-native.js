@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationEditing:false,automationPlanningBusy:false,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:''});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanUpload:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationEditing:false,automationPlanningBusy:false,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:''});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -435,7 +435,7 @@
   finally{state.publicProfileBusy=false;const btn=content.querySelector('#cnPublicProfileForm [type=submit]');if(btn)btn.disabled=false}
  }
  async function uploadNativeProfileMedia(file,slot){
-  if(state.publicMediaBusy||state.publicProfileBusy||state.publicProfileData?.can_edit!==true||!['avatar','banner'].includes(slot)||!file)return;
+  if(state.publicMediaBusy||state.publicProfileBusy||state.publicProfileData?.can_edit!==true||state.publicProfileData?.can_upload_media===false||!['avatar','banner'].includes(slot)||!file)return;
   const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
   const name=String(file.name||''),ext=name.split('.').pop().toLowerCase(),mime=types[ext];
   if(!mime||mime!==file.type||file.size<1||file.size>8*1024*1024||name.length>240||name.includes('/')||name.includes('\\')){
@@ -493,13 +493,15 @@
   const d=state.publicProfileData?.profile,canEdit=state.publicProfileData?.can_edit===true;
   const field=(name,label,type='text',max=500)=>'<label>'+label+'<input name="'+name+'" type="'+type+'" maxlength="'+max+'" value="'+safe(d?.[name]||'')+'" '+(!canEdit?'disabled':'')+'></label>';
   const mediaDisabled=(state.publicMediaBusy||state.publicProfileBusy)?'disabled':'';
+  const uploadDisabled=state.publicProfileData?.can_upload_media===false?'disabled':mediaDisabled;
   const area=(name,label,max)=>'<label>'+label+'<textarea name="'+name+'" rows="3" maxlength="'+max+'" '+(!canEdit?'disabled':'')+'>'+safe(d?.[name]||'')+'</textarea></label>';
   return '<header class="cf-screen-top"><div><span class="cn-kicker">PUBLIC BUSINESS PAGE</span><h1>Public profile</h1></div><button class="cf-icon-button" type="button" data-public-profile-refresh aria-label="Refresh public profile">↻</button></header><p class="cn-caption">Manage the verified details customers see on your business page.</p>'+(state.publicProfileLoading?empty('Loading public profile…'):'')+(state.publicProfileError?empty(state.publicProfileError,'<button type="button" data-public-profile-refresh>Try again</button>'):'')+(d?'<section class="cn-detail-panel"><h2>Customer-facing preview</h2>'+(d.profile_banner_url?'<img class="cn-public-banner" src="'+safe(d.profile_banner_url)+'" alt="Business banner">':'')+(d.profile_image_url?'<img class="cn-public-avatar" src="'+safe(d.profile_image_url)+'" alt="Business profile image">':'')+'<h3>'+safe(d.business_name||'Business name not set')+'</h3><p>'+safe(d.description||'No public description yet.')+'</p><p class="cn-caption">'+safe(d.public_slug?'Public link is configured':'Public link not configured')+'</p>'+(d.preview_path?'<a class="cn-text-action" href="'+safe(d.preview_path)+'" target="_blank" rel="noopener">Preview public page ↗</a>':'')+'</section><section class="cn-detail-panel cn-profile-media-controls"><h2>Logo and cover image</h2><p class="cn-caption">Use your own JPG, PNG or WebP images (maximum 8 MB). The server checks the actual file content before changing your public profile.</p>'+
+  (state.publicProfileData?.can_upload_media===false?'<p class="cn-caption">Image uploads are unavailable in this pilot. You can still edit your business details.</p>':'')+
   (state.publicMediaFeedback?'<p class="cn-work-message" role="status">'+safe(state.publicMediaFeedback)+'</p>':'')+
   (canEdit?'<input type="file" id="cnPublicMediaInput" hidden accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">'+
-    '<div class="cn-form-actions"><button type="button" class="cn-secondary" data-public-media-upload="avatar" '+mediaDisabled+'>Upload logo</button>'+
+    '<div class="cn-form-actions"><button type="button" class="cn-secondary" data-public-media-upload="avatar" '+uploadDisabled+'>Upload logo</button>'+
     (d.profile_image_path?'<button type="button" class="cn-secondary" data-public-media-remove="avatar" '+mediaDisabled+'>Remove logo</button>':'')+'</div>'+
-    '<div class="cn-form-actions"><button type="button" class="cn-secondary" data-public-media-upload="banner" '+mediaDisabled+'>Upload cover</button>'+
+    '<div class="cn-form-actions"><button type="button" class="cn-secondary" data-public-media-upload="banner" '+uploadDisabled+'>Upload cover</button>'+
     (d.profile_banner_path?'<button type="button" class="cn-secondary" data-public-media-remove="banner" '+mediaDisabled+'>Remove cover</button>':'')+'</div>':
     '<p class="cn-caption">Only owners and administrators can change these images.</p>')+
   '</section><section class="cn-detail-panel cn-colzo-record-form"><form id="cnPublicProfileForm">'+field('business_name','Business name','text',120)+field('business_type','Business type','text',120)+field('phone','Phone','tel',80)+field('email','Contact email','email',160)+field('website','Website','url',2048)+area('description','Public description',2000)+area('services','Services',4000)+area('opening_hours','Opening hours',500)+area('service_areas','Service areas',500)+'<p class="cn-caption" id="cnPublicProfileFeedback" role="status">'+safe(state.publicProfileFeedback)+'</p>'+(canEdit?'<button class="cn-primary" type="submit">Save public profile</button>':'<p class="cn-caption">You have read-only access to this profile.</p>')+'</form></section>':'');
@@ -647,7 +649,7 @@
   const requestEpoch=sessionEpoch;
   if(state.knowledgeLoading||(!force&&Array.isArray(state.knowledgeSources)))return;
   state.knowledgeLoading=true;state.knowledgeError='';if(state.screen==='knowledge')render();
-  try{const result=await api('/api/knowledge');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.sources))throw new Error('Unexpected business knowledge response.');state.knowledgeSources=result.sources;state.knowledgeCanManage=result.can_manage===true;state.knowledgeCanAddManual=result.can_add_manual===true;state.knowledgeLimits=result.limits||null}
+  try{const result=await api('/api/knowledge');if(requestEpoch!==sessionEpoch)return;if(!Array.isArray(result?.sources))throw new Error('Unexpected business knowledge response.');state.knowledgeSources=result.sources;state.knowledgeCanManage=result.can_manage===true;state.knowledgeCanAddManual=result.can_add_manual===true;state.knowledgeCanUpload=result.can_upload===undefined?state.knowledgeCanManage:result.can_upload===true;state.knowledgeLimits=result.limits||null}
   catch(error){if(requestEpoch!==sessionEpoch)return;state.knowledgeError=error?.message||'Business knowledge could not be loaded.'}
   finally{if(requestEpoch!==sessionEpoch)return;state.knowledgeLoading=false;if(state.screen==='knowledge')render()}
  }
@@ -701,7 +703,7 @@
   finally{state.knowledgeBusy=false;if(button?.isConnected)button.disabled=false}
  }
  async function uploadNativeKnowledgeFile(file,replaceId=null){
-  if(state.knowledgeBusy||!state.knowledgeCanManage||!file)return;
+  if(state.knowledgeBusy||!state.knowledgeCanUpload||!file)return;
   const mimetypes={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',txt:'text/plain',csv:'text/csv'};
   const ext=String(file.name||'').split('.').pop().toLowerCase();
   const expected=mimetypes[ext];
@@ -765,7 +767,7 @@
  }
  function knowledge(){
   const detail=state.knowledgeDetail,source=detail?.source,items=detail?.items||[],sources=state.knowledgeSources||[];
-  const canManage=state.knowledgeCanManage,canAddManual=state.knowledgeCanAddManual;
+  const canManage=state.knowledgeCanManage,canUpload=state.knowledgeCanUpload,canAddManual=state.knowledgeCanAddManual;
   const typeOptions=(current='other')=>['service','product','price','hours','policy','faq','contact','location','dietary','other']
     .map(type=>'<option value="'+type+'" '+(type===current?'selected':'')+'>'+type[0].toUpperCase()+type.slice(1)+'</option>').join('');
   const status=state.knowledgeError?'<p class="cn-settings-error" role="alert">'+safe(state.knowledgeError)+'</p>':'';
@@ -790,7 +792,7 @@
    const review='<button type="button" class="cn-secondary" data-knowledge-open="'+safe(item.id)+'">View facts</button>';
    const retry=canManage&&['pending_upload','failed'].includes(item.status)
       ?'<button type="button" class="cn-secondary" data-knowledge-extract="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>'+ (item.status==='failed'?'Retry extraction':'Extract facts')+'</button>':'';
-   const replace=canManage&&['active','needs_review'].includes(item.status)
+   const replace=canUpload&&['active','needs_review'].includes(item.status)
       ?'<button type="button" class="cn-secondary" data-knowledge-replace="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Replace file</button>':'';
    const remove=canManage?'<button type="button" class="cn-secondary" data-knowledge-remove="'+safe(item.id)+'" '+(state.knowledgeBusy?'disabled':'')+'>Remove</button>':'';
    return '<div class="cn-form-actions">'+review+retry+replace+remove+'</div>';
@@ -838,12 +840,12 @@
     '<button class="cn-secondary" type="button" data-knowledge-cancel>Cancel</button></div></form></section>':'';
   const buttons='<div class="cn-knowledge-actions">'+
    (canAddManual?'<button class="cn-primary" type="button" data-knowledge-create '+(state.knowledgeBusy?'disabled':'')+'>+ Add fact</button>':'')+
-   (canManage?'<button class="cn-secondary" type="button" data-knowledge-upload '+(state.knowledgeBusy?'disabled':'')+'>Upload document</button>':'')+'</div>';
-  const limits=state.knowledgeLimits?'<p class="cn-caption">Upload limits: '+state.knowledgeLimits.max_sources+' sources, '+uploadMax+' MB per file. Supported: PDF, JPG, PNG, WebP, TXT and CSV.</p>':'';
+   (canUpload?'<button class="cn-secondary" type="button" data-knowledge-upload '+(state.knowledgeBusy?'disabled':'')+'>Upload document</button>':'')+'</div>';
+  const limits=!canUpload?'<p class="cn-caption">File uploads are unavailable in this pilot. Add a manual business fact instead.</p>':state.knowledgeLimits?'<p class="cn-caption">Upload limits: '+state.knowledgeLimits.max_sources+' sources, '+uploadMax+' MB per file. Supported: PDF, JPG, PNG, WebP, TXT and CSV.</p>':'';
   return '<header class="cf-screen-top"><h1>Business Knowledge</h1><button class="cf-icon-button" type="button" data-knowledge-refresh aria-label="Refresh business knowledge">↻</button></header>'+
    '<p class="cn-caption">The facts Colzo can use to answer customers and prepare grounded marketing. Nothing becomes active without your review.</p>'+
    '<div class="cn-knowledge-stats"><div><strong>'+countActive+'</strong><span>Approved facts</span></div><div><strong>'+countReview+'</strong><span>Awaiting review</span></div><div><strong>'+sources.length+'</strong><span>Sources</span></div></div>'+
-   progress+status+buttons+(canManage?input:'')+form+limits+filters+
+   progress+status+buttons+(canUpload?input:'')+form+limits+filters+
    (state.knowledgeLoading?empty('Loading business knowledge…'):'')+
    (rows||(!state.knowledgeLoading&&!state.knowledgeError?empty(sources.length?'No sources match this filter.':'No knowledge sources saved yet. Add a manual fact or upload a document to begin.'):''));
  }
