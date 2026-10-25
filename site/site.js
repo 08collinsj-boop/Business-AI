@@ -39,3 +39,21 @@
     dialog.addEventListener('click',e=>{const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();});
   }
 })();
+
+// Navigation is a native disclosure so its links still work without JavaScript.
+(()=>{
+  const menu=document.querySelector('details.mobile-site-nav');
+  if(!menu)return;
+  menu.querySelectorAll('a[href^="#"]').forEach(link=>{
+    link.addEventListener('click',()=>{menu.open=false;});
+  });
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&menu.open){
+      menu.open=false;
+      menu.querySelector('summary')?.focus();
+    }
+  });
+  document.addEventListener('click',event=>{
+    if(menu.open&&!menu.contains(event.target))menu.open=false;
+  });
+})();
