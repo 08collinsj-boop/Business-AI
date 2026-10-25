@@ -101,3 +101,8 @@ No password, code, key or backup should be sent through chat. No immediate MFA i
 | Public paid launch | FAIL | Paid rollout deferred and release/privacy/recovery gates unmet |
 
 Automated test PASS is only one gate. It is not permission to onboard customers, apply shared SQL or publish code.
+
+
+## Later continuation — updated source and schema replay
+
+The earlier PR-head, test-count and missing-extension-runtime statements above are historical. See [CONTINUATION_20261025.md](CONTINUATION_20261025.md) for the new isolated candidate, current PR #63 head `db4e5eb`, 1,350 passing tests and complete 65-step diagnostic replay with all seven source extension versions/namespaces and selected effective privileges matching. This remains schema-only reconstruction with platform stubs, not genuine Development data recovery. Onboarding remains NO-GO.

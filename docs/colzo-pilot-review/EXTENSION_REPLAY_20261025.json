@@ -1,0 +1,518 @@
+{
+  "scope": "Offline diagnostic schema reconstruction, not a source backup, not full Supabase acceptance. Failed migrations were attempted and retained; downstream replay only diagnoses additional differences.",
+  "server": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+  "results": {
+    "candidate": {
+      "status": "REPLAYED_WITH_PLATFORM_STUBS",
+      "attempts": [
+        {
+          "id": "RECORDED:20260911230000_create_initial_lead_schema",
+          "sql_sha256": "e9fcadb7f674835bdcb92ff34150560f21e68ee6ffeaccd7229f038e0e0c050e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260911235034_add_lead_status",
+          "sql_sha256": "6498ba48962d783c5741ad35597b274d534e361092036ff92ae163e28b592052",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260913233511_add_business_settings",
+          "sql_sha256": "cf86a56cf915e82697c0168184285d0e765375e0612e789f062c4f740e11c5be",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260914195529_enable_rls_business_settings",
+          "sql_sha256": "b8236fc5ee761cfbc96f082a5a200fc856b2aac6a3f6f610de201a34c9281901",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260915000000_add_multi_tenant_auth",
+          "sql_sha256": "3b48ad5a165f3a13932fcc48d31fcc88c96954c5567d47c0b09e2a0942463f7d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260915010000_add_bookings_actions",
+          "sql_sha256": "5af9b6c602b01dfe7fdb237ea184d602cd37e618529bb970fe04427d4ab9100d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916153249_add_voice_receptionist_foundation",
+          "sql_sha256": "754d0dcbc4c9361fc9e333d10d4211c95b3c203a23d2201ff9ce0d4a21e55bff",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916154907_add_voice_foreign_key_indexes",
+          "sql_sha256": "dfdf175822f1ce193de6f04936c69b18febd0198f5c6bb86828f5ce831d972e5",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916170000_add_business_configuration_onboarding",
+          "sql_sha256": "a29b96f877a2cc54f9c3cad1cbe3971e54927e965f51279b93ca7298e74ea0de",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916180000_add_business_creation_and_public_routes",
+          "sql_sha256": "d58fe32b1278ac6c279fd8f2115ca7b68f986bb1e009f82d55b72ece6c74008f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916190000_add_pilot_hardening_foundation",
+          "sql_sha256": "fcc95406b7c50bfe4b4afd56991f6a75724640f0e383d57c9c6ab01c139b163c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260916191000_add_lifecycle_policy_for_new_businesses",
+          "sql_sha256": "eba04ded1a253ed21bbe0b612ca16de2cbabff50421414fbb319fdcd38f10010",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917113857_add_pilot_team_and_handover_operations",
+          "sql_sha256": "effb38c8f1d359a8070363c9fb8d81b4ee23e4b1a0d3765a96185f2c56ccdc39",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917202438_add_stripe_billing_foundation",
+          "sql_sha256": "1cf96a05102fbd0f08d7836b40e2310e100eba3dd356f43020ebf66aed280abc",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917203724_add_atomic_paid_trial_activation",
+          "sql_sha256": "3a32327ccbb0bdcb1c3c78b23ea4807fe5d4361fe574949a6f2cd78f63c2b741",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260917221830_add_resumable_business_onboarding_state",
+          "sql_sha256": "077611b0329b43cc61d36eb0d2750d232b599f6d03b609e26f786c4a44055faf",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260922160645_add_ai_handling_modes",
+          "sql_sha256": "9376750610cbb12af775625852fdb890042ef3553087c8462d3ec873e28709f9",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923120000_add_addons_marketing",
+          "sql_sha256": "7750c503cd5b7af7f3d2d4788e2e9d51170871a199a9eb947a9e7b68b0ceaf4d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923190000_add_ai_enquiry_reservation_release",
+          "sql_sha256": "5df99995a2ac11e79d0723929babf6f82df982ec8d7d451f0296d14a75a6b87b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923193000_add_business_knowledge_uploads",
+          "sql_sha256": "a43192f19774996eeed7c086eb222d11554b24d0af6033c67b40f143f2e37d1c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923200000_add_marketing_publishing_and_feedback",
+          "sql_sha256": "b54b79a0ebbc57a246b46c69ee4666001bfea4970d89d8449d0795f9834d1e1d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260923213424_add_marketing_billing_period_allowances",
+          "sql_sha256": "30f1646a77b260b654330036498239346b9f7734892bb10176253e3d569d6787",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260925174629_fix_stripe_marketing_entitlement_sync",
+          "sql_sha256": "22961f2ba5fef1b25d400c52eb1f403b3eece2fd7471639f1b6ada2a7136b966",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260925174915_align_stripe_entitlement_expiry_constraint",
+          "sql_sha256": "97615883b536ae18e7034b592d5b2a59216e8ca61aac6adfb940b5615c0acc04",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20260926233524_add_marketing_automation_images.sql",
+          "sql_sha256": "e1b9708b78c67295d0bd835763cd4364b6350d69df9af23635a5aa3ecae91517",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927105141_add_legal_acceptances",
+          "sql_sha256": "3b21f405d2893940b933f18f8b3b314b90e7093f7ed9c6a77d3a79ac75c015b2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927170722_add_marketing_schedules",
+          "sql_sha256": "79a391c25edd797a6fbdf41ba8bcc5c99b45e2d983a09f697be2213e104b1fa7",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927170938_process_due_marketing_schedules",
+          "sql_sha256": "292be3fb5795071c4443be05ca71ac369b7d63dbc4db5e5f7f054e3345f0800b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927171406_enable_marketing_scheduler_extensions",
+          "sql_sha256": "4dea9e330202171ac651365f89789d869d393a17a3787d7d5b922147fcf44426",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927171656_meta_native_marketing_schedules",
+          "sql_sha256": "ccf9251b2312562622ebcea29e6fed46be85888c8df6db7fe4527514b9782928",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927183105_allow_cloudflare_marketing_images",
+          "sql_sha256": "211f33ad3fad72f3d6c4f2a9de3b365f02f16951262d1edb237ec8813b4a7dc1",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927193707_add_marketing_usage_limits",
+          "sql_sha256": "5e3becc5223fc21e5726bbf012e4389f98ad7c23d9e6d72205ff0bd1bdeb75fb",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927194353_add_marketing_usage_limits",
+          "sql_sha256": "2195fa17cbb933d33d68f0a3c4550a91dc470cd83820a97e8ce779f3e6b5ee32",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927224235_add_directory_visibility",
+          "sql_sha256": "e6a08c3d93665f428ef5becafb99ef19647629275725a8dd4dbea851ed26ba10",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260927231059_add_customer_portal",
+          "sql_sha256": "b0793df1e5a6e6211518acf2efa37d20ee1e2e60d90d5c5574d569d139a7acdb",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260928183625_refine_public_enquiry_quote_followups",
+          "sql_sha256": "98ca6601c1e9dbfc019cb18119fadd64096a435e1700c07055132f1ec551a0f4",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260928233058_allow_owner_uploaded_marketing_photos",
+          "sql_sha256": "fee69cf28780605b27ae7c4686f949726d0adbc7cfb37b97690138071dc5d96f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260929102437_add_business_referrals",
+          "sql_sha256": "7bf99e5bef179106a43abd9406ebe55cec00befe0736b96cb1ac4e73151811a1",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20260929124200_add_automatic_follow_up_settings.sql",
+          "sql_sha256": "e199ddbf13458aa9935e23b6b870f6f89f1bdcfb70f2c598789f7e94077f9676",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20260929144034_add_review_requests.sql",
+          "sql_sha256": "9e9d50b1eeda5545197c53e28793bcc5b60e6e7e78f0c75b25e9b285e82e839a",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20260930185802_fix_referral_profile_conflict_ambiguity",
+          "sql_sha256": "96990f8f7b4e9d2c48e1dfeb0270b9527877bd49b20d47f85f48f0c1a7731f84",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261001201424_add_contextual_handover_summaries",
+          "sql_sha256": "523afa22509ff7dbabf3306f903bf15dca777b9ba14ec5f77a54d68d01000cab",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261001213801_remove_unused_pg_net",
+          "sql_sha256": "0920528168d2e6dbc48b4a1d6ed1ad6bc8273b1503bee8c3282a78306c4aea17",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261001213843_document_server_only_rls_policies",
+          "sql_sha256": "aa5fb59adf422127b83abe9f736e0ac922a0c2406e31a20958f9d1524cfd1777",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002192840_add_marketing_automation_media",
+          "sql_sha256": "8f27433b7ccb03c9164ab722efec17cd1e446eff5ab63484aca1e22b739a7a4f",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002193007_harden_marketing_automation_media",
+          "sql_sha256": "573b65b91fc8714a4273f180cb8587ea30c0d8286985c6deba214c501129d779",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002225450_add_marketing_strategy_planning",
+          "sql_sha256": "4d1de1a7db94a4eaf38a002f67168dfa1f6c1210584c41a7c5d604113571589b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261002231245_add_marketing_strategy",
+          "sql_sha256": "4ff546d041183f45748276b4a7f3041c0bb5aca0417029445ad61f33826776f2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261003212959_add_incident_controls",
+          "sql_sha256": "6ad37a9c4353e7af8b2af489e5939c8107550298e009fbfbf03228b318b1f036",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261004163922_add_feedback_title_and_other",
+          "sql_sha256": "3686ccf6546c38e168e029620a32a0feca9a90d656685ccbf50b2490c9300329",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20261004231500_add_business_public_profile_media.sql",
+          "sql_sha256": "d023fa955f2ec500ee5a744829a71573c8cb5282c33255f148da912264837187",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261005090954_add_platform_ops_snapshot",
+          "sql_sha256": "c6510ccdfe6b8c4b55af1785435775a0fc03743435d2c8f8bf1c68b3efb0147b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261005220853_add_marketing_automation_frequency",
+          "sql_sha256": "a1867eab5809abf8a5c85e418fdd611f3c552c43096c72fad5daca244043563b",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261005221447_enable_pg_net_for_marketing_scheduler",
+          "sql_sha256": "ff918bab993bbca2d66e1d12277c27fbd4845011972fd336fef3b566b86065a0",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008214459_pilot_block_unattended_marketing_publishing",
+          "sql_sha256": "cd0defe521c0eaf33cd004d307e54195e9f4a611da23faba574c1e0cbc5cb9b2",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008214658_pilot_prevent_duplicate_marketing_scheduled_slots",
+          "sql_sha256": "ec931f9f82d8003a5a55bf00412b4688a3dd68f638730791597b78d5ae5376b7",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots",
+          "sql_sha256": "e3159361604a24ba6ddc2879d4edae644d174310bc5a4bddd4ae43ab8545683e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261008215744_pilot_identify_and_block_automatic_marketing_publications",
+          "sql_sha256": "b0926abe5753d31ade6436125223d37fca6bbc2f050c078a2e8c5da87f10d01c",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20261010_pilot_free_starter_marketing.sql",
+          "sql_sha256": "032e8afe33e67f074188645532bde5ba0fae7186b2d23684ea9ecf700748ed81",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012215816_post_pilot_trustpilot_review_destinations",
+          "sql_sha256": "5ee2c5958fde6020a62cf9a49d1005052aecbfc7a02954b1a74e95e49f58bd76",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012215824_post_pilot_customer_complaints",
+          "sql_sha256": "bbf62d095dcfc961d4f06ede770a3d149c1d6eb61e8787e7dbc4a6f03c95270d",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012215830_post_pilot_review_email_queue",
+          "sql_sha256": "f6a5fdb1331c69b0dc0c063a502e01603582d9fe8324212ff2db2a2eb46eff8e",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261012223925_post_pilot_colzo_projects_quotes_clients",
+          "sql_sha256": "e56146262479290615b447b1ea211abea98247565ae542d33e12636068ff7665",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "RECORDED:20261016153313_colzo_whatsapp_synthetic_inbox_dev_20261016",
+          "sql_sha256": "6a968ae47d44ecf4085fa4950f9638dd508134385671225a53f4be1856d02399",
+          "ok": true,
+          "error": null
+        },
+        {
+          "id": "REPO_ONLY:20261019162954_colzo_lead_write_versions.sql",
+          "sql_sha256": "202d0f4ba3956e6ab4eb2703c3d9887e5db128a7f329ffab1b63cfc29e0ec1e9",
+          "ok": true,
+          "error": null
+        }
+      ],
+      "diff": {
+        "tables": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "columns": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "constraints": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "indexes": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "policies": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "functions": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        },
+        "triggers": {
+          "actual_only": [],
+          "replay_only": [],
+          "changed": []
+        }
+      },
+      "catalog_sha256": "407cdefd776c6238f266377d4853a4a1c9bc292cff771812414bdd121f1c4ba5"
+    }
+  },
+  "verified_at_utc": "2026-10-25T23:11:37.014602+00:00",
+  "effective_privilege_comparison": {
+    "table_privileges": {
+      "source_count": 156,
+      "replayed_count": 156,
+      "source_only": [],
+      "replay_only": [],
+      "changed": []
+    },
+    "function_privileges": {
+      "source_count": 66,
+      "replayed_count": 66,
+      "source_only": [],
+      "replay_only": [],
+      "changed": []
+    }
+  },
+  "runtime_metadata": {
+    "extensions": [
+      {
+        "name": "plpgsql",
+        "version": "1.0",
+        "schema": "pg_catalog"
+      },
+      {
+        "name": "pg_cron",
+        "version": "1.6.4",
+        "schema": "pg_catalog"
+      },
+      {
+        "name": "pg_stat_statements",
+        "version": "1.11",
+        "schema": "extensions"
+      },
+      {
+        "name": "pgcrypto",
+        "version": "1.3",
+        "schema": "extensions"
+      },
+      {
+        "name": "supabase_vault",
+        "version": "0.3.1",
+        "schema": "vault"
+      },
+      {
+        "name": "uuid-ossp",
+        "version": "1.1",
+        "schema": "extensions"
+      },
+      {
+        "name": "pg_net",
+        "version": "0.20.4",
+        "schema": "extensions"
+      }
+    ],
+    "cron_jobs": 0,
+    "net_requests": 0,
+    "tcp_listen": "",
+    "cron_launch_active_jobs": "off"
+  },
+  "extension_comparison": {
+    "source_only": [],
+    "replay_only": [],
+    "changed": []
+  },
+  "archive_sha256": "f3a4389c92c550597cacf8c71c74af025b8e75259753c4e78bb5014e6f29e6f2",
+  "live_catalog_sha256": "dcc095adcd0d85a4382f797dc97b766db76dec393e2095c1510e78274452ed42",
+  "ledger_entries": 59,
+  "ledger_exactly_matches_archive": true,
+  "platform_baseline_sql": "CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA extensions; CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions; CREATE SCHEMA IF NOT EXISTS vault; CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA extensions;",
+  "runner_scope": "Scratch copy: candidate-only, plus platform extension baseline appended to bootstrap. Repository runner unchanged.",
+  "limitations": [
+    "No actual Development rows, Auth state or Storage bytes restored",
+    "Minimal Auth/Storage stubs, not GoTrue/Storage-service acceptance",
+    "No authentication, MFA, session, email or object-byte verification",
+    "Default ACL/role/schema inventories outside selected 156 table and 66 function effective privilege rows not fully compared",
+    "PostgreSQL runtime 17.11 differs from source 17.6; no complete runtime/config recovery"
+  ],
+  "cluster_stop_exit": 0
+}

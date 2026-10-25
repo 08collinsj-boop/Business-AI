@@ -15,7 +15,7 @@ Start with example information. Do not send customer records, passwords, payment
 1. Agree the business, owner and second user with us. We verify ownership and approve the exact accounts before creating access.
 2. Follow the approved secure account setup. Verify your email and set up the authenticator on the correct Colzo account. Keep recovery information privately; never send codes to support.
 3. Check your business name, service area, services, opening hours and contact route.
-4. Add a few accurate answers to common questions in Business Knowledge. Review extracted facts before approving them. Correct anything uncertain.
+4. Add a few accurate answers to common questions in Business Knowledge. File uploads and extraction are unavailable during this scoped pilot. Review entered facts before approving them. Correct anything uncertain.
 5. Agree how enquiries should reach your team and choose the receptionist handling style. Start with human oversight.
 6. Test using made-up names and contact information. Ask about services and hours, request a quote, request a booking and say “Do not book anything”. Check the results with us.
 7. Add the website enquiry link or widget only after we confirm activation. Keep your existing customer contact route available.
