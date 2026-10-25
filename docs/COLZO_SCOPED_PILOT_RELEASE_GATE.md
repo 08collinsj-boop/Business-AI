@@ -1,0 +1,44 @@
+# Colzo: per-business free pilot access - draft release gate
+Date: 24 October 2026
+Target branch: feature/colzo-scoped-pilot-access-20261023
+Based on free-pilot QA branch qa/colzo-free-pilot-scope-20261023 (2337495db537d44ad8f66f017347495807e3e09f)
+
+**Status: Development draft only. NOT APPROVED to deploy, merge, invite testers or apply SQL.**
+Latest continuation: [GitHub recovery, workspace enforcement and acceptance gates](colzo-pilot-review/RECOVERY_AND_SECURITY_20261024.md).
+This change does not create pilot accounts, trigger messages, activate Stripe or change Supabase.
+
+## Behaviour
+- The feature flag COLZO_SCOPED_PILOT_ACCESS must equal "true"; otherwise the existing paths remain intact.
+- Scoped mode can only grant access on Vercel Preview connected to Supabase Dev project mvwseobgkexzpmmkgcxe, with the legacy broad PILOT_FREE_STARTER_MARKETING flag not "true".
+- Each existing verified business ID requires a single manually approved, active database grant.
+- Grant duration is exactly 14 x 24 hours from activation. Missing, revoked, invalid, not-yet-started and expired grants fail closed.
+- Enquiry reservations reuse the existing atomic server-side billing usage RPC with a business-specific activation period and Starter's 250-enquiry limit.
+- The free scoped pilot permits up to two staff seats and does not initiate payment collection.
+- AI Marketing is deliberately blocked in the new scoped mode; this does not silently grant the paid add-on.
+- The scoped billing endpoint returns owner-readable status and refuses POST checkout. Authenticated business-membership checks remain unchanged.
+
+## Staged schema - NOT a migration
+The proposed SQL is at docs/colzo-pilot-review/scoped-pilot-access.STAGED.sql, deliberately **outside** supabase/migrations to prevent automatic application. It includes RLS, denies direct browser-role privileges and grants server SELECT only. It has never been run against Dev or Production.
+
+## Essential blockers before any real invitation
+1. Perform a private, independently restored backup of shared Dev data, Auth/Storage and essential configuration; reconcile known migration-ledger drift before any DDL.
+2. Review and approve the SQL in isolation, install on a disposable database and test permissions, grants and recovery before touching Dev.
+3. Create a controlled, audited operator approval process for grants. There is intentionally no public self-grant endpoint, and no real invite or user account was created.
+4. Verify a fresh exact-SHA Preview and two real independent authorised accounts, signup confirmation, MFA, owner/member permissions, iPhone Safari, cross-tenant denials, expiry and review-flow behaviour.
+5. Retest the new shared workspace expiry gate on an approved exact-SHA Preview. It denies protected business reads/writes; account recovery and customer-owned history remain separate. Team mutations are blocked until an audited atomic seat workflow is independently approved.
+   Repository baseline authenticated SELECT/RLS policies do not check pilot expiry: direct database access remains a blocker until independently reviewed database enforcement and recovery are verified.
+6. Update the public/signup copy. Existing free Pilot banner is tied to the legacy broad flag, so do not claim this scoped mode is an end-to-end, self-service trial.
+7. Final acceptance with legal, hosting, billing, support and operational decision recorded. Production, older Pilot, DNS and paid providers remain out of scope.
+
+## Verification
+- RED: billing integration tests initially failed before the scoped access branch was wired into billing and add-ons.
+- GREEN: 11 new scoped tests passed; targeted billing/add-on/onboarding/Stripe group: 75 passed; React build and static validation passed.
+- Full local regression completed: **1,259 passed; zero failed, skipped or cancelled** on Node 24.19.0. Build passed. Static verification checks 323 JavaScript files, secret patterns and temporary markers.
+- The earlier remote timeout did not reproduce natively. The existing PGlite migration regression passed both independently and in full runs; no timeout or migration code was altered.
+- The inherited-paid-account add-on mutation gap was reproduced with a synthetic failing test and fixed. Both billing and add-on mutations are now blocked in scoped mode; original non-scoped paid billing paths are preserved.
+- Detailed account-system review, privilege caveats, seat-race/acceptance gaps and remaining invitation blockers: [24 October review](colzo-pilot-review/REVIEW_20261024.md).
+- Existing GitHub regression workflows do not target this branch/base. Local verification is not GitHub CI or deployed acceptance.
+- Do not infer real-account acceptance from synthetic tests.
+
+## Safe release/rollback
+This branch is intended for an unmerged **draft** pull request. Never enable COLZO_SCOPED_PILOT_ACCESS while the table is absent or incomplete. If an approved Preview is misconfigured, unset its flag and retest. Do not drop tables or erase customer records to roll back.

@@ -81,7 +81,7 @@ export default async function handler(req, res) {
   if (!delegated) return res.status(404).json({ error: "Not found" });
   // Fail closed at the Colzo Preview dispatcher before any authenticated
   // operation touches a Supabase backend from an unexpected environment.
-  // This leaves the shared Business AI authentication module untouched.
+  // The shared verifier retains its original checks plus scoped-pilot denials.
   if (!isApprovedSupabaseTarget()) {
     return res.status(503).json({ error: "Colzo development environment unavailable" });
   }
