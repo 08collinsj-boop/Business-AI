@@ -650,9 +650,15 @@ function looksClearlyOffTopic(message, settings, configuration) {
   return false;
 }
 
+// Smart punctuation from mobile keyboards must not change whether consent was given.
+function normaliseCustomerConsentText(message) {
+  return String(message || '').replace(/[\u2018\u2019\u02bc\uff07]/g, "'").trim()
+    .replace(/^(?:(?:hi|hello|hey)(?:\s+there)?|good\s+(?:morning|afternoon|evening))[,.!:\s]+/i, '');
+}
+
 // A clear refusal must never create a lead, handover or booking.
 function isExplicitNoActionMessage(message) {
-  const text = String(message || '').trim();
+  const text = normaliseCustomerConsentText(message);
   if (!text || /\b(?:but|however|instead|also)\b/i.test(text)) return false;
   if (/^(?:please\s+)?(?:cancel|withdraw)\s+(?:my|the|that)\s+(?:request|booking|appointment|callback)\s*[.!?]*$/i.test(text)) return true;
   const refusal = /^(?:(?:no(?: thanks)?)[,!.]?\s*)?(?:please\s+)?(?:(?:do not|don't|dont|never)\b|i\s+(?:do not|don't|dont)\s+want\b)/i.test(text);
@@ -661,11 +667,15 @@ function isExplicitNoActionMessage(message) {
 
 // Only positive booking intent on this turn may authorise a booking write.
 function hasPositiveBookingRequest(message) {
-  const text = String(message || '').replace(/["“][^"”]*["”]/g, ' ').trim();
+  const text = normaliseCustomerConsentText(message)
+    .replace(/["“][^"”]*["”]/g, ' ')
+    // A quoted example is not consent; keep apostrophes inside contractions.
+    .replace(/(^|[\s(\[{:;,])'(?:[^'\n]|'(?=[a-z]))+'(?=$|[\s)\]},.!?:;])/gi, '$1 ').trim();
   if (!text) return false;
-  if (/\b(?:do not|don't|dont|never|without|no need to|not to)\b.{0,90}\b(?:book|booking|arrange|schedule|appointment|callback)\b|\b(?:cancel|withdraw|stop)\b.{0,90}\b(?:booking|appointment|request|callback)\b|\b(?:no|not)\s+(?:an?\s+)?(?:booking|appointment|callback)\b/i.test(text)) return false;
-  if (/^\s*(?:how|what|when|where|why|which)\b/i.test(text)) return false;
-  return /\b(?:book|schedule|arrange|make)\s+(?:(?:me|us)\s+)?(?:(?:an?|the)\s+)?(?:booking|appointment|visit|slot|meeting)\b|\b(?:i|we)\s+(?:need|want|would like|wish)\s+(?:(?:to\s+book)|(?:an?\s+)?(?:booking|appointment|visit|slot))\b|\b(?:i'd|we'd)\s+like\s+to\s+book\b|\b(?:can|could|would)\s+(?:i|you|we)\s+(?:book|schedule|arrange)\b|\bbook\s+(?:me|us)\s+in\b/i.test(text);
+  if (/\b(?:do not|don't|dont|never|without|no need to|not to|not|cannot|can't|cant|won't|wont|wouldn't|wouldnt)\b.{0,90}\b(?:book|booking|arrange|schedule|appointment|callback)\b|\b(?:cancel|withdraw|stop)\b.{0,90}\b(?:booking|appointment|request|callback)\b|\b(?:no|not)\s+(?:an?\s+)?(?:booking|appointment|callback)\b/i.test(text)) return false;
+  if (/^\s*(?:how|what|when|where|why|which|if|before)\b/i.test(text)) return false;
+  const imperative = /(?:^|[.!?]\s*)(?:(?:yes|okay|ok)[,!\s]+)?(?:please\s+)?(?:(?:book|schedule|arrange|make)\s+(?:(?:me|us)\s+)?(?:(?:an?|the)\s+)?(?:booking|appointment|visit|slot|meeting)\b|book\s+(?:me|us)\s+in\b)/i.test(text);
+  return imperative || /\b(?:i|we)\s+(?:need|want|would like|wish)\s+(?:(?:to\s+book)|(?:an?\s+)?(?:booking|appointment|visit|slot))\b|\b(?:i'd|we'd)\s+like\s+to\s+book\b|\b(?:can|could|would)\s+(?:i|you|we)\s+(?:book|schedule|arrange)\b/i.test(text);
 }
 
 // Answer simple questions directly from owner-approved public business facts.
@@ -1711,9 +1721,11 @@ Your response must follow the supplied JSON schema.
             ? `${!hasContact ? "Of course. The team can respond personally. What phone number or email address should they use?" : effectiveLeadCaptured ? "Of course. I've passed your enquiry to the team for a personal response." : "Sorry, I could not pass your enquiry to the team. Please try again or contact the business directly."}`
             : effectiveLeadCaptured
               ? `Thanks. I've saved your enquiry for ${businessName}. The team can follow up using the contact details you provided.`
-              : groundedReply
-                ? groundedReply
-                : "Thanks. I have your details.";
+              : wouldCaptureLead
+                ? `Sorry, I couldn't save your enquiry for ${businessName}. Please try again or contact the business directly.`
+                : groundedReply
+                  ? groundedReply
+                  : "Thanks. I have your details.";
 
     if (testMode) {
       const contextAvailable = [

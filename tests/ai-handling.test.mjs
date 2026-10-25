@@ -882,3 +882,100 @@ test('F03: multi-part trusted FAQs answer both questions without an enquiry writ
   assert.ok(!calls.some(c => c.url.includes('rpc/save_public_enquiry')));
   assert.ok(!calls.some(c => c.url.includes('api.openai.com')));
 });
+
+test('F01: smart apostrophes in booking refusals never authorise bookings or follow-ups', async () => {
+  const model={reply:'Booking made.',intent:{...supported,type:'booking',requires_human:true},lead:{name:'Example Customer',email:'example@example.test',job_type:'callback',description:'callback',qualified:true,handover_required:true}};
+  for(const [i,message] of [
+    'Please don’t book me in.',
+    'Don’t schedule an appointment.',
+    'I don’t want a callback.',
+    'Please don‘t book an appointment.',
+    'Please donʼt book me in.'
+  ].entries()){
+    const {handler,calls}=await load('balanced',supported,model),res=response();
+    await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.'+(210+i)},query:{business:'business-a'},body:{message}},res);
+    assert.equal(res.statusCode,200,message);
+    assert.equal(res.body.bookingRequested,false,message);
+    assert.equal(res.body.leadCaptured,false,message);
+    assert.ok(!calls.some(c=>c.url.includes('rpc/save_public_enquiry')||c.options.method==='POST'&&/\/rest\/v1\/(bookings|actions)$/.test(c.url)),message);
+    assert.ok(!calls.some(c=>c.url.includes('api.openai.com')),message+' must not need a model to respect refusal');
+  }
+});
+
+test('F01: a positive booking request using a smart apostrophe still works', async () => {
+  const model={reply:'A booking request has been recorded.',intent:{...supported,type:'booking'},lead:{name:'Example Customer',email:'example@example.test',job_type:'Repair',description:'Repair visit',qualified:true,handover_required:false}};
+  const {handler,calls}=await load('balanced',supported,model),res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.220'},query:{business:'business-a'},body:{message:'I’d like to book for Saturday. Email me at example@example.test.'}},res);
+  assert.equal(res.statusCode,200);assert.equal(res.body.bookingRequested,true);
+  assert.equal(calls.filter(c=>c.url.endsWith('/rest/v1/bookings')&&c.options.method==='POST').length,1);
+});
+
+test('F01: single-quoted examples cannot authorise a booking', async () => {
+  const model={reply:'Booking made.',intent:{...supported,type:'booking'},lead:{name:'Example Customer',email:'example@example.test',job_type:'Repair',description:'Repair visit',qualified:true,handover_required:false}};
+  for(const [i,message] of [
+    'You said ‘book me in’ as an example.',
+    "You said 'book an appointment' as an example.",
+    'The sample text was ‘I’d like to book for Saturday’.',
+    "The sample text was 'I'd like to book for Saturday'."
+  ].entries()){
+    const {handler,calls}=await load('balanced',supported,model),res=response();
+    await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.'+(225+i)},query:{business:'business-a'},body:{message}},res);
+    assert.equal(res.statusCode,200,message);assert.equal(res.body.bookingRequested,false,message);
+    assert.ok(!calls.some(c=>c.url.endsWith('/rest/v1/bookings')&&c.options.method==='POST'),message);
+  }
+});
+
+test('F01: quoted refusal example does not cancel a separate explicit positive request', async () => {
+  const model={reply:'A booking request has been recorded.',intent:{...supported,type:'booking'},lead:{name:'Example Customer',email:'example@example.test',job_type:'Repair',description:'Repair visit',qualified:true,handover_required:false}};
+  const {handler,calls}=await load('balanced',supported,model),res=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.230'},query:{business:'business-a'},body:{message:'The example says ‘don’t book me in’; I’d like to book for Saturday. Email me at example@example.test.'}},res);
+  assert.equal(res.statusCode,200);assert.equal(res.body.bookingRequested,true);
+  assert.equal(calls.filter(c=>c.url.endsWith('/rest/v1/bookings')&&c.options.method==='POST').length,1);
+});
+
+test('F01: refusal and informational booking phrases are not booking consent', async () => {
+  const model={reply:'Booking made.',intent:{...supported,type:'booking'},lead:{name:'Example Customer',email:'example@example.test',job_type:'Repair',description:'Repair visit',qualified:true,handover_required:false}};
+  for(const [i,message] of [
+    'I can’t book an appointment yet.',
+    'I’m not ready to book an appointment.',
+    'Can you not book me in?',
+    'I would rather not book a visit.',
+    'Before I book an appointment, can you tell me the price?',
+    'If I wanted to book an appointment, what would I need?',
+    'Can you explain how to book an appointment?',
+    'You mentioned I could book an appointment. What does that involve?'
+  ].entries()){
+    const {handler,calls}=await load('balanced',supported,model),res=response();
+    await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.'+(235+i)},query:{business:'business-a'},body:{message}},res);
+    assert.equal(res.statusCode,200,message);assert.equal(res.body.bookingRequested,false,message);
+    assert.ok(!calls.some(c=>c.url.endsWith('/rest/v1/bookings')&&c.options.method==='POST'),message);
+  }
+});
+
+test('F01: explicit booking imperatives and polite requests remain actionable', async () => {
+  const model={reply:'A booking request has been recorded.',intent:{...supported,type:'booking'},lead:{name:'Example Customer',email:'example@example.test',job_type:'Repair',description:'Repair visit',qualified:true,handover_required:false}};
+  for(const [i,message] of ['Please book an appointment.','Hello, please book me in.','Yes, book us in.','I need a repair. Could you arrange a visit?'].entries()){
+    const {handler,calls}=await load('balanced',supported,model),res=response();
+    await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.'+(245+i)},query:{business:'business-a'},body:{message}},res);
+    assert.equal(res.statusCode,200,message);assert.equal(res.body.bookingRequested,true,message);
+    assert.equal(calls.filter(c=>c.url.endsWith('/rest/v1/bookings')&&c.options.method==='POST').length,1,message);
+  }
+});
+
+test('customer save failures use server-owned recovery wording, never model booking promises', async () => {
+  for(const [i,replyText] of ["You're booked in.",'Your appointment is confirmed.','Booking made.','I have reserved your slot.','Absolutely, we can help.','Deterministic capture'].entries()){
+    const model={reply:replyText,intent:{...supported,type:'booking'},lead:{name:'Example Customer',email:'example@example.test',job_type:'Repair',description:'Repair visit',qualified:true,handover_required:false}};
+    const {handler,calls}=await load('balanced',supported,model),workingFetch=globalThis.fetch;let failedSaves=0;
+    globalThis.fetch=async(url,options)=>{
+      if(String(url).includes('rpc/save_public_enquiry')){failedSaves++;return {ok:false,status:503,text:async()=>'{"message":"Synthetic storage unavailable"}'};}
+      return workingFetch(url,options);
+    };
+    const res=response();
+    await handler({method:'POST',headers:{'x-forwarded-for':'192.0.2.'+(210+i)},query:{business:'business-a'},body:{message:i===5?'Please book an appointment. Email me at example@example.test.':'Please book an appointment.'}},res);
+    assert.equal(calls.some(c=>c.url.includes('api.openai.com')),i<5,'exercise model and deterministic paths separately');
+    assert.equal(res.statusCode,200);assert.ok(failedSaves>0);assert.equal(res.body.leadCaptured,false);assert.equal(res.body.bookingRequested,false);
+    assert.match(res.body.reply,/couldn.t save|could not save/i,replyText);assert.match(res.body.reply,/try again|contact.*direct/i,replyText);
+    assert.doesNotMatch(res.body.reply,/booked|confirmed|reserved|booking made/i,replyText);
+    assert.ok(!calls.some(c=>c.url.endsWith('/rest/v1/bookings')&&c.options.method==='POST'));
+  }
+});
