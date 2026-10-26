@@ -1,0 +1,38 @@
+name: Colzo Development pooler connectivity
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  connectivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check TCP and PostgreSQL TLS without authentication
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import socket
+          import ssl
+          import struct
+
+          host = "aws-1-eu-west-1.pooler.supabase.com"
+          port = 5432
+          context = ssl.create_default_context()
+
+          with socket.create_connection((host, port), timeout=15) as connection:
+              connection.settimeout(15)
+              print(f"TCP connection established to {host}:{port}", flush=True)
+              # PostgreSQL SSLRequest: length and protocol negotiation code only.
+              # Never send a StartupMessage, username, password, or SQL.
+              connection.sendall(struct.pack("!II", 8, 80877103))
+              response = connection.recv(1)
+              if response != b"S":
+                  raise RuntimeError(f"Expected SSL acceptance byte S; received {response!r}")
+              print("PostgreSQL SSLRequest accepted", flush=True)
+              with context.wrap_socket(connection, server_hostname=host) as secured:
+                  print(f"TLS negotiated: {secured.version()}", flush=True)
+                  print("Certificate chain and hostname verified; no authentication attempted")
+          PY
