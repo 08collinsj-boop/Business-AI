@@ -12,7 +12,7 @@ test('every route has a safe, minimally invasive Referrer Policy and nosniff hea
  assert.equal(headers.has('x-frame-options'),false,'existing public customer widget may be embedded');
  assert.equal(headers.has('permissions-policy'),false,'microphone/camera need separate product acceptance');
 });
-test('existing legal headers, customer routes and marketing scheduler stay unchanged',()=>{
+test('legal headers and customer routes are preserved while pilot scheduling is disabled',()=>{
  const legal=v.headers.find(rule=>rule.source==='/legal/(.*)');
  assert.ok(legal);
  assert.ok(legal.headers.some(h=>h.key==='X-Robots-Tag'&&h.value.includes('noindex')));
@@ -21,5 +21,6 @@ test('existing legal headers, customer routes and marketing scheduler stay uncha
  assert.equal(rewrite('/customer'),'/index.html');
  assert.equal(rewrite('/api/public-config'),'/api/operations?operation=public-config');
  assert.equal(rewrite('/api/health'),'/api/operations?operation=health');
- assert.ok(v.crons.some(item=>item.path==='/api/marketing-scheduler'));
+ assert.deepEqual(v.crons, []);
+ assert.equal(rewrite('/api/marketing-scheduler'),'/api/operations?operation=marketing-scheduler');
 });

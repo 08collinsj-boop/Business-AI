@@ -1,24 +1,16 @@
 {
-  "candidate_base": "decfaa7050afd5a8551fac19d389c12010908620",
+  "candidate_base": "9555b1d6b9b2b280be90ffbeef0e50b57eba50b5",
   "full_automated": {
-    "passed": 1379,
+    "passed": 1383,
     "failed": 0,
     "skipped": 0,
     "cancelled": 0
   },
   "focused": {
-    "passed": 15,
+    "passed": 20,
     "failed": 0,
     "skipped": 0,
     "cancelled": 0
-  },
-  "native": {
-    "provisioning": 41,
-    "booking": 11,
-    "exact_package": 9,
-    "server": "17.11",
-    "synthetic_only": true,
-    "clusters_stopped": true
   },
   "build": "PASS",
   "static": {
@@ -27,11 +19,23 @@
     "inline_scripts": 0,
     "secret_and_temporary_marker_checks": "PASS"
   },
-  "independent_local_code_review": "PASS; 5 package and 6 no-provider tests; no remaining Critical/Important findings",
-  "actual_source_recovery": "BLOCKED",
+  "independent_local_code_review": "PASS; 20 focused checks independently rerun; API payload derivation reviewed; no remaining Important findings",
+  "actual_source_recovery": "DEFERRED_UNVERIFIED_BY_USER",
   "managed_auth_and_tenant_acceptance": "NOT_RUN",
   "matching_preview": "NOT_DEPLOYED",
   "physical_iphone": "NOT_RUN",
   "demonstration": "NOT_READY",
-  "controlled_pilot": "NO_GO"
+  "controlled_pilot": "NO_GO",
+  "prior_native_evidence_20261026": {
+    "provisioning": 41,
+    "booking": 11,
+    "exact_package": 9,
+    "server": "17.11",
+    "synthetic_only": true,
+    "clusters_stopped": true
+  },
+  "native_rerun_this_continuation": false,
+  "shared_development_sql": "PREPARED_NOT_AUTHORISED_NOT_APPLIED",
+  "management_executor": "SELECT_ONLY_ROLE_CHECK_PASSED; no DDL attempted",
+  "migration_ledger": "59 SQL fingerprints unchanged; not full schema/replay acceptance"
 }

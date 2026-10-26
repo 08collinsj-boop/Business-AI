@@ -1,0 +1,349 @@
+{
+  "preflight": {
+    "checked_at_utc": "2026-10-26T16:30:59.75048+00:00",
+    "duplicate_pending_ai_booking_groups": 0,
+    "existing_owner_creator": "create_business_for_owner(uuid,text,text,text)",
+    "installed_extensions": [
+      "pg_cron",
+      "pg_net",
+      "pg_stat_statements",
+      "pgcrypto",
+      "plpgsql",
+      "supabase_vault",
+      "uuid-ossp"
+    ],
+    "migration_ledger_entries": 59,
+    "required_tables": {
+      "bookings": true,
+      "business_audit_events": true,
+      "business_billing_accounts": true,
+      "business_configurations": true,
+      "business_memberships": true,
+      "business_public_routes": true,
+      "business_settings": true,
+      "businesses": true,
+      "lead_history": true,
+      "leads": true
+    },
+    "server_version": "17.6",
+    "staged_booking_function": null,
+    "staged_booking_index": null,
+    "staged_grants_table": null,
+    "staged_operator_role": 0,
+    "staged_private_schema": null
+  },
+  "migration_sql_fingerprints": [
+    {
+      "name": "create_initial_lead_schema",
+      "sql_md5": "e93815b2a4bf2c69c2a20c9458ed6260",
+      "version": "20260911230000"
+    },
+    {
+      "name": "add_lead_status",
+      "sql_md5": "4a543a35c7e55dc93bdfb2df2ba2c436",
+      "version": "20260911235034"
+    },
+    {
+      "name": "add_business_settings",
+      "sql_md5": "ad0d27dc8bd974c8d6957f690c183e21",
+      "version": "20260913233511"
+    },
+    {
+      "name": "enable_rls_business_settings",
+      "sql_md5": "4c9a4075fadbc7c3caa00d0557aa4b77",
+      "version": "20260914195529"
+    },
+    {
+      "name": "add_multi_tenant_auth",
+      "sql_md5": "9a646d2f5d82ca77be1e674f64af3634",
+      "version": "20260915000000"
+    },
+    {
+      "name": "add_bookings_actions",
+      "sql_md5": "5cb152d8f572e28c10ff43d0d1ab207f",
+      "version": "20260915010000"
+    },
+    {
+      "name": "add_voice_receptionist_foundation",
+      "sql_md5": "57c0496e0d5c6d71d928175cc6a8aa65",
+      "version": "20260916153249"
+    },
+    {
+      "name": "add_voice_foreign_key_indexes",
+      "sql_md5": "f402cdf223cb038b84cc190b9838b9aa",
+      "version": "20260916154907"
+    },
+    {
+      "name": "add_business_configuration_onboarding",
+      "sql_md5": "bb051561a270b28ac4fa3efcbfaa4493",
+      "version": "20260916170000"
+    },
+    {
+      "name": "add_business_creation_and_public_routes",
+      "sql_md5": "397464536ea8567e1c284fa5720ec3fc",
+      "version": "20260916180000"
+    },
+    {
+      "name": "add_pilot_hardening_foundation",
+      "sql_md5": "b3cbff267a901263315266a2fb4b1b78",
+      "version": "20260916190000"
+    },
+    {
+      "name": "add_lifecycle_policy_for_new_businesses",
+      "sql_md5": "b4c033a2ab08147665766d626ddd194c",
+      "version": "20260916191000"
+    },
+    {
+      "name": "add_pilot_team_and_handover_operations",
+      "sql_md5": "aa842b4c5dd1a0dd2f7e8943bb6425e7",
+      "version": "20260917113857"
+    },
+    {
+      "name": "add_stripe_billing_foundation",
+      "sql_md5": "330a2f6c9381ebbbb0edb4a953c12121",
+      "version": "20260917202438"
+    },
+    {
+      "name": "add_atomic_paid_trial_activation",
+      "sql_md5": "e4632d5f6e981607afd39a8f3e8b00c6",
+      "version": "20260917203724"
+    },
+    {
+      "name": "add_resumable_business_onboarding_state",
+      "sql_md5": "fed342588efac685ca40a7a8f8a85722",
+      "version": "20260917221830"
+    },
+    {
+      "name": "add_ai_handling_modes",
+      "sql_md5": "dc593793b66586a81e05a6f2c30284cb",
+      "version": "20260922160645"
+    },
+    {
+      "name": "add_addons_marketing",
+      "sql_md5": "e454e9a27962b8d2340b89180b933ba5",
+      "version": "20260923120000"
+    },
+    {
+      "name": "add_ai_enquiry_reservation_release",
+      "sql_md5": "af68d9a4dc191530d8cfd96620fe595e",
+      "version": "20260923190000"
+    },
+    {
+      "name": "add_business_knowledge_uploads",
+      "sql_md5": "c2b6f597355fcaf1d65d3aefd74f6124",
+      "version": "20260923193000"
+    },
+    {
+      "name": "add_marketing_publishing_and_feedback",
+      "sql_md5": "bec0570a5f0cb9c1383dea8dec78cbca",
+      "version": "20260923200000"
+    },
+    {
+      "name": "add_marketing_billing_period_allowances",
+      "sql_md5": "8d52ab2f649549b7af539e4a6c2790f6",
+      "version": "20260923213424"
+    },
+    {
+      "name": "fix_stripe_marketing_entitlement_sync",
+      "sql_md5": "1980abeecd5ac558a0a5a3989100f43d",
+      "version": "20260925174629"
+    },
+    {
+      "name": "align_stripe_entitlement_expiry_constraint",
+      "sql_md5": "94de55700d82e9514575e48e1ba5c98d",
+      "version": "20260925174915"
+    },
+    {
+      "name": "add_legal_acceptances",
+      "sql_md5": "b7f6426adadff851414c3cb38e772a0c",
+      "version": "20260927105141"
+    },
+    {
+      "name": "add_marketing_schedules",
+      "sql_md5": "e96516ca84238b58ecbc42f4cadf36b1",
+      "version": "20260927170722"
+    },
+    {
+      "name": "process_due_marketing_schedules",
+      "sql_md5": "5f59383ae1e701f4e80bca6da91b313e",
+      "version": "20260927170938"
+    },
+    {
+      "name": "enable_marketing_scheduler_extensions",
+      "sql_md5": "c06551ed073526b396ba17dbed51e220",
+      "version": "20260927171406"
+    },
+    {
+      "name": "meta_native_marketing_schedules",
+      "sql_md5": "cd3562c8f63b24cbd416d7358a5677b4",
+      "version": "20260927171656"
+    },
+    {
+      "name": "allow_cloudflare_marketing_images",
+      "sql_md5": "fe56ab2626e6720e2aa1e9e398baf4d9",
+      "version": "20260927183105"
+    },
+    {
+      "name": "add_marketing_usage_limits",
+      "sql_md5": "d623dc22e8d934ddff4d4403e653054c",
+      "version": "20260927193707"
+    },
+    {
+      "name": "add_marketing_usage_limits",
+      "sql_md5": "c99a5b44f6bc292d64269df675f75be7",
+      "version": "20260927194353"
+    },
+    {
+      "name": "add_directory_visibility",
+      "sql_md5": "ba39109aa34a07b70b2a4af6eab8cf0e",
+      "version": "20260927224235"
+    },
+    {
+      "name": "add_customer_portal",
+      "sql_md5": "89c1eeef903e88bcf45e7a36ad8460d4",
+      "version": "20260927231059"
+    },
+    {
+      "name": "refine_public_enquiry_quote_followups",
+      "sql_md5": "ffc68346a36bdbad8d1a2f0ff4d1da3f",
+      "version": "20260928183625"
+    },
+    {
+      "name": "allow_owner_uploaded_marketing_photos",
+      "sql_md5": "9786fefe671aa18a94a37a0d5cec7dac",
+      "version": "20260928233058"
+    },
+    {
+      "name": "add_business_referrals",
+      "sql_md5": "f8c888a8368fe1224fe937f1c56a54cf",
+      "version": "20260929102437"
+    },
+    {
+      "name": "fix_referral_profile_conflict_ambiguity",
+      "sql_md5": "f5d924a6b0cc240f046250e524b533a0",
+      "version": "20260930185802"
+    },
+    {
+      "name": "add_contextual_handover_summaries",
+      "sql_md5": "1d66583fbf94aba1e936dd67dd7c0eae",
+      "version": "20261001201424"
+    },
+    {
+      "name": "remove_unused_pg_net",
+      "sql_md5": "fdd686a278233bf5aee67b4426ae5c8e",
+      "version": "20261001213801"
+    },
+    {
+      "name": "document_server_only_rls_policies",
+      "sql_md5": "0e887ad35990b7426b7348dda7ff0336",
+      "version": "20261001213843"
+    },
+    {
+      "name": "add_marketing_automation_media",
+      "sql_md5": "3c1437c2f6548819999f25095d204b2f",
+      "version": "20261002192840"
+    },
+    {
+      "name": "harden_marketing_automation_media",
+      "sql_md5": "114aee0a639c59e9ae357ab41c081c02",
+      "version": "20261002193007"
+    },
+    {
+      "name": "add_marketing_strategy_planning",
+      "sql_md5": "11ccc28d4359c897f7b8491d6b8f2ad1",
+      "version": "20261002225450"
+    },
+    {
+      "name": "add_marketing_strategy",
+      "sql_md5": "a4bd364b8cd49fb9a678a710945e2492",
+      "version": "20261002231245"
+    },
+    {
+      "name": "add_incident_controls",
+      "sql_md5": "13db8efdcad63a43e242afde65e9deda",
+      "version": "20261003212959"
+    },
+    {
+      "name": "add_feedback_title_and_other",
+      "sql_md5": "567638b6cf4eed153fbeebc0d94a1425",
+      "version": "20261004163922"
+    },
+    {
+      "name": "add_platform_ops_snapshot",
+      "sql_md5": "dc811268ea77739955ea92bfe1aac97b",
+      "version": "20261005090954"
+    },
+    {
+      "name": "add_marketing_automation_frequency",
+      "sql_md5": "73bc2d32b319f68b555420f154dada3c",
+      "version": "20261005220853"
+    },
+    {
+      "name": "enable_pg_net_for_marketing_scheduler",
+      "sql_md5": "b575d941e06b05a77f5f50d32b2a5c31",
+      "version": "20261005221447"
+    },
+    {
+      "name": "pilot_block_unattended_marketing_publishing",
+      "sql_md5": "bc4fbe22cdcaec6be7baeae1e6ce6565",
+      "version": "20261008214459"
+    },
+    {
+      "name": "pilot_prevent_duplicate_marketing_scheduled_slots",
+      "sql_md5": "3efff9587eae5253555072af774f2a0b",
+      "version": "20261008214658"
+    },
+    {
+      "name": "pilot_protect_marketing_cross_queue_duplicate_slots",
+      "sql_md5": "e103c5b76745684d3c3638ff481c8ca2",
+      "version": "20261008214725"
+    },
+    {
+      "name": "pilot_identify_and_block_automatic_marketing_publications",
+      "sql_md5": "241ac0da3394db89e543ca4a0c7064ea",
+      "version": "20261008215744"
+    },
+    {
+      "name": "post_pilot_trustpilot_review_destinations",
+      "sql_md5": "4bcc105818545dd3fabe5e2690de2125",
+      "version": "20261012215816"
+    },
+    {
+      "name": "post_pilot_customer_complaints",
+      "sql_md5": "64e93117464ee9069ed6212cbd89ac36",
+      "version": "20261012215824"
+    },
+    {
+      "name": "post_pilot_review_email_queue",
+      "sql_md5": "4f304e18f155b4ed935ec547a5cdc76a",
+      "version": "20261012215830"
+    },
+    {
+      "name": "post_pilot_colzo_projects_quotes_clients",
+      "sql_md5": "88ed55eed4ce73011a602b3a45964512",
+      "version": "20261012223925"
+    },
+    {
+      "name": "colzo_whatsapp_synthetic_inbox_dev_20261016",
+      "sql_md5": "718671f2d7f5bb60823ca21583ea64f3",
+      "version": "20261016153313"
+    }
+  ],
+  "executor_select_only": {
+    "current_database": "postgres",
+    "current_user": "postgres",
+    "rolbypassrls": true,
+    "rolcreaterole": true,
+    "transaction_read_only": "off"
+  },
+  "executor_note": "Only a SELECT was executed through the potential write executor to inspect its role; no DDL/data mutation was attempted.",
+  "ledger_comparison": {
+    "baseline": "observed-dev-migrations-20261024.json",
+    "baseline_entries": 59,
+    "live_entries": 59,
+    "unchanged_sql_entries": 59,
+    "changed_or_missing_entries": 0,
+    "additional_entries": 0,
+    "limit": "Exact recorded SQL fingerprints, not schema equivalence, successful replay or recovery."
+  }
+}

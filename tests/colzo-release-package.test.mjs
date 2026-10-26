@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';
-import {assemble, sources} from '../scripts/assemble-colzo-release.mjs';
+import {assemble, sources, managementPayload} from '../scripts/assemble-colzo-release.mjs';
 const root=new URL('../',import.meta.url);
 const inputs=await Promise.all(sources.map(async name=>({name,sql:await readFile(new URL('docs/colzo-pilot-review/'+name,root),'utf8')})));
 async function fixture(){
@@ -26,7 +26,10 @@ test('assembly preserves exact bodies with one enclosing transaction',()=>{
 });
 test('exact package applies all five proposals and no pilot is activated',async()=>{
  const db=await fixture();try{
-  await db.exec(runnable(assemble(inputs)));
+  const payload=managementPayload(assemble(inputs));
+  assert.equal(payload.ref,'mvwseobgkexzpmmkgcxe');
+  assert.equal(payload.read_only,false);
+  await db.exec(payload.query);
   assert.equal((await db.query('select count(*)::int n from colzo_pilot_access')).rows[0].n,0);
   assert.equal((await db.query('select count(*)::int n from colzo_pilot_private.audit')).rows[0].n,0);
   assert.equal((await db.query("select has_function_privilege('authenticated','public.request_colzo_pilot_booking(uuid,bigint,text,text,text,text,text,text)','EXECUTE') ok")).rows[0].ok,false);

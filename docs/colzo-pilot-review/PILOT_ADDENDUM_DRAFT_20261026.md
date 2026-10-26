@@ -73,3 +73,11 @@ Source legal pages still contain an unconfigured operator-identity notice. Live
 identity on a matching candidate cannot be accepted before that Preview exists.
 Professional review remains required for identity, liability, controller/processor
 roles, retention, provider transfers, suspension and data-rights/incident handling.
+
+## Recovery status decision - 26 October 2026
+
+The operator has deferred full backup/recovery verification to public launch.
+Recovery is unverified; no recovery-point, recovery-time or successful-restore
+promise is made. This does not approve a real pilot or settle data-lifecycle
+terms; the business must receive the final reviewed participation terms before
+any separately approved activation.

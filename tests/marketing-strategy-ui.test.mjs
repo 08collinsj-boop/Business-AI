@@ -29,14 +29,17 @@ test('Marketing command centre stylesheet has no known malformed declarations', 
 });
 
 
-test('Marketing automation exposes real frequency controls with a Vercel daily fallback', async () => {
+test('Marketing controls stay preserved while candidate deploys no scheduler', async () => {
   const [html, js, vercel] = await Promise.all([read('index.html'), read('assets/marketing.js'), read('vercel.json')]);
   assert.match(html, /id="marketingAutomationFrequency"/);
   assert.match(html, /1 post \/ day/);
   assert.match(html, /2 posts \/ day/);
   assert.match(html, /3 posts \/ day/);
   assert.match(js, /posts_per_day/);
-  assert.equal(JSON.parse(vercel).crons.find(item => item.path === '/api/marketing-scheduler')?.schedule, '0 8 * * *');
+  assert.deepEqual(JSON.parse(vercel).crons, []);
+  const deferred = JSON.parse(await read('docs/colzo-pilot-review/MARKETING_CRON_DEFERRED_20261026.json'));
+  assert.deepEqual(deferred.previous_schedule, {path:'/api/marketing-scheduler',schedule:'0 8 * * *'});
+  assert.equal(deferred.enabled, false);
 });
 
 

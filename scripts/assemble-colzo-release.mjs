@@ -25,6 +25,10 @@ const approvedSourceHashes=[
       "sha256": "26dc7e0c9a57bca194ba86d01bfdf4b5e16c65cf30df00fb393f378c525ed1a4"
     }
   ];
+export function managementPayload(sql){
+ if(!sql.startsWith('\\set ON_ERROR_STOP on\n'))throw new Error('Unexpected psql preamble');
+ return {ref:'mvwseobgkexzpmmkgcxe',query:sql.slice('\\set ON_ERROR_STOP on\n'.length),read_only:false};
+}
 export function assemble(inputs){
  if(inputs.length!==sources.length||inputs.some((x,i)=>x.name!==sources[i]))throw new Error('Unexpected source order');
  const bodies=inputs.map(({name,sql},i)=>{
@@ -86,6 +90,8 @@ if(process.argv[1]===fileURLToPath(import.meta.url)){
  const inputs=await Promise.all(sources.map(async name=>({name,sql:await readFile(new URL(name,folder),'utf8')})));
  const sql=assemble(inputs), hash=s=>createHash('sha256').update(s).digest('hex');
  await writeFile(new URL('pilot-release-application.PROPOSED.sql',folder),sql);
- await writeFile(new URL('RELEASE_PACKAGE_20261026.json',folder),JSON.stringify({target:'mvwseobgkexzpmmkgcxe',status:'PROPOSED_NOT_AUTHORISED_NOT_APPLIED',application_sha256:hash(sql),sources:inputs.map(x=>({name:x.name,sha256:hash(x.sql)})),rollback:'Before COMMIT: ROLLBACK/disconnect. After COMMIT: preserve controls and records; no destructive automatic rollback.'},null,2)+'\n');
+ const apiPayload=managementPayload(sql);
+ await writeFile(new URL('pilot-release-management.PROPOSED.json',folder),JSON.stringify(apiPayload,null,2)+'\n');
+ await writeFile(new URL('RELEASE_PACKAGE_20261026.json',folder),JSON.stringify({target:'mvwseobgkexzpmmkgcxe',status:'PROPOSED_NOT_AUTHORISED_NOT_APPLIED',application_sha256:hash(sql),management_query_sha256:hash(apiPayload.query),management_payload_sha256:hash(JSON.stringify(apiPayload,null,2)+'\n'),sources:inputs.map(x=>({name:x.name,sha256:hash(x.sql)})),rollback:'Before COMMIT: ROLLBACK/disconnect. After COMMIT: preserve controls and records; no destructive automatic rollback.'},null,2)+'\n');
  console.log('Prepared proposal SHA256 '+hash(sql));
 }

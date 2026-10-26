@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "reason": "Marketing generation, automation and provider operations are outside the controlled pilot.",
+  "previous_schedule": {
+    "path": "/api/marketing-scheduler",
+    "schedule": "0 8 * * *"
+  },
+  "reactivation": "Requires a separately approved release and provider/cost/privacy acceptance; this file is not a deployment config."
+}

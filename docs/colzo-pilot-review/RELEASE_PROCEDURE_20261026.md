@@ -1,5 +1,11 @@
 # Controlled release procedure - 26 October 2026
 
+Current scope update: James deferred full backup/recovery verification to public
+launch. It remains DEFERRED / UNVERIFIED. See NEXT_DEVELOPMENT_APPROVAL_20261026.md
+for the exact next Development proposal and remaining separate approvals. Earlier
+recovery prerequisites below are historical procedure, superseded for this limited
+controlled-pilot preparation only. No shared write/deployment is yet authorised.
+
 Status: NOT AUTHORISED for shared SQL, deployment or activation. This is the exact
 review sequence, not an instruction to bypass a failed gate.
 

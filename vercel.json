@@ -176,12 +176,7 @@
       "fix/colzo-pilot-release-gates-20261026": false
     }
   },
-  "crons": [
-    {
-      "path": "/api/marketing-scheduler",
-      "schedule": "0 8 * * *"
-    }
-  ],
+  "crons": [],
   "headers": [
     {
       "source": "/(.*)",

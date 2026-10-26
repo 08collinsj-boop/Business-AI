@@ -2,6 +2,8 @@
   "target": "mvwseobgkexzpmmkgcxe",
   "status": "PROPOSED_NOT_AUTHORISED_NOT_APPLIED",
   "application_sha256": "26c864c1deb9b2deb4f1ab10d8e2f5aae0c7e76bc3aa45eeac99bd0dcae267c0",
+  "management_query_sha256": "fa8dd0c1c7b1505523621e2f329612b21d76b24b63919722b1a69cb7e7a98ec1",
+  "management_payload_sha256": "0ba54ae72e0183a7b995d95bd6cd08c55cb3be066df959ab7833153557687567",
   "sources": [
     {
       "name": "scoped-pilot-access.STAGED.sql",
