@@ -15,6 +15,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { isScopedPilotRequested } from "../lib/colzo-scoped-pilot.js";
 import { sanitizeReceptionistConfiguration, normaliseAIHandlingMode, handlingModeInstructions, decideAIHandover, customerHandoverReason } from "../lib/business-configuration.js";
 import { resolvePublicBusinessRoute } from "../lib/public-tenant.js";
 import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "../lib/public-rate-limit.js";
@@ -273,6 +274,27 @@ function bookingText(value, max) {
 
 async function createRequestedBooking({ businessId, leadId, lead, conversationText }) {
   if (!businessId || !leadId || !lead) return null;
+
+  if (isScopedPilotRequested()) {
+    const result = await supabaseRequest('rpc/request_colzo_pilot_booking', {
+      method: 'POST',
+      body: JSON.stringify({
+        p_business_id: businessId, p_lead_id: leadId,
+        p_title: bookingText(lead.job_type || 'Customer booking request', 200) || 'Customer booking request',
+        p_customer_name: bookingText(lead.name, 160), p_customer_phone: bookingText(lead.phone, 64),
+        p_customer_email: bookingText(lead.email, 320), p_location: bookingText(lead.location, 500),
+        p_notes: bookingText('Customer requested a booking through Colzo. This is a request only; confirm availability before marking it confirmed.' + (conversationText ? '\n\nCustomer enquiry:\n' + bookingText(conversationText, 4200) : ''), 5000)
+      })
+    });
+    if (!result || Array.isArray(result) ||
+        !/^[1-9][0-9]{0,17}$/.test(String(result.id || '')) ||
+        (typeof result.id === 'number' && !Number.isSafeInteger(result.id)) ||
+        result.business_id !== businessId || String(result.lead_id) !== String(leadId) ||
+        result.status !== 'requested' || result.source !== 'ai_request' || typeof result.created !== 'boolean') {
+      throw new Error('Booking request was not confirmed as saved');
+    }
+    return result;
+  }
 
   const existing = await supabaseRequest(
     `bookings?business_id=eq.${encodeURIComponent(String(businessId))}&lead_id=eq.${encodeURIComponent(String(leadId))}&source=eq.ai_request&status=eq.requested&select=id,status,source,lead_id&order=created_at.desc&limit=1`

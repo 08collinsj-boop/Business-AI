@@ -1,0 +1,243 @@
+{
+  "scope": "Isolated synthetic native PostgreSQL booking transaction verification, not a genuine Development restore or deployed acceptance",
+  "verified_at_utc": "2026-10-25T23:58:56.069428+00:00",
+  "native_red_before_final_expiry_guard": {
+    "scope": "Native synthetic transaction/race checks only; not genuine Development recovery or Auth/Storage acceptance",
+    "server": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+    "database": "colzo_disposable_booking_1792972465",
+    "proposal_sha256": "3d256722e27a7d3211a975d26687727430b992239a9355bd7c8dba2732ec8073",
+    "checks": [
+      {
+        "name": "eight_backends_overlap",
+        "pass": true,
+        "details": {
+          "backends": [
+            2794,
+            2796,
+            2801,
+            2806,
+            2810,
+            2814,
+            2818,
+            2820
+          ]
+        }
+      },
+      {
+        "name": "one_booking_one_history_one_audit",
+        "pass": true,
+        "details": {
+          "counts": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "name": "expiry_after_lead_lock_wait",
+        "pass": false,
+        "details": {
+          "counts": [
+            1,
+            1,
+            1
+          ],
+          "request_exit": 0
+        }
+      },
+      {
+        "name": "expiry_during_audit_wait",
+        "pass": false,
+        "details": {
+          "counts": [
+            1,
+            1,
+            1
+          ],
+          "request_exit": 0
+        }
+      },
+      {
+        "name": "revocation_serializes_and_denies_later_request",
+        "pass": true
+      },
+      {
+        "name": "legacy_writer_unique_conflict_reuses_row",
+        "pass": true,
+        "details": {
+          "counts": [
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "audit_failure_rolls_back",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "anon_cannot_execute",
+        "pass": true
+      },
+      {
+        "name": "authenticated_cannot_execute",
+        "pass": true
+      },
+      {
+        "name": "foreign_lead_denied",
+        "pass": true
+      },
+      {
+        "name": "independent_business_succeeds",
+        "pass": true
+      }
+    ],
+    "passed": 9,
+    "failed": 2,
+    "failures": [
+      "expiry_after_lead_lock_wait",
+      "expiry_during_audit_wait"
+    ]
+  },
+  "native_final": {
+    "scope": "Native synthetic transaction/race checks only; not genuine Development recovery or Auth/Storage acceptance",
+    "server": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+    "database": "colzo_disposable_booking_1792972698",
+    "proposal_sha256": "26dc7e0c9a57bca194ba86d01bfdf4b5e16c65cf30df00fb393f378c525ed1a4",
+    "checks": [
+      {
+        "name": "eight_backends_overlap",
+        "pass": true,
+        "details": {
+          "backends": [
+            3333,
+            3334,
+            3338,
+            3342,
+            3348,
+            3352,
+            3355,
+            3357
+          ]
+        }
+      },
+      {
+        "name": "one_booking_one_history_one_audit",
+        "pass": true,
+        "details": {
+          "counts": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "name": "expiry_after_lead_lock_wait",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ],
+          "request_exit": 3
+        }
+      },
+      {
+        "name": "expiry_during_audit_wait",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ],
+          "request_exit": 3
+        }
+      },
+      {
+        "name": "revocation_serializes_and_denies_later_request",
+        "pass": true
+      },
+      {
+        "name": "legacy_writer_unique_conflict_reuses_row",
+        "pass": true,
+        "details": {
+          "counts": [
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "audit_failure_rolls_back",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "anon_cannot_execute",
+        "pass": true
+      },
+      {
+        "name": "authenticated_cannot_execute",
+        "pass": true
+      },
+      {
+        "name": "foreign_lead_denied",
+        "pass": true
+      },
+      {
+        "name": "independent_business_succeeds",
+        "pass": true
+      }
+    ],
+    "passed": 11,
+    "failed": 0,
+    "failures": []
+  },
+  "schema_compatibility": {
+    "booking_returned": {
+      "id": 1,
+      "source": "ai_request",
+      "status": "requested",
+      "created": true,
+      "lead_id": 970001,
+      "business_id": "f1000000-0000-4000-8000-000000000001"
+    },
+    "reconstructed_source_schema_compatible": true,
+    "schema_hash_before": "9f6dca396ef527e1e942bbca111bbe24bd904d1102a307234ac61518900025a6",
+    "schema_hash_after": "9f6dca396ef527e1e942bbca111bbe24bd904d1102a307234ac61518900025a6",
+    "schema_restored_by_rollback": true,
+    "grant_table_absent_after_rollback": true,
+    "scope": "Reconstructed schema only; all compatibility DDL and fictional inserts rolled back"
+  },
+  "runtime_archive_sha256": "f3a4389c92c550597cacf8c71c74af025b8e75259753c4e78bb5014e6f29e6f2",
+  "driver_sha256": "2ef09df0272ea8e3697e42c962bf018732879e3ad29ab39b87f29ac21bf8d48c",
+  "fixture_sha256": "1e3ed9b5f5269a744e16444eeb3d6f96e3ca4e745545cac83b857b46c6ac66ba",
+  "cluster_stop_exit": 0,
+  "postgres_processes_remaining": false,
+  "limitations": [
+    "SQL remains staged outside automatic migrations",
+    "No shared Development schema/data/auth settings changed",
+    "No actual Auth/MFA/customer-session acceptance",
+    "No source data or Storage bytes backed up/restored",
+    "No deployment or genuine account/invitation activity"
+  ]
+}
