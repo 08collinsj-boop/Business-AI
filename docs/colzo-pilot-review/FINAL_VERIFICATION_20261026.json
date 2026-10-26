@@ -33,7 +33,7 @@
     "synthetic_only": true,
     "clusters_stopped": true
   },
-  "native_rerun_this_continuation": false,
+  "native_rerun_this_continuation": true,
   "shared_development_sql": "PREPARED_NOT_AUTHORISED_NOT_APPLIED",
   "management_executor": "SELECT_ONLY_ROLE_CHECK_PASSED; no DDL attempted",
   "migration_ledger": "Fresh 59 SQL fingerprints unchanged; not full schema replay",
@@ -45,5 +45,6 @@
   },
   "isolated_demo_persistence": "PASS: reopen, profile/config, data tables, role/FK/expiry/idempotency checks; no managed Auth/browser acceptance",
   "branch_specific_environment": "PREPARED_NOT_APPLIED; global sensitive values unreadable and unverified",
-  "permissions": "24 server-only table projections unchanged; inspected public definer functions deny anon/auth execute"
+  "permissions": "24 server-only table projections unchanged; inspected public definer functions deny anon/auth execute",
+  "native_rerun_scope": "Nine exact-package checks only; the earlier 41 provisioning and 11 booking native checks were not rerun."
 }
