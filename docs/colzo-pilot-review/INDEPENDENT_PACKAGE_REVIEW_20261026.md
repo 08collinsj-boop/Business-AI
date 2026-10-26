@@ -65,3 +65,14 @@ remaining Critical/Important findings. Review limits: SQL knowledge state change
 are not UI approval, direct quote mutation denial is one table check, and the
 configuration checker trusts supplied private inputs rather than attesting live
 hosting. No shared/provider operation or managed-auth acceptance was performed.
+
+## Managed non-superuser correction — final review
+
+Independent reviewer /root/current_sql_review inspected the revised assembler and
+faithful non-superuser fixture. Final independent run:13/13 passed, zero failures;
+seven invalid membership cases rejected/rolled back. No remaining Critical or
+Important findings. Alternate-grantor case uses clearly labelled disposable
+superuser catalog fault injection after invalid GRANT setups were rejected by
+PostgreSQL itself. Native runner reviewed but not executed by reviewer. Root's
+native9 results remain separate. All new hashes are in RELEASE_PACKAGE_20261026.
+New exact approval is required; no shared retry performed.

@@ -5,9 +5,11 @@ import {PGlite} from '@electric-sql/pglite';
 import {assemble, sources, managementPayload} from '../scripts/assemble-colzo-release.mjs';
 const root=new URL('../',import.meta.url);
 const inputs=await Promise.all(sources.map(async name=>({name,sql:await readFile(new URL('docs/colzo-pilot-review/'+name,root),'utf8')})));
-async function fixture(){
+async function fixture(managed=false){
  const db=new PGlite();
- await db.exec(await readFile(new URL('tests/fixtures/colzo-pilot-postgres-bootstrap.sql',root),'utf8'));
+ if(managed)await db.exec('CREATE ROLE fixture_admin SUPERUSER; SET SESSION AUTHORIZATION fixture_admin; ALTER ROLE postgres RENAME TO supabase_admin; CREATE ROLE postgres NOSUPERUSER CREATEROLE BYPASSRLS; CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS; ALTER SCHEMA public OWNER TO postgres; GRANT CREATE ON DATABASE postgres TO postgres; SET ROLE postgres');
+ const bootstrap=await readFile(new URL('tests/fixtures/colzo-pilot-postgres-bootstrap.sql',root),'utf8');
+ await db.exec(managed?bootstrap.replace('create role anon; create role authenticated; create role service_role bypassrls;',''):bootstrap);
  await db.exec(await readFile(new URL('supabase/migrations/20260916180000_add_business_creation_and_public_routes.sql',root),'utf8'));
  // Disposable fixture only: align booking columns with the real proposal.
  await db.exec(`ALTER TABLE bookings ADD COLUMN lead_id bigint, ADD COLUMN source text, ADD COLUMN status text, ADD COLUMN title text, ADD COLUMN customer_name text, ADD COLUMN customer_phone text, ADD COLUMN customer_email text, ADD COLUMN location text, ADD COLUMN notes text;
@@ -56,4 +58,34 @@ test('untrusted existing creator owner aborts and rolls back proposed objects',a
   await db.exec('ROLLBACK');
   assert.equal((await db.query("select to_regclass('public.colzo_pilot_access') g")).rows[0].g,null);
  }finally{await db.close();}
+});
+
+test('managed NOSUPERUSER installer accepts only its platform admin entry',async()=>{
+ const db=await fixture(true);try{
+ await db.exec(managementPayload(assemble(inputs)).query);
+ const edges=(await db.query("select admin_option,inherit_option,set_option,grantor::int grantor from pg_auth_members where roleid='colzo_pilot_operator'::regrole")).rows;
+ assert.deepEqual(edges,[{admin_option:true,inherit_option:false,set_option:false,grantor:10}]);
+ for(const role of ['anon','authenticated','service_role']){
+ assert.equal((await db.query(`select pg_has_role('${role}','colzo_pilot_operator','MEMBER') member,pg_has_role('${role}','colzo_pilot_operator','SET') can_set`)).rows[0].member,false);
+ assert.equal((await db.query(`select pg_has_role('${role}','colzo_pilot_operator','SET') can_set`)).rows[0].can_set,false);
+ }
+ }finally{await db.close()}
+});
+for(const [name,mutation] of [
+ ['inherit option','GRANT colzo_pilot_operator TO postgres WITH INHERIT TRUE GRANTED BY supabase_admin'],
+ ['set option','GRANT colzo_pilot_operator TO postgres WITH SET TRUE GRANTED BY supabase_admin'],
+ ['missing admin','GRANT colzo_pilot_operator TO postgres WITH ADMIN FALSE GRANTED BY supabase_admin'],
+ ['runtime member','GRANT colzo_pilot_operator TO authenticated'],
+ ['outbound membership','GRANT authenticated TO colzo_pilot_operator'],
+ // Disposable superuser catalog fault injection: PG forbids issuing this edge normally.
+ ['other grantor',`UPDATE pg_catalog.pg_auth_members SET grantor=(SELECT oid FROM pg_roles WHERE rolname='fixture_admin') WHERE roleid=(SELECT oid FROM pg_roles WHERE rolname='colzo_pilot_operator')`],
+ ['transitive runtime member','CREATE ROLE fixture_bridge; GRANT colzo_pilot_operator TO fixture_bridge; GRANT fixture_bridge TO anon']
+])test(`managed operator guard rejects ${name} and rolls back`,async()=>{
+ const db=await fixture(true);try{
+ const sql=managementPayload(assemble(inputs)).query.replace('-- Assertions run before commit.',`RESET ROLE; ${mutation}; SET ROLE postgres;\n-- Assertions run before commit.`);
+ await assert.rejects(db.exec(sql),/unsafe operator role|runtime operator membership/);
+ await db.exec('ROLLBACK');
+ assert.equal((await db.query("select to_regclass('public.colzo_pilot_access') g")).rows[0].g,null);
+ assert.equal((await db.query("select count(*)::int n from pg_roles where rolname='colzo_pilot_operator'")).rows[0].n,0);
+ }finally{await db.close()}
 });

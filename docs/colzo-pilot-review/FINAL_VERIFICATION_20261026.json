@@ -1,14 +1,14 @@
 {
-  "candidate_base": "efbbe4fcb88ace5a931e0422b60f373798670335",
+  "candidate_base": "7ac7a3c1506db612210d0f1c8a17cacbed13597c",
   "full_automated": {
-    "passed": 1391,
+    "passed": 1399,
     "failed": 0,
     "skipped": 0,
     "cancelled": 0
   },
   "focused": {
-    "independent_sql_passed": 40,
-    "independent_demo_environment_passed": 8,
+    "sql_workspace_booking_passed": 48,
+    "independent_corrected_package_passed": 13,
     "failed": 0
   },
   "build": "PASS",
@@ -18,7 +18,7 @@
     "inline_scripts": 0,
     "secret_and_temporary_marker_checks": "PASS"
   },
-  "independent_local_code_review": "PASS; 40 SQL tests and final eight demo/environment tests independently passed; no remaining Critical/Important findings",
+  "independent_local_code_review": "PASS; exact managed installer correction reviewed, final13 tests independently passed; no remaining Critical/Important findings",
   "actual_source_recovery": "DEFERRED_UNVERIFIED_BY_USER",
   "managed_auth_and_tenant_acceptance": "NOT_RUN",
   "matching_preview": "NOT_DEPLOYED",
@@ -34,17 +34,19 @@
     "clusters_stopped": true
   },
   "native_rerun_this_continuation": true,
-  "shared_development_sql": "PREPARED_NOT_AUTHORISED_NOT_APPLIED",
-  "management_executor": "SELECT_ONLY_ROLE_CHECK_PASSED; no DDL attempted",
+  "shared_development_sql": "PREVIOUS_APPROVED_ATTEMPT_FAILED_CLOSED_ROLLBACK_VERIFIED; CORRECTED_PAYLOAD_NOT_AUTHORISED_NOT_APPLIED",
+  "management_executor": "Previous exact approved payload invoked once; P0001 unsafe operator role; no retry. Fresh readback confirms zero staged objects.",
   "migration_ledger": "Fresh 59 SQL fingerprints unchanged; not full schema replay",
   "fresh_native_package": {
     "passed": 9,
     "server": "17.11",
-    "scope": "Synthetic fixture transaction/rollback only",
+    "scope": "Synthetic NOSUPERUSER CREATEROLE installer fixture transaction/rollback only",
     "cluster_stopped": true
   },
   "isolated_demo_persistence": "PASS: reopen, profile/config, data tables, role/FK/expiry/idempotency checks; no managed Auth/browser acceptance",
   "branch_specific_environment": "PREPARED_NOT_APPLIED; global sensitive values unreadable and unverified",
   "permissions": "24 server-only table projections unchanged; inspected public definer functions deny anon/auth execute",
-  "native_rerun_scope": "Nine exact-package checks only; the earlier 41 provisioning and 11 booking native checks were not rerun."
+  "native_rerun_scope": "Nine corrected exact-package checks on non-superuser fixture only; earlier41 provisioning/11 booking native checks not rerun.",
+  "failed_intermediate_runs": "Alternate-grantor test setup initially rejected by PostgreSQL before guard; corrected using clearly marked isolated superuser catalog fault injection. Initial full run captured transient invalid setup and failed; final full1399 pass with no skips. Initial native runner syntax error corrected before clean-cluster rerun.",
+  "completed_at_utc": "2026-10-26T17:52:21Z"
 }

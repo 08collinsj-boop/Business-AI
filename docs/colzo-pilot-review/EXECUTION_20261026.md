@@ -2,6 +2,19 @@
 
 **DEMONSTRATION NOT READY. CONTROLLED 14-DAY PILOT NO-GO.**
 
+## Latest continuation — managed installer correction
+
+The exact previously approved Development SQL was attempted once and failed closed
+with “unsafe operator role”. Postfailure readbacks confirm rollback: staged tables,
+private schema/operator are absent; ledger remains59. No retry was performed.
+The replacement wrapper handles only PostgreSQL17's exact bootstrap admin-only
+entry to trusted non-superuser postgres. Five staged sources are unchanged.
+Independent13 focused tests and native9 non-superuser package checks pass. New
+hashes, changed administrator invariant, effect/risks and renewed approval boundary
+are in NEXT_DEVELOPMENT_APPROVAL_20261026.md. Earlier statements below describe
+historical states. Backup/recovery is DEFERRED/UNVERIFIED until public launch by
+explicit user decision. No Preview, accounts/invites or activation were performed.
+
 ## Work completed
 
 Reconciled the current remote refs and checked out the continuation unchanged.

@@ -1,5 +1,5 @@
 \set ON_ERROR_STOP on
--- PROPOSAL ONLY. Development mvwseobgkexzpmmkgcxe. Requires recovery, independent
+-- PROPOSAL ONLY. Development mvwseobgkexzpmmkgcxe. Recovery deferred to public launch; requires independent
 -- review and explicit approval of this exact hash. Not an automatic migration.
 -- Use psql -X -f, without -1. Disconnect/ROLLBACK on any error before COMMIT.
 BEGIN;
@@ -424,7 +424,26 @@ DECLARE p record; role_name text;
 BEGIN
  IF EXISTS(SELECT 1 FROM public.colzo_pilot_access) OR EXISTS(SELECT 1 FROM colzo_pilot_private.audit) OR EXISTS(SELECT 1 FROM colzo_pilot_private.invitations) THEN RAISE EXCEPTION 'unexpected activation'; END IF;
  IF EXISTS(SELECT 1 FROM pg_catalog.pg_roles WHERE rolname='colzo_pilot_operator' AND (rolcanlogin OR rolinherit OR rolsuper OR rolbypassrls))
- OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m JOIN pg_catalog.pg_roles r ON r.oid=m.roleid OR r.oid=m.member WHERE r.rolname='colzo_pilot_operator') THEN RAISE EXCEPTION 'unsafe operator role'; END IF;
+ OR EXISTS(
+  SELECT 1 FROM pg_catalog.pg_auth_members m
+  WHERE (m.roleid=(SELECT oid FROM pg_catalog.pg_roles WHERE rolname='colzo_pilot_operator')
+      OR m.member=(SELECT oid FROM pg_catalog.pg_roles WHERE rolname='colzo_pilot_operator'))
+  AND NOT (
+    m.roleid=(SELECT oid FROM pg_catalog.pg_roles WHERE rolname='colzo_pilot_operator')
+    AND m.member=(SELECT oid FROM pg_catalog.pg_roles WHERE rolname=current_user AND NOT rolsuper AND rolcreaterole)
+    AND m.grantor=10 AND EXISTS(SELECT 1 FROM pg_catalog.pg_roles WHERE oid=10 AND rolsuper)
+    AND m.admin_option AND NOT m.inherit_option AND NOT m.set_option
+  ) IS TRUE
+ ) THEN RAISE EXCEPTION 'unsafe operator role'; END IF;
+ -- PostgreSQL 17 gives a NOSUPERUSER CREATEROLE installer this bootstrap-issued
+ -- admin-only self-entry. ADMIN can regrant access: postgres is already trusted
+ -- as function owner/CREATEROLE. It is not a boundary against that administrator.
+ FOREACH role_name IN ARRAY ARRAY['anon','authenticated','service_role'] LOOP
+  IF pg_catalog.pg_has_role(role_name,'colzo_pilot_operator','MEMBER')
+     OR pg_catalog.pg_has_role(role_name,'colzo_pilot_operator','SET') THEN
+   RAISE EXCEPTION 'runtime operator membership: %',role_name;
+  END IF;
+ END LOOP;
  FOR p IN SELECT f.*,n.nspname FROM pg_catalog.pg_proc f JOIN pg_catalog.pg_namespace n ON n.oid=f.pronamespace WHERE n.nspname='colzo_pilot_private' OR (n.nspname='public' AND f.proname='request_colzo_pilot_booking') LOOP
   IF p.proowner<>(SELECT oid FROM pg_catalog.pg_roles WHERE rolname=current_user) OR NOT ('search_path=""'=ANY(p.proconfig)) THEN RAISE EXCEPTION 'unsafe function owner/search_path: %',p.proname; END IF;
   IF EXISTS(SELECT 1 FROM pg_catalog.aclexplode(coalesce(p.proacl,pg_catalog.acldefault('f',p.proowner))) a WHERE a.grantee=0 AND a.privilege_type='EXECUTE') THEN RAISE EXCEPTION 'public function execute: %',p.proname; END IF;
