@@ -49,3 +49,19 @@ Final re-review independently reran 20 focused checks, all passed. Candidate cro
 removal preserves the scheduler route/security assertions. A gateway regression
 now prevents denial success when health/configuration cannot be reached; limits
 state that a selective gateway denial is not application-auth acceptance.
+
+## Fresh execution review of SQL and demo preparation
+
+Independent agent /root/current_sql_review rechecked base efbbe4f, all five SQL
+sources, assembler/API derivation and manifest hashes. No Critical/Important
+findings; independently ran 40 SQL/provisioning/booking/rollback/expiry/seat tests,
+all passed. Parent captured fresh live read-only preflight separately.
+
+Reviewed new fictional persistent PGlite fixture and Preview environment checker;
+eight focused tests passed. A later fixture completion added profile/configuration
+persistence; reviewer caught an undefined ordering variable (six passed/two failed).
+The variable was corrected, and final independent rerun passed all eight. No
+remaining Critical/Important findings. Review limits: SQL knowledge state changes
+are not UI approval, direct quote mutation denial is one table check, and the
+configuration checker trusts supplied private inputs rather than attesting live
+hosting. No shared/provider operation or managed-auth acceptance was performed.

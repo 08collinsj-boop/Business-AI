@@ -1,25 +1,24 @@
 {
-  "candidate_base": "9555b1d6b9b2b280be90ffbeef0e50b57eba50b5",
+  "candidate_base": "efbbe4fcb88ace5a931e0422b60f373798670335",
   "full_automated": {
-    "passed": 1383,
+    "passed": 1391,
     "failed": 0,
     "skipped": 0,
     "cancelled": 0
   },
   "focused": {
-    "passed": 20,
-    "failed": 0,
-    "skipped": 0,
-    "cancelled": 0
+    "independent_sql_passed": 40,
+    "independent_demo_environment_passed": 8,
+    "failed": 0
   },
   "build": "PASS",
   "static": {
     "status": "PASS",
-    "javascript_files": 353,
+    "javascript_files": 357,
     "inline_scripts": 0,
     "secret_and_temporary_marker_checks": "PASS"
   },
-  "independent_local_code_review": "PASS; 20 focused checks independently rerun; API payload derivation reviewed; no remaining Important findings",
+  "independent_local_code_review": "PASS; 40 SQL tests and final eight demo/environment tests independently passed; no remaining Critical/Important findings",
   "actual_source_recovery": "DEFERRED_UNVERIFIED_BY_USER",
   "managed_auth_and_tenant_acceptance": "NOT_RUN",
   "matching_preview": "NOT_DEPLOYED",
@@ -37,5 +36,14 @@
   "native_rerun_this_continuation": false,
   "shared_development_sql": "PREPARED_NOT_AUTHORISED_NOT_APPLIED",
   "management_executor": "SELECT_ONLY_ROLE_CHECK_PASSED; no DDL attempted",
-  "migration_ledger": "59 SQL fingerprints unchanged; not full schema/replay acceptance"
+  "migration_ledger": "Fresh 59 SQL fingerprints unchanged; not full schema replay",
+  "fresh_native_package": {
+    "passed": 9,
+    "server": "17.11",
+    "scope": "Synthetic fixture transaction/rollback only",
+    "cluster_stopped": true
+  },
+  "isolated_demo_persistence": "PASS: reopen, profile/config, data tables, role/FK/expiry/idempotency checks; no managed Auth/browser acceptance",
+  "branch_specific_environment": "PREPARED_NOT_APPLIED; global sensitive values unreadable and unverified",
+  "permissions": "24 server-only table projections unchanged; inspected public definer functions deny anon/auth execute"
 }

@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "checks": 9,
+  "evidence": [
+    "owner fails as expected",
+    "owner preserves no staged objects",
+    "owner existing records preserved",
+    "late fails as expected",
+    "late preserves no staged objects",
+    "late existing records preserved",
+    "all five proposals commit with assertions",
+    "no pilot activation or audit",
+    "operator remains NOLOGIN NOINHERIT"
+  ],
+  "server": "17.11 (Debian 17.11-0+deb13u1)",
+  "application_sha256": "26c864c1deb9b2deb4f1ab10d8e2f5aae0c7e76bc3aa45eeac99bd0dcae267c0",
+  "shared_database_used": false,
+  "scope": "Synthetic fixtures; not managed Auth, Storage or actual-source recovery"
+}
