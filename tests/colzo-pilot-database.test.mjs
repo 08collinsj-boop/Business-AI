@@ -82,6 +82,36 @@ test('paid legacy access is unchanged and browser roles cannot write grants or i
 });
 export {fixture,install,readAs,A,B,U,V};
 
+for (const scenario of ['invite crosses pilot expiry','accept crosses pilot expiry','accept crosses invitation expiry']) {
+ test('operator transaction rolls back when '+scenario,async()=>{
+  const db=await fixture();try{
+   await provision(db);await grant(db);
+   const W='20000000-0000-4000-8000-000000000003', hash='e'.repeat(64);
+   await db.query('insert into auth.users values($1,$2,now())',[W,'deadline@example.invalid']);
+   const accepting=scenario.startsWith('accept');
+   if(accepting)await db.query('select colzo_pilot_private.invite($1,$2,$3,$4,$5)',[A,U,'deadline@example.invalid',hash,'deadline-invite']);
+   // A real elapsed deadline crossed inside audit persistence, after the initial
+   // authorization check. No hosted service, session or account is involved.
+   await db.exec(`CREATE FUNCTION colzo_pilot_private.delay_deadline_audit() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN
+    IF NEW.action='${accepting?'accepted':'invited'}' THEN PERFORM pg_sleep(0.8); END IF; RETURN NEW; END$$;
+    CREATE TRIGGER delay_deadline_audit BEFORE INSERT ON colzo_pilot_private.audit FOR EACH ROW EXECUTE FUNCTION colzo_pilot_private.delay_deadline_audit();`);
+   if(scenario.endsWith('invitation expiry')){
+    await db.query("update colzo_pilot_private.invitations set expires_at=clock_timestamp()+interval '0.5 seconds' where token_hash=$1",[hash]);
+   }else{
+    await db.query("WITH t AS (SELECT clock_timestamp()+interval '0.5 seconds' AS expiry) UPDATE colzo_pilot_access SET activated_at=t.expiry-interval '336 hours',expires_at=t.expiry FROM t WHERE business_id=$1",[A]);
+   }
+   const invoke=()=>accepting
+    ?db.query('select colzo_pilot_private.accept_invite($1,$2,$3,$4)',[A,W,hash,'deadline-accept'])
+    :db.query('select colzo_pilot_private.invite($1,$2,$3,$4,$5)',[A,U,'deadline@example.invalid',hash,'deadline-invite']);
+   await assert.rejects(invoke,/pilot unavailable|invitation unavailable/);
+   assert.equal((await db.query('select count(*)::int n from business_memberships where user_id=$1',[W])).rows[0].n,0);
+   assert.equal((await db.query("select count(*)::int n from colzo_pilot_private.audit where action=$1",[accepting?'accepted':'invited'])).rows[0].n,0);
+   const rows=(await db.query('select status from colzo_pilot_private.invitations where token_hash=$1',[hash])).rows;
+   assert.deepEqual(rows,accepting?[{status:'pending'}]:[]);
+  }finally{await db.close();}
+ });
+}
+
 async function workspaceFixture(){
  const db=await fixture();
  await db.exec(`alter table businesses alter column id set default gen_random_uuid();
