@@ -70,10 +70,10 @@ RPC is service_role-only; private provision/grant/invite/accept/revoke functions
 are operator-only; anon/authenticated/service_role cannot provision. The operator
 role remains NOLOGIN/NOINHERIT without members. Do not add it to a browser/API role.
 
-Each file has an explicit transaction. An approved operator must choose and review
+The first staged file is unwrapped; the other four have an explicit transaction. An approved operator must choose and review
 the atomic application packaging: do not wrap these files naively in psql -1,
 because embedded COMMIT statements defeat one enclosing transaction. A reviewed
-combined script must remove only the five outer BEGIN/COMMIT pairs, retain every
+combined script must remove only the four outer BEGIN/COMMIT pairs, retain every
 function-body transaction statement, use one BEGIN/COMMIT, lock/statement timeouts
 and ON_ERROR_STOP, and be hashed and replayed in isolation before approval.
 No combined shared script was executed here. Obtain James's explicit approval of
@@ -122,3 +122,9 @@ Preview approval is requested until those are concrete. Managed two-account,
 MFA/reset/rotation/revocation, complete enquiry journey, physical iPhone and
 legal/operator/provider acceptance remain blocking. Final business authority,
 named users and explicit activation approval are separate; no invitation is sent.
+
+## Afternoon continuation
+
+See CONTINUATION_20261026.md and RELEASE_PACKAGE_20261026.json for the exact assembled,
+hashed and natively tested application proposal and independent local review.
+It remains unapplied and unauthorised; actual-source recovery/signoff remains blocked.

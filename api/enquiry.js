@@ -15,7 +15,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { isScopedPilotRequested } from "../lib/colzo-scoped-pilot.js";
+import { isScopedPilotRequested, isScopedPilotNoProviderDemo } from "../lib/colzo-scoped-pilot.js";
 import { sanitizeReceptionistConfiguration, normaliseAIHandlingMode, handlingModeInstructions, decideAIHandover, customerHandoverReason } from "../lib/business-configuration.js";
 import { resolvePublicBusinessRoute } from "../lib/public-tenant.js";
 import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "../lib/public-rate-limit.js";
@@ -1143,7 +1143,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!OPENAI_API_KEY && !OPENROUTER_API_KEY) {
+    if (!OPENAI_API_KEY && !OPENROUTER_API_KEY && !isScopedPilotNoProviderDemo()) {
       throw new Error("No enquiry AI provider is configured");
     }
 

@@ -1,0 +1,37 @@
+{
+  "candidate_base": "decfaa7050afd5a8551fac19d389c12010908620",
+  "full_automated": {
+    "passed": 1379,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "focused": {
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "native": {
+    "provisioning": 41,
+    "booking": 11,
+    "exact_package": 9,
+    "server": "17.11",
+    "synthetic_only": true,
+    "clusters_stopped": true
+  },
+  "build": "PASS",
+  "static": {
+    "status": "PASS",
+    "javascript_files": 353,
+    "inline_scripts": 0,
+    "secret_and_temporary_marker_checks": "PASS"
+  },
+  "independent_local_code_review": "PASS; 5 package and 6 no-provider tests; no remaining Critical/Important findings",
+  "actual_source_recovery": "BLOCKED",
+  "managed_auth_and_tenant_acceptance": "NOT_RUN",
+  "matching_preview": "NOT_DEPLOYED",
+  "physical_iphone": "NOT_RUN",
+  "demonstration": "NOT_READY",
+  "controlled_pilot": "NO_GO"
+}
