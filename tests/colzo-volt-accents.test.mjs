@@ -20,7 +20,7 @@ const styleFiles=[
 // Strong blue accent values, excluding muted slate and nearly black graphite surfaces.
 function vividBlue(r,g,b){
  const min=Math.min(r,g,b);
- return b>=90 && b>r*1.18 && b>g*1.05 && b-min>38;
+ return b>=90 && b>r*1.18 && b>g*1.12 && (b-min)/b>=0.38;
 }
 function remainingBlueAccents(source){
  const hits=[];
