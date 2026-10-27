@@ -1,0 +1,61 @@
+/* Customers directory: keep page headings clear of the mobile tool bar.
+   Presentation only; customer data and existing event contracts are unchanged. */
+#colzoApp #colzoOwner[data-screen="clients"] .cn-header {
+  position:relative;top:auto;height:auto;min-height:64px;
+  align-items:center;padding:10px max(20px,env(safe-area-inset-right)) 10px max(20px,env(safe-area-inset-left));
+  background:#0d1115;border-bottom:1px solid #252d36;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-command-trigger {margin-left:auto}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-content {
+  padding-top:24px;padding-bottom:calc(120px + env(safe-area-inset-bottom));
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-page-header h1 {color:#f5f7fa}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-add {
+  display:grid;place-items:center;background:#c8ff2e;color:#0d1115;
+  border:0;box-shadow:none;font-size:28px;line-height:1;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-search {
+  margin:0 0 24px;padding:0 14px;gap:10px;background:#151a23;
+  border:1px solid #303945;box-shadow:none;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-search input {
+  padding:10px 0;margin:0;background:transparent;color:#f5f7fa;
+  border:0;border-radius:0;box-shadow:none;line-height:24px;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-search:focus-within {
+  outline:2px solid #c8ff2e;outline-offset:3px;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-search input:focus-visible {outline:none}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-directory-label {
+  display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin:0 0 12px;
+  font-size:12px;line-height:18px;color:#a5b0bb;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer-list {
+  gap:0;border:1px solid #2c3540;border-radius:18px;background:#151a23;overflow:hidden;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer {
+  gap:12px;min-height:84px;padding:16px;border:0;border-bottom:1px solid #2c3540;
+  border-radius:0;background:transparent;color:#f5f7fa;box-shadow:none;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer:last-child {border-bottom:0}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer:focus-visible {
+  outline:2px solid #c8ff2e;outline-offset:-3px;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer:active {background:#202934}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer .cn-avatar {
+  width:38px;height:38px;border:1px solid #465460;font-size:12px;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer-copy {gap:4px}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer-copy strong {
+  color:#f5f7fa;font-size:14px;line-height:20px;white-space:normal;overflow-wrap:anywhere;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer-copy small {
+  color:#a5b0bb;font-size:12px;line-height:18px;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-detail-panel {
+  margin:28px 0 0;padding:0;border:0;border-radius:0;background:transparent;
+}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-detail-panel>h2 {margin:0 0 6px}
+#colzoApp #colzoOwner[data-screen="clients"] .cn-detail-panel>.cn-caption {
+  margin:0 0 14px;color:#a5b0bb;font-size:13px;line-height:20px;
+}

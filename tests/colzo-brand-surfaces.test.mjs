@@ -16,11 +16,12 @@ test('every deployed entry loads Colzo surface styling after its older styles',(
   const dom=new JSDOM(read(file));const links=[...dom.window.document.querySelectorAll('link[rel="stylesheet"]')];
   const customerEntries=new Set(['index.html','legal/index.html','legal/dpa.html','legal/data-deletion.html','legal/storage.html','legal/subprocessors.html']);
   if(file==='index.html'){
-   // The motion pack follows the approved customer skin and is strictly
-   // scoped to portal/owner animation, not a replacement for either skin.
-   assert.match(links.at(-3)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
-   assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
-   assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-flutter-motion\.css/,file);
+   // Keep the shared skins and motion pack in order; the final directory
+   // polish is scoped to the owner Customers screen.
+   assert.match(links.at(-4)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
+   assert.match(links.at(-3)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
+   assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-flutter-motion\.css/,file);
+   assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customers-mobile\.css/,file);
   }else if(customerEntries.has(file)){
    assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
    assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
