@@ -7,6 +7,7 @@ const styleFiles=[
  'index.html',
  'assets/premium-ui.css',
  'assets/premium-v2.css',
+ 'assets/premium-final.css',
  'assets/final-showcase.css',
  'assets/mock-v3.css',
  'assets/customer-portal.css',
@@ -15,12 +16,30 @@ const styleFiles=[
  'assets/security-center.css',
  'assets/colzo-native.css',
  'site/site.css',
- 'site/seo.css'
+ 'site/seo.css',
+ 'assets/final-showcase.js',
+ 'assets/premium-final.js',
+ 'assets/mock-v3.js',
+ 'site/index.html',
+ 'site/about/index.html',
+ 'site/ai-for-trades/index.html',
+ 'site/ai-marketing-small-business/index.html',
+ 'site/ai-marketing/index.html',
+ 'site/ai-receptionist/index.html',
+ 'site/contact/index.html',
+ 'site/customer-enquiry-management/index.html',
+ 'site/pilot/index.html',
+ 'site/resources/index.html',
+ 'site/resources/ai-lead-capture-trades/index.html',
+ 'site/resources/ai-website-receptionist-small-business/index.html',
+ 'site/resources/automate-website-enquiries-small-business/index.html',
+ 'site/small-business-ai/index.html',
+ 'site/teesside/index.html'
 ];
 // Strong blue accent values, excluding muted slate and nearly black graphite surfaces.
 function vividBlue(r,g,b){
  const min=Math.min(r,g,b);
- return b>=90 && b>r*1.18 && b>g*1.12 && (b-min)/b>=0.38;
+ return b>=90 && b>r*1.18 && b>g*1.12 && g>=r*0.9 && (b-min)/b>=0.38;
 }
 function remainingBlueAccents(source){
  const hits=[];
