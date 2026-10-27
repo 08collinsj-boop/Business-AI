@@ -169,8 +169,8 @@ test("public directory matches the approved Colzo directory structure while keep
   assert.match(directoryMarkup, /<h2>Find the right business<\/h2>/);
   assert.match(directoryMarkup, /class="public-directory-hero-mascot"/);
   assert.match(directoryMarkup, /class="public-directory-search-types"/);
-  assert.match(html, /\.public-directory-reference-hero\{[\s\S]{0,520}border:1px solid #2a6eaf/);
-  assert.match(html, /\.public-directory-reference-search input\{[\s\S]{0,260}min-height:66px[\s\S]{0,260}border:2px solid #2a8cf2/);
+  assert.match(html, /\.public-directory-reference-hero\{[\s\S]{0,520}border:1px solid #c8ff2e/);
+  assert.match(html, /\.public-directory-reference-search input\{[\s\S]{0,260}min-height:66px[\s\S]{0,260}border:2px solid #c8ff2e/);
 });
 
 test("public directory is search-first and does not enumerate businesses on load", () => {
