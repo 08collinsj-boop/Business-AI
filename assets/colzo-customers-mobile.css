@@ -59,3 +59,7 @@
 #colzoApp #colzoOwner[data-screen="clients"] .cn-detail-panel>.cn-caption {
   margin:0 0 14px;color:#a5b0bb;font-size:13px;line-height:20px;
 }
+/* Keep enquiry-derived contacts visually distinct from saved customer profiles. */
+#colzoApp #colzoOwner[data-screen="clients"] .cn-stitch-customer-list + .cn-detail-panel {
+  margin-top:48px;
+}

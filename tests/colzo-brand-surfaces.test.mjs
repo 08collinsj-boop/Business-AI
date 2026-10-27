@@ -58,3 +58,10 @@ test('widget presents Colzo while keeping business routing and deduplication int
  assert.equal(new URL(root.querySelector('iframe').src).origin,'https://dev.invalid');
  w.eval(read('widget.js'));assert.equal(w.document.querySelectorAll('[data-business-ai-widget]').length,1);w.close();
 });
+
+test('Customers enquiry contacts sit below the saved customer list with clear spacing',()=>{
+ const component=read('src/colzo/Customers.jsx');
+ assert.match(component, /<\/DirectoryState><\/div>\s*<section className="cn-detail-panel">/);
+ const css=read('assets/colzo-customers-mobile.css');
+ assert.match(css, /#colzoApp #colzoOwner\[data-screen="clients"\] \.cn-stitch-customer-list \+ \.cn-detail-panel\s*\{\s*margin-top:\s*48px;/);
+});
