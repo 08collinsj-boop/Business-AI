@@ -40,3 +40,13 @@ test('Security and visual preferences remain accurately gated and reset on sign-
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.doesNotMatch(js,/localStorage\.|sessionStorage\./);
 });
+
+test('Enabled Colzo switches use a Volt green thumb on a contrasting graphite track',async()=>{
+ const [css,html]=await Promise.all(['assets/colzo-settings.css','index.html'].map(read));
+ assert.match(css,/#colzoOwner \.cn-settings-toggle input:checked\{background:#253326;border-color:#8fb92a\}/);
+ assert.match(css,/#colzoOwner \.cn-settings-toggle input:checked::before\{transform:translateX\(19px\);background:#c8ff2e\}/);
+ assert.match(css,/body#colzoApp \.switch:checked\{background:#253326;box-shadow:inset 0 0 0 1px #8fb92a\}/);
+ assert.match(css,/body#colzoApp \.switch:checked::before\{background:#c8ff2e\}/);
+ assert.match(html,/\.switch:checked:before/);
+ assert.match(css,/\.cn-settings-toggle input::before\{[^}]*background:#e8eced/);
+});
