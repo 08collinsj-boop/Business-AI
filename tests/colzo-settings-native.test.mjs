@@ -50,3 +50,22 @@ test('Enabled Colzo switches use a Volt green thumb on a contrasting graphite tr
  assert.match(html,/\.switch:checked:before/);
  assert.match(css,/\.cn-settings-toggle input::before\{[^}]*background:#e8eced/);
 });
+
+test('More page groups business tools with settings and keeps sign out at the bottom',async()=>{
+ const [js,css]=await Promise.all(['assets/colzo-native.js','assets/colzo-native.css'].map(read));
+ const start=js.indexOf(' function more(){');
+ const end=js.indexOf(' const nativeSettingMeta=',start);
+ assert.ok(start>=0&&end>start,'More page source is present');
+ const more=js.slice(start,end);
+ const tools=more.indexOf('<section class="cf-tools-extra" aria-labelledby="cnBusinessToolsHeading">');
+ const signout=more.indexOf('<button class="cf-signout" type="button" data-cn-signout>Sign out</button>');
+ assert.ok(tools>=0&&signout>tools,'Business tools appear before the single sign-out action');
+ assert.equal((more.match(/data-cn-signout/g)||[]).length,1);
+ assert.match(more,/<h2 id="cnBusinessToolsHeading">Business tools<\/h2>/);
+ for(const id of ['analytics','publicProfile','feedback','automations','billing','receptionist','projects','clients','quotes','enquiries','bookings','actions','marketing','growth'])
+   assert.ok(more.includes(`['${id}',`),'Business tool remains available: '+id);
+ assert.match(css,/#colzoOwner \.cf-tools-extra\{margin:24px 0 0\}/);
+ assert.match(css,/#colzoOwner \.cf-tools-extra \.cn-more-links button\{[^}]*background:#20272d[^}]*border-radius:12px/);
+ assert.match(css,/#colzoOwner \.cf-tools-extra \.cn-more-icon\{[^}]*background:transparent/);
+ assert.doesNotMatch(css,/#colzoOwner \.cf-tools-extra\{margin:70px/);
+});
