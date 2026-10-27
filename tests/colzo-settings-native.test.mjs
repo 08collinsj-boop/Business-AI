@@ -65,7 +65,9 @@ test('More page groups business tools with settings and keeps sign out at the bo
  for(const id of ['analytics','publicProfile','feedback','automations','billing','receptionist','projects','clients','quotes','enquiries','bookings','actions','marketing','growth'])
    assert.ok(more.includes(`['${id}',`),'Business tool remains available: '+id);
  assert.match(css,/#colzoOwner \.cf-tools-extra\{margin:24px 0 0\}/);
- assert.match(css,/#colzoOwner \.cf-tools-extra \.cn-more-links button\{[^}]*background:#20272d[^}]*border-radius:12px/);
+ const toolRow=css.match(/#colzoOwner \.cf-tools-extra \.cn-more-links button\{([^}]*)\}/)?.[1]||'';
+ assert.match(toolRow,/background:#20272d/);
+ assert.match(toolRow,/border-radius:12px/);
  assert.match(css,/#colzoOwner \.cf-tools-extra \.cn-more-icon\{[^}]*background:transparent/);
  assert.doesNotMatch(css,/#colzoOwner \.cf-tools-extra\{margin:70px/);
 });
