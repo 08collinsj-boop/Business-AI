@@ -25,6 +25,9 @@ BEGIN
  WHERE business_id='433f135d-720f-4687-8114-3dffe7361675'::uuid
  AND status='active' AND granted_by='b8cb079d-792e-4810-8218-0f9d442c521a'::uuid) <> 1
  THEN RAISE EXCEPTION 'Expected fictional grant not found'; END IF;
+ IF (SELECT count(*) FROM colzo_pilot_private.audit WHERE request_key='colzo-qa-20261028-4bb083-revoke-v1')<>0
+ OR (SELECT count(*) FROM colzo_pilot_private.audit WHERE business_id='433f135d-720f-4687-8114-3dffe7361675'::uuid AND action='revoked')<>0
+ THEN RAISE EXCEPTION 'Fictional revoke audit/request key was already used'; END IF;
 END
 $preflight$;
 GRANT colzo_pilot_operator TO postgres WITH SET TRUE;
@@ -64,6 +67,10 @@ BEGIN
  IF (SELECT count(*) FROM public.colzo_pilot_access
    WHERE business_id='433f135d-720f-4687-8114-3dffe7361675'::uuid AND status='revoked')<>1
  THEN RAISE EXCEPTION 'Fixture revocation was not confirmed'; END IF;
+ IF (SELECT count(*) FROM colzo_pilot_private.audit WHERE request_key='colzo-qa-20261028-4bb083-revoke-v1' AND business_id='433f135d-720f-4687-8114-3dffe7361675'::uuid
+   AND actor='b8cb079d-792e-4810-8218-0f9d442c521a'::uuid AND action='revoked' AND executed_by='postgres'
+   AND result->>'status'='revoked')<>1
+ THEN RAISE EXCEPTION 'Exact audited fictional revocation not confirmed'; END IF;
  IF (SELECT count(*) FROM public.colzo_pilot_access
    WHERE business_id='6da33602-1b8f-474d-84a6-e003d1c713fd'::uuid AND status='active')<>1
  THEN RAISE EXCEPTION 'Original demo grant was changed'; END IF;
