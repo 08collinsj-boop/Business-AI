@@ -29,7 +29,7 @@ BEGIN
 END
 $preflight$;
 GRANT colzo_pilot_operator TO postgres WITH SET TRUE;
-SET ROLE colzo_pilot_operator;
+SET LOCAL ROLE colzo_pilot_operator;
 SELECT colzo_pilot_private.grant_access(
  '433f135d-720f-4687-8114-3dffe7361675'::uuid,
  'b8cb079d-792e-4810-8218-0f9d442c521a'::uuid,
@@ -37,9 +37,11 @@ SELECT colzo_pilot_private.grant_access(
  'Approved isolated Development-only fictional two-business acceptance fixture; no real pilot or invitation'
 ) AS fictional_grant_result;
 RESET ROLE;
-GRANT colzo_pilot_operator TO postgres WITH SET FALSE, INHERIT FALSE;
+GRANT colzo_pilot_operator TO postgres WITH SET FALSE;
+GRANT colzo_pilot_operator TO postgres WITH INHERIT FALSE;
 DO $postflight$
 BEGIN
+ IF (SELECT count(*) FROM pg_auth_members am JOIN pg_roles r ON r.oid=am.roleid JOIN pg_roles m ON m.oid=am.member WHERE r.rolname='colzo_pilot_operator' AND m.rolname='postgres' AND am.set_option=false AND am.inherit_option=false AND am.admin_option=true) <> 1 THEN RAISE EXCEPTION 'Exact restored membership required'; END IF;
  IF EXISTS(
  SELECT 1 FROM pg_auth_members am
  JOIN pg_roles target ON target.oid=am.roleid JOIN pg_roles caller ON caller.oid=am.member
