@@ -18,7 +18,7 @@ BEGIN
  THEN RAISE EXCEPTION 'Operator membership preflight failed'; END IF;
  IF current_user <> 'postgres' OR session_user <> 'postgres'
  THEN RAISE EXCEPTION 'Unexpected SQL operator'; END IF;
- IF (SELECT count(*) FROM auth.users WHERE id='b8cb079d-792e-4810-8218-0f9d442c521a'::uuid AND email='colzo-qa-20261028-4bb083bba9b9@example.invalid' AND email_confirmed_at IS NOT NULL) <> 1
+ IF (SELECT count(*) FROM auth.users WHERE id='b8cb079d-792e-4810-8218-0f9d442c521a'::uuid AND email='08collinsj+colzoqa@gmail.com' AND email_confirmed_at IS NOT NULL) <> 1
  OR (SELECT count(*) FROM public.business_memberships WHERE user_id='b8cb079d-792e-4810-8218-0f9d442c521a'::uuid AND business_id='433f135d-720f-4687-8114-3dffe7361675'::uuid AND role='owner') <> 1
  OR (SELECT count(*) FROM public.business_memberships WHERE business_id='433f135d-720f-4687-8114-3dffe7361675'::uuid) <> 1
  OR (SELECT count(*) FROM public.business_memberships WHERE user_id='b8cb079d-792e-4810-8218-0f9d442c521a'::uuid) <> 1
