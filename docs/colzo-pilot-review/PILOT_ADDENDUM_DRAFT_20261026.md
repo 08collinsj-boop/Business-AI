@@ -59,18 +59,19 @@ made until the tenant-scoped process is tested and documented.
 
 ## Provider and privacy gate
 
-Candidate code supports OpenAI and OpenRouter enquiry paths. Current Vercel global
-Preview metadata includes OPENAI_API_KEY; this is not acceptance of a runtime route
-or permission to make a paid call. No exact candidate Preview/configuration exists.
-For the no-cost demonstration, omit external AI credentials and verify deterministic
-handling/manual handover honestly. Before real customer processing, reconcile every
+Candidate code supports OpenAI and OpenRouter enquiry paths. The protected
+Development Preview at commit 7a51d607 was deployed and verified on 27 October 2026.
+Its branch-specific provider/scheduler keys are empty; paid feature flags are false
+and cron definitions are empty. The accepted demonstration uses deterministic
+handling/manual handover. This is not operational paid AI or phone-service acceptance. Before real customer processing, reconcile every
 actually enabled provider/fallback with the subprocessor register, contracts, data
 use/retention, location and transfer arrangements. Review all enabled analytics,
 cookies/storage and embeds on the accepted release. Feature presence in source or
 a provider name in a register does not prove this gate is complete.
 
-Source legal pages still contain an unconfigured operator-identity notice. Live
-identity on a matching candidate cannot be accepted before that Preview exists.
+Source legal pages still contain an unconfigured operator-identity notice. The
+matching Preview public legal endpoint confirms identity_configured=false with
+blank operator/contact fields; the deployment does not resolve this gate.
 Professional review remains required for identity, liability, controller/processor
 roles, retention, provider transfers, suspension and data-rights/incident handling.
 
