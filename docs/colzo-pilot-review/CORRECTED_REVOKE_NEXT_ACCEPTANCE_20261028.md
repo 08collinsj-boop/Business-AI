@@ -1,5 +1,7 @@
 # Corrected fictional revoke — bounded next acceptance (28 October 2026)
 
+> **29 October 2026 update — historical plan, superseded exact bytes.** The proposed SHA256 `ffc2a2f67c54b901e05e0323402795ea7a501f3c65902ca1428653b8af8b530c` below was found to fail in native PostgreSQL 17.6 because its temporary grant did not explicitly specify `INHERIT FALSE`. It is **NOT executable or approved**. The corrected proposal is at commit `744bd1b9b23c753569720d685062ed462aa4212d`, SHA256 `1bfb70bc564989f529d4c9bb0c448dcba7dd666c3c5e31d8c26675554ba427d3`. Isolated native testing passed 22 focused checks; a new static regression test passed 3/3 and failed as expected on the old grant form. See [29 October evidence](NATIVE_CORRECTED_REVOKE_ACCEPTANCE_20261029.md). All real-business and live-revoke gates below remain pending; no live revoke has been approved or executed.
+
 **State: proposal only. Secure real-business pilot NO-GO. No revoke/permission change approved or executed by this document.**
 
 ## Exact candidate to test
