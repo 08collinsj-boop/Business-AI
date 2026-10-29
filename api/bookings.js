@@ -43,7 +43,12 @@ async function supabaseRequest(path, options = {}) {
   const text = await response.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-  if (!response.ok) throw new Error("Database request failed");
+  if (!response.ok) {
+    const error = new Error("Database request failed");
+    if (data?.code === '23P01') error.code = 'BOOKING_TIME_CONFLICT';
+    if (data?.code === '40001' || data?.code === '55P03') error.code = 'BOOKING_RETRY_REQUIRED';
+    throw error;
+  }
   return data;
 }
 
@@ -306,6 +311,8 @@ export default async function handler(req, res) {
     }
     return res.status(200).json(result || null);
   } catch (error) {
+    if (error?.code === 'BOOKING_TIME_CONFLICT') return res.status(409).json({ error: 'This time overlaps another confirmed booking. Choose a different time.' });
+    if (error?.code === 'BOOKING_RETRY_REQUIRED') return res.status(409).json({ error: 'Booking scheduling changed. Reload before trying again.' });
     if (/^(Invalid|Unsupported|No changes|End time)/.test(error?.message || "")) return res.status(400).json({ error: error.message });
     console.error("Bookings API error");
     return res.status(500).json({ error: "Could not process bookings" });

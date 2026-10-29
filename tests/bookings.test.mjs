@@ -115,6 +115,20 @@ test("booking endpoints reject unsafe integer record and enquiry IDs before any 
   assert.deepEqual(databaseCalls,[]);
 });
 
+test('database overlap rejection is a safe 409 without success audit', { concurrency: false }, async () => {
+  const calls = [];
+  const handler = await load('true', async (url, options = {}) => {
+    calls.push(url);
+    if (url.endsWith('/rest/v1/bookings') && options.method === 'POST') return reply({ code: '23P01', message: 'Private conflicting row detail' }, false);
+    throw Error('Conflict must not emit history or audit');
+  });
+  const res = result();
+  await handler({ method: 'POST', headers: { authorization: 'Bearer good' }, body: { title: 'Fictional overlap', status: 'confirmed', starts_at: '2026-11-04T15:30:00Z', ends_at: '2026-11-04T16:30:00Z' } }, res);
+  assert.equal(res.statusCode, 409);
+  assert.deepEqual(res.body, { error: 'This time overlaps another confirmed booking. Choose a different time.' });
+  assert.equal(calls.length, 1);
+});
+
 test.after(() => {
   for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key];
   Object.assign(process.env, savedEnv);
