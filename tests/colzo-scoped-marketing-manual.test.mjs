@@ -12,7 +12,7 @@ function configure(){
  Object.assign(process.env,{COLZO_SCOPED_PILOT_ACCESS:'true',VERCEL_ENV:'preview',SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'synthetic-only',TENANCY_AUTH_ENABLED:'true',BILLING_ENABLED:'false',PILOT_FREE_STARTER_MARKETING:'false'});
  delete process.env.OPENROUTER_API_KEY;delete process.env.OPENAI_API_KEY;
 }
-function stub({grant=active,role='owner',savedForeign=false}={}){
+function stub({grant=active,role='owner',savedForeign=false,foreignRead=false}={}){
  const calls=[];
  globalThis.fetch=async(url,options={})=>{
   const p=new URL(url).pathname,method=options.method||'GET';
@@ -23,7 +23,7 @@ function stub({grant=active,role='owner',savedForeign=false}={}){
   if(p.endsWith('/business_billing_usage'))return reply([{quantity:0}]);
   if(p.endsWith('/marketing_generations')){
    if(method==='POST')return reply([{id:draft,...parsed,business_id:savedForeign?other:business,status:'completed',output,approval_status:'draft',created_at:new Date(now).toISOString(),updated_at:parsed.updated_at}]);
-   return reply([]);
+   return reply(foreignRead?[{id:draft,business_id:other,content_type:'social_post',platform:'facebook',tone:'friendly',request_text:'Foreign draft',status:'completed',output,approval_status:'draft'}]:[]);
   }
   if(p.endsWith('/business_audit_events'))return reply([]);
   throw Error('Unexpected external route '+p);
@@ -33,7 +33,7 @@ function stub({grant=active,role='owner',savedForeign=false}={}){
 async function run(method,payload,opts={}){
  configure();const calls=stub(opts);
  const handler=(await import('../lib/marketing-handler.js')).default,out=res();
- await handler({method,headers:{authorization:'Bearer synthetic-owner'},query:{},body:payload},out);
+ await handler({method,headers:{authorization:'Bearer synthetic-owner'},query:opts.query||{},body:payload},out);
  return {out,calls};
 }
 test('active scoped pilot can view manual draft library but not paid provider features',async()=>{
@@ -74,5 +74,10 @@ test('scoped pilot rejects paid AI generation and foreign returned manual rows b
 test('non-owner member cannot create manual draft during scoped pilot',async()=>{
  const {out,calls}=await run('POST',body,{role:'member'});
  assert.equal(out.statusCode,403);assert.equal(calls.some(c=>c.p.endsWith('/marketing_generations')),false);
+});
+test('individually fetched Marketing draft never exposes a foreign business row from an anomalous service response',async()=>{
+ const {out}=await run('GET',null,{foreignRead:true,query:{generation_id:draft}});
+ assert.notEqual(out.statusCode,200);
+ assert.ok(!JSON.stringify(out.body||{}).includes('Foreign draft'));
 });
 test.after(()=>{for(const k of Object.keys(process.env))if(!(k in originalEnv))delete process.env[k];Object.assign(process.env,originalEnv);globalThis.fetch=originalFetch;});
