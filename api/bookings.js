@@ -63,6 +63,23 @@ function confirmedRecord(value, businessId, expectedId = null) {
   return row;
 }
 
+// The return=representation row must reflect every explicitly requested field
+// before we announce success, prepare follow-ups or write a success audit.
+// Inconsistent service-role responses are not evidence of a saved change.
+function confirmedBookingFields(row, fields) {
+  return Object.entries(fields).every(([field, expected]) => {
+    if (field === "updated_at") return true; // Version is verified separately in Preview.
+    const actual = row[field];
+    if (field === "starts_at" || field === "ends_at") {
+      return expected === null ? actual === null : sameWorkVersion(actual, expected);
+    }
+    if (field === "lead_id") {
+      return expected === null ? actual === null : positiveId(actual) === expected;
+    }
+    return actual === expected;
+  });
+}
+
 function parseBody(body) {
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body || {};
@@ -272,7 +289,7 @@ export default async function handler(req, res) {
         method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(booking)
       });
       const result = confirmedRecord(created, businessId);
-      if (!result) throw new Error("Created record could not be confirmed");
+      if (!result || !confirmedBookingFields(result, updates)) throw new Error("Created record could not be confirmed");
       await recordLeadHistory(result?.lead_id, businessId, "Booking created", "", result?.title || "");
       if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "booking.created", resourceType: "booking", resourceId: String(result.id), metadata: { status: result.status, source: result.source } });
       return res.status(201).json(result || null);
@@ -302,7 +319,7 @@ export default async function handler(req, res) {
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, bookingId);
-    if (!result) throw new Error("Updated record could not be confirmed");
+    if (!result || !confirmedBookingFields(result, updates)) throw new Error("Updated record could not be confirmed");
     if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
