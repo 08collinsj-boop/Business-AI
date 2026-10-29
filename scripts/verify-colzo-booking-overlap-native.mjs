@@ -56,6 +56,7 @@ try {
     let waiting = 0;
     const deadline = Date.now() + 2000;
     while (Date.now() < deadline) {
+      await admin.query('SELECT pg_stat_clear_snapshot()');
       waiting = (await admin.query("SELECT count(*)::int n FROM pg_stat_activity WHERE pid=ANY($1::int[]) AND wait_event='advisory'", [pids])).rows[0].n;
       if (waiting === 8) break;
       await new Promise(resolve => setTimeout(resolve, 20));
