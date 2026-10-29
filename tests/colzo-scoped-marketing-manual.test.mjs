@@ -22,7 +22,7 @@ function stub({grant=active,role='owner',savedForeign=false}={}){
   if(p.endsWith('/colzo_pilot_access'))return reply(grant?[grant]:[]);
   if(p.endsWith('/business_billing_usage'))return reply([{quantity:0}]);
   if(p.endsWith('/marketing_generations')){
-   if(method==='POST')return reply([{id:draft,...parsed,business_id:savedForeign?other:business,status:'completed',output,approval_status:'draft',created_at:new Date(now).toISOString(),updated_at:new Date(now).toISOString()}]);
+   if(method==='POST')return reply([{id:draft,...parsed,business_id:savedForeign?other:business,status:'completed',output,approval_status:'draft',created_at:new Date(now).toISOString(),updated_at:parsed.updated_at}]);
    return reply([]);
   }
   if(p.endsWith('/business_audit_events'))return reply([]);
