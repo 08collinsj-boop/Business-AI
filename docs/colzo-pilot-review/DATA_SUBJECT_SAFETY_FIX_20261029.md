@@ -61,3 +61,13 @@ Before onboarding a real business:
 Export via this lead-specific route does not replace the previously rehearsed 50-category fictional tenant JSON/CSV export and does not demonstrate a full source/Auth/Storage backup or successful restore.
 
 **Readiness:** fictional demo retains prior GO; secure real-business pilot remains NO-GO. The application runtime deployed to protected Preview is still `adecce31b88f5c1ffd623480524996cb5ae91581`, without either new code correction. Do not deploy or activate a real business without separate exact approval.
+
+## Concurrent-head reconciliation and focused re-verification
+
+While preparing full CI, the PR advanced by an additional code commit `3fd0176e67c2dade553adfd346dce1280e45317c`. That change preserved the legitimate lead and related-row verification through `verifiedRelatedRows` (including explicitly excluding arrays), but removed the safe-integer ID validator and the scoped-pilot non-atomic erasure block.
+
+The latest source was independently fetched and substituted into the already-written regression suite. **RED on that exact concurrent code state:** six passing nested cases; the oversized lead-ID and scoped-pilot DELETE assertions both failed, with the enclosing test also marked failed (9 reported tests: 6 passed, 3 failed including the parent). The failure was observed before modifying the latest source; the rest of the new export checks remained green.
+
+**GREEN:** retained the concurrent commit's stronger `verifiedRelatedRows` implementation and changed **only** the bounded positive safe-integer ID validation and the scoped-pilot `DELETE` early refusal. Exact combined source was run against the four focused test files: **38 passed / zero failed**, no shared database or live deletion. Committed this reconciliation as `1ce6f248c067785d440fd856a931affd254cbdaf` and independently fetched the committed bytes back.
+
+This section supersedes the earlier single-code-fix SHA as the final tested implementation; both the original `be4cb998` and the concurrently evolved export validation are preserved where compatible. **Full CI must run against the head including reconciliation**, not just the earlier 1427-pass lifecycle CI at `92e7516`. No unrelated app behaviour or real user data changed.
