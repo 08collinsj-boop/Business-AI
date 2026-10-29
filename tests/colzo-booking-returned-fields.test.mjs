@@ -5,7 +5,7 @@ const BUSINESS = '11111111-1111-4111-8111-111111111111';
 const USER = '33333333-3333-4333-8333-333333333333';
 const STAMP = '2026-10-29T11:00:00.000Z';
 const current = { id: 7, business_id: BUSINESS, title: 'Original fixture', status: 'requested', starts_at: null, ends_at: null, updated_at: STAMP };
-const reply = value => ({ ok: true, status: 200, text: async () => JSON.stringify(value) });
+const reply = value => ({ ok: true, status: 200, text: async () => JSON.stringify(value), json: async () => value });
 const result = () => ({ code: 0, status(code) { this.code = code; return this; }, json(value) { this.body = value; return this; }, setHeader() {} });
 
 async function run(t, method, body, saved) {
