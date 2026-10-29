@@ -45,10 +45,24 @@ try {
   try {
     const pids = await Promise.all(clients.map(async c => (await c.query('SELECT pg_backend_pid() pid')).rows[0].pid));
     check('eight independent database backends', new Set(pids).size === 8);
-    outcomes = await Promise.all(clients.map(async c => {
+    await admin.query('BEGIN');
+    await admin.query("SELECT pg_advisory_xact_lock(hashtextextended('colzo-pilot-confirmed-booking:' || $1,0))", [A]);
+    const pending = clients.map(async c => {
       try { await c.query('BEGIN'); await c.query(insert()); await c.query('SELECT pg_sleep(0.2)'); await c.query('COMMIT'); return 'committed'; }
       catch (e) { await c.query('ROLLBACK'); return e.code; }
-    }));
+    });
+    // Observe every independent worker actually waiting on the scheduling lock.
+    // Do not infer concurrency merely from Promise.all or distinct backend IDs.
+    let waiting = 0;
+    const deadline = Date.now() + 2000;
+    while (Date.now() < deadline) {
+      waiting = (await admin.query("SELECT count(*)::int n FROM pg_stat_activity WHERE pid=ANY($1::int[]) AND wait_event='advisory'", [pids])).rows[0].n;
+      if (waiting === 8) break;
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    await admin.query('COMMIT');
+    outcomes = await Promise.all(pending);
+    check('eight backends observed waiting concurrently', waiting === 8);
   } finally { await Promise.all(clients.map(c => c.end())); }
   check('one simultaneous confirmation commits', outcomes.filter(x => x === 'committed').length === 1);
   check('seven simultaneous overlaps rejected', outcomes.filter(x => x === '23P01').length === 7);
