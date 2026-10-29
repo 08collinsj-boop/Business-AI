@@ -55,3 +55,11 @@ Old counts for policies/functions and overall tables may use different schema sc
 6. **Owner sign-off:** Decide recovery point/recovery time expectations, retention/export windows, authorised support/data handlers and acceptable safeguards. No invented availability guarantees.
 
 **Release classification:** Fictional-data demonstration retains GO; secure real-business 14-day pilot **NO-GO**; Production launch **NO-GO**. No Production, Auth, Storage, schema, grants, accounts, records, Preview deployment, billing or permissions modified. This entry is documentation and a read-only SQL audit tool only.
+
+## Tenant-table export and isolated restore environment checks
+
+Additional read-only `pg_catalog` inspection found **53 public tables**, split into **47 tables with a `business_id` column** and **six without one**. The six without a business key are `business_referrals` (references businesses), `businesses`, `customer_profiles` (references Auth users), `pilot_free_access_config`, `platform_incident_controls` and `user_legal_acceptances` (references Auth users). The earlier 50-category QA export rehearsal's **47 business-keyed tables** therefore still matches the current number of public tenant-keyed tables; this does not prove all user-global, shared referral, platform or external resources are included. It also does not explain the 52-versus-53 table count difference across dates.
+
+Supabase's read-only branch-list endpoint returned **zero development branches** for this project. There is therefore no existing listed isolated Supabase branch where a genuine source restore can be tested now. No new branch was created because doing so can incur costs and requires separate approval.
+
+These checks do not alter the backup-API results: zero listed backups, PITR off, restore not independently demonstrated.
