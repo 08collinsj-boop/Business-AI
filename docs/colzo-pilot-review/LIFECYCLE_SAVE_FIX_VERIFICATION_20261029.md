@@ -82,7 +82,7 @@ The five PGlite-dependent local-runner files above were **not** ignored or marke
 
 The exact workflow command was `npm run verify`, invoking checked-in `npm test` with the build/pretest and then `npm run verify:local`. Job logs record:
 
-- **1427 tests passed / zero failed / zero cancelled / zero skipped / zero TODO**.
+- **1427 tests passed / zero failed / zero cancelled / zero skipped / zero outstanding test items**.
 - React content bundle build: **228622 bytes before compression**.
 - Local verification: **364 JavaScript files**, zero inline scripts, secret/temporary-marker checks succeeded.
 - Workflow's own installation and verification steps each concluded successfully, as did the completed overall job/run.
