@@ -29,7 +29,7 @@ Direct references to `public.businesses`:
 
 Direct `auth.users` references demonstrate why tenant deletion must **not** blindly delete the shared Auth user: user-global `customer_profiles` and `user_legal_acceptances` cascade on Auth user deletion, while other business-linked records have RESTRICT, SET NULL, NO ACTION and CASCADE dependencies.
 
-Reproducible query: [DELETION_FK_DEPENDENCY_20261029.READONLY.sql](DELETION_FK_DEPENDENCY_20261029.READONLY.sql). Its individual catalog predicates were executed in a read-only rolled-back Development transaction; the committed combined file was written and read back but was not separately executed byte-for-byte. No live DELETE, restore, grant or role mutation was performed.
+Reproducible query: [DELETION_FK_DEPENDENCY_20261029.READONLY.sql](DELETION_FK_DEPENDENCY_20261029.READONLY.sql). Its catalog predicates were executed in a read-only rolled-back Development transaction. **Subsequently the exact committed file was fetched from GitHub and executed as one BEGIN READ ONLY / ROLLBACK batch on Development with no SQL errors**; the connector returned the final SELECT's foreign-key dependency rows, including the same 20/4/25 business-reference constraint totals. No live DELETE, restore, grant or role mutation was performed.
 
 A real deletion implementation requires separately approved tenant-specific authority/retention decisions; child-table handling (including cascading, history/audit, referral and Auth-sharing semantics); Storage objects and backup copies; an isolated restore/simulation; and exact scoped shared-Development execution approval. Expiry is access restriction, **not** data deletion.
 
@@ -45,7 +45,7 @@ Created and independently verified these files on the existing PR branch:
 - `DELETION_FK_DEPENDENCY_20261029.READONLY.sql`
 - This report.
 
-All new SQL findings were obtained with SELECT-only read-only transactions. This continuation did not clone/run the repository's full suite, because no application code was changed and earlier validated suites were retained. No full backup/restore or issued-JWT test was claimed.
+All new SQL findings were obtained with SELECT-only read-only transactions. Both exact committed SQL files were subsequently executed against Development via the existing authorised connector without reported errors; the multi-statement executor returned each batch's final SELECT results. This continuation did not clone/run the repository's full suite, because no application code was changed and earlier validated suites were retained. No full backup/restore or issued-JWT test was claimed.
 
 ## Final acceptance matrix
 
