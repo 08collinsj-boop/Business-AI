@@ -30,7 +30,7 @@ BEGIN
  THEN RAISE EXCEPTION 'Fictional revoke audit/request key was already used'; END IF;
 END
 $preflight$;
-GRANT colzo_pilot_operator TO postgres WITH SET TRUE;
+GRANT colzo_pilot_operator TO postgres WITH SET TRUE, INHERIT FALSE;
 DO $temp_membership$
 BEGIN
  IF (SELECT count(*) FROM pg_auth_members am JOIN pg_roles r ON r.oid=am.roleid JOIN pg_roles m ON m.oid=am.member
