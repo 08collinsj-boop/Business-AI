@@ -73,3 +73,20 @@ The remaining 222 file suite, build and local verification were run successfully
 | Operator/support/data lifecycle decisions | BLOCKED — owner decisions required |
 
 **No Production, shared Development data, Auth, permissions, grants, customer records, SSO, Preview deployment, providers or billing changed.** No real-business account activated or invitations sent. This work does not declare the secure real-business pilot GO.
+
+## Subsequent full clean-suite resolution — GitHub Actions, 29 October 2026
+
+The five PGlite-dependent local-runner files above were **not** ignored or marked passed by assumption. The existing **Pilot Verification** workflow was explicitly dispatched on the same public-repository PR branch. It used a standard GitHub-hosted Ubuntu runner at no additional charge; no workflow definition, Production, application runtime, database or account setting changed.
+
+**Completed successfully:** [GitHub Actions run 40936573244](https://github.com/08collinsj-boop/Business-AI/actions/runs/40936573244), workflow head `92e7516ba38d5fa95bd1a78b15f4005de26e4472` (including regression test commit `e5f445a` and application fix commit `53fda548`). Workflow status `completed`, conclusion `success`; official job logs read independently, not inferred from UI state.
+
+The exact workflow command was `npm run verify`, invoking checked-in `npm test` with the build/pretest and then `npm run verify:local`. Job logs record:
+
+- **1427 tests passed / zero failed / zero cancelled / zero skipped / zero TODO**.
+- React content bundle build: **228622 bytes before compression**.
+- Local verification: **364 JavaScript files**, zero inline scripts, secret/temporary-marker checks succeeded.
+- Workflow's own installation and verification steps each concluded successfully, as did the completed overall job/run.
+
+This **supersedes the earlier local-environment PGlite blocker for code-level CI acceptance at that exact head**. The constrained local runtime's failure remains a truthful historical environment limitation, not a current CI gate. The successful GitHub Actions run is automated/synthetic coverage, **not** a live Supabase-issued QA session, genuine two-business API acceptance, authorised shared Development revoke, natural grant expiry, source/Auth/Storage restore or privacy/lifecycle sign-off.
+
+No subsequent application code change is included in this documentation addendum. The deployed Preview is still the separately approved runtime `adecce31b88f5c1ffd623480524996cb5ae91581`, which **does not include** the new lifecycle fix. A later deployment would need separate exact-commit owner approval and an appropriate live check.
