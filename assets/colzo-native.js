@@ -691,9 +691,9 @@
   const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
   if(feedback)feedback.textContent='Saving the reviewed facts…';
   try{
-   // Keep the exact existing API contract. Human confirmation happens above,
-   // not in unrecognised request properties the server will reject.
-   const result=await api('/api/knowledge',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',source_id:source.id,items})});
+   // The deployed wrapper requires versioned confirmation after the owner
+   // explicitly approves the reviewed facts above.
+   const result=await api('/api/knowledge',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',source_id:source.id,items,confirmation:true,confirmation_version:'knowledge_accuracy_v1'})});
    if(!result?.source?.id||!Array.isArray(result.items))throw new Error('The server did not confirm the review.');
    state.knowledgeDetail=result;state.knowledgeIncludes=Object.fromEntries(result.items.map(item=>[item.id,item.status==='active']));
    state.knowledgeFeedback='Reviewed knowledge saved. Only approved facts may be used by the assistant.';
