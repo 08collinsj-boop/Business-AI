@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoWorkVersionEnabled } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoRecordVersionEnabled } from "../lib/public-config-handler.js";
 import { validWorkVersion, nextWorkVersion, sameWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
@@ -184,7 +184,7 @@ export default async function handler(req, res) {
 
     const actionId = positiveId(body.id);
     if (!actionId) return res.status(400).json({ error: "Invalid action ID" });
-    const versioned = isColzoWorkVersionEnabled(), expected = body.expected_updated_at;
+    const versioned = isColzoRecordVersionEnabled(), expected = body.expected_updated_at;
     if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the action before saving; expected_updated_at is required" });
     const updates = validateAction(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(

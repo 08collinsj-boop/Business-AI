@@ -3982,7 +3982,7 @@ passwordRecoveryActive=passwordRecoveryIntentFromLocation();
 // Vercel Authentication on this isolated Preview can interfere with
 // application Bearer headers. Keep Supabase's server-side validation intact.
 window.colzoPreviewAuthTransportEnabled=config.previewAuthTransportEnabled===true;
-window.colzoWorkVersionsEnabled=config.workVersionsEnabled===true;
+window.colzoRecordVersionsEnabled=config.recordVersionsEnabled===true;
 window.colzoPasskeysEnabled=config.colzoPasskeysEnabled===true;
 const passkeyLogin=$('colzoPasskeyLogin');
 supabaseClient=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey,
@@ -5166,7 +5166,7 @@ try{await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'applicatio
 
 function colzoWorkUpdateBody(resource,id,updates){
 const body={id,...updates};
-if(window.colzoWorkVersionsEnabled===true||window.colzoPreviewAuthTransportEnabled===true){const list=resource==='bookings'?bookings:resource==='actions'?businessActions:[];body.expected_updated_at=list.find(item=>String(item.id)===String(id))?.updated_at;if(!body.expected_updated_at)throw new Error('Reload this record before saving.');}
+if(window.colzoRecordVersionsEnabled===true||window.colzoPreviewAuthTransportEnabled===true){const list=resource==='bookings'?bookings:resource==='actions'?businessActions:[];body.expected_updated_at=list.find(item=>String(item.id)===String(id))?.updated_at;if(!body.expected_updated_at)throw new Error('Reload this record before saving.');}
 return body;
 }
 
@@ -5267,7 +5267,7 @@ async function updateLead(id,updates){
 try{
 
 const body={id,...updates};
-if(window.colzoPreviewAuthTransportEnabled===true){body.expected_updated_at=leads.find(lead=>String(lead.id)===String(id))?.updated_at;if(!body.expected_updated_at)throw new Error('Reload the enquiry before saving.');}
+if(window.colzoRecordVersionsEnabled===true||window.colzoPreviewAuthTransportEnabled===true){body.expected_updated_at=leads.find(lead=>String(lead.id)===String(id))?.updated_at;if(!body.expected_updated_at)throw new Error('Reload the enquiry before saving.');}
 await api('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 
 toast('Lead updated');

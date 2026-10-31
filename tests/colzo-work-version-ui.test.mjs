@@ -11,7 +11,7 @@ async function submit(resource,loaded=version,pilotBranch=false){
  const state={workBusy:false,workModal:resource,workSelected:11};
  const form={dataset:{kind:resource,id:'11',version:loaded},querySelector:()=>button};
  class FixtureFormData {get(key){return {title:'QA draft',status:resource==='actions'?'pending':'requested',notes:'Unsaved QA note',action_type:'custom',priority:'normal'}[key]||''}}
- const context={state,FormData:FixtureFormData,window:{colzoPreviewAuthTransportEnabled:!pilotBranch,colzoWorkVersionsEnabled:pilotBranch},
+ const context={state,FormData:FixtureFormData,window:{colzoPreviewAuthTransportEnabled:!pilotBranch,colzoRecordVersionsEnabled:pilotBranch},
    validWorkId:()=>true,workPick:()=>({id:11,status:resource==='actions'?'pending':'requested',action_type:'custom',updated_at:'2026-10-19T12:01:00Z'}),
    root:{querySelector:()=>error},showWorkFormError:message=>{error.textContent=message},
    api:async(url,init)=>{calls.push(JSON.parse(init.body));throw new Error('Conflict: draft not saved')},render:()=>{throw new Error('A rejected save must not replace the form')}};
