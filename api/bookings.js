@@ -268,8 +268,8 @@ export default async function handler(req, res) {
       );
       // A service-role response must not disclose another business's rows,
       // even if an unexpected upstream response contradicts the tenant filter.
-      if (isColzoRecordVersionEnabled() && Array.isArray(rows)
-          && rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId)) {
+      if (isColzoRecordVersionEnabled() && (!Array.isArray(rows)
+          || rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId))) {
         throw new Error("Unverified tenant read representation");
       }
       return res.status(200).json(Array.isArray(rows) ? rows : []);
