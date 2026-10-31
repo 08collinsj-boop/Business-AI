@@ -87,4 +87,26 @@ for (const resource of ['actions', 'bookings']) {
     assert.equal(res.code, 500);
     assert.doesNotMatch(JSON.stringify(res.body || {}), /No tenant field/);
   });
+
+
+  test(resource + ' returns a genuine empty list rather than inventing a failure', async t => {
+    const { res, calls } = await simulate(t, resource, { rows: [] });
+    assert.equal(res.code, 200);
+    assert.deepEqual(res.body, []);
+    assert.ok(calls.every(c => c.method === 'GET'));
+  });
+
+  test(resource + ' refuses null database payload instead of reporting an empty customer workspace', async t => {
+    const { res, calls } = await simulate(t, resource, { rows: null });
+    assert.equal(res.code, 500, 'malformed successful upstream response must not masquerade as no rows');
+    assert.ok(!JSON.stringify(res.body || {}).includes('null'));
+    assert.ok(calls.every(c => c.method === 'GET'));
+  });
+
+  test(resource + ' refuses object-shaped database payload instead of reporting an empty workspace', async t => {
+    const { res, calls } = await simulate(t, resource, { rows: { records: [], error: 'upstream protocol anomaly' } });
+    assert.equal(res.code, 500, 'upstream protocol anomalies must fail closed');
+    assert.doesNotMatch(JSON.stringify(res.body || {}), /upstream protocol anomaly/);
+    assert.ok(calls.every(c => c.method === 'GET'));
+  });
 }
