@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoWorkVersionEnabled } from "../lib/public-config-handler.js";
 import { validWorkVersion, nextWorkVersion, sameWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
@@ -219,7 +219,7 @@ async function prepareReviewRequest({ businessId, booking, actorUserId }) {
   });
   // In Colzo Preview a successful database status is insufficient: only a
   // saved, correctly linked action may generate review activity and audit.
-  const strict = isColzoPreviewAuthTransportEnabled();
+  const strict = isColzoWorkVersionEnabled();
   const action = strict ? confirmedRecord(created, businessId)
     : Array.isArray(created) ? created[0] || null : created || null;
   if (!action?.id || (strict && (Number(action.booking_id) !== Number(booking.id)
@@ -297,7 +297,7 @@ export default async function handler(req, res) {
 
     const bookingId = positiveId(body.id);
     if (!bookingId) return res.status(400).json({ error: "Invalid booking ID" });
-    const versioned = isColzoPreviewAuthTransportEnabled(), expected = body.expected_updated_at;
+    const versioned = isColzoWorkVersionEnabled(), expected = body.expected_updated_at;
     if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the booking before saving; expected_updated_at is required" });
     const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(

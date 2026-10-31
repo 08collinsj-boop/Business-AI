@@ -1497,7 +1497,7 @@
      if(!window.confirm('Mark this booking completed? If review requests are enabled, a follow-up task may be prepared.'))return;
    }
    if(editing)body.id=Number(id);
-   if(editing&&window.colzoPreviewAuthTransportEnabled===true){body.expected_updated_at=form.dataset.version;if(!body.expected_updated_at){showWorkFormError('Reload this record before saving. Your draft has not been saved.');return}}
+   if(editing&&(window.colzoWorkVersionsEnabled===true||window.colzoPreviewAuthTransportEnabled===true)){body.expected_updated_at=form.dataset.version;if(!body.expected_updated_at){showWorkFormError('Reload this record before saving. Your draft has not been saved.');return}}
    state.workBusy=true;state.workFormError='';
    const submit=form.querySelector('button[type=submit]');if(submit)submit.disabled=true;
    const error=root.querySelector('#cnWorkFormError');if(error)error.textContent='Saving your changes…';
