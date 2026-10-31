@@ -28,7 +28,7 @@ test('long user content wraps safely on narrow screens', () => {
 
 test('keyboard focus stays visible across the owner app', () => {
   assert.match(html, /button:focus-visible/);
-  assert.match(html, /outline:2px solid #48a7ff/);
+  assert.match(html, /outline:2px solid #c8ff2e/);
 });
 
 test('icon-only refresh control has an accessible name', () => {

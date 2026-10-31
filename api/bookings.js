@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoRecordVersionEnabled } from "../lib/public-config-handler.js";
 import { validWorkVersion, nextWorkVersion, sameWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
@@ -43,7 +43,12 @@ async function supabaseRequest(path, options = {}) {
   const text = await response.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-  if (!response.ok) throw new Error("Database request failed");
+  if (!response.ok) {
+    const error = new Error("Database request failed");
+    if (data?.code === '23P01') error.code = 'BOOKING_TIME_CONFLICT';
+    if (data?.code === '40001' || data?.code === '55P03') error.code = 'BOOKING_RETRY_REQUIRED';
+    throw error;
+  }
   return data;
 }
 
@@ -56,6 +61,23 @@ function confirmedRecord(value, businessId, expectedId = null) {
   if (!row || typeof row !== "object" || Array.isArray(row) || !positiveId(row.id) || row.business_id !== businessId) return null;
   if (expectedId !== null && positiveId(row.id) !== expectedId) return null;
   return row;
+}
+
+// The return=representation row must reflect every explicitly requested field
+// before we announce success, prepare follow-ups or write a success audit.
+// Inconsistent service-role responses are not evidence of a saved change.
+function confirmedBookingFields(row, fields) {
+  return Object.entries(fields).every(([field, expected]) => {
+    if (field === "updated_at") return true; // Version is verified separately in Preview.
+    const actual = row[field];
+    if (field === "starts_at" || field === "ends_at") {
+      return expected === null ? actual === null : sameWorkVersion(actual, expected);
+    }
+    if (field === "lead_id") {
+      return expected === null ? actual === null : positiveId(actual) === expected;
+    }
+    return actual === expected;
+  });
 }
 
 function parseBody(body) {
@@ -197,7 +219,7 @@ async function prepareReviewRequest({ businessId, booking, actorUserId }) {
   });
   // In Colzo Preview a successful database status is insufficient: only a
   // saved, correctly linked action may generate review activity and audit.
-  const strict = isColzoPreviewAuthTransportEnabled();
+  const strict = isColzoRecordVersionEnabled();
   const action = strict ? confirmedRecord(created, businessId)
     : Array.isArray(created) ? created[0] || null : created || null;
   if (!action?.id || (strict && (Number(action.booking_id) !== Number(booking.id)
@@ -244,6 +266,12 @@ export default async function handler(req, res) {
       const rows = await supabaseRequest(
         `bookings?business_id=eq.${encodeURIComponent(String(businessId))}${leadFilter}&select=*&order=starts_at.asc.nullslast,created_at.desc`
       );
+      // A service-role response must not disclose another business's rows,
+      // even if an unexpected upstream response contradicts the tenant filter.
+      if (isColzoRecordVersionEnabled() && (!Array.isArray(rows)
+          || rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId))) {
+        throw new Error("Unverified tenant read representation");
+      }
       return res.status(200).json(Array.isArray(rows) ? rows : []);
     }
 
@@ -267,7 +295,7 @@ export default async function handler(req, res) {
         method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(booking)
       });
       const result = confirmedRecord(created, businessId);
-      if (!result) throw new Error("Created record could not be confirmed");
+      if (!result || !confirmedBookingFields(result, updates)) throw new Error("Created record could not be confirmed");
       await recordLeadHistory(result?.lead_id, businessId, "Booking created", "", result?.title || "");
       if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "booking.created", resourceType: "booking", resourceId: String(result.id), metadata: { status: result.status, source: result.source } });
       return res.status(201).json(result || null);
@@ -275,7 +303,7 @@ export default async function handler(req, res) {
 
     const bookingId = positiveId(body.id);
     if (!bookingId) return res.status(400).json({ error: "Invalid booking ID" });
-    const versioned = isColzoPreviewAuthTransportEnabled(), expected = body.expected_updated_at;
+    const versioned = isColzoRecordVersionEnabled(), expected = body.expected_updated_at;
     if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the booking before saving; expected_updated_at is required" });
     const updates = validateBooking(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(
@@ -297,7 +325,7 @@ export default async function handler(req, res) {
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, bookingId);
-    if (!result) throw new Error("Updated record could not be confirmed");
+    if (!result || !confirmedBookingFields(result, updates)) throw new Error("Updated record could not be confirmed");
     if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     await recordLeadHistory(leadId, businessId, updates.status === "cancelled" ? "Booking cancelled" : "Booking updated", current.status || "", result?.status || "");
     if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: updates.status === "cancelled" ? "booking.cancelled" : "booking.updated", resourceType: "booking", resourceId: String(bookingId), metadata: { fields: Object.keys(updates).filter((key) => key !== "updated_at").sort().join(",") } });
@@ -306,6 +334,8 @@ export default async function handler(req, res) {
     }
     return res.status(200).json(result || null);
   } catch (error) {
+    if (error?.code === 'BOOKING_TIME_CONFLICT') return res.status(409).json({ error: 'This time overlaps another confirmed booking. Choose a different time.' });
+    if (error?.code === 'BOOKING_RETRY_REQUIRED') return res.status(409).json({ error: 'Booking scheduling changed. Reload before trying again.' });
     if (/^(Invalid|Unsupported|No changes|End time)/.test(error?.message || "")) return res.status(400).json({ error: error.message });
     console.error("Bookings API error");
     return res.status(500).json({ error: "Could not process bookings" });

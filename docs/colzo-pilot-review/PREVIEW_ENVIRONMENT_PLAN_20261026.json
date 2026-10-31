@@ -1,0 +1,31 @@
+{
+  "status": "PREPARED_NOT_AUTHORISED_NOT_APPLIED",
+  "project_id": "prj_d5DuC65u4hSITFRC54ygswiMW9ST",
+  "branch": "fix/colzo-pilot-release-gates-20261026",
+  "target": "preview",
+  "development_ref": "mvwseobgkexzpmmkgcxe",
+  "plain_settings": {
+    "SUPABASE_URL": "https://mvwseobgkexzpmmkgcxe.supabase.co",
+    "COLZO_EXPECTED_SUPABASE_PROJECT_REF": "mvwseobgkexzpmmkgcxe",
+    "TENANCY_AUTH_ENABLED": "true",
+    "FRONTEND_AUTH_ENABLED": "true",
+    "COLZO_SCOPED_PILOT_ACCESS": "true",
+    "BILLING_ENABLED": "false",
+    "PILOT_FREE_STARTER_MARKETING": "false",
+    "VOICE_RECEPTIONIST_ENABLED": "false",
+    "META_PUBLISH_ENABLED": "false",
+    "MARKETING_AUTOPUBLISH_ENABLED": "false",
+    "PUBLIC_ENQUIRY_RATE_LIMIT_MODE": "database"
+  },
+  "private_value_sources": {
+    "SUPABASE_SERVICE_ROLE_KEY": "Existing service_role key retrieved privately from this exact Development project's Management API; server-only.",
+    "SUPABASE_PUBLISHABLE_KEY": "Existing default publishable key from this exact Development project's Management API.",
+    "RATE_LIMIT_SALT": "Generate a new cryptographically random server secret only in the approved environment-write operation; do not print, commit or send in chat."
+  },
+  "branch_only_empty_overrides": ["OPENAI_API_KEY", "OPENROUTER_API_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "CLOUDFLARE_API_TOKEN", "META_APP_SECRET", "META_TOKEN_ENCRYPTION_KEY", "CRON_SECRET", "MARKETING_SCHEDULER_SECRET"],
+  "system_values_to_verify": ["VERCEL_ENV=preview", "VERCEL_GIT_COMMIT_REF equals approved branch", "deployed Git SHA equals separately approved candidate"],
+  "protection": "Preserve all_except_custom_domains SSO protection; never disable it to make acceptance pass.",
+  "current_findings": "Development key sources exist. Candidate has no branch-specific overrides. Existing global Preview sensitive values were not readable via the individual-env tool, so their project mapping is unverified. Do not inherit them.",
+  "approval_required": ["branch-specific environment writes", "exact-SHA Preview deployment", "Development Auth redirect changes after the actual Preview URL exists"],
+  "post_deployment": "Verify host metadata and private resolved environment using scripts/lib/colzo-preview-environment-plan.mjs, then perform genuine application acceptance. No provider request is permitted."
+}

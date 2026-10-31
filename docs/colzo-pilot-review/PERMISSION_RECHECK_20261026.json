@@ -1,0 +1,320 @@
+{
+  "table_permissions": [
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "business_incident_controls",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "business_incident_controls",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "business_incident_controls",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "colzo_clients",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "colzo_clients",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "colzo_clients",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "colzo_projects",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "colzo_projects",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "colzo_projects",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "colzo_quotes",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "colzo_quotes",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "colzo_quotes",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "customer_complaints",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "customer_complaints",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "customer_complaints",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "pilot_free_access_config",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "pilot_free_access_config",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "pilot_free_access_config",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "platform_incident_controls",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "platform_incident_controls",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "platform_incident_controls",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "review_email_outbox",
+      "role": "anon",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": false,
+      "insert_allowed": false,
+      "relname": "review_email_outbox",
+      "role": "authenticated",
+      "select_allowed": false,
+      "update_allowed": false
+    },
+    {
+      "delete_allowed": true,
+      "insert_allowed": true,
+      "relname": "review_email_outbox",
+      "role": "service_role",
+      "select_allowed": true,
+      "update_allowed": true
+    }
+  ],
+  "definer_metadata": [
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public, auth"
+      ],
+      "proname": "accept_business_team_invitation",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "activate_paid_business_trial",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "consume_billing_ai_enquiry_allowance",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "consume_public_enquiry_quota",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": "872a165ace5cfa6c8e9429c23a7d5d4b",
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public, auth"
+      ],
+      "proname": "create_business_for_owner",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public, auth"
+      ],
+      "proname": "create_business_for_owner_with_referral",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "create_default_business_data_lifecycle_policy",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "get_platform_ops_snapshot",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "qualify_business_referral",
+      "prosecdef": true,
+      "service_execute": true
+    },
+    {
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "creator_fingerprint": null,
+      "owner": "postgres",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proname": "release_billing_ai_enquiry_allowance",
+      "prosecdef": true,
+      "service_execute": true
+    }
+  ],
+  "matches_previous_server_only_audit": true,
+  "limit": "Eight server-only table privilege projections and public SECURITY DEFINER metadata only; not a complete database/security or managed-session acceptance certificate."
+}
