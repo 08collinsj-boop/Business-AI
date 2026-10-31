@@ -178,8 +178,8 @@ export default async function handler(req, res) {
       const rows = await supabaseRequest(`actions?${filters.join("&")}&select=*&order=due_at.asc.nullslast,created_at.desc`);
       // The service role bypasses tenant RLS. Never trust an anomalous returned
       // representation to override the authenticated tenant in Colzo Preview.
-      if (isColzoRecordVersionEnabled() && Array.isArray(rows)
-          && rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId)) {
+      if (isColzoRecordVersionEnabled() && (!Array.isArray(rows)
+          || rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId))) {
         throw new Error("Unverified tenant read representation");
       }
       return res.status(200).json(Array.isArray(rows) ? rows : []);
