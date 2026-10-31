@@ -49,6 +49,21 @@ function confirmedRecord(value, businessId, expectedId = null) {
   return row;
 }
 
+
+ // Verify every explicitly requested action field before reporting a successful
+ // save or recording success history/audit. Never retry an unconfirmed write.
+function confirmedActionFields(row, fields) {
+  return Object.entries(fields).every(([field, expected]) => {
+    if (field === "updated_at" || field === "completed_at") return true; // Version is checked separately.
+    const actual = row[field];
+    if (field === "due_at") return expected === null ? actual === null : sameWorkVersion(actual, expected);
+    if (field === "lead_id" || field === "booking_id") {
+      return expected === null ? actual === null : positiveId(actual) === expected;
+    }
+    return actual === expected;
+  });
+}
+
 function parseBody(body) {
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body || {};
@@ -176,7 +191,7 @@ export default async function handler(req, res) {
         method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ business_id: businessId, ...updates })
       });
       const result = confirmedRecord(created, businessId);
-      if (!result) throw new Error("Created record could not be confirmed");
+      if (!result || !confirmedActionFields(result, updates)) throw new Error("Created record could not be confirmed");
       await recordLeadHistory(result?.lead_id, businessId, "Action created", "", result?.title || "");
       if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "action.created", resourceType: "action", resourceId: String(result.id), metadata: { status: result.status, action_type: result.action_type, priority: result.priority } });
       return res.status(201).json(result || null);
@@ -213,7 +228,7 @@ export default async function handler(req, res) {
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, actionId);
-    if (!result) throw new Error("Updated record could not be confirmed");
+    if (!result || !confirmedActionFields(result, updates)) throw new Error("Updated record could not be confirmed");
     if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
