@@ -3,6 +3,8 @@ import {
   sendAuthError
 } from "../lib/auth.js";
 import { recordAuditEvent } from "../lib/audit.js";
+import colzoLeadsHandler from "../lib/colzo-leads-handler.js";
+import { isApprovedSupabaseTarget, isColzoRecordVersionEnabled } from "../lib/public-config-handler.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
@@ -126,6 +128,14 @@ function ownerText(value, maximum) {
 
 
 export default async function handler(req, res) {
+  if (process.env.VERCEL_ENV === "preview"
+    && /^(?:feature|fix|qa|release|backup)\/colzo(?:[-/]|$)/.test(String(process.env.VERCEL_GIT_COMMIT_REF || ""))
+    && !isApprovedSupabaseTarget()) {
+    return res.status(503).json({ error: "Colzo development environment unavailable" });
+  }
+  // Vercel can resolve this filesystem function before the operations rewrite.
+  // Apply the same Colzo contract at both entrypoints; retain legacy elsewhere.
+  if (isColzoRecordVersionEnabled()) return colzoLeadsHandler(req, res);
   try {
 
     let auth;

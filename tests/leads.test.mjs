@@ -19,7 +19,9 @@ async function load({ enabled, fetchImpl }) {
   process.env.SUPABASE_URL = "https://example.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key";
   globalThis.fetch = fetchImpl;
-  const source = leadsSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`);
+  const source = leadsSource.replace('from "../lib/auth.js"', `from "${authUrl}#${Math.random()}"`).replace('from "../lib/audit.js"', `from "${auditUrl}#${Math.random()}"`)
+    .replace('from "../lib/colzo-leads-handler.js"', `from "${new URL('../lib/colzo-leads-handler.js', import.meta.url).href}"`)
+    .replace('from "../lib/public-config-handler.js"', `from "${new URL('../lib/public-config-handler.js', import.meta.url).href}"`);
   return (await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}#${Math.random()}`)).default;
 }
 function authRouter(api) {
