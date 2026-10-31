@@ -1,6 +1,6 @@
 # Colzo — verified recovery and revoked-session feasibility checkpoint — 31 October 2026
 
-**Release: NO-GO for real customer pilots.** This document records metadata-only Dev observations and exact operational dependencies. It is NOT a backup, an actual restoration, a successful JWT replay test, an authority to modify database permissions or an approval to deploy. Do not use these facts to bypass owner consent, create billed resources, export private records, read secrets, alter Production or invite real businesses.
+**Scope correction (owner confirmed 31 October): Full genuine backup-and-restore verification is a PUBLIC-LAUNCH gate, not a blocker for the controlled 14-day pilot.** This document records metadata-only Dev observations and exact operational dependencies. It is NOT a backup, an actual restoration, a successful JWT replay test, an authority to modify database permissions or an approval to deploy. The pilot still requires independently tested access/security, owner-approved tenant data return and retention terms, support, disclosure of the unverified recovery risk, and separate activation authorisation. Do not use these facts to bypass owner consent, create billed resources, export private records, read secrets, alter Production or invite real businesses. Other live pilot gates remain NO-GO.
 
 ## Scope and immutable baselines
 
@@ -74,6 +74,6 @@ References:
 
 ## Release state and next actions
 
-Genuine recovery **BLOCKED** (no backup listed and no validated source/isolated destination); G3 actual revoked JWT behavior **NOT RUN**; G2 independent QA MFA/DPA **BLOCKED**; G6 new deployed f6 owner enquiry valid and stale-save acceptance **PENDING**; G4 original natural expiry **NOT YET DUE**; G7 operational signoff/real-business activation **BLOCKED**.
+Public-launch full recovery **BLOCKED** (no backup listed and no validated source/isolated destination), but **NOT a controlled-pilot GO gate**; pilot G5 data-return, retention and recovery-risk signoff still pending; G3 actual revoked JWT behavior **NOT RUN**; G2 independent QA MFA/DPA **BLOCKED**; G6 new deployed f6 owner enquiry valid and stale-save acceptance **PENDING**; G4 original natural expiry **NOT YET DUE**; G7 operational signoff/real-business activation **BLOCKED**.
 
 No changes to PR application code or existing CI tests in this documentation-only checkpoint; **do not rerun the 1,579-test suite solely because this file was added.** Any future Preview deployment of `a33f0510` requires exact-SHA separate approval and explicit actual browser testing. Preserve draft PR and £0 cost. **NO-GO.**
