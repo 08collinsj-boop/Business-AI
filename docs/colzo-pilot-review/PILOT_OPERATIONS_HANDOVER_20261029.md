@@ -70,11 +70,11 @@ This section is **evidence and draft procedure, not proof of operational support
 
 ### What the connected Gmail account actually establishes
 
-A read-only message-ID search in the connected mailbox (excluding Trash/Spam, no contents or sender addresses disclosed in PR) returned:
+Read-only Gmail message-ID searches checked the connected account's **INBOX** (excluding Trash/Spam, without reading message bodies or exposing sender addresses). A separate search for messages SENT to this support address returned zero. The verified counts are:
 
-- **8** messages addressed to the existing published `support@getbusiness-ai.com` route after 1 October 2026.
+- **8** INBOX messages addressed to the existing published `support@getbusiness-ai.com` route after 1 October 2026.
 - **1** addressed to that route after 25 October 2026.
-- **5** unread messages addressed to that route as of this 1 November check (all dates, excluding Trash/Spam).
+- **5** unread INBOX messages addressed to that route as of this 1 November check (all dates, excluding Trash/Spam).
 - **0** messages sent **from exactly `support@getbusiness-ai.com`** in the connected Gmail account during the last 90 days. This says nothing about other mail accounts, aliases, routing rules or reply-from addresses.
 
 **Interpretation:** Incoming mail to this address appears in the connected mailbox; that is *not* proof the support mailbox is controlled by the operator, monitored on an agreed schedule, can send a reply as this address, or can escalate incidents. Do not claim a tested support response time, email receipt to a real-business pilot, or a completed outgoing delivery test. Do not publish private message contents.
