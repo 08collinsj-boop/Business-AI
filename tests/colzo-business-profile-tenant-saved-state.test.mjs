@@ -11,7 +11,7 @@ const route=(business_id=BUSINESS)=>({business_id,route_value:'fictional-shop'})
 const reply=data=>({ok:true,status:200,text:async()=>JSON.stringify(data),json:async()=>data});
 const makeRes=()=>({statusCode:0,body:null,setHeader(){},status(code){this.statusCode=code;return this;},json(v){this.body=v;return this;}});
 
-async function fixture(t,{method='GET',body=null,production=false,settingsRows=[settings()],configRows=[config()],routeRows=[route()],settingsPatchRows=null,configPatchRows=null,configFindRows=[config()]}={}){
+async function fixture(t,{method='GET',body=null,production=false,settingsRows=[settings()],configRows=[config()],routeRows=[route()],settingsPatchRows=undefined,configPatchRows=undefined,configFindRows=[config()]}={}){
  const env={TENANCY_AUTH_ENABLED:'true',COLZO_SCOPED_PILOT_ACCESS:'false',
    SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',
    SUPABASE_SERVICE_ROLE_KEY:'fixture-service-role',VERCEL_ENV:production?'production':'preview',
@@ -26,11 +26,11 @@ async function fixture(t,{method='GET',body=null,production=false,settingsRows=[
   if(uri.pathname==='/auth/v1/user')return reply({id:USER,email:'qa@example.invalid'});
   if(table==='business_memberships')return reply([{business_id:BUSINESS,role:'owner'}]);
   if(table==='business_settings'){
-   if(method==='PATCH')return reply(settingsPatchRows===null?[{...settings(),...JSON.parse(options.body)}]:settingsPatchRows);
+   if(method==='PATCH')return reply(settingsPatchRows===undefined?[{...settings(),...JSON.parse(options.body)}]:settingsPatchRows);
    return reply(settingsRows);
   }
   if(table==='business_configurations'){
-   if(method==='PATCH'||method==='POST')return reply(configPatchRows===null?[{...config(),...JSON.parse(options.body)}]:configPatchRows);
+   if(method==='PATCH'||method==='POST')return reply(configPatchRows===undefined?[{...config(),...JSON.parse(options.body)}]:configPatchRows);
    return reply(uri.searchParams.has('select')&&uri.searchParams.get('select')==='business_id'?configFindRows:configRows);
   }
   if(table==='business_public_routes')return reply(routeRows);
