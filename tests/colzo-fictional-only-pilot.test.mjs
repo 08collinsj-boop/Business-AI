@@ -6,7 +6,7 @@ const f=path=>readFile(new URL(path,import.meta.url),'utf8');
 const DEV='https://mvwseobgkexzpmmkgcxe.supabase.co';
 const OLD={...process.env};
 const oldFetch=globalThis.fetch;
-const response=(status,body)=>({ok:status>=200&&status<300,status,text:async()=>JSON.stringify(body)});
+const response=(status,body)=>({ok:status>=200&&status<300,status,text:async()=>JSON.stringify(body),json:async()=>body});
 const makeRes=()=>({statusCode:0,body:null,status(n){this.statusCode=n;return this;},json(v){this.body=v;return this;},setHeader(){}});
 function enable(){
  Object.assign(process.env,{
