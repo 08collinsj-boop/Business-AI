@@ -75,7 +75,7 @@ test('public-config advertises automatic 14-day signup only when safety switch i
  const {default:handler}=await import('../lib/public-config-handler.js');
  let r=res();handler({method:'GET'},r);
  assert.equal(r.statusCode,200);
- assert.deepEqual(r.body.pilotAccess,{approvalRequired:false,selfService:true,durationDays:14,cardRequired:false,automaticConversion:false});
+ assert.deepEqual(r.body.pilotAccess,{approvalRequired:false,selfService:true,fictionalDataOnly:true,durationDays:14,cardRequired:false,automaticConversion:false});
  process.env.COLZO_SELF_SERVE_PILOT_SIGNUP='false';
  r=res();handler({method:'GET'},r);
  assert.equal(r.statusCode,200);
@@ -95,13 +95,14 @@ test('verified signed-in business owner can create workspace and grant through O
  let r=res();await handler({method:'GET',headers:{authorization:'Bearer test-issued-token'}},r);
  assert.equal(r.statusCode,200);
  assert.deepEqual(r.body,{needs_business:true},'new verified account must reach business creation');
- r=res();await handler({method:'POST',headers:{authorization:'Bearer test-issued-token'},body:{business_name:'New Example',business_type:'Trades'}},r);
+ r=res();await handler({method:'POST',headers:{authorization:'Bearer test-issued-token'},body:{business_name:'New Example',business_type:'Trades',fictional_data_only_acknowledged:true}},r);
  assert.equal(r.statusCode,201,JSON.stringify(r.body));
  assert.equal(r.body.public_slug,'new-example');
  assert.equal(calls.filter(x=>x.path.includes('/rpc/')).length,1,'business and trial must be atomic');
  const rpc=calls.find(x=>x.path.includes('/rpc/'));
  assert.ok(rpc.path.endsWith('create_colzo_self_serve_pilot_workspace'));
  assert.equal(JSON.parse(rpc.options.body).p_owner_user_id,OWNER);
+ assert.equal(JSON.parse(rpc.options.body).p_fictional_data_only_acknowledged,true);
  assert.ok(!calls.some(x=>x.path.includes('rpc/create_business_for_owner_with_referral')),'never split provisioning and grant');
 });
 
@@ -136,17 +137,20 @@ test('atomic pilot grant: verified identity, tenant isolation, exactly 336 hours
   const A='20000000-0000-4000-8000-000000000011',B='20000000-0000-4000-8000-000000000012',C='20000000-0000-4000-8000-000000000013';
   for(const [u,verified] of [[A,true],[B,true],[C,false]])
     await db.query('insert into auth.users(id,email,email_confirmed_at) values($1,$2,$3)',[u,u+'@example.invalid',verified?'2026-11-01T12:00:00Z':null]);
-  const create=(u,name,slug)=>db.query('select * from public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4)',[u,name,'Trades',slug]);
+  const create=(u,name,slug)=>db.query('select * from public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4,$5)',[u,name,'Trades',slug,true]);
   const first=(await create(A,'Example A','example-a')).rows[0],second=(await create(B,'Example B','example-b')).rows[0];
   assert.notEqual(first.business_id,second.business_id);
   assert.equal(new Date(first.expires_at)-new Date(first.activated_at),336*3600000);
+  const award=(await db.query('select fictional_data_only_acknowledged_at from colzo_preview_self_service_awards where owner_user_id=$1',[A])).rows[0];
+  assert.equal(new Date(award.fictional_data_only_acknowledged_at).getTime(),new Date(first.activated_at).getTime());
+  await assert.rejects(db.query('select * from public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4,$5)',[C,'Unacknowledged','Trades','unacknowledged',false]),/fictional only acknowledgment required/i);
   assert.equal((await db.query('select count(*)::int n from colzo_pilot_access')).rows[0].n,2);
   assert.equal((await db.query('select count(*)::int n from business_memberships')).rows[0].n,2);
   await assert.rejects(create(A,'Example Again','example-again'),/already|trial|membership/i);
   await assert.rejects(create(C,'Unverified','unverified-example'),/verified|confirmed/i);
   assert.equal((await db.query('select count(*)::int n from businesses')).rows[0].n,2,'rejected attempts commit no partial records');
   await db.exec('set role authenticated');
-  await assert.rejects(db.query('select * from public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4)',[C,'Unauthorized','Trades','unauthorized']),/permission denied/i);
+  await assert.rejects(db.query('select * from public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4,$5)',[C,'Unauthorized','Trades','unauthorized',true]),/permission denied/i);
   await db.exec('reset role');
  }finally{await db.close();}
 });
@@ -157,8 +161,8 @@ test('trial capacity is bounded even if disposable users attempt repeated signup
   for(let i=1;i<=6;i++){
    const u='20000000-0000-4000-8000-'+String(i).padStart(12,'0');
    await db.query('insert into auth.users values($1,$2,now())',[u,'cap-'+i+'@example.invalid']);
-   if(i<=5)await db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4)',[u,'Business '+i,'Trades','business-'+i]);
-   else await assert.rejects(db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4)',[u,'Business Six','Trades','business-six']),/capacity|limit/i);
+   if(i<=5)await db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4,$5)',[u,'Business '+i,'Trades','business-'+i,true]);
+   else await assert.rejects(db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4,$5)',[u,'Business Six','Trades','business-six',true]),/capacity|limit/i);
   }
   assert.equal((await db.query('select count(*)::int n from businesses')).rows[0].n,5);
   assert.equal((await db.query('select count(*)::int n from colzo_pilot_access')).rows[0].n,5);
@@ -173,7 +177,7 @@ test('a failed trial award rolls back the entire new workspace and all tenant re
     BEGIN RAISE EXCEPTION 'synthetic award failure'; END $trigger$;
     CREATE TRIGGER block_synthetic_trial_award BEFORE INSERT ON public.colzo_preview_self_service_awards
     FOR EACH ROW EXECUTE FUNCTION public.block_synthetic_trial_award();`);
-  await assert.rejects(db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4)',[identity,'Rollback Fixture','Trades','rollback-fixture']),/synthetic award failure/);
+  await assert.rejects(db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4,$5)',[identity,'Rollback Fixture','Trades','rollback-fixture',true]),/synthetic award failure/);
   for(const table of ['businesses','business_memberships','business_settings','business_configurations','business_public_routes','colzo_pilot_access','colzo_preview_self_service_awards']){
     assert.equal((await db.query('select count(*)::int n from public.'+table)).rows[0].n,0,table+' must not retain partial creation');
   }
