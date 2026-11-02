@@ -3630,6 +3630,17 @@ const pendingReferralCode=()=>{const fromUrl=referralCodeFromLocation();if(fromU
 const rememberReferralCode=value=>{const code=normaliseReferralInput(value);try{if(code)localStorage.setItem(REFERRAL_STORAGE_KEY,code);else localStorage.removeItem(REFERRAL_STORAGE_KEY);}catch{}return code;};
 const prefillReferralInputs=()=>{const code=pendingReferralCode();['signUpReferralCode','newBusinessReferralCode'].forEach(id=>{const input=$(id);if(input&&code&&!input.value)input.value=code;});return code;};
 const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new URL(window.location.href);url.searchParams.delete('ref');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}};
+function applySelfServiceReferralPolicy(enabled){
+ window.colzoPilotSelfService=enabled===true;
+ for(const id of ['signUpReferralCode','newBusinessReferralCode']){
+  const input=$(id);
+  if(!input)continue;
+  const wrapper=input.closest('.auth-field');
+  if(wrapper)wrapper.hidden=enabled===true;
+  if(enabled)input.value='';
+ }
+ if(enabled)clearPendingReferralCode();
+}
 const PASSWORD_RECOVERY_STORAGE_KEY='business-ai-password-recovery-requested-v1';
 const PASSWORD_RESET_REQUEST_COOLDOWN_MS=60000;
 const passwordPolicyIssue=password=>{
@@ -3964,6 +3975,7 @@ const pilotFree=Boolean(config?.pilotFreeAccess);
 const approvalOnly=config?.pilotAccess?.approvalRequired===true;
 const selfService=config?.pilotAccess?.selfService===true && !approvalOnly;
 window.colzoPilotApprovalRequired=approvalOnly;
+applySelfServiceReferralPolicy(selfService);
 const approvalNotice=$('scopedPilotApprovalNotice');
 if(approvalNotice)approvalNotice.hidden=!approvalOnly;
 if(approvalOnly){
@@ -4092,7 +4104,7 @@ const email=$('signUpEmail').value.trim();
 const password=$('signUpPassword').value;
 const confirmation=$('signUpPasswordConfirm').value;
 const button=$('signUpSubmit');const message=$('signUpMessage');
-const referralRaw=$('signUpReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
+const referralRaw=window.colzoPilotSelfService?'':$('signUpReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
 message.classList.remove('info');
 const policyIssue=passwordPolicyIssue(password);
 if(policyIssue||password!==confirmation){
@@ -4305,7 +4317,7 @@ loadPublicBusinessDirectory(query);
 $('businessSetupForm').addEventListener('submit',async event=>{
 event.preventDefault();
 const button=$('businessSetupSubmit');const message=$('businessSetupMessage');
-const referralRaw=$('newBusinessReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
+const referralRaw=window.colzoPilotSelfService?'':$('newBusinessReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
 if(referralRaw.trim()&&!referralCode){message.textContent='That referral code does not look right. Check it and try again.';return;}
 rememberReferralCode(referralCode);button.disabled=true;message.textContent='Creating your secure workspace…';
 try{
