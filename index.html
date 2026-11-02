@@ -3962,6 +3962,7 @@ if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
 const config=await response.json();
 const pilotFree=Boolean(config?.pilotFreeAccess);
 const approvalOnly=config?.pilotAccess?.approvalRequired===true;
+const selfService=config?.pilotAccess?.selfService===true && !approvalOnly;
 window.colzoPilotApprovalRequired=approvalOnly;
 const approvalNotice=$('scopedPilotApprovalNotice');
 if(approvalNotice)approvalNotice.hidden=!approvalOnly;
@@ -3969,10 +3970,19 @@ if(approvalOnly){
  const setupDescription=$('signUpForm')?.querySelector('h2+p');
  if(setupDescription)setupDescription.textContent='Business access requires approval. Existing users can continue to sign in.';
 }
+if(selfService){
+ const setupDescription=$('signUpForm')?.querySelector('h2+p');
+ if(setupDescription)setupDescription.textContent='Create your account and set up your free 14-day Colzo pilot. No application or payment card required.';
+}
 const pilotOffer=$('pilotFreeSignUpOffer');
-if(pilotOffer){pilotOffer.hidden=!pilotFree;pilotOffer.style.display=pilotFree?'':'none';}
+if(pilotOffer){
+ pilotOffer.hidden=!pilotFree&&!selfService;
+ pilotOffer.style.display=pilotFree||selfService?'':'none';
+ if(selfService)pilotOffer.textContent='Free 14-day Colzo pilot: enquiries, bookings, approved Knowledge and manual Marketing drafts. No card or automatic paid conversion.';
+}
 const onboardingPilotHint=$('onboardingPilotHint');
 if(onboardingPilotHint&&approvalOnly)onboardingPilotHint.textContent='Pilot business setup requires approval. Your 14 days start at activation. No card is required and access does not convert automatically to a paid subscription.';
+if(onboardingPilotHint&&selfService)onboardingPilotHint.textContent='Your free 14-day pilot starts when this workspace is created. No manual approval, card or automatic paid conversion.';
 if(onboardingPilotHint&&pilotFree)onboardingPilotHint.textContent='Free Pilot access includes Starter and AI Marketing at no charge. No plan, paid trial or checkout is required during testing.';
 document.documentElement.classList.toggle('pilot-free-access',pilotFree);
 if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
