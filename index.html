@@ -3976,9 +3976,13 @@ if(selfService){
 }
 const pilotOffer=$('pilotFreeSignUpOffer');
 if(pilotOffer){
- pilotOffer.hidden=!pilotFree&&!selfService;
- pilotOffer.style.display=pilotFree||selfService?'':'none';
- if(selfService)pilotOffer.textContent='Free 14-day Colzo pilot: enquiries, bookings, approved Knowledge and manual Marketing drafts. No card or automatic paid conversion.';
+ pilotOffer.hidden=!pilotFree;
+ pilotOffer.style.display=pilotFree?'':'none';
+ if(selfService){
+  pilotOffer.hidden=false;
+  pilotOffer.style.display='';
+  pilotOffer.textContent='Free 14-day Colzo pilot: enquiries, bookings, approved Knowledge and manual Marketing drafts. No card or automatic paid conversion.';
+ }
 }
 const onboardingPilotHint=$('onboardingPilotHint');
 if(onboardingPilotHint&&approvalOnly)onboardingPilotHint.textContent='Pilot business setup requires approval. Your 14 days start at activation. No card is required and access does not convert automatically to a paid subscription.';
