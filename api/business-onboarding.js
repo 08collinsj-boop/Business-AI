@@ -46,7 +46,7 @@ function parseBody(value) { try { const body = typeof value === "string" ? JSON.
 function validate(body) {
   // public_slug remains accepted only so a stale cached signup page cannot break;
   // the server ignores it and always owns public route generation.
-  const allowed = new Set(["business_name", "business_type", "public_slug", "referral_code"]);
+  const allowed = new Set(["business_name", "business_type", "public_slug", "referral_code", "fictional_data_only_acknowledged"]);
   if (!body || Object.keys(body).some((key) => !allowed.has(key))) throw new Error("Invalid business details");
   const businessName = typeof body.business_name === "string" ? body.business_name.trim() : "";
   const businessType = typeof body.business_type === "string" ? body.business_type.trim() : "";
@@ -135,6 +135,14 @@ export default async function handler(req, res) {
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid business details" });
     const { businessName, businessType, referralCode } = validate(body);
+    // First-owner self-service access is fictional-customer-data ONLY.
+    // This is an affirmative scope acknowledgement, not a substitute for DPA acceptance.
+    if (selfService && body.fictional_data_only_acknowledged !== true) {
+      return res.status(400).json({ error: "Confirm the pilot is for fictional customer data only.", code: "FICTIONAL_DATA_ONLY_ACK_REQUIRED" });
+    }
+    if (!selfService && Object.hasOwn(body, "fictional_data_only_acknowledged")) {
+      return res.status(400).json({ error: "Invalid business details" });
+    }
     // The atomic self-service RPC deliberately does not issue referral awards.
     if (selfService && referralCode) return res.status(400).json({ error: "Referral codes are not available during the free pilot." });
     const baseSlug = slugBaseFromBusinessName(businessName);
@@ -150,7 +158,7 @@ export default async function handler(req, res) {
         const payload = {
           p_owner_user_id: auth.userId, p_business_name: businessName,
           p_business_type: businessType, p_public_slug: candidate,
-          ...(selfService ? {} : { p_referral_code: referralCode })
+          ...(selfService ? { p_fictional_data_only_acknowledged: true } : { p_referral_code: referralCode })
         };
         const result = await request("rpc/" + operation, {
           method: "POST", headers: { Prefer: "return=representation" },
