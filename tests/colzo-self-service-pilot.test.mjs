@@ -40,6 +40,36 @@ test('self-service setting is opt-in, Preview-only, Development-only and cost-co
  }
 });
 
+test('project-wide signup flag is ignored by every other Preview branch',async()=>{
+ enable();
+ const {isScopedPilotSelfServeEnabled}=await import('../lib/colzo-scoped-pilot.js');
+ const {default:publicConfig}=await import('../lib/public-config-handler.js');
+ for(const wrongBranch of ['fix/colzo-pilot-release-gates-20261026','feature/colzo-complete-ui-motion-20261017','main']){
+  process.env.VERCEL_GIT_COMMIT_REF=wrongBranch;
+  assert.equal(isScopedPilotSelfServeEnabled(),false,wrongBranch+' cannot enable automatic grants');
+  const config=res();publicConfig({method:'GET'},config);
+  assert.equal(config.statusCode,200);
+  assert.equal(config.body.pilotAccess.approvalRequired,true,wrongBranch+' must retain manual approval');
+  assert.equal(config.body.pilotAccess.selfService,undefined);
+ }
+ process.env.VERCEL_GIT_COMMIT_REF='feature/colzo-preview-self-serve-pilot-20261102';
+ assert.equal(isScopedPilotSelfServeEnabled(),true);
+});
+
+test('other Colzo Preview branch cannot create workspaces even when shared signup switch is on',async()=>{
+ enable();
+ process.env.VERCEL_GIT_COMMIT_REF='fix/colzo-pilot-release-gates-20261026';
+ globalThis.fetch=async (url)=>{
+  if(String(url).endsWith('/auth/v1/user'))return response(200,{id:OWNER,email:'qa@example.invalid'});
+  throw new Error('No database writes allowed for a non-self-service branch');
+ };
+ const {default:handler}=await import('../api/business-onboarding.js?branch-guard='+Date.now());
+ const result=res();
+ await handler({method:'POST',headers:{authorization:'Bearer synthetic-test-token'},body:{business_name:'Example Test',business_type:'Trades'}},result);
+ assert.equal(result.statusCode,403);
+ assert.equal(result.body.code,'PILOT_PROVISIONING_MANAGED');
+});
+
 test('public-config advertises automatic 14-day signup only when safety switch is valid',async()=>{
  enable();
  const {default:handler}=await import('../lib/public-config-handler.js');
