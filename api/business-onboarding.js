@@ -2,10 +2,24 @@ import { isApprovedSupabaseTarget, restorePreviewAuthToken } from "../lib/public
 import { requireAuthenticatedUser, sendAuthError } from "../lib/auth.js";
 import { normalisePublicBusinessSlug } from "../lib/public-tenant.js";
 import { recordAuditEvent } from "../lib/audit.js";
-import { isScopedPilotSelfServeEnabled } from "../lib/colzo-scoped-pilot.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Keep this local because the legacy isolated tests import this module via a
+// data URL. Mirror the stricter central scoped-pilot guard, fail closed by default.
+function isScopedPilotSelfServeEnabled(env=process.env){
+ return env.COLZO_SELF_SERVE_PILOT_SIGNUP==='true'
+  && env.COLZO_SCOPED_PILOT_ACCESS==='true'
+  && env.VERCEL_ENV==='preview'
+  && env.SUPABASE_URL==='https://mvwseobgkexzpmmkgcxe.supabase.co'
+  && env.PILOT_FREE_STARTER_MARKETING!=='true'
+  && env.TENANCY_AUTH_ENABLED==='true'
+  && env.FRONTEND_AUTH_ENABLED==='true'
+  && env.BILLING_ENABLED==='false'
+  && !env.OPENAI_API_KEY && !env.OPENROUTER_API_KEY
+  && isApprovedSupabaseTarget();
+}
 
 function endpoint(path) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Server unavailable");
