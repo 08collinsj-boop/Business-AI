@@ -21,7 +21,7 @@
 
 - The participant is normally Controller for data from its own customers and enquiries. The verified Colzo operator is Processor under **DPA v1.1**, acting on documented business instructions. Colzo is Controller for its own account, security and support records under **Privacy Notice v1.1**.
 - The controller provides appropriate notices and lawful basis and avoids unnecessary sensitive/special-category or criminal-offence information, credentials, payment cards and health/safety-critical facts in this restricted pilot.
-- **Initial pilot scope is strictly fictional business-domain data**: no real customer names, telephone numbers, email addresses, enquiries, images, appointment details or files may be entered. This restriction applies for the full initial trial even if later data-exit tooling becomes available. Real account-owner identity, authentication, security, contact and legally required consent records remain personal data and continue to need proper safeguards.
+- **Initial pilot scope is fictional customer and operational test records only.** The authorised business owner may use their real business name and required account details to register and accept legal terms, and Colzo will necessarily handle real authentication, support, security and consent records. However **all customer names, telephone numbers, email addresses, enquiries, example bookings, notes, images and files entered for testing must be made up**, with no identifying details of real customers. This restriction applies for the full initial trial even if later data-exit tooling becomes available.
 - A separate subsequent real-customer-data phase requires new release assessment, lawful controller/processor instructions, practical return/deletion procedures, updated notices and fresh authorisation. No participant may treat the initial trial as permission to handle real customer records.
 - Current Terms v1.2, AUP v1.1, Storage Notice v1.1 and Sub-processors Notice v1.3 remain separately versioned. Revalidate their exact published versions on the final release and renew acceptance if content changes.
 
@@ -66,7 +66,7 @@ The 14-day expiry restricts workspace access; it does **not** erase the data. Un
 The system/operator must store one versioned, timestamped record of each real business owner making each choice:
 
 - [ ] I am authorised to act for the named pilot business.
-- [ ] I acknowledge that this initial pilot is restricted to **fictional business and customer data only** and will not enter any real customer details, files or enquiries. I understand my own account/security details are still genuine personal data.
+- [ ] I acknowledge that this initial pilot is restricted to **fictional customer and operational test records only** and will not enter any real customer details, files or enquiries. I understand my own account/security details are still genuine personal data.
 - [ ] I reviewed and accept the exact versioned Colzo Terms/AUP/Privacy documents.
 - [ ] As business controller, I reviewed and agree to the current Colzo DPA.
 - [ ] I accept this particular 336-hour free trial scope and exclusions; no card or automatic paid conversion.
