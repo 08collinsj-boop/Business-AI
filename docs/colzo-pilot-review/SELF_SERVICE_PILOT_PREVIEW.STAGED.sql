@@ -13,6 +13,7 @@ CREATE TABLE public.colzo_preview_self_service_awards (
   business_id uuid NOT NULL UNIQUE REFERENCES public.businesses(id) ON DELETE RESTRICT,
   activated_at timestamptz NOT NULL,
   expires_at timestamptz NOT NULL,
+  fictional_data_only_acknowledged_at timestamptz NOT NULL,
   recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   CONSTRAINT colzo_preview_selfserve_exact_trial
     CHECK (expires_at = activated_at + interval '336 hours')
@@ -30,13 +31,19 @@ BEFORE UPDATE OR DELETE ON public.colzo_preview_self_service_awards
 FOR EACH STATEMENT EXECUTE FUNCTION public.colzo_preview_self_service_awards_immutable();
 
 CREATE FUNCTION public.create_colzo_self_serve_pilot_workspace(
- p_owner_user_id uuid, p_business_name text, p_business_type text, p_public_slug text
+ p_owner_user_id uuid, p_business_name text, p_business_type text, p_public_slug text,
+ p_fictional_data_only_acknowledged boolean
 )
 RETURNS TABLE (business_id uuid, public_slug text, activated_at timestamptz, expires_at timestamptz)
 LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE
  v_business uuid; v_slug text; v_start timestamptz; v_end timestamptz;
 BEGIN
+ -- A real owner must explicitly attest that this initial pilot uses only
+ -- fictional customer/business-domain data. No implicit assent or client override.
+ IF p_fictional_data_only_acknowledged IS DISTINCT FROM true THEN
+   RAISE EXCEPTION 'fictional only acknowledgment required';
+ END IF;
  -- Bound total public invitations to FIVE for this restricted test, including
  -- already designated fictional pilot grants. Locks serialize concurrent
  -- registrations so multiple browser requests cannot overrun the cap.
@@ -67,14 +74,14 @@ BEGIN
  v_end:=v_start + interval '336 hours';
  INSERT INTO public.colzo_pilot_access(business_id,status,activated_at,expires_at,granted_by)
  VALUES(v_business,'active',v_start,v_end,p_owner_user_id);
- INSERT INTO public.colzo_preview_self_service_awards(owner_user_id,business_id,activated_at,expires_at)
- VALUES(p_owner_user_id,v_business,v_start,v_end);
+ INSERT INTO public.colzo_preview_self_service_awards(owner_user_id,business_id,activated_at,expires_at,fictional_data_only_acknowledged_at)
+ VALUES(p_owner_user_id,v_business,v_start,v_end,v_start);
  RETURN QUERY SELECT v_business,v_slug,v_start,v_end;
 END$$;
 
-REVOKE ALL ON FUNCTION public.create_colzo_self_serve_pilot_workspace(uuid,text,text,text)
+REVOKE ALL ON FUNCTION public.create_colzo_self_serve_pilot_workspace(uuid,text,text,text,boolean)
  FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.create_colzo_self_serve_pilot_workspace(uuid,text,text,text)
+GRANT EXECUTE ON FUNCTION public.create_colzo_self_serve_pilot_workspace(uuid,text,text,text,boolean)
  TO service_role;
 
 COMMIT;
