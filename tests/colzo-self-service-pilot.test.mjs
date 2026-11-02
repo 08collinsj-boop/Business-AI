@@ -134,4 +134,20 @@ test('trial capacity is bounded even if disposable users attempt repeated signup
   assert.equal((await db.query('select count(*)::int n from colzo_pilot_access')).rows[0].n,5);
  }finally{await db.close();}
 });
+test('a failed trial award rolls back the entire new workspace and all tenant records',async()=>{
+ const db=await database();
+ try{
+  const identity='20000000-0000-4000-8000-000000000099';
+  await db.query('insert into auth.users(id,email,email_confirmed_at) values($1,$2,now())',[identity,'forced-rollback@example.invalid']);
+  await db.exec(`CREATE FUNCTION public.block_synthetic_trial_award() RETURNS trigger LANGUAGE plpgsql AS $trigger$
+    BEGIN RAISE EXCEPTION 'synthetic award failure'; END $trigger$;
+    CREATE TRIGGER block_synthetic_trial_award BEFORE INSERT ON public.colzo_preview_self_service_awards
+    FOR EACH ROW EXECUTE FUNCTION public.block_synthetic_trial_award();`);
+  await assert.rejects(db.query('select public.create_colzo_self_serve_pilot_workspace($1,$2,$3,$4)',[identity,'Rollback Fixture','Trades','rollback-fixture']),/synthetic award failure/);
+  for(const table of ['businesses','business_memberships','business_settings','business_configurations','business_public_routes','colzo_pilot_access','colzo_preview_self_service_awards']){
+    assert.equal((await db.query('select count(*)::int n from public.'+table)).rows[0].n,0,table+' must not retain partial creation');
+  }
+ }finally{await db.close();}
+});
+
 test.after(()=>{for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);globalThis.fetch=originalFetch;});
