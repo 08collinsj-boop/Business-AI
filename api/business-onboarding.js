@@ -10,6 +10,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // data URL. Mirror the stricter central scoped-pilot guard, fail closed by default.
 function isScopedPilotSelfServeEnabled(env=process.env){
  return env.COLZO_SELF_SERVE_PILOT_SIGNUP==='true'
+  && env.VERCEL_GIT_COMMIT_REF==='feature/colzo-preview-self-serve-pilot-20261102'
   && env.COLZO_SCOPED_PILOT_ACCESS==='true'
   && env.VERCEL_ENV==='preview'
   && env.SUPABASE_URL==='https://mvwseobgkexzpmmkgcxe.supabase.co'
