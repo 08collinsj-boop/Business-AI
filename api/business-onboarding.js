@@ -19,7 +19,8 @@ async function request(path, options = {}) {
     const message = typeof data?.message === "string" ? data.message : "";
     const invalidReferral = /invalid referral code/i.test(message);
     const publicRouteConflict = /business or public route already exists/i.test(message);
-    const error = new Error(invalidReferral ? "Invalid referral code" : publicRouteConflict ? "Public route unavailable" : "Database request failed");
+    const atCapacity = /pilot signup capacity reached/i.test(message);
+    const error = new Error(atCapacity ? "pilot signup capacity reached" : invalidReferral ? "Invalid referral code" : publicRouteConflict ? "Public route unavailable" : "Database request failed");
     error.status = response.status;
     if (publicRouteConflict) error.code = "PUBLIC_ROUTE_CONFLICT";
     throw error;
