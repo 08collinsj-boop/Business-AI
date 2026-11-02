@@ -2296,6 +2296,7 @@ input.switch,input.switch:before{transition:none}
 <p>After confirming your email, you will set up your secure Colzo workspace.</p>
 <p id="scopedPilotApprovalNotice" class="auth-switch" hidden>Colzo is preparing a limited pilot. Approved businesses receive 14 days from activation, with no payment card or automatic paid conversion. Creating a login does not grant business access. Request a demonstration at support@getbusiness-ai.com without sending customer data.</p>
 <p id="pilotFreeSignUpOffer" class="auth-switch" hidden><strong>Free Pilot:</strong> Starter and AI Marketing are included at no charge during testing. No subscription or payment details are required.</p>
+<p id="pilotFictionalOnlyDisclaimer" class="auth-switch" hidden><strong>Important:</strong> This trial is for fictional customer data only. Do not enter real customers' names, contact details, enquiries or files. Your own account email and security information are real and remain protected.</p>
 <div class="auth-field"><label for="signUpEmail">Business email</label><input id="signUpEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
 <div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
@@ -2350,6 +2351,7 @@ input.switch,input.switch:before{transition:none}
 <div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
 <div style="color:var(--muted);font-size:11px;line-height:1.45">Your customer enquiry link will be created automatically from your business name.</div>
 <div class="auth-field"><label for="newBusinessReferralCode">Referral code <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input id="newBusinessReferralCode" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="Enter referral code"><span style="color:var(--muted);font-size:11px">If another business referred you, add their code before creating your workspace.</span></div>
+<label id="pilotFictionalOnlyConsentRow" class="legal-consent-row" hidden><input id="pilotFictionalOnlyConsent" type="checkbox"><span>I understand this 14-day pilot is for fictional customer data only. I will not enter real customer names, contacts, enquiries, bookings or files.</span></label>
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
 </form>
@@ -2580,7 +2582,7 @@ input.switch,input.switch:before{transition:none}
 <div class="owner-tools"><span class="status-dot" title="System online"></span><span class="owner-avatar" aria-hidden="true">AI</span><button id="logoutButton" class="logout-btn" type="button" aria-label="Log out"><span class="logout-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M10 5H6.8A1.8 1.8 0 0 0 5 6.8v10.4A1.8 1.8 0 0 0 6.8 19H10M14.5 8.5 18 12l-3.5 3.5M18 12H9"></path></svg></span><span class="logout-label">Log out</span></button></div>
 
 </header>
-
+<div id="fictionalOnlyWorkspaceBanner" hidden role="status" style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--surface);font-size:12px;line-height:1.6"><strong>Fictional-data-only pilot:</strong> Do not enter real customer names, contact details, enquiries, bookings or documents. Use made-up examples throughout this trial.</div>
 
 <section
 id="dashboardView"
@@ -3976,6 +3978,15 @@ const approvalOnly=config?.pilotAccess?.approvalRequired===true;
 const selfService=config?.pilotAccess?.selfService===true && !approvalOnly;
 window.colzoPilotApprovalRequired=approvalOnly;
 applySelfServiceReferralPolicy(selfService);
+const fictionalOnly=selfService && config?.pilotAccess?.fictionalDataOnly===true;
+const pilotDisclaimer=$('pilotFictionalOnlyDisclaimer');
+if(pilotDisclaimer)pilotDisclaimer.hidden=!fictionalOnly;
+const fictionalConsentRow=$('pilotFictionalOnlyConsentRow');
+if(fictionalConsentRow)fictionalConsentRow.hidden=!fictionalOnly;
+const fictionalConsent=$('pilotFictionalOnlyConsent');
+if(fictionalConsent){fictionalConsent.required=fictionalOnly;if(!fictionalOnly)fictionalConsent.checked=false;}
+const fictionalBanner=$('fictionalOnlyWorkspaceBanner');
+if(fictionalBanner)fictionalBanner.hidden=!fictionalOnly;
 const approvalNotice=$('scopedPilotApprovalNotice');
 if(approvalNotice)approvalNotice.hidden=!approvalOnly;
 if(approvalOnly){
@@ -4319,9 +4330,10 @@ event.preventDefault();
 const button=$('businessSetupSubmit');const message=$('businessSetupMessage');
 const referralRaw=window.colzoPilotSelfService?'':$('newBusinessReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
 if(referralRaw.trim()&&!referralCode){message.textContent='That referral code does not look right. Check it and try again.';return;}
+if(window.colzoPilotSelfService && !$('pilotFictionalOnlyConsent')?.checked){message.textContent='Confirm the pilot is for fictional customer data only.';return;}
 rememberReferralCode(referralCode);button.disabled=true;message.textContent='Creating your secure workspace…';
 try{
-const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,referral_code:referralCode})});
+const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,referral_code:referralCode,...(window.colzoPilotSelfService?{fictional_data_only_acknowledged:$('pilotFictionalOnlyConsent')?.checked===true}:{})})});
 message.textContent='Business created. Your public enquiry link is '+result.public_path+'.';clearPendingReferralCode();
 const onboarding=await api('/api/business-onboarding');
 applyBusinessContext(onboarding);
