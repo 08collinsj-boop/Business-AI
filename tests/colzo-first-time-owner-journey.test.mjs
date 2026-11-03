@@ -36,7 +36,7 @@ test('Home prioritises follow-ups and calls every booking a recorded booking, no
 
 test('Bookings explain requests versus confirmations in the rendered native view', () => {
   const result = nativeFunction('function bookingScreen(){', 'function bookingMonth(){', {
-    state: { workFilter: { bookings: 'Active' }, workFeedback: '', workModal: null },
+    state: { workFilter: { bookings: 'Active' }, workDate: '2026-11', workFeedback: '', workModal: null },
     records: () => ({ bookings: [{ id: 1, status: 'requested', starts_at: null }] }),
     workItems: () => [],
     workHeader: () => '<h1>Bookings</h1>',
