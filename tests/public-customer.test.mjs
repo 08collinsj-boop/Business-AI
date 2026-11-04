@@ -60,6 +60,15 @@ test("a verified public slug returns only its business-facing identity", { concu
   assert.ok(calls.every((url) => !url.includes("business-b")), "request-supplied tenant IDs never affect the lookup");
 });
 
+test('restricted public profile announces fictional-only policy without exposing the internal tenant', {concurrency:false},async()=>{
+ const {handler}=await load({route:{business_id:'business-a',route_type:'slug',route_value:'fixture-example',active:true},settings:{business_name:'Fictional Example'}});
+ process.env.COLZO_SCOPED_PILOT_ACCESS='true';
+ const res=response();await handler({method:'GET',query:{business:'fixture-example'}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.business.fictional_data_only,true);
+ assert.equal('business_id' in res.body.business,false);
+});
+
 test("public profile rejects service-role responses with foreign settings or descriptions", {concurrency:false},async()=>{
  const route={business_id:"business-a",route_type:"slug",route_value:"collins-ltd",active:true};
  const attacks=[

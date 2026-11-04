@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { JSDOM } from 'jsdom';
 
 const f=path=>readFile(new URL(path,import.meta.url),'utf8');
 const DEV='https://mvwseobgkexzpmmkgcxe.supabase.co';
@@ -18,7 +19,7 @@ function enable(){
  });
  delete process.env.OPENAI_API_KEY;delete process.env.OPENROUTER_API_KEY;
 }
-test('only the explicitly scoped self-service config announces fictional-only content',async()=>{
+test('managed scoped pilot keeps fictional-only policy while signup stays disabled',async()=>{
  enable();
  const {default:handler}=await import('../lib/public-config-handler.js');
  let r=makeRes();handler({method:'GET'},r);
@@ -26,7 +27,12 @@ test('only the explicitly scoped self-service config announces fictional-only co
  assert.equal(r.body.pilotAccess.fictionalDataOnly,true);
  process.env.COLZO_SELF_SERVE_PILOT_SIGNUP='false';
  r=makeRes();handler({method:'GET'},r);
- assert.equal(r.body.pilotAccess.fictionalDataOnly,undefined);
+ assert.equal(r.body.pilotAccess.fictionalDataOnly,true);
+ assert.equal(r.body.pilotAccess.approvalRequired,true);
+ assert.equal(r.body.pilotAccess.selfService,undefined);
+ process.env.COLZO_SCOPED_PILOT_ACCESS='false';
+ r=makeRes();handler({method:'GET'},r);
+ assert.equal(r.body.pilotAccess,undefined);
 });
 test('self-service workspace creation fails closed without explicit fictional-only consent before RPC writes',async()=>{
  enable();
@@ -68,4 +74,31 @@ test.after(()=>{
  for(const key of Object.keys(process.env))if(!(key in OLD))delete process.env[key];
  Object.assign(process.env,OLD);
  globalThis.fetch=oldFetch;
+});
+
+// Catch the policy disappearing when self-service is disabled, and a warning
+// being mounted only in the legacy dashboard hidden by the native interface.
+test('managed pilot renders a visible warning inside native workspace without enabling signup consent',async()=>{
+ const html=await f('../index.html');
+ const dom=new JSDOM(html,{runScripts:'outside-only'});
+ try{
+  const start=html.indexOf('const fictionalOnly=');
+  const end=html.indexOf("const approvalNotice=",start);
+  assert.ok(start>=0 && end>start);
+  const run=new Function('config','selfService','$','document',html.slice(start,end));
+  const $=id=>dom.window.document.getElementById(id);
+  run({pilotAccess:{fictionalDataOnly:true,approvalRequired:true}},false,$,dom.window.document);
+  assert.equal($('pilotFictionalOnlyDisclaimer').hidden,false);
+  const native=$('colzoOwner').querySelector('[data-fictional-only-notice]');
+  assert.ok(native,'warning must be inside the visible native workspace');
+  assert.equal(native.hidden,false);
+  assert.match(native.textContent,/fictional/i);
+  assert.match(native.textContent,/real customer/i);
+  assert.equal($('pilotFictionalOnlyConsent').required,false,'managed workspace must not gain a self-service signup flow');
+  run({pilotAccess:{fictionalDataOnly:true,selfService:true}},true,$,dom.window.document);
+  assert.equal($('pilotFictionalOnlyConsent').required,true);
+  run({},false,$,dom.window.document);
+  assert.equal(native.hidden,true);
+  assert.equal($('pilotFictionalOnlyDisclaimer').hidden,true);
+ }finally{dom.window.close();}
 });

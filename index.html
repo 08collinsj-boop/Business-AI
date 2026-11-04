@@ -2507,6 +2507,7 @@ input.switch,input.switch:before{transition:none}
 </article>
 <section class="public-profile-section" id="publicProfileAboutSection"><span class="public-profile-kicker">About</span><h2>About this business</h2><p id="publicProfileDescription">Business information will appear here.</p></section>
 <section class="public-profile-section" id="publicProfileServicesSection"><span class="public-profile-kicker">Services</span><h2>What they offer</h2><p id="publicProfileServices">Services will appear here.</p></section>
+<p id="publicFictionalProfileNotice" hidden><strong>Fictional-data-only pilot:</strong> Test with made-up enquiries and customer details only.</p>
 <button id="publicProfileEnquiryButton" class="public-profile-enquiry-cta" type="button">Send an enquiry</button>
 <footer class="public-profile-footer"><a href="/customer">Find another business</a><a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a></footer>
 <div id="publicProfileStatus" class="public-customer-error" role="alert"></div>
@@ -2556,6 +2557,7 @@ input.switch,input.switch:before{transition:none}
 </div>
 <span id="publicAssistantStatus" class="public-online-pill"><i aria-hidden="true"></i><b>Online</b></span>
 </div>
+<div id="publicFictionalOnlyNotice" hidden style="padding:12px;line-height:1.6;font-size:13px"><strong>Fictional-data-only pilot.</strong> Use made-up customer names, contact details and enquiries. Do not send information about real customers.<label style="display:block;margin-top:8px"><input id="publicFictionalOnlyConsent" type="checkbox"> I confirm this conversation contains fictional test data only.</label></div>
 <div id="publicMessages" class="public-messages"></div>
 <div id="publicTyping" class="public-typing" role="status" aria-live="polite"><i aria-hidden="true"></i>Assistant is preparing a response…</div>
 <form id="publicEnquiryForm" class="public-chat-form">
@@ -3553,6 +3555,7 @@ Save business settings
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg>
     </button>
   </header>
+  <p data-fictional-only-notice hidden role="status" style="margin:0;padding:12px 20px;border-bottom:1px solid var(--cn-border);color:var(--cn-white);font-size:12px;line-height:1.6"><strong>Fictional-data-only pilot:</strong> Use made-up customers, enquiries, bookings, notes and files. Do not enter real customer details. Your account and security information remain real personal data.</p>
   <div id="cnContent" class="cn-content" aria-label="Colzo workspace"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
   <div id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="cn-nav" aria-label="Colzo primary navigation">
@@ -3978,15 +3981,16 @@ const approvalOnly=config?.pilotAccess?.approvalRequired===true;
 const selfService=config?.pilotAccess?.selfService===true && !approvalOnly;
 window.colzoPilotApprovalRequired=approvalOnly;
 applySelfServiceReferralPolicy(selfService);
-const fictionalOnly=selfService && config?.pilotAccess?.fictionalDataOnly===true;
+const fictionalOnly=config?.pilotAccess?.fictionalDataOnly===true;
 const pilotDisclaimer=$('pilotFictionalOnlyDisclaimer');
 if(pilotDisclaimer)pilotDisclaimer.hidden=!fictionalOnly;
 const fictionalConsentRow=$('pilotFictionalOnlyConsentRow');
-if(fictionalConsentRow)fictionalConsentRow.hidden=!fictionalOnly;
+if(fictionalConsentRow)fictionalConsentRow.hidden=!(fictionalOnly&&selfService);
 const fictionalConsent=$('pilotFictionalOnlyConsent');
-if(fictionalConsent){fictionalConsent.required=fictionalOnly;if(!fictionalOnly)fictionalConsent.checked=false;}
+if(fictionalConsent){fictionalConsent.required=fictionalOnly&&selfService;if(!fictionalOnly||!selfService)fictionalConsent.checked=false;}
 const fictionalBanner=$('fictionalOnlyWorkspaceBanner');
 if(fictionalBanner)fictionalBanner.hidden=!fictionalOnly;
+for(const notice of document.querySelectorAll('[data-fictional-only-notice]'))notice.hidden=!fictionalOnly;
 const approvalNotice=$('scopedPilotApprovalNotice');
 if(approvalNotice)approvalNotice.hidden=!approvalOnly;
 if(approvalOnly){
@@ -4221,6 +4225,7 @@ const publicEnquiryMessages=[];
 let publicEnquiryContinuation=null;
 let publicEnquirySession=null;
 let publicAssistantAvailable=false;
+let publicFictionalDataOnly=false;
 const setPublicDetail=(id,label,value)=>{
 const node=$(id);if(!node)return;
 const text=typeof value==='string'?value.trim():'';
@@ -4236,11 +4241,18 @@ const input=$('publicChatInput');const submit=$('publicEnquiryForm')?.querySelec
 if(input)input.disabled=!available;if(submit)submit.disabled=!available;
 if(status){status.classList.toggle('is-unavailable',!available);const label=status.querySelector('b');if(label)label.textContent=available?'Online':'Unavailable';}
 };
+function applyPublicFictionalPolicy(enabled){
+publicFictionalDataOnly=enabled===true;
+const notice=$('publicFictionalOnlyNotice'),profile=$('publicFictionalProfileNotice'),consent=$('publicFictionalOnlyConsent');
+if(notice)notice.hidden=!publicFictionalDataOnly;
+if(profile)profile.hidden=!publicFictionalDataOnly;
+if(consent){consent.required=publicFictionalDataOnly;consent.checked=false;}
+}
 function setPublicProfileImage(target,url,fallbackInitial='B'){
 if(!target)return;if(url){target.innerHTML='<img src="'+esc(url)+'" alt="">';return;}if(target.id==='publicProfileAvatar')target.innerHTML='<span>'+esc(fallbackInitial)+'</span>';else target.replaceChildren();
 }
 async function loadPublicBusinessProfile(slug){
-const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
+const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;applyPublicFictionalPolicy(business.fictional_data_only===true);const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
 
 async function loadPublicBusinessIdentity(){
 if(!publicEnquirySlug)return;
@@ -4249,7 +4261,7 @@ const url=new URL('/api/public-business',window.location.origin);url.searchParam
 const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
 if(!response.ok||!result?.business)throw new Error('Business not available');
-const business=result.business;
+const business=result.business;applyPublicFictionalPolicy(business.fictional_data_only===true);
 const name=typeof business.name==='string'&&business.name.trim()?business.name.trim():'Business enquiry';
 $('publicBusinessMark').textContent=publicInitials(name);$('publicBusinessName').textContent=name;
 $('publicBusinessType').textContent=business.type||'Customer enquiries';
@@ -4308,8 +4320,9 @@ const list=$('publicMessages');if(!list)return;const message=document.createElem
 }
 async function sendPublicEnquiry(event){
 event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
+if(publicFictionalDataOnly&&!$('publicFictionalOnlyConsent')?.checked){$('publicEnquiryMessage').textContent='Confirm that this conversation uses fictional test data only.';return;}
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation(),...(publicFictionalDataOnly?{fictional_data_only_acknowledged:$('publicFictionalOnlyConsent')?.checked===true}:{})})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 function setPublicQuickActions(open){
 const button=$('publicQuickActionsToggle');const body=$('publicQuickActionsBody');if(!button||!body)return;

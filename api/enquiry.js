@@ -1160,6 +1160,9 @@ export default async function handler(req, res) {
     if (Object.hasOwn(body, "test_mode") && typeof body.test_mode !== "boolean") return res.status(400).json({ error: "Invalid test mode" });
 
     const testMode = body.test_mode === true;
+    if (isScopedPilotRequested() && !testMode && body.fictional_data_only_acknowledged !== true) {
+      return res.status(400).json({error:'This pilot accepts fictional customer data only. Confirm before sending.',code:'FICTIONAL_DATA_ONLY_ACK_REQUIRED'});
+    }
     let testAuth = null;
     if (testMode) {
       try { testAuth = await requireBusinessAdmin(req); } catch (error) { return sendAuthError(res, error); }

@@ -40,5 +40,12 @@ jobs:
           export LD_LIBRARY_PATH="$COLZO_PG_BIN/../lib"
           node scripts/verify-colzo-booking-overlap-native.mjs
 
+      - name: Verify isolated native signup capacity and replay SQL
+        run: |
+          export COLZO_PG_BIN="$RUNNER_TEMP/colzo-native-test/node_modules/@embedded-postgres/linux-x64/native/bin"
+          export COLZO_PG_CLIENT_MODULE="$RUNNER_TEMP/colzo-native-test/node_modules/pg/lib/index.js"
+          export LD_LIBRARY_PATH="$COLZO_PG_BIN/../lib"
+          node scripts/verify-colzo-self-service-native.mjs
+
       - name: Verify Pilot
         run: npm run verify
