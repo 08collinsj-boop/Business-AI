@@ -5,6 +5,7 @@ Requires PostgreSQL client binaries supplied by the caller; installs nothing.
 """
 import argparse
 import concurrent.futures
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -202,7 +203,32 @@ for isolation in ['REPEATABLE READ', 'SERIALIZABLE']:
     denied = query(f"BEGIN ISOLATION LEVEL {isolation};INSERT INTO business_memberships VALUES('{legacy}','{U}','member');COMMIT", True)
     check('legacy writer rejects stale snapshot mode: ' + isolation, denied.returncode != 0 and 'read committed required' in denied.stderr)
 
-# Restore actual SQL/data/ACL/RLS into another empty disposable database.
+for case in range(3):
+    owner = '80000000-0000-4000-8000-' + f'{case * 2 + 1:012d}'
+    recipient = '80000000-0000-4000-8000-' + f'{case * 2 + 2:012d}'
+    email = f'deadline-{case}@example.invalid'
+    token = hashlib.sha256(f'colzo-native-deadline-{case}'.encode()).hexdigest()
+    query(f"INSERT INTO auth.users VALUES('{owner}','deadline-owner-{case}@example.invalid',now()),('{recipient}','{email}',now())")
+    business = json.loads(scalar(f"SELECT colzo_pilot_private.provision_workspace('{owner}','QA deadline {case}','Fictional service','qa-deadline-{case}','deadline-workspace-{case}','synthetic verified ownership')"))['business_id']
+    accepting = case > 0
+    if accepting:
+        query(f"SELECT colzo_pilot_private.invite('{business}','{owner}','{email}','{token}','deadline-invite-{case}')")
+    action = 'accepted' if accepting else 'invited'
+    query(f"CREATE FUNCTION colzo_pilot_private.delay_deadline_{case}() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN IF NEW.action='{action}' AND NEW.business_id='{business}' THEN PERFORM pg_sleep(0.8); END IF; RETURN NEW; END$$; CREATE TRIGGER delay_deadline_{case} BEFORE INSERT ON colzo_pilot_private.audit FOR EACH ROW EXECUTE FUNCTION colzo_pilot_private.delay_deadline_{case}()")
+    if case == 2:
+        query(f"UPDATE colzo_pilot_private.invitations SET expires_at=clock_timestamp()+interval '0.5 seconds' WHERE token_hash='{token}'")
+    else:
+        query(f"WITH t AS (SELECT clock_timestamp()+interval '0.5 seconds' expiry) UPDATE colzo_pilot_access SET activated_at=t.expiry-interval '336 hours',expires_at=t.expiry FROM t WHERE business_id='{business}'")
+    operation = (f"SELECT colzo_pilot_private.accept_invite('{business}','{recipient}','{token}','deadline-accept-{case}')" if accepting
+                 else f"SELECT colzo_pilot_private.invite('{business}','{owner}','{email}','{token}','deadline-invite-{case}')")
+    result = query(operation, True)
+    expected_error = 'invitation unavailable' if case == 2 else 'pilot unavailable'
+    check('deadline crossed during audit rolls back: ' + str(case), result.returncode != 0 and expected_error in result.stderr
+          and scalar(f"SELECT count(*) FROM business_memberships WHERE user_id='{recipient}'") == '0'
+          and scalar(f"SELECT count(*) FROM colzo_pilot_private.audit WHERE business_id='{business}' AND action='{action}'") == '0'
+          and scalar(f"SELECT count(*) FROM colzo_pilot_private.invitations WHERE token_hash='{token}' AND status='pending'") == ('1' if accepting else '0'))
+
+# Restore synthetic SQL/data/ACL/RLS into another empty disposable database.
 # Cluster roles are retained in this local test, not claimed as an Auth backup.
 dump = subprocess.run([str(Path(args.bin) / 'pg_dump'), '-h', args.socket, '-p', '55432',
                        '-d', args.database, '--format=custom'], capture_output=True, env=env, timeout=20)

@@ -1,0 +1,33 @@
+{
+  "checked_at_utc": "2026-10-26T10:43:26.105411+00:00",
+  "duplicate_pending_ai_booking_groups": 0,
+  "existing_owner_creator": "create_business_for_owner(uuid,text,text,text)",
+  "installed_extensions": [
+    "pg_cron",
+    "pg_net",
+    "pg_stat_statements",
+    "pgcrypto",
+    "plpgsql",
+    "supabase_vault",
+    "uuid-ossp"
+  ],
+  "migration_ledger_entries": 59,
+  "required_tables": {
+    "bookings": true,
+    "business_audit_events": true,
+    "business_billing_accounts": true,
+    "business_configurations": true,
+    "business_memberships": true,
+    "business_public_routes": true,
+    "business_settings": true,
+    "businesses": true,
+    "lead_history": true,
+    "leads": true
+  },
+  "server_version": "17.6",
+  "staged_booking_function": null,
+  "staged_booking_index": null,
+  "staged_grants_table": null,
+  "staged_operator_role": 0,
+  "staged_private_schema": null
+}

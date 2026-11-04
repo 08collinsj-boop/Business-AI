@@ -1,0 +1,192 @@
+{
+  "provisioning": {
+    "status": "PASS",
+    "checks": 41,
+    "postgres_version": "17.11 (Debian 17.11-0+deb13u1)",
+    "backend_races": 9,
+    "workers_per_race": [
+      8,
+      8,
+      8,
+      8,
+      8,
+      2,
+      8,
+      2,
+      9
+    ],
+    "shared_database_used": false,
+    "dump_restore_verified": true,
+    "evidence": [
+      "independent backends actually waited concurrently",
+      "eight identical grant requests return one unchanged result",
+      "grant audit is unique",
+      "independent backends actually waited concurrently",
+      "eight competing invitations allocate exactly one remaining seat",
+      "independent backends actually waited concurrently",
+      "eight concurrent acceptance retries are idempotent",
+      "acceptance audit and two-seat limit persist",
+      "independent backends actually waited concurrently",
+      "legacy concurrent membership writers cannot allocate a third seat",
+      "independent backends actually waited concurrently",
+      "different concurrent workspace requests create one owner workspace",
+      "failed competing creation leaves no orphan businesses",
+      "expired A cannot read directly while independent active B can",
+      "transaction rollback leaves no new business or owner membership",
+      "independent backends actually waited concurrently",
+      "same verified recipient cannot join two businesses concurrently",
+      "legacy destination rejects an existing expired pilot member",
+      "independent backends actually waited concurrently",
+      "eight legacy writers cannot add an existing pilot member",
+      "independent backends actually waited concurrently",
+      "pilot acceptance racing a legacy destination permits one membership only",
+      "expired owner cannot restart pilot through atomic workspace creation",
+      "first backend waits before competing writers start",
+      "independent backends actually waited concurrently",
+      "designation transition serializes against eight legacy writers",
+      "operator rejects stale snapshot mode: REPEATABLE READ",
+      "legacy writer rejects stale snapshot mode: REPEATABLE READ",
+      "operator rejects stale snapshot mode: SERIALIZABLE",
+      "legacy writer rejects stale snapshot mode: SERIALIZABLE",
+      "deadline crossed during audit rolls back: 0",
+      "deadline crossed during audit rolls back: 1",
+      "deadline crossed during audit rolls back: 2",
+      "restored row count: businesses",
+      "restored row count: business_memberships",
+      "restored row count: leads",
+      "restored row count: colzo_pilot_access",
+      "restored row count: colzo_pilot_private.audit",
+      "restored row count: colzo_pilot_private.invitations",
+      "restored RLS still denies expired A",
+      "restored operator privileges remain denied to browser role"
+    ]
+  },
+  "booking": {
+    "scope": "Native synthetic transaction/race checks only; not genuine Development recovery or Auth/Storage acceptance",
+    "server": "PostgreSQL 17.11 (Debian 17.11-0+deb13u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "database": "colzo_disposable_booking_2026102614",
+    "proposal_sha256": "26dc7e0c9a57bca194ba86d01bfdf4b5e16c65cf30df00fb393f378c525ed1a4",
+    "checks": [
+      {
+        "name": "eight_backends_overlap",
+        "pass": true,
+        "details": {
+          "backends": [
+            2430,
+            2427,
+            2438,
+            2433,
+            2445,
+            2442,
+            2446,
+            2447
+          ]
+        }
+      },
+      {
+        "name": "one_booking_one_history_one_audit",
+        "pass": true,
+        "details": {
+          "counts": [
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "name": "expiry_after_lead_lock_wait",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ],
+          "request_exit": 3
+        }
+      },
+      {
+        "name": "expiry_during_audit_wait",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ],
+          "request_exit": 3
+        }
+      },
+      {
+        "name": "revocation_serializes_and_denies_later_request",
+        "pass": true
+      },
+      {
+        "name": "legacy_writer_unique_conflict_reuses_row",
+        "pass": true,
+        "details": {
+          "counts": [
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "audit_failure_rolls_back",
+        "pass": true,
+        "details": {
+          "counts": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "anon_cannot_execute",
+        "pass": true
+      },
+      {
+        "name": "authenticated_cannot_execute",
+        "pass": true
+      },
+      {
+        "name": "foreign_lead_denied",
+        "pass": true
+      },
+      {
+        "name": "independent_business_succeeds",
+        "pass": true
+      }
+    ],
+    "passed": 11,
+    "failed": 0,
+    "failures": []
+  },
+  "package": {
+    "status": "PASS",
+    "checks": 9,
+    "evidence": [
+      "owner fails as expected",
+      "owner preserves no staged objects",
+      "owner existing records preserved",
+      "late fails as expected",
+      "late preserves no staged objects",
+      "late existing records preserved",
+      "all five proposals commit with assertions",
+      "no pilot activation or audit",
+      "operator remains NOLOGIN NOINHERIT"
+    ],
+    "server": "17.11 (Debian 17.11-0+deb13u1)",
+    "application_sha256": "26c864c1deb9b2deb4f1ab10d8e2f5aae0c7e76bc3aa45eeac99bd0dcae267c0",
+    "shared_database_used": false,
+    "scope": "Synthetic fixtures; not managed Auth, Storage or actual-source recovery"
+  },
+  "limitations": [
+    "Synthetic records and minimal Auth/Storage fixture schemas only.",
+    "Not genuine Development recovery, managed Auth/MFA acceptance or Storage-byte recovery.",
+    "PostgreSQL 17.11 on private socket-only clusters. Both clusters stopped."
+  ]
+}

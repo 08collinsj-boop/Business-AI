@@ -6,11 +6,11 @@ const js=readFileSync(new URL('../assets/colzo-native.js',import.meta.url),'utf8
 const css=readFileSync(new URL('../assets/colzo-native.css',import.meta.url),'utf8');
 const handler=readFileSync(new URL('../lib/knowledge-handler.js',import.meta.url),'utf8');
 
-test('knowledge approval uses the actual server contract, without rejected confirmation properties',()=>{
+test('knowledge approval uses the versioned deployed wrapper contract',()=>{
   assert.match(js,/async function approveKnowledge\(\)/);
-  assert.match(js,/JSON\.stringify\(\{action:'approve',source_id:source\.id,items\}\)/);
+  assert.match(js,/JSON\.stringify\(\{action:'approve',source_id:source\.id,items,confirmation:true,confirmation_version:'knowledge_accuracy_v1'\}\)/);
   assert.match(handler,/Object\.keys\(parsed\)\.some\(key => !\['action', 'source_id', 'items'\]\.includes\(key\)\)/);
-  assert.doesNotMatch(js,/confirmation_version:'knowledge_accuracy_v1'/);
+  assert.match(js,/confirmation_version:'knowledge_accuracy_v1'/);
   assert.match(js,/window\.confirm\('Approve the selected facts/);
 });
 

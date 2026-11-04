@@ -172,15 +172,11 @@
       "pilot-ready-20260923": false,
       "feature/colzo-scoped-pilot-access-20261023": false,
       "integration/colzo-pilot-readiness-20261025": false,
-      "fix/colzo-pilot-continuation-20261025": false
+      "fix/colzo-pilot-continuation-20261025": false,
+      "fix/colzo-pilot-release-gates-20261026": false
     }
   },
-  "crons": [
-    {
-      "path": "/api/marketing-scheduler",
-      "schedule": "0 8 * * *"
-    }
-  ],
+  "crons": [],
   "headers": [
     {
       "source": "/(.*)",

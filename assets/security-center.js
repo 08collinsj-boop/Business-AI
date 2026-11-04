@@ -22,12 +22,19 @@
   const timeLabel=value=>{if(!value)return '';const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});};
 
   async function authorisedFetch(path,options={}){
+    const requestUrl=new URL(path,window.location.origin);
+    if(requestUrl.origin!==window.location.origin)throw new Error('Invalid security request');
     const authClient=client();
     if(!authClient)throw new Error('Account security is unavailable.');
     const {data:{session}}=await authClient.auth.getSession();
     if(!session?.access_token)throw new Error('Your session has expired.');
     const headers=new Headers(options.headers||{});
-    headers.set('Authorization',`Bearer ${session.access_token}`);
+    if(window.colzoPreviewAuthTransportEnabled===true){
+      headers.delete('Authorization');
+      headers.set('X-Colzo-Supabase-Authorization',`Bearer ${session.access_token}`);
+    }else{
+      headers.set('Authorization',`Bearer ${session.access_token}`);
+    }
     const response=await window.colzoBackendFetch(path,{...options,headers});
     const data=await response.json().catch(()=>null);
     if(!response.ok){

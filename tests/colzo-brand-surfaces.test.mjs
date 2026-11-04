@@ -16,11 +16,12 @@ test('every deployed entry loads Colzo surface styling after its older styles',(
   const dom=new JSDOM(read(file));const links=[...dom.window.document.querySelectorAll('link[rel="stylesheet"]')];
   const customerEntries=new Set(['index.html','legal/index.html','legal/dpa.html','legal/data-deletion.html','legal/storage.html','legal/subprocessors.html']);
   if(file==='index.html'){
-   // The motion pack follows the approved customer skin and is strictly
-   // scoped to portal/owner animation, not a replacement for either skin.
-   assert.match(links.at(-3)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
-   assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
-   assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-flutter-motion\.css/,file);
+   // Keep the shared skins and motion pack in order; the final directory
+   // polish is scoped to the owner Customers screen.
+   assert.match(links.at(-4)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
+   assert.match(links.at(-3)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
+   assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-flutter-motion\.css/,file);
+   assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customers-mobile\.css/,file);
   }else if(customerEntries.has(file)){
    assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
    assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
@@ -56,4 +57,11 @@ test('widget presents Colzo while keeping business routing and deduplication int
  root.querySelector('.bai-launcher').click();
  assert.equal(new URL(root.querySelector('iframe').src).origin,'https://dev.invalid');
  w.eval(read('widget.js'));assert.equal(w.document.querySelectorAll('[data-business-ai-widget]').length,1);w.close();
+});
+
+test('Customers enquiry contacts sit below the saved customer list with clear spacing',()=>{
+ const component=read('src/colzo/Customers.jsx');
+ assert.match(component, /<\/DirectoryState><\/div>\s*<section className="cn-detail-panel">/);
+ const css=read('assets/colzo-customers-mobile.css');
+ assert.match(css, /#colzoApp #colzoOwner\[data-screen="clients"\] \.cn-stitch-customer-list \+ \.cn-detail-panel\s*\{\s*margin-top:\s*48px;/);
 });

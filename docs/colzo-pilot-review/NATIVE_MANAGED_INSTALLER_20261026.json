@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "checks": 9,
+  "server": "17.11 (Debian 17.11-0+deb13u1)",
+  "application_sha256": "56c45dd5e69273258d0ac9b563fecc8daabe42abe785e750a7a7ba2c4095c498",
+  "managed_installer_fixture": true,
+  "installer": "postgres NOSUPERUSER CREATEROLE CREATEDB BYPASSRLS",
+  "bootstrap": "fixture_cluster_admin superuser OID10",
+  "transport": "private Unix socket, TCP disabled",
+  "cluster_stopped": true,
+  "shared_database_used": false,
+  "scope": "Synthetic fixtures; not managed Auth, Storage or actual-source recovery",
+  "checks_passed": [
+    "owner rejection",
+    "owner DDL rollback",
+    "owner records retained",
+    "late index failure",
+    "late DDL rollback",
+    "late records retained",
+    "five proposals commit with assertions",
+    "zero activation/audit",
+    "operator NOLOGIN NOINHERIT"
+  ],
+  "prior_failed_run": "Initial runner used invalid CREATE DATABASE OWNER TO syntax; corrected, then ran on a new empty cluster. Not counted as passing."
+}

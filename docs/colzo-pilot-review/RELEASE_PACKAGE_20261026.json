@@ -1,0 +1,30 @@
+{
+  "target": "mvwseobgkexzpmmkgcxe",
+  "status": "PROPOSED_NOT_AUTHORISED_NOT_APPLIED",
+  "application_sha256": "56c45dd5e69273258d0ac9b563fecc8daabe42abe785e750a7a7ba2c4095c498",
+  "management_query_sha256": "ab3131c87a430aea23e1157774f6a0bcbd6c7a5cbe50e63abb87d43a6f9a69be",
+  "management_payload_sha256": "af5efe66d96a426251a597e607a9ac72ad91da5c58cd00ad9038dc3788cde5ab",
+  "sources": [
+    {
+      "name": "scoped-pilot-access.STAGED.sql",
+      "sha256": "75e8003c2abdcdfa1d82873e9f7bf9af074caa48cf44d97667bcddd24614107f"
+    },
+    {
+      "name": "pilot-expiry-enforcement.STAGED.sql",
+      "sha256": "4945235ec43f0d645ebff416347ea3c0b3e0cc61fa33b12ffa9b119fcb541268"
+    },
+    {
+      "name": "pilot-provisioning.STAGED.sql",
+      "sha256": "11e15f6f3e1252cb0f9f1255e1d9641bfacbcc0818e321bb47ea09e5f51ea83d"
+    },
+    {
+      "name": "pilot-workspace-provisioning.STAGED.sql",
+      "sha256": "0e2942ecdb3a27a535db8282b4cd312dd2e439574287f32cd3f52061769820c8"
+    },
+    {
+      "name": "pilot-idempotent-bookings.STAGED.sql",
+      "sha256": "26dc7e0c9a57bca194ba86d01bfdf4b5e16c65cf30df00fb393f378c525ed1a4"
+    }
+  ],
+  "rollback": "Before COMMIT: ROLLBACK/disconnect. After COMMIT: preserve controls and records; no destructive automatic rollback."
+}

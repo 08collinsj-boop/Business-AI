@@ -1,0 +1,10 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"successful\":true,\"data\":{\"results\":\"\",\"stdout\":\"{\\\"data\\\": {\\\"message\\\": \\\"SQL query failed with status 400: Failed to run sql query: ERROR:  P0001: unsafe operator role\\\\nCONTEXT:  PL/pgSQL function inline_code_block line 6 at RAISE\\\\n\\\", \\\"status_code\\\": 400}, \\\"error\\\": \\\"SQL query failed with status 400: Failed to run sql query: ERROR:  P0001: unsafe operator role\\\\nCONTEXT:  PL/pgSQL function inline_code_block line 6 at RAISE\\\\n\\\", \\\"log_id\\\": \\\"log_mZ43MBHeDeFu\\\", \\\"result_type\\\": \\\"failed\\\"}\\n\",\"stderr\":\"\",\"error\":\"\",\"sandbox_id_suffix\":\"ljic\"},\"error\":null,\"log_id\":\"log_SzG_kPYuf7Df\"}"
+    }
+  ],
+  "structuredContent": null,
+  "isError": false
+}

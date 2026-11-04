@@ -1,0 +1,27 @@
+{
+  "synthetic_only": true,
+  "shared_seed_approved": false,
+  "a": {
+    "business_name": "QA Example Electrical A",
+    "services": "Fictional indoor lighting enquiries",
+    "hours": "Monday-Friday 09:00-17:00",
+    "area": "Example Town A",
+    "customer_name": "QA Alex Example",
+    "customer_email": "alex.qa@example.invalid",
+    "project": "Fictional lighting enquiry - internal planning",
+    "quote": "EXAMPLE ONLY - unpriced quote request"
+  },
+  "b": {
+    "business_name": "QA Example Garden B",
+    "services": "Fictional garden maintenance enquiries",
+    "hours": "Tuesday-Saturday 10:00-16:00",
+    "area": "Example Town B",
+    "customer_name": "QA Sam Example",
+    "customer_email": "sam.qa@example.invalid",
+    "project": "Fictional garden enquiry - internal planning",
+    "quote": "EXAMPLE ONLY - unpriced quote request"
+  },
+  "quote_note": "Fictional example only. No price agreed; zero is a placeholder, not an offer.",
+  "knowledge_note": "All requests are reviewed by a person. Appointment requests need confirmation.",
+  "excluded": ["real authentication identities", "real customer data", "confirmed appointments", "payments", "provider calls", "outbound communications", "uploaded files", "live WhatsApp", "AI phone answering", "Marketing", "Connect", "Learn My Style", "push"]
+}

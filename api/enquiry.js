@@ -15,7 +15,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { isScopedPilotRequested } from "../lib/colzo-scoped-pilot.js";
+import { isScopedPilotRequested, isScopedPilotNoProviderDemo } from "../lib/colzo-scoped-pilot.js";
 import { sanitizeReceptionistConfiguration, normaliseAIHandlingMode, handlingModeInstructions, decideAIHandover, customerHandoverReason } from "../lib/business-configuration.js";
 import { resolvePublicBusinessRoute } from "../lib/public-tenant.js";
 import { enforcePublicEnquiryRateLimit, getPublicClientAddress } from "../lib/public-rate-limit.js";
@@ -569,11 +569,18 @@ function findLocationInConversation(conversationText) {
 
 function findJobDetails(conversationText) {
   const messages = String(conversationText).split(/\n/)
-    .filter((line) => /^user:/i.test(line));
-  const match = messages.join(" ").match(
-    /(?:need|need help with|looking for|want|would like|book|booking|problem with|issue with|enquiry about)\s+([^.!?\n]{3,180})/i
-  );
-  return match?.[1]?.trim() || null;
+    .filter((line) => /^user:/i.test(line))
+    .map((line) => line.replace(/^user:\s*/i, ''));
+  for (const message of messages) {
+    // Refusing an action supplies no work description. Keep messages separate
+    // so a match can never consume a later user/assistant turn as job details.
+    if (isExplicitNoActionMessage(message)) continue;
+    const match = message.match(
+      /\b(?:need help with|need|looking for|want|would like|book|booking|problem with|issue with|enquiry about)\s+([^.!?\n]{3,180})/i
+    ) || message.match(/\b(?:quote|quotation|estimate)\s+(?:for|on)\s+([^.!?\n]{3,180})/i);
+    if (match?.[1]) return match[1].trim();
+  }
+  return null;
 }
 
 // A signed, tenant-bound continuation preserves handover after history truncation.
@@ -696,7 +703,7 @@ function hasPositiveBookingRequest(message) {
   if (!text) return false;
   if (/\b(?:do not|don't|dont|never|without|no need to|not to|not|cannot|can't|cant|won't|wont|wouldn't|wouldnt)\b.{0,90}\b(?:book|booking|arrange|schedule|appointment|callback)\b|\b(?:cancel|withdraw|stop)\b.{0,90}\b(?:booking|appointment|request|callback)\b|\b(?:no|not)\s+(?:an?\s+)?(?:booking|appointment|callback)\b/i.test(text)) return false;
   if (/^\s*(?:how|what|when|where|why|which|if|before)\b/i.test(text)) return false;
-  const imperative = /(?:^|[.!?]\s*)(?:(?:yes|okay|ok)[,!\s]+)?(?:please\s+)?(?:(?:book|schedule|arrange|make)\s+(?:(?:me|us)\s+)?(?:(?:an?|the)\s+)?(?:booking|appointment|visit|slot|meeting)\b|book\s+(?:me|us)\s+in\b)/i.test(text);
+  const imperative = /(?:^|[.!?]\s*)(?:(?:yes|okay|ok)[,!\s]+)?(?:please\s+)?(?:(?:book|schedule|arrange|make|request)\s+(?:(?:me|us)\s+)?(?:(?:an?|the)\s+)?(?:booking|appointment|visit|slot|meeting)\b|book\s+(?:me|us)\s+in\b)/i.test(text);
   return imperative || /\b(?:i|we)\s+(?:need|want|would like|wish)\s+(?:(?:to\s+book)|(?:an?\s+)?(?:booking|appointment|visit|slot))\b|\b(?:i'd|we'd)\s+like\s+to\s+book\b|\b(?:can|could|would)\s+(?:i|you|we)\s+(?:book|schedule|arrange)\b/i.test(text);
 }
 
@@ -1143,7 +1150,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!OPENAI_API_KEY && !OPENROUTER_API_KEY) {
+    if (!OPENAI_API_KEY && !OPENROUTER_API_KEY && !isScopedPilotNoProviderDemo()) {
       throw new Error("No enquiry AI provider is configured");
     }
 

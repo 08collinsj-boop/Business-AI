@@ -102,6 +102,9 @@ DECLARE result jsonb; payload jsonb:=jsonb_build_object('email',p_email,'hash',p
  VALUES(p_business,p_email,p_hash,expiry) RETURNING id INTO invitation_id;
  result:=jsonb_build_object('invitation_id',invitation_id,'expires_at',expiry);
  INSERT INTO colzo_pilot_private.audit(request_key,business_id,actor,action,payload,result,recorded_at) VALUES(p_key,p_business,p_owner,'invited',payload,result,clock_timestamp());
+ -- Audit/constraint waits must not turn an expired reservation into success.
+ PERFORM colzo_pilot_private.lock_active(p_business);
+ IF expiry<=clock_timestamp() THEN RAISE EXCEPTION 'invitation unavailable'; END IF;
  RETURN result;
 END$$;
 
@@ -121,6 +124,10 @@ DECLARE result jsonb; payload jsonb:=jsonb_build_object('hash',p_hash); invitati
  INSERT INTO public.business_memberships(business_id,user_id,role) VALUES(p_business,p_user,'member');
  result:=jsonb_build_object('business_id',p_business,'user_id',p_user,'role','member');
  INSERT INTO colzo_pilot_private.audit(request_key,business_id,actor,action,payload,result,recorded_at) VALUES(p_key,p_business,p_user,'accepted',payload,result,clock_timestamp());
+ -- Recheck both deadlines after identity, membership and audit waits. Raising
+ -- rolls back the membership, invitation transition and audit atomically.
+ PERFORM colzo_pilot_private.lock_active(p_business);
+ IF invitation.expires_at<=clock_timestamp() THEN RAISE EXCEPTION 'invitation unavailable'; END IF;
  RETURN result;
 END$$;
 

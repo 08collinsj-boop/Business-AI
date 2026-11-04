@@ -23,7 +23,7 @@ test('booking and action controls have programmatic labels', () => {
 });
 
 test('public chat retains visible keyboard focus and AA placeholder contrast token', () => {
-  assert.match(html, /public-chat-form input:focus-visible\{outline:2px solid #66b7ff/);
+  assert.match(html, /public-chat-form input:focus-visible\{outline:2px solid #c8ff2e/);
   assert.match(html, /public-directory-search input::placeholder\{color:#7a91aa\}/);
   assert.doesNotMatch(html, /public-directory-search input::placeholder\{color:#61758c\}/);
 });
@@ -73,7 +73,7 @@ test('owner receptionist send button and marketing tabs are named and related', 
 test('directory helper text and Search submit remain visibly accessible', () => {
   assert.match(html, /public-directory-reference-hero \.public-directory-search-hint\{[^}]*color:#8199b3!important/);
   assert.match(html, /\.public-directory-search-submit\{[^}]*min-width:72px;min-height:40px/);
-  assert.match(html, /\.public-directory-search-submit:focus-visible\{outline:2px solid #8cc7ff/);
+  assert.match(html, /\.public-directory-search-submit:focus-visible\{outline:2px solid #c8ff2e/);
   assert.doesNotMatch(html, /\.public-directory-search-submit\{position:absolute;width:1px;height:1px/);
 });
 

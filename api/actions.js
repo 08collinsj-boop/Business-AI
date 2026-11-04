@@ -1,4 +1,4 @@
-import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoPreviewAuthTransportEnabled } from "../lib/public-config-handler.js";
+import { isApprovedSupabaseTarget, restorePreviewAuthToken, isColzoRecordVersionEnabled } from "../lib/public-config-handler.js";
 import { validWorkVersion, nextWorkVersion, sameWorkVersion } from "../lib/colzo-work-version.js";
 import {
   requireBusinessMember,
@@ -47,6 +47,21 @@ function confirmedRecord(value, businessId, expectedId = null) {
   if (!row || typeof row !== "object" || Array.isArray(row) || !positiveId(row.id) || row.business_id !== businessId) return null;
   if (expectedId !== null && positiveId(row.id) !== expectedId) return null;
   return row;
+}
+
+
+ // Verify every explicitly requested action field before reporting a successful
+ // save or recording success history/audit. Never retry an unconfirmed write.
+function confirmedActionFields(row, fields) {
+  return Object.entries(fields).every(([field, expected]) => {
+    if (field === "updated_at" || field === "completed_at") return true; // Version is checked separately.
+    const actual = row[field];
+    if (field === "due_at") return expected === null ? actual === null : sameWorkVersion(actual, expected);
+    if (field === "lead_id" || field === "booking_id") {
+      return expected === null ? actual === null : positiveId(actual) === expected;
+    }
+    return actual === expected;
+  });
 }
 
 function parseBody(body) {
@@ -161,6 +176,12 @@ export default async function handler(req, res) {
         filters.push(`booking_id=eq.${encodeURIComponent(String(bookingId))}`);
       }
       const rows = await supabaseRequest(`actions?${filters.join("&")}&select=*&order=due_at.asc.nullslast,created_at.desc`);
+      // The service role bypasses tenant RLS. Never trust an anomalous returned
+      // representation to override the authenticated tenant in Colzo Preview.
+      if (isColzoRecordVersionEnabled() && (!Array.isArray(rows)
+          || rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId))) {
+        throw new Error("Unverified tenant read representation");
+      }
       return res.status(200).json(Array.isArray(rows) ? rows : []);
     }
 
@@ -176,7 +197,7 @@ export default async function handler(req, res) {
         method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ business_id: businessId, ...updates })
       });
       const result = confirmedRecord(created, businessId);
-      if (!result) throw new Error("Created record could not be confirmed");
+      if (!result || !confirmedActionFields(result, updates)) throw new Error("Created record could not be confirmed");
       await recordLeadHistory(result?.lead_id, businessId, "Action created", "", result?.title || "");
       if (result) await recordAuditEvent({ businessId, actorUserId: auth.userId, action: "action.created", resourceType: "action", resourceId: String(result.id), metadata: { status: result.status, action_type: result.action_type, priority: result.priority } });
       return res.status(201).json(result || null);
@@ -184,7 +205,7 @@ export default async function handler(req, res) {
 
     const actionId = positiveId(body.id);
     if (!actionId) return res.status(400).json({ error: "Invalid action ID" });
-    const versioned = isColzoPreviewAuthTransportEnabled(), expected = body.expected_updated_at;
+    const versioned = isColzoRecordVersionEnabled(), expected = body.expected_updated_at;
     if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the action before saving; expected_updated_at is required" });
     const updates = validateAction(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
     const currentRows = await supabaseRequest(
@@ -213,7 +234,7 @@ export default async function handler(req, res) {
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, actionId);
-    if (!result) throw new Error("Updated record could not be confirmed");
+    if (!result || !confirmedActionFields(result, updates)) throw new Error("Updated record could not be confirmed");
     if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
