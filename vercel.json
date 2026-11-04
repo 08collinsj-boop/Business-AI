@@ -173,7 +173,8 @@
       "feature/colzo-scoped-pilot-access-20261023": false,
       "integration/colzo-pilot-readiness-20261025": false,
       "fix/colzo-pilot-continuation-20261025": false,
-      "fix/colzo-pilot-release-gates-20261026": false
+      "fix/colzo-pilot-release-gates-20261026": false,
+      "feature/colzo-preview-self-serve-pilot-20261102": false
     }
   },
   "crons": [],
