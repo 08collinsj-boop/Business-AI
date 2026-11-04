@@ -306,7 +306,7 @@
  async function saveMarketingEdit(form){
   if(state.marketingBusy||!state.marketingEditing)return;
   const fd=new FormData(form),current=state.marketingEditing,old=current.output||{};
-  const output={main_copy:String(fd.get('main_copy')||'').trim(),short_alternative:String(fd.get('short_alternative')||'').trim(),call_to_action:String(fd.get('call_to_action')||'').trim(),hashtags:String(fd.get('hashtags')||'').split(/\\s+/).filter(Boolean).map(x=>x.startsWith('#')?x:'#'+x),missing_information:Array.isArray(old.missing_information)?old.missing_information:[]};
+  const output={main_copy:String(fd.get('main_copy')||'').trim(),short_alternative:String(fd.get('short_alternative')||'').trim(),call_to_action:String(fd.get('call_to_action')||'').trim(),hashtags:String(fd.get('hashtags')||'').split(/\s+/).filter(Boolean).map(x=>x.startsWith('#')?x:'#'+x),missing_information:Array.isArray(old.missing_information)?old.missing_information:[]};
   const feedback=content.querySelector('#cnMarketingEditFeedback');
   if(!output.main_copy){if(feedback)feedback.textContent='Main post text is required.';return}
   state.marketingBusy=true;
