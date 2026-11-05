@@ -29,7 +29,7 @@ if (siteProject && isVercelBuild) {
   // Preserve legacy search and contact routes so a rebrand never breaks indexed links.
   for (const route of ['about', 'contact', 'resources', 'ai-receptionist', 'ai-for-trades',
     'teesside', 'small-business-ai', 'ai-marketing', 'ai-marketing-small-business',
-    'customer-enquiry-management']) {
+    'customer-enquiry-management', 'how-to-use']) {
     await cp('site/' + route, out + '/' + route, { recursive: true });
   }
   for (const file of ['seo.css', 'site.css', 'robots.txt', 'sitemap.xml', 'llms.txt',
