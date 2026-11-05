@@ -44,3 +44,7 @@ test('responsive experience retains accessible controls and reduced-motion style
   assert.match(html,/prefers-reduced-motion/);
   assert.match(html,/focus-visible/);
 });
+
+test('legacy public marketing links still reach the redesigned product and process sections',()=>{
+  for (const id of ['features','how','pricing']) assert.ok(doc.getElementById(id), 'missing #'+id);
+});
