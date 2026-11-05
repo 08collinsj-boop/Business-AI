@@ -110,7 +110,7 @@ try{
  const second=(await admin.query('SELECT business_id FROM business_memberships WHERE user_id=$1',[user(2)])).rows[0].business_id;
  await admin.query("INSERT INTO public.leads VALUES(1,$1,'Fictional A'),(2,$2,'Fictional B')",[first.business_id,second]);
  await admin.query(readFileSync(new URL('../docs/colzo-pilot-review/pilot-expiry-enforcement.STAGED.sql',import.meta.url),'utf8'));
- await admin.query('ALTER FUNCTION colzo_pilot_private.workspace_read_allowed(uuid) OWNER TO postgres;SET SESSION AUTHORIZATION postgres');
+ await admin.query('ALTER SCHEMA colzo_pilot_private OWNER TO postgres;ALTER FUNCTION colzo_pilot_private.workspace_read_allowed(uuid) OWNER TO postgres;SET SESSION AUTHORIZATION postgres');
  await admin.query(readFileSync(new URL('../docs/colzo-pilot-review/DIRECT_PILOT_SESSION_POLICY_PREVIEW.STAGED.sql',import.meta.url),'utf8'));
  check('direct policy installed by non-superuser owner',(await admin.query("SELECT NOT rolsuper ok FROM pg_roles WHERE rolname=current_user")).rows[0].ok);
  await admin.query('RESET SESSION AUTHORIZATION');

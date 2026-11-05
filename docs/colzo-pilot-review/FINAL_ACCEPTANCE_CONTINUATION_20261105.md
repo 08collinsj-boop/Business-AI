@@ -48,6 +48,15 @@ verification. A separate new direct-policy test passed after that full run.
 Native PostgreSQL evidence for the new staged correction must be read from the
 new CI run; it is not implied by earlier native success.
 
+Initial new [native run 42037284438](https://github.com/08collinsj-boop/Business-AI/actions/runs/42037284438)
+failed because the newly added fixture left its private schema owned by
+native_admin rather than postgres. Read-only Development metadata confirmed the
+real schema is already postgres-owned with USAGE/CREATE. Corrected only the
+isolated fixture's schema ownership to match Development; no live permissions
+or staged SQL were changed. Full verification in that failed CI run was skipped;
+the existing successful local results are separate evidence. Follow-up CI must
+pass before claiming native acceptance for this new package.
+
 ## Direct Data API gap and separately gated SQL
 
 Fresh Development catalog inspection found membership + expiry policies on
