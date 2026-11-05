@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {JSDOM} from 'jsdom';
 
-const html=readFileSync('site/index.html','utf8');
+const html=readFileSync('site/how-to-use/index.html','utf8');
 const css=readFileSync('assets/colzo-public-site.css','utf8');
 const js=readFileSync('site/site.js','utf8');
 const doc=new JSDOM(html).window.document;
