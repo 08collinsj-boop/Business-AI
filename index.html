@@ -2283,9 +2283,12 @@ input.switch,input.switch:before{transition:none}
 
 <form id="passwordRecoveryForm" class="auth-card auth-form-hidden">
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/colzo-mark.svg" alt="" aria-hidden="true"></div><h2>Choose a new password</h2><p>Create a strong, unique password with at least 12 characters.</p>
+<p id="passwordRecoveryAccount" aria-live="polite"></p>
+<div id="passwordRecoveryMfa" hidden><p>Verify with your authenticator app before changing this account’s password.</p><div class="auth-field"><label for="passwordRecoveryCode">Authenticator code</label><input id="passwordRecoveryCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"></div><button id="passwordRecoveryVerifyMfa" class="btn" type="button">Verify code</button></div>
+<button id="passwordRecoveryCheckSecurity" class="auth-link" type="button" hidden>Retry security check</button>
 <div class="auth-field"><label for="recoveryPassword">New password</label><input id="recoveryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <div class="auth-field"><label for="recoveryPasswordConfirm">Confirm new password</label><input id="recoveryPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
-<button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit">Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
+<button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit" disabled>Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
 <p class="auth-switch cn-recovery-alt"><button id="passwordRecoveryRequestAgain" class="auth-link" type="button">Request a new reset link</button></p>
 </form>
 
@@ -3705,6 +3708,8 @@ $('loginForm').classList.toggle('auth-form-hidden',authenticationMode!=='login')
 $('signUpForm').classList.toggle('auth-form-hidden',authenticationMode!=='signup');
 $('passwordResetRequestForm').classList.toggle('auth-form-hidden',authenticationMode!=='reset-request');
 $('passwordRecoveryForm').classList.toggle('auth-form-hidden',authenticationMode!=='recovery');
+if(authenticationMode==='recovery')void preparePasswordRecoveryMfa();
+else{passwordRecoveryMfaReady=false;passwordRecoveryCheckVersion++;$('passwordRecoveryCode').value='';}
 if(message){
 const target=authenticationMode==='signup'?$('signUpMessage'):authenticationMode==='reset-request'?$('passwordResetRequestMessage'):authenticationMode==='recovery'?$('passwordRecoveryMessage'):$('loginMessage');
 target.textContent=message;
@@ -4104,11 +4109,65 @@ setAuthenticationMode('reset-request');
 }finally{button.disabled=false;}
 });
 
+let passwordRecoveryMfaReady=false;
+let passwordRecoveryFactorId=null;
+let passwordRecoveryCheckVersion=0;
+function passwordRecoveryFailure(error){
+const code=String(error?.code||'');
+if(code==='insufficient_aal')return 'Verify your authenticator code before saving your new password.';
+if(code==='same_password')return 'Choose a password different from your current password.';
+if(code==='weak_password')return 'Choose a stronger password with at least 12 characters, uppercase and lowercase letters, a number and a symbol.';
+if(['session_not_found','session_expired','refresh_token_not_found','refresh_token_already_used'].includes(code)||error?.name==='AuthSessionMissingError')return 'Your recovery session is no longer available. Request a new reset link.';
+return 'We could not save your password. Retry the security check, then try again. If this continues, contact support without sending passwords or codes.';
+}
+async function preparePasswordRecoveryMfa(){
+const version=++passwordRecoveryCheckVersion;passwordRecoveryMfaReady=false;passwordRecoveryFactorId=null;
+$('passwordRecoveryAccount').textContent='';$('passwordRecoverySubmit').disabled=true;$('passwordRecoveryMfa').hidden=true;$('passwordRecoveryCode').value='';$('passwordRecoveryCheckSecurity').hidden=true;
+const message=$('passwordRecoveryMessage');
+try{
+if(!supabaseClient)throw new Error('unavailable');
+const sessionResult=await supabaseClient.auth.getSession();if(version!==passwordRecoveryCheckVersion)return;
+if(sessionResult.error)throw sessionResult.error;
+const session=sessionResult.data?.session;
+$('passwordRecoveryAccount').textContent=session?.user?.email?'Resetting password for '+session.user.email:'';
+if(!session){message.textContent='Your recovery session is no longer available. Request a new reset link.';return;}
+const assurance=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();if(version!==passwordRecoveryCheckVersion)return;
+if(assurance.error)throw assurance.error;
+const {currentLevel,nextLevel}=assurance.data||{};
+if(currentLevel==='aal2'||(currentLevel==='aal1'&&nextLevel==='aal1')){passwordRecoveryMfaReady=true;$('passwordRecoverySubmit').disabled=false;message.textContent='Security check complete. You can save your new password.';return;}
+if(currentLevel!=='aal1'||nextLevel!=='aal2')throw new Error('unavailable');
+const factors=await supabaseClient.auth.mfa.listFactors();if(version!==passwordRecoveryCheckVersion)return;
+if(factors.error)throw factors.error;
+const factor=factors.data?.totp?.find(item=>item.status==='verified'&&item.factor_type==='totp');
+if(!factor)throw new Error('unavailable');
+passwordRecoveryFactorId=factor.id;$('passwordRecoveryMfa').hidden=false;message.textContent='This account requires MFA. Verify your authenticator code to continue.';
+}catch{if(version!==passwordRecoveryCheckVersion)return;message.textContent='We could not verify this recovery session’s security. Retry the security check.';$('passwordRecoveryCheckSecurity').hidden=false;}
+}
+async function verifyPasswordRecoveryMfa(){
+const code=$('passwordRecoveryCode').value.trim();const message=$('passwordRecoveryMessage');
+if(!passwordRecoveryFactorId||!/^\d{6}$/.test(code)){message.textContent='Enter the six-digit code from your authenticator app.';return;}
+const version=passwordRecoveryCheckVersion;const button=$('passwordRecoveryVerifyMfa');button.disabled=true;
+try{
+const challenge=await supabaseClient.auth.mfa.challenge({factorId:passwordRecoveryFactorId});if(challenge.error)throw challenge.error;
+const verified=await supabaseClient.auth.mfa.verify({factorId:passwordRecoveryFactorId,challengeId:challenge.data.id,code});if(verified.error)throw verified.error;
+const assurance=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();if(assurance.error||assurance.data?.currentLevel!=='aal2')throw new Error('unavailable');
+if(version!==passwordRecoveryCheckVersion)return;
+passwordRecoveryMfaReady=true;$('passwordRecoverySubmit').disabled=false;$('passwordRecoveryMfa').hidden=true;message.textContent='MFA verified. You can now save your new password.';
+}catch{if(version===passwordRecoveryCheckVersion){passwordRecoveryMfaReady=false;$('passwordRecoverySubmit').disabled=true;message.textContent='We could not verify that code. Try a current authenticator code, or retry the security check.';$('passwordRecoveryCheckSecurity').hidden=false;}}
+finally{$('passwordRecoveryCode').value='';button.disabled=false;}
+}
+$('passwordRecoveryVerifyMfa').addEventListener('click',verifyPasswordRecoveryMfa);
+$('passwordRecoveryCheckSecurity').addEventListener('click',preparePasswordRecoveryMfa);
+$('passwordRecoveryCode').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();void verifyPasswordRecoveryMfa();}});
 $('passwordRecoveryForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
+if(!passwordRecoveryMfaReady){await preparePasswordRecoveryMfa();return;}
 const password=$('recoveryPassword').value;const confirmation=$('recoveryPasswordConfirm').value;const message=$('passwordRecoveryMessage');const policyIssue=passwordPolicyIssue(password);if(policyIssue||password!==confirmation){message.textContent=password!==confirmation?'Passwords do not match.':policyIssue;return;}
 const button=$('passwordRecoverySubmit');button.disabled=true;message.classList.remove('info');message.textContent='Saving your new password…';
-try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;passwordRecoveryActive=false;clearPasswordRecoveryLocation();await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';}catch{message.textContent='We could not update your password. Please use a fresh reset link and try again.';}finally{button.disabled=false;}
+try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;passwordRecoveryActive=false;clearPasswordRecoveryLocation();await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';passwordRecoveryMfaReady=false;}catch(error){
+if(error?.code==='insufficient_aal'){await preparePasswordRecoveryMfa();passwordRecoveryMfaReady=false;$('passwordRecoverySubmit').disabled=true;$('passwordRecoveryCheckSecurity').hidden=false;message.textContent=passwordRecoveryFailure(error);}
+else{message.textContent=passwordRecoveryFailure(error);if(!['same_password','weak_password'].includes(error?.code)){passwordRecoveryMfaReady=false;$('passwordRecoveryCheckSecurity').hidden=false;}}
+}finally{button.disabled=!passwordRecoveryMfaReady;}
 });
 
 $('signUpForm').addEventListener('submit',async event=>{
