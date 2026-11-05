@@ -99,6 +99,41 @@ try{
    check(role+' cannot provision, inspect sessions or read awards',true);
   }finally{await c.end();}
  }
+ // Rehearse the NEW direct Data API defense as the Development-like
+ // non-superuser owner. These claims/sessions are synthetic, never live JWTs.
+ await admin.query(`CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE AS $$ SELECT current_setting('request.jwt.claims',true)::jsonb $$;
+ GRANT USAGE ON SCHEMA auth TO authenticated;
+ CREATE TABLE public.leads(id integer,business_id uuid,name text);
+ ALTER TABLE public.leads OWNER TO postgres;ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+ GRANT SELECT ON public.leads TO authenticated;
+ CREATE POLICY fixture_read ON public.leads TO authenticated USING(true);`);
+ const second=(await admin.query('SELECT business_id FROM business_memberships WHERE user_id=$1',[user(2)])).rows[0].business_id;
+ await admin.query("INSERT INTO public.leads VALUES(1,$1,'Fictional A'),(2,$2,'Fictional B')",[first.business_id,second]);
+ await admin.query(readFileSync(new URL('../docs/colzo-pilot-review/pilot-expiry-enforcement.STAGED.sql',import.meta.url),'utf8'));
+ await admin.query('ALTER FUNCTION colzo_pilot_private.workspace_read_allowed(uuid) OWNER TO postgres;SET SESSION AUTHORIZATION postgres');
+ await admin.query(readFileSync(new URL('../docs/colzo-pilot-review/DIRECT_PILOT_SESSION_POLICY_PREVIEW.STAGED.sql',import.meta.url),'utf8'));
+ check('direct policy installed by non-superuser owner',(await admin.query("SELECT NOT rolsuper ok FROM pg_roles WHERE rolname=current_user")).rows[0].ok);
+ await admin.query('RESET SESSION AUTHORIZATION');
+ const freshSession='30000000-0000-4000-8000-000000000002';
+ await admin.query('INSERT INTO auth.sessions VALUES($1,$3,NULL),($2,$3,NULL)',[session,freshSession,user(1)]);
+ const reader=await connect('authenticated');
+ try{
+  const read=async(aal,sid,subject=user(1))=>{
+   await reader.query("SELECT set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claims',$2,false)",[subject,JSON.stringify({aal,session_id:sid})]);
+   return (await reader.query('SELECT id FROM public.leads ORDER BY id')).rows.map(x=>x.id);
+  };
+  check('direct AAL1 read denied',(await read('aal1',session)).length===0);
+  assert.deepEqual(await read('aal2',session),[1]);check('direct AAL2 read is tenant scoped',true);
+  for(const sid of [null,'malformed'])check('missing or malformed direct session denied',(await read('aal2',sid)).length===0);
+  check('wrong subject cannot reuse a session',(await read('aal2',session,user(2))).length===0);
+  await admin.query('DELETE FROM auth.sessions WHERE id=$1',[session]);
+  check('direct retained session denied after removal',(await read('aal2',session)).length===0);
+  assert.deepEqual(await read('aal2',freshSession),[1]);check('separate fresh session survives other-session removal',true);
+  await admin.query("UPDATE auth.sessions SET not_after=now()-interval '1 second' WHERE id=$1",[freshSession]);
+  check('direct expired session denied',(await read('aal2',freshSession)).length===0);
+  await assert.rejects(reader.query('SELECT * FROM auth.sessions'),/permission denied/);
+  check('direct policy does not expose Auth sessions',true);
+ }finally{await reader.end();}
  console.log(JSON.stringify({scope:'isolated fictional native PostgreSQL only; NOT live authentication acceptance',count:checks.length,checks,concurrent:{committed:outcomes.filter(x=>x.ok).length,rejected:outcomes.filter(x=>!x.ok).length}}));
 }finally{
  await service?.end();await admin?.end();if(started)run('pg_ctl',['-D',join(work,'data'),'stop','-m','fast']);

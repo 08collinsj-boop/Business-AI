@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import marketingImageHandler from '../lib/marketing-image-handler.js';
@@ -46,7 +47,7 @@ test('scoped pilot blocks all ancillary paid Marketing API routes before any Mar
   ];
   for(const [handler,req] of routes){
    const out=response();
-   await handler({headers:{authorization:'Bearer synthetic-owner'},...req},out);
+   await handler({headers:{authorization:'Bearer '+syntheticAal2Token('synthetic-owner')},...req},out);
    assert.equal(out.statusCode,403,handler.name+': '+req.method+': '+JSON.stringify(out.body));
    assert.match(out.body?.error||'',/marketing|pilot|unavailable|locked/i);
   }

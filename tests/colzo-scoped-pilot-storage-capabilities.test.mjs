@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test,{afterEach} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -19,7 +20,7 @@ function setup(){
  };return calls;
 }
 afterEach(()=>{process.env={...saved};globalThis.fetch=originalFetch;});
-async function call(module,method,body){const handler=(await import(module)).default;const res={setHeader(){},status(n){this.statusCode=n;return this},json(v){this.body=v;return this}};await handler({method,body,query:{},headers:{authorization:'Bearer synthetic'}},res);return res;}
+async function call(module,method,body){const handler=(await import(module)).default;const res={setHeader(){},status(n){this.statusCode=n;return this},json(v){this.body=v;return this}};await handler({method,body,query:{},headers:{authorization:'Bearer '+syntheticAal2Token('synthetic')}},res);return res;}
 for(const [name,module,body] of [
  ['knowledge','../lib/knowledge-handler.js',{action:'create_upload',file_name:'example.txt',mime_type:'text/plain',size_bytes:10}],
  ['profile','../lib/business-profile-handler.js',{action:'prepare_upload',slot:'avatar',file_name:'example.png',mime_type:'image/png',size_bytes:10}]

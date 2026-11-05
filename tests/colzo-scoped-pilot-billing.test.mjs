@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -77,7 +78,7 @@ test('authenticated owner receives pilot status without checkout; team member is
   throw Error('Unexpected network call '+href);
  };
  const handler=(await import('../lib/billing-handler.js')).default;
- const req={method:'GET',headers:{authorization:'Bearer synthetic-token'}};
+ const req={method:'GET',headers:{authorization:'Bearer '+syntheticAal2Token('synthetic-token')}};
  const res=()=>({statusCode:0,body:null,status(code){this.statusCode=code;return this;},json(v){this.body=v;return this;}});
  let out=res();await handler(req,out);
  assert.equal(out.statusCode,200);
@@ -145,10 +146,10 @@ test('scoped pilot never reads or mutates Stripe through add-on management, even
  try{
   for(const action of ['purchase','cancel']){
    existing=action==='cancel';const out=res();
-   await handler({method:'POST',headers:{authorization:'Bearer synthetic'},query:{},body:{action,key:'ai_marketing'}},out);
+   await handler({method:'POST',headers:{authorization:'Bearer '+syntheticAal2Token('synthetic')},query:{},body:{action,key:'ai_marketing'}},out);
    assert.equal(out.statusCode,403,action+' must be blocked before paid processing');
   }
-  const out=res();await handler({method:'GET',headers:{authorization:'Bearer synthetic'},query:{}},out);
+  const out=res();await handler({method:'GET',headers:{authorization:'Bearer '+syntheticAal2Token('synthetic')},query:{}},out);
   assert.equal(out.statusCode,200);
   assert.ok(out.body.addons.every(addon=>!addon.purchasable&&!addon.cancellable&&addon.entitlement!=='active'));
   assert.equal(globalThis.__pilotStripeCalls,0);

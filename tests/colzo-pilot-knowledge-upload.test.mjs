@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -17,7 +18,7 @@ function response() {
 }
 async function request(action, body={}) {
   const res=response();
-  await verifiedKnowledgeHandler({method:action==='GET'?'GET':'POST',headers:{authorization:'Bearer test-owner'},query:{},
+  await verifiedKnowledgeHandler({method:action==='GET'?'GET':'POST',headers:{authorization:'Bearer '+syntheticAal2Token('test-owner')},query:{},
     body:action==='GET'?undefined:{action,...body}},res);
   return res;
 }
