@@ -122,7 +122,9 @@ def write_bundle(payload,attachments,source_directory,output_directory):
             emitted.append({'bucket':key[0],'path':key[1],'file':name,'bytes':len(data),'sha256':entry['sha256'],'records':refs[key]['records']})
         result={'format_version':1,'scope':'existing fictional QA snapshot plus supplied local attachment bytes','business_id':_export.BUSINESS,'attachments':emitted,'auth_included':False,'live_return_verified':False,'not_a_backup':True,'notes':['tenant manifest describes its own JSON/CSV exclusions; this manifest supplements Storage bytes','No remote object discovery, provider return, Auth export, recipient delivery or deletion performed']}
         (output/'attachment-manifest.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
-        return result
+        fingerprint=hashlib.sha256((output/'manifest.json').read_bytes()+b'\0'+(output/'attachment-manifest.json').read_bytes()).hexdigest()
+        # Return separately: never trust a fingerprint copied from inside a bundle.
+        return {**result,'verification_sha256':fingerprint}
     except BaseException:
         shutil.rmtree(output)
         raise
