@@ -398,8 +398,8 @@
     overlay.className='security-mfa-gate';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','securityPreWorkspaceTitle');
     overlay.innerHTML='<section class="security-mfa-dialog" style="max-height:90dvh;overflow-y:auto"><h2 id="securityPreWorkspaceTitle">Secure your account first</h2><p>Set up your authenticator before continuing. Your workspace remains locked.</p><div id="securityPreWorkspaceHost"></div><p id="securityPreWorkspaceStatus" role="status"></p><div class="work-actions"><button id="securityPreWorkspaceContinue" class="small-btn primary-action" type="button">Continue after verification</button><button id="securityPreWorkspaceCancel" class="small-btn" type="button">Cancel</button></div></section>';
     document.body.appendChild(overlay);byId('securityPreWorkspaceHost').appendChild(card);
-    let resolve;const promise=new Promise(done=>resolve=done);preWorkspaceSetup={promise,resolve,card,home,app:byId('colzoApp'),previousInert:byId('colzoApp')?.inert};
-    if(preWorkspaceSetup.app)preWorkspaceSetup.app.inert=true;
+    let resolve;const promise=new Promise(done=>resolve=done);preWorkspaceSetup={promise,resolve,card,home,background:[...document.body.children].filter(el=>el!==overlay).map(el=>({el,inert:el.inert}))};
+    for(const item of preWorkspaceSetup.background)item.el.inert=true;
     overlay.addEventListener('keydown',event=>{
       if(event.key==='Escape'){event.preventDefault();finishPreWorkspaceSetup(false);return;}
       if(event.key!=='Tab')return;
@@ -420,7 +420,7 @@
   }
   function finishPreWorkspaceSetup(result){
     const setup=preWorkspaceSetup;preWorkspaceSetup=null;
-    if(setup?.app)setup.app.inert=setup.previousInert||false;
+    for(const item of setup?.background||[])item.el.inert=item.inert||false;
     if(setup?.home?.isConnected)setup.home.appendChild(setup.card);
     byId('securityPreWorkspaceGate')?.remove();document.body.classList.remove('security-setup-required');
     setup?.resolve(Boolean(result));

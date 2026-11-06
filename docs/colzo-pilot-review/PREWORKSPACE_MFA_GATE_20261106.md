@@ -17,3 +17,9 @@ The existing verified-factor challenge remains available at pre-workspace gates.
 Two regression tests first failed on the old implementation. Three behavioral regressions now pass for reachable account-only setup, AAL2-only continuation/cancel, and sign-out cleanup, with zero tenant API requests. Existing navigation/security transport/UI focused checks passed. Full verification and exact-source CI results are recorded in PR comments after completion.
 
 Source correction requires a separately approved protected Development Preview deployment. Current runtime remains unchanged. After deployment, verify genuine enrollment, AAL2 and authorised DPA acceptance using actual QA sessions; do not infer live acceptance from tests. Retain the earlier Preview as containment; no SQL, grants, Auth routing, Production settings, public signup or strict-replay activation changes are part of this fix. Pilot remains NO-GO.
+
+## Live deployment correction
+
+Owner-authorised candidate a775d339 deployed READY as dpl_7jDhAHTNYtAGzmyKJbjsknWu3v1L at https://business-9no614jrb-buisness-ai1.vercel.app/ . Real QA password authentication reached the DPA gate, and authorised acceptance triggered the expected MFA requirement. Live UI then exposed a defect: colzoApp is the body itself, so setting its inert property also disables its appended modal. No DPA acceptance/MFA success is claimed.
+
+Regression fixture now matches the actual body ID and first failed with body inert=true. Correction makes only the modal’s sibling background elements inert, preserving each prior state for restoration. Body and modal remain interactive. Focused navigation/setup tests pass; full verification and CI are recorded in PR comments. A new exact-source deployment approval is required for this correction. The a775 candidate must not be treated as accepted.
