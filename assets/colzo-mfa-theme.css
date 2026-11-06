@@ -481,3 +481,9 @@ body.colzo-interface #configurationOnboardingScreen .wizard-review article {
     transition:none!important;
   }
 }
+
+/* Account-only enrollment before protected workspace actions. */
+body.colzo-interface #securityPreWorkspaceGate{background:rgba(4,8,11,.95);padding:max(18px,env(safe-area-inset-top)) 17px max(18px,env(safe-area-inset-bottom))}
+body.colzo-interface #securityPreWorkspaceGate .security-mfa-dialog{width:min(100%,520px);max-height:calc(100dvh - 42px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;background:#171e23;color:#f5f7fa;border-color:#4e5f3e}
+body.colzo-interface #securityPreWorkspaceGate input{box-sizing:border-box;max-width:100%;color:#f5f7fa;background:#242c32}
+body.colzo-interface #securityPreWorkspaceGate .primary-action{background:#c8ff2e;color:#102000}
