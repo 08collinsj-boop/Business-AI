@@ -1,0 +1,1191 @@
+{
+  "format_version": 1,
+  "environment": "Development",
+  "project_ref": "mvwseobgkexzpmmkgcxe",
+  "captured_date": "2026-11-06",
+  "metadata_only": true,
+  "query_scope": "recursive inbound FK dependencies from businesses and all public business_id tables; not triggers, Auth/Storage or providers",
+  "metadata_sha256": "3f4f008cbb1fffa2c1227175681b0fb946560448fb5b3eb1f32f5e9a0413bd80",
+  "metadata": {
+    "foreign_keys": [
+      {
+        "child": "colzo_pilot_private.audit",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "audit_business_id_fkey",
+        "on_delete": "a",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "colzo_pilot_private.invitations",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "invitations_business_id_fkey",
+        "on_delete": "a",
+        "parent": "public.colzo_pilot_access",
+        "parent_columns": [
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.actions",
+        "child_columns": [
+          "booking_id",
+          "business_id"
+        ],
+        "name": "actions_booking_business_fkey",
+        "on_delete": "r",
+        "parent": "public.bookings",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.actions",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "actions_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.actions",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "actions_lead_business_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.bookings",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "bookings_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.bookings",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "bookings_lead_business_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.business_audit_events",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_audit_events_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_billing_accounts",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_billing_accounts_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_billing_usage",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_billing_usage_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_configurations",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_configurations_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_data_lifecycle_policies",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_data_lifecycle_policies_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_feature_entitlements",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_feature_entitlements_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_incident_controls",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_incident_controls_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_knowledge_items",
+        "child_columns": [
+          "source_id",
+          "business_id"
+        ],
+        "name": "business_knowledge_items_source_business_fkey",
+        "on_delete": "c",
+        "parent": "public.business_knowledge_sources",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.business_knowledge_sources",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_knowledge_sources_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_knowledge_sources",
+        "child_columns": [
+          "replaces_source_id"
+        ],
+        "name": "business_knowledge_sources_replaces_source_id_fkey",
+        "on_delete": "n",
+        "parent": "public.business_knowledge_sources",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_legal_acceptances",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_legal_acceptances_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_memberships",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_memberships_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_public_routes",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_public_routes_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_referral_profiles",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_referral_profiles_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_referral_rewards",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_referral_rewards_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_referrals",
+        "child_columns": [
+          "referred_business_id"
+        ],
+        "name": "business_referrals_referred_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_referrals",
+        "child_columns": [
+          "referrer_business_id"
+        ],
+        "name": "business_referrals_referrer_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_settings",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_settings_business_id_fkey",
+        "on_delete": "a",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.business_team_invitations",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "business_team_invitations_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.colzo_clients",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "colzo_clients_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.colzo_pilot_access",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "colzo_pilot_access_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.colzo_projects",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "colzo_projects_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.colzo_projects",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "colzo_projects_lead_tenant_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.colzo_quotes",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "colzo_quotes_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.colzo_quotes",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "colzo_quotes_lead_tenant_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.colzo_whatsapp_demo_threads",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "colzo_whatsapp_demo_threads_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.customer_complaints",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "customer_complaints_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.customer_complaints",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "customer_complaints_lead_tenant_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.customer_enquiry_access",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "customer_enquiry_access_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.customer_enquiry_access",
+        "child_columns": [
+          "lead_id"
+        ],
+        "name": "customer_enquiry_access_lead_id_fkey",
+        "on_delete": "c",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.lead_handovers",
+        "child_columns": [
+          "action_id",
+          "business_id"
+        ],
+        "name": "lead_handovers_action_business_fkey",
+        "on_delete": "r",
+        "parent": "public.actions",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.lead_handovers",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "lead_handovers_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.lead_handovers",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "lead_handovers_lead_business_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.lead_history",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "lead_history_business_id_fkey",
+        "on_delete": "a",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.lead_history",
+        "child_columns": [
+          "lead_id"
+        ],
+        "name": "lead_history_lead_id_fkey",
+        "on_delete": "a",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.leads",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "leads_business_id_fkey",
+        "on_delete": "a",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_automation_media",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_automation_media_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_automation_settings",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_automation_settings_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_generations",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_generations_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_image_usage_events",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_image_usage_events_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_image_usage_events",
+        "child_columns": [
+          "generation_id",
+          "business_id"
+        ],
+        "name": "marketing_image_usage_generation_business_fkey",
+        "on_delete": "c",
+        "parent": "public.marketing_generations",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_images",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_images_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_images",
+        "child_columns": [
+          "generation_id",
+          "business_id"
+        ],
+        "name": "marketing_images_generation_business_fkey",
+        "on_delete": "c",
+        "parent": "public.marketing_generations",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_meta_connections",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_meta_connections_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_meta_oauth_states",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_meta_oauth_states_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_publications",
+        "child_columns": [
+          "social_account_id",
+          "business_id"
+        ],
+        "name": "marketing_publications_account_business_fkey",
+        "on_delete": "r",
+        "parent": "public.marketing_social_accounts",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_publications",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_publications_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_publications",
+        "child_columns": [
+          "generation_id",
+          "business_id"
+        ],
+        "name": "marketing_publications_generation_business_fkey",
+        "on_delete": "c",
+        "parent": "public.marketing_generations",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_schedules",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_schedules_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_schedules",
+        "child_columns": [
+          "marketing_generation_id",
+          "business_id"
+        ],
+        "name": "marketing_schedules_generation_business_fkey",
+        "on_delete": "c",
+        "parent": "public.marketing_generations",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_schedules",
+        "child_columns": [
+          "publication_id",
+          "business_id"
+        ],
+        "name": "marketing_schedules_publication_business_fkey",
+        "on_delete": "n",
+        "parent": "public.marketing_publications",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_social_accounts",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_social_accounts_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.marketing_social_accounts",
+        "child_columns": [
+          "connection_id",
+          "business_id"
+        ],
+        "name": "marketing_social_accounts_connection_business_fkey",
+        "on_delete": "c",
+        "parent": "public.marketing_meta_connections",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.marketing_strategy_settings",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "marketing_strategy_settings_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.pilot_feedback",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "pilot_feedback_business_id_fkey",
+        "on_delete": "c",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.public_enquiry_rate_limit_buckets",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "public_enquiry_rate_limit_buckets_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.review_email_outbox",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "review_email_outbox_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.review_email_outbox",
+        "child_columns": [
+          "booking_id",
+          "business_id"
+        ],
+        "name": "review_email_outbox_tenant_booking_fk",
+        "on_delete": "r",
+        "parent": "public.bookings",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.stripe_webhook_events",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "stripe_webhook_events_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.voice_call_events",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "voice_call_events_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.voice_call_events",
+        "child_columns": [
+          "call_id",
+          "business_id"
+        ],
+        "name": "voice_call_events_call_business_fkey",
+        "on_delete": "r",
+        "parent": "public.voice_calls",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_calls",
+        "child_columns": [
+          "action_id",
+          "business_id"
+        ],
+        "name": "voice_calls_action_business_fkey",
+        "on_delete": "r",
+        "parent": "public.actions",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_calls",
+        "child_columns": [
+          "booking_id",
+          "business_id"
+        ],
+        "name": "voice_calls_booking_business_fkey",
+        "on_delete": "r",
+        "parent": "public.bookings",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_calls",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "voice_calls_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.voice_calls",
+        "child_columns": [
+          "provider_connection_id",
+          "business_id"
+        ],
+        "name": "voice_calls_connection_business_fkey",
+        "on_delete": "r",
+        "parent": "public.voice_provider_connections",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_calls",
+        "child_columns": [
+          "lead_id",
+          "business_id"
+        ],
+        "name": "voice_calls_lead_business_fkey",
+        "on_delete": "r",
+        "parent": "public.leads",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_calls",
+        "child_columns": [
+          "phone_number_id",
+          "business_id"
+        ],
+        "name": "voice_calls_phone_number_business_fkey",
+        "on_delete": "r",
+        "parent": "public.voice_phone_numbers",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_phone_numbers",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "voice_phone_numbers_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      },
+      {
+        "child": "public.voice_phone_numbers",
+        "child_columns": [
+          "provider_connection_id",
+          "business_id"
+        ],
+        "name": "voice_phone_numbers_connection_business_fkey",
+        "on_delete": "r",
+        "parent": "public.voice_provider_connections",
+        "parent_columns": [
+          "id",
+          "business_id"
+        ]
+      },
+      {
+        "child": "public.voice_provider_connections",
+        "child_columns": [
+          "business_id"
+        ],
+        "name": "voice_provider_connections_business_id_fkey",
+        "on_delete": "r",
+        "parent": "public.businesses",
+        "parent_columns": [
+          "id"
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "business_id": true,
+        "name": "colzo_pilot_private.audit"
+      },
+      {
+        "business_id": true,
+        "name": "colzo_pilot_private.invitations"
+      },
+      {
+        "business_id": true,
+        "name": "public.actions"
+      },
+      {
+        "business_id": true,
+        "name": "public.bookings"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_audit_events"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_billing_accounts"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_billing_usage"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_configurations"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_data_lifecycle_policies"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_feature_entitlements"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_incident_controls"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_knowledge_items"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_knowledge_sources"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_legal_acceptances"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_memberships"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_public_routes"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_referral_profiles"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_referral_rewards"
+      },
+      {
+        "business_id": false,
+        "name": "public.business_referrals"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_settings"
+      },
+      {
+        "business_id": true,
+        "name": "public.business_team_invitations"
+      },
+      {
+        "business_id": false,
+        "name": "public.businesses"
+      },
+      {
+        "business_id": true,
+        "name": "public.colzo_clients"
+      },
+      {
+        "business_id": true,
+        "name": "public.colzo_pilot_access"
+      },
+      {
+        "business_id": true,
+        "name": "public.colzo_projects"
+      },
+      {
+        "business_id": true,
+        "name": "public.colzo_quotes"
+      },
+      {
+        "business_id": true,
+        "name": "public.colzo_whatsapp_demo_threads"
+      },
+      {
+        "business_id": true,
+        "name": "public.customer_complaints"
+      },
+      {
+        "business_id": true,
+        "name": "public.customer_enquiry_access"
+      },
+      {
+        "business_id": true,
+        "name": "public.lead_handovers"
+      },
+      {
+        "business_id": true,
+        "name": "public.lead_history"
+      },
+      {
+        "business_id": true,
+        "name": "public.leads"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_automation_media"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_automation_settings"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_generations"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_image_usage_events"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_images"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_meta_connections"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_meta_oauth_states"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_publications"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_schedules"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_social_accounts"
+      },
+      {
+        "business_id": true,
+        "name": "public.marketing_strategy_settings"
+      },
+      {
+        "business_id": true,
+        "name": "public.pilot_feedback"
+      },
+      {
+        "business_id": true,
+        "name": "public.public_enquiry_rate_limit_buckets"
+      },
+      {
+        "business_id": true,
+        "name": "public.review_email_outbox"
+      },
+      {
+        "business_id": true,
+        "name": "public.stripe_webhook_events"
+      },
+      {
+        "business_id": true,
+        "name": "public.voice_call_events"
+      },
+      {
+        "business_id": true,
+        "name": "public.voice_calls"
+      },
+      {
+        "business_id": true,
+        "name": "public.voice_phone_numbers"
+      },
+      {
+        "business_id": true,
+        "name": "public.voice_provider_connections"
+      }
+    ]
+  }
+}
