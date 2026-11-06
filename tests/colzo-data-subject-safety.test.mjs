@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -45,7 +46,7 @@ test('lead subject export rejects cross-tenant response rows and pilot erasure n
  const {default:handler}=await import('../lib/data-subjects-handler.js');
  const call=async(method='GET',leadId='1')=>{
   const res={statusCode:0,body:null,status(s){this.statusCode=s;return this},json(v){this.body=v;return this}};
-  await handler({method,headers:{authorization:'Bearer synthetic-qa-session'},
+  await handler({method,headers:{authorization:'Bearer '+syntheticAal2Token('synthetic-qa-session')},
    query:{lead_id:leadId},body:{lead_id:leadId}},res);return res;
  };
  const expectForeignFail=async(table,foreignRows)=>{

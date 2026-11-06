@@ -2283,9 +2283,12 @@ input.switch,input.switch:before{transition:none}
 
 <form id="passwordRecoveryForm" class="auth-card auth-form-hidden">
 <div class="auth-mark auth-mark-brand"><img src="/assets/icons/colzo-mark.svg" alt="" aria-hidden="true"></div><h2>Choose a new password</h2><p>Create a strong, unique password with at least 12 characters.</p>
+<p id="passwordRecoveryAccount" aria-live="polite"></p>
+<div id="passwordRecoveryMfa" hidden><p>Verify with your authenticator app before changing this account’s password.</p><div class="auth-field"><label for="passwordRecoveryCode">Authenticator code</label><input id="passwordRecoveryCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"></div><button id="passwordRecoveryVerifyMfa" class="btn" type="button">Verify code</button></div>
+<button id="passwordRecoveryCheckSecurity" class="auth-link" type="button" hidden>Retry security check</button>
 <div class="auth-field"><label for="recoveryPassword">New password</label><input id="recoveryPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
 <div class="auth-field"><label for="recoveryPasswordConfirm">Confirm new password</label><input id="recoveryPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
-<button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit">Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
+<button id="passwordRecoverySubmit" class="btn primary auth-submit" type="submit" disabled>Save new password</button><div id="passwordRecoveryMessage" class="auth-message" role="alert"></div>
 <p class="auth-switch cn-recovery-alt"><button id="passwordRecoveryRequestAgain" class="auth-link" type="button">Request a new reset link</button></p>
 </form>
 
@@ -2296,6 +2299,7 @@ input.switch,input.switch:before{transition:none}
 <p>After confirming your email, you will set up your secure Colzo workspace.</p>
 <p id="scopedPilotApprovalNotice" class="auth-switch" hidden>Colzo is preparing a limited pilot. Approved businesses receive 14 days from activation, with no payment card or automatic paid conversion. Creating a login does not grant business access. Request a demonstration at support@getbusiness-ai.com without sending customer data.</p>
 <p id="pilotFreeSignUpOffer" class="auth-switch" hidden><strong>Free Pilot:</strong> Starter and AI Marketing are included at no charge during testing. No subscription or payment details are required.</p>
+<p id="pilotFictionalOnlyDisclaimer" class="auth-switch" hidden><strong>Important:</strong> This trial is for fictional customer data only. Do not enter real customers' names, contact details, enquiries or files. Your own account email and security information are real and remain protected.</p>
 <div class="auth-field"><label for="signUpEmail">Business email</label><input id="signUpEmail" type="email" autocomplete="email" placeholder="you@yourbusiness.com" required></div>
 <div class="auth-field"><label for="signUpPassword">Password</label><input id="signUpPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><span style="color:var(--muted);font-size:11px">Use at least 12 characters and a strong, unique password.</span></div>
 <div class="auth-field"><label for="signUpPasswordConfirm">Confirm password</label><input id="signUpPasswordConfirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
@@ -2350,6 +2354,7 @@ input.switch,input.switch:before{transition:none}
 <div class="auth-field"><label for="newBusinessType">Business type</label><input id="newBusinessType" maxlength="120" placeholder="e.g. Garage, salon, local service"></div>
 <div style="color:var(--muted);font-size:11px;line-height:1.45">Your customer enquiry link will be created automatically from your business name.</div>
 <div class="auth-field"><label for="newBusinessReferralCode">Referral code <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input id="newBusinessReferralCode" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="Enter referral code"><span style="color:var(--muted);font-size:11px">If another business referred you, add their code before creating your workspace.</span></div>
+<label id="pilotFictionalOnlyConsentRow" class="legal-consent-row" hidden><input id="pilotFictionalOnlyConsent" type="checkbox"><span>I understand this 14-day pilot is for fictional customer data only. I will not enter real customer names, contacts, enquiries, bookings or files.</span></label>
 <button id="businessSetupSubmit" class="btn primary auth-submit" type="submit">Create my business</button>
 <div id="businessSetupMessage" class="auth-message" role="alert"></div>
 </form>
@@ -2505,6 +2510,7 @@ input.switch,input.switch:before{transition:none}
 </article>
 <section class="public-profile-section" id="publicProfileAboutSection"><span class="public-profile-kicker">About</span><h2>About this business</h2><p id="publicProfileDescription">Business information will appear here.</p></section>
 <section class="public-profile-section" id="publicProfileServicesSection"><span class="public-profile-kicker">Services</span><h2>What they offer</h2><p id="publicProfileServices">Services will appear here.</p></section>
+<p id="publicFictionalProfileNotice" hidden><strong>Fictional-data-only pilot:</strong> Test with made-up enquiries and customer details only.</p>
 <button id="publicProfileEnquiryButton" class="public-profile-enquiry-cta" type="button">Send an enquiry</button>
 <footer class="public-profile-footer"><a href="/customer">Find another business</a><a href="/legal/privacy.html#customer-enquiries" target="_blank" rel="noopener">Privacy</a></footer>
 <div id="publicProfileStatus" class="public-customer-error" role="alert"></div>
@@ -2554,6 +2560,7 @@ input.switch,input.switch:before{transition:none}
 </div>
 <span id="publicAssistantStatus" class="public-online-pill"><i aria-hidden="true"></i><b>Online</b></span>
 </div>
+<div id="publicFictionalOnlyNotice" hidden style="padding:12px;line-height:1.6;font-size:13px"><strong>Fictional-data-only pilot.</strong> Use made-up customer names, contact details and enquiries. Do not send information about real customers.<label style="display:block;margin-top:8px"><input id="publicFictionalOnlyConsent" type="checkbox"> I confirm this conversation contains fictional test data only.</label></div>
 <div id="publicMessages" class="public-messages"></div>
 <div id="publicTyping" class="public-typing" role="status" aria-live="polite"><i aria-hidden="true"></i>Assistant is preparing a response…</div>
 <form id="publicEnquiryForm" class="public-chat-form">
@@ -2580,7 +2587,7 @@ input.switch,input.switch:before{transition:none}
 <div class="owner-tools"><span class="status-dot" title="System online"></span><span class="owner-avatar" aria-hidden="true">AI</span><button id="logoutButton" class="logout-btn" type="button" aria-label="Log out"><span class="logout-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M10 5H6.8A1.8 1.8 0 0 0 5 6.8v10.4A1.8 1.8 0 0 0 6.8 19H10M14.5 8.5 18 12l-3.5 3.5M18 12H9"></path></svg></span><span class="logout-label">Log out</span></button></div>
 
 </header>
-
+<div id="fictionalOnlyWorkspaceBanner" hidden role="status" style="padding:11px 16px;border-bottom:1px solid var(--border);background:var(--surface);font-size:12px;line-height:1.6"><strong>Fictional-data-only pilot:</strong> Do not enter real customer names, contact details, enquiries, bookings or documents. Use made-up examples throughout this trial.</div>
 
 <section
 id="dashboardView"
@@ -3551,6 +3558,7 @@ Save business settings
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg>
     </button>
   </header>
+  <p data-fictional-only-notice hidden role="status" style="margin:0;padding:12px 20px;border-bottom:1px solid var(--cn-border);color:var(--cn-white);font-size:12px;line-height:1.6"><strong>Fictional-data-only pilot:</strong> Use made-up customers, enquiries, bookings, notes and files. Do not enter real customer details. Your account and security information remain real personal data.</p>
   <div id="cnContent" class="cn-content" aria-label="Colzo workspace"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
   <div id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="cn-nav" aria-label="Colzo primary navigation">
@@ -3630,6 +3638,17 @@ const pendingReferralCode=()=>{const fromUrl=referralCodeFromLocation();if(fromU
 const rememberReferralCode=value=>{const code=normaliseReferralInput(value);try{if(code)localStorage.setItem(REFERRAL_STORAGE_KEY,code);else localStorage.removeItem(REFERRAL_STORAGE_KEY);}catch{}return code;};
 const prefillReferralInputs=()=>{const code=pendingReferralCode();['signUpReferralCode','newBusinessReferralCode'].forEach(id=>{const input=$(id);if(input&&code&&!input.value)input.value=code;});return code;};
 const clearPendingReferralCode=()=>{rememberReferralCode(null);try{const url=new URL(window.location.href);url.searchParams.delete('ref');history.replaceState({},'',url.pathname+url.search+url.hash);}catch{}};
+function applySelfServiceReferralPolicy(enabled){
+ window.colzoPilotSelfService=enabled===true;
+ for(const id of ['signUpReferralCode','newBusinessReferralCode']){
+  const input=$(id);
+  if(!input)continue;
+  const wrapper=input.closest('.auth-field');
+  if(wrapper)wrapper.hidden=enabled===true;
+  if(enabled)input.value='';
+ }
+ if(enabled)clearPendingReferralCode();
+}
 const PASSWORD_RECOVERY_STORAGE_KEY='business-ai-password-recovery-requested-v1';
 const PASSWORD_RESET_REQUEST_COOLDOWN_MS=60000;
 const passwordPolicyIssue=password=>{
@@ -3689,6 +3708,8 @@ $('loginForm').classList.toggle('auth-form-hidden',authenticationMode!=='login')
 $('signUpForm').classList.toggle('auth-form-hidden',authenticationMode!=='signup');
 $('passwordResetRequestForm').classList.toggle('auth-form-hidden',authenticationMode!=='reset-request');
 $('passwordRecoveryForm').classList.toggle('auth-form-hidden',authenticationMode!=='recovery');
+if(authenticationMode==='recovery')void preparePasswordRecoveryMfa();
+else{passwordRecoveryMfaReady=false;passwordRecoveryCheckVersion++;$('passwordRecoveryCode').value='';}
 if(message){
 const target=authenticationMode==='signup'?$('signUpMessage'):authenticationMode==='reset-request'?$('passwordResetRequestMessage'):authenticationMode==='recovery'?$('passwordRecoveryMessage'):$('loginMessage');
 target.textContent=message;
@@ -3962,17 +3983,42 @@ if(!response.ok)throw new Error('Authentication is temporarily unavailable.');
 const config=await response.json();
 const pilotFree=Boolean(config?.pilotFreeAccess);
 const approvalOnly=config?.pilotAccess?.approvalRequired===true;
+const selfService=config?.pilotAccess?.selfService===true && !approvalOnly;
 window.colzoPilotApprovalRequired=approvalOnly;
+applySelfServiceReferralPolicy(selfService);
+const fictionalOnly=config?.pilotAccess?.fictionalDataOnly===true;
+const pilotDisclaimer=$('pilotFictionalOnlyDisclaimer');
+if(pilotDisclaimer)pilotDisclaimer.hidden=!fictionalOnly;
+const fictionalConsentRow=$('pilotFictionalOnlyConsentRow');
+if(fictionalConsentRow)fictionalConsentRow.hidden=!(fictionalOnly&&selfService);
+const fictionalConsent=$('pilotFictionalOnlyConsent');
+if(fictionalConsent){fictionalConsent.required=fictionalOnly&&selfService;if(!fictionalOnly||!selfService)fictionalConsent.checked=false;}
+const fictionalBanner=$('fictionalOnlyWorkspaceBanner');
+if(fictionalBanner)fictionalBanner.hidden=!fictionalOnly;
+for(const notice of document.querySelectorAll('[data-fictional-only-notice]'))notice.hidden=!fictionalOnly;
 const approvalNotice=$('scopedPilotApprovalNotice');
 if(approvalNotice)approvalNotice.hidden=!approvalOnly;
 if(approvalOnly){
  const setupDescription=$('signUpForm')?.querySelector('h2+p');
  if(setupDescription)setupDescription.textContent='Business access requires approval. Existing users can continue to sign in.';
 }
+if(selfService){
+ const setupDescription=$('signUpForm')?.querySelector('h2+p');
+ if(setupDescription)setupDescription.textContent='Create your account and set up your free 14-day Colzo pilot. No application or payment card required.';
+}
 const pilotOffer=$('pilotFreeSignUpOffer');
-if(pilotOffer){pilotOffer.hidden=!pilotFree;pilotOffer.style.display=pilotFree?'':'none';}
+if(pilotOffer){
+ pilotOffer.hidden=!pilotFree;
+ pilotOffer.style.display=pilotFree?'':'none';
+ if(selfService){
+  pilotOffer.hidden=false;
+  pilotOffer.style.display='';
+  pilotOffer.textContent='Free 14-day Colzo pilot: enquiries, bookings, approved Knowledge and manual Marketing drafts. No card or automatic paid conversion.';
+ }
+}
 const onboardingPilotHint=$('onboardingPilotHint');
 if(onboardingPilotHint&&approvalOnly)onboardingPilotHint.textContent='Pilot business setup requires approval. Your 14 days start at activation. No card is required and access does not convert automatically to a paid subscription.';
+if(onboardingPilotHint&&selfService)onboardingPilotHint.textContent='Your free 14-day pilot starts when this workspace is created. No manual approval, card or automatic paid conversion.';
 if(onboardingPilotHint&&pilotFree)onboardingPilotHint.textContent='Free Pilot access includes Starter and AI Marketing at no charge. No plan, paid trial or checkout is required during testing.';
 document.documentElement.classList.toggle('pilot-free-access',pilotFree);
 if(!config?.frontendAuthEnabled){setAuthView('auth-ready');return false;}
@@ -4063,11 +4109,65 @@ setAuthenticationMode('reset-request');
 }finally{button.disabled=false;}
 });
 
+let passwordRecoveryMfaReady=false;
+let passwordRecoveryFactorId=null;
+let passwordRecoveryCheckVersion=0;
+function passwordRecoveryFailure(error){
+const code=String(error?.code||'');
+if(code==='insufficient_aal')return 'Verify your authenticator code before saving your new password.';
+if(code==='same_password')return 'Choose a password different from your current password.';
+if(code==='weak_password')return 'Choose a stronger password with at least 12 characters, uppercase and lowercase letters, a number and a symbol.';
+if(['session_not_found','session_expired','refresh_token_not_found','refresh_token_already_used'].includes(code)||error?.name==='AuthSessionMissingError')return 'Your recovery session is no longer available. Request a new reset link.';
+return 'We could not save your password. Retry the security check, then try again. If this continues, contact support without sending passwords or codes.';
+}
+async function preparePasswordRecoveryMfa(){
+const version=++passwordRecoveryCheckVersion;passwordRecoveryMfaReady=false;passwordRecoveryFactorId=null;
+$('passwordRecoveryAccount').textContent='';$('passwordRecoverySubmit').disabled=true;$('passwordRecoveryMfa').hidden=true;$('passwordRecoveryCode').value='';$('passwordRecoveryCheckSecurity').hidden=true;
+const message=$('passwordRecoveryMessage');
+try{
+if(!supabaseClient)throw new Error('unavailable');
+const sessionResult=await supabaseClient.auth.getSession();if(version!==passwordRecoveryCheckVersion)return;
+if(sessionResult.error)throw sessionResult.error;
+const session=sessionResult.data?.session;
+$('passwordRecoveryAccount').textContent=session?.user?.email?'Resetting password for '+session.user.email:'';
+if(!session){message.textContent='Your recovery session is no longer available. Request a new reset link.';return;}
+const assurance=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();if(version!==passwordRecoveryCheckVersion)return;
+if(assurance.error)throw assurance.error;
+const {currentLevel,nextLevel}=assurance.data||{};
+if(currentLevel==='aal2'||(currentLevel==='aal1'&&nextLevel==='aal1')){passwordRecoveryMfaReady=true;$('passwordRecoverySubmit').disabled=false;message.textContent='Security check complete. You can save your new password.';return;}
+if(currentLevel!=='aal1'||nextLevel!=='aal2')throw new Error('unavailable');
+const factors=await supabaseClient.auth.mfa.listFactors();if(version!==passwordRecoveryCheckVersion)return;
+if(factors.error)throw factors.error;
+const factor=factors.data?.totp?.find(item=>item.status==='verified'&&item.factor_type==='totp');
+if(!factor)throw new Error('unavailable');
+passwordRecoveryFactorId=factor.id;$('passwordRecoveryMfa').hidden=false;message.textContent='This account requires MFA. Verify your authenticator code to continue.';
+}catch{if(version!==passwordRecoveryCheckVersion)return;message.textContent='We could not verify this recovery session’s security. Retry the security check.';$('passwordRecoveryCheckSecurity').hidden=false;}
+}
+async function verifyPasswordRecoveryMfa(){
+const code=$('passwordRecoveryCode').value.trim();const message=$('passwordRecoveryMessage');
+if(!passwordRecoveryFactorId||!/^\d{6}$/.test(code)){message.textContent='Enter the six-digit code from your authenticator app.';return;}
+const version=passwordRecoveryCheckVersion;const button=$('passwordRecoveryVerifyMfa');button.disabled=true;
+try{
+const challenge=await supabaseClient.auth.mfa.challenge({factorId:passwordRecoveryFactorId});if(challenge.error)throw challenge.error;
+const verified=await supabaseClient.auth.mfa.verify({factorId:passwordRecoveryFactorId,challengeId:challenge.data.id,code});if(verified.error)throw verified.error;
+const assurance=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();if(assurance.error||assurance.data?.currentLevel!=='aal2')throw new Error('unavailable');
+if(version!==passwordRecoveryCheckVersion)return;
+passwordRecoveryMfaReady=true;$('passwordRecoverySubmit').disabled=false;$('passwordRecoveryMfa').hidden=true;message.textContent='MFA verified. You can now save your new password.';
+}catch{if(version===passwordRecoveryCheckVersion){passwordRecoveryMfaReady=false;$('passwordRecoverySubmit').disabled=true;message.textContent='We could not verify that code. Try a current authenticator code, or retry the security check.';$('passwordRecoveryCheckSecurity').hidden=false;}}
+finally{$('passwordRecoveryCode').value='';button.disabled=false;}
+}
+$('passwordRecoveryVerifyMfa').addEventListener('click',verifyPasswordRecoveryMfa);
+$('passwordRecoveryCheckSecurity').addEventListener('click',preparePasswordRecoveryMfa);
+$('passwordRecoveryCode').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();void verifyPasswordRecoveryMfa();}});
 $('passwordRecoveryForm').addEventListener('submit',async event=>{
 event.preventDefault();if(!supabaseClient)return;
+if(!passwordRecoveryMfaReady){await preparePasswordRecoveryMfa();return;}
 const password=$('recoveryPassword').value;const confirmation=$('recoveryPasswordConfirm').value;const message=$('passwordRecoveryMessage');const policyIssue=passwordPolicyIssue(password);if(policyIssue||password!==confirmation){message.textContent=password!==confirmation?'Passwords do not match.':policyIssue;return;}
 const button=$('passwordRecoverySubmit');button.disabled=true;message.classList.remove('info');message.textContent='Saving your new password…';
-try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;passwordRecoveryActive=false;clearPasswordRecoveryLocation();await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';}catch{message.textContent='We could not update your password. Please use a fresh reset link and try again.';}finally{button.disabled=false;}
+try{const {error}=await supabaseClient.auth.updateUser({password});if(error)throw error;passwordRecoveryActive=false;clearPasswordRecoveryLocation();await supabaseClient.auth.signOut();setAuthenticationMode('login','Password updated. Sign in with your new password.');$('recoveryPassword').value='';$('recoveryPasswordConfirm').value='';passwordRecoveryMfaReady=false;}catch(error){
+if(error?.code==='insufficient_aal'){await preparePasswordRecoveryMfa();passwordRecoveryMfaReady=false;$('passwordRecoverySubmit').disabled=true;$('passwordRecoveryCheckSecurity').hidden=false;message.textContent=passwordRecoveryFailure(error);}
+else{message.textContent=passwordRecoveryFailure(error);if(!['same_password','weak_password'].includes(error?.code)){passwordRecoveryMfaReady=false;$('passwordRecoveryCheckSecurity').hidden=false;}}
+}finally{button.disabled=!passwordRecoveryMfaReady;}
 });
 
 $('signUpForm').addEventListener('submit',async event=>{
@@ -4078,7 +4178,7 @@ const email=$('signUpEmail').value.trim();
 const password=$('signUpPassword').value;
 const confirmation=$('signUpPasswordConfirm').value;
 const button=$('signUpSubmit');const message=$('signUpMessage');
-const referralRaw=$('signUpReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
+const referralRaw=window.colzoPilotSelfService?'':$('signUpReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
 message.classList.remove('info');
 const policyIssue=passwordPolicyIssue(password);
 if(policyIssue||password!==confirmation){
@@ -4184,6 +4284,7 @@ const publicEnquiryMessages=[];
 let publicEnquiryContinuation=null;
 let publicEnquirySession=null;
 let publicAssistantAvailable=false;
+let publicFictionalDataOnly=false;
 const setPublicDetail=(id,label,value)=>{
 const node=$(id);if(!node)return;
 const text=typeof value==='string'?value.trim():'';
@@ -4199,11 +4300,18 @@ const input=$('publicChatInput');const submit=$('publicEnquiryForm')?.querySelec
 if(input)input.disabled=!available;if(submit)submit.disabled=!available;
 if(status){status.classList.toggle('is-unavailable',!available);const label=status.querySelector('b');if(label)label.textContent=available?'Online':'Unavailable';}
 };
+function applyPublicFictionalPolicy(enabled){
+publicFictionalDataOnly=enabled===true;
+const notice=$('publicFictionalOnlyNotice'),profile=$('publicFictionalProfileNotice'),consent=$('publicFictionalOnlyConsent');
+if(notice)notice.hidden=!publicFictionalDataOnly;
+if(profile)profile.hidden=!publicFictionalDataOnly;
+if(consent){consent.required=publicFictionalDataOnly;consent.checked=false;}
+}
 function setPublicProfileImage(target,url,fallbackInitial='B'){
 if(!target)return;if(url){target.innerHTML='<img src="'+esc(url)+'" alt="">';return;}if(target.id==='publicProfileAvatar')target.innerHTML='<span>'+esc(fallbackInitial)+'</span>';else target.replaceChildren();
 }
 async function loadPublicBusinessProfile(slug){
-const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
+const status=$('publicProfileStatus');try{const url=new URL('/api/public-business',window.location.origin);url.searchParams.set('business',slug);const response=await window.colzoBackendFetch(url.pathname+url.search,{headers:{Accept:'application/json'}});const result=await response.json().catch(()=>null);if(!response.ok||!result?.business)throw new Error('Business profile is unavailable.');const business=result.business;applyPublicFictionalPolicy(business.fictional_data_only===true);const name=String(business.name||'Business').trim()||'Business';$('publicProfileName').textContent=name;$('publicProfileMeta').textContent=[business.type,business.service_areas].filter(Boolean).join(' · ')||'Business profile';$('publicProfileHours').textContent=business.opening_hours||'Opening times not provided';$('publicProfileDescription').textContent=business.description||'This business has not added an About section yet.';$('publicProfileServices').textContent=business.services||'This business has not listed its services yet.';const initial=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'B';setPublicProfileImage($('publicProfileAvatar'),business.profile_image_url,initial);const banner=$('publicProfileBanner');if(business.profile_banner_url){banner.style.backgroundImage='linear-gradient(180deg,rgba(2,10,18,.08),rgba(2,10,18,.42)),url("'+String(business.profile_banner_url).replace(/["\\]/g,'')+'")';banner.classList.add('has-image');}else{banner.style.backgroundImage='';banner.classList.remove('has-image');}const call=$('publicProfileCall');const dial=normalisePublicDialNumber(business.phone);call.hidden=!dial;if(dial)call.href='tel:'+dial;const message=$('publicProfileMessage');message.href=publicEnquiryUrl(slug,'directory');const website=$('publicProfileWebsite');let safeWebsite='';try{const parsed=new URL(String(business.website||''));if(['https:','http:'].includes(parsed.protocol))safeWebsite=parsed.toString();}catch{}website.hidden=!safeWebsite;if(safeWebsite)website.href=safeWebsite;$('publicProfileEnquiryButton').onclick=()=>{window.location.href=publicEnquiryUrl(slug,'directory');};status.textContent='';}catch(error){status.textContent=error.message||'Business profile is unavailable.';}}
 
 async function loadPublicBusinessIdentity(){
 if(!publicEnquirySlug)return;
@@ -4212,7 +4320,7 @@ const url=new URL('/api/public-business',window.location.origin);url.searchParam
 const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{headers:{Accept:'application/json'}});
 const result=await response.json().catch(()=>null);
 if(!response.ok||!result?.business)throw new Error('Business not available');
-const business=result.business;
+const business=result.business;applyPublicFictionalPolicy(business.fictional_data_only===true);
 const name=typeof business.name==='string'&&business.name.trim()?business.name.trim():'Business enquiry';
 $('publicBusinessMark').textContent=publicInitials(name);$('publicBusinessName').textContent=name;
 $('publicBusinessType').textContent=business.type||'Customer enquiries';
@@ -4271,8 +4379,9 @@ const list=$('publicMessages');if(!list)return;const message=document.createElem
 }
 async function sendPublicEnquiry(event){
 event.preventDefault();const input=$('publicChatInput');const submit=event.currentTarget.querySelector('button');const message=input.value.trim();if(!message||!publicEnquirySlug||input.disabled)return;
+if(publicFictionalDataOnly&&!$('publicFictionalOnlyConsent')?.checked){$('publicEnquiryMessage').textContent='Confirm that this conversation uses fictional test data only.';return;}
 input.value='';input.disabled=true;submit.disabled=true;addPublicEnquiryMessage('user',message);publicEnquiryMessages.push({role:'user',content:message});
-try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation()})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
+try{$('publicTyping').classList.add('visible');const url=new URL('/api/enquiry',window.location.origin);url.searchParams.set('business',publicEnquirySlug);const customerHeaders=window.customerPortalAuthHeaders?await window.customerPortalAuthHeaders():{};const response=await window.colzoBackendFetch(`${url.pathname}${url.search}`,{method:'POST',headers:{'Content-Type':'application/json',...customerHeaders},body:JSON.stringify({message,messages:publicEnquiryMessages.slice(0,-1),continuation:publicEnquiryContinuation,session:publicEnquirySession,source:publicEnquirySourceFromLocation(),...(publicFictionalDataOnly?{fictional_data_only_acknowledged:$('publicFictionalOnlyConsent')?.checked===true}:{})})});const result=await response.json().catch(()=>null);if(!response.ok){const error=new Error(result?.error||'Unable to send enquiry');error.code=result?.code;throw error;}publicEnquiryContinuation=result?.continuation||publicEnquiryContinuation;publicEnquirySession=result?.session||publicEnquirySession;const reply=typeof result?.reply==='string'&&result.reply.trim()?result.reply.trim():'Thanks. Your enquiry has been received.';publicEnquiryMessages.push({role:'assistant',content:reply});addPublicEnquiryMessage('assistant',reply);if(result?.trackingAvailable&&$('publicCustomerAccountHint'))$('publicCustomerAccountHint').innerHTML='Enquiry saved to <a href="/customer/account">My enquiries</a>. You can return there to check its status.';}catch(error){const billingCodes=new Set(['AI_ENQUIRY_ALLOWANCE_REACHED','SUBSCRIPTION_REQUIRED','PAYMENT_REQUIRED','BILLING_CONFIGURATION_ERROR','BILLING_UNAVAILABLE']);const blocked=billingCodes.has(error?.code);if(blocked){publicAssistantAvailable=false;setPublicEnquiryAvailable(false);$('publicEnquiryMessage').textContent='The AI assistant is currently unavailable.';}const responseMessage=blocked?'This assistant is currently unavailable. Please contact the business directly.':'Sorry, we could not process that enquiry. Please try again shortly.';addPublicEnquiryMessage('assistant',responseMessage);}finally{$('publicTyping').classList.remove('visible');if(publicAssistantAvailable){input.disabled=false;submit.disabled=false;input.focus();}}
 }
 function setPublicQuickActions(open){
 const button=$('publicQuickActionsToggle');const body=$('publicQuickActionsBody');if(!button||!body)return;
@@ -4291,11 +4400,12 @@ loadPublicBusinessDirectory(query);
 $('businessSetupForm').addEventListener('submit',async event=>{
 event.preventDefault();
 const button=$('businessSetupSubmit');const message=$('businessSetupMessage');
-const referralRaw=$('newBusinessReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
+const referralRaw=window.colzoPilotSelfService?'':$('newBusinessReferralCode')?.value||'';const referralCode=referralRaw.trim()?normaliseReferralInput(referralRaw):null;
 if(referralRaw.trim()&&!referralCode){message.textContent='That referral code does not look right. Check it and try again.';return;}
+if(window.colzoPilotSelfService && !$('pilotFictionalOnlyConsent')?.checked){message.textContent='Confirm the pilot is for fictional customer data only.';return;}
 rememberReferralCode(referralCode);button.disabled=true;message.textContent='Creating your secure workspace…';
 try{
-const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,referral_code:referralCode})});
+const result=await api('/api/business-onboarding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:$('newBusinessName').value,business_type:$('newBusinessType').value,referral_code:referralCode,...(window.colzoPilotSelfService?{fictional_data_only_acknowledged:$('pilotFictionalOnlyConsent')?.checked===true}:{})})});
 message.textContent='Business created. Your public enquiry link is '+result.public_path+'.';clearPendingReferralCode();
 const onboarding=await api('/api/business-onboarding');
 applyBusinessContext(onboarding);
@@ -5491,7 +5601,10 @@ function renderTeam(){const list=$('teamList');if(!list||!teamState)return;const
 async function inviteTeamMember(){const status=$('teamStatus');status.textContent='Creating invitation…';try{const result=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('teamInviteEmail').value,role:$('teamInviteRole').value})});const link=new URL(result.accept_path,window.location.origin).toString();try{await navigator.clipboard?.writeText(link);}catch{}$('teamInviteEmail').value='';status.textContent='Invitation created. Secure acceptance link copied; share it with the intended person.';await loadPilotOperations();}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 async function revokeTeamInvitation(invitation_id){try{await api('/api/team',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitation_id,status:'revoked'})});await loadPilotOperations();toast('Invitation revoked');}catch(error){$('teamStatus').innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 function fillLifecycle(){if(!lifecyclePolicy)return;$('leadRetentionDays').value=lifecyclePolicy.lead_retention_days||365;$('auditRetentionDays').value=lifecyclePolicy.audit_retention_days||730;}
-async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)})});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
+async function saveLifecyclePolicy(){const status=$('lifecycleStatus');try{
+const body={lead_retention_days:Number($('leadRetentionDays').value),audit_retention_days:Number($('auditRetentionDays').value)};
+if(window.colzoRecordVersionsEnabled===true){if(!lifecyclePolicy?.updated_at)throw new Error('Reload the retention policy before saving.');body.expected_updated_at=lifecyclePolicy.updated_at;}
+lifecyclePolicy=await api('/api/data-lifecycle',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});fillLifecycle();status.textContent='Retention policy saved.';toast('Retention policy saved');}catch(error){status.innerHTML=`<div class="error">${esc(error.message)}</div>`;}}
 function pilotFeedbackVersion(){return document.querySelector('meta[name="app-version"]')?.content||'';}
 function renderPilotFeedbackList(items){const rows=Array.isArray(items)?items:[];pilotFeedbackItems=rows;renderPilotProgress();const list=$('pilotFeedbackList');if(!list)return;if(!rows.length){list.innerHTML='';return;}list.innerHTML=rows.slice(0,10).map(item=>`<article class="work-item"><div class="work-item-top"><div><h4>${esc(item.title||item.category||'Feedback')}</h4><div class="work-meta">${esc(item.category||'')} · ${esc(item.page||'')} · ${timeLabel(item.created_at)||'Recently sent'} · ${esc(item.status||'new')}</div></div><span class="tag">${esc(item.status||'new')}</span></div>${item.message?`<div class="work-meta">${esc(item.message.slice(0,280))}</div>`:''}</article>`).join('');}
 async function loadPilotFeedback(){const list=$('pilotFeedbackList');if(!list)return;try{const data=await api('/api/feedback');renderPilotFeedbackList(data?.feedback);}catch{renderPilotFeedbackList([]);}}

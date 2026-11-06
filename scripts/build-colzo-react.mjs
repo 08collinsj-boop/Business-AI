@@ -83,4 +83,13 @@ if (siteProject && isVercelBuild) {
   for (const path of ['index.html','marketing.html','widget.js','manifest.webmanifest','sw.js','assets','legal','site']) {
     await cp(path, 'public/' + path, { recursive: true });
   }
+  // Explicit, protected Development acceptance screen; never attach to Production.
+  if (process.env.VERCEL_ENV === 'preview'
+      && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-preview-self-serve-pilot-20261102'
+      && process.env.SUPABASE_URL === 'https://mvwseobgkexzpmmkgcxe.supabase.co'
+      && process.env.COLZO_SCOPED_PILOT_ACCESS === 'true') {
+    await cp('qa/colzo-mobile.html', 'public/colzo-qa-mobile.html');
+    const html = await readFile('public/index.html', 'utf8');
+    await writeFile('public/index.html', html.replace('</body>', '<script src="/assets/colzo-live-security-panel.js"></script><script src="/assets/colzo-session-replay-panel.js"></script></body>'));
+  }
 }

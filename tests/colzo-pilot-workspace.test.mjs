@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -93,7 +94,7 @@ test('two independent businesses retain tenant scope and one pilot expiry cannot
  let firstExpired=false;const recordReads=[];
  globalThis.fetch=async(url,opts={})=>{
   const href=String(url);
-  if(href.endsWith('/auth/v1/user'))return reply({id:opts.headers.Authorization==='Bearer account-a'?user:secondUser});
+  if(href.endsWith('/auth/v1/user'))return reply({id:opts.headers.Authorization==='Bearer '+syntheticAal2Token('account-a')?user:secondUser});
   if(href.includes('business_memberships'))return reply([{business_id:href.includes(secondUser)?b:a,role:'owner'}]);
   if(href.includes('colzo_pilot_access')){
    const business=href.includes(b)?b:a;
@@ -107,12 +108,12 @@ test('two independent businesses retain tenant scope and one pilot expiry cannot
   throw Error('Unexpected fixture request '+href);
  };
  for(const [bearer,business,foreign] of [['account-a',a,b],['account-b',b,a]]){
-  const out=res();await handler({method:'GET',headers:{authorization:'Bearer '+bearer},query:{resource:'clients',business_id:foreign}},out);
+  const out=res();await handler({method:'GET',headers:{authorization:'Bearer '+syntheticAal2Token(bearer)},query:{resource:'clients',business_id:foreign}},out);
   assert.equal(out.statusCode,200);assert.deepEqual(out.body.map(row=>row.business_id),[business]);
  }
  firstExpired=true;
  for(const [bearer,status] of [['account-a',403],['account-b',200]]){
-  const out=res();await handler({method:'GET',headers:{authorization:'Bearer '+bearer},query:{resource:'clients'}},out);
+  const out=res();await handler({method:'GET',headers:{authorization:'Bearer '+syntheticAal2Token(bearer)},query:{resource:'clients'}},out);
   assert.equal(out.statusCode,status);
  }
  assert.deepEqual(recordReads,[a,b,b]);

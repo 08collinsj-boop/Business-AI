@@ -48,7 +48,15 @@ def csv_cell(value):
     return s
 def serialize(payload, output):
     validate(payload)
-    output=Path(output);output.mkdir(parents=True,exist_ok=True)
+    output=Path(output).absolute()
+    if any(part.is_symlink() for part in (output,*output.parents)):
+        raise ValueError("symlink output or ancestor is not allowed")
+    if output.exists():
+        if not output.is_dir() or any(output.iterdir()): raise ValueError("output must be an empty private directory")
+        if output.stat().st_mode & 0o077: raise ValueError("output directory must be private")
+    else:
+        output.mkdir(parents=True,mode=0o700)
+        if output.stat().st_mode & 0o077: raise ValueError("output directory must be private")
     raw=(json.dumps(payload,ensure_ascii=False,sort_keys=True,indent=2)+"\n").encode()
     (output/"tenant.json").write_bytes(raw)
     manifest={"scope":"existing fictional QA only","business_id":BUSINESS,"files":[],

@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 const business='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', other='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', user='11111111-1111-4111-8111-111111111111', draft='33333333-3333-4333-8333-333333333333';
@@ -33,7 +34,7 @@ function stub({grant=active,role='owner',savedForeign=false,foreignRead=false}={
 async function run(method,payload,opts={}){
  configure();const calls=stub(opts);
  const handler=(await import('../lib/marketing-handler.js')).default,out=res();
- await handler({method,headers:{authorization:'Bearer synthetic-owner'},query:opts.query||{},body:payload},out);
+ await handler({method,headers:{authorization:'Bearer '+syntheticAal2Token('synthetic-owner')},query:opts.query||{},body:payload},out);
  return {out,calls};
 }
 test('active scoped pilot can view manual draft library but not paid provider features',async()=>{

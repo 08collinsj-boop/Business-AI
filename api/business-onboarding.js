@@ -6,6 +6,22 @@ import { recordAuditEvent } from "../lib/audit.js";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+// Keep this local because the legacy isolated tests import this module via a
+// data URL. Mirror the stricter central scoped-pilot guard, fail closed by default.
+function isScopedPilotSelfServeEnabled(env=process.env){
+ return env.COLZO_SELF_SERVE_PILOT_SIGNUP==='true'
+  && env.VERCEL_GIT_COMMIT_REF==='feature/colzo-preview-self-serve-pilot-20261102'
+  && env.COLZO_SCOPED_PILOT_ACCESS==='true'
+  && env.VERCEL_ENV==='preview'
+  && env.SUPABASE_URL==='https://mvwseobgkexzpmmkgcxe.supabase.co'
+  && env.PILOT_FREE_STARTER_MARKETING!=='true'
+  && env.TENANCY_AUTH_ENABLED==='true'
+  && env.FRONTEND_AUTH_ENABLED==='true'
+  && env.BILLING_ENABLED==='false'
+  && !env.OPENAI_API_KEY && !env.OPENROUTER_API_KEY
+  && isApprovedSupabaseTarget();
+}
+
 function endpoint(path) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Server unavailable");
   return `${SUPABASE_URL.replace(/\/+$/, "")}/rest/v1/${path}`;
@@ -18,7 +34,8 @@ async function request(path, options = {}) {
     const message = typeof data?.message === "string" ? data.message : "";
     const invalidReferral = /invalid referral code/i.test(message);
     const publicRouteConflict = /business or public route already exists/i.test(message);
-    const error = new Error(invalidReferral ? "Invalid referral code" : publicRouteConflict ? "Public route unavailable" : "Database request failed");
+    const atCapacity = /pilot signup capacity reached/i.test(message);
+    const error = new Error(atCapacity ? "pilot signup capacity reached" : invalidReferral ? "Invalid referral code" : publicRouteConflict ? "Public route unavailable" : "Database request failed");
     error.status = response.status;
     if (publicRouteConflict) error.code = "PUBLIC_ROUTE_CONFLICT";
     throw error;
@@ -29,7 +46,7 @@ function parseBody(value) { try { const body = typeof value === "string" ? JSON.
 function validate(body) {
   // public_slug remains accepted only so a stale cached signup page cannot break;
   // the server ignores it and always owns public route generation.
-  const allowed = new Set(["business_name", "business_type", "public_slug", "referral_code"]);
+  const allowed = new Set(["business_name", "business_type", "public_slug", "referral_code", "fictional_data_only_acknowledged"]);
   if (!body || Object.keys(body).some((key) => !allowed.has(key))) throw new Error("Invalid business details");
   const businessName = typeof body.business_name === "string" ? body.business_name.trim() : "";
   const businessType = typeof body.business_type === "string" ? body.business_type.trim() : "";
@@ -82,7 +99,8 @@ export default async function handler(req, res) {
   let auth;
   try { auth = await requireAuthenticatedUser(req); } catch (error) { return sendAuthError(res, error); }
   if (!auth.enforced) return res.status(503).json({ error: "Business onboarding is not enabled" });
-  if (process.env.COLZO_SCOPED_PILOT_ACCESS === "true" && req.method === "POST") return res.status(403).json({ error: "Pilot business setup requires operator approval", code: "PILOT_PROVISIONING_MANAGED" });
+  const selfService = isScopedPilotSelfServeEnabled();
+  if (process.env.COLZO_SCOPED_PILOT_ACCESS === "true" && req.method === "POST" && !selfService) return res.status(403).json({ error: "Pilot business setup requires operator approval", code: "PILOT_PROVISIONING_MANAGED" });
   res.setHeader("Cache-Control", "no-store");
   let stage = "memberships";
   try {
@@ -93,6 +111,9 @@ export default async function handler(req, res) {
       if (existing.length > 1 || (existing.length === 1 && (!existing[0]?.business_id || !["owner","admin","member"].includes(existing[0].role)))) {
         return res.status(403).json({ error: "No authorised business membership" });
       }
+      // A new verified owner can create a new isolated trial. Existing owners
+      // must still hold an active, unexpired database grant.
+      if (scoped && selfService && existing.length === 0) return res.status(200).json({ needs_business: true });
       if (scoped) {
         const { isScopedPilotEligibleTarget, scopedPilotEntitlement } = await import("../lib/colzo-scoped-pilot.js");
         if (!isScopedPilotEligibleTarget()) return res.status(503).json({ error: "Pilot status is unavailable" });
@@ -114,6 +135,16 @@ export default async function handler(req, res) {
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid business details" });
     const { businessName, businessType, referralCode } = validate(body);
+    // First-owner self-service access is fictional-customer-data ONLY.
+    // This is an affirmative scope acknowledgement, not a substitute for DPA acceptance.
+    if (selfService && body.fictional_data_only_acknowledged !== true) {
+      return res.status(400).json({ error: "Confirm the pilot is for fictional customer data only.", code: "FICTIONAL_DATA_ONLY_ACK_REQUIRED" });
+    }
+    if (!selfService && Object.hasOwn(body, "fictional_data_only_acknowledged")) {
+      return res.status(400).json({ error: "Invalid business details" });
+    }
+    // The atomic self-service RPC deliberately does not issue referral awards.
+    if (selfService && referralCode) return res.status(400).json({ error: "Referral codes are not available during the free pilot." });
     const baseSlug = slugBaseFromBusinessName(businessName);
     let created = null;
     let publicSlug = null;
@@ -121,9 +152,17 @@ export default async function handler(req, res) {
     for (let attempt = 1; attempt <= 50; attempt += 1) {
       const candidate = slugCandidate(baseSlug, attempt);
       try {
-        const result = await request("rpc/create_business_for_owner_with_referral", {
+        // Never create a business and grant in separate requests: the dedicated
+        // service-role RPC commits BOTH (and an immutable award) or neither.
+        const operation = selfService ? "create_colzo_self_serve_pilot_workspace" : "create_business_for_owner_with_referral";
+        const payload = {
+          p_owner_user_id: auth.userId, p_business_name: businessName,
+          p_business_type: businessType, p_public_slug: candidate,
+          ...(selfService ? { p_fictional_data_only_acknowledged: true } : { p_referral_code: referralCode })
+        };
+        const result = await request("rpc/" + operation, {
           method: "POST", headers: { Prefer: "return=representation" },
-          body: JSON.stringify({ p_owner_user_id: auth.userId, p_business_name: businessName, p_business_type: businessType, p_public_slug: candidate, p_referral_code: referralCode })
+          body: JSON.stringify(payload)
         });
         created = Array.isArray(result) ? result[0] : result;
         if (!created?.business_id || created.public_slug !== candidate) throw new Error("Database request failed");
@@ -135,13 +174,17 @@ export default async function handler(req, res) {
       }
     }
     if (!created?.business_id || !publicSlug) throw new Error("Database request failed");
-    stage = "audit-event";
-    await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
+    if (!selfService) {
+      stage = "audit-event";
+      await recordAuditEvent({ businessId: created.business_id, actorUserId: auth.userId, action: "business.created", resourceType: "business", resourceId: created.business_id, metadata: { public_slug: publicSlug } });
+    }
+    // Self-service uses its transactionally stored immutable award ledger.
     return res.status(201).json({ public_slug: publicSlug, public_path: `/customer?business=${encodeURIComponent(publicSlug)}` });
   } catch (error) {
     if (stage === "pilot-status") return res.status(503).json({ error: "Pilot status is unavailable" });
     if (/^Invalid referral code/.test(error?.message || "")) return res.status(400).json({ error: "Referral code is not valid" });
     if (/^Invalid business details/.test(error?.message || "")) return res.status(400).json({ error: "Invalid business details" });
+    if (selfService && error?.message?.includes("pilot signup capacity")) return res.status(429).json({ error: "Free pilot places are currently full." });
     if (error?.code === "PUBLIC_ROUTE_CONFLICT") return res.status(409).json({ error: "Could not create a unique customer link. Please try again." });
     if (error?.status === 409 || error?.status === 400) { console.error("Business onboarding database request failed", { status: error.status }); return res.status(500).json({ error: "Could not create the business. Please try again." }); }
     console.error("Business onboarding API error", { stage, status: Number.isInteger(error?.status) ? error.status : 0, name: String(error?.name || "Error").slice(0, 80) });

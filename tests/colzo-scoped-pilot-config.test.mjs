@@ -8,7 +8,7 @@ test('scoped mode advertises approval-only access without enabling the legacy al
  const res={setHeader(){},status(c){this.code=c;return this;},json(b){this.body=b;return this;}};
  handler({},res);
  assert.equal(res.body.pilotFreeAccess,false,'scoped approval must not advertise legacy Marketing entitlement');
- assert.deepEqual(res.body.pilotAccess,{approvalRequired:true,durationDays:14,cardRequired:false,automaticConversion:false});
+ assert.deepEqual(res.body.pilotAccess,{approvalRequired:true,fictionalDataOnly:true,durationDays:14,cardRequired:false,automaticConversion:false});
  assert.equal(res.body.frontendAuthEnabled,true,'existing sign-in remains available');
  }finally{for(const k of Object.keys(process.env))if(!(k in before))delete process.env[k];Object.assign(process.env,before);}
 });

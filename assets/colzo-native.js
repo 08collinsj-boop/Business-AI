@@ -43,7 +43,7 @@
   return `<section class="cf-home-head"><h1>${safe(greeting())}.</h1><p>Here's what's happening with<br>your business today.</p></section>
   <div class="cf-kpis" aria-label="Business overview">
     ${figmaStat('Enquiries',enquiries.length,'All recorded','▤')}
-    ${figmaStat('Bookings',bookings.length,'Existing appointments','▱')}
+    ${figmaStat('Bookings',bookings.length,'All recorded bookings','▱')}
     ${figmaStat('Open actions',pending,'Pending follow-ups','↗')}
   </div>
   ${figmaTrend(enquiries)}
@@ -51,7 +51,7 @@
     <button type="button" data-cn-create-lead><span class="cf-quick-icon primary">+</span><small>New enquiry</small></button>
     <button type="button" data-cn-screen="quotes"><span class="cf-quick-icon">▤</span><small>Draft quote</small></button>
     <button type="button" data-cn-screen="clients"><span class="cf-quick-icon">♧</span><small>View clients</small></button>
-    <button type="button" data-cn-insights><span class="cf-quick-icon">▥</span><small>View reports</small></button>
+    <button type="button" data-cn-screen="actions"><span class="cf-quick-icon">↗</span><small>Follow-ups</small></button>
   </div></section>
   <section class="cf-below-fold"><div class="cn-section-bar"><div><span class="cn-kicker">YOUR DAY</span><h2>Recent enquiries</h2></div><button data-cn-screen="enquiries" class="cn-text-action" type="button">View all ↗</button></div>
     <div class="cn-stack">${enquiries.length?enquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,3).map(leadRow).join(''):empty('No enquiries recorded yet.')}</div>
@@ -99,7 +99,7 @@
   const fields=editing
    ? '<label>Status<select name="status">'+['New','Contacted','Converted'].map(v=>'<option value="'+v+'" '+(String(current.status||'New').toLowerCase()===v.toLowerCase()?'selected':((v==='Contacted'&&String(current.status||'').toLowerCase()==='in progress')||(v==='Converted'&&String(current.status||'').toLowerCase()==='won')?'selected':''))+'>'+(v==='Contacted'?'In Progress':v==='Converted'?'Won':v)+'</option>').join('')+'</select></label><label>Estimated value (£)<input name="estimated_value" type="number" min="0" max="10000000" step="0.01" value="'+safe(current.estimated_value??0)+'"></label><label>Priority<select name="priority"><option value="Normal" '+(current.priority==='High'?'':'selected')+'>Normal</option><option value="High" '+(current.priority==='High'?'selected':'')+'>High</option></select></label><label>Follow-up date<input name="follow_up_date" type="date" value="'+safe(current.follow_up_date||'')+'"></label><label>Internal notes<textarea name="notes" rows="4" maxlength="5000">'+safe(current.notes||'')+'</textarea></label>'
    : '<label>Customer name<input name="name" maxlength="200" autocomplete="name" value="" placeholder="Customer or contact name"></label><label>Phone number<input name="phone" type="tel" maxlength="80" autocomplete="tel" placeholder="Phone number"></label><label>Email address<input name="email" type="email" maxlength="320" autocomplete="email" placeholder="name@example.com"></label><label>Location<input name="location" maxlength="300" placeholder="Town or service address"></label><label>Enquiry type<input name="job_type" maxlength="200" placeholder="e.g. Boiler service"></label><label>Estimated value (£)<input name="estimated_value" type="number" min="0" max="10000000" step="0.01" value="0"></label><label>Priority<select name="priority"><option value="Normal">Normal</option><option value="High">High</option></select></label><label>Message / work required<textarea name="description" rows="4" maxlength="5000" placeholder="What does the customer need?"></textarea></label>';
-  return '<div class="cf-screen-top">'+back+'</div><header class="cn-screen-heading"><span class="cn-kicker">ENQUIRIES</span><h1>'+heading+'</h1><p>'+(editing?'Update status, value, priority and internal follow-up notes.':'Add a real enquiry to your existing business records.')+'</p></header><section class="cn-detail-panel cn-colzo-record-form"><form id="cnLeadForm" data-mode="'+(editing?'edit':'create')+'" data-lead-id="'+safe(current?.id||'')+'">'+fields+'<p class="cn-caption" id="cnLeadFeedback" role="status">'+safe(state.leadFeedback||'')+'</p><div class="cn-form-actions"><button class="cn-primary" type="submit" '+(state.leadBusy?'disabled':'')+'>'+(state.leadBusy?'Saving…':editing?'Save enquiry changes':'Create enquiry')+'</button><button class="cn-secondary" type="button" data-cn-lead-cancel>Cancel</button></div></form></section>';
+  return '<div class="cf-screen-top">'+back+'</div><header class="cn-screen-heading"><span class="cn-kicker">ENQUIRIES</span><h1>'+heading+'</h1><p>'+(editing?'Update status, value, priority and internal follow-up notes.':'Add an enquiry to your business workspace. Use fictional customer details for the restricted pilot.')+'</p></header><section class="cn-detail-panel cn-colzo-record-form"><form id="cnLeadForm" data-mode="'+(editing?'edit':'create')+'" data-lead-id="'+safe(current?.id||'')+'">'+fields+'<p class="cn-caption" id="cnLeadFeedback" role="status">'+safe(state.leadFeedback||'')+'</p><div class="cn-form-actions"><button class="cn-primary" type="submit" '+(state.leadBusy?'disabled':'')+'>'+(state.leadBusy?'Saving…':editing?'Save enquiry changes':'Create enquiry')+'</button><button class="cn-secondary" type="button" data-cn-lead-cancel>Cancel</button></div></form></section>';
  }
  async function saveNativeLead(form){
   if(state.leadBusy)return;
@@ -1397,6 +1397,7 @@
    const items=workItems('bookings');
    const scheduled=records().bookings.filter(b=>b.starts_at).length;
    return `${workHeader('bookings','Your appointments, requests and confirmed work.')}
+     <p class="cn-caption" data-cn-booking-guide>Requested bookings are not confirmed appointments. Agree a suitable time separately before confirming a booking.</p>
      <div class="cn-work-stats"><article><span>Recorded bookings</span><strong>${records().bookings.length}</strong></article><article><span>With a date</span><strong>${scheduled}</strong></article></div>
      <div class="cn-work-month"><button type="button" data-cn-work-month="-1" aria-label="Previous month">‹</button><strong>${safe(new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric'}).format(new Date(state.workDate+'-01T12:00:00')))}</strong><button type="button" data-cn-work-month="1" aria-label="Next month">›</button></div>
      ${bookingMonth()}
@@ -1423,6 +1424,7 @@
    const pending=workCount('actions','Open');
    const urgent=records().actions.filter(a=>['high','urgent'].includes(a.priority)&&workIsCurrent(a,'actions','Open')).length;
    return `${workHeader('actions','Keep your follow-ups moving and stay organised.')}
+     <p class="cn-caption" data-cn-actions-guide>Creating an action records a follow-up; it does not send a customer message automatically.</p>
      <div class="cn-work-stats"><article><span>Open tasks</span><strong>${pending}</strong></article><article><span>High priority</span><strong>${urgent}</strong></article></div>
      <div class="cn-work-list-title"><h2>${state.workFilter.actions==='Open'?'To do':`${safe(state.workFilter.actions)} actions`}</h2><span>${items.length} shown</span></div>
      <div class="cn-work-list">${items.length?items.map(entry=>workCard(entry,'actions')).join(''):empty('No actions match this view.','<button type="button" data-cn-work-new>Create an action</button>')}</div>

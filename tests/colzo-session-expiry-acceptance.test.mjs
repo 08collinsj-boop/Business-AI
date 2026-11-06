@@ -1,3 +1,4 @@
+import {syntheticAal2Token} from './helpers/synthetic-workspace-token.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -17,7 +18,7 @@ test('retained authenticated requests lose workspace access at expiry and cannot
   let member = true;
   const calls = [];
   const reply = (body, ok=true) => ({ok,status:ok?200:401,json:async()=>body,text:async()=>JSON.stringify(body)});
-  const headers = Object.freeze({authorization:'Bearer synthetic-retained-session'});
+  const headers = Object.freeze({authorization:'Bearer '+syntheticAal2Token('synthetic-retained-session')});
   try {
     Object.assign(process.env,{TENANCY_AUTH_ENABLED:'true',COLZO_SCOPED_PILOT_ACCESS:'true',VERCEL_ENV:'preview',SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'synthetic-fixture-key',PILOT_FREE_STARTER_MARKETING:'false',BILLING_ENABLED:'false'});
     globalThis.Date = class extends OriginalDate {

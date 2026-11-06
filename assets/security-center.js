@@ -14,6 +14,8 @@
   let securityViewEpoch=0;
   let authReadyCheckRunning=false;
   let activeChallenge=null;
+  let preWorkspaceSetup=null;
+  const preWorkspaceState=()=>['dpa-acceptance-required','legal-acceptance-required','onboarding-required','configuration-onboarding-required','auth-pending'].some(name=>document.body.classList.contains(name));
 
   const currentRole=()=>typeof authenticatedBusinessRole!=='undefined'?authenticatedBusinessRole:null;
   const client=()=>typeof supabaseClient!=='undefined'?supabaseClient:null;
@@ -38,9 +40,15 @@
     const response=await window.colzoBackendFetch(path,{...options,headers});
     const data=await response.json().catch(()=>null);
     if(!response.ok){
-      const error=new Error(data?.error||'Security request failed.');
+      const candidate=data?.code??data?.error?.code;
+      const code=typeof candidate==='string'&&/^[A-Z][A-Z0-9_]{0,63}$/.test(candidate)?candidate:null;
+      // Platform errors may wrap an object in `error`. Never stringify that
+      // object or expose nested provider/debug details in the security UI.
+      const message=typeof data?.error==='string'&&data.error.trim()
+        ?data.error.slice(0,240):`Security request failed (HTTP ${response.status}${code?', '+code:''}).`;
+      const error=new Error(message);
       error.status=response.status;
-      error.code=data?.code||null;
+      error.code=code;
       throw error;
     }
     return data;
@@ -385,12 +393,52 @@
     return overlay;
   }
 
+  async function setupBeforeWorkspace(){
+    if(preWorkspaceSetup)return preWorkspaceSetup.promise;
+    const authClient=client();
+    const session=await authClient?.auth.getSession();
+    if(session?.error||!session?.data?.session||!preWorkspaceState()||!injectUi())return false;
+    if(preWorkspaceSetup)return preWorkspaceSetup.promise;
+    const card=byId('accountSecurityCard'),home=card?.parentElement;if(!card||!home)return false;
+    const overlay=document.createElement('div');overlay.id='securityPreWorkspaceGate';
+    overlay.className='security-mfa-gate';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','securityPreWorkspaceTitle');
+    overlay.innerHTML='<section class="security-mfa-dialog" style="max-height:90dvh;overflow-y:auto"><h2 id="securityPreWorkspaceTitle">Secure your account first</h2><p>Set up your authenticator before continuing. Your workspace remains locked.</p><div id="securityPreWorkspaceHost"></div><p id="securityPreWorkspaceStatus" role="status"></p><div class="work-actions"><button id="securityPreWorkspaceContinue" class="small-btn primary-action" type="button">Continue after verification</button><button id="securityPreWorkspaceCancel" class="small-btn" type="button">Cancel</button></div></section>';
+    document.body.appendChild(overlay);byId('securityPreWorkspaceHost').appendChild(card);
+    let resolve;const promise=new Promise(done=>resolve=done);preWorkspaceSetup={promise,resolve,card,home,background:[...document.body.children].filter(el=>el!==overlay).map(el=>({el,inert:el.inert}))};
+    for(const item of preWorkspaceSetup.background)item.el.inert=true;
+    overlay.addEventListener('keydown',event=>{
+      if(event.key==='Escape'){event.preventDefault();finishPreWorkspaceSetup(false);return;}
+      if(event.key!=='Tab')return;
+      const controls=[...overlay.querySelectorAll('button:not([disabled]),input:not([disabled]),a[href]')].filter(el=>!el.closest('[hidden]'));
+      const first=controls[0],last=controls[controls.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+    });
+    document.body.classList.add('security-setup-required');
+    byId('securityPreWorkspaceCancel').addEventListener('click',()=>finishPreWorkspaceSetup(false));
+    byId('securityPreWorkspaceContinue').addEventListener('click',async()=>{
+      const button=byId('securityPreWorkspaceContinue');button.disabled=true;
+      try{const snapshot=await mfaSnapshot();if(snapshot.aal?.currentLevel!=='aal2')throw new Error('verification_required');finishPreWorkspaceSetup(true);}
+      catch{const status=byId('securityPreWorkspaceStatus');if(status)status.textContent='Complete authenticator setup and verify this session before continuing.';}
+      finally{button.disabled=false;}
+    });
+    await loadMfaState();byId('colzoSecurityChooseTotp')?.focus();return promise;
+  }
+  function finishPreWorkspaceSetup(result){
+    const setup=preWorkspaceSetup;preWorkspaceSetup=null;
+    for(const item of setup?.background||[])item.el.inert=item.inert||false;
+    if(setup?.home?.isConnected)setup.home.appendChild(setup.card);
+    byId('securityPreWorkspaceGate')?.remove();document.body.classList.remove('security-setup-required');
+    setup?.resolve(Boolean(result));
+  }
+
   async function challengeForAal2({blocking=false,reason='Confirm this protected action.'}={}){
     const authClient=client();if(!authClient)return false;
     const snapshot=await mfaSnapshot();
     if(snapshot.aal?.currentLevel==='aal2')return true;
     const factor=snapshot.verified[0];
     if(!factor){
+      if(preWorkspaceState())return setupBeforeWorkspace();
       notify('Set up two-step verification in Account security first');
       if(typeof showView==='function')showView('settings');requestAnimationFrame(openSecurityCenter);
       return false;
@@ -492,7 +540,8 @@
   const bodyObserver=new MutationObserver(()=>{
     if(document.body.classList.contains('security-mfa-required'))byId('colzoNewAccountSecurity')?.remove();
     if(document.body.classList.contains('auth-ready'))refreshForAuthenticatedState();
-    else {window.colzoResetSecurityView();if(activeChallenge)finishChallenge(false);}
+    else if(!preWorkspaceState()){if(preWorkspaceSetup)finishPreWorkspaceSetup(false);window.colzoResetSecurityView();if(activeChallenge)finishChallenge(false);}
+    else if(!preWorkspaceSetup&&!activeChallenge)window.colzoResetSecurityView();
   });
   bodyObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
   window.addEventListener('pageshow',refreshForAuthenticatedState);
