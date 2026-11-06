@@ -59,3 +59,10 @@ test('retained-token recheck expires after ten minutes without making a request'
  f.w.document.querySelector('[data-replay-recheck]').click();await tick();
  assert.equal(f.calls.length,before);assert.match(f.w.document.body.textContent,/inconclusive/i);f.dom.window.close();
 });
+
+test('QA controls stay in document flow and provide a normal workspace exit without running probes',()=>{
+ const f=fixture();const panel=f.w.document.querySelector('section');
+ assert.equal(panel.style.position,'relative');
+ const exit=panel.querySelector('a');assert.ok(exit);assert.equal(exit.getAttribute('href'),'/');
+ assert.match(exit.textContent,/Close QA panel/);assert.equal(f.calls.length,0);f.dom.window.close();
+});

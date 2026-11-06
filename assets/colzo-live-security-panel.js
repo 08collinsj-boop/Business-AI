@@ -4,12 +4,13 @@
  const allowedHost='business-ai-git-feature-colzo-preview-self-daffcb-buisness-ai1.vercel.app';
  if(location.protocol!=='https:'||location.hostname!==allowedHost||new URLSearchParams(location.search).get('qaSecurity')!=='1')return;
  const box=document.createElement('section');box.id='colzoQaSecurity';box.setAttribute('aria-label','Development security acceptance');
- box.style.cssText='position:fixed;inset:auto 12px 12px;z-index:99999;background:#151a22;color:#f5f7fa;padding:16px;border:1px solid #c8ff2e;border-radius:12px;max-height:45dvh;overflow:auto;font:14px system-ui';
+ box.style.cssText='position:relative;margin:12px;background:#151a22;color:#f5f7fa;padding:16px;border:1px solid #c8ff2e;border-radius:12px;max-height:45dvh;overflow:auto;font:14px system-ui';
+ const exit=document.createElement('a');exit.href='/';exit.textContent='Close QA panel — return to workspace';exit.style.cssText='display:block;color:#c8ff2e;margin-bottom:12px';
  const title=document.createElement('strong');title.textContent='Development — read-only session checks';
  const note=document.createElement('p');note.textContent='Uses this signed-in account. No MFA setup, writes, logout, paid-provider calls or tenant record contents are displayed. Checks one direction only; roles, replay and independent second-account acceptance remain separate.';
  const button=document.createElement('button');button.type='button';button.textContent='Run read-only checks';
  const output=document.createElement('pre');output.setAttribute('role','status');output.style.whiteSpace='pre-wrap';
- box.append(title,note,button,output);document.body.appendChild(box);
+ box.append(exit,title,note,button,output);document.body.appendChild(box);
  button.addEventListener('click',async()=>{
   button.disabled=true;output.textContent='Checking QA prerequisites…';
   try{

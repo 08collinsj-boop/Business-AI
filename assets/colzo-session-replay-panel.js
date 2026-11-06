@@ -4,14 +4,15 @@
  const host='business-ai-git-feature-colzo-preview-self-daffcb-buisness-ai1.vercel.app';
  if(location.protocol!=='https:'||location.hostname!==host||new URLSearchParams(location.search).get('qaReplay')!=='1')return;
  const box=document.createElement('section');box.id='colzoQaReplay';box.setAttribute('aria-label','Development logout replay acceptance');
- box.style.cssText='position:fixed;inset:12px 12px auto auto;z-index:99999;background:#151a22;color:#f5f7fa;padding:16px;border:1px solid #ffb36b;border-radius:12px;width:min(440px,calc(100vw - 56px));max-height:40dvh;overflow:auto;font:14px system-ui';
+ box.style.cssText='position:relative;margin:12px;background:#151a22;color:#f5f7fa;padding:16px;border:1px solid #ffb36b;border-radius:12px;width:min(440px,calc(100vw - 56px));max-height:40dvh;overflow:auto;font:14px system-ui';
+ const exit=document.createElement('a');exit.href='/';exit.textContent='Close QA panel — return to workspace';exit.style.cssText='display:block;color:#c8ff2e;margin-bottom:12px';
  const title=document.createElement('strong');title.textContent='Development — logout-token replay';
  const note=document.createElement('p');note.textContent='This separate test ends only this browser session. It keeps its issued access token briefly in memory to test rejection after logout. Other sessions are not signed out. A private sign-in will be needed afterwards.';
  const button=document.createElement('button');button.type='button';button.textContent='Test logout replay — ends this session';
  const recheck=document.createElement('button');recheck.type='button';recheck.textContent='Recheck retained token once — no sign-in';recheck.disabled=true;recheck.setAttribute('data-replay-recheck','');
  let recheckOnce=null,recheckDeadline=0;
  const output=document.createElement('pre');output.setAttribute('role','status');output.style.whiteSpace='pre-wrap';
- box.append(title,note,button,recheck,output);document.body.appendChild(box);
+ box.append(exit,title,note,button,recheck,output);document.body.appendChild(box);
  recheck.addEventListener('click',async()=>{
   recheck.disabled=true;
   const run=recheckOnce;recheckOnce=null;

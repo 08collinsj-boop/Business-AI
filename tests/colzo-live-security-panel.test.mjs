@@ -58,3 +58,10 @@ test('gateway errors display only bounded status and code',async()=>{
  assert.match(f.w.document.body.textContent,/HTTP 401 INVALID_AUTHENTICATION_TOKEN/);
  assert.doesNotMatch(f.w.document.body.textContent,/private-debug-sentinel|\[object Object\]/);f.dom.window.close();
 });
+
+test('QA controls stay in document flow and provide a normal workspace exit without running probes',()=>{
+ const f=fixture();const panel=f.w.document.querySelector('section');
+ assert.equal(panel.style.position,'relative');
+ const exit=panel.querySelector('a');assert.ok(exit);assert.equal(exit.getAttribute('href'),'/');
+ assert.match(exit.textContent,/Close QA panel/);assert.equal(f.calls.length,0);f.dom.window.close();
+});

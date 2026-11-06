@@ -63,3 +63,47 @@ gated configuration activation is authorised. A failed replay result is a blocke
 never permission to weaken controls or silently enable settings. The restricted
 session RPC is already installed; no new privileged SQL is part of this work.
 Original grants/natural-expiry dates and Production remain unchanged. Pilot NO-GO.
+
+
+## Actual live results and fresh-session continuation
+
+On source `40fcd47a6b78a1ff8530fc006d9f8de604b8c560`, protected Preview
+`dpl_Dt82Vk5xgnEtpebTb8vYG6cSyvB4`, the actual issued owner AAL2 session passed
+positive tenant-bound API/Data API baselines, then SDK local logout completed.
+The SAME retained JWT remained unexpired throughout: bookings API401, enquiries
+API401, direct bookings Data API200 with empty rows. Independent count-only Auth
+metadata changed from three active owner sessions to two. A different existing
+session on immutable runtime `e65bd25d` survived full reload and Security centre.
+Evidence: https://github.com/08collinsj-boop/Business-AI/pull/65#issuecomment-6697134343
+
+The user then privately signed in again at the stable protected origin, using
+existing MFA. The fresh issued AAL2 session passed **13/13** read-only checks on
+runtime `40fcd47a`: own APIs200, anonymous APIs401, foreign bookings/leads empty,
+foreign clients403 table permission denial, business-ID manipulation remained
+own-tenant, actual foreign customer404, incident-controls/audit-log200. This is
+one direction only; clients403 is table permission denial rather than RLS proof.
+Independent metadata showed three total/active owner sessions and exactly one
+session created after the earlier replay evidence at 22:11:53Z. No tokens/session
+IDs/MFA secrets/record contents retrieved. READY/exact source/stable alias were
+independently rechecked. Fresh-session access after local revocation now passes.
+Evidence: https://github.com/08collinsj-boop/Business-AI/pull/65#issuecomment-6697306651
+Integration evidence in #68 does not assert that #68's head itself was deployed.
+
+Strict replay flag remained absent/off; observed native Auth/RLS denials did not
+require its activation. No privileged/configuration change is authorised or
+necessary merely to obtain these already-observed passes. The earlier proposed
+flag package remains unapplied. Controlled real validation-unavailability,
+independent QA AAL2/two-way/roles and other pilot gates remain open. NO-GO.
+
+## Observed QA panel obstruction
+
+The fixed expanded panel obstructed the user's sign-in form. Navigating to the
+same stable origin without the explicit QA query restored unobstructed sign-in;
+that workaround enabled the actual fresh-session acceptance above. Both explicit
+QA panels now use normal document flow rather than fixed overlays and provide a
+normal root link labelled "Close QA panel — return to workspace". Merely opening
+or closing a panel adds no probes, logout or credential access. Two regressions
+failed on the original fixed layout and passed after the change. Existing auth,
+tenant/replay assertions remain intact. These layout changes do not invalidate
+recorded server-security results for runtime40fcd47a. Deployment verification of
+the visual correction must name its own exact newer source separately.
