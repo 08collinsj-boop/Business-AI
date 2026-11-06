@@ -36,6 +36,11 @@ with tempfile.TemporaryDirectory(prefix='colzo-export-synthetic-') as temp:
     try: module.serialize(payload,link)
     except ValueError: checks.append('symlink output refused')
     else: raise AssertionError('export accepted symlink output')
+    ancestor=root/'linked-parent';ancestor.symlink_to(contaminated,target_is_directory=True)
+    try: module.serialize(payload,ancestor/'new-export')
+    except ValueError: checks.append('symlink output ancestor refused')
+    else: raise AssertionError('export accepted symlink output ancestor')
+    assert not (contaminated/'new-export').exists()
     target=root/'private'
     manifest=module.serialize(payload,target)
     assert target.stat().st_mode & 0o077 == 0
