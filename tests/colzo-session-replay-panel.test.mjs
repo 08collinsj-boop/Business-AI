@@ -20,7 +20,7 @@ function fixture({aal='aal2',replayAllowed=false,logoutError=false,foreign=false
   if(path.startsWith('/rest/v1/'))return reply(200,ended?[]:[{id:'private-row-sentinel',business_id:foreign?'foreign':B}]);
   return reply(ended&&!replayAllowed?401:200,ended&&!replayAllowed?{error:'Authentication is required'}:[{id:'private-row-sentinel',business_id:foreign?'foreign':B}]);
  };
- w.eval(source);return {w,dom,calls,token};
+ w.eval(source);return {w,dom,calls,token,setReplayAllowed:value=>{replayAllowed=value;}};
 }
 test('session replay test is explicit, locally scoped, and preserves the exact issued bearer privately',async()=>{
  const f=fixture();assert.equal(f.calls.length,0);f.w.document.querySelector('button').click();await tick();
@@ -45,3 +45,17 @@ test('failed logout is inconclusive and never probes replay or displays raw erro
  const at=f.calls.findIndex(c=>c.logout);assert.equal(f.calls.length,at+1);assert.match(f.w.document.body.textContent,/inconclusive/i);assert.doesNotMatch(f.w.document.body.textContent,/private-error-sentinel/);f.dom.window.close();
 });
 test('normal page has no logout test controls or requests',()=>{const f=fixture({enabled:false});assert.equal(f.w.document.querySelector('button'),null);assert.equal(f.calls.length,0);f.dom.window.close();});
+test('one recheck after a backend correction reuses the original revoked token without another login or logout',async()=>{
+ const f=fixture({replayAllowed:true});f.w.document.querySelector('button').click();await tick();
+ f.setReplayAllowed(false);const before=f.calls.length;
+ f.w.document.querySelector('[data-replay-recheck]').click();await tick();
+ assert.match(f.w.document.body.textContent,/PASS retained-token API/);assert.equal(f.calls.filter(c=>c.logout).length,1);
+ assert.ok(f.calls.slice(before).every(c=>c.options.headers.Authorization==='Bearer '+f.token));
+ assert.equal(f.w.document.querySelector('[data-replay-recheck]').disabled,true);assert.equal(f.w.localStorage.length,0);f.dom.window.close();
+});
+test('retained-token recheck expires after ten minutes without making a request',async()=>{
+ const f=fixture({expiry:Date.now()/1000+3600});f.w.document.querySelector('button').click();await tick();
+ const before=f.calls.length,now=f.w.Date.now();f.w.Date.now=()=>now+600001;
+ f.w.document.querySelector('[data-replay-recheck]').click();await tick();
+ assert.equal(f.calls.length,before);assert.match(f.w.document.body.textContent,/inconclusive/i);f.dom.window.close();
+});

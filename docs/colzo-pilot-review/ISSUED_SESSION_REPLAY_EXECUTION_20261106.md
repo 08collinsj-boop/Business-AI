@@ -34,16 +34,22 @@ the same GETs. API responses must be401; direct Data API must deny/return no row
 Any200 protected API is explicitly FAIL. JWT expiry is checked again afterwards;
 natural token expiry cannot be counted as a replay pass. Logout errors and network
 ambiguity yield inconclusive, with no raw response data or exception displayed.
-The button stays disabled to prevent a second logout attempt in the same run.
+The logout button stays disabled to prevent a second logout attempt in the same
+run. A separately labelled single recheck can reuse that same revoked JWT after
+a backend correction without another private login. Its private in-page callback
+expires after at most ten minutes or JWT expiry and is discarded after use; no
+token is persisted. Requests have bounded timeouts. Reloading/closing the page
+intentionally loses the test state. If the window expires, results are inconclusive.
 
 No workspace mutation, DPA acceptance, grant, invitation, SQL, credential reset or
 provider activity is added. Local logout is the only intentional session mutation
 and is within the originally requested logout/replay acceptance. A new legitimate
 private sign-in is required afterwards. No tokens move between origins.
 
-Five focused regressions cover exact bearer reuse/local scope, replay200 failing,
+Seven focused regressions cover exact bearer reuse/local scope, replay200 failing,
 failed/near-expiry/foreign prerequisites preventing logout, ambiguous logout and
-no-action on a normal page. These mocks verify test tooling, not server security.
+no-action on a normal page, plus exact-token single recheck and its expiry. These
+mocks verify test tooling, not server security.
 
 ## Acceptance boundary
 
