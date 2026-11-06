@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Colzo Development mobile viewport QA</title>
+<style>
+body{margin:0;padding:16px;background:#20252d;color:#f5f7fa;font:14px system-ui}a{color:#c8ff2e}h1{font-size:20px}label{display:inline-block;padding:10px}iframe{display:block;width:390px;height:844px;border:0;margin:16px 0;background:#0b0e14}#narrow:checked~iframe{width:375px}#short:checked~iframe{height:450px}input:focus-visible,a:focus-visible{outline:3px solid #c8ff2e;outline-offset:3px}
+</style></head><body>
+<h1>Protected Development — mobile viewport acceptance</h1>
+<p>This loads the real same-origin application using its normal authentication. Fictional operational data only.</p>
+<p>CSS viewport testing does not emulate native Safari, its software keyboard, touch gestures or physical safe-area insets. Short height tests scrolling under reduced space only.</p>
+<p><a href="/">Return to normal workspace</a></p>
+<input id="narrow" type="checkbox"><label for="narrow">Narrow width: 375px (default 390px)</label>
+<input id="short" type="checkbox"><label for="short">Reduced height: 450px (default 844px)</label>
+<iframe src="/" title="Colzo real app in an iPhone-sized CSS viewport" referrerpolicy="same-origin"></iframe>
+</body></html>

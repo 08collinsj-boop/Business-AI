@@ -88,6 +88,7 @@ if (siteProject && isVercelBuild) {
       && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-preview-self-serve-pilot-20261102'
       && process.env.SUPABASE_URL === 'https://mvwseobgkexzpmmkgcxe.supabase.co'
       && process.env.COLZO_SCOPED_PILOT_ACCESS === 'true') {
+    await cp('qa/colzo-mobile.html', 'public/colzo-qa-mobile.html');
     const html = await readFile('public/index.html', 'utf8');
     await writeFile('public/index.html', html.replace('</body>', '<script src="/assets/colzo-live-security-panel.js"></script><script src="/assets/colzo-session-replay-panel.js"></script></body>'));
   }
