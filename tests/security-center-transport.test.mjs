@@ -43,3 +43,7 @@ test('server MFA denials retain their status and code with Preview transport',as
  const f=fixture({status:403,body:{error:'Multi-factor authentication is required',code:'MFA_REQUIRED'}});
  await assert.rejects(()=>f.request('/api/incident-controls'),e=>e.status===403&&e.code==='MFA_REQUIRED');
 });
+test('nested gateway errors are readable and bounded without exposing response details',async()=>{
+ const f=fixture({status:401,body:{error:{code:'INVALID_AUTHENTICATION_TOKEN',message:'private-response-sentinel'}}});
+ await assert.rejects(()=>f.request('/api/incident-controls'),e=>e.status===401&&e.code==='INVALID_AUTHENTICATION_TOKEN'&&e.message.includes('HTTP 401')&&!e.message.includes('[object Object]')&&!e.message.includes('private-response-sentinel'));
+});

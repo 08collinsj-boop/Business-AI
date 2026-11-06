@@ -40,9 +40,15 @@
     const response=await window.colzoBackendFetch(path,{...options,headers});
     const data=await response.json().catch(()=>null);
     if(!response.ok){
-      const error=new Error(data?.error||'Security request failed.');
+      const candidate=data?.code??data?.error?.code;
+      const code=typeof candidate==='string'&&/^[A-Z][A-Z0-9_]{0,63}$/.test(candidate)?candidate:null;
+      // Platform errors may wrap an object in `error`. Never stringify that
+      // object or expose nested provider/debug details in the security UI.
+      const message=typeof data?.error==='string'&&data.error.trim()
+        ?data.error.slice(0,240):`Security request failed (HTTP ${response.status}${code?', '+code:''}).`;
+      const error=new Error(message);
       error.status=response.status;
-      error.code=data?.code||null;
+      error.code=code;
       throw error;
     }
     return data;
