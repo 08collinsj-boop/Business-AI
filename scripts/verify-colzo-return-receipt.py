@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Synthetic acceptance for an independent offline return-bundle verifier."""
-import copy, hashlib, importlib.util, json, tempfile
+import copy, csv, hashlib, importlib.util, json, subprocess, sys, tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def load(name,path):
@@ -62,4 +62,32 @@ with tempfile.TemporaryDirectory(prefix='colzo-receipt-synthetic-') as temp:
     link=root/'linked';link.symlink_to(root,target_is_directory=True);reject('symlink bundle ancestor',lambda:verifier.verify_bundle(link/'bundle',fingerprint))
     output.chmod(0o755);reject('shared bundle directory',lambda:verifier.verify_bundle(output,fingerprint));output.chmod(0o700)
     assert verifier.verify_bundle(output,fingerprint)['verified'];checks.append('restored unchanged package remains independently verifiable')
+    # JSON/text fields accepted by the writer can exceed Python CSV's default
+    # 128 KiB field limit while staying well inside the package's 16 MiB bound.
+    large=copy.deepcopy(payload)
+    large['categories']['leads']['rows'][0]['description']='Synthetic long text '+('x'*140000)
+    large_result=bundle.write_bundle(large,attachments,source,root/'large-bundle')
+    csv_limit=csv.field_size_limit()
+    assert verifier.verify_bundle(root/'large-bundle',large_result['verification_sha256'])['verified']
+    assert csv.field_size_limit()==csv_limit
+    checks.append('writer-supported long text roundtrips through independent CSV verification')
+    reject('malformed CSV is rejected',lambda:verifier.csv_rows(b'"unterminated'))
+    assert csv.field_size_limit()==csv_limit
+    checks.append('CSV parser settings restored after success and failure')
+    command=[sys.executable,str(ROOT/'scripts/colzo-return-verifier.py'),str(root/'large-bundle'),'--expected-fingerprint']
+    cli=subprocess.run(command+[large_result['verification_sha256']],capture_output=True,text=True)
+    assert cli.returncode==0 and json.loads(cli.stdout)['verified'] and not cli.stderr
+    checks.append('recipient CLI independently verifies a copied local package')
+    cli=subprocess.run(command+['0'*64],capture_output=True,text=True)
+    assert cli.returncode==1 and not cli.stdout
+    assert json.loads(cli.stderr)=={'verified':False,'error':'Bundle verification failed'}
+    checks.append('recipient CLI fails without a success receipt or path disclosure')
+    cli=subprocess.run(command[:-1],capture_output=True,text=True)
+    assert cli.returncode!=0 and not cli.stdout
+    checks.append('recipient CLI requires separately supplied trusted fingerprint')
+    for name in ['manifest.json','attachment-manifest.json']:
+        manifest_file=output/name;original=manifest_file.read_bytes();manifest_file.write_text('[]')
+        changed_fingerprint=hashlib.sha256((output/'manifest.json').read_bytes()+b'\0'+(output/'attachment-manifest.json').read_bytes()).hexdigest()
+        reject('invalid manifest shape '+name,lambda:verifier.verify_bundle(output,changed_fingerprint))
+        manifest_file.write_bytes(original)
 print(json.dumps({'synthetic_only':True,'network_used':False,'checks':checks,'live_return_verified':False}))
