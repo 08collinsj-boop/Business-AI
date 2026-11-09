@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {assessClosureDependencies} from '../scripts/colzo-closure-dependencies.mjs';
 const snapshot=JSON.parse(await readFile(new URL('../docs/colzo-pilot-review/CLOSURE_DEPENDENCIES_20261106.json',import.meta.url)));
+const refreshed=JSON.parse(await readFile(new URL('../docs/colzo-pilot-review/CLOSURE_DEPENDENCIES_20261109.json',import.meta.url)));
+test('9 November read-only dependency refresh matches the same scoped catalog fingerprint',()=>{
+ const plan=Object.fromEntries(refreshed.metadata.tables.map(t=>[t.name,'retain']));
+ const result=assessClosureDependencies(refreshed,plan,refreshed.metadata_sha256);
+ assert.equal(result.metadataFingerprint,snapshot.metadata_sha256);
+ assert.equal(result.tableCount,51);assert.equal(result.foreignKeyCount,77);
+ assert.equal(result.executionSupported,false);
+});
 test('complete live catalog snapshot refuses incomplete six-table closure coverage',()=>{
  const plan=Object.fromEntries(snapshot.metadata.tables.map(t=>[t.name,'retain']));
  for(const name of ['leads','lead_history','bookings','actions','business_knowledge_sources','business_knowledge_items'])plan['public.'+name]='delete';
@@ -15,6 +23,27 @@ test('complete live catalog snapshot refuses incomplete six-table closure covera
 });
 const fixture={tables:[{name:'public.businesses',business_id:false},{name:'public.parents',business_id:true},{name:'public.children',business_id:true}],foreign_keys:[{name:'child_parent',child:'public.children',parent:'public.parents',child_columns:['parent_id','business_id'],parent_columns:['id','business_id'],on_delete:'c'}]};
 const wrap=metadata=>({metadata,metadata_only:true});
+test('empty or rootless metadata cannot claim readiness',()=>{
+ for(const metadata of [
+  {tables:[],foreign_keys:[]},
+  {tables:[{name:'public.parents',business_id:true}],foreign_keys:[]},
+  {...structuredClone(fixture),tables:fixture.tables.map(t=>({...t,...(t.name==='public.businesses'?{business_id:true}:{})}))}
+ ])assert.throws(()=>assessClosureDependencies(wrap(metadata),Object.fromEntries(metadata.tables.map(t=>[t.name,'retain']))),/business root/);
+});
+test('duplicate constraints and malformed column mappings fail closed',()=>{
+ const plan={'public.businesses':'retain','public.parents':'delete','public.children':'delete'};
+ for(const alter of [
+  m=>m.foreign_keys.push(structuredClone(m.foreign_keys[0])),
+  m=>m.foreign_keys[0].name='',
+  m=>m.foreign_keys[0].child_columns=['','business_id'],
+  m=>m.foreign_keys[0].parent_columns=['','business_id'],
+  m=>m.foreign_keys[0].child_columns=['business_id','business_id'],
+  m=>m.foreign_keys[0].parent_columns=['business_id','business_id']
+ ]){
+  const metadata=structuredClone(fixture);alter(metadata);
+  assert.throws(()=>assessClosureDependencies(wrap(metadata),plan),/foreign-key/);
+ }
+});
 test('metadata planner orders children before parents without generating SQL or enabling execution',()=>{
  const result=assessClosureDependencies(wrap(fixture),{'public.businesses':'retain','public.parents':'delete','public.children':'delete'});
  assert.equal(result.ready,true);assert.deepEqual(result.deletionOrder,['public.children','public.parents']);
