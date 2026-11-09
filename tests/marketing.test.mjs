@@ -22,6 +22,46 @@ import {
 const savedEnv = { ...process.env };
 const originalFetch = globalThis.fetch;
 
+const completedRow = patch => ({ id: 'generation-a', business_id: 'business-a', ...patch });
+for (const [label, completion] of [
+  ['empty', []],
+  ['null', null],
+  ['object instead of array', {}],
+  ['multiple rows', patch => [completedRow(patch), completedRow(patch)]],
+  ['wrong ID', patch => [{ ...completedRow(patch), id: 'generation-b' }]],
+  ['wrong tenant', patch => [{ ...completedRow(patch), business_id: 'business-b' }]],
+  ['wrong status', patch => [{ ...completedRow(patch), status: 'pending' }]],
+  ['wrong output', patch => [{ ...completedRow(patch), output: null }]],
+  ['wrong approval state', patch => [{ ...completedRow(patch), approval_status: 'approved' }]],
+  ['wrong timestamp', patch => [{ ...completedRow(patch), completed_at: '2000-01-01T00:00:00Z' }]],
+  ['wrong model', patch => [{ ...completedRow(patch), model: 'other' }]],
+  ['wrong usage', patch => [{ ...completedRow(patch), usage: {} }]]
+]) {
+  test(`marketing generation: ${label} completion cannot report success or audit`, async () => {
+    const calls = setup({ completion });
+    const result = await call(marketingHandler);
+    assert.equal(result.statusCode, 503);
+    assert.equal(result.body.output, undefined);
+    assert.ok(!calls.some(c => c.url.includes('business_audit_events')));
+    const writes = calls.filter(c => c.url.includes('marketing_generations') && c.options.method === 'PATCH');
+    assert.deepEqual(writes.map(c => JSON.parse(c.options.body).status), ['completed', 'failed']);
+    assert.equal(writes[0].options.headers.Prefer, 'return=representation');
+    assert.ok(writes.every(c => c.url.includes('business_id=eq.business-a')));
+    assert.equal(calls.filter(c => c.url.startsWith('https://openrouter.ai')).length, 1);
+  });
+}
+
+test('marketing generation: verified completion returns success and audits exactly once', async () => {
+  const calls = setup();
+  const result = await call(marketingHandler);
+  assert.equal(result.statusCode, 200);
+  assert.deepEqual(result.body.output, output);
+  const writes = calls.filter(c => c.url.includes('marketing_generations') && c.options.method === 'PATCH');
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0].options.headers.Prefer, 'return=representation');
+  assert.equal(calls.filter(c => c.url.includes('business_audit_events')).length, 1);
+});
+
 afterEach(() => {
   process.env = { ...savedEnv };
   globalThis.fetch = originalFetch;
@@ -87,7 +127,9 @@ function setup({
 
   model = output,
 
-  authValid = true
+  authValid = true,
+
+  completion = patch => [{ id: reservation.id, business_id: 'business-a', ...patch }]
 } = {}) {
   Object.assign(
     process.env,
@@ -257,6 +299,11 @@ function setup({
             100
         }
       });
+    }
+
+    if (url.includes('marketing_generations') && options.method === 'PATCH') {
+      const patch = JSON.parse(options.body);
+      if (patch.status === 'completed') return response(typeof completion === 'function' ? completion(patch) : completion);
     }
 
     if (
@@ -936,7 +983,7 @@ for (
         calls.find(
           call =>
             call.url.includes(
-              'marketing_generations?id=eq.generation-a&business_id=eq.business-a'
+              'marketing_generations?business_id=eq.business-a&id=eq.generation-a&deleted_at=is.null'
             )
         )
       );
@@ -1654,3 +1701,4 @@ test(
     );
   }
 );
+
