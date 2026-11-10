@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e14">
+  <meta name="description" content="Explore Colzo's example enquiry workflow with fictional information. See how a request moves towards owner review and follow-up. The free pilot is not open yet.">
+  <meta property="og:title" content="Colzo | See the enquiry workflow">
+  <meta property="og:description" content="A quick illustrated Colzo walkthrough: an enquiry arrives, the details are organised, and the owner takes the next step. Fictional example only.">
+  <link rel="canonical" href="https://getbusiness-ai.com/demo/">
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/colzo-mark.svg">
+  <title>See how Colzo works | Fictional-data walkthrough</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0e14;--surface:#151a22;--border:#2b333d;--lime:#c8ff2e;--fg:#f4f6f5;--muted:#acb8b5;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:280px;background:var(--bg);color:var(--fg);line-height:1.55}
+    a{color:inherit}a:focus-visible{outline:3px solid var(--lime);outline-offset:4px}
+    .wrap{width:min(1110px,calc(100% - 40px));margin:auto}.nav{height:78px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:10px;align-items:center;text-decoration:none;font-size:23px;font-weight:800;letter-spacing:-.05em}.brand img{width:36px;height:36px}
+    .nav a:last-child{font-size:13px;color:#c8d1cc;text-decoration:none}.nav a:last-child:hover{color:var(--lime)}
+    .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--lime);font-weight:750}
+    .top{padding:68px 0 48px}.top h1{margin:12px 0 18px;font-size:clamp(43px,7.5vw,82px);line-height:1.05;letter-spacing:-.07em;max-width:860px}
+    .top h1 span{color:var(--lime)}.lede{max-width:710px;font-size:clamp(17px,2vw,21px);color:#c5d0cd;margin:0 0 24px}
+    .notice{display:inline-flex;gap:9px;align-items:center;border:1px solid #4d5e36;background:#1a2418;color:#dbe9cb;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:700}
+    .notice i{display:block;width:7px;height:7px;border-radius:50%;background:var(--lime)}
+    .demo{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:25px;align-items:stretch;margin-bottom:70px}
+    .screen{border:1px solid #35404a;border-radius:27px;background:linear-gradient(165deg,#1b242a,#10151b 72%);overflow:hidden;min-height:550px;box-shadow:0 22px 100px rgba(0,0,0,.25)}
+    .screen-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #303943;padding:17px 22px;color:#c5d0cd;font-size:12px}.screen-top strong{letter-spacing:-.01em;font-size:15px;color:white}
+    .dots{display:flex;gap:5px}.dots i{width:7px;height:7px;background:#526066;border-radius:50%}.dots i:first-child{background:var(--lime)}
+    .screen-inner{padding:24px}.screen-label{font-size:12px;color:#a8b8b7;letter-spacing:.08em;text-transform:uppercase}.screen h2{font-size:26px;letter-spacing:-.04em;margin:7px 0 20px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:17px}.kpis div{background:#151d24;border:1px solid #354047;border-radius:13px;padding:14px 12px}.kpis b{display:block;font-size:25px;color:#edf5ed}.kpis span{display:block;font-size:11px;color:#b5c2bf;line-height:1.3}
+    .request{border:1px solid #485346;border-radius:18px;background:#1b2521;padding:19px;position:relative}.request-head{display:flex;gap:11px;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .request-head strong{font-size:17px}.request-head .tag{font-size:10px;letter-spacing:.05em;background:#d0ff6c;color:#18230b;padding:6px 10px;border-radius:999px;font-weight:800;white-space:nowrap}
+    .request .quote{border-left:3px solid #accf77;padding:5px 0 5px 12px;margin:13px 0 17px;color:#e7ede8;font-size:17px}
+    .fields{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.field{padding:11px 12px;background:#121a19;border:1px solid #33413a;border-radius:10px}.field small{display:block;color:#9daea6;font-size:11px}.field b{display:block;color:#e5eee7;font-size:13px;margin-top:4px}
+    .next{border:1px solid #3d4947;border-radius:13px;margin-top:16px;padding:14px;display:flex;gap:12px;align-items:center}.next-symbol{width:34px;height:34px;border:1px solid #66785b;display:grid;place-items:center;color:var(--lime);border-radius:10px}.next strong{display:block;font-size:13px}.next p{margin:2px 0 0;font-size:12px;color:#aebcb7}
+    .notes{display:grid;gap:12px}.step{background:#141a21;border:1px solid var(--border);border-radius:17px;padding:24px}.step .index{display:inline-block;color:var(--lime);font-weight:800;font-size:12px;letter-spacing:.15em;margin-bottom:9px}.step h3{font-size:21px;letter-spacing:-.03em;line-height:1.2;margin:0 0 8px}.step p{color:#b7c3be;font-size:14px;margin:0}.step strong{color:#f8faf7}
+    .step:last-child{border-color:#5a6a40;background:linear-gradient(135deg,#1b2819,#141b1c)}
+    .bottom{border-top:1px solid var(--border);padding:47px 0 60px}.bottom-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.7fr);gap:35px;align-items:center}
+    .bottom h2{font-size:clamp(32px,4vw,46px);letter-spacing:-.055em;line-height:1.1;margin:8px 0 15px}.bottom p{max-width:590px;color:#bcc7c3;margin:0}
+    .actions{display:flex;flex-direction:column;gap:10px}.button{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:9px;padding:12px 18px;text-decoration:none;font-weight:800;font-size:14px}
+    .primary{background:var(--lime);color:#11190c}.primary:hover{background:#e1ff89}.secondary{border:1px solid #6a7775;color:#ecf4ed}.secondary:hover{border-color:var(--lime)}
+    .disclaimer{padding:16px 0 30px;font-size:12px;color:#93a19e;border-top:1px solid #222a32}.disclaimer a{color:#cdd8d2}
+    @media(max-width:790px){.top{padding:48px 0 36px}.demo,.bottom-grid{grid-template-columns:1fr}.screen{min-height:auto}.notes{grid-template-columns:1fr}.bottom{padding:36px 0}}
+    @media(max-width:450px){.wrap{width:min(100% - 28px,1110px)}.screen-inner{padding:15px}.screen-top{padding:15px}.kpis{gap:6px}.kpis div{padding:10px 8px}.kpis b{font-size:20px}.kpis span{font-size:10px}.request{padding:13px}.fields{grid-template-columns:1fr}.notice{border-radius:10px;align-items:flex-start}.nav a:last-child{max-width:120px;text-align:right}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <header class="wrap"><nav class="nav" aria-label="Main navigation"><a class="brand" href="/" aria-label="Colzo home"><img src="/assets/icons/colzo-mark.svg" alt="" width="36" height="36"><span>Colzo</span></a><a href="/pilot/">Pilot interest ↗</a></nav></header>
+  <main id="main">
+    <section class="wrap top">
+      <p class="eyebrow">Colzo / An example, not a promise</p>
+      <h1>From enquiry to <span>next step.</span></h1>
+      <p class="lede">See the idea behind Colzo: an enquiry arrives while you're busy, its details are organised, and you decide what happens next. No sales call or account needed.</p>
+      <div class="notice"><i aria-hidden="true"></i><span>Illustrative design preview · All details are fictional · No live customer data</span></div>
+    </section>
+    <section class="wrap demo" aria-label="Three-step example enquiry workflow">
+      <div class="screen" aria-label="Illustrative Colzo dashboard with a fictional quote request">
+        <div class="screen-top"><strong>colzo / enquiries</strong><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>FICTIONAL EXAMPLE</span></div>
+        <div class="screen-inner">
+          <span class="screen-label">A simpler daily overview</span>
+          <h2>See what needs attention.</h2>
+          <div class="kpis" aria-label="Fictional illustrative dashboard figures">
+            <div><b>01</b><span>New enquiry</span></div><div><b>01</b><span>Needs review</span></div><div><b>01</b><span>Next action</span></div>
+          </div>
+          <article class="request">
+            <div class="request-head"><strong>Example quote request</strong><span class="tag">NEW REQUEST</span></div>
+            <p class="quote">“Could you give me a quote for some work next week?”</p>
+            <div class="fields">
+              <div class="field"><small>Enquiry type</small><b>Quotation request</b></div>
+              <div class="field"><small>Received via</small><b>Website</b></div>
+              <div class="field"><small>Current stage</small><b>Awaiting owner review</b></div>
+              <div class="field"><small>Appointment</small><b>Not confirmed</b></div>
+            </div>
+          </article>
+          <div class="next"><span class="next-symbol" aria-hidden="true">↗</span><div><strong>Suggested next action</strong><p>Check job details and choose whether to follow up.</p></div></div>
+        </div>
+      </div>
+      <div class="notes">
+        <article class="step"><span class="index">01 / CAPTURE</span><h3>Don't rely on remembering.</h3><p>A website question or quote request has a place to land, even while you're working.</p></article>
+        <article class="step"><span class="index">02 / REVIEW</span><h3>Keep the request clear.</h3><p>See the key details together. <strong>Nothing is automatically priced, booked or promised.</strong></p></article>
+        <article class="step"><span class="index">03 / DECIDE</span><h3>It's still your business.</h3><p>Follow up, prepare a quote or review a booking request when you're ready. Human oversight stays central.</p></article>
+      </div>
+    </section>
+    <section class="bottom"><div class="wrap bottom-grid">
+      <div><p class="eyebrow">A small local pilot</p><h2>Would this make your day easier?</h2><p>We're preparing a free 14-day, fictional-data-only pilot for a few suitable small businesses. You can share your thoughts or request a short demonstration now, but pilot accounts won't open until final security and operational checks pass.</p></div>
+      <div class="actions"><a class="button primary" href="/pilot/">See pilot details ↗</a><a class="button secondary" href="mailto:support@getbusiness-ai.com?subject=Colzo%20example%20demo%20feedback&amp;body=Business%20name%20(optional)%3A%0AHow%20do%20enquiries%20arrive%3F%3A%0AWould%20this%20help%3F%3A%0A">Share quick feedback by email ↗</a></div>
+    </div></section>
+  </main>
+  <footer class="wrap disclaimer">Colzo · Built in Hartlepool. This is an <strong>illustrative design walkthrough</strong>, not an authenticated app session, performance claim or customer case study. Telephone answering and AI Marketing are not included in the scoped free pilot. No real customer information should be submitted. Read our <a href="/legal/privacy.html">privacy notice</a>.</footer>
+</body>
+</html>
