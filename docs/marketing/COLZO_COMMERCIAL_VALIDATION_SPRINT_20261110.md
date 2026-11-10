@@ -60,3 +60,17 @@ The `/site/demo/` informational page is present on draft PR #75. The initial pro
 - Official Companies House status cross-checked as active limited companies; ICO corporate B2B email rules reviewed. Each draft included company identity, working reply contact, opt-out, privacy link and disclaimer that pilot remains unavailable.
 - Source evidence: https://find-and-update.company-information.service.gov.uk/company/13619714 and https://find-and-update.company-information.service.gov.uk/company/16000233. Sending does not verify delivery or engagement.
 - Local private tracker updated to `Colzo_Commercial_Validation_Tracker_2026-11-10_After_Wave2.xlsx` (31 records, 4 sent, 7 other draft messages). Continue to suppress prior objections and avoid duplicate sends.
+
+## 10 November — evidence-based targeting and video demonstration
+
+A new **72.75-second, 1280×720 illustrated Colzo walkthrough** was produced in this working session, using eight fictional-data scenes and original incidental music. It is a conceptual explainer, **not an authenticated app screen recording**. It covers web enquiry receipt, details captured, review queue, owner decisions, unconfirmed booking requests and follow-up actions. Its output is retained as a conversation artifact and is **not hosted on a publicly approved URL**; do not insert protected Vercel Preview links into prospect emails.
+
+A revised private recruitment workbook `Colzo_High_Fit_Prospect_Research_2026-11-10.xlsx` includes 13 evidence-reviewed companies and the original pipeline, with sources, hypotheses, open qualification questions and legal-contact holds. Public website evidence suggests three initial fits worth testing, not proven buyers:
+
+- **Surface Smart Limited (Hartlepool)** — varied roof, driveway, gutter and commercial cleaning enquiries; online form; UK company number 10347005. A new, **unsent** personalised Gmail draft (`r343738975824861769`) contains the illustrated MP4 as an attachment. Its owner must approve sending.
+- **Wilson Roofing N E Ltd (Hartlepool)** — photo-upload quote form and varied residential/commercial work; UK company 16081701. Its pre-existing **unsent** Gmail draft (`r-3814187469924598454`) was revised to a demo-first, opt-out-aware pitch.
+- **Ideal Cleaning Centre (Middlesbrough)** — multi-service business cleaning and website quote form. No separate outreach draft sent or corporate identity independently matched; qualify contact eligibility first.
+
+**Trade-offs:** Grays Electrical already publishes a multi-step form, Reflekta advertises rapid digital quotes and invoicing, Ream advertises instant quotations, TotalSpark runs AI chat/auto-routing, and Woods Bros publicly reports a 70+ person team. These firms may face harder switching or higher integration friction than a small pilot is suited to. Do not assume lacking public workflow details proves lack of software. Explicit business-owner validation is still required.
+
+Status after preparation: **4 emails previously sent today, 0 new sends in this demonstration/targeting step, 0 confirmed demos, 0 paying users**. Treat all new research as hypotheses and do not chase an unanswered message automatically. UK ICO B2B email subscriber distinctions and opt-outs still apply.
