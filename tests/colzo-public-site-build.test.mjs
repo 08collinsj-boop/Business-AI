@@ -25,7 +25,7 @@ for (const environment of ['preview', 'production']) for (const appTarget of [''
     assert.equal(res.status, 0, res.stderr);
     for (const file of ['index.html', 'marketing.html', 'site/site.css', 'site/site.js',
       'assets/colzo-public-site.css', 'assets/colzo-public-site.js', 'assets/colzo-surfaces.css', 'assets/colzo-customer-stitch.css',
-      'assets/icons/colzo-mark.svg', 'site/media/workshop-pexels.jpg', 'pilot/index.html', 'contact/index.html', 'legal/privacy.html']) {
+      'assets/icons/colzo-mark.svg', 'site/media/workshop-pexels.jpg', 'pilot/index.html', 'demo/index.html', 'contact/index.html', 'legal/privacy.html']) {
       assert.ok(existsSync(join(dir, 'site', 'public', file)), file);
     }
     assert.equal(existsSync(join(dir, 'public')), false, 'output must be under site root');
@@ -37,7 +37,7 @@ for (const environment of ['preview', 'production']) for (const appTarget of [''
     if (environment === 'preview') {
       assert.match(html, /<meta name="robots" content="noindex, nofollow">/);
       assert.equal(readFileSync(join(dir, 'site/public/robots.txt'), 'utf8'), 'User-agent: *\nDisallow: /\n');
-      for (const page of ['ai-receptionist/index.html', 'resources/ai-lead-capture-trades/index.html', 'pilot/index.html']) {
+      for (const page of ['ai-receptionist/index.html', 'resources/ai-lead-capture-trades/index.html', 'pilot/index.html', 'demo/index.html']) {
         const content = readFileSync(join(dir, 'site/public', page), 'utf8');
         assert.match(content, /<meta name="robots" content="noindex, nofollow">/);
         assert.doesNotMatch(content, /content="index,follow/);
