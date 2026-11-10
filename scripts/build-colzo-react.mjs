@@ -26,6 +26,8 @@ if (siteProject && isVercelBuild) {
   }
   // Preserve the standalone free-pilot interest deep link.
   await cp('site/pilot', out + '/pilot', { recursive: true });
+  // Standalone fictional-data demonstration; no app access or customer information.
+  await cp('site/demo', out + '/demo', { recursive: true });
   // Preserve legacy search and contact routes so a rebrand never breaks indexed links.
   for (const route of ['about', 'contact', 'resources', 'ai-receptionist', 'ai-for-trades',
     'teesside', 'small-business-ai', 'ai-marketing', 'ai-marketing-small-business',
