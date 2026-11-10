@@ -8,7 +8,7 @@
 
 - Connected Page inbox and Gmail searched. No confirmed new demo commitments or paying customers in inspected items.
 - Current original 19-record recruitment pipeline located in the user's file Library; a new reconciled 31-record copy was prepared privately as `Colzo_Commercial_Validation_Tracker_2026-11-10.xlsx`.
-- Nine previous Gmail drafts were verified still unsent. Two new highly targeted, unsent Gmail drafts were created for **business-generic mailboxes at confirmed incorporated companies** (local roofing and contract cleaning), bringing the tracked draft count to 11. Do not send these without approval.
+- Two reviewed, personalised outreach emails to business-generic mailboxes at local roofing and cleaning companies were sent on 10 November at about 11:40 UK and verified in Gmail Sent. **Gmail dispatch is not recipient delivery/read confirmation.** The remaining nine Colzo drafts are unsent; do not send without separate approval or create duplicate messages.
 - Two previously tagged 'warm' prospects were reclassified as not eligible for another approach based on actual Facebook Messenger responses. Respect the existing refusal and the response that new software is currently too disruptive.
 - Twelve local candidates researched against current public websites. **Two are on verification hold**: one site's homepage displays placeholder phone information; another business identity may be confused with a dissolved similarly named company. These must not receive outreach until resolved.
 - Facebook Page posts from 3–9 November: zero public comments on the eight inspected posts. The 3 November post had 12 shares, but shares are not pilot leads.
@@ -43,10 +43,13 @@ Follow the ICO's [B2B direct-marketing guidance](https://ico.org.uk/for-organisa
 | Metric | Actual | Goal |
 |---|---:|---:|
 | Records in private candidate tracker | 31 (includes past contacts, channels, holds) | Not a conversion target |
-| Existing + new unsent Gmail drafts | 11 | Review individually |
-| New outreach sends authorised in this task | 0 | Up to 25 approved, appropriate |
+| Remaining unsent Colzo Gmail drafts | 9 | Review individually |
+| Verified Colzo outreach emails sent (10 Nov) | 2 | Up to 25 individually appropriate, approved |
 | Confirmed demo acceptances | 0 | 5 |
 | Qualified new future pilot opt-ins | 0 | 3 |
 | Paying customers attributable to sprint | 0 | No guaranteed number |
 
-**Next gate:** owner review of the two precise new Gmail drafts and contact eligibility before any send. No outreach has been sent as part of this task.
+**Next gate:** review any genuine responses to the two already-sent messages; no replies confirmed at this checkpoint. Prepare, but do not send, the next corporate-qualified drafts without recipient-specific approval. The new `/demo/` route is Preview-only until an approved public-site launch.
+
+## Public example workflow (10 November)
+The `/site/demo/` informational page is present on draft PR #75. The initial protected Vercel preview returned 404 because the independent site build script used an explicit output-copy allowlist; a test was added and `scripts/build-colzo-react.mjs` now includes `site/demo`. The latest protected site Preview returned HTTP 200 for `/demo/`, `/pilot/` and `/`, with `noindex` in preview. **No Production deployment, real customer-data access, self-service activation or paid billing changed.** Do not email the protected Preview link to prospects.
