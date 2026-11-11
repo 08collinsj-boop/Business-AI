@@ -387,3 +387,266 @@
   body.colzo-interface.auth-ready #dashboardView .colzo-briefing-action,
   body.colzo-interface.auth-ready .bottom-nav .nav-btn{transition:none!important;transform:none!important}
 }
+
+/* Native authenticated Colzo owner workspace: the actual default application.
+   Desktop-only redesign; existing five-tab mobile owner view is preserved. */
+#colzoOwner .cn-home-desktop{display:none!important}
+#colzoOwner .cn-desktop-nav-extra{display:none!important}
+@media (min-width:1100px){
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode){background:#0b0e14!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{
+    padding:0 0 70px 224px!important;
+    background:#0b0e14!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-content{
+    width:min(100%,1510px)!important;max-width:none!important;
+    padding:30px clamp(25px,3vw,52px) 60px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-header{
+    min-height:66px!important;
+    padding:10px clamp(25px,3vw,52px)!important;
+    background:rgba(11,14,20,.93)!important;
+    border-bottom:1px solid #242e36!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner[data-screen="home"] .cn-header .cn-wordmark{display:none!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav{
+    width:224px!important;min-height:100dvh!important;
+    padding:96px 13px 25px!important;gap:7px!important;
+    border-right:1px solid #273039!important;
+    background:linear-gradient(180deg,#141920,#10141a)!important;
+    box-shadow:8px 0 25px rgba(0,0,0,.1)!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav:before{
+    content:"Colzo"!important;
+    top:27px!important;left:22px!important;
+    min-height:40px!important;display:flex!important;align-items:center!important;
+    padding-left:45px!important;
+    color:#f6f8fa!important;font-size:26px!important;
+    letter-spacing:-1.1px!important;font-weight:760!important;
+    background:url('/assets/icons/colzo-mark.svg') left center/36px no-repeat!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav{overflow-y:auto!important;scrollbar-width:thin!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav > button[data-cn-screen="more"]{display:none!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-desktop-nav-extra{
+    display:flex!important;flex-direction:column!important;
+    gap:7px!important;margin-top:14px!important;
+    padding-top:25px!important;
+    border-top:1px solid #303943!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-desktop-nav-extra:before{
+    content:"BUSINESS TOOLS"!important;display:block!important;
+    margin:0 10px 8px!important;color:#83919d!important;
+    font-size:9px!important;font-weight:690!important;letter-spacing:.15em!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav button{
+    min-height:47px!important;
+    padding:11px 15px!important;border-radius:11px!important;
+    color:#a9b4bf!important;font-size:13px!important;font-weight:560!important;
+    transition:background-color .15s ease,color .15s ease!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav button[aria-current=page]{
+    background:linear-gradient(100deg,#36472c,#29372a)!important;
+    color:#e6f5d0!important;
+    box-shadow:inset 3px 0 #c8ff2e!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-content > :is(.cf-home-head,.cf-kpis,.cf-trend,.cf-quick,.cf-below-fold){display:none!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-home-desktop{display:block!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-intro{
+    display:flex!important;align-items:start!important;justify-content:space-between!important;
+    gap:22px!important;margin:0 0 23px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-overline{
+    display:block!important;color:#a8c47f!important;
+    letter-spacing:.15em!important;font-size:9px!important;font-weight:690!important;
+    margin-bottom:12px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-intro h1{
+    color:#f5f7f8!important;font-size:clamp(28px,2.5vw,40px)!important;
+    font-weight:750!important;letter-spacing:-1.4px!important;
+    line-height:1.14!important;margin:0 0 6px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-intro p{
+    color:#a4b0ba!important;font-size:12px!important;line-height:1.5!important;margin:0!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-date{
+    align-self:flex-start!important;flex:none!important;
+    border-radius:10px!important;padding:10px 12px!important;
+    border:1px solid #313b44!important;background:#161c24!important;
+    color:#a9b4c0!important;font-size:11px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metrics{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:13px!important;margin-bottom:18px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metric{
+    min-height:118px!important;padding:18px!important;
+    border:1px solid #303945!important;border-radius:17px!important;
+    background:linear-gradient(143deg,#1b222b,#171d25)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+    display:flex!important;flex-direction:column!important;justify-content:space-between!important;
+    gap:5px!important;min-width:0!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metric:first-child{
+    border-color:#3c5431!important;
+    background:linear-gradient(142deg,#242f25,#1b2526)!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metric span{
+    color:#b1c1cb!important;font-size:11px!important;font-weight:570!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metric strong{
+    color:#f6f8fa!important;font-size:29px!important;
+    letter-spacing:-1.15px!important;font-weight:750!important;line-height:1.1!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metric small{
+    color:#98a7b3!important;font-size:10px!important;line-height:1.4!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing{
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;gap:15px 30px!important;
+    min-height:128px!important;margin-bottom:17px!important;padding:22px 24px!important;
+    background:radial-gradient(26rem 12rem at 105% 65%,rgba(200,255,46,.13),transparent 74%),linear-gradient(112deg,#1c2720,#192022 65%,#24301f)!important;
+    border:1px solid #465e35!important;border-radius:17px!important;
+    box-shadow:0 10px 32px rgba(0,0,0,.09)!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing-title{
+    display:flex!important;align-items:center!important;gap:11px!important;
+    color:#e7f0e3!important;font-size:12px!important;font-weight:720!important;margin-bottom:11px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-spark{
+    width:27px!important;height:27px!important;border-radius:50%!important;
+    color:#c8ff2e!important;border:1px solid #88af3e!important;
+    display:grid!important;place-items:center!important;font-size:17px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing p{
+    color:#f2f5f1!important;font-size:14px!important;line-height:1.55!important;
+    font-weight:490!important;margin:0!important;max-width:690px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing small{
+    display:block!important;color:#b1c0aa!important;font-size:10px!important;margin-top:10px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing button{
+    display:flex!important;justify-content:center!important;align-items:center!important;gap:10px!important;
+    border:0!important;border-radius:12px!important;min-height:44px!important;
+    padding:10px 17px!important;background:#c8ff2e!important;color:#141a13!important;
+    font-size:12px!important;font-weight:760!important;white-space:nowrap!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-primary-grid{
+    display:grid!important;grid-template-columns:minmax(0,1.85fr) minmax(0,1fr)!important;
+    gap:16px!important;margin:0 0 22px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel{
+    display:flex!important;flex-direction:column!important;
+    min-width:0!important;min-height:275px!important;
+    padding:20px 20px 13px!important;
+    border:1px solid #303b46!important;border-radius:17px!important;
+    background:linear-gradient(151deg,#1b222b,#181d25)!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel-head{
+    display:flex!important;justify-content:space-between!important;align-items:start!important;
+    gap:10px!important;margin-bottom:12px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel-head span{
+    font-size:9px!important;color:#9bb67b!important;font-weight:710!important;letter-spacing:.13em!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel-head h2{
+    font-size:16px!important;color:#f6f8fa!important;letter-spacing:-.28px!important;
+    font-weight:720!important;margin:4px 0 0!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel-head small{
+    font-size:10px!important;color:#a7b5be!important;white-space:nowrap!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel-list{
+    flex:1!important;min-height:0!important;
+    display:flex!important;flex-direction:column!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row{
+    display:grid!important;grid-template-columns:43px minmax(0,1fr) 15px!important;
+    align-items:center!important;gap:11px!important;
+    min-height:57px!important;width:100%!important;
+    padding:9px 2px!important;text-align:left!important;
+    border:0!important;border-top:1px solid #303943!important;
+    background:transparent!important;color:#f4f6f8!important;border-radius:0!important;
+    transition:background-color .16s ease!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row:first-child{border-top:0!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row:hover{background:#252d34!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row-icon{
+    display:grid!important;place-items:center!important;width:39px!important;height:37px!important;
+    border-radius:11px!important;background:#2d392e!important;color:#c9f993!important;
+    font-size:12px!important;font-weight:720!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row-text{
+    min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row-text strong{
+    color:#f2f4f6!important;font-size:12px!important;font-weight:680!important;
+    white-space:nowrap!important;text-overflow:ellipsis!important;overflow:hidden!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row-text small{
+    color:#9fadba!important;font-size:10px!important;
+    white-space:nowrap!important;text-overflow:ellipsis!important;overflow:hidden!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row-arrow{color:#a3b0ab!important;font-size:18px!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-empty{
+    color:#a8b5c0!important;font-size:12px!important;line-height:1.55!important;
+    margin:0!important;padding:15px 0!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-more{
+    align-self:flex-start!important;min-height:44px!important;margin-top:auto!important;
+    padding:11px 1px!important;border:0!important;background:none!important;
+    color:#c8ef92!important;font-size:11px!important;font-weight:680!important;
+    white-space:nowrap!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-section-head h2{
+    color:#f4f6f7!important;font-size:17px!important;font-weight:720!important;
+    margin:0 0 13px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcuts{margin:0 0 23px!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:13px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid button{
+    display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;
+    grid-template-rows:1fr 1fr!important;column-gap:10px!important;
+    align-items:center!important;min-width:0!important;min-height:80px!important;
+    padding:12px!important;text-align:left!important;
+    border:1px solid #303b46!important;border-radius:15px!important;
+    background:#1b222a!important;color:#f5f7f9!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid button>span{
+    grid-row:1/3!important;display:grid!important;place-items:center!important;
+    width:35px!important;height:35px!important;border-radius:11px!important;
+    background:#303b31!important;color:#c8ff2e!important;
+    font-size:19px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid strong{
+    color:#f5f7f9!important;font-size:12px!important;font-weight:700!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid small{
+    color:#a7b1bc!important;font-size:10px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-secondary-grid{
+    display:grid!important;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)!important;gap:16px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-recent-list .cn-record{
+    border:1px solid #303a46!important;background:#232b33!important;
+    min-height:72px!important;height:auto!important;
+    margin-bottom:8px!important;padding:11px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-trend{
+    min-width:0!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-trend .cf-trend{
+    margin:0!important;height:100%!important;
+    background:#1b222a!important;border:1px solid #303b46!important;
+    border-radius:17px!important;
+  }
+}
+@media (min-width:1100px) and (max-width:1280px){
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  #colzoOwner .cn-home-desktop button{transition:none!important;transform:none!important}
+}
