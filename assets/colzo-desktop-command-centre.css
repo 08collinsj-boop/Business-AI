@@ -64,7 +64,7 @@
   }
   body.colzo-interface.auth-ready #dashboardView.view.active{
     display:grid!important;
-    grid-template-columns:minmax(0,1.04fr) minmax(0,1fr)!important;
+    grid-template-columns:minmax(0,1.85fr) minmax(0,1fr)!important;
     grid-template-areas:
       "hero hero"
       "section section"
@@ -220,7 +220,7 @@
   }
   body.colzo-interface.auth-ready #dashboardView .colzo-briefing-action{
     display:inline-flex!important;align-items:center!important;justify-content:center!important;
-    min-height:40px!important;min-width:148px!important;
+    min-height:44px!important;min-width:148px!important;
     padding:9px 14px!important;border:0!important;border-radius:11px!important;
     color:#111711!important;background:#c8ff2e!important;
     font-size:12px!important;font-weight:750!important;white-space:nowrap!important;
