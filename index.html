@@ -2200,6 +2200,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-customer-stitch.css?v=20261020-customer-1">
 <link rel="stylesheet" href="/assets/colzo-flutter-motion.css?v=20261020-fluid-pack-1">
 <link rel="stylesheet" href="/assets/colzo-customers-mobile.css?v=20261027-customers-1">
+<link rel="stylesheet" href="/assets/colzo-desktop-command-centre.css?v=20261111-desktop-v1">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" id="colzoApp" aria-busy="true">
@@ -2614,6 +2615,14 @@ class="view active"
 </section>
 <div class="colzo-dashboard-section-title"><div><span class="colzo-section-kicker">PERFORMANCE</span><h3>At a glance</h3></div><span class="colzo-section-aside">Recorded activity</span></div>
 <div class="stats" id="stats"></div>
+<section id="colzoDesktopBriefing" class="colzo-desktop-briefing" aria-label="Daily workspace briefing">
+  <div class="colzo-briefing-copy">
+    <div class="colzo-briefing-kicker"><span class="colzo-briefing-glyph" aria-hidden="true">✦</span> Your daily briefing</div>
+    <p id="colzoBriefingText" aria-live="polite">Your priorities will appear after the workspace loads.</p>
+    <small class="colzo-briefing-meta">Based on recorded activity · No actions taken automatically</small>
+  </div>
+  <button class="colzo-briefing-action" type="button" onclick="showView('leads')">Review enquiries <span aria-hidden="true">↗</span></button>
+</section>
 
 <button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
   <span class="dashboard-ai-orb" aria-hidden="true"><i></i><b>✦</b></span>
@@ -2677,7 +2686,7 @@ class="view active"
   <p id="referralRewardStatus" class="work-meta referral-reward-status"></p>
 </div>
 
-<div class="card dashboard-secondary-card">
+<div id="colzoPipelineCard" class="card dashboard-secondary-card">
   <div class="card-head"><h3>Pipeline</h3><span id="pipelineSummary">Loading…</span></div>
   <div class="pipeline" id="pipeline"></div>
 </div>
@@ -2688,22 +2697,22 @@ class="view active"
   <div id="firstRunSteps" class="first-run-list"></div>
 </div>
 
-<div class="card dashboard-secondary-card">
+<div id="colzoRecentLeadsCard" class="card dashboard-secondary-card">
   <div class="card-head"><h3>Recent leads</h3><button class="card-head-action" type="button" onclick="showView('leads')">View all</button></div>
   <div id="recentLeads"></div>
 </div>
 
-<div class="card dashboard-secondary-card">
+<div id="colzoFollowUpsCard" class="card dashboard-secondary-card">
   <div class="card-head"><h3>Follow-ups</h3><span id="followCount">0 needing attention</span></div>
   <div id="followUps"></div>
 </div>
 
-<div class="card dashboard-secondary-card">
+<div id="colzoUpcomingBookingsCard" class="card dashboard-secondary-card">
   <div class="card-head"><h3>Upcoming bookings</h3><button class="card-head-action" type="button" onclick="showView('bookings')">Manage</button></div>
   <div id="upcomingBookings"><div class="empty">Loading bookings…</div></div>
 </div>
 
-<div class="card dashboard-secondary-card">
+<div id="colzoActionsCard" class="card dashboard-secondary-card">
   <div class="card-head"><h3>Actions to complete</h3><button class="card-head-action" type="button" onclick="showView('actions')">Manage</button></div>
   <div id="dashboardActions"><div class="empty">Loading actions…</div></div>
 </div>
@@ -5056,6 +5065,18 @@ ownerAssistantAvailable=data?.business?.assistant_available===true;
 renderReceptionistAvailability();
 }
 
+function colzoBriefingSummary({newLeads=0,dueActions=0,bookingRequests=0}={}) {
+  const valid = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
+  const enquiries = valid(newLeads);
+  const actions = valid(dueActions);
+  const requests = valid(bookingRequests);
+  const parts = [];
+  if (enquiries) parts.push(enquiries + ' new ' + (enquiries === 1 ? 'enquiry' : 'enquiries'));
+  if (actions) parts.push(actions + ' ' + (actions === 1 ? 'action' : 'actions') + ' due');
+  if (requests) parts.push(requests + ' booking ' + (requests === 1 ? 'request' : 'requests') + ' awaiting confirmation');
+  return parts.length ? 'You have ' + parts.join(', ') + ' to review.' : 'No new enquiries, due actions or booking requests need your attention.';
+}
+
 function renderDashboard(){
 
 renderReceptionistAvailability();
@@ -5078,6 +5099,9 @@ const due=dateOnly(action.due_at);return due&&due<=today;
 const highPriority=leads.filter(lead=>lead.status!=='Converted'&&lead.priority==='High').length;
 const handoverAttention=handovers.filter(item=>String(item.status||'').toLowerCase()==='requires_attention').length;
 const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0);
+const bookingRequests=bookings.filter(booking=>booking.status==='requested').length;
+const briefing=$('colzoBriefingText');
+if(briefing) briefing.textContent=colzoBriefingSummary({newLeads,dueActions,bookingRequests});
 
 renderFirstRunGuide();
 renderPilotProgress();
