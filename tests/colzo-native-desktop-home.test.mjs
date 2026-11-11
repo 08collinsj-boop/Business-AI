@@ -109,3 +109,17 @@ test('desktop and preserved mobile trend charts do not reuse the same SVG gradie
  assert.ok(f.root.querySelector('#cnDesktopTrend [fill="url(#cnDesktopTrendFill)"]'));
  f.dom.window.close();
 });
+
+test('compact laptop widths retain the desktop overview with a narrow accessible workspace rail',()=>{
+ assert.match(desktopCss, /@media \(min-width:920px\)\{[\s\S]*?#colzoOwner \.cn-home-desktop\{display:block!important\}/);
+ assert.match(desktopCss, /@media \(min-width:920px\) and \(max-width:1099px\)\{/);
+ assert.match(desktopCss, /width:72px!important/);
+ assert.match(desktopCss, /grid-template-columns:minmax\(0,1fr\)!important/);
+ assert.match(desktopCss, /#colzoOwner \.cn-nav button\{[\s\S]*?font-size:0!important/);
+});
+
+test('native desktop brand pseudo-element resets inherited moving tab-indicator geometry',()=>{
+ assert.match(desktopCss,/background:url\('\/assets\/icons\/colzo-mark\.svg'\)/);
+ assert.match(desktopCss,/bottom:auto!important;right:auto!important/);
+ assert.match(desktopCss,/height:40px!important;width:200px!important/);
+});
