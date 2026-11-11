@@ -66,6 +66,14 @@
     :'<p class="cn-dash-empty">Open Bookings to check your schedule.</p>';
   const attentionLabel=Array.isArray(flagged)?(flagged.length>4?'4 of '+flagged.length:flagged.length+' items'):'Unavailable';
   const scheduleLabel=Array.isArray(schedule)?(schedule.length>4?'4 of '+schedule.length:schedule.length+' confirmed'):'Unavailable';
+  const firstPriority=Array.isArray(flagged)?flagged[0]:null;
+  const priorityRoute=firstPriority?.route==='leads'?'enquiries':firstPriority?.route;
+  const primaryRoute=['enquiries','actions','bookings'].includes(priorityRoute)?priorityRoute:'enquiries';
+  const primaryAction=firstPriority
+    ? {text:primaryRoute==='actions'?'Review actions':primaryRoute==='bookings'?'Review requests':'Review enquiries',attribute:'data-cn-screen="'+primaryRoute+'"'}
+    : Array.isArray(flagged)
+      ? {text:'New enquiry',attribute:'data-cn-create-lead'}
+      : {text:'View enquiries',attribute:'data-cn-screen="enquiries"'};
   const recent=enquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,3);
   return `<section class="cn-home-desktop" aria-label="Desktop business command centre">
     <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><span class="cn-dash-date">${safe(operations?.dateLabel?.(options)||totalToday())}</span></header>
@@ -78,7 +86,7 @@
     <section class="cn-dash-briefing" aria-label="Workspace briefing">
       <div><span class="cn-dash-briefing-title"><span class="cn-dash-spark" aria-hidden="true">✦</span>Workspace briefing</span>
       <p>${safe(briefing)}</p><small>Based on current records · Nothing sent or confirmed automatically</small></div>
-      <button type="button" data-cn-screen="enquiries">Review enquiries <span aria-hidden="true">↗</span></button>
+      <button type="button" ${primaryAction.attribute}>${safe(primaryAction.text)} <span aria-hidden="true">↗</span></button>
     </section>
     <div class="cn-dash-primary-grid">
       <section class="cn-dash-panel" aria-label="Needs attention"><div class="cn-dash-panel-head"><div><span>PRIORITIES</span><h2>Needs attention</h2></div><small>${safe(attentionLabel)}</small></div><div class="cn-dash-panel-list">${queue}</div><button type="button" class="cn-dash-more" data-cn-screen="actions">Open actions <span aria-hidden="true">↗</span></button></section>
