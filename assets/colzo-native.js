@@ -68,7 +68,7 @@
   const scheduleLabel=Array.isArray(schedule)?(schedule.length>4?'4 of '+schedule.length:schedule.length+' confirmed'):'Unavailable';
   const recent=enquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,3);
   return `<section class="cn-home-desktop" aria-label="Desktop business command centre">
-    <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><span class="cn-dash-date">${safe(totalToday())}</span></header>
+    <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><span class="cn-dash-date">${safe(operations?.dateLabel?.(options)||totalToday())}</span></header>
     <section class="cn-dash-metrics" aria-label="Recorded business activity">
       ${metric('New enquiries',newCount,'Status: new')}
       ${metric('Confirmed today',Array.isArray(schedule)?schedule.length:'—','Booking requests excluded')}
