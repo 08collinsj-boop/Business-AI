@@ -44,3 +44,9 @@ test('briefing format reports only recorded work and never invents booked or con
   assert.doesNotMatch(result, /confirmed|revenue|£/i);
   assert.doesNotMatch(fn({newLeads: -1, dueActions: 1.5, bookingRequests: NaN}), /-1|1\.5|NaN/);
 });
+
+test('desktop proportions and controls follow the approved Stitch handoff', () => {
+  assert.ok(css.includes('grid-template-columns:minmax(0,1.85fr) minmax(0,1fr)!important'), 'desktop workspace must reserve more width for the attention column');
+  assert.match(css, /min-height:44px!important;min-width:148px!important/,'briefing primary action must meet 44px target');
+  assert.ok(css.includes('width:224px!important'), 'desktop sidebar follows the approved 224px token');
+});
