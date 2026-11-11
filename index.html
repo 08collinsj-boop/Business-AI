@@ -2624,6 +2624,17 @@ class="view active"
   <button class="colzo-briefing-action" type="button" onclick="showView('leads')">Review enquiries <span aria-hidden="true">↗</span></button>
 </section>
 
+<section id="colzoDesktopAttention" class="colzo-desktop-operations" aria-label="Needs attention">
+  <div class="colzo-ops-heading"><div><span class="colzo-ops-eyebrow">PRIORITIES</span><h3>Needs attention</h3></div><span id="colzoAttentionCount">Loading</span></div>
+  <div id="colzoAttentionList" class="colzo-ops-list" aria-live="polite"><p class="colzo-ops-empty">Loading priorities…</p></div>
+  <button class="colzo-ops-all" type="button" onclick="showView('actions')">Open actions <span aria-hidden="true">↗</span></button>
+</section>
+<section id="colzoDesktopSchedule" class="colzo-desktop-operations" aria-label="Today's schedule">
+  <div class="colzo-ops-heading"><div><span class="colzo-ops-eyebrow">CALENDAR</span><h3>Today's schedule</h3></div><span id="colzoScheduleCount">Loading</span></div>
+  <div id="colzoScheduleList" class="colzo-ops-list" aria-live="polite"><p class="colzo-ops-empty">Loading appointments…</p></div>
+  <button class="colzo-ops-all" type="button" onclick="showView('bookings')">View bookings <span aria-hidden="true">↗</span></button>
+</section>
+
 <button class="dashboard-ai-strip ai-feature-card" type="button" onclick="showView('enquiries')" aria-label="Open AI Receptionist">
   <span class="dashboard-ai-orb" aria-hidden="true"><i></i><b>✦</b></span>
   <span class="dashboard-ai-copy"><strong>AI Receptionist</strong><small>Let AI handle the enquiries</small></span>
@@ -3593,6 +3604,7 @@ Save business settings
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/colzo-backend-bridge.js?v=20261014-api1"></script>
+<script src="/assets/colzo-desktop-operations.js?v=20261111-ops-v1"></script>
 <script>
 
 let leads=[];
@@ -5092,16 +5104,18 @@ const dashboardDateLabel=$('dashboardDateLabel');if(dashboardDateLabel){const da
 
 const newLeads=leads.filter(lead=>String(lead.status||'New')==='New').length;
 const pendingActions=businessActions.filter(action=>action.status==='pending');
+const workspaceTimezone=businessConfiguration?.booking_preferences?.timezone;
+const now=new Date();
 const today=localKey();
-const dueActions=pendingActions.filter(action=>{
-const due=dateOnly(action.due_at);return due&&due<=today;
-}).length;
+const dueActions=window.ColzoDesktopOperations?.dueCount(pendingActions,{now,timezone:workspaceTimezone})
+  ?? pendingActions.filter(action=>{const due=dateOnly(action.due_at);return due&&due<=today;}).length;
 const highPriority=leads.filter(lead=>lead.status!=='Converted'&&lead.priority==='High').length;
 const handoverAttention=handovers.filter(item=>String(item.status||'').toLowerCase()==='requires_attention').length;
 const attentionCount=highPriority+handoverAttention+(data.overdue_follow_ups||0);
 const bookingRequests=bookings.filter(booking=>booking.status==='requested').length;
 const briefing=$('colzoBriefingText');
 if(briefing) briefing.textContent=colzoBriefingSummary({newLeads,dueActions,bookingRequests});
+window.ColzoDesktopOperations?.render(document,{leads,actions:businessActions,bookings,timezone:workspaceTimezone,now,navigate:showView});
 
 renderFirstRunGuide();
 renderPilotProgress();
