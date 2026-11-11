@@ -34,7 +34,8 @@ test('native owner home has a dedicated desktop workspace, not only the hidden l
 });
 
 test('native desktop KPIs distinguish confirmed today from requested bookings and use real data',()=>{
- const today=new Date(), iso=new Date(today.getTime()+5*60*1000).toISOString();
+ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+ const iso=parts.year+'-'+parts.month+'-'+parts.day+'T12:00:00Z';
  const f=fixture({leads:[{id:1,name:'Test customer',status:'New'}],bookings:[
  {id:1,title:'Confirmed test',status:'confirmed',starts_at:iso},
  {id:2,title:'Requested test',status:'requested',starts_at:iso}
