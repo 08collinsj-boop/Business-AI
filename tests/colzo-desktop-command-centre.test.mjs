@@ -8,7 +8,7 @@ const cssPath = new URL('../assets/colzo-desktop-command-centre.css', import.met
 const css = (() => { try { return readFileSync(cssPath, 'utf8'); } catch { return ''; } })();
 
 test('desktop command-centre stylesheet is loaded after the existing workspace styles', () => {
-  const existing = html.indexOf('/assets/colzo-workflows.css?');
+  const existing = html.indexOf('/assets/colzo-customers-mobile.css?');
   const command = html.indexOf('/assets/colzo-desktop-command-centre.css?');
   assert.ok(existing > 0, 'the existing stylesheet must be preserved');
   assert.ok(command > existing, 'new desktop styles must load after existing styles');
