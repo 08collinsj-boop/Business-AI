@@ -121,3 +121,43 @@ test('workspace date label uses the booking timezone, not the viewing device tim
  assert.match(api.dateLabel({now:'2026-07-01T23:30:00Z',timezone:'Invalid/Zone'}),/2 Jul/);
  assert.equal(api.dateLabel({now:'not-a-date',timezone:'Europe/London'}),'');
 });
+
+test('DATE-only deadlines retain their local calendar date, including western timezones',()=>{
+ const api=getOverview();
+ const actions=[
+   {title:'July first deadline',status:'pending',due_at:'2026-07-01'},
+   {title:'Malformed date',status:'pending',due_at:'2026-02-30'},
+   {title:'Tomorrow deadline',status:'pending',due_at:'2026-07-02'}];
+ const options={now:'2026-07-01T17:30:00Z',timezone:'America/Los_Angeles'};
+ assert.equal(api.dueCount(actions,options),1);
+ assert.equal(api.attention({actions},options)[0].meta,'Due today');
+ assert.equal(api.dueCount(actions,{now:'2026-06-30T18:00:00Z',timezone:'America/Los_Angeles'}),0);
+});
+
+test('desktop primary action reviews highest-priority genuine record instead of always enquiries',()=>{
+ const dom=new JSDOM('<body class="auth-ready colzo-owner-enabled"><section id="colzoOwner"><header class="cn-header"></header><div id="cnContent"></div><div id="cnScreenAnnounce"></div><nav class="cn-nav"><button data-cn-screen="home">Home</button><button data-cn-screen="enquiries">Enquiries</button><button data-cn-screen="bookings">Bookings</button><button data-cn-screen="clients">Customers</button><button data-cn-screen="more">More</button></nav></section></body>',{runScripts:'outside-only',url:'https://qa.invalid'});
+ const past=new Date(Date.now()-86400000).toISOString();
+ dom.window.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});
+ dom.window.scrollTo=()=>{};
+ dom.window.eval('var leads=[{name:"New customer",status:"New"}];var bookings=[{title:"Confirm visit",status:"requested"}];var businessActions='+JSON.stringify([{title:'Overdue action',status:'pending',due_at:past}])+';var settings={business_name:"Example"};var businessConfiguration={booking_preferences:{timezone:"Europe/London"}};');
+ dom.window.eval(readFileSync(new URL('../assets/colzo-desktop-operations.js',import.meta.url),'utf8'));
+ dom.window.eval(readFileSync(new URL('../assets/colzo-native.js',import.meta.url),'utf8'));
+ dom.window.ColzoOwner.dashboardLoaded();dom.window.ColzoOwner.render();
+ const button=dom.window.document.querySelector('.cn-home-desktop .cn-dash-briefing > button');
+ assert.equal(button?.dataset.cnScreen,'actions');
+ assert.match(button.textContent,/Review actions/);
+ dom.window.close();
+});
+
+test('attention list includes supported New, Open, Pending and Unread enquiry statuses',()=>{
+ const api=getOverview();
+ const leads=[
+  {name:'New enquiry',status:'New'},{name:'Still open',status:'open'},
+  {name:'Awaiting review',status:'pending'},{name:'Unread request',status:'unread'},
+  {name:'Already contacted',status:'Contacted'},{name:'Converted enquiry',status:'Converted'},
+  {name:'Closed item',status:'closed'}];
+ const result=api.attention({leads},{now:on,timezone:'Europe/London'}).filter(item=>item.route==='leads');
+ assert.equal(result.length,4);
+ assert.ok(result.some(item=>item.title==='Still open'));
+ assert.ok(!result.some(item=>item.title==='Closed item'));
+});
