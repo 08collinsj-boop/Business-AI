@@ -114,3 +114,10 @@ test('operations stay hidden on phone but stack on tablet, above the lower dashb
  const ai = html.indexOf('class="dashboard-ai-strip');
  assert.ok(list > 0 && schedule > list && ai > schedule, 'tablet document order should be attention, then schedule, then optional features');
 });
+
+test('workspace date label uses the booking timezone, not the viewing device timezone',()=>{
+ const api=getOverview();
+ assert.match(api.dateLabel({now:'2026-07-01T23:30:00Z',timezone:'Europe/London'}),/2 Jul/);
+ assert.match(api.dateLabel({now:'2026-07-01T23:30:00Z',timezone:'Invalid/Zone'}),/2 Jul/);
+ assert.equal(api.dateLabel({now:'not-a-date',timezone:'Europe/London'}),'');
+});
