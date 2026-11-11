@@ -32,6 +32,17 @@
     };
   }
 
+  // DATE-only task deadlines denote a local calendar day, not UTC midnight.
+  // UTC parsing otherwise shifts dates backwards in western timezones.
+  function actionDueDate(value, zone) {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const timestamp = Date.parse(value);
+      if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0,10) !== value) return null;
+      return {day:value,timestamp};
+    }
+    return localDateParts(value, zone);
+  }
+
   function attention(records, options = {}) {
     const zone = timezone(options.timezone);
     const today = localDateParts(options.now === undefined ? new Date() : options.now, zone)?.day;
@@ -43,7 +54,7 @@
 
     for (const action of actions) {
       if (!action || action.status !== 'pending') continue;
-      const due = action.due_at ? localDateParts(action.due_at, zone) : null;
+      const due = action.due_at ? actionDueDate(action.due_at, zone) : null;
       if (!due || due.day > today) continue;
       const overdue = due.day < today;
       items.push({
@@ -65,7 +76,9 @@
       });
     }
     for (const lead of leads) {
-      if (!lead || String(lead.status || 'New') !== 'New') continue;
+      const status = String(lead?.status || 'New').trim().toLowerCase();
+      if (!lead || /won|completed|converted|closed|resolved/.test(status) ||
+          !/new|pending|unread|open/.test(status)) continue;
       items.push({
         title: String(lead.name || lead.job_type || 'New enquiry'),
         meta: 'New enquiry',
