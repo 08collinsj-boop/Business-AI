@@ -392,7 +392,7 @@
    Desktop-only redesign; existing five-tab mobile owner view is preserved. */
 #colzoOwner .cn-home-desktop{display:none!important}
 #colzoOwner .cn-desktop-nav-extra{display:none!important}
-@media (min-width:1100px){
+@media (min-width:920px){
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode){background:#0b0e14!important}
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{
     padding:0 0 70px 224px!important;
@@ -419,7 +419,11 @@
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav:before{
     content:"Colzo"!important;
     top:27px!important;left:22px!important;
-    min-height:40px!important;display:flex!important;align-items:center!important;
+    min-height:40px!important;height:40px!important;width:200px!important;
+    bottom:auto!important;right:auto!important;
+    border:0!important;border-radius:0!important;box-shadow:none!important;
+    transform:none!important;z-index:0!important;
+    display:flex!important;align-items:center!important;
     padding-left:45px!important;
     color:#f6f8fa!important;font-size:26px!important;
     letter-spacing:-1.1px!important;font-weight:760!important;
@@ -645,6 +649,55 @@
 @media (min-width:1100px) and (max-width:1280px){
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-shortcut-grid{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media (min-width:920px) and (max-width:1099px){
+  /* Laptop/tablet: compact labelled-for-AT rail, full-width stacked operations. */
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{
+    padding-left:72px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-content{
+    padding:25px 25px 58px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav{
+    width:72px!important;padding:91px 7px 20px!important;
+    overflow-y:auto!important;gap:6px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav:before{
+    content:""!important;
+    top:24px!important;left:17px!important;
+    width:37px!important;height:37px!important;min-height:0!important;padding:0!important;
+    bottom:auto!important;right:auto!important;
+    border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important;
+    background:url('/assets/icons/colzo-mark.svg') center/cover no-repeat!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav button{
+    display:flex!important;justify-content:center!important;
+    min-height:49px!important;padding:9px 0!important;
+    font-size:0!important;gap:0!important;
+    overflow:hidden!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav button .cn-navicon{
+    width:25px!important;height:25px!important;flex:none!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav > button[data-cn-screen="more"]{
+    display:flex!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-desktop-nav-extra{
+    display:none!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-metrics{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-primary-grid,
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-secondary-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-briefing button{
+    justify-self:start!important;
   }
 }
 @media (prefers-reduced-motion:reduce){
