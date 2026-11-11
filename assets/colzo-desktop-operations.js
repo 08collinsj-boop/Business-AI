@@ -144,6 +144,15 @@
     }
   }
 
+  function dateLabel(options = {}) {
+    const zone = timezone(options.timezone);
+    const date = new Date(options.now === undefined ? new Date() : options.now);
+    if (!Number.isFinite(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone:zone,weekday:'short',day:'numeric',month:'short'
+    }).format(date);
+  }
+
   function dueCount(actions, options = {}) {
     return attention({actions}, options).filter(item => item.route === 'actions').length;
   }
@@ -164,5 +173,5 @@
       'Showing 4 of ' + scheduleItems.length : scheduleItems.length + ' confirmed';
   }
 
-  global.ColzoDesktopOperations = {attention,schedule,dueCount,render};
+  global.ColzoDesktopOperations = {attention,schedule,dueCount,dateLabel,render};
 })(typeof window === 'undefined' ? {} : window);
