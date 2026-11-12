@@ -19,6 +19,7 @@ test('native task list is grounded in returned workspace data',()=>{
  assert.match(source,/clickupTasks\?\.tasks/);
  assert.match(source,/ClickUp remains the system of record/);
  assert.match(source,/ClickUp did not confirm the change/);
+ assert.match(source,/root\.isConnected.*state\.screen==='clickup'/);
  assert.match(source,/if\(target\.hasAttribute\('data-clickup-connect'\)\)/);
  assert.match(source,/if\(e\.target\.id==='cnClickupForm'\)/);
 });

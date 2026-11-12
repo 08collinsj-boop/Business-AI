@@ -1626,7 +1626,7 @@
      state.clickupTasks=status.connected?await api('/api/clickup?view=tasks&page='+state.clickupPage):null;
      if(status.connected&&!Array.isArray(state.clickupTasks?.tasks))throw Error('ClickUp returned no verified task list.');
    }catch(error){if(epoch===sessionEpoch)state.clickupError=error?.message||'The ClickUp connection is unavailable.';}
-   finally{if(epoch===sessionEpoch){state.clickupLoading=false;if(state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations')render();}}
+   finally{if(epoch===sessionEpoch){state.clickupLoading=false;if(root.isConnected&&(state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations'))render();}}
  }
  async function connectClickup(){
    if(state.clickupBusy)return;
