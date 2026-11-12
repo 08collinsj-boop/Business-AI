@@ -35,14 +35,14 @@ Colzo is a desktop-first business operating workspace. ClickUp tasks appear in a
 
 - The first authorised ClickUp workspace is selected initially; authorised workspaces can be switched within Colzo.
 - The native task list supports pages of 100 open tasks, up to 21 pages; the counts refer to the currently viewed page.
-- Creating a task uses list IDs obtained from existing visible tasks. Empty lists need a dedicated list-discovery flow.
+- Creating a task uses securely discovered ClickUp Lists, including empty Lists; discovery is bounded to 4 Spaces, 12 Folders and 100 Lists. The owner may need ClickUp directly for destinations beyond this initial bound.
 - The ClickUp briefing is rules-based, not a generative or autonomous AI agent.
 - Disconnect removes Colzo's credential; provider-side revocation should also be performed in ClickUp.
 - No live connection, authenticated screenshot, external company demo, full-build acceptance or end-to-end security proof has been completed.
 
 ## Verification
 
-Focused provider, API and native-contract tests passed in an isolated Node runtime (27/27). New API and native JS passed Node source syntax checks. The complete existing regression suite could not be executed in that runtime because its package dependencies were not installed.
+The last full GitHub Actions pilot verification before this follow-up passed 1,759/1,759 tests (run 43142392718). New focused tests cover empty-list discovery, task-name concurrency, authenticated permissions and UI failure preservation. Re-run full CI for the new commit; the old passing result does not verify the new changes.
 
 **Pilot result: NO-GO pending the release dependencies.**
 

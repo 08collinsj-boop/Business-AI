@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingManualOnly:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanUpload:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationEditing:false,automationPlanningBusy:false,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:'',clickupStatus:null,clickupTasks:null,clickupPage:0,clickupLoading:false,clickupBusy:false,clickupError:'',clickupMessage:'',clickupSelected:null,clickupCreating:false});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingManualOnly:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanUpload:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationEditing:false,automationPlanningBusy:false,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:'',clickupStatus:null,clickupTasks:null,clickupPage:0,clickupLists:null,clickupListsLoading:false,clickupListError:'',clickupLoading:false,clickupBusy:false,clickupError:'',clickupMessage:'',clickupSelected:null,clickupCreating:false});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -1596,6 +1596,13 @@
    const s=state.clickupStatus,items=Array.isArray(state.clickupTasks?.tasks)?state.clickupTasks.tasks:[];
    const connected=s?.connected===true,summary=state.clickupTasks?.summary;
    const active=items.find(t=>t.id===state.clickupSelected);
+   const canManage=s?.canManage===true;
+   const listOptions=Array.isArray(state.clickupLists?.lists)?state.clickupLists.lists:[];
+   const listOptionsHtml=listOptions.map(l=>'<option value="'+safe(l.id)+'">'+safe(l.path||l.name)+'</option>').join('');
+   const listNotice=state.clickupListsLoading?'<p class="cn-caption" role="status">Loading ClickUp lists…</p>':
+     state.clickupListError?'<p class="cn-work-message" role="alert">'+safe(state.clickupListError)+'</p><button type="button" data-clickup-retry-lists class="cn-secondary">Retry list lookup</button>':
+     !listOptions.length?'<p class="cn-caption">No available lists were found in the permitted ClickUp spaces. Nothing has been created.</p><button type="button" data-clickup-retry-lists class="cn-secondary">Refresh lists</button>':
+     state.clickupLists?.truncated?'<p class="cn-caption">Showing a limited set of authorised lists. Use ClickUp for lists outside this selection.</p>':'';
    const heads='<header class="cf-screen-top cn-clickup-heading"><div><span class="cn-kicker">CONNECTED WORKSPACE</span><h1>ClickUp</h1><p class="cn-caption">Manage your connected tasks from Colzo. Changes are saved back to ClickUp.</p></div><button type="button" class="cn-secondary" data-clickup-refresh '+(state.clickupLoading?'disabled':'')+'>Refresh</button></header>';
    const error=state.clickupError?'<p class="cn-work-message" role="alert">'+safe(state.clickupError)+'</p>':'';
    const message=state.clickupMessage?'<p class="cn-work-message" role="status">'+safe(state.clickupMessage)+'</p>':'';
@@ -1604,15 +1611,15 @@
      return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><span class="cn-kicker">CONNECT YOUR TOOLS</span><h2>Bring ClickUp into Colzo</h2><p>Projects, tasks and deadlines stay in ClickUp, while your day-to-day work appears here.</p><p class="cn-caption">'+(!s?'Connection status has not been checked.':s.configured?'Authorise an existing ClickUp workspace to get started.':'Connection setup is not yet available for this pilot environment.')+'</p><button type="button" class="cn-settings-save" data-clickup-connect '+(!s?.configured||state.clickupBusy?'disabled':'')+'>Connect ClickUp</button></section>';
    }
    const inspector=state.clickupCreating
-     ? '<section class="cn-clickup-inspector"><h2>Create ClickUp task</h2><p class="cn-caption">The new task will be created in your selected ClickUp list.</p><form id="cnClickupForm" data-kind="create"><label>Task title<input name="title" required maxlength="240" placeholder="Follow up with customer"></label><label>List<select name="listId" required>'+[...new Map(items.filter(t=>t.listId).map(t=>[t.listId,{id:t.listId,name:t.listName||'List'}])).values()].map(l=>'<option value="'+safe(l.id)+'">'+safe(l.name)+'</option>').join('')+'</select></label><div class="cn-clickup-form-actions"><button type="button" class="cn-secondary" data-clickup-cancel>Cancel</button><button type="submit" class="cn-settings-save" '+(state.clickupBusy?'disabled':'')+'>Review &amp; create</button></div></form></section>'
-     : active?'<section class="cn-clickup-inspector"><span class="cn-kicker">TASK DETAILS</span><h2>'+safe(active.title)+'</h2><p class="cn-caption">'+safe(active.listName||'ClickUp task')+' · '+safe(active.status)+'</p><form id="cnClickupForm" data-kind="update" data-task-id="'+safe(active.id)+'" data-expected-status="'+safe(active.status)+'"><label>Title<input name="title" maxlength="240" required value="'+safe(active.title)+'"></label><label>Status<input name="status" maxlength="80" required value="'+safe(active.status)+'" aria-describedby="cnClickupStatusHelp"></label><p id="cnClickupStatusHelp" class="cn-caption">Use a status configured in your ClickUp list.</p><div class="cn-clickup-form-actions"><button type="button" class="cn-secondary" data-clickup-cancel>Cancel</button><button class="cn-settings-save" type="submit" '+(state.clickupBusy?'disabled':'')+'>Review &amp; save</button></div></form>'+(active.url?'<a href="'+safe(active.url)+'" target="_blank" rel="noopener noreferrer">Open original task in ClickUp ↗</a>':'')+'</section>'
+     ? '<section class="cn-clickup-inspector"><h2>Create ClickUp task</h2><p class="cn-caption">Choose an authorised ClickUp list. Tasks are stored in ClickUp.</p>'+listNotice+'<form id="cnClickupForm" data-kind="create"><label>Task title<input name="title" required maxlength="240" placeholder="Follow up with customer"></label><label>List<select name="listId" required '+(!listOptions.length?'disabled':'')+'>'+listOptionsHtml+'</select></label><div class="cn-clickup-form-actions"><button type="button" class="cn-secondary" data-clickup-cancel>Cancel</button><button type="submit" class="cn-settings-save" '+(!listOptions.length||state.clickupListsLoading||state.clickupBusy?'disabled':'')+'>Review &amp; create</button></div></form></section>'
+     : active?'<section class="cn-clickup-inspector"><span class="cn-kicker">TASK DETAILS</span><h2>'+safe(active.title)+'</h2><p class="cn-caption">'+safe(active.listName||'ClickUp task')+' · '+safe(active.status)+'</p>'+(!canManage?'<p class="cn-caption">Read-only access. Ask a workspace owner or admin to change this task.</p>':'')+'<form id="cnClickupForm" data-kind="update" data-task-id="'+safe(active.id)+'" data-expected-title="'+safe(active.title)+'" data-expected-status="'+safe(active.status)+'"><label>Title<input name="title" maxlength="240" required value="'+safe(active.title)+'" '+(!canManage?'disabled':'')+'></label><label>Status<input name="status" maxlength="80" required value="'+safe(active.status)+'" '+(!canManage?'disabled':'')+' aria-describedby="cnClickupStatusHelp"></label><p id="cnClickupStatusHelp" class="cn-caption">Use a status configured in your ClickUp list.</p><div class="cn-clickup-form-actions"><button type="button" class="cn-secondary" data-clickup-cancel>Close</button><button class="cn-settings-save" type="submit" '+(!canManage||state.clickupBusy?'disabled':'')+'>Review &amp; save</button></div></form>'+(active.url?'<a href="'+safe(active.url)+'" target="_blank" rel="noopener noreferrer">Open original task in ClickUp ↗</a>':'')+'</section>'
      : '<section class="cn-clickup-inspector"><span class="cn-kicker">COLZO BRIEFING</span><h2>Work that needs attention</h2><p class="cn-caption">This briefing uses task information retrieved from ClickUp. It does not execute any AI actions.</p><div class="cn-clickup-brief"><strong>'+safe(summary?.overdue??0)+' overdue</strong><span>'+safe(summary?.dueSoon??0)+' due within 48 hours</span></div></section>';
    const tasks=items.length?items.map(t=>'<button type="button" class="cn-clickup-task" data-clickup-task="'+safe(t.id)+'" aria-pressed="'+(t.id===state.clickupSelected)+'"><span><strong>'+safe(t.title)+'</strong><small>'+safe(t.listName||'Task')+' · '+safe(t.status)+(t.dueAt?' · Due '+safe(day(t.dueAt)):'')+'</small></span><span aria-hidden="true">›</span></button>').join(''):empty('No open tasks were returned by the authorised ClickUp workspace.');
    const pageControls='<nav class="cn-clickup-pagination" aria-label="ClickUp task pages"><button type="button" data-clickup-page="prev" '+(state.clickupPage===0||state.clickupBusy?'disabled':'')+'>Previous</button><span>Page '+safe(state.clickupPage+1)+'</span><button type="button" data-clickup-page="next" '+(!state.clickupTasks?.hasMore||state.clickupPage>=20||state.clickupBusy?'disabled':'')+'>Next</button></nav>';
-   const list='<section class="cn-clickup-task-list"><header><div><h2>'+safe(s.workspace?.name||'ClickUp workspace')+'</h2><p>'+safe(items.length)+' tasks loaded · page '+safe(state.clickupPage+1)+'</p></div><button type="button" data-clickup-create '+(!items.some(t=>t.listId)||state.clickupBusy?'disabled':'')+'>+ Task</button></header>'+tasks+pageControls+'</section>';
+   const list='<section class="cn-clickup-task-list"><header><div><h2>'+safe(s.workspace?.name||'ClickUp workspace')+'</h2><p>'+safe(items.length)+' tasks loaded · page '+safe(state.clickupPage+1)+'</p></div><button type="button" data-clickup-create '+(!canManage||state.clickupBusy?'disabled':'')+'>+ Task</button></header>'+tasks+pageControls+'</section>';
    const workspaces=Array.isArray(s?.availableWorkspaces)?s.availableWorkspaces:[];
-   const picker=workspaces.length>1?'<form id="cnClickupWorkspaceForm" class="cn-clickup-workspace-picker"><label>Selected ClickUp workspace<select name="workspaceId">'+workspaces.map(w=>'<option value="'+safe(w.id)+'" '+(w.id===s.workspace?.id?'selected':'')+'>'+safe(w.name)+'</option>').join('')+'</select></label><button type="submit" class="cn-secondary" '+(state.clickupBusy?'disabled':'')+'>Switch workspace</button></form>':'';
-   return heads+error+message+picker+'<div class="cn-clickup-stats"><div><strong>'+safe(summary?.total??0)+'</strong><small>Tasks returned</small></div><div><strong>'+safe(summary?.overdue??0)+'</strong><small>Overdue</small></div><div><strong>'+safe(summary?.dueSoon??0)+'</strong><small>Next 48 hours</small></div></div><div class="cn-clickup-layout">'+list+inspector+'</div><p class="cn-caption">Task actions require approval. ClickUp remains the system of record.</p><button type="button" class="cn-secondary cn-clickup-disconnect" data-clickup-disconnect>Disconnect ClickUp</button>';
+   const picker=workspaces.length>1&&canManage?'<form id="cnClickupWorkspaceForm" class="cn-clickup-workspace-picker"><label>Selected ClickUp workspace<select name="workspaceId">'+workspaces.map(w=>'<option value="'+safe(w.id)+'" '+(w.id===s.workspace?.id?'selected':'')+'>'+safe(w.name)+'</option>').join('')+'</select></label><button type="submit" class="cn-secondary" '+(state.clickupBusy?'disabled':'')+'>Switch workspace</button></form>':'';
+   return heads+error+message+picker+'<div class="cn-clickup-stats"><div><strong>'+safe(summary?.total??0)+'</strong><small>Tasks returned</small></div><div><strong>'+safe(summary?.overdue??0)+'</strong><small>Overdue</small></div><div><strong>'+safe(summary?.dueSoon??0)+'</strong><small>Next 48 hours</small></div></div><div class="cn-clickup-layout">'+list+inspector+'</div><p class="cn-caption">Task actions require approval. ClickUp remains the system of record.</p><button type="button" class="cn-secondary cn-clickup-disconnect" data-clickup-disconnect '+(!canManage||state.clickupBusy?'disabled':'')+'>Disconnect ClickUp</button>';
  }
  async function loadClickup(){
    if(state.clickupLoading)return;
@@ -1623,6 +1630,7 @@
      if(epoch!==sessionEpoch)return;
      if(!status||typeof status.connected!=='boolean')throw Error('Connection status could not be verified.');
      state.clickupStatus=status;
+     if(!status.connected)state.clickupLists=null;
      state.clickupTasks=status.connected?await api('/api/clickup?view=tasks&page='+state.clickupPage):null;
      if(status.connected&&!Array.isArray(state.clickupTasks?.tasks))throw Error('ClickUp returned no verified task list.');
    }catch(error){if(epoch===sessionEpoch)state.clickupError=error?.message||'The ClickUp connection is unavailable.';}
@@ -1638,22 +1646,54 @@
      window.location.assign(url.toString());
    }catch(error){state.clickupError=error?.message||'Could not start ClickUp connection.';state.clickupBusy=false;render();}
  }
+ async function openClickupCreate(){
+   if(state.clickupBusy||!state.clickupStatus?.canManage)return;
+   state.clickupSelected=null;state.clickupCreating=true;state.clickupListError='';
+   if(state.clickupLists){render({motion:'detail'});return;}
+   const epoch=sessionEpoch,workspaceId=state.clickupStatus.workspace?.id;
+   state.clickupListsLoading=true;render({motion:'detail'});
+   try{
+     const found=await api('/api/clickup?view=lists');
+     if(epoch!==sessionEpoch||workspaceId!==state.clickupStatus?.workspace?.id)return;
+     if(!Array.isArray(found?.lists))throw Error('ClickUp did not return a verified list.');
+     state.clickupLists=found;
+   }catch(error){
+     if(epoch===sessionEpoch&&workspaceId===state.clickupStatus?.workspace?.id)state.clickupListError=error?.message||'Could not load authorised ClickUp lists.';
+   }finally{
+     if(epoch===sessionEpoch&&workspaceId===state.clickupStatus?.workspace?.id){
+       state.clickupListsLoading=false;
+       if(root.isConnected&&state.screen==='clickup')render({motion:'page'});
+     }
+   }
+ }
  async function saveClickupTask(form){
-   if(state.clickupBusy)return;
+   if(state.clickupBusy||!state.clickupStatus?.canManage||!form?.isConnected)return;
    const fd=new FormData(form),kind=form.dataset.kind;
    const title=String(fd.get('title')||'').trim();
    if(!title||title.length>240)return;
    const body=kind==='create'
-     ? {action:'create_task',listId:String(fd.get('listId')||''),title,page:state.clickupPage,approved:true}
-     : {action:'update_task',taskId:form.dataset.taskId,expectedStatus:form.dataset.expectedStatus,change:{name:title,status:String(fd.get('status')||'').trim()},page:state.clickupPage,approved:true};
+     ? {action:'create_task',listId:String(fd.get('listId')||''),title,approved:true}
+     : {action:'update_task',taskId:form.dataset.taskId,expectedTitle:form.dataset.expectedTitle,expectedStatus:form.dataset.expectedStatus,change:{name:title,status:String(fd.get('status')||'').trim()},page:state.clickupPage,approved:true};
    if(!window.confirm('Apply this change to your connected ClickUp workspace?'))return;
-   state.clickupBusy=true;state.clickupError='';render();
+   const submit=form.querySelector('[type="submit"]');
+   state.clickupBusy=true;state.clickupError='';
+   if(submit)submit.disabled=true;
    try{
      const response=await api('/api/clickup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
      if(response?.confirmed!==true||!response.task?.id)throw Error('ClickUp did not confirm the change.');
-     state.clickupCreating=false;state.clickupSelected=null;state.clickupMessage='ClickUp confirmed your task change.';await loadClickup();
-   }catch(error){state.clickupError=error?.message||'ClickUp did not confirm the change.';}
-   finally{state.clickupBusy=false;render();}
+     state.clickupCreating=false;state.clickupSelected=null;state.clickupMessage='ClickUp confirmed your task change.';
+     await loadClickup();
+   }catch(error){
+     state.clickupError=error?.message||'ClickUp did not confirm the change.';
+     if(form.isConnected){
+       let alert=form.querySelector('#cnClickupInlineError');
+       if(!alert){alert=document.createElement('p');alert.id='cnClickupInlineError';alert.setAttribute('role','alert');alert.className='cn-work-message';form.prepend(alert);}
+       alert.textContent=state.clickupError;
+     }
+   }finally{
+     state.clickupBusy=false;
+     if(submit?.isConnected)submit.disabled=false;
+   }
  }
  async function selectClickupWorkspaceFromForm(form){
    if(state.clickupBusy)return;
@@ -1663,7 +1703,7 @@
    try{
      const selected=await api('/api/clickup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'select_workspace',workspaceId:id})});
      if(selected?.confirmed!==true||selected?.connected!==true||selected?.workspace?.id!==id)throw Error('ClickUp did not confirm the workspace change.');
-     state.clickupPage=0;state.clickupSelected=null;state.clickupCreating=false;state.clickupStatus=selected;state.clickupTasks=null;
+     state.clickupPage=0;state.clickupLists=null;state.clickupSelected=null;state.clickupCreating=false;state.clickupStatus=selected;state.clickupTasks=null;
      await loadClickup();
    }catch(error){state.clickupError=error?.message||'Workspace could not be changed.';}
    finally{state.clickupBusy=false;render();}
@@ -1671,7 +1711,7 @@
  async function disconnectClickup(){
    if(state.clickupBusy||!window.confirm('Disconnect ClickUp? Colzo will stop accessing this workspace.'))return;
    state.clickupBusy=true;state.clickupError='';render();
-   try{const response=await api('/api/clickup',{method:'DELETE'});if(response?.confirmed!==true)throw Error('Disconnect was not confirmed.');state.clickupStatus=null;state.clickupTasks=null;state.clickupSelected=null;state.clickupMessage='ClickUp disconnected from Colzo. Revoke the app in ClickUp for provider-side token revocation.';await loadClickup();}
+   try{const response=await api('/api/clickup',{method:'DELETE'});if(response?.confirmed!==true)throw Error('Disconnect was not confirmed.');state.clickupStatus=null;state.clickupTasks=null;state.clickupLists=null;state.clickupSelected=null;state.clickupMessage='ClickUp disconnected from Colzo. Revoke the app in ClickUp for provider-side token revocation.';await loadClickup();}
    catch(error){state.clickupError=error?.message||'Could not disconnect ClickUp.';}
    finally{state.clickupBusy=false;render();}
  }
@@ -2009,8 +2049,8 @@
   if(target.hasAttribute('data-clickup-refresh')){loadClickup();return}
   if(target.hasAttribute('data-clickup-disconnect')){disconnectClickup();return}
   if(target.hasAttribute('data-clickup-task')){state.clickupSelected=target.getAttribute('data-clickup-task');state.clickupCreating=false;render({motion:'detail'});return}
-  if(target.hasAttribute('data-clickup-create')){state.clickupSelected=null;state.clickupCreating=true;render({motion:'detail'});return}
-  if(target.hasAttribute('data-clickup-cancel')){confirmUnsaved(()=>{state.clickupCreating=false;state.clickupSelected=null;render({motion:'page'})});return}
+  if(target.hasAttribute('data-clickup-create')||target.hasAttribute('data-clickup-retry-lists')){openClickupCreate();return}
+  if(target.hasAttribute('data-clickup-cancel')){if(state.clickupBusy)return;confirmUnsaved(()=>{state.clickupCreating=false;state.clickupSelected=null;render({motion:'page'})});return}
   if(target.hasAttribute('data-marketing-media')){confirmUnsaved(()=>inspectMarketingMedia(target.getAttribute('data-marketing-media')));return}
   if(target.hasAttribute('data-marketing-media-close')){state.marketingImageDraft=null;state.marketingImageResult=null;state.marketingImageError='';render({motion:'page'});return}
   if(target.hasAttribute('data-marketing-review')){prepareMarketingApproval(target.getAttribute('data-marketing-review'));return}

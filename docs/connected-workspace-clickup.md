@@ -10,7 +10,7 @@
 - ClickUp OAuth initiation with strong, single-use state, secure callback cookie and business/actor verification.
 - AES-256-GCM encrypted ClickUp OAuth token storage; tenant UUID is authenticated additional data.
 - Authenticated read-only workspace status and task retrieval. Users only see tasks available to the authorised ClickUp identity.
-- Limited task create/update with user approval, workspace membership checks, server-side task lookup and confirmed provider responses.
+- Limited task create/update with user approval, workspace membership checks, server-side list discovery, fresh task snapshot checks and confirmed provider responses. Read-only members cannot see enabled create/edit controls.
 - Explicit disconnect, audit summaries and error/reconnection states.
 - A grounded **rules-based** overdue/next-48-hours briefing. This is **not yet a multi-app generative AI agent**.
 - Feature disabled by default; cannot be enabled outside this branch's protected Development Preview against the approved Development Supabase project.
@@ -44,7 +44,7 @@
 ## Focused verification
 
 ```bash
-node --test tests/clickup-provider.test.mjs tests/clickup-api.test.mjs tests/clickup-authenticated-api.test.mjs tests/clickup-native-contract.test.mjs
+node --test tests/clickup-*.test.mjs
 node --check lib/clickup-handler.js
 node --check lib/clickup-callback-handler.js
 node --check assets/colzo-native.js
@@ -54,10 +54,10 @@ When dependencies are available, also run the repository's full `npm test`, `npm
 
 ## Known MVP boundaries / next implementation
 
-- OAuth currently selects the first authorised ClickUp workspace; add an explicit workspace selector before offering this to companies with multiple workspaces.
-- Create-task list selection is intentionally restricted to lists already represented in a returned task snapshot. Empty lists require a list discovery endpoint.
-- Task display is limited to the first requested page of 100 results, and statuses are entered using the names configured in ClickUp.
-- Concurrency is guarded by the expected task status; extended task version controls and idempotency are needed before wider rollout.
+- OAuth initially selects the first authorised ClickUp workspace; owners can choose between other authorised workspaces. Workspace selection remains subject to real browser acceptance.
+- Create-task list selection fetches authorised ClickUp Spaces, folderless Lists and folder Lists. Empty lists are supported. Discovery is intentionally bounded to four Spaces, twelve Folders and one hundred Lists; larger workspaces may need more navigation.
+- Task display uses a paginated list of 100 open tasks per page (currently up to 21 pages), and statuses are entered using the names configured in ClickUp. Counts refer to the current page, not the whole workspace.
+- Task updates check the previously displayed title and status against a fresh task snapshot before writing. ClickUp does not offer an atomic task version compare-and-swap in this implementation; idempotency on ambiguous create failures requires further work before wider rollout.
 - Add cross-app AI retrieval/action tools **after** independent security acceptance, with grounded answers, explicit action approvals, auditable scope and usage limits.
 - Live business data is prohibited in this Development test environment; privacy/processing disclosures must be reviewed before use with actual customers.
 

@@ -73,3 +73,8 @@
   .cn-clickup-workspace-picker label,.cn-clickup-workspace-picker button { flex-basis:100%; }
 }
 
+
+.cn-clickup-inspector :is(input,select,button):disabled { opacity:.55; cursor:not-allowed; }
+.cn-clickup-inspector .cn-work-message[role="alert"] { border:1px solid #8f5757; background:#302325; color:#f6d5d5; padding:11px 13px; border-radius:10px; font-size:13px; line-height:1.5; }
+.cn-clickup-inspector [data-clickup-retry-lists] { justify-self:start; }
+.cn-clickup-inspector form select { line-height:1.4; }

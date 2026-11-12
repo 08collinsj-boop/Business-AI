@@ -60,17 +60,17 @@ test('ClickUp workspace task retrieval uses verified membership and encrypted to
  assert.equal(JSON.stringify(response.body).includes(TOKEN),false);
 });
 test('member cannot approve or update external tasks',async()=>{
- const {response,requests}=await run('member',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
+ const {response,requests}=await run('member',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
  assert.equal(response.statusCode,403);
  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
 });
 test('owner must explicitly approve task updates',async()=>{
- const {response,requests}=await run('owner',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedStatus:'to do',change:{status:'in progress'}}});
+ const {response,requests}=await run('owner',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',change:{status:'in progress'}}});
  assert.equal(response.statusCode,400);
  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
 });
 test('owner approved task update confirms provider result and redacts token',async()=>{
- const {response}=await run('owner',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
+ const {response}=await run('owner',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
  assert.equal(response.statusCode,200);
  assert.equal(response.body.task.status,'in progress');
  assert.equal(response.body.confirmed,true);
