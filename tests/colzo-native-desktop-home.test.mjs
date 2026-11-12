@@ -128,7 +128,7 @@ test('desktop reading order matches the briefing-first reference and keeps quick
  const f=fixture({});
  const desktop=f.root.querySelector('.cn-home-desktop');
  const children=[...desktop.children].map(e=>e.className);
- assert.deepEqual(children,['cn-dash-intro','cn-dash-briefing','cn-dash-metrics','cn-dash-primary-grid','cn-dash-secondary-grid','cn-dash-shortcuts']);
+ assert.deepEqual(children,['cn-dash-intro','cn-dash-briefing','cn-dash-metrics','cn-dash-primary-grid','cn-dash-secondary-grid','cn-dash-connected','cn-dash-shortcuts']);
  f.dom.window.close();
 });
 
