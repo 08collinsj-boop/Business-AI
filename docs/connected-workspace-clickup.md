@@ -11,7 +11,7 @@
 - AES-256-GCM encrypted ClickUp OAuth token storage; tenant UUID is authenticated additional data.
 - Authenticated read-only workspace status and task retrieval. Users only see tasks available to the authorised ClickUp identity.
 - Limited task create/update with user approval, workspace membership checks, server-side list discovery, fresh task snapshot checks and confirmed provider responses. Read-only members cannot see enabled create/edit controls.
-- Explicit disconnect, audit summaries and error/reconnection states. After a provider error, Colzo hides stale tasks; owners/admins can reconnect. Create-task network uncertainty displays an anti-duplicate warning.
+- Explicit disconnect, audit summaries and error/reconnection states. After a provider error, Colzo hides stale tasks; owners/admins can reconnect or disconnect. Create-task network uncertainty displays an anti-duplicate warning. All ClickUp refresh, switch, page, and disconnect routes preserve edited task forms behind the existing unsaved-changes confirmation.
 - A grounded **rules-based** overdue/next-48-hours briefing. This is **not yet a multi-app generative AI agent**.
 - Feature disabled by default; cannot be enabled outside this branch's protected Development Preview against the approved Development Supabase project.
 

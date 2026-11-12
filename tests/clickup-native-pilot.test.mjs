@@ -37,3 +37,13 @@ test('ambiguous create failures explicitly warn against blindly retrying duplica
  assert.match(native,/Check ClickUp before trying to create this task again/);
 });
 
+test('every workspace route that could discard a changed ClickUp task uses the unsaved confirmation',()=>{
+ assert.match(native,/data-clickup-page'[\s\S]{0,1000}confirmUnsaved\(/);
+ assert.match(native,/data-clickup-refresh'\)\)\{confirmUnsaved\(/);
+ assert.match(native,/data-clickup-task'\)\)\{confirmUnsaved\(/);
+ assert.match(native,/data-clickup-create'\)[\s\S]{0,150}confirmUnsaved\(/);
+ assert.match(native,/data-clickup-disconnect'\)\)\{confirmUnsaved\(/);
+});
+test('reconnection-error state retains an explicit owner disconnect action',()=>{
+ assert.match(native,/if\(connected&&state\.clickupError&&!state\.clickupTasks\)[\s\S]*?data-clickup-disconnect/);
+});

@@ -76,3 +76,9 @@ Continue from PR #77's current head and this document. Do not create another spe
 - On denied or unavailable ClickUp task retrieval, the native screen clears its cached task snapshot, does not show misleading zero counts, and provides an owner/admin reconnect action when authorised.
 - On unconfirmed create responses, the interface preserves the entered form values and warns owners to inspect ClickUp before trying again, reducing accidental duplicate creation. This is a UX mitigation, **not true provider-side idempotency**.
 - A prior rendered-JSdom test initially failed because its simulated second login did not call dashboardLoaded(); the fixture now repeats the normal business-record loading sequence. Final full CI still must pass on the latest commit.
+
+## 9. Final native unsaved-form guard
+
+- The native ClickUp task page now uses the existing leave-with-unsaved-changes dialog for list paging, task selection, switching to task creation, refreshing, workspace switching, reconnect and disconnect.
+- When provider access is revoked/unavailable, an owner/admin can still choose either reconnect or Colzo-side credential disconnect without exposing prior task data.
+- Automated source-contract tests cover these routes. Genuine touch, keyboard and screen-reader testing remains in the authenticated Work acceptance phase.
