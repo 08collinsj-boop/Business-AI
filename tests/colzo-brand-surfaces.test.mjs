@@ -18,10 +18,11 @@ test('every deployed entry loads Colzo surface styling after its older styles',(
   if(file==='index.html'){
    // Keep the shared skins and motion pack in order; the final directory
    // polish is scoped to the owner Customers screen.
-   assert.match(links.at(-4)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
-   assert.match(links.at(-3)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);
-   assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-flutter-motion\.css/,file);
-   assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customers-mobile\.css/,file);
+   const expected=['colzo-surfaces.css','colzo-customer-stitch.css','colzo-flutter-motion.css','colzo-customers-mobile.css','colzo-desktop-command-centre.css'];
+   const hrefs=links.map(link=>link.getAttribute('href')||'');
+   const indices=expected.map(name=>hrefs.findIndex(href=>href.includes('/'+name)));
+   assert.ok(indices.every(index=>index>=0),'all scoped styles remain loaded');
+   assert.deepEqual(indices,[...indices].sort((a,b)=>a-b),'desktop polish must follow existing shared and mobile styles');
   }else if(customerEntries.has(file)){
    assert.match(links.at(-2)?.getAttribute('href')||'',/colzo-surfaces\.css/,file);
    assert.match(links.at(-1)?.getAttribute('href')||'',/colzo-customer-stitch\.css/,file);

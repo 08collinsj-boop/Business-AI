@@ -121,5 +121,25 @@ test('compact laptop widths retain the desktop overview with a narrow accessible
 test('native desktop brand pseudo-element resets inherited moving tab-indicator geometry',()=>{
  assert.match(desktopCss,/background:url\('\/assets\/icons\/colzo-mark\.svg'\)/);
  assert.match(desktopCss,/bottom:auto!important;right:auto!important/);
- assert.match(desktopCss,/height:40px!important;width:200px!important/);
+ assert.match(desktopCss,/height:40px!important;width:calc\(100% - 32px\)!important/,'brand must stay inside both 224px and 200px sidebars');
+});
+
+test('desktop reading order matches the briefing-first reference and keeps quick actions after records',()=>{
+ const f=fixture({});
+ const desktop=f.root.querySelector('.cn-home-desktop');
+ const children=[...desktop.children].map(e=>e.className);
+ assert.deepEqual(children,['cn-dash-intro','cn-dash-briefing','cn-dash-metrics','cn-dash-primary-grid','cn-dash-secondary-grid','cn-dash-shortcuts']);
+ f.dom.window.close();
+});
+
+test('desktop priority icons use accessible decorative SVGs and preserve escaped record labels',()=>{
+ const f=fixture({leads:[{id:1,name:'<svg onload=alert(1)>',status:'New'}]});
+ const desktop=f.root.querySelector('.cn-home-desktop');
+ const row=desktop.querySelector('.cn-dash-row');
+ assert.ok(row.querySelector('.cn-dash-row-icon svg[aria-hidden="true"]'));
+ assert.ok(row.querySelector('.cn-dash-row-arrow svg[aria-hidden="true"]'));
+ assert.equal(desktop.querySelector('[onload]'),null);
+ assert.match(row.textContent,/svg onload/);
+ for(const icon of desktop.querySelectorAll('.cn-dash-shortcut-grid button > span'))assert.ok(icon.querySelector('svg[aria-hidden="true"]'));
+ f.dom.window.close();
 });
