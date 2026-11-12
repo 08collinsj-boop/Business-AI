@@ -19,7 +19,7 @@ const task=(name='Original')=>({id:'abc',name,status:{status:'to do'},list:{id:'
 function makeRes(){
  return {statusCode:200,headers:{},setHeader(k,v){this.headers[k]=v;return this;},status(x){this.statusCode=x;return this;},json(body){this.body=body;return this;},end(body){this.body=body;return this;}};
 }
-async function scenario({method='GET',query={},body,role='owner',tasks=[],expectedWrite=false}={}){
+async function scenario({method='GET',query={},body,role='owner',tasks=[],expectedWrite=false,workspaceRace=false}={}){
  const prev=Object.fromEntries(Object.keys(env).map(k=>[k,process.env[k]]));
  for(const [k,v] of Object.entries(env))process.env[k]=v;
  const originalFetch=globalThis.fetch;
@@ -32,7 +32,15 @@ async function scenario({method='GET',query={},body,role='owner',tasks=[],expect
    const reply=(data,status=200)=>new Response(data===null?'':JSON.stringify(data),{status});
    if(path==='/auth/v1/user')return reply({id:owner});
    if(path==='/rest/v1/business_memberships')return reply([{business_id:business,role}]);
-   if(path==='/rest/v1/colzo_clickup_connections')return reply([{business_id:business,status:'connected',workspace_id:'123',workspace_name:'Business',available_workspaces:[{id:'123',name:'Business'}],...sealed}]);
+   if(path==='/rest/v1/colzo_clickup_connections'){
+     const baseline={business_id:business,status:'connected',workspace_id:'123',workspace_name:'Business',updated_at:'2026-11-12T15:00:00.000Z',available_workspaces:[{id:'123',name:'Business'},{id:'456',name:'Second workspace'}],...sealed};
+     if(method==='PATCH'){
+       const query=new URL(url).searchParams;
+       if(workspaceRace&&query.get('updated_at')==='eq.'+baseline.updated_at)return reply([]);
+       return reply([{...baseline,...(options.body?JSON.parse(options.body):{})}]);
+     }
+     return reply([baseline]);
+   }
    if(path==='/rest/v1/business_audit_events')return reply(null,201);
    if(path==='/api/v2/team/123/task')return reply({tasks});
    if(path==='/api/v2/team/123/space')return reply({spaces:[{id:'10',name:'Operations'}]});
@@ -94,4 +102,16 @@ test('owner connection status can show task controls without exposing a token',a
  assert.equal(res.statusCode,200);
  assert.equal(res.body.canManage,true);
  assert.equal(JSON.stringify(res.body).includes('fictional-clickup-access'),false);
+});
+
+test('concurrent workspace switch rejects a stale connection instead of overwriting it',async()=>{
+ const {res,calls}=await scenario({method:'POST',workspaceRace:true,body:{action:'select_workspace',workspaceId:'456'}});
+ assert.equal(res.statusCode,409);
+ assert.ok(calls.some(c=>c.method==='PATCH'&&c.path==='/rest/v1/colzo_clickup_connections'));
+});
+
+test('uncontended workspace switch succeeds when connection version matches',async()=>{
+ const {res}=await scenario({method:'POST',body:{action:'select_workspace',workspaceId:'456'}});
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.workspace.id,'456');
 });
