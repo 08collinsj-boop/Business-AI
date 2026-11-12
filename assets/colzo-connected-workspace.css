@@ -110,3 +110,18 @@
 
 .cn-dash-clickup-buttons .cn-dash-clickup-refresh{border-color:#4b5b4e!important;background:transparent!important;color:#d2dcd3!important;}
 .cn-dash-clickup-buttons .cn-dash-clickup-refresh:hover{background:#263a2d!important;}
+
+.cn-workhub-catalog { margin: 22px 0; }
+.cn-workhub-catalog-heading { display:flex; align-items:end; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.cn-workhub-catalog-heading h2 { margin:7px 0 0; color:#f5f7f9; font-size:21px; font-weight:630; letter-spacing:-.025em; }
+.cn-workhub-catalog-count { color:#a6b0bc; font-size:12px; line-height:1.5; text-align:right; }
+.cn-workhub-app-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.cn-workhub-app-grid > * { min-width:0; margin:0; }
+.cn-workhub-provider { flex-direction:column; align-items:stretch; justify-content:space-between; }
+.cn-workhub-provider-controls { justify-content:space-between; }
+.cn-workhub-future { display:flex; align-items:flex-start; gap:14px; border:1px dashed #49515b; border-radius:18px; background:#11171e; padding:22px; color:#9da8b4; }
+.cn-workhub-future-icon { display:grid; place-items:center; flex:none; width:44px; height:44px; border:1px solid #424b56; border-radius:13px; color:#afbbca; font-size:26px; }
+.cn-workhub-future strong { display:block; color:#e0e6eb; font-size:15px; font-weight:600; }
+.cn-workhub-future p { margin:7px 0 0; font-size:12px; line-height:1.65; }
+@media (max-width: 900px) { .cn-workhub-app-grid { grid-template-columns:minmax(0,1fr); } }
+@media (max-width: 700px) { .cn-workhub-catalog-heading { align-items:flex-start; flex-direction:column; gap:8px; } .cn-workhub-catalog-count { text-align:left; } .cn-workhub-future { padding:17px; } }

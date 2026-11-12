@@ -58,8 +58,28 @@ test('Work Hub is the multi-app navigation destination, with ClickUp identified 
  assert.match(source,/\['clickup','▦','Work Hub'/);
  assert.match(source,/label:'Work Hub',detail:'[^']*ClickUp[^']*',glyph:'▦',screen:'clickup'/);
  assert.match(source,/<h1>Work Hub<\/h1>/);
- assert.match(source,/class="cn-workhub-provider" aria-label="ClickUp integration"/);
- assert.match(source,/<strong>ClickUp<\/strong>/);
+ assert.match(source,/class="cn-workhub-provider" aria-label=/);
+ assert.match(source,/ClickUp is the first supported work integration/);
+ assert.match(source,/label:'ClickUp',description:'Tasks, projects and deadlines'/);
+ assert.match(source,/safe\(app.label\)/);
  assert.match(source,/Open Work Hub/);
  assert.doesNotMatch(source,/<h1>ClickUp<\/h1>/);
+});
+
+test('Work Hub renders its supported app cards from a single provider registry',()=>{
+ assert.match(source,/const WORK_HUB_PROVIDERS=Object\.freeze\(\[/);
+ assert.match(source,/WORK_HUB_PROVIDERS\.map\(/);
+ assert.match(source,/aria-label="Work app connections"/);
+ assert.match(source,/class="cn-workhub-app-grid"/);
+ assert.match(source,/class="cn-workhub-future"/);
+ assert.match(source,/Each new work app will appear here only after its integration is available/);
+ assert.match(css,/\.cn-workhub-app-grid/);
+});
+
+test('Work Hub counts verified connected apps only, and distinguishes errors from available connections',()=>{
+ assert.match(source,/const verifiedConnected=providers\.filter\(app=>app\.connected\)/);
+ assert.match(source,/status===null/);
+ assert.match(source,/state\[definition\.errorKey\]/);
+ assert.match(source,/Needs attention/);
+ assert.match(source,/data-clickup-refresh/);
 });

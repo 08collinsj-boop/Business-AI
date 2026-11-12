@@ -83,3 +83,46 @@ test('logout prevents delayed ClickUp requests from rendering data into another 
   f.dom.window.close();
 });
 
+
+test('Work Hub shows real provider status without implying additional app connections',async()=>{
+ const f=fixture(async url=>{
+   if(url==='/api/clickup')return {configured:false,connected:false,provider:'clickup',workspace:null};
+   throw Error('Unexpected provider request '+url);
+ });
+ f.w.document.querySelector('[data-cn-screen="clickup"]').click();
+ await waitFor(()=>f.content.querySelector('.cn-workhub-catalog-count')?.textContent.includes('0 of 1 work apps connected'));
+ const card=f.content.querySelector('.cn-workhub-provider');
+ assert.ok(card);
+ assert.equal(card.getAttribute('aria-label'),'ClickUp integration');
+ assert.match(card.textContent,/Setup unavailable/);
+ assert.equal(f.content.querySelectorAll('.cn-workhub-provider').length,1);
+ assert.match(f.content.querySelector('.cn-workhub-future').textContent,/No other apps are connected/);
+ f.dom.window.close();
+});
+
+test('Work Hub counts only confirmed ClickUp connection and never manufactures task data',async()=>{
+ const f=fixture(async url=>{
+   if(url==='/api/clickup')return {configured:true,connected:true,provider:'clickup',workspace:{id:'123',name:'QA workspace'},canManage:true};
+   if(url==='/api/clickup?view=tasks&page=0')return {tasks:[],summary:{total:0,overdue:0,dueSoon:0},hasMore:false};
+   throw Error('Unexpected provider request '+url);
+ });
+ f.w.document.querySelector('[data-cn-screen="clickup"]').click();
+ await waitFor(()=>f.content.querySelector('.cn-workhub-catalog-count')?.textContent.includes('1 of 1 work apps connected'));
+ assert.match(f.content.querySelector('.cn-workhub-provider').textContent,/Connected/);
+ assert.match(f.content.textContent,/No open tasks were returned/);
+ assert.equal(f.content.querySelectorAll('.cn-workhub-provider').length,1);
+ f.dom.window.close();
+});
+
+test('Work Hub marks a failed ClickUp read as needing attention, not connected',async()=>{
+ const f=fixture(async url=>{
+   if(url==='/api/clickup')return {configured:true,connected:true,provider:'clickup',workspace:{id:'123',name:'QA workspace'},canManage:true};
+   if(url==='/api/clickup?view=tasks&page=0')throw Error('Provider unavailable');
+   throw Error('Unexpected provider request '+url);
+ });
+ f.w.document.querySelector('[data-cn-screen="clickup"]').click();
+ await waitFor(()=>f.content.querySelector('.cn-workhub-provider-status')?.textContent==='Needs attention');
+ assert.match(f.content.querySelector('.cn-workhub-catalog-count').textContent,/0 of 1 work apps connected/);
+ assert.match(f.content.textContent,/Provider unavailable/);
+ f.dom.window.close();
+});

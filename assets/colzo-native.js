@@ -1608,6 +1608,27 @@
    finally{state.workBusy=false;if(submit)submit.disabled=false}
  }
 
+ // Only register working provider adapters here. Never show an unimplemented app as connected.
+ // Future adapters supply their own authenticated API status, error/loading flags and action.
+ const WORK_HUB_PROVIDERS=Object.freeze([
+   Object.freeze({id:'clickup',label:'ClickUp',description:'Tasks, projects and deadlines',mark:'▦',statusKey:'clickupStatus',errorKey:'clickupError',loadingKey:'clickupLoading',refreshAction:'data-clickup-refresh'})
+ ]);
+ function renderWorkHubCatalog(){
+   const providers=WORK_HUB_PROVIDERS.map(definition=>{
+     const status=state[definition.statusKey]||null;
+     const error=state[definition.errorKey];
+     const loading=state[definition.loadingKey]===true;
+     const connected=status?.connected===true&&!error&&!loading;
+     const label=error?'Needs attention':loading?'Checking…':status===null?'Not checked':connected?'Connected':status.configured?'Not connected':'Setup unavailable';
+     return {...definition,status:label,connected,loading};
+   });
+   const verifiedConnected=providers.filter(app=>app.connected).length;
+   const pending=providers.some(app=>app.status==='Not checked'||app.status==='Checking…');
+   const count=pending?'Connection status not yet confirmed':verifiedConnected+' of '+providers.length+' work apps connected';
+   const cards=providers.map(app=>'<article class="cn-workhub-provider" aria-label="'+safe(app.label)+' integration"><div class="cn-workhub-provider-identity"><span class="cn-workhub-provider-mark" aria-hidden="true">'+safe(app.mark)+'</span><span><strong>'+safe(app.label)+'</strong><small>'+safe(app.description)+'</small></span></div><div class="cn-workhub-provider-controls"><span class="cn-workhub-provider-status" role="status">'+safe(app.status)+'</span><button type="button" class="cn-secondary" '+app.refreshAction+' '+(app.loading?'disabled':'')+'>Refresh '+safe(app.label)+'</button></div></article>').join('');
+   return '<section class="cn-workhub-catalog" aria-label="Work app connections"><div class="cn-workhub-catalog-heading"><div><span class="cn-kicker">YOUR WORK APPS</span><h2>Connected tools</h2></div><span class="cn-workhub-catalog-count">'+safe(count)+'</span></div><div class="cn-workhub-app-grid">'+cards+'<div class="cn-workhub-future"><span aria-hidden="true" class="cn-workhub-future-icon">+</span><div><strong>More integrations</strong><p>Each new work app will appear here only after its integration is available and authorised. No other apps are connected through Work Hub yet.</p></div></div></div></section>';
+ }
+
  // ClickUp is a real external workspace: no placeholder connections or synthetic tasks.
  function clickupScreen(){
    const s=state.clickupStatus,items=Array.isArray(state.clickupTasks?.tasks)?state.clickupTasks.tasks:[];
@@ -1620,9 +1641,7 @@
      state.clickupListError?'<p class="cn-work-message" role="alert">'+safe(state.clickupListError)+'</p><button type="button" data-clickup-retry-lists class="cn-secondary">Retry list lookup</button>':
      !listOptions.length?'<p class="cn-caption">No available lists were found in the permitted ClickUp spaces. Nothing has been created.</p><button type="button" data-clickup-retry-lists class="cn-secondary">Refresh lists</button>':
      state.clickupLists?.truncated?'<p class="cn-caption">Showing a limited set of authorised lists. Use ClickUp for lists outside this selection.</p>':'';
-   const providerStatus=!s?'Not checked':connected?'Connected':s.configured?'Not connected':'Setup unavailable';
-   const provider='<section class="cn-workhub-provider" aria-label="ClickUp integration"><div class="cn-workhub-provider-identity"><span class="cn-workhub-provider-mark" aria-hidden="true">▦</span><span><strong>ClickUp</strong><small>Tasks, projects and deadlines</small></span></div><div class="cn-workhub-provider-controls"><span class="cn-workhub-provider-status">'+providerStatus+'</span><button type="button" class="cn-secondary" data-clickup-refresh '+(state.clickupLoading?'disabled':'')+'>Refresh ClickUp</button></div></section>';
-   const heads='<header class="cf-screen-top cn-clickup-heading"><div><span class="cn-kicker">CONNECTED WORK TOOLS</span><h1>Work Hub</h1><p class="cn-caption">Bring your business tools together in Colzo. ClickUp is the first supported work integration.</p></div></header>'+provider;
+   const heads='<header class="cf-screen-top cn-clickup-heading"><div><span class="cn-kicker">CONNECTED WORK TOOLS</span><h1>Work Hub</h1><p class="cn-caption">Manage work across your business apps in one place. ClickUp is the first supported work integration.</p></div></header>'+renderWorkHubCatalog();
    const error=state.clickupError?'<p class="cn-work-message" role="alert">'+safe(state.clickupError)+'</p>':'';
    const message=state.clickupMessage?'<p class="cn-work-message" role="status">'+safe(state.clickupMessage)+'</p>':'';
    if(state.clickupLoading&&!s)return heads+empty('Checking your ClickUp connection…');
