@@ -39,3 +39,8 @@ test('GitHub runner installs signed PostgreSQL 17 backup clients rather than ass
  assert.match(workflow,/COLZO_PG_BACKUP_CLIENT_BIN/);
  assert.match(workflow,/ACCC4CF8/);
 });
+
+test('PGDG repository is restricted to supported Ubuntu runner codenames without hardcoding Noble',()=>{
+ assert.match(workflow,/case "\$VERSION_CODENAME" in/);
+ assert.doesNotMatch(workflow,/test "\$VERSION_CODENAME" = noble/);
+});
