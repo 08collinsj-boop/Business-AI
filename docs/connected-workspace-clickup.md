@@ -6,7 +6,7 @@
 
 ## Scope completed in the branch
 
-- Desktop command-centre entry, desktop sidebar ClickUp navigation and a native responsive task page.
+- Desktop command-centre ClickUp briefing (explicit Refresh to retrieve current permitted tasks, page-scoped counts and escaped task titles), desktop sidebar ClickUp navigation and a native responsive task page.
 - ClickUp OAuth initiation with strong, single-use state, secure callback cookie and business/actor verification.
 - AES-256-GCM encrypted ClickUp OAuth token storage; tenant UUID is authenticated additional data.
 - Authenticated read-only workspace status and task retrieval. Users only see tasks available to the authorised ClickUp identity.

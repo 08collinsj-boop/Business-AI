@@ -10,10 +10,10 @@
 ## 1. Work completed without Work
 
 - Reused the actual native Colzo desktop shell rather than creating a separate demo.
-- Native ClickUp workspace supports first-page and later-page task display, workspace selection, grounded task priorities, inspector and owner/admin-confirmed changes. The existing mobile five primary tabs remain intact; ClickUp is in More and command search.
+- Native ClickUp workspace supports first-page and later-page task display, workspace selection, grounded task priorities, inspector and owner/admin-confirmed changes. Desktop Home can explicitly refresh authorised ClickUp task counts and titles; labels say they represent the current page, not the entire workspace. The existing mobile five primary tabs remain intact; ClickUp is in More and command search.
 - Server-only OAuth with one-time state, encrypted tenant-bound credentials, limited provider routes, role checks, migration proposal and data minimisation.
 - Follow-up repairs: task creation works with available authorised ClickUp Lists **even when empty**, via bounded Spaces/Folder discovery; task updates compare both last-seen title and status; member controls are visually read-only and server-writes are owner/admin-only; form input survives provider-save failure.
-- Last full independent GitHub Actions verification at commit `6ef4ab390e471e56ecf3526d057e0cb210a71f06`: [run 43209435566](https://github.com/08collinsj-boop/Business-AI/actions/runs/43209435566), **1,774/1,774 Node tests passed**, zero failures; existing isolated native booking-overlap and signup/replay SQL checks passed. The later OAuth callback tests were written with fictional, mocked endpoints; their final-commit CI must be rerun.
+- Full independent GitHub Actions verification of the OAuth callback and earlier independent fixes at commit `93cef07a82ef140e994d8b7c6afc4e8830dd007d`: [run 43210486775](https://github.com/08collinsj-boop/Business-AI/actions/runs/43210486775), **1,779/1,779 Node tests passed**, zero failures; isolated booking-overlap and signup/replay SQL checks passed. The desktop Home briefing was added afterward; re-run final CI on the new head before releasing.
 - Protected Vercel Development Preview builds automatically on the feature branch, but Vercel `READY` proves package/build readiness only; do not infer user authentication, real ClickUp connection or visual acceptance.
 - ClickUp integration remains off by default. No actual OAuth session, provider credentials, SQL migration, email/customer message, production code or pilot activation was performed.
 

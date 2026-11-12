@@ -78,3 +78,25 @@
 .cn-clickup-inspector .cn-work-message[role="alert"] { border:1px solid #8f5757; background:#302325; color:#f6d5d5; padding:11px 13px; border-radius:10px; font-size:13px; line-height:1.5; }
 .cn-clickup-inspector [data-clickup-retry-lists] { justify-self:start; }
 .cn-clickup-inspector form select { line-height:1.4; }
+
+/* Verified ClickUp briefing — no inferred workspace-wide figures, no synthetic data. */
+.cn-dash-connected .cn-dash-clickup {flex:1;min-width:0;}
+.cn-dash-clickup-notice {font-size:13px;line-height:1.55;color:#b7c4bc;max-width:59ch;}
+.cn-dash-clickup-verified {display:grid;gap:9px;}
+.cn-dash-clickup-verified p {font-size:14px;color:#e1efdf;}
+.cn-dash-clickup-verified strong {font-weight:650;color:#cbff78;font-variant-numeric:tabular-nums;}
+.cn-dash-clickup-verified small {font-size:11px;color:#9aa99d;line-height:1.5;}
+.cn-dash-clickup-task-list {display:flex;flex-wrap:wrap;gap:8px;}
+.cn-dash-clickup-task {display:inline-flex;max-width:290px;white-space:normal;overflow-wrap:anywhere;padding:7px 11px;border:1px solid #395043;border-radius:10px;background:#1b2a23;color:#dceadf;font-size:12px;}
+.cn-dash-clickup-buttons {display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:end;}
+@media(min-width:900px) and (max-width:1100px) {
+ .cn-dash-connected {align-items:flex-start;flex-direction:column;}
+ .cn-dash-clickup-buttons {justify-content:start;}
+}
+@media(max-width:899px){
+ .cn-dash-connected{display:block;}
+}
+
+
+.cn-dash-clickup-buttons .cn-dash-clickup-refresh{border-color:#4b5b4e!important;background:transparent!important;color:#d2dcd3!important;}
+.cn-dash-clickup-buttons .cn-dash-clickup-refresh:hover{background:#263a2d!important;}

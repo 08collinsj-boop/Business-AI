@@ -35,6 +35,22 @@
  const sourceLabel=l=>String(l?.source_label || 'Not recorded');
  const status=(v)=>{const label=String(v||'New');const group=leadStage({status:label});return `<span class="cn-pill ${group==='Won'?'success':group==='New'?'attention':'progress'}">${safe(group)}</span>`};
  const greetingLine=()=>`${greeting()},`;
+ function clickupHomeSummary(){
+   const connected=state.clickupStatus?.connected===true;
+   if(state.clickupLoading)return '<p class="cn-dash-clickup-notice" role="status">Refreshing authorised ClickUp tasks…</p>';
+   if(state.clickupError)return '<p class="cn-dash-clickup-notice" role="alert">'+safe(state.clickupError)+'</p>';
+   if(!connected)return '<p class="cn-dash-clickup-notice">ClickUp is not connected. Your current business records remain available in Colzo.</p>';
+   if(!Array.isArray(state.clickupTasks?.tasks))return '<p class="cn-dash-clickup-notice">ClickUp tasks are not loaded. Refresh the workspace to see current priorities.</p>';
+   const data=state.clickupTasks;
+   const overdue=data?.summary?.overdue;
+   const dueSoon=data?.summary?.dueSoon;
+   const dueText=Number.isInteger(overdue)&&Number.isInteger(dueSoon)
+     ? '<strong>'+safe(overdue)+' overdue</strong> · <strong>'+safe(dueSoon)+' due within 48 hours</strong>'
+     : 'Task counts are unavailable for this page';
+   const rows=data.tasks.slice(0,2).map(task=>'<span class="cn-dash-clickup-task">'+safe(task.title)+'</span>').join('');
+   const taskList=rows||'<span class="cn-dash-clickup-task">No open ClickUp tasks on this page.</span>';
+   return '<div class="cn-dash-clickup-verified"><p>'+dueText+'</p><div class="cn-dash-clickup-task-list">'+taskList+'</div><small>Verified ClickUp data · current page '+safe(state.clickupPage+1)+' only, not a whole-workspace total</small></div>';
+ }
  function nativeDesktopHome({enquiries,bookings,actions,business}) {
   const operations=window.ColzoDesktopOperations;
   const zone=typeof businessConfiguration!=='undefined' && businessConfiguration?.booking_preferences?.timezone || 'Europe/London';
@@ -99,7 +115,7 @@
         <div class="cn-dash-recent-list">${recent.length?recent.map(leadRow).join(''):'<p class="cn-dash-empty">No enquiries recorded yet.</p>'}</div></section>
       <div class="cn-dash-trend">${figmaTrend(enquiries).replace('id="cnTrend"','id="cnDesktopTrend"').replaceAll('cnTrendFill','cnDesktopTrendFill')}</div>
     </div>
-    <section class="cn-dash-connected" aria-label="Connected workspace"><div><span class="cn-kicker">CONNECTED WORKSPACE</span><h2>Your tools, one place.</h2><p>Work with ClickUp tasks and deadlines without constantly switching applications.</p></div><button type="button" data-cn-screen="clickup">Open ClickUp workspace <span aria-hidden="true">↗</span></button></section>
+    <section class="cn-dash-connected" aria-label="Connected workspace"><div class="cn-dash-clickup"><span class="cn-kicker">CONNECTED WORKSPACE</span><h2>Your tools, one place.</h2>${clickupHomeSummary()}</div><div class="cn-dash-clickup-buttons"><button type="button" class="cn-dash-clickup-refresh" data-clickup-home-refresh ${state.clickupLoading?'disabled':''}>${state.clickupLoading?'Refreshing…':'Refresh workspace'}</button><button type="button" data-cn-screen="clickup">Open ClickUp workspace <span aria-hidden="true">↗</span></button></div></section>
     <section class="cn-dash-shortcuts"><div class="cn-dash-section-head"><h2>Quick actions</h2></div><div class="cn-dash-shortcut-grid">
       <button type="button" data-cn-create-lead><span aria-hidden="true">${desktopIcon('plus')}</span><strong>New enquiry</strong><small>Record a customer request</small></button>
       <button type="button" data-cn-screen="bookings"><span aria-hidden="true">${desktopIcon('bookings')}</span><strong>Bookings</strong><small>Manage your calendar</small></button>
@@ -1624,7 +1640,7 @@
  async function loadClickup(){
    if(state.clickupLoading)return;
    const epoch=sessionEpoch;state.clickupLoading=true;state.clickupError='';
-   if(state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations')render();
+   if(state.screen==='home'||state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations')render();
    try{
      const status=await api('/api/clickup');
      if(epoch!==sessionEpoch)return;
@@ -1634,7 +1650,7 @@
      state.clickupTasks=status.connected?await api('/api/clickup?view=tasks&page='+state.clickupPage):null;
      if(status.connected&&!Array.isArray(state.clickupTasks?.tasks))throw Error('ClickUp returned no verified task list.');
    }catch(error){if(epoch===sessionEpoch)state.clickupError=error?.message||'The ClickUp connection is unavailable.';}
-   finally{if(epoch===sessionEpoch){state.clickupLoading=false;if(root.isConnected&&(state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations'))render();}}
+   finally{if(epoch===sessionEpoch){state.clickupLoading=false;if(root.isConnected&&(state.screen==='home'||state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations'))render();}}
  }
  async function connectClickup(){
    if(state.clickupBusy)return;
@@ -2046,6 +2062,7 @@
     state.clickupSelected=null;state.clickupCreating=false;loadClickup();return;
   }
   if(target.hasAttribute('data-clickup-connect')){connectClickup();return}
+  if(target.hasAttribute('data-clickup-home-refresh')){loadClickup();return}
   if(target.hasAttribute('data-clickup-refresh')){loadClickup();return}
   if(target.hasAttribute('data-clickup-disconnect')){disconnectClickup();return}
   if(target.hasAttribute('data-clickup-task')){state.clickupSelected=target.getAttribute('data-clickup-task');state.clickupCreating=false;render({motion:'detail'});return}
