@@ -10,7 +10,7 @@ const row={id:17,business_id:B,title:'Check site wiring',status:'pending',assign
 const reply=(data,status=200)=>new Response(status===204?null:JSON.stringify(data),{status});
 const res=()=>({statusCode:0,status(n){this.statusCode=n;return this;},json(body){this.body=body;return this;},setHeader(){return this;}});
 const setting={SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'fake-service-only',TENANCY_AUTH_ENABLED:'true',COLZO_SCOPED_PILOT_ACCESS:'false',VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/colzo-connected-workspace-20261112',COLZO_TEAM_ASSIGNMENTS_ENABLED:'true'};
-async function scenario({role='owner',userId=OWNER,method='GET',query={},body,enabled=true,stored=row,allRows=[row],assigneeFound=true,runtime={}}={}){
+async function scenario({role='owner',userId=OWNER,method='GET',query={},body,enabled=true,stored=row,allRows=[row],assigneeFound=true,runtime={},patchResultAssignee=undefined}={}){
  const values={...setting,COLZO_TEAM_ASSIGNMENTS_ENABLED:enabled?'true':'false',...runtime};
  const old=Object.fromEntries(Object.keys(values).map(k=>[k,process.env[k]])),fetchBefore=globalThis.fetch;
  Object.assign(process.env,values);const calls=[];
@@ -21,7 +21,7 @@ async function scenario({role='owner',userId=OWNER,method='GET',query={},body,en
    if(url.pathname==='/rest/v1/business_memberships'&&url.searchParams.has('business_id'))return reply(assigneeFound?[{business_id:B,user_id:OTHER_STAFF,role:'member'}]:[]);
    if(url.pathname==='/rest/v1/actions'&&verb==='GET')return reply(url.searchParams.has('id')?[stored]:allRows);
    if(url.pathname==='/rest/v1/actions'&&verb==='POST')return reply([{...row,assignee_user_id:null,...(opts.body?JSON.parse(opts.body):{})}]);
-   if(url.pathname==='/rest/v1/actions'&&verb==='PATCH')return reply([{...stored,...(opts.body?JSON.parse(opts.body):{})}]);
+   if(url.pathname==='/rest/v1/actions'&&verb==='PATCH')return reply([{...stored,...(opts.body?JSON.parse(opts.body):{}),...(patchResultAssignee===undefined?{}:{assignee_user_id:patchResultAssignee})}]);
    if(url.pathname==='/rest/v1/business_audit_events')return reply(null,204);
    throw Error('Unexpected synthetic endpoint '+url.pathname);
  };
@@ -130,4 +130,11 @@ test('staged SQL is not a live migration, and delegates assignee membership to a
  assert.match(sql,/references public\.business_memberships\s*\(business_id, user_id\)/i);
  assert.match(sql,/on delete set null\s*\(assignee_user_id\)/i);
  assert.doesNotMatch(sql,/grant\s+(?:select|insert|update|delete|all)\s+on/i);
+});
+
+test('member task write refuses a contradictory assignee in the server-confirmed result before audit',async()=>{
+ const{response,calls}=await scenario({role:'member',userId:STAFF,method:'PATCH',body:{id:17,status:'completed',expected_updated_at:stamp},patchResultAssignee:OTHER_STAFF});
+ assert.equal(response.statusCode,500);
+ assert.equal(calls.filter(c=>c.url.pathname==='/rest/v1/business_audit_events').length,0);
+ assert.doesNotMatch(JSON.stringify(response.body),/55555555/);
 });

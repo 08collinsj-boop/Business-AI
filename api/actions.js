@@ -290,6 +290,8 @@ export default async function handler(req, res) {
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, actionId);
     if (!result || !confirmedActionFields(result, updates)) throw new Error("Updated record could not be confirmed");
+    if (assignmentEnabled && auth.role === "member" && result.assignee_user_id !== auth.userId)
+      throw new Error("Updated assignee could not be confirmed");
     if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");
