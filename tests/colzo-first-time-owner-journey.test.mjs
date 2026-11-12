@@ -25,6 +25,7 @@ test('Home prioritises follow-ups and calls every booking a recorded booking, no
     safe: String,
     figmaStat: (label, number, description) => '<div>' + label + ':' + number + ' ' + description + '</div>',
     figmaTrend: () => '',
+    nativeDesktopHome: () => '', // This test isolates the preserved mobile Home contract.
     empty: message => '<div>' + message + '</div>'
   });
   assert.match(result, /Bookings:1 All recorded bookings/);

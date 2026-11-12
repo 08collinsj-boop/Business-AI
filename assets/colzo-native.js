@@ -35,6 +35,78 @@
  const sourceLabel=l=>String(l?.source_label || 'Not recorded');
  const status=(v)=>{const label=String(v||'New');const group=leadStage({status:label});return `<span class="cn-pill ${group==='Won'?'success':group==='New'?'attention':'progress'}">${safe(group)}</span>`};
  const greetingLine=()=>`${greeting()},`;
+ function nativeDesktopHome({enquiries,bookings,actions,business}) {
+  const operations=window.ColzoDesktopOperations;
+  const zone=typeof businessConfiguration!=='undefined' && businessConfiguration?.booking_preferences?.timezone || 'Europe/London';
+  const options={now:new Date(),timezone:zone};
+  const flagged=operations?.attention?.({leads:enquiries,bookings,actions},options);
+  const schedule=operations?.schedule?.(bookings,options);
+  const dueCount=operations?.dueCount?.(actions,options);
+  const newCount=enquiries.filter(item=>leadStage(item)==='New').length;
+  const requests=bookings.filter(item=>item.status==='requested').length;
+  const phrases=[];
+  if(newCount)phrases.push(newCount+' new '+(newCount===1?'enquiry':'enquiries'));
+  if(dueCount)phrases.push(dueCount+' '+(dueCount===1?'action':'actions')+' due');
+  if(requests)phrases.push(requests+' booking '+(requests===1?'request':'requests')+' awaiting confirmation');
+  const briefing=operations&&schedule&&flagged
+    ? (phrases.length?'You have '+phrases.join(', ')+' to review.':'No new enquiries, due actions or pending booking requests right now.')
+    : 'Your recorded priorities are temporarily unavailable. Use the Enquiries, Actions and Bookings screens.';
+  const metric=(label,value,caption)=>'<article class="cn-dash-metric"><span>'+safe(label)+'</span><strong>'+safe(value)+'</strong><small>'+safe(caption)+'</small></article>';
+  // One outline family for desktop controls; no platform-dependent text glyphs.
+  const desktopIcon=name=>'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+({enquiries:'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/>',bookings:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18"/>',actions:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',spark:'<path d="m12 3 2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2Z"/>',plus:'<path d="M12 5v14M5 12h14"/>',arrow:'<path d="m9 5 7 7-7 7"/>'}[name]||'')+'</svg>';
+  const row=(item,showTime=false)=>{
+    const target=item.route==='leads'?'enquiries':item.route;
+    if(!['enquiries','actions','bookings'].includes(target))return '';
+    const sign=showTime?safe(item.time||'—'):desktopIcon(target);
+    return '<button type="button" class="cn-dash-row" data-cn-screen="'+target+'"><span class="cn-dash-row-icon" aria-hidden="true">'+sign+'</span><span class="cn-dash-row-text"><strong>'+safe(item.title)+'</strong><small>'+safe(item.meta)+'</small></span><span class="cn-dash-row-arrow" aria-hidden="true">'+desktopIcon('arrow')+'</span></button>';
+  };
+  const queue=Array.isArray(flagged)
+    ?(flagged.length?flagged.slice(0,4).map(item=>row(item)).join(''):'<p class="cn-dash-empty">No items currently need attention.</p>')
+    :'<p class="cn-dash-empty">Open Enquiries, Actions or Bookings to review priorities.</p>';
+  const appointments=Array.isArray(schedule)
+    ?(schedule.length?schedule.slice(0,4).map(item=>row(item,true)).join(''):'<p class="cn-dash-empty">No confirmed appointments today.</p>')
+    :'<p class="cn-dash-empty">Open Bookings to check your schedule.</p>';
+  const attentionLabel=Array.isArray(flagged)?(flagged.length>4?'4 of '+flagged.length:flagged.length+' items'):'Unavailable';
+  const scheduleLabel=Array.isArray(schedule)?(schedule.length>4?'4 of '+schedule.length:schedule.length+' confirmed'):'Unavailable';
+  const firstPriority=Array.isArray(flagged)?flagged[0]:null;
+  const priorityRoute=firstPriority?.route==='leads'?'enquiries':firstPriority?.route;
+  const primaryRoute=['enquiries','actions','bookings'].includes(priorityRoute)?priorityRoute:'enquiries';
+  const primaryAction=firstPriority
+    ? {text:primaryRoute==='actions'?'Review actions':primaryRoute==='bookings'?'Review requests':'Review enquiries',attribute:'data-cn-screen="'+primaryRoute+'"'}
+    : Array.isArray(flagged)
+      ? {text:'New enquiry',attribute:'data-cn-create-lead'}
+      : {text:'View enquiries',attribute:'data-cn-screen="enquiries"'};
+  const recent=enquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,3);
+  return `<section class="cn-home-desktop" aria-label="Desktop business command centre">
+    <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><span class="cn-dash-date">${safe(operations?.dateLabel?.(options)||totalToday())}</span></header>
+    <section class="cn-dash-briefing" aria-label="Workspace briefing">
+      <div><span class="cn-dash-briefing-title"><span class="cn-dash-spark" aria-hidden="true">${desktopIcon('spark')}</span>Workspace briefing</span>
+      <p>${safe(briefing)}</p><small>Based on current records · Nothing sent or confirmed automatically</small></div>
+      <button type="button" ${primaryAction.attribute}>${safe(primaryAction.text)} <span aria-hidden="true">${desktopIcon('arrow')}</span></button>
+    </section>
+    <section class="cn-dash-metrics" aria-label="Recorded business activity">
+      ${metric('New enquiries',newCount,'Awaiting first response')}
+      ${metric('Confirmed today',Array.isArray(schedule)?schedule.length:'—','Booking requests excluded')}
+      ${metric('Actions due',Number.isSafeInteger(dueCount)?dueCount:'—','Today and overdue')}
+      ${metric('Total enquiries',enquiries.length,'All recorded')}
+    </section>
+    <div class="cn-dash-primary-grid">
+      <section class="cn-dash-panel" aria-label="Needs attention"><div class="cn-dash-panel-head"><div><span>PRIORITIES</span><h2>Needs attention</h2></div><small>${safe(attentionLabel)}</small></div><div class="cn-dash-panel-list">${queue}</div><button type="button" class="cn-dash-more" data-cn-screen="actions">Open actions <span aria-hidden="true">${desktopIcon('arrow')}</span></button></section>
+      <section class="cn-dash-panel" aria-label="Today's schedule"><div class="cn-dash-panel-head"><div><span>CALENDAR</span><h2>Today's schedule</h2></div><small>${safe(scheduleLabel)}</small></div><div class="cn-dash-panel-list">${appointments}</div><button type="button" class="cn-dash-more" data-cn-screen="bookings">View bookings <span aria-hidden="true">${desktopIcon('arrow')}</span></button></section>
+    </div>
+    <div class="cn-dash-secondary-grid">
+      <section class="cn-dash-panel cn-dash-recent"><div class="cn-dash-panel-head"><div><span>ACTIVITY</span><h2>Recent enquiries</h2></div><button class="cn-dash-more" data-cn-screen="enquiries" type="button">View all <span aria-hidden="true">${desktopIcon('arrow')}</span></button></div>
+        <div class="cn-dash-recent-list">${recent.length?recent.map(leadRow).join(''):'<p class="cn-dash-empty">No enquiries recorded yet.</p>'}</div></section>
+      <div class="cn-dash-trend">${figmaTrend(enquiries).replace('id="cnTrend"','id="cnDesktopTrend"').replaceAll('cnTrendFill','cnDesktopTrendFill')}</div>
+    </div>
+    <section class="cn-dash-shortcuts"><div class="cn-dash-section-head"><h2>Quick actions</h2></div><div class="cn-dash-shortcut-grid">
+      <button type="button" data-cn-create-lead><span aria-hidden="true">${desktopIcon('plus')}</span><strong>New enquiry</strong><small>Record a customer request</small></button>
+      <button type="button" data-cn-screen="bookings"><span aria-hidden="true">${desktopIcon('bookings')}</span><strong>Bookings</strong><small>Manage your calendar</small></button>
+      <button type="button" data-cn-screen="actions"><span aria-hidden="true">${desktopIcon('actions')}</span><strong>Tasks</strong><small>Review follow-ups</small></button>
+      <button type="button" data-cn-screen="receptionist"><span aria-hidden="true">${desktopIcon('spark')}</span><strong>AI assistant</strong><small>Review assistant settings</small></button>
+    </div></section>
+  </section>`;
+ }
  function home(){
   if(!state.recordsReady)return '<section class="cn-empty" role="status" aria-busy="true"><p>Loading business overview…</p></section>';
   const {enquiries,bookings,actions}=records();
@@ -56,7 +128,7 @@
   <section class="cf-below-fold"><div class="cn-section-bar"><div><span class="cn-kicker">YOUR DAY</span><h2>Recent enquiries</h2></div><button data-cn-screen="enquiries" class="cn-text-action" type="button">View all ↗</button></div>
     <div class="cn-stack">${enquiries.length?enquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,3).map(leadRow).join(''):empty('No enquiries recorded yet.')}</div>
     <div class="cn-duo"><button data-cn-screen="bookings" type="button"><b>▣</b><strong>Bookings</strong><small>Open calendar →</small></button><button data-cn-screen="marketing" type="button"><b>✧</b><strong>AI marketing</strong><small>Open drafts →</small></button></div>
-  </section>`;
+  </section>` + nativeDesktopHome({enquiries,bookings,actions,business});
  }
  function figmaStat(label,n,details,icon){return `<article class="cf-kpi"><span class="cf-kpi-label">${safe(label)}</span><strong data-cn-kpi="${safe(label)}">${safe(n)}</strong><span class="cf-kpi-sub">${safe(details)}</span></article>`}
  function figmaTrend(list){
@@ -1645,7 +1717,7 @@
    if(securityHost&&typeof window.colzoMountSecurityCenter==='function')window.colzoMountSecurityCenter(securityHost);
    const dialog=content.querySelector('.cn-work-dialog-backdrop');if(dialog)root.appendChild(dialog);
    content.dataset.cnIntro=motion==='none'||motion==='filter'?'':state.screen;
-   root.querySelectorAll('.cn-nav button').forEach(b=>{const active=b.dataset.cnScreen===primaryScreens[navPosition(state.screen)];if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   root.querySelectorAll('.cn-nav button').forEach(b=>{const extra=Boolean(b.closest('.cn-desktop-nav-extra'));const active=extra?b.dataset.cnScreen===state.screen:b.dataset.cnScreen===primaryScreens[navPosition(state.screen)];if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    window.ColzoKpiMotion?.update(previousKpis);
    if(motion!=='none')animateArrival(direction,motion);

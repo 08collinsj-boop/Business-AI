@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {JSDOM} from 'jsdom';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 test('Colzo motion system is scoped, accessible, reduced-motion safe and visually integrated',async()=>{
  const [html,css,js]=await Promise.all(['index.html','assets/colzo-motion.css','assets/colzo-native.js'].map(read));
@@ -10,7 +11,11 @@ test('Colzo motion system is scoped, accessible, reduced-motion safe and visuall
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/body\.colzo-owner-enabled\.auth-ready\.colzo-legacy-mode #dashboardApp \.view\.active/);
  assert.doesNotMatch(css,/@import|@font-face|url\(https?:|animation-iteration-count\s*:\s*infinite/);
- assert.equal((html.match(/class="cn-navicon" aria-hidden="true"><svg/g)||[]).length,5);
+ const navDom=new JSDOM(html);
+ const mobileTabs=navDom.window.document.querySelectorAll('.cn-nav > button');
+ assert.equal(mobileTabs.length,5,'five direct mobile tabs remain separate from desktop tool links');
+ for(const button of mobileTabs)assert.ok(button.querySelector('.cn-navicon[aria-hidden="true"] > svg'));
+ navDom.window.close();
  assert.match(html,/id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite"/);
  assert.doesNotMatch(html,/id="cnContent"[^>]*aria-live="polite"/);
  assert.match(html,/aria-modal="true" aria-labelledby="cnCommandTitle"/);
