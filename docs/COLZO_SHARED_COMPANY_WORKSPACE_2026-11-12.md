@@ -23,3 +23,11 @@ A company with 20 employees can work in **one Colzo business workspace**, with *
 ## Release boundary
 
 PR #76 and #77 remain **draft and unmerged**. No Production changes, Stripe/billing activation, new paid services, real customers, hosted SQL writes or pilot invitations are authorised by this implementation. **Pilot NO-GO** pending real backup, OAuth and authenticated acceptance.
+
+## My Work backend groundwork (staged, disabled by default)
+
+The draft `api/actions.js` now contains an **opt-in** “My Work” assignment contract, but it is **not activated or usable in hosted Development** because the `assignee_user_id` schema has not been applied. The proposed SQL is in `docs/staged-sql/COLZO_ACTION_ASSIGNMENT_NOT_APPLIED.sql`, intentionally outside the automatic Supabase migrations directory.
+
+With `COLZO_TEAM_ASSIGNMENTS_ENABLED=true` only on the **exact feature/colzo-connected-workspace-20261112 Preview branch against the specified Development Supabase project**, `GET /api/actions?scope=mine` filters by the verified session's own UUID and business; bad/mismatched service-role responses fail closed. Staff can create tasks assigned to themselves, cannot assign colleagues, and can update only the status of their own task through a versioned conditional write. Owner/admin can assign a task only after a fresh, exact tenant-and-user membership check; the staged composite foreign key would enforce this in PostgreSQL even against concurrent membership removal. The existing business-wide actions API stays unchanged while the flag is off, and assignment fields are rejected before storage. This preview feature flag has **not been enabled anywhere**.
+
+Before operator activation, review the SQL and regression evidence, complete the **real Development backup and independent restore**, request explicit authorisation for the exact approved migration, run the staged SQL in a disposable PostgreSQL 17 database (it has **not** been applied in live Development), verify the existing Actions RLS/grants, and then run authenticated owner/manager/member/two-tenant session security and browser tests. Task assignment, the staff **My Work** UI and company-wide ClickUp access are **not live**. No staff seat invitations or customer data are created by these tests.
