@@ -99,3 +99,47 @@ The user explicitly approved both requested scopes in this task. The SQL approva
 ### Exact current assessment
 
 **External pilot NO-GO.** Approved configuration work progressed and the live target-configuration error is resolved. Automated tests remain historical at source `b6d8290` (1,792 passing); no new full regression run is claimed because no application code was corrected. The new Preview build passed, which is not evidence of live authenticated acceptance. Temporary privileged configuration cleanup remains pending completion of authorised acceptance.
+
+
+## Genuine authenticated acceptance — 12 November 2026, 16:05–16:15 UK
+
+Tested protected native Colzo branch Preview at application/documentation source `d93b1e4c60072c83b589a3617ac7514673045a23`. The user completed genuine sign-in and authenticator verification. No MFA, entitlement, database-target or deployment-protection bypass was used.
+
+| Live check | Result | Direct evidence and limits |
+| --- | --- | --- |
+| Genuine sign-in and MFA | PASS for tested account | Authenticator gate was visible before verification; afterwards the actual native desktop rendered. Account security centre displayed **MFA verified**. No token/OTP value inspected or captured. |
+| Authenticated session reload | PASS for tested session | Full reload reopened the native workspace and loaded tenant records. This is not revoked-token testing. |
+| Native desktop navigation | PASS smoke | Home, ClickUp, Enquiries, enquiry details/editor and Settings/security routes exercised. Sidebar hover is visually distinct from current Home; no duplicate active-route defect established. |
+| Fictional enquiry write/persistence | PASS | Edited internal notes on **QA 20261104 Enquiry Example**, whose description explicitly identifies fictional acceptance data. Saved notes, fully reloaded, reopened editor and verified persisted marker. Restored exact original notes, reopened and verified equality. No email/message sent. |
+| Unsaved enquiry guard | PASS | Edited notes then clicked Home; Unsaved changes dialog appeared. Keep editing preserved draft, which then saved successfully. |
+| Responsive five-tab navigation | PASS limited smoke | At 449px CSS width using browser zoom, More, Customers, Bookings and Home navigation worked; Enquiries was exercised in the desktop form flow. All five primary tabs remained: Home, Enquiries, Bookings, Customers, More. |
+| Responsive document overflow | PASS limited layout | Home document scrollWidth equalled viewport width at 539, 449 and 337 CSS pixels. This is browser-zoom testing, not device emulation. |
+| Responsive customers | PASS read smoke | Native Customers initially loaded then displayed six saved QA customers, separate from enquiry-derived contacts. No customer mutation attempted. |
+| Fictional booking create/confirm | PASS | Created **COLZO QA 20261112 Acceptance booking**, fictional QA customer, 13 November 12:00–12:30 as displayed in browser; requested status appeared, then changed to confirmed and was visibly verified. Notes state no real appointment or external contact. |
+| Confirmed booking overlap | PASS UI rejection | Attempted **COLZO QA 20261112 Overlap rejection**, 12:15–12:45, confirmed. Server-backed save returned: This time overlaps another confirmed booking. Choose a different time. Form retained inputs. No HTTP status was independently captured, so none is claimed. |
+| Booking draft discard | PASS | Cancel on failed overlap form prompted Unsaved changes; Discard changes returned to bookings. Overlap record did not appear; total remained 16. |
+| Fictional booking cancellation | PASS | Changed acceptance booking to cancelled, saved, opened Cancelled 10 filter and verified its cancelled row. One deliberately labelled cancelled QA record remains; no destructive deletion attempted. Active booking count returned to six. |
+| Disabled ClickUp behaviour | PASS disabled-state only | Native page showed Connection setup is not yet available for this pilot environment; Connect ClickUp was disabled. This proves neither OAuth nor provider actions. |
+| Sign-out | PASS UI/session smoke | Sign out returned to login. Browser Back reached prior about:blank; Forward reloaded Colzo and required Sign in again, with no authenticated owner shell visible. Actual revoked-token replay and other-device revocation were NOT RUN. |
+
+### Mobile and browser-test limitations
+
+DevTools was blocked by the browser organisation policy. The notice was dismissed; the restriction was not bypassed. Normal window-resize shortcuts did not change window dimensions. Browser zoom was used only to inspect narrow CSS layouts. A native restriction dialog temporarily intercepted clicks; those no-op attempts were not treated as app defects or passing checks. After dismissing that browser dialog, navigation worked. Zoom was restored to 100%.
+
+Exact 375×812, 390×844 and 430×932 viewports, touch gestures, software keyboard, device safe areas and real mobile-browser behaviour remain **UNVERIFIED**. Narrow zoom screenshots must not be labelled genuine mobile-device acceptance.
+
+### Approved Stitch comparison
+
+Compared actual authenticated desktop rendering against the current approved `stitch-reference.jpg` (Library identity `libfile_36c1b58ca68c8191a154e40accdfd584`, SHA-256 `81944428ae6e18ecc2826f834427a079a1e97035f208a550f6e16bf3d2610fa9`).
+
+- Broad match: Graphite/Volt palette, left navigation, briefing before KPIs, attention/schedule panels and restrained dark surfaces.
+- Still differs materially: reference has breadcrumb/search/account top bar and contextual header actions; actual native header has a compact search button. Reference attention rows have richer status metadata and contextual action buttons; current rows open records. Reference uses customer KPI and weekly activity/next-step panels, whereas native candidate uses total enquiries, enquiry trend and quick actions. These differences are **not signed off as reference-equivalent**.
+- Current screenshot viewport was approximately 1348×926 CSS pixels at normal zoom. Exact required desktop viewport matrix remains incomplete. No broad redesign or invented business figures were introduced to imitate reference sample data.
+
+Captured browser-safe local screenshots: authenticated desktop, MFA verified, 449px zoom layout and 337px zoom layout. These contain fictional QA data, not real customer records. Local screenshots are supporting observations and may be transient; the factual acceptance log is committed here.
+
+### Remaining gates and assessment
+
+**External pilot NO-GO.** Genuine sign-in/MFA and several live workflows now pass for one account, superseding earlier authentication-blocked observations. ClickUp SQL still awaits the previously required restorable backup/rollback preflight; OAuth credentials and real connection/provider-confirmed actions are unavailable. Two-business isolation, member/owner role tampering, session-token replay/revocation, complete mobile/device and desktop visual acceptance, recovery reset, remaining knowledge/marketing workflows and operational/legal sign-off remain incomplete. No gate is passed by inference from historical automated tests.
+
+No application code changed and no new full automated regression run is claimed. Actual live enquiry and booking checks above were executed. No Production, billing, real customer records, pilot activation or privileged configuration scope changes occurred. Both PRs remain draft/unmerged. Temporary privileged Preview cleanup remains pending overall acceptance; tested Colzo session was intentionally signed out.
