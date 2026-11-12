@@ -92,7 +92,7 @@ try{
  check('invalid provider workspace is rejected by database constraint',rejected);
  await admin.query(`DELETE FROM public.businesses WHERE id='${a}'`);
  check('deleting fictional tenant cascades credentials and OAuth state',(
-  await admin.query('SELECT (SELECT count(*) FROM public.colzo_clickup_connections) + (SELECT count(*) FROM public.colzo_clickup_oauth_states) n')).rows[0].n===0);
+  await admin.query('SELECT ((SELECT count(*) FROM public.colzo_clickup_connections) + (SELECT count(*) FROM public.colzo_clickup_oauth_states))::int n')).rows[0].n===0);
  await admin.query('COMMIT');
  check('source migration committed in disposable database',(await admin.query("SELECT to_regclass('public.colzo_clickup_connections') IS NOT NULL ok")).rows[0].ok);
  run('createdb',['-h',work,'-p',String(port),'-U','native_admin','colzo_fictional_restored']);

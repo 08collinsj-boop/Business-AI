@@ -44,3 +44,7 @@ test('PGDG repository is restricted to supported Ubuntu runner codenames without
  assert.match(workflow,/case "\$VERSION_CODENAME" in/);
  assert.doesNotMatch(workflow,/test "\$VERSION_CODENAME" = noble/);
 });
+
+test('synthetic cascade count casts PostgreSQL bigint to an integer for deterministic checks',()=>{
+ assert.match(source(),/colzo_clickup_oauth_states\)\)::int n/);
+});
