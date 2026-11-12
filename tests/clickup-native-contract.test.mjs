@@ -4,8 +4,8 @@ import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../assets/colzo-native.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/colzo-connected-workspace.css',import.meta.url),'utf8');
-const api=readFileSync(new URL('../api/clickup.js',import.meta.url),'utf8');
-const callback=readFileSync(new URL('../api/clickup-callback.js',import.meta.url),'utf8');
+const api=readFileSync(new URL('../lib/clickup-handler.js',import.meta.url),'utf8');
+const callback=readFileSync(new URL('../lib/clickup-callback-handler.js',import.meta.url),'utf8');
 const migration=readFileSync(new URL('../supabase/migrations/20261112013500_add_clickup_connections.sql',import.meta.url),'utf8');
 
 test('desktop navigation includes ClickUp while five-tab mobile navigation remains unchanged',()=>{

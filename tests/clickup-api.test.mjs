@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import clickup from '../api/clickup.js';
-import callback from '../api/clickup-callback.js';
+import clickup from '../lib/clickup-handler.js';
+import callback from '../lib/clickup-callback-handler.js';
 import {clickupConfig, clickupAuthUrl, createClickupState} from '../lib/clickup-provider.js';
 
 function response() {

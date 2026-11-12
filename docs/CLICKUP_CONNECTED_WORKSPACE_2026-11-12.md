@@ -13,6 +13,7 @@ Colzo is a desktop-first business operating workspace. ClickUp tasks appear in a
 - View ClickUp task list and a grounded overdue/upcoming summary.
 - Owner/admin-only task create and update, requiring an explicit confirmation and verified provider response; audit events recorded on successful changes.
 - Scoped pilot restrictions, connection status, disconnect, rate limit, error and unavailable states.
+- ClickUp endpoints are routed through the existing operations dispatcher to remain within the Hobby twelve-function deployment ceiling.
 - Responsive Graphite & Volt task workspace.
 
 ## Release dependencies — do not skip
@@ -41,7 +42,7 @@ Colzo is a desktop-first business operating workspace. ClickUp tasks appear in a
 
 ## Verification
 
-Focused provider, API and native-contract tests passed in an isolated Node runtime (19/19). New API and native JS passed Node source syntax checks. The complete existing regression suite could not be executed in that runtime because its package dependencies were not installed.
+Focused provider, API and native-contract tests passed in an isolated Node runtime (24/24). New API and native JS passed Node source syntax checks. The complete existing regression suite could not be executed in that runtime because its package dependencies were not installed.
 
 **Pilot result: NO-GO pending the release dependencies.**
 
