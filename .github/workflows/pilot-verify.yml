@@ -47,10 +47,29 @@ jobs:
           export LD_LIBRARY_PATH="$COLZO_PG_BIN/../lib"
           node scripts/verify-colzo-self-service-native.mjs
 
+      - name: Install signed PostgreSQL 17 backup clients for disposable restore drill
+        run: |
+          # Embedded Postgres supplies initdb/server, not pg_dump/pg_restore.
+          # Use the PostgreSQL Global Development Group's signed Noble APT repository.
+          sudo install -d -m 0755 /usr/share/postgresql-common/pgdg
+          curl --fail --silent --show-error --location \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
+          gpg --show-keys --with-colons /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            | grep -q '^fpr:::::::::B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8:'
+          . /etc/os-release
+          test "$VERSION_CODENAME" = noble
+          printf 'Types: deb\nURIs: https://apt.postgresql.org/pub/repos/apt\nSuites: noble-pgdg\nArchitectures: amd64\nComponents: main\nSigned-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc\n' \
+            | sudo tee /etc/apt/sources.list.d/colzo-pgdg.sources > /dev/null
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends postgresql-client-17
+          /usr/lib/postgresql/17/bin/pg_dump --version | grep -E '^pg_dump \(PostgreSQL\) 17\.'
+
       - name: Verify isolated ClickUp SQL and synthetic backup restore
         run: |
           export COLZO_PG_BIN="$RUNNER_TEMP/colzo-native-test/node_modules/@embedded-postgres/linux-x64/native/bin"
           export COLZO_PG_CLIENT_MODULE="$RUNNER_TEMP/colzo-native-test/node_modules/pg/lib/index.js"
+          export COLZO_PG_BACKUP_CLIENT_BIN="/usr/lib/postgresql/17/bin"
           export LD_LIBRARY_PATH="$COLZO_PG_BIN/../lib"
           node scripts/verify-colzo-clickup-sql-native.mjs
 

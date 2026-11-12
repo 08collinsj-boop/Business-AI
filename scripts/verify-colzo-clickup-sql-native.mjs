@@ -12,6 +12,7 @@ import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 
 const bin=process.env.COLZO_PG_BIN, modulePath=process.env.COLZO_PG_CLIENT_MODULE;
+const backupBin=process.env.COLZO_PG_BACKUP_CLIENT_BIN||bin;
 if(!bin||!modulePath)throw Error('Requires existing isolated COLZO_PG_BIN and COLZO_PG_CLIENT_MODULE; does not download software.');
 const {default:pg}=await import(pathToFileURL(modulePath));
 const work=mkdtempSync(join(tmpdir(),'colzo-clickup-backup-native-'));
@@ -19,9 +20,12 @@ chmodSync(work,0o700);
 const root=process.getuid?.()===0;
 if(root)chownSync(work,65534,65534);
 const env=Object.fromEntries(Object.entries(process.env).filter(([k])=>!k.startsWith('PG')));
-const run=(name,args)=>execFileSync(root?'python3':join(bin,name),root
- ?['-c','import os,sys; os.setgroups([]); os.setgid(65534); os.setuid(65534); os.execv(sys.argv[1],sys.argv[1:])',join(bin,name),...args]
+const run=(name,args)=>{
+ const executable=join(['pg_dump','pg_restore','createdb'].includes(name)?backupBin:bin,name);
+ return execFileSync(root?'python3':executable,root
+ ?['-c','import os,sys; os.setgroups([]); os.setgid(65534); os.setuid(65534); os.execv(sys.argv[1],sys.argv[1:])',executable,...args]
  :args,{env,stdio:'pipe',timeout:45000});
+};
 const port=55468;
 const config={host:work,port,user:'native_admin',database:'postgres',connectionTimeoutMillis:5000};
 const connect=async database=>{const client=new pg.Client({...config,database});await client.connect();return client};

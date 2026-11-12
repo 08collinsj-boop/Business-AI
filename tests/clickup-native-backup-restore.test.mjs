@@ -31,3 +31,11 @@ test('Pilot Verification runs the isolated migration and backup restore without 
  assert.match(workflow,/Verify isolated ClickUp SQL and synthetic backup restore/);
  assert.match(workflow,/node scripts\/verify-colzo-clickup-sql-native\.mjs/);
 });
+
+test('GitHub runner installs signed PostgreSQL 17 backup clients rather than assuming the embedded server includes pg_dump',()=>{
+ const script=source();
+ assert.match(script,/COLZO_PG_BACKUP_CLIENT_BIN/);
+ assert.match(workflow,/postgresql-client-17/);
+ assert.match(workflow,/COLZO_PG_BACKUP_CLIENT_BIN/);
+ assert.match(workflow,/ACCC4CF8/);
+});
