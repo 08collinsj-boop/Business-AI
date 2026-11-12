@@ -82,7 +82,7 @@
     <section class="cn-dash-briefing" aria-label="Workspace briefing">
       <div><span class="cn-dash-briefing-title"><span class="cn-dash-spark" aria-hidden="true">${desktopIcon('spark')}</span>Workspace briefing</span>
       <p>${safe(briefing)}</p><small>Based on current records · Nothing sent or confirmed automatically</small></div>
-      <button type="button" ${primaryAction.attribute}>${safe(primaryAction.text)} <span aria-hidden="true">↗</span></button>
+      <button type="button" ${primaryAction.attribute}>${safe(primaryAction.text)} <span aria-hidden="true">${desktopIcon('arrow')}</span></button>
     </section>
     <section class="cn-dash-metrics" aria-label="Recorded business activity">
       ${metric('New enquiries',newCount,'Awaiting first response')}
@@ -91,11 +91,11 @@
       ${metric('Total enquiries',enquiries.length,'All recorded')}
     </section>
     <div class="cn-dash-primary-grid">
-      <section class="cn-dash-panel" aria-label="Needs attention"><div class="cn-dash-panel-head"><div><span>PRIORITIES</span><h2>Needs attention</h2></div><small>${safe(attentionLabel)}</small></div><div class="cn-dash-panel-list">${queue}</div><button type="button" class="cn-dash-more" data-cn-screen="actions">Open actions <span aria-hidden="true">↗</span></button></section>
-      <section class="cn-dash-panel" aria-label="Today's schedule"><div class="cn-dash-panel-head"><div><span>CALENDAR</span><h2>Today's schedule</h2></div><small>${safe(scheduleLabel)}</small></div><div class="cn-dash-panel-list">${appointments}</div><button type="button" class="cn-dash-more" data-cn-screen="bookings">View bookings <span aria-hidden="true">↗</span></button></section>
+      <section class="cn-dash-panel" aria-label="Needs attention"><div class="cn-dash-panel-head"><div><span>PRIORITIES</span><h2>Needs attention</h2></div><small>${safe(attentionLabel)}</small></div><div class="cn-dash-panel-list">${queue}</div><button type="button" class="cn-dash-more" data-cn-screen="actions">Open actions <span aria-hidden="true">${desktopIcon('arrow')}</span></button></section>
+      <section class="cn-dash-panel" aria-label="Today's schedule"><div class="cn-dash-panel-head"><div><span>CALENDAR</span><h2>Today's schedule</h2></div><small>${safe(scheduleLabel)}</small></div><div class="cn-dash-panel-list">${appointments}</div><button type="button" class="cn-dash-more" data-cn-screen="bookings">View bookings <span aria-hidden="true">${desktopIcon('arrow')}</span></button></section>
     </div>
     <div class="cn-dash-secondary-grid">
-      <section class="cn-dash-panel cn-dash-recent"><div class="cn-dash-panel-head"><div><span>ACTIVITY</span><h2>Recent enquiries</h2></div><button class="cn-dash-more" data-cn-screen="enquiries" type="button">View all ↗</button></div>
+      <section class="cn-dash-panel cn-dash-recent"><div class="cn-dash-panel-head"><div><span>ACTIVITY</span><h2>Recent enquiries</h2></div><button class="cn-dash-more" data-cn-screen="enquiries" type="button">View all <span aria-hidden="true">${desktopIcon('arrow')}</span></button></div>
         <div class="cn-dash-recent-list">${recent.length?recent.map(leadRow).join(''):'<p class="cn-dash-empty">No enquiries recorded yet.</p>'}</div></section>
       <div class="cn-dash-trend">${figmaTrend(enquiries).replace('id="cnTrend"','id="cnDesktopTrend"').replaceAll('cnTrendFill','cnDesktopTrendFill')}</div>
     </div>

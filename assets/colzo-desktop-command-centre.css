@@ -403,7 +403,7 @@
     padding:28px 32px 60px!important;
   }
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-header{
-    min-height:56px!important;
+    height:56px!important;min-height:56px!important;align-items:center!important;
     padding:6px 32px!important;
     background:rgba(11,14,20,.93)!important;
     border-bottom:1px solid #242e36!important;
@@ -420,6 +420,7 @@
     content:"Colzo"!important;
     top:27px!important;left:22px!important;
     min-height:40px!important;height:40px!important;width:calc(100% - 32px)!important;
+    box-sizing:border-box!important;
     bottom:auto!important;right:auto!important;
     border:0!important;border-radius:0!important;box-shadow:none!important;
     transform:none!important;z-index:0!important;
@@ -708,7 +709,7 @@
 @media (min-width:920px){
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-home-desktop{display:grid!important;grid-template-columns:minmax(0,1.85fr) minmax(0,1fr)!important;gap:0 24px!important;align-items:start!important}
   #colzoOwner .cn-home-desktop > :is(.cn-dash-intro,.cn-dash-briefing,.cn-dash-metrics,.cn-dash-shortcuts){grid-column:1/-1!important;min-width:0!important}
-  #colzoOwner .cn-home-desktop > :is(.cn-dash-primary-grid,.cn-dash-secondary-grid){display:contents!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-home-desktop > :is(.cn-dash-primary-grid,.cn-dash-secondary-grid){display:contents!important}
   #colzoOwner .cn-dash-primary-grid > .cn-dash-panel{margin-bottom:24px!important}
   #colzoOwner .cn-dash-shortcuts{grid-column:1/-1!important;grid-row:6!important;margin-top:24px!important}
   #colzoOwner .cn-dash-recent{grid-column:1!important;grid-row:5!important}
