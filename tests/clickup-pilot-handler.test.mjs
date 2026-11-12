@@ -33,7 +33,7 @@ async function scenario({method='GET',query={},body,role='owner',tasks=[],expect
    if(path==='/auth/v1/user')return reply({id:owner});
    if(path==='/rest/v1/business_memberships')return reply([{business_id:business,role}]);
    if(path==='/rest/v1/colzo_clickup_connections'){
-     const baseline={business_id:business,status:'connected',workspace_id:'123',workspace_name:'Business',updated_at:'2026-11-12T15:00:00.000Z',available_workspaces:[{id:'123',name:'Business'},{id:'456',name:'Second workspace'}],...sealed};
+     const baseline={business_id:business,connected_by:owner,status:'connected',workspace_id:'123',workspace_name:'Business',updated_at:'2026-11-12T15:00:00.000Z',available_workspaces:[{id:'123',name:'Business'},{id:'456',name:'Second workspace'}],...sealed};
      if(method==='PATCH'){
        const query=new URL(url).searchParams;
        if(workspaceRace&&query.get('updated_at')==='eq.'+baseline.updated_at)return reply([]);
@@ -72,9 +72,10 @@ test('owner may create in a validated empty list after explicit approval',async(
  assert.equal(res.body.confirmed,true);
  assert.equal(res.body.task.title,'New task');
 });
-test('member may read lists but cannot create tasks',async()=>{
+test('member cannot read owner-scoped lists or create ClickUp tasks',async()=>{
  const read=await scenario({query:{view:'lists'},role:'member'});
- assert.equal(read.res.statusCode,200);
+ assert.equal(read.res.statusCode,403);
+ assert.ok(!read.calls.some(c=>c.path.startsWith('/api/v2/')));
  const blocked=await scenario({method:'POST',role:'member',body:{action:'create_task',listId:'901',title:'Forbidden',approved:true}});
  assert.equal(blocked.res.statusCode,403);
  assert.ok(!blocked.calls.some(c=>c.path.startsWith('/api/v2/')));
@@ -91,10 +92,11 @@ test('forged list id fails closed without sending a ClickUp create request',asyn
  assert.equal(res.statusCode,409);
  assert.ok(!calls.some(c=>c.path==='/api/v2/list/999/task'));
 });
-test('member connection status hides write permissions but allows read-only tasks',async()=>{
+test('member connection status hides both task and write permissions',async()=>{
  const {res}=await scenario({query:{},role:'member'});
  assert.equal(res.statusCode,200);
  assert.equal(res.body.canManage,false);
+ assert.equal(res.body.canViewTasks,false);
  assert.equal(res.body.connected,true);
 });
 test('owner connection status can show task controls without exposing a token',async()=>{
