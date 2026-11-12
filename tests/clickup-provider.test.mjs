@@ -48,7 +48,7 @@ test('list tasks uses ClickUp API server-side and never returns the token', asyn
   const fetchImpl=async (url,options)=>{called={url,options};return new Response(JSON.stringify({tasks:[t('2026-11-10T10:00:00Z')]}),{status:200});};
   const data=await listClickupTasks('private-token','123',{fetchImpl});
   assert.match(called.url,/\/api\/v2\/team\/123\/task\?page=0/);
-  assert.equal(called.options.headers.Authorization,'private-token');
+  assert.equal(called.options.headers.Authorization,'Bearer private-token');
   assert.equal(data.tasks.length,1);
   assert.equal(JSON.stringify(data).includes('private-token'),false);
 });
@@ -67,4 +67,11 @@ test('create task only accepts a known list id and nonempty title', async () => 
 });
 test('provider errors are sanitized and rate limits are surfaced',async()=>{
   await assert.rejects(listClickupTasks('private-token','123',{fetchImpl:async()=>new Response(JSON.stringify({err:'token private-token'}),{status:429})}), /rate limit/i);
+});
+test('ClickUp connection cannot be enabled on Production or another Preview branch', () => {
+ const config={CLICKUP_INTEGRATION_ENABLED:'true',CLICKUP_CLIENT_ID:'app',CLICKUP_CLIENT_SECRET:'secret',CLICKUP_REDIRECT_URI:'https://preview.example.org/api/clickup-callback',CLICKUP_TOKEN_ENCRYPTION_KEY:'a'.repeat(64),SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',VERCEL_GIT_COMMIT_REF:'feature/colzo-connected-workspace-20261112'};
+ assert.equal(clickupConfig({...config,VERCEL_ENV:'production'}).configured,false);
+ assert.equal(clickupConfig({...config,VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/other'}).configured,false);
+ assert.equal(clickupConfig({...config,VERCEL_ENV:'preview',SUPABASE_URL:'https://another-project.supabase.co'}).configured,false);
+ assert.equal(clickupConfig({...config,VERCEL_ENV:'preview'}).configured,true);
 });
