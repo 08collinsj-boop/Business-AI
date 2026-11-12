@@ -4,13 +4,15 @@
 
 **External pilot: NO-GO.** This record concerns source candidate `b6d82905ecdbfd3a334423a1787e8a663ed10dbe`. Automated verification and package readiness do not establish authenticated live acceptance.
 
-## Fresh evidence (12:43–12:47 UK)
+## Fresh evidence (12:43–13:03 UK)
 
 - Read `docs/COLZO_PILOT_WORK_HANDOFF_2026-11-12.md`, both current PR descriptions, root `AGENTS.md`, the exact proposed migration and connector setup documentation. No additional `docs/AGENTS.md` appeared in the pinned directory inventory.
 - PR #77 branch was still `feature/colzo-connected-workspace-20261112` at the stated candidate. PR #76 and #77 were both draft and unmerged.
 - GitHub Actions workflow_dispatch run [43215021343](https://github.com/08collinsj-boop/Business-AI/actions/runs/43215021343) completed successfully at this exact source SHA. The verify job `131171946907` passed dependency installation, isolated PostgreSQL 17 booking concurrency, isolated signup/capacity/replay SQL and Verify Pilot. Its logs report **1,792 tests / 1,792 pass**. This was inspected existing evidence; no new regression execution is claimed.
 - Vercel deployment `dpl_Ff4Dc2rLa8FoBXtVku51WYtQp747` is READY, environment Preview, and its Git source matches the exact candidate and branch. Immutable deployment hostname: `business-nh8ctkxwg-buisness-ai1.vercel.app`.
-- A fresh real Chrome navigation to [PR #77 branch Preview](https://business-ai-git-feature-colzo-connected-wor-64d936-buisness-ai1.vercel.app) redirected to Vercel login. This browser has no established protected Preview session. Deployment protection was not disabled or bypassed. No Colzo login or MFA success is claimed.
+- Fresh Chrome navigation initially redirected to Vercel login. The user completed the selected GitHub/Apple sign-in flow using secure credential entry. Vercel authentication then returned this browser to the protected [PR #77 branch Preview](https://business-ai-git-feature-colzo-connected-wor-64d936-buisness-ai1.vercel.app/). Protection was not disabled or bypassed.
+- The actual Colzo login screen renders **Authentication is temporarily unavailable**. Direct browser navigation to `/api/public-config` renders `{"error":"Colzo development environment unavailable"}`. Source mapping through `vercel.json` and `api/operations.js:89-90` identifies this as the dispatcher\'s `isApprovedSupabaseTarget()` denial (HTTP 503 in source). The configured target fails validation; its exact inherited value was not read, so no specific alternate project is asserted. Do not remove this guard. Correctly scoped Development configuration requires the separate approval below.
+- No Colzo login or MFA success is claimed. A browser-safe screenshot of the actual login blocker was captured; no credentials are visible.
 - Read-only query on Development `mvwseobgkexzpmmkgcxe` returned `NULL` for both `public.colzo_clickup_oauth_states` and `public.colzo_clickup_connections`; `public.businesses` exists.
 - Vercel environment inventory with exact PR #77 branch filter and decrypt=false returned an empty env list. This establishes absence of branch-specific entries, not absence or correctness of inherited project variables. Deployment metadata lists inherited Supabase variable names; their values/target were not decrypted or validated.
 - Supabase backup inventory returned `backups: []` and `pitr_enabled: false`. No restorable backup is proven. No restore, export or database mutation was attempted.
@@ -20,8 +22,8 @@
 
 | Gate | Status | Evidence / dependency |
 | --- | --- | --- |
-| Protected Preview access | BLOCKED | Browser reaches Vercel sign-in; requires legitimate authentication |
-| Genuine Colzo sign-in and AAL2 MFA | NOT RUN | Requires Preview access and an eligible fictional Development QA account |
+| Protected Preview access | PASS (access only) | User completed Vercel sign-in; actual Colzo login renders |
+| Genuine Colzo sign-in and AAL2 MFA | BLOCKED | Public configuration fails approved-target validation; eligible fictional QA account still required |
 | Desktop native dashboard and Stitch comparison | NOT RUN | Authenticated native shell unavailable; no fixture substituted |
 | Mobile navigation, forms, keyboard and touch | NOT RUN | Authenticated native shell unavailable |
 | ClickUp OAuth, single-use state, cancel/replay | BLOCKED | Tables absent; branch configuration absent; OAuth registration unverified |
@@ -49,6 +51,7 @@ Review the unchanged [migration at the accepted source SHA](https://github.com/0
 
 Only project `prj_d5DuC65u4hSITFRC54ygswiMW9ST`, target Preview and exact branch `feature/colzo-connected-workspace-20261112`.
 
+- Set `SUPABASE_URL` to `https://mvwseobgkexzpmmkgcxe.supabase.co` and the browser publishable key to that existing Development project, exact branch/Preview only. Validate the target before any authenticated data access.
 - Existing Development Supabase server credential, validated against `mvwseobgkexzpmmkgcxe`, configured as sensitive server-only data. This enables privileged backend access to Development records. PR #76 consent does not apply.
 - Server-only ClickUp client ID/secret, exact callback URI and a 32-byte AES encryption key. Callback URI: `https://business-ai-git-feature-colzo-connected-wor-64d936-buisness-ai1.vercel.app/api/clickup-callback`.
 - Enable `CLICKUP_INTEGRATION_ENABLED=true` only after prerequisites pass. Keep deployment protection enabled and secrets out of chat, frontend responses, screenshots and logs.
@@ -58,7 +61,7 @@ Only project `prj_d5DuC65u4hSITFRC54ygswiMW9ST`, target Preview and exact branch
 
 ## Required human inputs
 
-- Complete legitimate Vercel sign-in in this task's browser, followed by genuine Colzo login/MFA.
+- Vercel sign-in is complete in this task's browser. After approved configuration is corrected, complete genuine Colzo login/MFA.
 - Identify existing permitted, unexpired fictional QA businesses and role accounts sufficient for two-tenant and owner/admin/member checks. Do not renew grants, activate a pilot or bypass expiry under the current authority.
 - Supply OAuth credentials through a secret store, never chat or repository files; identify the authorised fictional ClickUp workspace.
 - Confirm responsible operator and support/legal/retention/deletion/incident sign-off.
