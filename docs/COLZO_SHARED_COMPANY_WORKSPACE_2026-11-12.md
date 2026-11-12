@@ -1,0 +1,25 @@
+# Colzo — Shared Company Workspace (Development draft, 12 November 2026)
+
+## The user promise
+
+A company with 20 employees can work in **one Colzo business workspace**, with **one business subscription** and separate individual staff logins. The proposed Business plan includes up to **25 Colzo staff accounts**; Starter keeps 2 and Pro keeps 5. This modifies the draft **entitlement allowance**, not Stripe prices, subscription records, Production, or pilot activation. The protected 14-day pilot's existing operator-managed invitation rules and allowances stay unchanged.
+
+## Implemented in draft PR #77
+
+- The native, desktop-first **Company workspace** is linked from Home, More and the command palette, with a responsive mobile view (business on the go). It routes to existing authenticated Colzo Actions, Projects, Bookings and Work Hub tools; these remain their original tenant-scoped systems of record. No synthetic tasks or made-up assignment metrics are shown.
+- `GET /api/team?view=summary` now serves an **authenticated business member** a strict privacy-minimal summary: their verified role, count of active company accounts, and counts by role. The server independently checks each `business_id` returned by the service-role REST read before counting. Null, malformed, foreign-tenant and unknown-role responses fail closed (HTTP 503); unauthenticated requests fail. It deliberately returns **no staff UUIDs, emails, invited addresses, OAuth credentials or invitation links**.
+- Existing **full team roster and invitation endpoints remain owner-only**. The new workspace offers Manage team access to verified owners only; owner-only invitation forms in Settings are hidden until the owner-only team GET has confirmed authorisation. The existing pilot invitation block has not been bypassed.
+- Business paid-plan entitlements now allow **25**, rather than 15, Colzo staff seats in the draft. **This is not an approval to activate billing or claim that 20 staff have been successfully onboarded**. Invitation capacity is not yet enforced via an independently verified, concurrent database transaction, and the scoped pilot continues to disallow self-managed invitations.
+- The existing single company-level ClickUp OAuth token is **user-specific**, not an implicit authorisation for all Colzo staff. A ClickUp task/list read or mutation now requires both a verified Colzo owner/admin role **and the same authenticated Colzo user as `colzo_clickup_connections.connected_by`**. Ordinary members and other admins cannot inherit the connector owner's token. Connection status may be visible to the company without exposing credentials, accessible task lists, or private workspace choices. All previous action approval/audit and tenant boundaries remain.
+
+## Still needed before a genuine 20-person company pilot
+
+1. **Task assignment**: specify and test a versioned `assignee_user_id`/delegation model on Colzo actions with tenant-bound membership checks, server-confirmed writes and role-specific views (My work / Team work); this requires an explicitly approved migration and real Development restore gate. Do not fake assignments in the frontend.
+2. **Per-person ClickUp access**: build an individual OAuth connection for each staff member who needs ClickUp task data, or a reviewed delegated-access model that independently enforces least privilege and explicit approvals; encrypted tokens must be scoped by both business and actor, with strict task/list restrictions. No one should automatically inherit a manager's broader ClickUp permissions. ClickUp's own recommendation is individualized OAuth tokens: https://developer.clickup.com/docs/authentication .
+3. **Secure 25-seat admissions**: implement atomic seat reservation and invitation acceptance at the database level so concurrent invitations cannot exceed paid team allowances. Confirm current price, support costs and any operational/licensing constraints before publicly promising 25 included seats.
+4. **Real authenticated acceptance**: test owner, manager and staff at AAL2; multi-tenant isolation; revoked sessions and stale invites; owner OAuth; delegated/individual scopes; real task creation/update; desktop and mobile layouts; privacy/DPA/deletion and operational sign-off. Use only fictional Development records and do not activate pilots until the release gates pass.
+5. **Real Development backup**: continue to block ClickUp SQL or new staff-assignment migrations until a complete privately secured Development backup has been independently restored, including Auth/Storage review. The synthetic PostgreSQL rehearsal does **not** satisfy this gate.
+
+## Release boundary
+
+PR #76 and #77 remain **draft and unmerged**. No Production changes, Stripe/billing activation, new paid services, real customers, hosted SQL writes or pilot invitations are authorised by this implementation. **Pilot NO-GO** pending real backup, OAuth and authenticated acceptance.

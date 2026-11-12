@@ -2,7 +2,7 @@
 
 ## What is actually implemented
 
-Work Hub is the **owner-facing entry point** for supported external work software. Its desktop-first catalog renders a provider card from `WORK_HUB_PROVIDERS` in `assets/colzo-native.js`, with a real connection state and a refresh control. The only provider registered now is **ClickUp**; no other external work application is connected or represented as supported. The existing authenticated `/api/clickup` routes, owner/admin permissions, task UI, and mobile five-tab navigation remain unchanged.
+Work Hub is the authenticated business entry point for supported external work software. A separate Company workspace now provides the staff-accessible entry point to shared Colzo Actions, Projects, Bookings and Work Hub. Its desktop-first catalog renders a provider card from `WORK_HUB_PROVIDERS` in `assets/colzo-native.js`, with a real connection state and a refresh control. The only provider registered now is **ClickUp**; no other external work application is connected or represented as supported. The existing authenticated `/api/clickup` routes, task UI, and mobile five-tab navigation remain. Task and list reads/writes now require the actual OAuth authorising Colzo identity (`connected_by`), as well as owner/admin rights; staff see connection status but do not gain the owner token's task privileges.
 
 There is no background polling and no simulated task or connection state. A provider is counted as connected **only** when its verified authenticated status returns `connected: true`, loading has completed and no read error exists. Until a status is checked, the catalog reports that it is unconfirmed. A provider/API error is labelled **Needs attention** and is not counted as connected.
 

@@ -11,7 +11,7 @@ Colzo is a desktop-first business operating workspace. ClickUp tasks appear in a
 - Secure OAuth connection start and callback with cryptographically random 10-minute state, HttpOnly cookie and single-use state records.
 - Tenant-bound encrypted tokens with AES-256-GCM, service-role-only credential storage and authenticated account APIs.
 - View ClickUp task list and a grounded overdue/upcoming summary.
-- Owner/admin-only task create and update, requiring an explicit confirmation and verified provider response; audit events recorded on successful changes.
+- Owner/admin-only task create and update **by the same authenticated user who authorised the stored ClickUp token**, requiring an explicit confirmation and verified provider response; audit events recorded on successful changes.
 - Scoped pilot restrictions, connection status, disconnect, rate limit, error and unavailable states.
 - ClickUp endpoints are routed through the existing operations dispatcher to remain within the Hobby twelve-function deployment ceiling.
 - Responsive Graphite & Volt task workspace.

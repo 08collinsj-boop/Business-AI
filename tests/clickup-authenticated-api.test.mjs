@@ -5,6 +5,7 @@ import {encryptClickupToken} from '../lib/clickup-provider.js';
 
 const BUSINESS='10000000-0000-4000-8000-000000000001';
 const USER='20000000-0000-4000-8000-000000000002';
+const OTHER='20000000-0000-4000-8000-000000000009';
 const KEY='c'.repeat(64);
 const TOKEN='oauth-test-token-do-not-expose';
 const DEV='https://mvwseobgkexzpmmkgcxe.supabase.co';
@@ -26,7 +27,7 @@ async function run(role,req,fetcher) {
   if(value.includes('/rest/v1/business_memberships?'))return new Response(JSON.stringify([{business_id:BUSINESS,role}]),{status:200});
   if(value.includes('/rest/v1/colzo_clickup_connections?')){
    assert.match(value,new RegExp('business_id=eq\\.'+BUSINESS));
-   const record={business_id:BUSINESS,status:'connected',workspace_id:'123',workspace_name:'Demo operations',...encryptClickupToken(TOKEN,BUSINESS,KEY)};
+   const record={business_id:BUSINESS,connected_by:req.connectionActor==='other'?OTHER:USER,status:'connected',workspace_id:'123',workspace_name:'Demo operations',...encryptClickupToken(TOKEN,BUSINESS,KEY)};
    return new Response(JSON.stringify([record]),{status:200});
   }
   if(value.includes('/api/v2/team/123/task')){
@@ -53,11 +54,24 @@ test('status returns tenant-bound display data only, never credentials',async()=
  assert.equal(JSON.stringify(response.body).includes('token_ciphertext'),false);
  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
 });
-test('ClickUp workspace task retrieval uses verified membership and encrypted token',async()=>{
- const {response}=await run('member',{query:{view:'tasks'}});
+test('owner can retrieve ClickUp tasks from the verified encrypted connection',async()=>{
+ const {response}=await run('owner',{query:{view:'tasks'}});
  assert.equal(response.statusCode,200);
  assert.equal(response.body.tasks[0].title,'Site visit');
  assert.equal(JSON.stringify(response.body).includes(TOKEN),false);
+});
+test("member cannot read any task or list through the owner's ClickUp OAuth token",async()=>{
+ for(const view of ['tasks','lists']){
+  const {response,requests}=await run('member',{query:{view}});
+  assert.equal(response.statusCode,403);
+  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
+ }
+});
+test('member status does not offer privileged task access',async()=>{
+ const {response}=await run('member',{});
+ assert.equal(response.statusCode,200);
+ assert.equal(response.body.canViewTasks,false);
+ assert.equal(response.body.canManage,false);
 });
 test('member cannot approve or update external tasks',async()=>{
  const {response,requests}=await run('member',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
@@ -77,3 +91,31 @@ test('owner approved task update confirms provider result and redacts token',asy
  assert.equal(JSON.stringify(response.body).includes(TOKEN),false);
 });
 
+
+test("a Colzo admin cannot inherit a different ClickUp account owner's OAuth task access",async()=>{
+ const req={connectionActor:'other'};
+ const status=await run('admin',req);
+ assert.equal(status.response.statusCode,200);
+ assert.equal(status.response.body.connected,true);
+ assert.equal(status.response.body.canViewTasks,false);
+ assert.equal(status.response.body.canManage,false);
+ assert.equal(status.response.body.canDisconnect,false);
+ assert.deepEqual(status.response.body.availableWorkspaces,[]);
+ for(const view of ['tasks','lists']){
+  const {response,requests}=await run('admin',{...req,query:{view}});
+  assert.equal(response.statusCode,403);
+  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
+ }
+ const {response,requests}=await run('admin',{...req,method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
+ assert.equal(response.statusCode,403);
+ assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
+});
+
+test('Colzo owner can still disconnect a company ClickUp connection owned by another person without receiving their token',async()=>{
+ const {response,requests}=await run('owner',{connectionActor:'other'});
+ assert.equal(response.statusCode,200);
+ assert.equal(response.body.canDisconnect,true);
+ assert.equal(response.body.canViewTasks,false);
+ assert.equal(response.body.canManage,false);
+ assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
+});

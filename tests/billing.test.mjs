@@ -23,7 +23,7 @@ test("central plan entitlements enforce trial expiry, allowance, and staff limit
   assert.equal(activeTrial.active, true); assert.equal(activeTrial.enquiryAllowance, 100); assert.equal(activeTrial.enquiriesRemaining, 1); assert.equal(activeTrial.staffAllowance, 1);
   const expiredTrial = billing.entitlementFromAccount({ ...account, plan: "trial", status: "active", trial_purchased: true, trial_started_at: "2026-09-01T00:00:00.000Z", trial_expires_at: "2026-09-08T00:00:00.000Z" }, 100, new Date("2026-09-08T00:00:00Z"));
   assert.equal(expiredTrial.active, false); assert.equal(expiredTrial.enquiriesRemaining, 0);
-  for (const [plan, allowance, seats] of [["starter", 250, 2], ["pro", 1000, 5], ["business", 3000, 15]]) {
+  for (const [plan, allowance, seats] of [["starter", 250, 2], ["pro", 1000, 5], ["business", 3000, 25]]) {
     const entitlement = billing.entitlementFromAccount({ ...account, plan }, 0, new Date("2026-09-15T00:00:00Z"));
     assert.equal(entitlement.enquiryAllowance, allowance); assert.equal(entitlement.staffAllowance, seats); assert.equal(entitlement.active, true);
   }

@@ -125,3 +125,35 @@
 .cn-workhub-future p { margin:7px 0 0; font-size:12px; line-height:1.65; }
 @media (max-width: 900px) { .cn-workhub-app-grid { grid-template-columns:minmax(0,1fr); } }
 @media (max-width: 700px) { .cn-workhub-catalog-heading { align-items:flex-start; flex-direction:column; gap:8px; } .cn-workhub-catalog-count { text-align:left; } .cn-workhub-future { padding:17px; } }
+
+/* Company workspace — one shared tenant, separate individual staff identities. */
+#colzoOwner .cn-company-workspace{display:grid;gap:22px;max-width:1280px;margin:0 auto;padding-bottom:28px}
+#colzoOwner .cn-company-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+#colzoOwner .cn-company-heading h1{font-size:clamp(27px,3vw,41px);font-weight:680;letter-spacing:-.045em;color:#f5f7f9;line-height:1.13;margin:9px 0 7px}
+#colzoOwner .cn-company-heading p{color:#9eaab7;font-size:14px;line-height:1.6;max-width:62ch}
+#colzoOwner .cn-company-heading button{min-height:42px}
+#colzoOwner .cn-company-roster{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr);gap:14px}
+#colzoOwner .cn-company-roster>div{display:flex;flex-direction:column;gap:8px;background:#151a22;border:1px solid #343d47;padding:25px;border-radius:19px;min-width:0}
+#colzoOwner .cn-company-count strong{font-size:clamp(33px,3vw,48px);color:#c9ff63;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums}
+#colzoOwner .cn-company-role strong{font-size:clamp(20px,2vw,27px);color:#f5f7f9;letter-spacing:-.025em}
+#colzoOwner .cn-company-roster small{color:#97a5b3;font-size:12px;line-height:1.5}
+#colzoOwner .cn-company-breakdown{justify-content:center;gap:15px}
+#colzoOwner .cn-company-breakdown span{display:flex;justify-content:space-between;gap:12px;color:#bdc7d1;font-size:13px}
+#colzoOwner .cn-company-breakdown b{color:#f5f7f9;font-variant-numeric:tabular-nums}
+#colzoOwner .cn-company-section-header{margin:4px 0 17px}
+#colzoOwner .cn-company-section-header h2{color:#eef2f5;font-size:clamp(20px,2.2vw,27px);font-weight:640;letter-spacing:-.03em;margin-top:7px}
+#colzoOwner .cn-company-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+#colzoOwner .cn-company-tools button{position:relative;display:grid;justify-items:start;gap:11px;min-width:0;min-height:168px;padding:23px;border-radius:18px;text-align:left;background:#151a22;border:1px solid #303a45;cursor:pointer;color:#f4f6f9;transition:border-color .16s,background .16s}
+#colzoOwner .cn-company-tools button:hover{border-color:#8ebd49;background:#1c2429}
+#colzoOwner .cn-company-tools button:focus-visible,#colzoOwner .cn-company-heading button:focus-visible,#colzoOwner .cn-company-owner button:focus-visible{outline:2px solid #c9ff63;outline-offset:3px}
+#colzoOwner .cn-company-tools button>span:first-child{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#273321;color:#c9ff63;font-size:22px}
+#colzoOwner .cn-company-tools strong{font-size:16px;letter-spacing:-.015em}
+#colzoOwner .cn-company-tools small{color:#a5b0bc;font-size:12px;line-height:1.5;max-width:31ch}
+#colzoOwner .cn-company-tools b{position:absolute;right:22px;top:24px;color:#9baaaf;font-weight:400}
+#colzoOwner .cn-company-owner{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:22px 25px;background:#17201b;border:1px solid #3b5739;border-radius:18px}
+#colzoOwner .cn-company-owner h2{font-size:20px;color:#f3f6f8;margin:9px 0 7px}
+#colzoOwner .cn-company-owner p{font-size:12px;line-height:1.6;color:#acbdaf;max-width:66ch}
+#colzoOwner .cn-company-boundary{font-size:12px;color:#92a0ae;line-height:1.7;margin:0;max-width:90ch}
+@media(max-width:900px){#colzoOwner .cn-company-roster{grid-template-columns:repeat(2,minmax(0,1fr))}#colzoOwner .cn-company-breakdown{grid-column:1/-1}}
+@media(max-width:620px){#colzoOwner .cn-company-workspace{gap:18px}#colzoOwner .cn-company-heading{align-items:flex-start}#colzoOwner .cn-company-roster,#colzoOwner .cn-company-tools{grid-template-columns:minmax(0,1fr)}#colzoOwner .cn-company-breakdown{grid-column:auto}#colzoOwner .cn-company-roster>div,#colzoOwner .cn-company-tools button{padding:19px}#colzoOwner .cn-company-tools button{min-height:140px}#colzoOwner .cn-company-owner{padding:19px}}
+@media(prefers-reduced-motion:reduce){#colzoOwner .cn-company-tools button{transition:none}}
