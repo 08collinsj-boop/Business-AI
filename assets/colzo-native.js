@@ -6,7 +6,7 @@
  const root=document.getElementById('colzoOwner');
  const content=document.getElementById('cnContent');
  if(!root||!content)return;
- const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',teamSummary:null,companyLoading:false,companyError:'',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingManualOnly:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanUpload:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationEditing:false,automationPlanningBusy:false,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:'',clickupStatus:null,clickupTasks:null,clickupPage:0,clickupLists:null,clickupListsLoading:false,clickupListError:'',clickupLoading:false,clickupBusy:false,clickupError:'',clickupMessage:'',clickupSelected:null,clickupCreating:false});
+ const initialState=()=>({screen:'home',setting:'',settingsBusy:false,teamData:null,teamLoading:false,teamError:'',teamSummary:null,companyLoading:false,companyError:'',myWorkTasks:null,myWorkLoading:false,myWorkBusy:false,myWorkUnavailable:false,myWorkError:'',myWorkMessage:'',myWorkFilter:'Open',inviteFeedback:'',inviteUrl:'',compactCards:false,quietMotion:false,filter:'All',clientSearch:'',clientFilter:'All',projectFilter:'All',projectSearch:'',showProjectSearch:false,search:'',recordsReady:false,activeLead:null,notification:'',draftLead:'',draftTitle:'',draftAmount:'',scrollByScreen:new Map(),workFilter:{bookings:'Active',actions:'Open'},workSearch:{bookings:'',actions:''},workDate:new Date().toISOString().slice(0,7),workModal:null,workBusy:false,workFeedback:'',colzoRecords:{clients:null,projects:null,quotes:null},colzoLoading:'',colzoPending:{clients:false,projects:false,quotes:false},colzoError:'',colzoErrorResource:'',colzoForm:null,colzoBusy:false,colzoFeedback:'',activeCustomerId:null,leadForm:null,leadFeedback:'',leadBusy:false,colzoDetail:null,marketingImageDraft:null,marketingImageResult:null,marketingImageLoading:false,marketingImageError:'',marketingDrafts:null,marketingCanApprove:false,marketingManualOnly:false,marketingApprovalDraft:null,marketingApprovalPreview:null,marketingApprovalLoading:false,marketingApprovalError:'',marketingLoading:false,marketingError:'',marketingBusy:false,marketingForm:false,marketingEditing:null,marketingFeedback:'',marketingView:'drafts',marketingSchedules:null,marketingSchedulesLoading:false,marketingScheduleError:'',marketingSchedulingDraft:null,marketingScheduleBusy:false,voiceStatus:null,voiceLoading:false,voiceError:'',receptionConfig:null,receptionCanManage:false,receptionLoading:false,receptionError:'',receptionEditing:false,receptionDraft:null,receptionBusy:false,receptionFeedback:'',handoverRows:null,handoverLoading:false,handoverError:'',handoverBusy:false,billingData:null,billingLoading:false,billingError:'',knowledgeSources:null,knowledgeLoading:false,knowledgeError:'',knowledgeDetail:null,knowledgeForm:false,knowledgeBusy:false,knowledgeFeedback:'',knowledgeIncludes:{},knowledgeCanManage:false,knowledgeCanUpload:false,knowledgeCanAddManual:false,knowledgeLimits:null,knowledgeFilter:'all',knowledgeReplaceId:null,analyticsData:null,analyticsLoading:false,analyticsError:'',feedbackBusy:false,feedbackError:'',feedbackSuccess:'',automationData:null,automationEditing:false,automationPlanningBusy:false,automationLoading:false,automationBusy:false,automationFeedback:'',automationError:'',publicProfileData:null,publicProfileLoading:false,publicProfileError:'',publicProfileFeedback:'',publicProfileBusy:false,publicMediaSlot:null,publicMediaBusy:false,publicMediaFeedback:'',growthSettings:null,growthProfile:null,growthReferral:null,growthLoading:false,growthError:'',growthCanManage:false,growthBusy:false,growthFeedback:'',clickupStatus:null,clickupTasks:null,clickupPage:0,clickupLists:null,clickupListsLoading:false,clickupListError:'',clickupLoading:false,clickupBusy:false,clickupError:'',clickupMessage:'',clickupSelected:null,clickupCreating:false});
  const state=initialState();
  let dashboardFailure=null;
  let sessionEpoch=0;
@@ -116,7 +116,7 @@
         <div class="cn-dash-recent-list">${recent.length?recent.map(leadRow).join(''):'<p class="cn-dash-empty">No enquiries recorded yet.</p>'}</div></section>
       <div class="cn-dash-trend">${figmaTrend(enquiries).replace('id="cnTrend"','id="cnDesktopTrend"').replaceAll('cnTrendFill','cnDesktopTrendFill')}</div>
     </div>
-    <section class="cn-dash-connected" aria-label="Connected workspace"><div class="cn-dash-clickup"><span class="cn-kicker">CONNECTED WORKSPACE</span><h2>Your tools, one place.</h2>${clickupHomeSummary()}</div><div class="cn-dash-clickup-buttons"><button type="button" class="cn-dash-clickup-refresh" data-clickup-home-refresh ${state.clickupLoading?'disabled':''}>${state.clickupLoading?'Refreshing…':'Refresh workspace'}</button><button type="button" data-cn-screen="clickup">Open Work Hub <span aria-hidden="true">↗</span></button><button type="button" data-cn-screen="company">Company workspace</button></div></section>
+    <section class="cn-dash-connected" aria-label="Connected workspace"><div class="cn-dash-clickup"><span class="cn-kicker">CONNECTED WORKSPACE</span><h2>Your tools, one place.</h2>${clickupHomeSummary()}</div><div class="cn-dash-clickup-buttons"><button type="button" class="cn-dash-clickup-refresh" data-clickup-home-refresh ${state.clickupLoading?'disabled':''}>${state.clickupLoading?'Refreshing…':'Refresh workspace'}</button><button type="button" data-cn-screen="clickup">Open Work Hub <span aria-hidden="true">↗</span></button><button type="button" data-cn-screen="company">Company workspace</button><button type="button" data-cn-screen="myWork">My Work</button></div></section>
     <section class="cn-dash-shortcuts"><div class="cn-dash-section-head"><h2>Quick actions</h2></div><div class="cn-dash-shortcut-grid">
       <button type="button" data-cn-create-lead><span aria-hidden="true">${desktopIcon('plus')}</span><strong>New enquiry</strong><small>Record a customer request</small></button>
       <button type="button" data-cn-screen="bookings"><span aria-hidden="true">${desktopIcon('bookings')}</span><strong>Bookings</strong><small>Manage your calendar</small></button>
@@ -1241,7 +1241,7 @@
     '<div class="cn-form-actions"><button class="cn-secondary" type="button" data-cn-screen="knowledge">Business Knowledge</button><button class="cn-secondary" type="button" data-cn-setting="integrations">Integrations</button></div></section>';
  }
  function more(){
-  const moreItems=[['company','♧','Company workspace','Shared work and staff roles'],['clickup','▦','Work Hub','Connect your work tools, starting with ClickUp'],['analytics','▥','Analytics','Recorded activity and opportunity value'],['publicProfile','◈','Public profile','Customer-facing business details'],['feedback','?','Help and feedback','Send a secure feedback report'],['automations','↻','Automations','Read current automation status'],['billing','◈','Billing','Current plan and feature access'],['knowledge','◇','Business knowledge','Facts and accuracy review'],['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['growth','↗','Growth & sharing','Review requests, reminders, QR links and referrals'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
+  const moreItems=[['company','♧','Company workspace','Shared work and staff roles'],['myWork','✓','My Work','Your assigned tasks and deadlines'],['clickup','▦','Work Hub','Connect your work tools, starting with ClickUp'],['analytics','▥','Analytics','Recorded activity and opportunity value'],['publicProfile','◈','Public profile','Customer-facing business details'],['feedback','?','Help and feedback','Send a secure feedback report'],['automations','↻','Automations','Read current automation status'],['billing','◈','Billing','Current plan and feature access'],['knowledge','◇','Business knowledge','Facts and accuracy review'],['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['growth','↗','Growth & sharing','Review requests, reminders, QR links and referrals'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
   const business=typeof settings!=='undefined'?String(settings?.business_name||'Your business'):'Your business';
   const choices=[['▤','Business profile','Manage your business details','profile'],['♧','Team members','Invite and manage your team','team'],['⌁','Integrations','Manage connected services','integrations'],['◐','Notifications','Device alerts and preferences','notifications'],['◐','Appearance','Motion, contrast and display','appearance'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','help']];
   return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1><button type="button" class="cf-icon-button cn-settings-search" data-cn-command aria-label="Search Colzo tools">⌕</button></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-setting="profile" aria-label="Open business profile" type="button">›</button></div>
@@ -1402,6 +1402,60 @@
   if(resource==='quotes')fields=`<label>Related enquiry<select name="lead_id" required><option value="">Choose an enquiry</option>${records().enquiries.map(l=>`<option value="${safe(l.id)}" ${String(record?.lead_id||'')===String(l.id)?'selected':''}>${safe(contact(l))} · ${safe(l.job_type||'Enquiry')}</option>`).join('')}</select></label>`+field('title','Quote title',record?.title||'','text',true,'minlength="3" maxlength="160"')+field('amount_gbp','Amount (GBP)',record?.amount_gbp??'','number',true,'min="0" max="999999999.99" step="0.01"')+`<p class=\"cn-caption cn-quote-draft-hint\">Status: ${safe((record?.status||'draft').replace(/^./,x=>x.toUpperCase()))}. Sending or approving a quote is a separate workflow; saving here does not send it.</p><input type=\"hidden\" name=\"status\" value=\"${safe(record?.status||'draft')}\">`+textarea('notes','Notes',record?.notes||'');
   if(resource==='quotes'&&!editing&&!records().enquiries.length)fields+='<p class="cn-caption cn-quote-link-help" role="status">Create an enquiry before saving a draft quote. Quotes must be linked to an existing enquiry.</p><button class="cn-secondary" type="button" data-cn-screen="enquiries">Go to enquiries</button>';
   return `<section class="cn-detail-panel cn-colzo-record-form"><form id="cnColzoForm" data-resource="${resource}" data-record-id="${safe(record?.id||'')}"><h2>${editing?'Edit':'Create'} ${resource==='clients'?'customer':resource==='projects'?'project':'quote'}</h2>${fields}<p id="cnColzoFeedback" class="cn-caption" role="status">${safe(state.colzoFeedback)}</p><div class="cn-form-actions"><button type="submit" class="cn-primary">${editing?'Save changes':'Create '+(resource==='clients'?'customer':resource==='projects'?'project':'quote')}</button>${close}</div></form></section>`;
+ }
+ async function loadMyWork(){
+   if(state.myWorkLoading||state.myWorkBusy)return;
+   const requestEpoch=sessionEpoch;
+   state.myWorkTasks=null;state.myWorkLoading=true;state.myWorkError='';state.myWorkUnavailable=false;state.myWorkMessage='';
+   if(state.screen==='myWork')render();
+   try{
+     if(typeof api!=='function')throw Error('Task lookup is unavailable.');
+     const tasks=await api('/api/actions?scope=mine');
+     if(requestEpoch!==sessionEpoch)return;
+     if(!Array.isArray(tasks)||tasks.some(task=>!task||typeof task!=='object'||Array.isArray(task)
+       ||!Number.isSafeInteger(Number(task.id))||Number(task.id)<=0||typeof task.title!=='string'
+       ||!['pending','completed','cancelled'].includes(task.status)
+       ||typeof task.assignee_user_id!=='string'||!task.assignee_user_id))throw Error('The assigned task list could not be verified.');
+     state.myWorkTasks=tasks;
+   }catch(error){
+     if(requestEpoch!==sessionEpoch)return;
+     state.myWorkTasks=null;
+     const message=String(error?.message||'');
+     if(/individual task assignment is not enabled/i.test(message))state.myWorkUnavailable=true;
+     else state.myWorkError=message||'Could not verify your assigned tasks.';
+   }finally{
+     if(requestEpoch===sessionEpoch){state.myWorkLoading=false;if(root.isConnected&&state.screen==='myWork')render();}
+   }
+ }
+ async function completeMyWork(id){
+   if(state.myWorkBusy||state.myWorkLoading||state.myWorkError||state.myWorkUnavailable||!Array.isArray(state.myWorkTasks))return;
+   if(!/^[1-9]\d*$/.test(String(id||'')))return;
+   const task=state.myWorkTasks.find(entry=>String(entry.id)===String(id));
+   if(!task||!['pending'].includes(task.status)||typeof task.updated_at!=='string'||!Number.isFinite(Date.parse(task.updated_at)))return;
+   if(!window.confirm('Mark this assigned task completed? This updates the company record.'))return;
+   const requestEpoch=sessionEpoch;
+   state.myWorkBusy=true;state.myWorkMessage='Updating your assigned task…';render();
+   let writeConfirmed=false;
+   try{
+     const updated=await api('/api/actions',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:task.id,status:'completed',expected_updated_at:task.updated_at})});
+     if(requestEpoch!==sessionEpoch)return;
+     if(!updated||String(updated.id)!==String(task.id)||updated.status!=='completed'||updated.assignee_user_id!==task.assignee_user_id)
+       throw Error('The server did not confirm the task update. Reload before trying again.');
+     writeConfirmed=true;
+   }catch(error){
+     if(requestEpoch!==sessionEpoch)return;
+     state.myWorkTasks=null;state.myWorkError=error?.message||'Task update was not confirmed. Refresh before trying again.';
+   }finally{
+     if(requestEpoch===sessionEpoch){state.myWorkBusy=false;if(root.isConnected&&state.screen==='myWork')render();}
+   }
+   if(!writeConfirmed||requestEpoch!==sessionEpoch)return;
+   // Never retry a confirmed server mutation just because the subsequent read
+   // failed. Fresh server data is required before rendering a new task list.
+   await loadMyWork();
+   if(requestEpoch!==sessionEpoch)return;
+   if(state.myWorkError||state.myWorkUnavailable)state.myWorkMessage='Task was confirmed complete, but the updated list could not be verified.';
+   else state.myWorkMessage='Task completed and refreshed.';
+   if(root.isConnected&&state.screen==='myWork')render();
  }
  async function loadCompanyWorkspace(){
    if(state.companyLoading)return;
@@ -1647,6 +1701,37 @@
    return '<section class="cn-workhub-catalog" aria-label="Work app connections"><div class="cn-workhub-catalog-heading"><div><span class="cn-kicker">YOUR WORK APPS</span><h2>Connected tools</h2></div><span class="cn-workhub-catalog-count">'+safe(count)+'</span></div><div class="cn-workhub-app-grid">'+cards+'<div class="cn-workhub-future"><span aria-hidden="true" class="cn-workhub-future-icon">+</span><div><strong>More integrations</strong><p>Each new work app will appear here only after its integration is available and authorised. No other apps are connected through Work Hub yet.</p></div></div></div></section>';
  }
 
+ // This is a true scoped task view: never infer assignments from shared
+ // company Actions, nor display cached records after a failed verification.
+ function myWorkScreen(){
+   const loaded=Array.isArray(state.myWorkTasks)&&!state.myWorkLoading&&!state.myWorkError&&!state.myWorkUnavailable;
+   const head='<header class="cn-my-work-heading"><div><span class="cn-kicker">YOUR BUSINESS / MY WORK</span><h1>My Work</h1><p>Your individual tasks, priorities and deadlines in one place.</p></div><button type="button" class="cn-secondary" data-my-work-refresh '+(state.myWorkBusy||state.myWorkLoading?'disabled':'')+'>Refresh tasks</button></header>';
+   const nav='<div class="cn-my-work-links"><button type="button" class="cn-secondary" data-cn-screen="company">Company workspace</button><button type="button" class="cn-secondary" data-cn-screen="actions">Shared company actions</button></div>';
+   const banner=state.myWorkLoading?'<section class="cn-my-work-gate" role="status"><strong>Checking your assignments…</strong><p>Colzo is verifying tasks against your signed-in business membership.</p></section>':
+     state.myWorkError?'<section class="cn-my-work-gate" role="alert"><strong>Assigned tasks are unavailable</strong><p>'+safe(state.myWorkError)+'</p><p>No cached or unverified tasks are shown.</p></section>':
+     state.myWorkUnavailable?'<section class="cn-my-work-gate" role="status"><strong>Individual assignments are not active</strong><p>Company actions can be used now. Employee task assignment requires approved database and security activation first.</p></section>':
+     !loaded?'<section class="cn-my-work-gate" role="status"><strong>Your tasks have not been checked</strong><p>Refresh to verify your individual assignments.</p></section>':'';
+   if(!loaded)return '<div class="cn-my-work">'+head+banner+nav+'</div>';
+   const all=state.myWorkTasks;
+   const visible=all.filter(t=>state.myWorkFilter==='All'||(state.myWorkFilter==='Completed'?t.status==='completed':t.status!=='completed'&&t.status!=='cancelled'));
+   const open=all.filter(t=>t.status!=='completed'&&t.status!=='cancelled');
+   const urgent=open.filter(t=>t.priority==='high'||t.priority==='urgent');
+   const overdue=open.filter(t=>{const due=dateValue(t.due_at);return due&&due.getTime()<Date.now()}).length;
+   const stat=(label,count)=>'<div class="cn-my-work-stat"><span>'+safe(label)+'</span><strong>'+safe(count)+'</strong></div>';
+   const stats='<section class="cn-my-work-stats" aria-label="Verified personal workload">'+stat('Open tasks',open.length)+stat('High priority',urgent.length)+stat('Past due',overdue)+'</section>';
+   const tabs='<div class="cn-my-work-filters" role="group" aria-label="Filter assigned tasks">'+['Open','All','Completed'].map(filter=>'<button type="button" data-my-work-filter="'+filter+'" aria-pressed="'+(filter===state.myWorkFilter)+'">'+filter+'</button>').join('')+'</div>';
+   const items=visible.map(task=>{
+     const deadline=task.due_at?day(task.due_at):'No deadline';
+     const done=task.status==='completed'||task.status==='cancelled';
+     const action=!done&&typeof task.updated_at==='string'&&task.updated_at?'<button class="cn-my-work-complete" type="button" data-my-work-complete="'+safe(task.id)+'" '+(state.myWorkBusy?'disabled':'')+'>Mark completed</button>':'';
+     const priority=['low','normal','high','urgent'].includes(task.priority)?task.priority:'normal';
+     return '<article class="cn-my-work-task"><div class="cn-my-work-task-top"><strong>'+safe(task.title||'Untitled task')+'</strong><span class="cn-work-status '+(done?'finished':'pending')+'">'+safe(task.status||'pending')+'</span></div><p>'+safe(String(task.description||'').slice(0,240))+'</p><footer><span>'+safe(deadline)+' · '+safe(priority)+' priority</span>'+action+'</footer></article>';
+   }).join('');
+   const list='<section class="cn-my-work-list" aria-label="Your assigned tasks"><div class="cn-my-work-list-heading"><h2>'+safe(state.myWorkFilter)+' assignments</h2><small>'+safe(visible.length)+' of '+safe(all.length)+' verified tasks</small></div>'+(items||'<p class="cn-my-work-empty">No assigned tasks in this view.</p>')+'</section>';
+   const notice=state.myWorkMessage?'<p class="cn-my-work-feedback" role="status">'+safe(state.myWorkMessage)+'</p>':'';
+   return '<div class="cn-my-work">'+head+nav+notice+stats+tabs+list+'</div>';
+ }
+
  // A company workspace is shared across verified Colzo business memberships.
  // The UI never guesses the role, staff count, billing allowance or invitations.
  function companyWorkspaceScreen(){
@@ -1657,6 +1742,7 @@
    const notice=state.companyError?'<p class="cn-work-message" role="alert">'+safe(state.companyError)+'</p>':state.companyLoading?'<p class="cn-caption" role="status">Verifying company access…</p>':!data?'<p class="cn-caption" role="status">Company access has not yet been checked.</p>':'';
    const summary=loaded?'<section class="cn-company-roster" aria-label="Verified company membership"><div class="cn-company-count"><span class="cn-kicker">ACTIVE COLZO ACCOUNTS</span><strong>'+safe(data.memberCount)+'</strong><small>Members verified in this company</small></div><div class="cn-company-role"><span class="cn-kicker">YOUR ACCESS LEVEL</span><strong>'+safe(roleNames[role])+'</strong><small>Each action checks server permissions</small></div><div class="cn-company-breakdown"><span>Owners <b>'+safe(data.roles.owner)+'</b></span><span>Managers <b>'+safe(data.roles.admin)+'</b></span><span>Staff <b>'+safe(data.roles.member)+'</b></span></div></section>':'';
    const quickActions='<section class="cn-company-work-list"><div class="cn-company-section-header"><span class="cn-kicker">SHARED COMPANY WORK</span><h2>Everything your team needs, in one place.</h2></div><div class="cn-company-tools">'+
+     '<button type="button" data-cn-screen="myWork"><span aria-hidden="true">✓</span><strong>My Work</strong><small>Your verified assigned tasks and progress</small><b aria-hidden="true">↗</b></button>'+
      '<button type="button" data-cn-screen="actions"><span aria-hidden="true">✓</span><strong>Actions and follow-ups</strong><small>View and update company tasks</small><b aria-hidden="true">↗</b></button>'+
      '<button type="button" data-cn-screen="projects"><span aria-hidden="true">▦</span><strong>Projects</strong><small>Manage saved company projects</small><b aria-hidden="true">↗</b></button>'+
      '<button type="button" data-cn-screen="bookings"><span aria-hidden="true">▣</span><strong>Bookings</strong><small>Review team appointments</small><b aria-hidden="true">↗</b></button>'+
@@ -1797,7 +1883,7 @@
 
 
  const primaryScreens=['home','enquiries','bookings','clients','more'];
- const navPosition=screen=>screen==='colzoDetail'?(state.colzoDetail?.resource==='clients'?3:4):['lead','leadForm'].includes(screen)?1:screen==='customer'?3:['setting','quotes','projects','actions','marketing','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile','clickup'].includes(screen)?4:Math.max(0,primaryScreens.indexOf(screen));
+ const navPosition=screen=>screen==='colzoDetail'?(state.colzoDetail?.resource==='clients'?3:4):['lead','leadForm'].includes(screen)?1:screen==='customer'?3:['setting','company','myWork','quotes','projects','actions','marketing','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile','clickup'].includes(screen)?4:Math.max(0,primaryScreens.indexOf(screen));
  const allowMotion=()=>!state.quietMotion&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const scrollContainer=()=>{const overflow=getComputedStyle(root).overflowY;return /auto|scroll/.test(overflow)?root:window};
  const currentScroll=()=>{const container=scrollContainer();return container===window?window.scrollY:root.scrollTop};
@@ -1905,7 +1991,7 @@
    if(state.workModal&&motion==='none'&&root.querySelector('#cnWorkForm'))return;
    const previousKpis=window.ColzoKpiMotion?.capture();
    window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();
-   const pages={home,company:companyWorkspaceScreen,clickup:clickupScreen,enquiries:enquiry,lead:leadDetails,leadForm,customer:customerProfile,projects,clients,quotes,colzoDetail:colzoRecordDetail,marketing,receptionist,growth,billing,knowledge,analytics,feedback,automations,publicProfile,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
+   const pages={home,company:companyWorkspaceScreen,myWork:myWorkScreen,clickup:clickupScreen,enquiries:enquiry,lead:leadDetails,leadForm,customer:customerProfile,projects,clients,quotes,colzoDetail:colzoRecordDetail,marketing,receptionist,growth,billing,knowledge,analytics,feedback,automations,publicProfile,more,setting:nativeSetting,bookings:bookingScreen,actions:actionsScreen};
    const page=pages[state.screen]||home;
    stopMotion();
    window.colzoParkSecurityCenter?.();
@@ -1975,7 +2061,7 @@
    keep.focus({preventScroll:true});
  }
  function navigate(screen){
-   if(!['home','company','enquiries','lead','leadForm','customer','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile','clickup'].includes(screen))return;
+   if(!['home','company','myWork','enquiries','lead','leadForm','customer','projects','clients','quotes','colzoDetail','more','setting','bookings','actions','marketing','receptionist','growth','billing','knowledge','analytics','feedback','automations','publicProfile','clickup'].includes(screen))return;
    closeCommand(false);
    if(screen===state.screen&&screen!=='setting'){restoreScroll(0);return}
    if(root.querySelector(dirtyFormSelector)){confirmUnsaved(()=>navigate(screen));return}
@@ -1985,8 +2071,8 @@
    state.scrollByScreen.set(before,currentScroll());
    if(before==='automations'&&screen!=='automations')state.automationEditing=false;
    state.screen=screen;state.notification='';state.focusSearch=false;state.colzoForm=null;state.colzoFeedback='';state.workFeedback='';
-  if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}if(screen==='receptionist'){loadVoiceStatus();loadReceptionConfig();loadNativeHandovers();}if(screen==='growth')loadGrowth();if(screen==='billing')loadBilling();if(screen==='knowledge')loadKnowledge();if(screen==='analytics')loadAnalytics();if(screen==='automations')loadAutomation();if(screen==='clickup')loadClickup();if(screen==='company')loadCompanyWorkspace();if(screen==='publicProfile')loadPublicProfile();
-   const announcement=root.querySelector('#cnScreenAnnounce');if(announcement)announcement.textContent=`${{lead:'Enquiry details',more:'Settings',bookings:'Bookings',actions:'Actions',company:'Company workspace',clickup:'Work Hub',setting:nativeSettingMeta[state.setting]?.[0]||'Settings',clients:'Customers',quotes:'Quotes'}[screen]||screen.replace(/^./,x=>x.toUpperCase())} screen`;
+  if(['clients','projects','quotes'].includes(screen))loadColzoResource(screen);if(screen==='marketing'){loadMarketingDrafts();if(state.marketingView==='schedule')loadMarketingSchedules();}if(screen==='receptionist'){loadVoiceStatus();loadReceptionConfig();loadNativeHandovers();}if(screen==='growth')loadGrowth();if(screen==='billing')loadBilling();if(screen==='knowledge')loadKnowledge();if(screen==='analytics')loadAnalytics();if(screen==='automations')loadAutomation();if(screen==='clickup')loadClickup();if(screen==='company')loadCompanyWorkspace();if(screen==='myWork')loadMyWork();if(screen==='publicProfile')loadPublicProfile();
+   const announcement=root.querySelector('#cnScreenAnnounce');if(announcement)announcement.textContent=`${{lead:'Enquiry details',more:'Settings',bookings:'Bookings',actions:'Actions',company:'Company workspace',myWork:'My Work',clickup:'Work Hub',setting:nativeSettingMeta[state.setting]?.[0]||'Settings',clients:'Customers',quotes:'Quotes'}[screen]||screen.replace(/^./,x=>x.toUpperCase())} screen`;
    const direction=navPosition(screen)<navPosition(before)?-1:1;
    render({motion:screen==='lead'?'detail':'page',direction});
    restoreScroll(state.scrollByScreen.get(screen)||0);
@@ -1998,6 +2084,7 @@
    {label:'Home',detail:'Overview, enquiries and insights',glyph:'⌂',screen:'home'},
    {label:'Enquiries',detail:'Find and manage customer requests',glyph:'▤',screen:'enquiries'},
    {label:'Company workspace',detail:'Shared tasks, bookings, projects and team',glyph:'♧',screen:'company'},
+   {label:'My Work',detail:'Assigned tasks and deadlines',glyph:'✓',screen:'myWork'},
    {label:'Work Hub',detail:'Connected work apps, including ClickUp',glyph:'▦',screen:'clickup'},
    {label:'Projects',detail:'Track saved work and progress',glyph:'▦',screen:'projects'},
    {label:'Customers',detail:'Saved profiles and enquiry contacts',glyph:'♧',screen:'clients'},
@@ -2234,6 +2321,9 @@
   if(target.hasAttribute('data-cn-close-command')){closeCommand();return}
   if(target.hasAttribute('data-cn-setting')){confirmUnsaved(()=>{state.setting=target.getAttribute('data-cn-setting');navigate('setting');if(state.setting==='team'&&!state.teamData&&!state.teamError)loadNativeTeam();if(state.setting==='integrations')loadClickup()});return}
   if(target.hasAttribute('data-cn-back-settings')){confirmUnsaved(()=>navigate('more'));return}
+  if(target.hasAttribute('data-my-work-refresh')){loadMyWork();return}
+  if(target.hasAttribute('data-my-work-filter')){const filter=target.getAttribute('data-my-work-filter');if(['Open','All','Completed'].includes(filter)){state.myWorkFilter=filter;render({motion:'filter'});}return}
+  if(target.hasAttribute('data-my-work-complete')){completeMyWork(target.getAttribute('data-my-work-complete'));return}
   if(target.hasAttribute('data-cn-refresh-team')){loadNativeTeam();return}
   if(target.hasAttribute('data-company-refresh')){loadCompanyWorkspace();return}
   if(target.hasAttribute('data-cn-copy-invite')){if(state.inviteUrl&&navigator.clipboard?.writeText){navigator.clipboard.writeText(state.inviteUrl).then(()=>{const feedback=content.querySelector('#cnInviteFeedback');if(feedback)feedback.firstChild.textContent='Invitation link copied. Share it only with the intended person.'}).catch(()=>{const field=content.querySelector('.cn-invite-share input');field?.select()})}else{const field=content.querySelector('.cn-invite-share input');field?.select()}return}
@@ -2276,7 +2366,7 @@
    }
    if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
- const onAuthState=auth=>{if(auth!=='auth-ready')dashboardFailure=null;if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.teamSummary=null;state.companyLoading=false;state.companyError='';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Active',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
+ const onAuthState=auth=>{if(auth!=='auth-ready')dashboardFailure=null;if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.teamSummary=null;state.companyLoading=false;state.companyError='';state.myWorkTasks=null;state.myWorkLoading=false;state.myWorkBusy=false;state.myWorkUnavailable=false;state.myWorkError='';state.myWorkMessage='';state.myWorkFilter='Open';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Active',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
  window.ColzoOwner={render,onAuthState,openLegacy:original,dashboardLoaded:()=>{dashboardFailure=null;state.recordsReady=true},error:(error)=>{if(document.body.classList.contains('auth-ready')){const detail=typeof colzoDashboardFailureLabel==='function'?colzoDashboardFailureLabel(error,window.colzoPreviewAuthTransportEnabled):'';dashboardFailure='Unable to load your business records. Please try again.'+detail;render()}},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();

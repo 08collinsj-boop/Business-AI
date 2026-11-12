@@ -90,7 +90,7 @@ test('rendered company workspace gives all staff working routes but only verifie
  for(const role of ['owner','admin','member']){
   const html=render(role);
   assert.match(html,/20/);
-  for(const action of ['actions','projects','bookings','clickup'])assert.match(html,new RegExp('data-cn-screen="'+action+'"'));
+  for(const action of ['myWork','actions','projects','bookings','clickup'])assert.match(html,new RegExp('data-cn-screen="'+action+'"'));
   assert.equal(html.includes('data-cn-setting="team"'),role==='owner');
  }
 });
@@ -102,6 +102,6 @@ test('staff cannot see an enabled team invitation form without a verified owner-
 });
 test('Preview HTML references revisioned company workspace UI and does not rely on an old cached native app',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.match(html,/\/assets\/colzo-native\.js\?v=20261112-company-v1/);
- assert.match(html,/\/assets\/colzo-connected-workspace\.css\?v=20261112-company-v1/);
+ assert.match(html,/\/assets\/colzo-native\.js\?v=20261112-mywork-v1/);
+ assert.match(html,/\/assets\/colzo-connected-workspace\.css\?v=20261112-mywork-v1/);
 });
