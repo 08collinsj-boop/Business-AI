@@ -39,6 +39,7 @@
    const connected=state.clickupStatus?.connected===true;
    if(state.clickupLoading)return '<p class="cn-dash-clickup-notice" role="status">Refreshing authorised ClickUp tasks…</p>';
    if(state.clickupError)return '<p class="cn-dash-clickup-notice" role="alert">'+safe(state.clickupError)+'</p>';
+   if(!state.clickupStatus)return '<p class="cn-dash-clickup-notice">ClickUp connection has not been checked. Refresh the workspace to review available tasks.</p>';
    if(!connected)return '<p class="cn-dash-clickup-notice">ClickUp is not connected. Your current business records remain available in Colzo.</p>';
    if(!Array.isArray(state.clickupTasks?.tasks))return '<p class="cn-dash-clickup-notice">ClickUp tasks are not loaded. Refresh the workspace to see current priorities.</p>';
    const data=state.clickupTasks;
@@ -1662,10 +1663,10 @@
      window.location.assign(url.toString());
    }catch(error){state.clickupError=error?.message||'Could not start ClickUp connection.';state.clickupBusy=false;render();}
  }
- async function openClickupCreate(){
+ async function openClickupCreate(force=false){
    if(state.clickupBusy||!state.clickupStatus?.canManage)return;
    state.clickupSelected=null;state.clickupCreating=true;state.clickupListError='';
-   if(state.clickupLists){render({motion:'detail'});return;}
+   if(state.clickupLists&&!force){render({motion:'detail'});return;}
    const epoch=sessionEpoch,workspaceId=state.clickupStatus.workspace?.id;
    state.clickupListsLoading=true;render({motion:'detail'});
    try{
@@ -2066,7 +2067,7 @@
   if(target.hasAttribute('data-clickup-refresh')){loadClickup();return}
   if(target.hasAttribute('data-clickup-disconnect')){disconnectClickup();return}
   if(target.hasAttribute('data-clickup-task')){state.clickupSelected=target.getAttribute('data-clickup-task');state.clickupCreating=false;render({motion:'detail'});return}
-  if(target.hasAttribute('data-clickup-create')||target.hasAttribute('data-clickup-retry-lists')){openClickupCreate();return}
+  if(target.hasAttribute('data-clickup-create')||target.hasAttribute('data-clickup-retry-lists')){openClickupCreate(target.hasAttribute('data-clickup-retry-lists'));return}
   if(target.hasAttribute('data-clickup-cancel')){if(state.clickupBusy)return;confirmUnsaved(()=>{state.clickupCreating=false;state.clickupSelected=null;render({motion:'page'})});return}
   if(target.hasAttribute('data-marketing-media')){confirmUnsaved(()=>inspectMarketingMedia(target.getAttribute('data-marketing-media')));return}
   if(target.hasAttribute('data-marketing-media-close')){state.marketingImageDraft=null;state.marketingImageResult=null;state.marketingImageError='';render({motion:'page'});return}

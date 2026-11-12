@@ -22,3 +22,8 @@ test('network failure leaves the existing edited form and user inputs intact',()
  assert.match(native,/form\.isConnected/);
 });
 
+test('empty list refresh bypasses a stale cached list response',()=>{
+ assert.match(native,/async function openClickupCreate\(force=false\)/);
+ assert.match(native,/if\(state\.clickupLists&&!force\)/);
+ assert.match(native,/openClickupCreate\(target\.hasAttribute\('data-clickup-retry-lists'\)\)/);
+});

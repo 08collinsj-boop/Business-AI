@@ -6,7 +6,7 @@
 
 ## Scope completed in the branch
 
-- Desktop command-centre ClickUp briefing (explicit Refresh to retrieve current permitted tasks, page-scoped counts and escaped task titles), desktop sidebar ClickUp navigation and a native responsive task page.
+- Desktop command-centre ClickUp briefing (explicit Refresh to retrieve current permitted tasks, page-scoped counts and escaped task titles; unchecked connection is distinct from disconnected), desktop sidebar ClickUp navigation and a native responsive task page.
 - ClickUp OAuth initiation with strong, single-use state, secure callback cookie and business/actor verification.
 - AES-256-GCM encrypted ClickUp OAuth token storage; tenant UUID is authenticated additional data.
 - Authenticated read-only workspace status and task retrieval. Users only see tasks available to the authorised ClickUp identity.
@@ -55,7 +55,7 @@ When dependencies are available, also run the repository's full `npm test`, `npm
 ## Known MVP boundaries / next implementation
 
 - OAuth initially selects the first authorised ClickUp workspace; owners can choose between other authorised workspaces. Workspace selection remains subject to real browser acceptance.
-- Create-task list selection fetches authorised ClickUp Spaces, folderless Lists and folder Lists. Empty lists are supported. Discovery is intentionally bounded to four Spaces, twelve Folders and one hundred Lists; larger workspaces may need more navigation.
+- Create-task list selection fetches authorised ClickUp Spaces, folderless Lists and folder Lists. Empty lists and explicit list-refresh are supported. Discovery is intentionally bounded to four Spaces, twelve Folders and one hundred Lists; larger workspaces may need more navigation.
 - Task display uses a paginated list of 100 open tasks per page (currently up to 21 pages), and statuses are entered using the names configured in ClickUp. Counts refer to the current page, not the whole workspace.
 - Task updates check the previously displayed title and status against a fresh task snapshot before writing. ClickUp does not offer an atomic task version compare-and-swap in this implementation; idempotency on ambiguous create failures requires further work before wider rollout.
 - Add cross-app AI retrieval/action tools **after** independent security acceptance, with grounded answers, explicit action approvals, auditable scope and usage limits.

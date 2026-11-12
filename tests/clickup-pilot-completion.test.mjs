@@ -48,3 +48,19 @@ test('task writes reject a stale title as well as a stale status',()=>{
  assert.throws(()=>assertClickupTaskSnapshot(tasks,'abc','Customer quote',undefined),e=>e.status===409);
 });
 
+
+test('exactly twelve scanned folders are not misleadingly reported as incomplete',async()=>{
+  let calls=0;
+  const result=await getClickupLists('private-token','123',{fetchImpl:async url=>{
+    calls++;
+    const path=url.split('/api/v2/')[1];
+    if(path==='team/123/space?archived=false')return response({spaces:[{id:'10',name:'Operations'}]});
+    if(path==='space/10/list?archived=false')return response({lists:[]});
+    if(path==='space/10/folder?archived=false')return response({folders:Array.from({length:12},(_,i)=>({id:String(i+1),name:'Group '+(i+1)}))});
+    if(/^folder\/[1-9][0-9]*\/list\?archived=false$/.test(path))return response({lists:[]});
+    throw Error('Unexpected API path '+path);
+  }});
+  assert.equal(calls,15);
+  assert.deepEqual(result,{lists:[],truncated:false});
+});
+
