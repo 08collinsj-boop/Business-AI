@@ -27,3 +27,13 @@ test('empty list refresh bypasses a stale cached list response',()=>{
  assert.match(native,/if\(state\.clickupLists&&!force\)/);
  assert.match(native,/openClickupCreate\(target\.hasAttribute\('data-clickup-retry-lists'\)\)/);
 });
+
+test('provider failure never presents stale tasks as empty but current, and allows reauthorisation',()=>{
+ assert.match(native,/state\.clickupTasks=null;state\.clickupSelected=null;state\.clickupMessage=\'\';state\.clickupError=/);
+ assert.match(native,/data-clickup-connect[^']*Reconnect ClickUp/);
+ assert.match(native,/if\(connected&&state\.clickupError&&!state\.clickupTasks\)/);
+});
+test('ambiguous create failures explicitly warn against blindly retrying duplicate creation',()=>{
+ assert.match(native,/Check ClickUp before trying to create this task again/);
+});
+

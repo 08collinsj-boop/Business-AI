@@ -1627,6 +1627,9 @@
    if(!connected){
      return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><span class="cn-kicker">CONNECT YOUR TOOLS</span><h2>Bring ClickUp into Colzo</h2><p>Projects, tasks and deadlines stay in ClickUp, while your day-to-day work appears here.</p><p class="cn-caption">'+(!s?'Connection status has not been checked.':s.configured?'Authorise an existing ClickUp workspace to get started.':'Connection setup is not yet available for this pilot environment.')+'</p><button type="button" class="cn-settings-save" data-clickup-connect '+(!s?.configured||state.clickupBusy?'disabled':'')+'>Connect ClickUp</button></section>';
    }
+   const reconnect=connected&&canManage&&s?.configured?'<button type="button" class="cn-secondary" data-clickup-connect>Reconnect ClickUp</button>':'';
+   if(connected&&state.clickupError&&!state.clickupTasks)
+     return heads+error+reconnect+message+'<section class="cn-clickup-connect cn-settings-panel"><h2>ClickUp tasks are unavailable</h2><p>Colzo could not confirm an up-to-date task list. Refresh or reconnect to continue. Previously loaded tasks are hidden rather than presented as current.</p></section>';
    const inspector=state.clickupCreating
      ? '<section class="cn-clickup-inspector"><h2>Create ClickUp task</h2><p class="cn-caption">Choose an authorised ClickUp list. Tasks are stored in ClickUp.</p>'+listNotice+'<form id="cnClickupForm" data-kind="create"><label>Task title<input name="title" required maxlength="240" placeholder="Follow up with customer"></label><label>List<select name="listId" required '+(!listOptions.length?'disabled':'')+'>'+listOptionsHtml+'</select></label><div class="cn-clickup-form-actions"><button type="button" class="cn-secondary" data-clickup-cancel>Cancel</button><button type="submit" class="cn-settings-save" '+(!listOptions.length||state.clickupListsLoading||state.clickupBusy?'disabled':'')+'>Review &amp; create</button></div></form></section>'
      : active?'<section class="cn-clickup-inspector"><span class="cn-kicker">TASK DETAILS</span><h2>'+safe(active.title)+'</h2><p class="cn-caption">'+safe(active.listName||'ClickUp task')+' · '+safe(active.status)+'</p>'+(!canManage?'<p class="cn-caption">Read-only access. Ask a workspace owner or admin to change this task.</p>':'')+'<form id="cnClickupForm" data-kind="update" data-task-id="'+safe(active.id)+'" data-expected-title="'+safe(active.title)+'" data-expected-status="'+safe(active.status)+'"><label>Title<input name="title" maxlength="240" required value="'+safe(active.title)+'" '+(!canManage?'disabled':'')+'></label><label>Status<input name="status" maxlength="80" required value="'+safe(active.status)+'" '+(!canManage?'disabled':'')+' aria-describedby="cnClickupStatusHelp"></label><p id="cnClickupStatusHelp" class="cn-caption">Use a status configured in your ClickUp list.</p><div class="cn-clickup-form-actions"><button type="button" class="cn-secondary" data-clickup-cancel>Close</button><button class="cn-settings-save" type="submit" '+(!canManage||state.clickupBusy?'disabled':'')+'>Review &amp; save</button></div></form>'+(active.url?'<a href="'+safe(active.url)+'" target="_blank" rel="noopener noreferrer">Open original task in ClickUp ↗</a>':'')+'</section>'
@@ -1650,7 +1653,7 @@
      if(!status.connected)state.clickupLists=null;
      state.clickupTasks=status.connected?await api('/api/clickup?view=tasks&page='+state.clickupPage):null;
      if(status.connected&&!Array.isArray(state.clickupTasks?.tasks))throw Error('ClickUp returned no verified task list.');
-   }catch(error){if(epoch===sessionEpoch)state.clickupError=error?.message||'The ClickUp connection is unavailable.';}
+   }catch(error){if(epoch===sessionEpoch){state.clickupTasks=null;state.clickupSelected=null;state.clickupMessage='';state.clickupError=error?.message||'The ClickUp connection is unavailable.';}}
    finally{if(epoch===sessionEpoch){state.clickupLoading=false;if(root.isConnected&&(state.screen==='home'||state.screen==='clickup'||state.screen==='setting'&&state.setting==='integrations'))render();}}
  }
  async function connectClickup(){
@@ -1701,7 +1704,7 @@
      state.clickupCreating=false;state.clickupSelected=null;state.clickupMessage='ClickUp confirmed your task change.';
      await loadClickup();
    }catch(error){
-     state.clickupError=error?.message||'ClickUp did not confirm the change.';
+     state.clickupError=(error?.message||'ClickUp did not confirm the change.')+(kind==='create'?' Check ClickUp before trying to create this task again to avoid duplicates.':'');
      if(form.isConnected){
        let alert=form.querySelector('#cnClickupInlineError');
        if(!alert){alert=document.createElement('p');alert.id='cnClickupInlineError';alert.setAttribute('role','alert');alert.className='cn-work-message';form.prepend(alert);}

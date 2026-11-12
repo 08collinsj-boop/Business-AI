@@ -76,6 +76,8 @@ test('logout prevents delayed ClickUp requests from rendering data into another 
   finish({configured:true,connected:true,workspace:{id:'123',name:'Should Not Leak'},canManage:true});
   await new Promise(r=>setTimeout(r,30));
   f.w.ColzoOwner.onAuthState('auth-ready');
+  f.w.ColzoOwner.dashboardLoaded();
+  f.w.ColzoOwner.render();
   assert.equal(f.content.querySelector('.cn-dash-clickup-verified'),null);
   assert.match(f.content.querySelector('.cn-dash-connected').textContent,/connection (has not been checked|not yet checked)/i);
   f.dom.window.close();
