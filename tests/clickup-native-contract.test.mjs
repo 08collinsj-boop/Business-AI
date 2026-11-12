@@ -8,12 +8,12 @@ const api=readFileSync(new URL('../lib/clickup-handler.js',import.meta.url),'utf
 const callback=readFileSync(new URL('../lib/clickup-callback-handler.js',import.meta.url),'utf8');
 const migration=readFileSync(new URL('../supabase/migrations/20261112013500_add_clickup_connections.sql',import.meta.url),'utf8');
 
-test('desktop navigation includes ClickUp while five-tab mobile navigation remains unchanged',()=>{
+test('desktop navigation includes Work Hub while five-tab mobile navigation remains unchanged',()=>{
  assert.match(html,/class="cn-desktop-nav-extra"[\s\S]*?data-cn-screen="clickup"/);
  const base=html.match(/<nav class="cn-nav"[^>]*>([\s\S]*?)<div class="cn-desktop-nav-extra"/);
  assert.ok(base);
  assert.equal((base[1].match(/data-cn-screen=/g)||[]).length,5);
- assert.match(source,/ClickUp tasks.*screen:'clickup'/);
+ assert.match(source,/Work Hub.*screen:'clickup'/);
 });
 test('native task list is grounded in returned workspace data',()=>{
  assert.match(source,/clickupTasks\?\.tasks/);
@@ -49,4 +49,17 @@ test('new layout prioritises desktop and adapts for business-on-the-go',()=>{
 test('desktop command centre has a direct connected-workspace entry',()=>{
  assert.match(source,/cn-dash-connected/);
  assert.ok(source.includes('data-cn-screen="clickup"'));
+});
+
+test('Work Hub is the multi-app navigation destination, with ClickUp identified as its first provider',()=>{
+ const sidebar=html.match(/<button[^>]*data-cn-screen="clickup"[^>]*>[\s\S]*?<\/button>/)?.[0];
+ assert.ok(sidebar,'existing internal route must remain stable');
+ assert.match(sidebar,/>Work Hub<\/button>/);
+ assert.match(source,/\['clickup','▦','Work Hub'/);
+ assert.match(source,/label:'Work Hub',detail:'[^']*ClickUp[^']*',glyph:'▦',screen:'clickup'/);
+ assert.match(source,/<h1>Work Hub<\/h1>/);
+ assert.match(source,/class="cn-workhub-provider" aria-label="ClickUp integration"/);
+ assert.match(source,/<strong>ClickUp<\/strong>/);
+ assert.match(source,/Open Work Hub/);
+ assert.doesNotMatch(source,/<h1>ClickUp<\/h1>/);
 });
