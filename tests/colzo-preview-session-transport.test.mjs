@@ -72,3 +72,28 @@ test('Preview transport restores valid Supabase token when Vercel adds a non-Bea
  assert.equal(res.statusCode,200);
  assert.equal(calls[0]?.authorization,'Bearer fixture-jwt');
 });
+
+const desktopBranch='feature/colzo-ai-desktop-command-centre-20261111';
+test('desktop QA Preview forwards the signed-in bearer through the existing Supabase verifier',{concurrency:false},async t=>{
+ env(t,{VERCEL_GIT_COMMIT_REF:desktopBranch});
+ const calls=network(t);const {req,res}=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});
+ await operations(req,res);
+ assert.equal(res.statusCode,200);
+ assert.equal(calls[0]?.authorization,'Bearer fixture-jwt');
+ const {default:config}=await import('../lib/public-config-handler.js');
+ const configResponse=reqWith().res;config({},configResponse);
+ assert.equal(configResponse.body.previewAuthTransportEnabled,true);
+});
+test('desktop QA compatibility never accepts missing or rejected tokens, Production or the wrong backend',{concurrency:false},async t=>{
+ env(t,{VERCEL_GIT_COMMIT_REF:desktopBranch});
+ const calls=network(t,false);
+ for(const headers of [{},{'x-colzo-supabase-authorization':'Bearer fixture-jwt'}]){
+  const {req,res}=reqWith(headers);await operations(req,res);assert.equal(res.statusCode,401);
+ }
+ assert.equal(calls.length,1,'only the presented token reaches Supabase, which rejects it');
+ process.env.VERCEL_ENV='production';
+ const prod=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});await operations(prod.req,prod.res);assert.equal(prod.res.statusCode,401);
+ process.env.VERCEL_ENV='preview';process.env.SUPABASE_URL='https://aaaaaaaaaaaaaaaaaaaa.supabase.co';
+ const wrong=reqWith({'x-colzo-supabase-authorization':'Bearer fixture-jwt'});await operations(wrong.req,wrong.res);assert.equal(wrong.res.statusCode,503);
+ assert.equal(calls.length,1,'Production and wrong backend must not forward alternate tokens');
+});
