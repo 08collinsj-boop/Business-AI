@@ -3695,11 +3695,34 @@ const passwordRecoveryIntentFromLocation=()=>{try{const url=new URL(window.locat
 const clearPasswordRecoveryLocation=()=>{clearPasswordRecoveryRequest();try{const url=new URL(window.location.href);url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search);}catch{}};
 
 
+// Every session transition invalidates pending legacy data reads before their
+// promises resolve. Hiding an old workspace is not a DOM privacy boundary.
+let privateDataEpoch=0;
 const clearPrivateState=()=>{
+privateDataEpoch+=1;
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeCanUpload=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;pilotFeedbackItems=[];pilotMarketingDraftCount=0;pilotMarketingAvailable=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
-['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];billingState=null;businessProfileState=null;pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeCanUpload=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;pilotFeedbackItems=[];pilotMarketingDraftCount=0;pilotMarketingAvailable=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
+// QA-001 (E03/E16): legacy forms remain mounted under hidden #dashboardApp.
+// Their tenant-derived OPTION labels must be removed, not merely hidden.
+// Use the exact static default so another legitimate AAL2 sign-in can refill.
+['bookingLead','actionLead'].forEach(id=>{
+ const select=$(id);if(!select)return;
+ select.innerHTML='<option value="">No related lead</option>';
+ select.value='';
+});
+// The industry template options may come from the current business config.
+const industryTemplate=$('c_industry_template_id');
+if(industryTemplate){industryTemplate.innerHTML='<option value="general">General business</option>';industryTemplate.value='general';}
+// Clear unsaved legacy form values that could contain customer names, notes,
+// addresses and contact details even when their ancestor is hidden.
+document.querySelectorAll('#dashboardApp input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), #dashboardApp textarea').forEach(node=>{node.value='';node.removeAttribute?.('aria-invalid');});
+document.querySelectorAll('#dashboardApp input[type="checkbox"], #dashboardApp input[type="radio"]').forEach(node=>{node.checked=false;});
+['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars','bookingsSummary','actionsSummary','leadsSummary','faqList','leadHistory','enquiryConversation','receptionistMessageList','pilotProgressSteps','firstRunGuide','referralDetails'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+['leadCount','followCount','pipelineSummary','dashboardBusinessLabel','brandBusinessName','settingsProfileName','settingsProfileMeta','businessProfilePreviewName','businessProfilePreviewMeta','businessProfilePreviewHours','businessProfileStatus','businessProfileMediaStatus','referralCode','referralCount','referralProgressMessage','referralPendingMessage','valueOpenPipeline','valueConverted','valueSourceTracked','valueFollowSummary','valueReviewSummary','bookingsStatus','actionsStatus','bookingFormStatus','actionFormStatus'].forEach(id=>{const node=$(id);if(node)node.textContent='';});
+const banner=$('businessProfileBannerPreview');if(banner){banner.replaceChildren?.();if(banner.style)banner.style.backgroundImage='';}
+const avatar=$('businessProfileAvatarPreview');avatar?.replaceChildren?.();
+const photo=$('settingsProfileImage');if(photo)photo.src='/assets/icons/colzo-mark.svg';
 updateInstallAppCard?.();
 };
 
@@ -4095,6 +4118,9 @@ if(event==='PASSWORD_RECOVERY'){passwordRecoveryActive=true;setAppLoading(false)
 if(event==='INITIAL_SESSION')return;
 if(passwordRecoveryActive&&nextSession)return;
 if(event!=='SIGNED_IN'&&event!=='SIGNED_OUT')return;
+// Supabase's callback may precede the deferred bootstrap. Immediately remove
+// all legacy form options and private DOM on logout, without waiting a tick.
+if(event==='SIGNED_OUT'){clearPrivateState();setAppLoading(false);setAuthView('auth-required');}
 window.setTimeout(()=>{bootstrapAuthSession(event==='SIGNED_OUT'?null:nextSession).catch(()=>{});},0);
 });
 const {data:{session}}=await supabaseClient.auth.getSession();
@@ -4264,7 +4290,16 @@ $('legalAcceptanceForm').addEventListener('submit',async event=>{event.preventDe
 $('dpaAcceptanceForm').addEventListener('submit',async event=>{event.preventDefault();await acceptBusinessDpa();});
 
 $('logoutButton').addEventListener('click',async()=>{
-if(supabaseClient)await supabaseClient.auth.signOut();
+// Scrub synchronously, even when a Supabase sign-out promise has not resolved.
+clearPrivateState();setAppLoading(true);setAuthView('auth-pending');
+try{
+ if(supabaseClient){const {error}=await supabaseClient.auth.signOut();if(error)throw error;}
+ await handleSession(null);
+}catch{
+ // Fail closed rather than restoring a stale, privately hydrated workspace.
+ clearPrivateState();setAppLoading(false);
+ setAuthView('auth-required','Secure sign-out could not be confirmed. Reload before signing in again.');
+}
 });
 
 let publicDirectoryBusinesses=[];
@@ -4762,7 +4797,8 @@ function classifyColzoPreviewApi401(body, responseHeaders, clientSentToken) {
 }
 
 const api=async(url,options={},mfaRetried=false)=>{
-
+// Prevent delayed responses from resurrecting another session's DOM.
+const dataEpoch=privateDataEpoch;
 const requestUrl=new URL(url,window.location.origin);
 const headers=new Headers(options.headers||{});
 if(frontendAuthEnabled&&supabaseClient){
@@ -4780,6 +4816,7 @@ if(window.colzoPreviewAuthTransportEnabled){
 }
 
 const response=await window.colzoBackendFetch(url,{...options,headers});
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configuration'].includes(requestUrl.pathname)){
   colzoLoginFailure={path:requestUrl.pathname,status:response.status};
 }
@@ -4847,6 +4884,7 @@ if(!response.ok){
   throw error;
 }
 
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 return result;
 
 };
@@ -5299,13 +5337,16 @@ return `<article class="work-item action-reference-card ${['high','urgent'].incl
 }
 
 async function loadWorkItems(){
+const dataEpoch=privateDataEpoch;
 try{
 const [bookingData,actionData]=await Promise.all([api('/api/bookings'),api('/api/actions')]);
+if(dataEpoch!==privateDataEpoch)return;
 bookings=Array.isArray(bookingData)?bookingData:[];
 businessActions=Array.isArray(actionData)?actionData:[];
 fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();window.ColzoOwner?.render();
 ['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).textContent='';});
 }catch(error){
+if(dataEpoch!==privateDataEpoch)return;
 const message=error.message==='Bookings are not enabled'||error.message==='Actions are not enabled'?'Bookings and actions will be available after the database migration is applied.':error.message;
 ['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).innerHTML=`<div class="error">${esc(message)}</div>`;});
 }
@@ -5888,11 +5929,10 @@ function colzoDashboardFailureLabel(error,enabled){
 }
 
 async function loadAll(showFeedback=false){
-
+const dataEpoch=privateDataEpoch;
 try{
-
 const [leadData,pipelineData,settingsData]=await Promise.all([api('/api/leads'),api('/api/pipeline'),api('/api/settings')]);
-
+if(dataEpoch!==privateDataEpoch)return;
 leads=Array.isArray(leadData)?leadData:[];
 
 pipeline=pipelineData||{};
@@ -5925,7 +5965,7 @@ window.ColzoOwner?.render();
 if(showFeedback)toast('Dashboard refreshed');
 
 }catch(error){
-
+if(dataEpoch!==privateDataEpoch)return;
 const detail=colzoDashboardFailureLabel(error,window.colzoPreviewAuthTransportEnabled);
 const message=`<div class="error">${esc((error.message||'Unable to load dashboard data.')+detail)}</div>`;
 
