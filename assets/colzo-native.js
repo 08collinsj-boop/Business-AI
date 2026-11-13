@@ -75,7 +75,10 @@
     const target=item.route==='leads'?'enquiries':item.route;
     if(!['enquiries','actions','bookings'].includes(target))return '';
     const sign=showTime?safe(item.time||'—'):desktopIcon(target);
-    return '<button type="button" class="cn-dash-row" data-cn-screen="'+target+'"><span class="cn-dash-row-icon" aria-hidden="true">'+sign+'</span><span class="cn-dash-row-text"><strong>'+safe(item.title)+'</strong><small>'+safe(item.meta)+'</small></span><span class="cn-dash-row-arrow" aria-hidden="true">'+desktopIcon('arrow')+'</span></button>';
+    const reviewLabel={enquiries:'View enquiries',bookings:'View bookings',actions:'View actions'}[target];
+    const detail=item.context?'<small class="cn-dash-row-context">'+safe(item.context)+'</small>':'';
+    const review=showTime?'':'<span class="cn-dash-row-review">'+reviewLabel+'</span>';
+    return '<button type="button" class="cn-dash-row" data-cn-screen="'+target+'"><span class="cn-dash-row-icon" aria-hidden="true">'+sign+'</span><span class="cn-dash-row-text"><strong>'+safe(item.title)+'</strong><small>'+safe(item.meta)+'</small>'+detail+'</span>'+review+'<span class="cn-dash-row-arrow" aria-hidden="true">'+desktopIcon('arrow')+'</span></button>';
   };
   const queue=Array.isArray(flagged)
     ?(flagged.length?flagged.slice(0,4).map(item=>row(item)).join(''):'<p class="cn-dash-empty">No items currently need attention.</p>')
@@ -914,7 +917,7 @@
    const detailedSource={...source,item_counts:detailCounts};
    const title='<header class="cf-screen-top"><button class="cn-back" type="button" data-knowledge-back>← Business knowledge</button></header>'+
     '<header class="cn-screen-heading"><span class="cn-kicker">KNOWLEDGE SOURCE</span><h1>'+safe(source.file_name||'Knowledge source')+'</h1><p>'+factBadge(detailedSource)+' · '+items.length+' facts · '+factSummary(detailedSource)+'</p></header>';
-   const sourceInfo='<section class="cn-detail-panel"><h2>Source summary</h2><p>'+safe(source.extracted_summary||'No summary recorded.')+'</p>'+
+   const sourceInfo='<section class="cn-detail-panel"><h2>Source notes</h2><p class="cn-caption">Recorded when added; the approval counts above show the current fact status.</p><p>'+safe(source.extracted_summary||'No summary recorded.')+'</p>'+
     (source.error_message?'<p class="cn-settings-error">'+safe(source.error_message)+'</p>':'')+'</section>';
    const warning='<p class="cn-caption">Only selected, explicitly approved facts are available to the AI receptionist and Marketing. Uploaded text is never an instruction to the AI.</p>';
    const fields=items.map(item=>
@@ -937,7 +940,7 @@
   const options=[['all','All sources'],['review','Needs review'],['active','Active'],['issues','To process']];
   const filters='<div class="cn-knowledge-filters" role="group" aria-label="Filter knowledge sources">'+options.map(([key,label])=>'<button type="button" data-knowledge-filter="'+key+'" aria-pressed="'+(filter===key)+'">'+label+'</button>').join('')+'</div>';
   const rows=filtered.map(item=>'<article class="cn-detail-panel cn-knowledge-source"><div class="cn-section-bar"><span class="cn-knowledge-filename">'+safe(item.file_name)+'</span>'+factBadge(item)+'</div>'+
-    '<p>'+safe(item.extracted_summary||'No extracted summary yet.')+'</p><small class="cn-caption">'+Math.max(0,Number(item.item_counts?.total)||0)+' facts · '+factSummary(item)+' · '+safe(day(item.created_at))+'</small>'+sourceActions(item)+'</article>').join('');
+    '<p class="cn-caption">Original source notes (may describe an earlier review state)</p><p>'+safe(item.extracted_summary||'No extracted summary yet.')+'</p><small class="cn-caption">'+Math.max(0,Number(item.item_counts?.total)||0)+' facts · '+factSummary(item)+' · '+safe(day(item.created_at))+'</small>'+sourceActions(item)+'</article>').join('');
   const form=state.knowledgeForm&&canAddManual?'<section class="cn-detail-panel cn-colzo-record-form"><form id="cnKnowledgeForm"><h2>Add a business fact</h2>'+
     '<p class="cn-caption">Manual entry uses no extraction provider. Facts remain inactive until approved.</p>'+
     '<label>Fact type<select name="item_type">'+typeOptions('service')+'</select></label>'+
@@ -1999,6 +2002,8 @@
    stopMotion();
    window.colzoParkSecurityCenter?.();
    root.dataset.screen=state.screen;
+   const workspaceName=root.querySelector('#cnDesktopWorkspaceName');
+   if(workspaceName)workspaceName.textContent=String(typeof settings!=='undefined'&&settings?.business_name||'Your workspace');
    updateHeaderNavigation();
    root.style.setProperty('--cn-active-index',String(navPosition(state.screen)));
    root.querySelector('.cn-work-dialog-backdrop')?.remove();
@@ -2013,7 +2018,7 @@
    if(securityHost&&typeof window.colzoMountSecurityCenter==='function')window.colzoMountSecurityCenter(securityHost);
    const dialog=content.querySelector('.cn-work-dialog-backdrop');if(dialog)root.appendChild(dialog);
    content.dataset.cnIntro=motion==='none'||motion==='filter'?'':state.screen;
-   root.querySelectorAll('.cn-nav button').forEach(b=>{const extra=Boolean(b.closest('.cn-desktop-nav-extra'));const active=extra?b.dataset.cnScreen===state.screen:b.dataset.cnScreen===primaryScreens[navPosition(state.screen)];if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+   root.querySelectorAll('.cn-nav button:not(.cn-account-link)').forEach(b=>{const extra=Boolean(b.closest('.cn-desktop-nav-extra'));const active=extra?b.dataset.cnScreen===state.screen:b.dataset.cnScreen===primaryScreens[navPosition(state.screen)];if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
    const input=document.getElementById('cnSearch');if(input&&state.screen==='enquiries'&&state.focusSearch){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
    window.ColzoKpiMotion?.update(previousKpis);
    if(motion!=='none')animateArrival(direction,motion);
@@ -2370,7 +2375,7 @@
    }
    if(e.target.dataset.knowledgeInclude){state.knowledgeIncludes[e.target.dataset.knowledgeInclude]=e.target.checked;return}if(e.target.id==='cnQuietMotion'){state.quietMotion=e.target.checked;root.classList.toggle('cn-quiet-motion',state.quietMotion);render();return}if(e.target.id==='cnCompactCards'){state.compactCards=e.target.checked;root.classList.toggle('cn-compact-cards',state.compactCards);render();return}});
  document.getElementById('cnReturnToColzo')?.addEventListener('click',()=>{document.body.classList.remove('colzo-legacy-mode');root.removeAttribute('aria-hidden');document.getElementById('cnReturnToColzo').hidden=true;render({motion:'page',direction:-1});});
- const onAuthState=auth=>{if(auth!=='auth-ready')dashboardFailure=null;if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();Object.assign(state,initialState());root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.teamSummary=null;state.companyLoading=false;state.companyError='';state.myWorkTasks=null;state.myWorkLoading=false;state.myWorkBusy=false;state.myWorkUnavailable=false;state.myWorkError='';state.myWorkMessage='';state.myWorkFilter='Open';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Active',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
+ const onAuthState=auth=>{if(auth!=='auth-ready')dashboardFailure=null;if(auth==='auth-ready'){document.body.classList.add('colzo-owner-enabled');root.hidden=false;root.removeAttribute('aria-hidden');render()}else{sessionEpoch++;window.ColzoKpiMotion?.cancel();window.ColzoGestures?.cancel();Object.assign(state,initialState());const workspaceName=root.querySelector('#cnDesktopWorkspaceName');if(workspaceName)workspaceName.textContent='Your workspace';root.querySelector('.cn-unsaved-overlay')?.remove();closeCommand(false);stopMotion();document.body.classList.remove('colzo-owner-enabled','colzo-legacy-mode');root.hidden=true;window.colzoParkSecurityCenter?.();window.ColzoReact?.unmount(content);content.replaceChildren();const liveRegion=root.querySelector('#cnScreenAnnounce');if(liveRegion)liveRegion.textContent='';state.screen='home';state.setting='';state.teamData=null;state.teamError='';state.teamSummary=null;state.companyLoading=false;state.companyError='';state.myWorkTasks=null;state.myWorkLoading=false;state.myWorkBusy=false;state.myWorkUnavailable=false;state.myWorkError='';state.myWorkMessage='';state.myWorkFilter='Open';state.inviteFeedback='';state.inviteUrl='';state.teamLoading=false;state.settingsBusy=false;state.quietMotion=false;state.compactCards=false;root.classList.remove('cn-quiet-motion','cn-compact-cards');state.search='';state.filter='All';state.clientSearch='';state.clientFilter='All';state.projectFilter='All';state.projectSearch='';state.showProjectSearch=false;state.workModal=null;state.workBusy=false;state.workFeedback='';state.workSearch={bookings:'',actions:''};state.workFilter={bookings:'Active',actions:'Open'};state.activeLead=null;state.recordsReady=false;state.scrollByScreen.clear();document.getElementById('cnReturnToColzo').hidden=true}};
  window.ColzoOwner={render,onAuthState,openLegacy:original,dashboardLoaded:()=>{dashboardFailure=null;state.recordsReady=true},error:(error)=>{if(document.body.classList.contains('auth-ready')){const detail=typeof colzoDashboardFailureLabel==='function'?colzoDashboardFailureLabel(error,window.colzoPreviewAuthTransportEnabled):'';dashboardFailure='Unable to load your business records. Please try again.'+detail;render()}},getActiveScreen:()=>state.screen};
  onAuthState(document.body.classList.contains('auth-ready')?'auth-ready':'auth-pending');
 })();

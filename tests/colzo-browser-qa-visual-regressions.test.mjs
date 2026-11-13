@@ -48,5 +48,17 @@ test('QA-004: narrow header menu and search both have min 44x44 touch targets',(
 });
 test('updated visual assets are cache-busted in protected Preview HTML',()=>{
  assert.match(html(),/colzo-connected-workspace\.css\?v=20261113-qa-visual-v1/);
- assert.match(html(),/colzo-native\.js\?v=20261113-qa-visual-v1/);
+ assert.match(html(),/colzo-native\.js\?v=20261113-d01-d03-v1/);
+});
+
+
+test('QA D02: native desktop shell has factual current-business context and accessible account entry',()=>{
+ const page=html(),styles=read('assets/colzo-desktop-command-centre.css'),script=native();
+ assert.match(page,/id="cnDesktopWorkspaceName">Your workspace/);
+ assert.match(page,/class="cn-desktop-account-footer"/);
+ assert.match(page,/class="cn-desktop-account-button"[^>]*data-cn-screen="more"/);
+ assert.match(styles,/@media \(min-width:1100px\)/);
+ assert.match(styles,/\.cn-nav \.cn-desktop-account-footer/);
+ assert.match(styles,/:focus-visible/);
+ assert.match(script,/workspaceName\.textContent='Your workspace'/,'auth exit must scrub the previous business name before MFA');
 });

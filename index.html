@@ -2200,7 +2200,7 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-customer-stitch.css?v=20261020-customer-1">
 <link rel="stylesheet" href="/assets/colzo-flutter-motion.css?v=20261020-fluid-pack-1">
 <link rel="stylesheet" href="/assets/colzo-customers-mobile.css?v=20261027-customers-1">
-<link rel="stylesheet" href="/assets/colzo-desktop-command-centre.css?v=20261111-desktop-v1">
+<link rel="stylesheet" href="/assets/colzo-desktop-command-centre.css?v=20261113-d01-d03-v1">
 <link rel="stylesheet" href="/assets/colzo-connected-workspace.css?v=20261113-qa-visual-v1">
 </head>
 
@@ -3578,11 +3578,13 @@ Save business settings
     <button class="cn-command-trigger" type="button" data-cn-command aria-label="Find a Colzo tool" title="Find tools (⌘K)">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg>
     </button>
+    <button class="cn-desktop-account-button" type="button" data-cn-screen="more" aria-label="Open Colzo account and settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.3"/><path d="M5 20c.4-4 2.8-6.2 7-6.2s6.6 2.2 7 6.2"/></svg><span>Account</span></button>
   </header>
   <p data-fictional-only-notice hidden role="status" style="margin:0;padding:12px 20px;border-bottom:1px solid var(--cn-border);color:var(--cn-white);font-size:12px;line-height:1.6"><strong>Fictional-data-only pilot:</strong> Use made-up customers, enquiries, bookings, notes and files. Do not enter real customer details. Your account and security information remain real personal data.</p>
   <div id="cnContent" class="cn-content" aria-label="Colzo workspace"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
   <div id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="cn-nav" aria-label="Colzo primary navigation">
+    <div class="cn-desktop-workspace-context" aria-label="Current business"><span>CURRENT BUSINESS</span><strong id="cnDesktopWorkspaceName">Your workspace</strong></div>
 <button type="button" data-cn-screen="home" aria-current="page"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/></svg></span>Home</button>
 <button type="button" data-cn-screen="enquiries"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Enquiries</button>
 <button type="button" data-cn-screen="bookings"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 11h18"/></svg></span>Bookings</button>
@@ -3597,6 +3599,7 @@ Save business settings
     <button type="button" data-cn-screen="receptionist"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 2.2 7 7 2.2-7 2.2L12 20l-2.2-6.6-7-2.2 7-2.2z"/></svg></span>AI Assistant</button>
     <button type="button" data-cn-screen="more"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span>Settings</button>
   </div>
+  <div class="cn-desktop-account-footer"><span>YOUR ACCOUNT</span><button type="button" class="cn-account-link" data-cn-screen="more" aria-label="Open Colzo account and settings">Account &amp; settings</button></div>
 </nav>
   <div id="cnCommandSheet" class="cn-command-sheet" role="presentation" hidden>
     <button type="button" class="cn-command-scrim" data-cn-close-command aria-label="Close tool search"></button>
@@ -3614,7 +3617,7 @@ Save business settings
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/colzo-backend-bridge.js?v=20261014-api1"></script>
-<script src="/assets/colzo-desktop-operations.js?v=20261111-ops-v1"></script>
+<script src="/assets/colzo-desktop-operations.js?v=20261113-d01-d03-v1"></script>
 <script>
 
 let leads=[];
@@ -6007,7 +6010,7 @@ initializeApp();
 <script src="/assets/premium-ui.js?v=20261113-preworkspace-mfa-v1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
 <script src="/assets/colzo-react.js?v=20261017-react-1"></script>
-<script src="/assets/colzo-native.js?v=20261113-qa-visual-v1"></script>
+<script src="/assets/colzo-native.js?v=20261113-d01-d03-v1"></script>
 </body>
 
 </html>
