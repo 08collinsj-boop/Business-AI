@@ -54,7 +54,7 @@ test('My Work supports refresh and filtering with mobile accessible controls',()
  assert.match(markup,/data-my-work-filter="Completed"/);
  assert.match(style(),/\.cn-my-work/);
  assert.match(style(),/@media\s*\(max-width:\s*620px\)/);
- assert.match(html(),/colzo-native\.js\?v=20261113-qa-visual-v1/);
+ assert.match(html(),/colzo-native\.js\?v=20261113-d01-d03-v1/);
 });
 test('My Work backend call is scoped to signed-in session and marks status with explicit confirmation and optimistic concurrency',()=>{
  const js=source();
