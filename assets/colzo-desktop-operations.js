@@ -44,7 +44,7 @@
   }
 
   function attentionDayLabel(isoDay) {
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(isoDay || ''))) return '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(isoDay || ''))) return '';
     const date = new Date(isoDay + 'T12:00:00Z');
     return Number.isFinite(date.getTime())
       ? new Intl.DateTimeFormat('en-GB', {timeZone:'UTC',day:'numeric',month:'short'}).format(date)
