@@ -78,7 +78,7 @@ test('native company workspace is accessible to each role without granting owner
 
 test('rendered company workspace gives all staff working routes but only verified owners the team-control link',()=>{
  const js=readFileSync(new URL('../assets/colzo-native.js',import.meta.url),'utf8');
- const start=js.indexOf(' function companyWorkspaceScreen(){');
+ const start=js.indexOf(' const companyToolIcon=(name)=>');
  const end=js.indexOf(' // ClickUp is a real external workspace:',start);
  assert.ok(start>=0&&end>start);
  const render=role=>{
