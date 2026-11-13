@@ -3718,8 +3718,15 @@ if(industryTemplate){industryTemplate.innerHTML='<option value="general">General
 // addresses and contact details even when their ancestor is hidden.
 document.querySelectorAll('#dashboardApp input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), #dashboardApp textarea').forEach(node=>{node.value='';node.removeAttribute?.('aria-invalid');});
 document.querySelectorAll('#dashboardApp input[type="checkbox"], #dashboardApp input[type="radio"]').forEach(node=>{node.checked=false;});
+// QA-001 E02/E04/E05/E07: hiding the legacy desktop screen is not
+// sufficient. Both attention cards and Settings handover conversation rows
+// remain readable from document.textContent until the *actual nodes* vanish.
+// Sweep scoped dynamic list classes as a future-proof guard, then also scrub
+// the known sensitive containers by id if their CSS classes ever change.
+document.querySelectorAll('#dashboardApp .work-list, #dashboardApp .colzo-ops-list').forEach(node=>node.replaceChildren());
+['colzoAttentionList','colzoScheduleList','handoverList','teamList','pilotFeedbackList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
 ['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars','bookingsSummary','actionsSummary','leadsSummary','faqList','leadHistory','enquiryConversation','receptionistMessageList','pilotProgressSteps','firstRunGuide','referralDetails'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
-['leadCount','followCount','pipelineSummary','dashboardBusinessLabel','brandBusinessName','settingsProfileName','settingsProfileMeta','businessProfilePreviewName','businessProfilePreviewMeta','businessProfilePreviewHours','businessProfileStatus','businessProfileMediaStatus','referralCode','referralCount','referralProgressMessage','referralPendingMessage','valueOpenPipeline','valueConverted','valueSourceTracked','valueFollowSummary','valueReviewSummary','bookingsStatus','actionsStatus','bookingFormStatus','actionFormStatus'].forEach(id=>{const node=$(id);if(node)node.textContent='';});
+['colzoAttentionCount','colzoScheduleCount','leadCount','followCount','pipelineSummary','dashboardBusinessLabel','brandBusinessName','settingsProfileName','settingsProfileMeta','businessProfilePreviewName','businessProfilePreviewMeta','businessProfilePreviewHours','businessProfileStatus','businessProfileMediaStatus','referralCode','referralCount','referralProgressMessage','referralPendingMessage','valueOpenPipeline','valueConverted','valueSourceTracked','valueFollowSummary','valueReviewSummary','bookingsStatus','actionsStatus','bookingFormStatus','actionFormStatus'].forEach(id=>{const node=$(id);if(node)node.textContent='';});
 const banner=$('businessProfileBannerPreview');if(banner){banner.replaceChildren?.();if(banner.style)banner.style.backgroundImage='';}
 const avatar=$('businessProfileAvatarPreview');avatar?.replaceChildren?.();
 const photo=$('settingsProfileImage');if(photo)photo.src='/assets/icons/colzo-mark.svg';

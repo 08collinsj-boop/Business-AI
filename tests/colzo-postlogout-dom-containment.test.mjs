@@ -10,9 +10,17 @@ function environment(){
  const secret='QA 20261104 Enquiry Example · Fictional lamp inspection';
  const formSelect=id=>({id,innerHTML:`<option value="">No related lead</option><option value="fictional">${secret}</option>`,value:'fictional'});
  const nodes={bookingLead:formSelect('bookingLead'),actionLead:formSelect('actionLead'),bookingsSummary:{innerHTML:`<strong>${secret}</strong>`,replaceChildren(){this.innerHTML=''}},actionsSummary:{innerHTML:'3',replaceChildren(){this.innerHTML=''}},leadCount:{textContent:'7 leads'},dashboardBusinessLabel:{textContent:'Fictional business'},settingsProfileName:{textContent:'Fictional business'},settingsProfileMeta:{textContent:'Fictional job description'}};
+ // Browser QA E02/E04/E05/E07: these remain mounted while auth-required.
+ const retained=id=>({id,innerHTML:`<article>${secret}</article>`,textContent:secret,replaceChildren(){this.innerHTML='';this.textContent='';}});
+ nodes.colzoAttentionList=retained('colzoAttentionList');
+ nodes.handoverList=retained('handoverList');
+ nodes.colzoScheduleList=retained('colzoScheduleList');
+ nodes.teamList=retained('teamList');
+ nodes.pilotFeedbackList=retained('pilotFeedbackList');
+ const unlistedPrivateList=retained('otherLegacyPrivateList');
  const selectors=[];const input={value:secret,removeAttribute(){}},textarea={value:secret,removeAttribute(){}};
  const context={
-  document:{querySelectorAll(selector){selectors.push(selector);if(selector.includes('#dashboardApp')&&selector.includes('input'))return[input,textarea];return[]}},
+  document:{querySelectorAll(selector){selectors.push(selector);if(selector.includes('#dashboardApp')&&selector.includes('.work-list'))return [unlistedPrivateList];if(selector.includes('#dashboardApp')&&selector.includes('input'))return[input,textarea];return[]}},
   $:id=>nodes[id]||null,
   window:{marketingWorkspace:{reset(){}},ColzoOwner:{resetPrivateState(){}},},
   sessionStorage:{removeItem(){}},enquiryStorageKey:slug=>'key'+slug,
@@ -29,7 +37,7 @@ function environment(){
  };
  vm.createContext(context);
  vm.runInContext(clearSource+'\nthis.clear=clearPrivateState;',context);
- return {context,nodes,input,textarea,secret,selectors};
+ return {context,nodes,input,textarea,secret,selectors,unlistedPrivateList};
 }
 
 test('QA-001 P1: logout cleanup removes hidden booking and action lead OPTION labels from DOM, not just arrays',()=>{
@@ -96,4 +104,25 @@ test('QA-001 P1: clicking Sign out clears private DOM before an unresolved Supab
  assert.equal(view,'auth-pending');
  finish({error:null});await pending;
  assert.equal(view,'auth-pending');
+});
+
+test('QA-001 E02/E07: logout scrubs attention and handover HTML/text in hidden dashboard DOM',()=>{
+ const {context,nodes,secret}=environment();
+ assert.match(nodes.colzoAttentionList.textContent,/QA 20261104/);
+ assert.match(nodes.handoverList.innerHTML,/QA 20261104/);
+ context.clear();
+ for(const id of ['colzoAttentionList','handoverList']){
+  assert.equal(nodes[id].innerHTML,'',`${id} private HTML removed`);
+  assert.equal(nodes[id].textContent,'',`${id} private text removed`);
+ }
+ assert.doesNotMatch(JSON.stringify({attention:nodes.colzoAttentionList,handover:nodes.handoverList}),new RegExp(secret));
+});
+test('QA-001 whole-document prevention: all authenticated legacy work-list/operations-list elements are scrubbed even if a new ID is added',()=>{
+ const {context,nodes,unlistedPrivateList,selectors}=environment();
+ context.clear();
+ for(const id of ['colzoScheduleList','teamList','pilotFeedbackList']){
+  assert.equal(nodes[id].innerHTML,'',`${id} cleared`);
+ }
+ assert.equal(unlistedPrivateList.innerHTML,'','other legacy private list is included by selector');
+ assert.ok(selectors.some(selector=>selector.includes('#dashboardApp')&&selector.includes('.work-list')),'scoped dynamic list sweep is run');
 });
