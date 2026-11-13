@@ -95,7 +95,7 @@
       : {text:'View enquiries',attribute:'data-cn-screen="enquiries"'};
   const recent=enquiries.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,3);
   return `<section class="cn-home-desktop" aria-label="Desktop business command centre">
-    <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><span class="cn-dash-date">${safe(operations?.dateLabel?.(options)||totalToday())}</span></header>
+    <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><div class="cn-dash-intro-actions"><span class="cn-dash-date">${safe(operations?.dateLabel?.(options)||totalToday())}</span><button type="button" data-cn-launch-work="actions">${desktopIcon('plus')} Add action</button><button type="button" class="cn-dash-create-booking" data-cn-launch-work="bookings">${desktopIcon('bookings')} Create booking</button></div></header>
     <section class="cn-dash-briefing" aria-label="Workspace briefing">
       <div><span class="cn-dash-briefing-title"><span class="cn-dash-spark" aria-hidden="true">${desktopIcon('spark')}</span>Workspace briefing</span>
       <p>${safe(briefing)}</p><small>Based on current records · Nothing sent or confirmed automatically</small></div>
@@ -1732,6 +1732,9 @@
    return '<div class="cn-my-work">'+head+nav+notice+stats+tabs+list+'</div>';
  }
 
+ // Platform-stable vector glyphs: do not rely on unsupported text arrows.
+ const companyToolIcon=(name)=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+({check:'<path d="m4 12 5 5L20 6"/>',tasks:'<path d="m4 7 2 2 3-4M12 7h8M4 16l2 2 3-4M12 16h8"/>',projects:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M9 4v17"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18"/>',link:'<path d="M10 13a5 5 0 0 0 7.2.5l2.4-2.4a5 5 0 0 0-7.1-7.1l-1.4 1.4M14 11a5 5 0 0 0-7.2-.5l-2.4 2.4a5 5 0 0 0 7.1 7.1l1.4-1.4"/>',arrow:'<path d="M7 17 17 7M8 7h9v9"/>'}[name]||'')+'</svg>';
+
  // A company workspace is shared across verified Colzo business memberships.
  // The UI never guesses the role, staff count, billing allowance or invitations.
  function companyWorkspaceScreen(){
@@ -1742,11 +1745,11 @@
    const notice=state.companyError?'<p class="cn-work-message" role="alert">'+safe(state.companyError)+'</p>':state.companyLoading?'<p class="cn-caption" role="status">Verifying company access…</p>':!data?'<p class="cn-caption" role="status">Company access has not yet been checked.</p>':'';
    const summary=loaded?'<section class="cn-company-roster" aria-label="Verified company membership"><div class="cn-company-count"><span class="cn-kicker">ACTIVE COLZO ACCOUNTS</span><strong>'+safe(data.memberCount)+'</strong><small>Members verified in this company</small></div><div class="cn-company-role"><span class="cn-kicker">YOUR ACCESS LEVEL</span><strong>'+safe(roleNames[role])+'</strong><small>Each action checks server permissions</small></div><div class="cn-company-breakdown"><span>Owners <b>'+safe(data.roles.owner)+'</b></span><span>Managers <b>'+safe(data.roles.admin)+'</b></span><span>Staff <b>'+safe(data.roles.member)+'</b></span></div></section>':'';
    const quickActions='<section class="cn-company-work-list"><div class="cn-company-section-header"><span class="cn-kicker">SHARED COMPANY WORK</span><h2>Everything your team needs, in one place.</h2></div><div class="cn-company-tools">'+
-     '<button type="button" data-cn-screen="myWork"><span aria-hidden="true">✓</span><strong>My Work</strong><small>Your verified assigned tasks and progress</small><b aria-hidden="true">↗</b></button>'+
-     '<button type="button" data-cn-screen="actions"><span aria-hidden="true">✓</span><strong>Actions and follow-ups</strong><small>View and update company tasks</small><b aria-hidden="true">↗</b></button>'+
-     '<button type="button" data-cn-screen="projects"><span aria-hidden="true">▦</span><strong>Projects</strong><small>Manage saved company projects</small><b aria-hidden="true">↗</b></button>'+
-     '<button type="button" data-cn-screen="bookings"><span aria-hidden="true">▣</span><strong>Bookings</strong><small>Review team appointments</small><b aria-hidden="true">↗</b></button>'+
-     '<button type="button" data-cn-screen="clickup"><span aria-hidden="true">⌁</span><strong>Work Hub / ClickUp</strong><small>Connected tasks require authorised permissions</small><b aria-hidden="true">↗</b></button></div></section>';
+     '<button type="button" data-cn-screen="myWork"><span aria-hidden="true">'+companyToolIcon('check')+'</span><strong>My Work</strong><small>Your verified assigned tasks and progress</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
+     '<button type="button" data-cn-screen="actions"><span aria-hidden="true">'+companyToolIcon('check')+'</span><strong>Actions and follow-ups</strong><small>View and update company tasks</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
+     '<button type="button" data-cn-screen="projects"><span aria-hidden="true">'+companyToolIcon('projects')+'</span><strong>Projects</strong><small>Manage saved company projects</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
+     '<button type="button" data-cn-screen="bookings"><span aria-hidden="true">'+companyToolIcon('calendar')+'</span><strong>Bookings</strong><small>Review team appointments</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
+     '<button type="button" data-cn-screen="clickup"><span aria-hidden="true">'+companyToolIcon('link')+'</span><strong>Work Hub / ClickUp</strong><small>Connected tasks require authorised permissions</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button></div></section>';
    const owner=loaded&&role==='owner'?'<section class="cn-company-owner"><div><span class="cn-kicker">OWNER CONTROLS</span><h2>Team and invitations</h2><p>Review membership and invitations. Pilot invitations stay managed until secure seat allocation is approved.</p></div><button type="button" class="cn-secondary" data-cn-setting="team">Manage team access</button></section>':'';
    return '<div class="cn-company-workspace">'+heading+notice+summary+quickActions+owner+'<p class="cn-company-boundary">Individual task assignments and staff-level ClickUp scopes still require further development. A company connection does not give every employee the owner&#39;s ClickUp permissions.</p></div>';
  }
@@ -2332,6 +2335,7 @@
   if(target.hasAttribute('data-cn-work-tab')){state.workFilter[state.screen]=target.getAttribute('data-cn-work-tab');render({motion:'filter'});return}
   if(target.hasAttribute('data-cn-work-month')){changeWorkMonth(Number(target.getAttribute('data-cn-work-month')));return}
   if(target.hasAttribute('data-cn-work-refresh')){refreshWork();return}
+  if(target.hasAttribute('data-cn-launch-work')){const kind=target.getAttribute('data-cn-launch-work');if(['actions','bookings'].includes(kind)){navigate(kind);if(state.screen===kind)openWorkModal(kind);}return}
   if(target.hasAttribute('data-cn-work-new')){openWorkModal(state.screen);return}
   if(target.hasAttribute('data-cn-work-edit')){openWorkModal(state.screen,target.getAttribute('data-cn-work-edit'));return}
   if(target.hasAttribute('data-cn-work-close')){if(!state.workBusy)confirmUnsaved(closeWorkModal);return}

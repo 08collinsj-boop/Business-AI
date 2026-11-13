@@ -195,3 +195,58 @@
 
 #colzoOwner .cn-company-tools button:last-child:nth-child(odd){grid-column:span 2}
 @media(max-width:620px){#colzoOwner .cn-company-tools button:last-child:nth-child(odd){grid-column:auto}}
+
+/* QA-002: one restrained Graphite/Volt control family across new screens. */
+#colzoOwner :is(.cn-company-workspace,.cn-my-work,.cn-clickup-connect,.cn-clickup-heading,.cn-workhub-provider) button.cn-secondary,
+#colzoOwner .cn-workhub-provider-controls button.cn-secondary{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:44px!important;padding:10px 16px!important;border:1px solid #42505b!important;
+ border-radius:12px!important;background:#1c2530!important;color:#e8edf0!important;
+ font-family:inherit!important;font-size:12px!important;font-weight:620!important;
+ line-height:1.4!important;box-shadow:none!important;white-space:normal!important;
+ text-align:center!important;cursor:pointer!important;transition:background-color .15s,border-color .15s!important;
+}
+#colzoOwner :is(.cn-company-workspace,.cn-my-work,.cn-clickup-connect,.cn-clickup-heading,.cn-workhub-provider) button.cn-secondary:hover:not(:disabled){
+ background:#273440!important;border-color:#668049!important;color:#f5f9ee!important;
+}
+#colzoOwner :is(.cn-company-workspace,.cn-my-work,.cn-clickup-connect,.cn-clickup-heading,.cn-workhub-provider) button.cn-secondary:disabled{
+ opacity:.48!important;cursor:not-allowed!important;
+}
+#colzoOwner :is(.cn-company-workspace,.cn-my-work,.cn-clickup-connect,.cn-clickup-heading,.cn-workhub-provider) button.cn-secondary:focus-visible{
+ outline:2px solid #c9ff63!important;outline-offset:3px!important;
+}
+#colzoOwner .cn-company-tools button>span:first-child svg{display:block;width:20px;height:20px}
+#colzoOwner .cn-company-tools .cn-company-tool-arrow svg{display:block;width:18px;height:18px;stroke:currentColor}
+
+/* QA-003: truthful desktop tool search, functional creation actions and footer.
+   Search opens the existing command palette, not an unimplemented record search. */
+@media(min-width:920px){
+ #colzoOwner .cn-header .cn-command-trigger{
+  display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex:0 1 360px!important;width:min(33vw,360px)!important;min-width:240px!important;
+  height:43px!important;min-height:43px!important;padding:0 14px!important;
+  background:#171d25!important;border:1px solid #35404a!important;border-radius:11px!important;
+  color:#9cabba!important;gap:10px!important;
+ }
+ #colzoOwner .cn-command-trigger:after{content:'Search Colzo tools';display:inline!important;color:#a8b7c3!important;font-size:12px!important;font-weight:520!important;letter-spacing:0!important}
+ #colzoOwner .cn-command-trigger:hover{background:#202832!important;border-color:#647949!important}
+ #colzoOwner .cn-desktop-nav-extra{flex:1 1 auto!important;min-height:0!important}
+ #colzoOwner .cn-desktop-nav-extra > button:last-child{margin-top:auto!important;border-top:1px solid #39424c!important;border-radius:0!important;padding-top:16px!important}
+ #colzoOwner .cn-dash-intro-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px}
+ #colzoOwner .cn-dash-intro-actions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 14px;border:1px solid #34404b;border-radius:11px;background:#20272f;color:#f0f4f6;font-size:12px;font-weight:610;cursor:pointer}
+ #colzoOwner .cn-dash-intro-actions button svg{width:16px;height:16px}
+ #colzoOwner .cn-dash-intro-actions button.cn-dash-create-booking{background:#c9ff63;color:#161f10;border-color:#c9ff63;font-weight:700}
+ #colzoOwner .cn-dash-intro-actions button:hover:not(:disabled){filter:brightness(1.11)}
+ #colzoOwner .cn-dash-intro-actions button:focus-visible{outline:2px solid #c9ff63;outline-offset:3px}
+}
+@media(min-width:920px) and (max-width:1180px){
+ #colzoOwner .cn-dash-intro-actions{justify-content:flex-start}
+ #colzoOwner .cn-dash-intro-actions .cn-dash-date{flex-basis:100%}
+}
+@media(max-width:919px){
+ /* QA-004: use a full minimum 44 x 44 CSS pixel hit target on phones. */
+ #colzoOwner .cn-header :is(.cn-wordmark,.cn-command-trigger){min-width:44px!important;min-height:44px!important;width:44px!important;height:44px!important;display:grid!important;place-items:center!important;padding:0!important;box-sizing:border-box!important;flex:none!important}
+ #colzoOwner .cn-header .cn-wordmark:before{width:44px!important;height:44px!important;display:grid!important;place-items:center!important}
+ #colzoOwner .cn-header{align-items:center!important}
+}
+@media(prefers-reduced-motion:reduce){#colzoOwner .cn-company-workspace button.cn-secondary,#colzoOwner .cn-my-work button.cn-secondary{transition:none!important}}
