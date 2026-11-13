@@ -3951,11 +3951,33 @@ if(!frontendAuthEnabled)return;
 if(session){
 setAppLoading(true);
 setAuthView('auth-pending');
+// QA-001: a previous owner session must not leave tenant records in the DOM,
+// legacy globals or native workspace during password-only MFA verification.
+// This runs before the first asynchronous account/session read.
+clearPrivateState();
 colzoLoginFailure=null;
 let loginStep='account legal';
 try{
 const accountLegal=await loadLegalState();
 if(accountLegal?.needs_user_acceptance){setAppLoading(false);setAuthView('legal-acceptance-required');return;}
+// Gate *before* business onboarding, invitations, settings, dashboard hydration
+// or auth-ready. A security overlay shown after auth-ready is not a data gate.
+loginStep='account MFA';
+const requireWorkspaceMfa=window.colzoRequireWorkspaceAal2;
+if(typeof requireWorkspaceMfa!=='function')throw Error('Account two-step verification is unavailable');
+const mfaComplete=await requireWorkspaceMfa();
+if(!mfaComplete){
+  setAppLoading(false);clearPrivateState();
+  setAuthView('auth-required','Complete two-step verification before opening Colzo. Your business records remain locked.');
+  return;
+}
+const latestAssurance=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+const latestSession=await supabaseClient.auth.getSession();
+if(latestAssurance.error||latestAssurance.data?.currentLevel!=='aal2'
+   ||latestSession.error||!latestSession.data?.session?.user?.id
+   ||latestSession.data.session.user.id!==session.user?.id){
+  throw Error('Two-step verification did not complete for the current session');
+}
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 loginStep='business onboarding';
@@ -5935,7 +5957,7 @@ initializeApp();
 
 <script src="/assets/marketing.js?v=20261009-facebook-preview-1"></script>
 <script src="/assets/customer-portal.js?v=20261004-business-profile-1"></script>
-<script src="/assets/premium-ui.js?v=20261005-settings-profile-row-1"></script>
+<script src="/assets/premium-ui.js?v=20261113-preworkspace-mfa-v1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
 <script src="/assets/colzo-react.js?v=20261017-react-1"></script>
 <script src="/assets/colzo-native.js?v=20261112-mywork-v1"></script>
