@@ -10,6 +10,7 @@ import knowledgeHandler from '../lib/knowledge-verified-handler.js';
 import auditLogHandler from "../lib/audit-log-handler.js";
 import dataLifecycleHandler from "../lib/data-lifecycle-handler.js";
 import dataSubjectsHandler from "../lib/data-subjects-handler.js";
+import tenantDraftExportHandler from "../lib/colzo-tenant-export-handler.js";
 import healthHandler from "../lib/health-handler.js";
 import teamHandler from "../lib/team-handler.js";
 import handoverHandler from "../lib/handover-handler.js";
@@ -49,6 +50,7 @@ const handlers = Object.freeze({
   "audit-log": auditLogHandler,
   "data-lifecycle": dataLifecycleHandler,
   "data-subjects": dataSubjectsHandler,
+  "tenant-draft-export": tenantDraftExportHandler,
   health: healthHandler,
   team: teamHandler,
   handovers: handoverHandler,
