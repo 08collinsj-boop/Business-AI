@@ -19,6 +19,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/api/clickup",
+      "destination": "/api/operations?operation=clickup"
+    },
+    {
+      "source": "/api/clickup-callback",
+      "destination": "/api/operations?operation=clickup-callback"
+    },
+    {
       "source": "/api/colzo-records",
       "destination": "/api/operations?operation=colzo-records"
     },

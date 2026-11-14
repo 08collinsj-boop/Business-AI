@@ -52,3 +52,16 @@ test('QA F08: unreviewed facts and failed extraction remain visibly unapproved',
   assert.match(html,/<span class="cn-pill attention">failed<\/span>/i);
   assert.doesNotMatch(html,/Facts approved/);
 });
+
+
+test('QA D03: approved manual source distinguishes historic notes from current fact approval',()=>{
+ const html=renderKnowledge([],{knowledgeDetail:{
+   source:{id:'manual-source',file_name:'Manual knowledge',status:'needs_review',extracted_summary:'Entered directly by the business owner. Awaiting accuracy review.'},
+   items:[{id:'approved',status:'active',item_type:'faq',title:'Hours',content:'Weekdays'}]
+ }});
+ assert.match(html,/Facts approved/);
+ assert.match(html,/1 approved facts · 0 awaiting review/);
+ assert.match(html,/Source notes/);
+ assert.match(html,/Recorded when added; the approval counts above show the current fact status/);
+ assert.match(html,/Awaiting accuracy review/,'historic ingestion notes may remain but must be labelled');
+});

@@ -2200,7 +2200,8 @@ input.switch,input.switch:before{transition:none}
 <link rel="stylesheet" href="/assets/colzo-customer-stitch.css?v=20261020-customer-1">
 <link rel="stylesheet" href="/assets/colzo-flutter-motion.css?v=20261020-fluid-pack-1">
 <link rel="stylesheet" href="/assets/colzo-customers-mobile.css?v=20261027-customers-1">
-<link rel="stylesheet" href="/assets/colzo-desktop-command-centre.css?v=20261111-desktop-v1">
+<link rel="stylesheet" href="/assets/colzo-desktop-command-centre.css?v=20261113-d01-d03-v1">
+<link rel="stylesheet" href="/assets/colzo-connected-workspace.css?v=20261113-qa-visual-v1">
 </head>
 
 <body class="auth-pending app-loading colzo-safe-shell colzo-interface" id="colzoApp" aria-busy="true">
@@ -3577,11 +3578,13 @@ Save business settings
     <button class="cn-command-trigger" type="button" data-cn-command aria-label="Find a Colzo tool" title="Find tools (⌘K)">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.3 4.3"/></svg>
     </button>
+    <button class="cn-desktop-account-button" type="button" data-cn-screen="more" aria-label="Open Colzo account and settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.3"/><path d="M5 20c.4-4 2.8-6.2 7-6.2s6.6 2.2 7 6.2"/></svg><span>Account</span></button>
   </header>
   <p data-fictional-only-notice hidden role="status" style="margin:0;padding:12px 20px;border-bottom:1px solid var(--cn-border);color:var(--cn-white);font-size:12px;line-height:1.6"><strong>Fictional-data-only pilot:</strong> Use made-up customers, enquiries, bookings, notes and files. Do not enter real customer details. Your account and security information remain real personal data.</p>
   <div id="cnContent" class="cn-content" aria-label="Colzo workspace"><div class="cn-loading">Preparing your Colzo workspace…</div></div>
   <div id="cnScreenAnnounce" class="cn-visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="cn-nav" aria-label="Colzo primary navigation">
+    <div class="cn-desktop-workspace-context" aria-label="Current business"><span>CURRENT BUSINESS</span><strong id="cnDesktopWorkspaceName">Your workspace</strong></div>
 <button type="button" data-cn-screen="home" aria-current="page"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/></svg></span>Home</button>
 <button type="button" data-cn-screen="enquiries"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Enquiries</button>
 <button type="button" data-cn-screen="bookings"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 11h18"/></svg></span>Bookings</button>
@@ -3591,10 +3594,12 @@ Save business settings
     <button type="button" data-cn-screen="actions"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 4 4 8-9M4 5h15M4 20h15"/></svg></span>Tasks</button>
     <button type="button" data-cn-screen="quotes"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6zM15 3v5h4M9 13h7M9 17h5"/></svg></span>Quotes</button>
     <button type="button" data-cn-screen="projects"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 5V3h8v2M3 11h18"/></svg></span>Projects</button>
+    <button type="button" data-cn-screen="clickup"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="2"/><rect x="14" y="4" width="7" height="7" rx="2"/><rect x="3" y="15" width="7" height="7" rx="2"/><path d="M14 18h7M17.5 14.5v7"/></svg></span>Work Hub</button>
     <button type="button" data-cn-screen="marketing"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m4 15 11-5v8L4 14v-4l11-4v12M15 12h5M6 16l2 5"/></svg></span>Marketing</button>
     <button type="button" data-cn-screen="receptionist"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 2.2 7 7 2.2-7 2.2L12 20l-2.2-6.6-7-2.2 7-2.2z"/></svg></span>AI Assistant</button>
     <button type="button" data-cn-screen="more"><span class="cn-navicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span>Settings</button>
   </div>
+  <div class="cn-desktop-account-footer"><span>YOUR ACCOUNT</span><button type="button" class="cn-account-link" data-cn-screen="more" aria-label="Open Colzo account and settings">Account &amp; settings</button></div>
 </nav>
   <div id="cnCommandSheet" class="cn-command-sheet" role="presentation" hidden>
     <button type="button" class="cn-command-scrim" data-cn-close-command aria-label="Close tool search"></button>
@@ -3612,7 +3617,7 @@ Save business settings
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/colzo-backend-bridge.js?v=20261014-api1"></script>
-<script src="/assets/colzo-desktop-operations.js?v=20261111-ops-v1"></script>
+<script src="/assets/colzo-desktop-operations.js?v=20261113-d01-d03-v1"></script>
 <script>
 
 let leads=[];
@@ -3693,11 +3698,41 @@ const passwordRecoveryIntentFromLocation=()=>{try{const url=new URL(window.locat
 const clearPasswordRecoveryLocation=()=>{clearPasswordRecoveryRequest();try{const url=new URL(window.location.href);url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search);}catch{}};
 
 
+// Every session transition invalidates pending legacy data reads before their
+// promises resolve. Hiding an old workspace is not a DOM privacy boundary.
+let privateDataEpoch=0;
 const clearPrivateState=()=>{
+privateDataEpoch+=1;
 window.marketingWorkspace?.reset();
 if(authenticatedPublicBusinessSlug){try{sessionStorage.removeItem(enquiryStorageKey(authenticatedPublicBusinessSlug));}catch{}}
-leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeCanUpload=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;pilotFeedbackItems=[];pilotMarketingDraftCount=0;pilotMarketingAvailable=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
-['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+leads=[];bookings=[];businessActions=[];settings=null;businessConfiguration=null;configurationTemplates=[];billingState=null;businessProfileState=null;pipeline=null;authenticatedPublicBusinessSlug=null;authenticatedBusinessRole=null;handovers=[];teamState=null;lifecyclePolicy=null;ownerAssistantAvailable=null;publicBusinessPhoneNumber='';referralState=null;valueDashboardState=null;knowledgeSources=[];knowledgeCanManage=false;knowledgeCanUpload=false;knowledgeReviewSource=null;knowledgeReplaceSourceId=null;legalState=null;pilotFeedbackItems=[];pilotMarketingDraftCount=0;pilotMarketingAvailable=null;enquiryMessages=[];receptionistTestContinuation=null;receptionistTestSession=null;receptionistTestLastPreview=null;
+// QA-001 (E03/E16): legacy forms remain mounted under hidden #dashboardApp.
+// Their tenant-derived OPTION labels must be removed, not merely hidden.
+// Use the exact static default so another legitimate AAL2 sign-in can refill.
+['bookingLead','actionLead'].forEach(id=>{
+ const select=$(id);if(!select)return;
+ select.innerHTML='<option value="">No related lead</option>';
+ select.value='';
+});
+// The industry template options may come from the current business config.
+const industryTemplate=$('c_industry_template_id');
+if(industryTemplate){industryTemplate.innerHTML='<option value="general">General business</option>';industryTemplate.value='general';}
+// Clear unsaved legacy form values that could contain customer names, notes,
+// addresses and contact details even when their ancestor is hidden.
+document.querySelectorAll('#dashboardApp input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), #dashboardApp textarea').forEach(node=>{node.value='';node.removeAttribute?.('aria-invalid');});
+document.querySelectorAll('#dashboardApp input[type="checkbox"], #dashboardApp input[type="radio"]').forEach(node=>{node.checked=false;});
+// QA-001 E02/E04/E05/E07: hiding the legacy desktop screen is not
+// sufficient. Both attention cards and Settings handover conversation rows
+// remain readable from document.textContent until the *actual nodes* vanish.
+// Sweep scoped dynamic list classes as a future-proof guard, then also scrub
+// the known sensitive containers by id if their CSS classes ever change.
+document.querySelectorAll('#dashboardApp .work-list, #dashboardApp .colzo-ops-list').forEach(node=>node.replaceChildren());
+['colzoAttentionList','colzoScheduleList','handoverList','teamList','pilotFeedbackList'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+['stats','leadList','recentLeads','followUps','activity','pipeline','upcomingBookings','dashboardActions','bookingsList','actionsList','knowledgeList','knowledgeReview','valueDashboardMetrics','valueSourceBars','bookingsSummary','actionsSummary','leadsSummary','faqList','leadHistory','enquiryConversation','receptionistMessageList','pilotProgressSteps','firstRunGuide','referralDetails'].forEach(id=>{const node=$(id);if(node)node.replaceChildren();});
+['colzoAttentionCount','colzoScheduleCount','leadCount','followCount','pipelineSummary','dashboardBusinessLabel','brandBusinessName','settingsProfileName','settingsProfileMeta','businessProfilePreviewName','businessProfilePreviewMeta','businessProfilePreviewHours','businessProfileStatus','businessProfileMediaStatus','referralCode','referralCount','referralProgressMessage','referralPendingMessage','valueOpenPipeline','valueConverted','valueSourceTracked','valueFollowSummary','valueReviewSummary','bookingsStatus','actionsStatus','bookingFormStatus','actionFormStatus'].forEach(id=>{const node=$(id);if(node)node.textContent='';});
+const banner=$('businessProfileBannerPreview');if(banner){banner.replaceChildren?.();if(banner.style)banner.style.backgroundImage='';}
+const avatar=$('businessProfileAvatarPreview');avatar?.replaceChildren?.();
+const photo=$('settingsProfileImage');if(photo)photo.src='/assets/icons/colzo-mark.svg';
 updateInstallAppCard?.();
 };
 
@@ -3949,11 +3984,33 @@ if(!frontendAuthEnabled)return;
 if(session){
 setAppLoading(true);
 setAuthView('auth-pending');
+// QA-001: a previous owner session must not leave tenant records in the DOM,
+// legacy globals or native workspace during password-only MFA verification.
+// This runs before the first asynchronous account/session read.
+clearPrivateState();
 colzoLoginFailure=null;
 let loginStep='account legal';
 try{
 const accountLegal=await loadLegalState();
 if(accountLegal?.needs_user_acceptance){setAppLoading(false);setAuthView('legal-acceptance-required');return;}
+// Gate *before* business onboarding, invitations, settings, dashboard hydration
+// or auth-ready. A security overlay shown after auth-ready is not a data gate.
+loginStep='account MFA';
+const requireWorkspaceMfa=window.colzoRequireWorkspaceAal2;
+if(typeof requireWorkspaceMfa!=='function')throw Error('Account two-step verification is unavailable');
+const mfaComplete=await requireWorkspaceMfa();
+if(!mfaComplete){
+  setAppLoading(false);clearPrivateState();
+  setAuthView('auth-required','Complete two-step verification before opening Colzo. Your business records remain locked.');
+  return;
+}
+const latestAssurance=await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+const latestSession=await supabaseClient.auth.getSession();
+if(latestAssurance.error||latestAssurance.data?.currentLevel!=='aal2'
+   ||latestSession.error||!latestSession.data?.session?.user?.id
+   ||latestSession.data.session.user.id!==session.user?.id){
+  throw Error('Two-step verification did not complete for the current session');
+}
 const invitationId=invitationIdFromLocation();
 if(invitationId){const accepted=await api('/api/team',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'accept',invitation_id:invitationId})});if(!accepted?.accepted)throw new Error('Invitation is unavailable');history.replaceState({},'',window.location.pathname);}
 loginStep='business onboarding';
@@ -4071,6 +4128,9 @@ if(event==='PASSWORD_RECOVERY'){passwordRecoveryActive=true;setAppLoading(false)
 if(event==='INITIAL_SESSION')return;
 if(passwordRecoveryActive&&nextSession)return;
 if(event!=='SIGNED_IN'&&event!=='SIGNED_OUT')return;
+// Supabase's callback may precede the deferred bootstrap. Immediately remove
+// all legacy form options and private DOM on logout, without waiting a tick.
+if(event==='SIGNED_OUT'){clearPrivateState();setAppLoading(false);setAuthView('auth-required');}
 window.setTimeout(()=>{bootstrapAuthSession(event==='SIGNED_OUT'?null:nextSession).catch(()=>{});},0);
 });
 const {data:{session}}=await supabaseClient.auth.getSession();
@@ -4240,7 +4300,16 @@ $('legalAcceptanceForm').addEventListener('submit',async event=>{event.preventDe
 $('dpaAcceptanceForm').addEventListener('submit',async event=>{event.preventDefault();await acceptBusinessDpa();});
 
 $('logoutButton').addEventListener('click',async()=>{
-if(supabaseClient)await supabaseClient.auth.signOut();
+// Scrub synchronously, even when a Supabase sign-out promise has not resolved.
+clearPrivateState();setAppLoading(true);setAuthView('auth-pending');
+try{
+ if(supabaseClient){const {error}=await supabaseClient.auth.signOut();if(error)throw error;}
+ await handleSession(null);
+}catch{
+ // Fail closed rather than restoring a stale, privately hydrated workspace.
+ clearPrivateState();setAppLoading(false);
+ setAuthView('auth-required','Secure sign-out could not be confirmed. Reload before signing in again.');
+}
 });
 
 let publicDirectoryBusinesses=[];
@@ -4738,7 +4807,8 @@ function classifyColzoPreviewApi401(body, responseHeaders, clientSentToken) {
 }
 
 const api=async(url,options={},mfaRetried=false)=>{
-
+// Prevent delayed responses from resurrecting another session's DOM.
+const dataEpoch=privateDataEpoch;
 const requestUrl=new URL(url,window.location.origin);
 const headers=new Headers(options.headers||{});
 if(frontendAuthEnabled&&supabaseClient){
@@ -4756,6 +4826,7 @@ if(window.colzoPreviewAuthTransportEnabled){
 }
 
 const response=await window.colzoBackendFetch(url,{...options,headers});
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configuration'].includes(requestUrl.pathname)){
   colzoLoginFailure={path:requestUrl.pathname,status:response.status};
 }
@@ -4823,6 +4894,7 @@ if(!response.ok){
   throw error;
 }
 
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 return result;
 
 };
@@ -5275,13 +5347,16 @@ return `<article class="work-item action-reference-card ${['high','urgent'].incl
 }
 
 async function loadWorkItems(){
+const dataEpoch=privateDataEpoch;
 try{
 const [bookingData,actionData]=await Promise.all([api('/api/bookings'),api('/api/actions')]);
+if(dataEpoch!==privateDataEpoch)return;
 bookings=Array.isArray(bookingData)?bookingData:[];
 businessActions=Array.isArray(actionData)?actionData:[];
 fillWorkLeadOptions();renderBookings();renderActions();renderDashboard();window.ColzoOwner?.render();
 ['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).textContent='';});
 }catch(error){
+if(dataEpoch!==privateDataEpoch)return;
 const message=error.message==='Bookings are not enabled'||error.message==='Actions are not enabled'?'Bookings and actions will be available after the database migration is applied.':error.message;
 ['bookingsStatus','actionsStatus'].forEach(id=>{if($(id))$(id).innerHTML=`<div class="error">${esc(message)}</div>`;});
 }
@@ -5864,11 +5939,10 @@ function colzoDashboardFailureLabel(error,enabled){
 }
 
 async function loadAll(showFeedback=false){
-
+const dataEpoch=privateDataEpoch;
 try{
-
 const [leadData,pipelineData,settingsData]=await Promise.all([api('/api/leads'),api('/api/pipeline'),api('/api/settings')]);
-
+if(dataEpoch!==privateDataEpoch)return;
 leads=Array.isArray(leadData)?leadData:[];
 
 pipeline=pipelineData||{};
@@ -5901,7 +5975,7 @@ window.ColzoOwner?.render();
 if(showFeedback)toast('Dashboard refreshed');
 
 }catch(error){
-
+if(dataEpoch!==privateDataEpoch)return;
 const detail=colzoDashboardFailureLabel(error,window.colzoPreviewAuthTransportEnabled);
 const message=`<div class="error">${esc((error.message||'Unable to load dashboard data.')+detail)}</div>`;
 
@@ -5933,10 +6007,10 @@ initializeApp();
 
 <script src="/assets/marketing.js?v=20261009-facebook-preview-1"></script>
 <script src="/assets/customer-portal.js?v=20261004-business-profile-1"></script>
-<script src="/assets/premium-ui.js?v=20261005-settings-profile-row-1"></script>
+<script src="/assets/premium-ui.js?v=20261113-preworkspace-mfa-v1"></script>
 <script src="/assets/mock-v3.js?v=20261004-iphone-shell-final-1"></script>
 <script src="/assets/colzo-react.js?v=20261017-react-1"></script>
-<script src="/assets/colzo-native.js?v=20261013-native-a"></script>
+<script src="/assets/colzo-native.js?v=20261113-d01-d03-v1"></script>
 </body>
 
 </html>

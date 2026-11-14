@@ -161,3 +161,19 @@ test('attention list includes supported New, Open, Pending and Unread enquiry st
  assert.ok(result.some(item=>item.title==='Still open'));
  assert.ok(!result.some(item=>item.title==='Closed item'));
 });
+
+
+test('QA D01: attention exposes only real booking/customer/time and enquiry details',()=>{
+ const api=getOverview();
+ const result=api.attention({
+   bookings:[{title:'Site survey',status:'requested',customer_name:'Fictional Buyer',starts_at:'2026-11-16T15:00:00Z'}],
+   leads:[{name:'Lead marker',status:'New',job_type:'Solar inspection'}]
+ },{now:'2026-11-13T11:00:00Z',timezone:'Europe/London'});
+ const booking=result.find(row=>row.route==='bookings');
+ assert.match(booking.context,/Fictional Buyer/);
+ assert.match(booking.context,/16 Nov/);
+ assert.match(booking.context,/15:00/);
+ assert.match(result.find(row=>row.route==='leads').context,/Solar inspection/);
+ const missing=api.attention({bookings:[{title:'No date',status:'requested'}]},{now:'2026-11-13T11:00:00Z',timezone:'Europe/London'});
+ assert.equal(missing[0].context,'','never fabricate unavailable context');
+});

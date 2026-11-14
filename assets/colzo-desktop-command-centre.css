@@ -738,3 +738,25 @@
   #colzoOwner .cn-dash-trend{margin-top:24px!important}
   #colzoOwner .cn-dash-intro{flex-wrap:wrap!important}
 }
+
+/* QA D01/D02 — truthful priority context and account/workspace hierarchy. */
+#colzoOwner .cn-desktop-workspace-context,#colzoOwner .cn-desktop-account-footer,#colzoOwner .cn-desktop-account-button{display:none!important}
+@media (min-width:920px){
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-panel{min-height:270px!important;padding:18px 18px 12px!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-row{grid-template-columns:43px minmax(0,1fr) auto 15px!important;min-height:67px!important;column-gap:10px!important}
+  #colzoOwner .cn-dash-row-text .cn-dash-row-context{display:block!important;color:#90a0a9!important;font-size:10px!important;line-height:1.35!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  #colzoOwner .cn-dash-row-review{display:inline-flex!important;align-items:center!important;justify-content:center!important;border:1px solid #435037!important;border-radius:8px!important;color:#d3f4a0!important;background:#20291e!important;font-size:10px!important;font-weight:650!important;padding:7px 9px!important;white-space:nowrap!important}
+  #colzoOwner .cn-dash-row:focus-visible{outline:2px solid #c8ff2e!important;outline-offset:2px!important}
+  #colzoOwner .cn-dash-panel[aria-label="Today's schedule"] .cn-dash-row{grid-template-columns:52px minmax(0,1fr) 12px!important}
+  #colzoOwner .cn-header .cn-desktop-account-button{display:inline-flex!important;align-items:center!important;gap:8px!important;min-height:40px!important;padding:8px 13px!important;border:1px solid #303b46!important;border-radius:11px!important;background:#161c24!important;color:#d9e1e8!important;font-size:12px!important;font-weight:600!important}
+  #colzoOwner .cn-header .cn-desktop-account-button:hover{background:#222b35!important}
+  #colzoOwner .cn-header .cn-desktop-account-button:focus-visible,#colzoOwner .cn-desktop-account-footer button:focus-visible{outline:2px solid #c8ff2e!important;outline-offset:2px!important}
+}
+@media (min-width:1100px){
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav .cn-desktop-workspace-context{display:flex!important;flex-direction:column!important;gap:5px!important;min-width:0!important;margin:1px 3px 12px!important;padding:12px!important;border:1px solid #2b363c!important;border-radius:11px!important;background:#1b2229!important}
+  #colzoOwner .cn-desktop-workspace-context span,#colzoOwner .cn-desktop-account-footer > span{font-size:9px!important;font-weight:700!important;letter-spacing:.12em!important;color:#98a6b2!important}
+  #colzoOwner #cnDesktopWorkspaceName{font-size:12px!important;line-height:1.35!important;color:#f2f5f6!important;font-weight:650!important;overflow-wrap:anywhere!important}
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav .cn-desktop-account-footer{display:flex!important;flex-direction:column!important;gap:9px!important;margin-top:10px!important;padding:13px 8px 0!important;border-top:1px solid #303a42!important}
+  #colzoOwner .cn-desktop-account-footer .cn-account-link{display:block!important;width:100%!important;min-height:44px!important;text-align:left!important;color:#d3e0e5!important;padding:10px 9px!important;font-size:12px!important;font-weight:650!important;background:#1a222a!important;border:1px solid #33414a!important;border-radius:10px!important}
+}
+@media(min-width:920px) and (max-width:1099px){#colzoOwner .cn-dash-row-review{font-size:0!important;padding:6px!important}#colzoOwner .cn-dash-row-review:after{content:'Review';font-size:10px}}
