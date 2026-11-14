@@ -5,6 +5,20 @@
 
 This is a **working operator pack**, not a completed sign-off, a legal opinion, a commitment to an SLA, or evidence of customer-data deletion. Fill the decision and receipt fields with real accountable approvals before the first external real-data pilot. No named operator, corporate identity, contact address, legal version, SLA, subprocessors determination or customer consent is invented below.
 
+## Confirmed business-structure decision — 14 November 2026
+
+**User-confirmed:** Colzo is intended to operate as a **UK sole trader**, trading under the name **Colzo**, at first pilot. This confirms the **business-structure choice only**. It does **not** establish that the legal name, correspondence/service address, publicly valid privacy contact, operator role, HMRC filing status, trademark clearance or ICO fee position have been reviewed. The legally responsible operator's personal name is deliberately **not copied into this repository**; use a private approved record when completing public legal identity fields. Do not imply a limited company or invent Companies House/company number, VAT status or business registration.
+
+Before public real-data pilot, obtain approved sole-trader disclosures and business contact details in the appropriate public-facing places and official invoices/contracts. GOV.UK says that, when trading under a business name, a sole trader must disclose their own name and trading name on official paperwork (and a legal-service address on invoices); applicable website/contact disclosure requirements must also be reviewed. Consider a **lawfully usable correspondence/service address instead of a domestic address**, if privacy matters, and confirm its suitability rather than posting a personal home address in GitHub or chat. ICO privacy notices require the business name and contact details. Verification links:
+- https://www.gov.uk/become-sole-trader/choose-your-business-name
+- https://www.gov.uk/invoicing-and-taking-payment-from-customers/invoices-what-they-must-include
+- https://ico.org.uk/for-organisations/advice-for-small-organisations/privacy-notices-and-cookies/are-you-transparent-about-how-you-use-peoples-data/
+- https://ico.org.uk/global/privacy-notice/pay-a-data-protection-fee/
+
+**Important threshold clarification:** GOV.UK's £1,000 trading-income threshold concerns **Self Assessment registration for the tax year**, not a requirement to change from sole trader to a limited company. A sole trader may register earlier; tax/ICO obligations require their own assessment. See https://www.gov.uk/become-sole-trader.
+
+**Status:** structure **CONFIRMED by operator**; identity/address/contact/filings/publication/legal approval **OPEN**. This paragraph is INTERNAL ONLY. No published legal or product setting was changed.
+
 ## A. Exact current-product facts (verified source and independent Work report)
 
 | Current source / evidence | Verified current behaviour | Launch consequence |
@@ -25,7 +39,7 @@ Complete privately in an authorised record, not by putting personal phone number
 
 | Required appointment/decision | Named role / private verified record reference | Evidence/approval | Status |
 |---|---|---|---|
-| Sole trader / legal service-provider identity and trading name | **Operator to supply** | Cross-checked with actual legal/public identity | OPEN |
+| Sole-trader structure / legal service-provider identity / trading name | **Sole trader confirmed; Colzo trading name intended; private legal identity/contact details not supplied or verified** | Confirm sole trader's legally required disclosures, lawful service/correspondence address and accurate public notices | STRUCTURE CONFIRMED; DISCLOSURES OPEN |
 | Geographic correspondence/contact address | **Operator to supply** | Reviewed for publication/privacy and legal requirements | OPEN |
 | Monitored public support email and fallback | **Operator to supply** | Independent inbound, independent reply, monitoring schedule | OPEN |
 | Day-to-day support owner and backup/holiday cover | **Operator to supply** | Written role acceptance, monitored route | OPEN |
