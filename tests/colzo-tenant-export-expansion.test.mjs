@@ -85,3 +85,30 @@ test('unrequested secret columns in new business settings fail closed',async()=>
   const x=reader({overrides:{business_configurations:[{business_id:business,provider_token:'should not be returned'}]}});
   await assert.rejects(collectDraftTenantExport({businessId:business,readPage:x.readPage}),/Tenant export is unavailable or incomplete/);
 });
+
+test('larger fictional lead exports walk all 200-row pages without truncation',async()=>{
+  const x=reader();
+  x.readPage=async ({table,order,offset,limit}) => {
+    x.requests.push({table,order,offset,limit});
+    if (table==='leads') return Array.from({length:Math.max(0,Math.min(limit,421-offset))},(_,i)=>({id:offset+i+1,business_id:business}));
+    if (keyless.has(table)) return [{business_id:business,...(table==='business_feature_entitlements'?{feature_key:'x'}:{})}];
+    return [];
+  };
+  const result=await collectDraftTenantExport({businessId:business,readPage:x.readPage});
+  assert.equal(result.data.leads.length,421);
+  assert.deepEqual(x.requests.filter(r=>r.table==='leads').map(r=>r.offset),[0,200,400]);
+});
+
+test('oversized result pages and silent truncation at table caps are rejected',async()=>{
+  const oversized=reader();
+  oversized.readPage=async ({table})=>table==='leads'?Array.from({length:201},(_,i)=>({id:i+1,business_id:business})):[];
+  await assert.rejects(collectDraftTenantExport({businessId:business,readPage:oversized.readPage}),/unavailable or incomplete/);
+  const overCap=reader();
+  overCap.readPage=async ({table,offset,limit})=>table==='leads'?Array.from({length:Math.min(limit,5001-offset)},(_,i)=>({id:offset+i+1,business_id:business})):[];
+  await assert.rejects(collectDraftTenantExport({businessId:business,readPage:overCap.readPage}),/unavailable or incomplete/);
+});
+
+test('invalid zero primary key in exported customer records fails closed',async()=>{
+  const x=reader({overrides:{leads:[{id:0,business_id:business}]}});
+  await assert.rejects(collectDraftTenantExport({businessId:business,readPage:x.readPage}),/unavailable or incomplete/);
+});
