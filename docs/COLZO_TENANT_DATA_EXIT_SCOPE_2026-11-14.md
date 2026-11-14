@@ -4,7 +4,7 @@
 
 Source: read-only inspection of Development Supabase `mvwseobgkexzpmmkgcxe` via `list_tables(verbose=true)` on 14 November 2026. Only table names and structural business-key categories were used; no customer data or credentials are included. **Reconcile against current live schema before any real tenant-exit rehearsal.**
 
-> **Implementation update (14 November 2026):** The [disabled, explicitly fictional tenant draft export implementation](COLZO_FICTIONAL_TENANT_EXPORT_IMPLEMENTATION_2026-11-14.md) now adds a separate 14-class read-only JSON exporter and inert deletion planner, plus owner/MFA-gated handler and routing. This is a **partial** developer-only export, not a full business return or erasure; no live activation occurred. The **53-table evidence contract below remains separate** and still proves none of the actual end-to-end recovery, Storage, Auth or data-exit gates.
+> **Implementation update (14 November 2026):** The [disabled, explicitly fictional tenant draft export implementation](COLZO_FICTIONAL_TENANT_EXPORT_IMPLEMENTATION_2026-11-14.md) now adds a separate 32-class read-only JSON exporter (with 27 focused local tests verified for the export implementation) and inert deletion planner, plus owner/MFA-gated handler and routing. This is a **partial** developer-only export, not a full business return or erasure; no live activation occurred. The **53-table evidence contract below remains separate** and still proves none of the actual end-to-end recovery, Storage, Auth or data-exit gates.
 
 ## What was actually implemented in this branch
 
