@@ -43,6 +43,10 @@
       "destination": "/api/operations?operation=data-subjects"
     },
     {
+      "source": "/api/tenant-draft-export",
+      "destination": "/api/operations?operation=tenant-draft-export"
+    },
+    {
       "source": "/api/team",
       "destination": "/api/operations?operation=team"
     },
