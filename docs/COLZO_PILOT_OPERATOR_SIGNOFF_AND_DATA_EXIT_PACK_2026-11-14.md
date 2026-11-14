@@ -41,8 +41,8 @@ Complete privately in an authorised record, not by putting personal phone number
 |---|---|---|---|
 | Sole-trader structure / legal service-provider identity / trading name | **Sole trader confirmed; Colzo trading name intended; private legal identity/contact details not supplied or verified** | Confirm sole trader's legally required disclosures, lawful service/correspondence address and accurate public notices | STRUCTURE CONFIRMED; DISCLOSURES OPEN |
 | Geographic correspondence/contact address | **Operator to supply** | Reviewed for publication/privacy and legal requirements | OPEN |
-| Monitored public support email and fallback | **Operator to supply** | Independent inbound, independent reply, monitoring schedule | OPEN |
-| Day-to-day support owner and backup/holiday cover | **Colzo owner/operator has explicitly accepted primary support responsibility (14 November 2026); no personal name published** | Monitoring schedule, independent reply test and backup/holiday cover not yet verified | PRIMARY ACCEPTED; MONITORING/COVER OPEN |
+| Monitored public support email and fallback | **Existing support alias confirmed as receiving; owner/operator agreed morning and evening inbox reviews during the initial pilot (14 November 2026)** | Actual two-check-per-day log, independently observed reply, alternate route and backup cover still not verified | ARRANGEMENT AGREED; OPERATIONAL EVIDENCE OPEN |
+| Day-to-day support owner and backup/holiday cover | **Colzo owner/operator accepted primary support responsibility and two daily checks, morning and evening, during active pilot (14 November 2026); no personal name published** | Actual monitoring activity, response test, holiday/absence cover not yet verified | PRIMARY AND CADENCE AGREED; PRACTICAL VERIFICATION OPEN |
 | Incident commander and substitute | **Colzo owner/operator has explicitly accepted primary incident contact responsibility (14 November 2026)** | Incident escalation/tabletop test and substitute remain unverified | PRIMARY ACCEPTED; EXERCISE/COVER OPEN |
 | Personal-data breach assessment owner | **Operator to supply** | Legal/controller/processor notification decision maker | OPEN |
 | Database/Storage recovery operator and rollback authoriser | **Operator to supply** | Independent restore receipt and credentials kept off repo | OPEN |
@@ -50,7 +50,9 @@ Complete privately in an authorised record, not by putting personal phone number
 | Privacy/DPA/subprocessor document approver | **Operator / adviser to supply** | Source version, effective date and acceptance mechanism | OPEN |
 | Pilot scope, access duration, participants, risk and final GO approver | **Operator to supply** | Signed dated release decision and customer consent | OPEN |
 
-**Operator confirmation received in chat on 14 November 2026:** the Colzo owner/operator accepted the role of **primary pilot support and incident contact**. This records role acceptance only; it does not establish actual monitoring, response capacity, backup cover, incident exercise, breach-notification assessment ownership or public legal contact details. The suggested twice-daily inbox review is **a proposal, not a confirmed operating schedule**. Do not add the operator's name, personal telephone number or home address to this repository.\n\nNo one should infer 24/7 service, a fixed response SLA or a staffed incident team from a functioning email alias. Public response targets must be set to actual capacity.
+**Operator confirmation received in chat on 14 November 2026:** the Colzo owner/operator accepted the role of **primary pilot support and incident contact**. This records role acceptance only; it does not establish actual monitoring, response capacity, backup cover, incident exercise, breach-notification assessment ownership or public legal contact details. The owner/operator **explicitly agreed** to review the support inbox **twice daily—once in the morning and once in the evening—during the initial active pilot**. Exact clock times and a response-time SLA have **not** been specified, and agreed intent is not evidence of checks having been performed. Do not add the operator's name, personal telephone number or home address to this repository.
+
+No one should infer 24/7 service, a fixed response SLA or a staffed incident team from a functioning email alias. Public response targets must be set to actual capacity.
 
 ## C. Support operation — private execution procedure for approval
 
@@ -127,7 +129,7 @@ Avoid unconditional “no contract” claims when a DPA, privacy acceptance or p
 
 - Selected pilot scope: **NOT APPROVED**
 - Operator legal identity and public contact details: **NOT CONFIGURED/NOT VERIFIED**
-- Support primary: **OWNER/OPERATOR ACCEPTED RESPONSIBILITY IN CHAT (14 NOV 2026)**; monitoring frequency, reply evidence and backup/cover: **NOT VERIFIED**
+- Support primary and monitoring cadence: **OWNER/OPERATOR ACCEPTED RESPONSIBILITY AND AGREED TWICE-DAILY MORNING/EVENING CHECKS (14 NOV 2026)**; operational check logs, reply evidence and backup/cover: **NOT VERIFIED**
 - Security, mobile and UI acceptance receipt(s): **OPEN**
 - Real Development full restore receipt and rollback owner: **BLOCKED**
 - Customer data exit/deletion receipt: **BLOCKED**
