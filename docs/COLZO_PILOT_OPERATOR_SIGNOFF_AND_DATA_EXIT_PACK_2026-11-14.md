@@ -85,6 +85,10 @@ Sources for operator/legal review:
 
 ## E. Data request, full tenant exit and deletion acceptance — not yet executable
 
+**14 November code/evidence preflight:** [Full tenant exit schema scope and fail-closed coverage contract](COLZO_TENANT_DATA_EXIT_SCOPE_2026-11-14.md) now inventories 53 public tables, the six special/shared/global relationships, seven external/non-public domains and nine mandatory operating receipts. A pure, non-deleting helper plus seven focused tests were added to PR #77. This does **not** implement the tenant-wide export or deletion, satisfy recovery, prove a live test, or authorise customer-data processing. The downstream gate below is unchanged.
+
+
+
 **Important implementation limit:** existing lead GET is NOT a workspace export; scoped-pilot DELETE intentionally fails closed with HTTP 503. Do not claim `retention_days` is an automatic erasure job. Do not erase any actual Development fixture, shared Auth identity or Storage object simply to fill the receipt.
 
 **Preflight on a separately authorised disposable fictional tenant AFTER sufficient recovery/rollback evidence:**
