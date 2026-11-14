@@ -33,7 +33,7 @@ Before public real-data pilot, obtain approved sole-trader disclosures and busin
 
 Detailed engineering/evidence reference: `docs/COLZO_PILOT_ACCEPTANCE_EVIDENCE_LEDGER_2026-11-14.md` and the latest PR #77 independent Work acceptance report.
 
-## B. Operator and communications decision register — all OPEN until witnessed
+## B. Operator and communications decision register — confirmed primary roles, remaining evidence open
 
 Complete privately in an authorised record, not by putting personal phone numbers, passwords or private residential addresses into GitHub.
 
@@ -42,15 +42,15 @@ Complete privately in an authorised record, not by putting personal phone number
 | Sole-trader structure / legal service-provider identity / trading name | **Sole trader confirmed; Colzo trading name intended; private legal identity/contact details not supplied or verified** | Confirm sole trader's legally required disclosures, lawful service/correspondence address and accurate public notices | STRUCTURE CONFIRMED; DISCLOSURES OPEN |
 | Geographic correspondence/contact address | **Operator to supply** | Reviewed for publication/privacy and legal requirements | OPEN |
 | Monitored public support email and fallback | **Operator to supply** | Independent inbound, independent reply, monitoring schedule | OPEN |
-| Day-to-day support owner and backup/holiday cover | **Operator to supply** | Written role acceptance, monitored route | OPEN |
-| Incident commander and substitute | **Operator to supply** | Written incident/escalation ownership | OPEN |
+| Day-to-day support owner and backup/holiday cover | **Colzo owner/operator has explicitly accepted primary support responsibility (14 November 2026); no personal name published** | Monitoring schedule, independent reply test and backup/holiday cover not yet verified | PRIMARY ACCEPTED; MONITORING/COVER OPEN |
+| Incident commander and substitute | **Colzo owner/operator has explicitly accepted primary incident contact responsibility (14 November 2026)** | Incident escalation/tabletop test and substitute remain unverified | PRIMARY ACCEPTED; EXERCISE/COVER OPEN |
 | Personal-data breach assessment owner | **Operator to supply** | Legal/controller/processor notification decision maker | OPEN |
 | Database/Storage recovery operator and rollback authoriser | **Operator to supply** | Independent restore receipt and credentials kept off repo | OPEN |
 | Tenant data export, retention/hold and deletion authoriser | **Operator to supply** | Verified access, controller instruction and dual-check process | OPEN |
 | Privacy/DPA/subprocessor document approver | **Operator / adviser to supply** | Source version, effective date and acceptance mechanism | OPEN |
 | Pilot scope, access duration, participants, risk and final GO approver | **Operator to supply** | Signed dated release decision and customer consent | OPEN |
 
-No one should infer 24/7 service, a fixed response SLA or a staffed incident team from a functioning email alias. Public response targets must be set to actual capacity.
+**Operator confirmation received in chat on 14 November 2026:** the Colzo owner/operator accepted the role of **primary pilot support and incident contact**. This records role acceptance only; it does not establish actual monitoring, response capacity, backup cover, incident exercise, breach-notification assessment ownership or public legal contact details. The suggested twice-daily inbox review is **a proposal, not a confirmed operating schedule**. Do not add the operator's name, personal telephone number or home address to this repository.\n\nNo one should infer 24/7 service, a fixed response SLA or a staffed incident team from a functioning email alias. Public response targets must be set to actual capacity.
 
 ## C. Support operation — private execution procedure for approval
 
@@ -127,12 +127,12 @@ Avoid unconditional “no contract” claims when a DPA, privacy acceptance or p
 
 - Selected pilot scope: **NOT APPROVED**
 - Operator legal identity and public contact details: **NOT CONFIGURED/NOT VERIFIED**
-- Support primary/cover: **NOT VERIFIED**
+- Support primary: **OWNER/OPERATOR ACCEPTED RESPONSIBILITY IN CHAT (14 NOV 2026)**; monitoring frequency, reply evidence and backup/cover: **NOT VERIFIED**
 - Security, mobile and UI acceptance receipt(s): **OPEN**
 - Real Development full restore receipt and rollback owner: **BLOCKED**
 - Customer data exit/deletion receipt: **BLOCKED**
 - Privacy/DPA/provider legal approval and accepted versions: **OPEN**
 - Participant opt-in + scope/term consent: **NOT OBTAINED**
-- Release decision maker: **NOT ASSIGNED**
+- Release decision maker: **NOT FORMALLY SIGNED OFF** (accepting primary support/incident contact does not constitute release approval)
 - Actual approval date, decision and evidence reference: **NONE**
 - **CURRENT VERDICT: NO-GO**
