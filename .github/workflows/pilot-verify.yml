@@ -86,3 +86,54 @@ jobs:
 
       - name: Verify Pilot
         run: npm run verify
+
+  browser-fixtures:
+    name: Synthetic Chromium browser QA (no accounts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out isolated QA branch
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install temporary Playwright runner
+        run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+      - name: Install Chromium runtime
+        run: npx playwright install --with-deps chromium
+      - name: Build native Colzo app
+        run: npm run build
+      - name: Execute local synthetic browser suites at mobile and desktop widths
+        shell: bash
+        run: |
+          failed=0
+          for suite in colzo-owner-visual colzo-native colzo-workflows colzo-auth colzo-mfa colzo-motion; do
+            echo "::group::Synthetic browser suite: $suite"
+            if timeout 150s npm run "verify:$suite"; then
+              echo "PASS: $suite"
+            else
+              code=$?
+              echo "::error::FAIL: $suite (exit $code)"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$failed"
+      - name: Upload fictional-only browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: colzo-synthetic-chromium-screenshots
+          path: |
+            /tmp/colzo-owner-visual/*.png
+            /tmp/colzo-native-qa/*.png
+            /tmp/colzo-workflows-qa/*.png
+            /tmp/colzo-mfa-qa/*.png
+            /tmp/colzo-motion-qa/*.png
+          if-no-files-found: ignore
+          retention-days: 3
