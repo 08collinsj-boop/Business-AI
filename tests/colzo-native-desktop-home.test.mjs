@@ -197,6 +197,8 @@ test('Review v4 account footer renders only the verified business role and clear
  assert.equal(role.textContent,'Admin','use the authenticated business role, never a hard-coded Owner label');
  link.click();
  assert.equal(f.w.document.querySelector('#colzoOwner').dataset.screen,'more');
+ // The production shell includes this Back-to-Colzo control; the slim fixture must too.
+ const returnControl=f.w.document.createElement('button');returnControl.id='cnReturnToColzo';f.w.document.body.append(returnControl);
  f.w.ColzoOwner.onAuthState('auth-pending');
  assert.equal(role.textContent,'Account settings','clear role immediately when workspace auth is lost');
  f.dom.window.close();
