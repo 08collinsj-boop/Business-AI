@@ -171,3 +171,16 @@ After the 1363×936 browser acceptance tested source `4b7d8ca`, the branch recei
 **Exact W2 prerequisites:** authorised independent second session and private ephemeral instrumentation that reports **redacted HTTP status and expiry metadata only** (no JWT/refresh-token strings, screenshots of secrets, persistent browser storage or PR logs). Privileged session/membership/grant revocation needs separately scoped owner approval. Natural JWT expiry requires real waiting and observation, not a simulated timer or UI logout.
 
 **Unchanged:** no Production, SQL, OAuth, billing, real-customer records, pilot activation, grants, secrets or merge. Chromebook/real-Development-restore step stays deferred, not waived. External pilot remains **NO-GO**.
+
+
+## 15 November — W1 fictional fixture authorisation granted; provisioning blocked by Auth Admin access
+
+The Colzo owner **approved** Development-only creation of the minimum fictional QA identities/temporary grants for Business A admin/member and independent Business B owner with legitimate MFA. This does **not** approve Production/real-customer access, new schema, privileged settings, external pilot activation or a permanent QA grant.
+
+**Execution handoff:** [Approved W1 QA identity fixture procedure](COLZO_DEVELOPMENT_W1_QA_IDENTITIES_APPROVED_2026-11-15.md). Read it before any account, membership, business, or grant mutation.
+
+Independent read-only Supabase project/SQL checks confirmed `mvwseobgkexzpmmkgcxe` active; four QA/test/demo/fictitious-labelled businesses; one currently active grant; one active-grant business with a verified-MFA owner, and zero such active-grant businesses with verified-MFA admin or member. Identity-specific sign-in has **not** yet been performed during this phase. The existing pilot-grant check enforces **exactly 336 hours**; revoke early after QA instead of changing its constraint.
+
+**Actual mutations performed this phase: NONE.** The available Supabase connector lacks the supported Auth Admin create/invite user operation; raw SQL insertion into `auth.users` is not a valid substitute, and independent interactive MFA enrolment is not available here. Use an authorised private operator/Work environment and supported Auth Admin API/dashboard, then record redacted creation, role, grant, AAL2, test and cleanup receipts. Keep W1 **BLOCKED** until all four real sessions and live positive/negative app checks pass.
+
+W2 status-only private harness plus deliberate session/membership/grant revocation needs separately scoped operational permission. W3 exact-device/browser acceptance remains OPEN. Real Development restore stays deferred, not waived. External pilot **NO-GO**.
