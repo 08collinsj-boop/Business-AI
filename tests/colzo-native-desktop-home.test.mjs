@@ -155,3 +155,32 @@ test('QA D01: priority rows provide true record context and a labelled row actio
  row.click();assert.equal(f.w.document.querySelector('#colzoOwner').dataset.screen,'bookings');
  f.dom.window.close();
 });
+
+test('Review v4 desktop sidebar preserves mobile Home and exposes real Knowledge and Workspace AI routes',()=>{
+ const f=fixture({});
+ const nav=f.w.document.querySelector('#colzoOwner .cn-nav');
+ const home=nav.querySelector(':scope > button[data-cn-screen="home"]');
+ assert.equal(home.querySelector('.cn-nav-label-mobile')?.textContent,'Home');
+ assert.equal(home.querySelector('.cn-nav-label-desktop')?.textContent,'Overview');
+ assert.ok(nav.querySelector('.cn-desktop-nav-extra button[data-cn-screen="knowledge"]'));
+ const ai=nav.querySelector('.cn-desktop-nav-extra button[data-cn-screen="receptionist"]');
+ assert.match(ai?.textContent||'',/Workspace AI/);
+ assert.match(desktopCss,/#colzoOwner \.cn-nav-label-desktop\{display:none!important\}/);
+ assert.match(desktopCss,/#colzoOwner \.cn-nav > button\[data-cn-screen="home"\] \.cn-nav-label-desktop\{display:inline!important\}/);
+ f.dom.window.close();
+});
+
+test('Review v4 overview gives honest saved-customer availability and grounded priority chips',()=>{
+ const f=fixture({leads:[{id:1,name:'Fictional customer',status:'New'}]});
+ const home=f.root.querySelector('.cn-home-desktop');
+ const cards=[...home.querySelectorAll('.cn-dash-metric')];
+ assert.deepEqual(cards.map(card=>card.querySelector('span')?.textContent),
+   ['New enquiries','Confirmed today','Actions due','Customers']);
+ assert.equal(cards[3].querySelector('strong')?.textContent,'—','not-yet-loaded saved customers must never display an invented zero');
+ assert.match(cards[3].querySelector('small')?.textContent||'',/Open Customers/);
+ const chips=home.querySelectorAll('.cn-dash-priority-chips > span');
+ assert.equal(chips.length,3);
+ assert.match([...chips].map(chip=>chip.textContent).join(' '),/1 new enquiry/);
+ assert.match(home.querySelector('.cn-dash-viewed-at')?.textContent||'',/Viewed \d{2}:\d{2} UK/);
+ f.dom.window.close();
+});
