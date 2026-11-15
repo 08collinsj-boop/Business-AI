@@ -53,7 +53,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   },db);
   const owner=page.locator('#colzoOwner'),old=page.locator('#dashboardApp');
   // Home booking entry and More Bookings entry must be native.
-  await page.locator('.cn-duo [data-cn-screen="bookings"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="bookings"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await owner.isVisible(),true);assert.equal(await old.isVisible(),false);
   assert.equal(await page.locator('.cn-work-record').count(),1);
