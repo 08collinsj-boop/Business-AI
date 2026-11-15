@@ -89,7 +89,7 @@ jobs:
 
   browser-fixtures:
     name: Synthetic Chromium browser QA (no accounts)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
