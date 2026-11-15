@@ -760,3 +760,27 @@
   #colzoOwner .cn-desktop-account-footer .cn-account-link{display:block!important;width:100%!important;min-height:44px!important;text-align:left!important;color:#d3e0e5!important;padding:10px 9px!important;font-size:12px!important;font-weight:650!important;background:#1a222a!important;border:1px solid #33414a!important;border-radius:10px!important}
 }
 @media(min-width:920px) and (max-width:1099px){#colzoOwner .cn-dash-row-review{font-size:0!important;padding:6px!important}#colzoOwner .cn-dash-row-review:after{content:'Review';font-size:10px}}
+
+/* Review v4 Section 2 targeted parity: real routes, honest summary and mobile preservation. */
+#colzoOwner .cn-nav-label-desktop{display:none!important}
+@media (min-width:1100px){
+  #colzoOwner .cn-nav > button[data-cn-screen="home"] .cn-nav-label-mobile{display:none!important}
+  #colzoOwner .cn-nav > button[data-cn-screen="home"] .cn-nav-label-desktop{display:inline!important}
+}
+@media (min-width:920px){
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-priority-chips{
+    display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+    gap:7px!important;margin:14px 0 11px!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-priority-chips > span{
+    display:inline-flex!important;align-items:center!important;
+    max-width:100%!important;overflow-wrap:anywhere!important;
+    padding:6px 10px!important;border:1px solid #465a3b!important;
+    border-radius:999px!important;background:#253122!important;
+    color:#dbf3c5!important;font-size:11px!important;font-weight:610!important;
+  }
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-dash-viewed-at{
+    display:block!important;color:#a1aea5!important;
+    font-size:11px!important;line-height:1.5!important;
+  }
+}
