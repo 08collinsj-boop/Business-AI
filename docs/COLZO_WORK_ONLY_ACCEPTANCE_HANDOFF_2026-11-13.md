@@ -1,3 +1,54 @@
+## Section 2 independent browser acceptance — 15 November 2026
+
+**External pilot: NO-GO.** Tested application source: `4b7d8ca76e6ed0f62ae114a4b22173666d1828bf`. PR #77 independently rechecked open, draft and unmerged. Browser target: https://business-mv79d1iz4-buisness-ai1.vercel.app/ . Deployment ID `dpl_ES5YvZfdYd9GeXE8RvtV9duAs1s1` and READY/SHA binding are carried from the execution handoff, not independently re-established through Vercel by this browser run. GitHub Actions run 43721528319 independently retrieved: completed/success at the exact tested SHA; 1,926/1,926 is retained from the prior inspected CI log, not recounted here.
+
+### Actual environment and scope
+
+Work cloud Chrome (cdp), desktop viewport **1363×936 CSS px**, DPR 1. Browser version/host OS not independently measured. No supported viewport-setting or device-emulation capability exposed; no mobile/touch/keyboard emulation claimed. Actual sign-in and legitimate authenticator MFA completed through secure credential controls; existing fictional QA owner workspace opened with labelled fictional records. No credential values, OTPs, JWTs or refresh tokens read or exported. Test interval approximately 19:07–19:23 GMT. Final state independently observed: Colzo Welcome back sign-in screen after Sign out.
+
+| Check | Result | Independently observed / limit |
+| --- | --- | --- |
+| Current PR source/draft identity | PASS | Exact head matched 4b7d8ca; draft/unmerged |
+| Protected Preview reachability | PASS, narrow | Actual native Colzo loaded in this browser; no SSO setting changed or bypass performed |
+| Legitimate owner authentication + MFA | PASS | Password transition reached authenticator gate; valid verification opened owner workspace and fictional records |
+| W1 owner own-business read baseline | PASS, narrow | Overview records, 7 saved customers, Actions and Bookings loaded; Team and Knowledge views reachable. No save or foreign-tenant request tested |
+| W1 admin/member + independent Business B | BLOCKED | No authorised active private sessions supplied; previous fixture identities/grants revoked per handoff. No identities, memberships or grants created/renewed |
+| W1 foreign reads/writes, role restrictions and cache/DOM switching matrix | BLOCKED | Needs the missing independent authorised role/tenant sessions; owner-only access is not isolation proof |
+| W2 ordinary UI sign-out | PASS, narrow | Sign out returned to Welcome back. This is not issued-token/refresh invalidation proof |
+| W2 unexpired-token replay and refresh invalidation | BLOCKED | Current browser API permits read-only page evaluation, not private token capture or arbitrary authenticated HTTP replay. No supported replay/request instrumentation exposed; obsolete-host panel deliberately not used |
+| W2 independent revocation / membership / grant removal | BLOCKED | No second authorised session or approval to change membership/grants; no revocation controls exercised |
+| W2 natural JWT expiry | BLOCKED | No non-secret token-expiry metadata or controlled natural-expiry harness exposed. No observed natural expiry; logout not substituted |
+| W3 current available desktop smoke | PASS, narrow | 1363×936 overview: sidebar/account footer, briefing, KPI row and cards visible without obvious overlap; Customers readback; new-action editor fit, initial Title focus and close; new-booking editor opened and closed without save |
+| W3 exact desktop 1440×900 / 1366×768 / 1280×800 / 1024×768 | BLOCKED | Supported viewport-setting unavailable; current 1363×936 is not any requested size |
+| W3 375×812 / 390×844 / 430×932 / tablet, touch, software keyboard, safe areas, cross-device persistence | BLOCKED | No genuine mobile or supported emulator available. No zoom workaround used |
+| W3 approved Stitch desktop parity | FAIL — visible differences | Approved node loaded and screenshot inspected. Current native owner overview still differs as below; not a pixel-matched or complete visual sign-off |
+
+### Refreshed Stitch comparison and defect scope
+
+Approved reference: https://stitch.google.com/preview/9676429605761932306?node-id=66aada51c5544c4583cea9eb7aeddd41 (rendered “Colzo Desktop Overview — Review v4”).
+
+Observed differences at available desktop size: native sidebar uses Home and Business tools, while reference uses Overview and Workspace AI with a Business Knowledge entry; native account footer is a generic Account & settings button rather than named owner/avatar/role; briefing lacks reference priority chips/update time; fourth KPI is Total enquiries rather than Customers; native recent-enquiries/trend content order differs from reference weekly activity/suggested-next-step layout. Data-dependent values and greeting were not treated as defects.
+
+These are retained design-acceptance gaps, not newly proven security defects. No independently reproduced clipping, broken control or narrowly scoped CSS malfunction in the exercised overview/dialogs justified a speculative patch. No code/CSS changes made; no duplicate regression run or redeployment necessary. Do not interpret this as approval of full visual parity.
+
+One screenshot of the **blank new-booking dialog**, with no contact values or open option lists, recorded as redacted evidence. Other screenshots were internal inspection only; no private account/profile screenshot published.
+
+### Preserve earlier accepted scope
+
+QA-001 hidden-DOM containment, earlier D01–D03 and core saved-state workflows retain their original tested scope. The earlier 57 Data API checks and selected revocation tests remain reported historical PASS; not rerun or promoted into current native-app W1/W2 acceptance. Source-level Section 1 success does not replace browser security or full data-exit/recovery acceptance.
+
+### Minimum continuation requirements
+
+1. Privately available, already authorised active fictional Business A owner/admin/member plus independent Business B owner sessions, legitimate MFA and active grants. If unavailable, separately authorise exact Development-only fixture provisioning, expiry and cleanup before any such mutation; none authorised or performed here.
+2. A permitted browser security harness that retains issued tokens only in private ephemeral memory and emits redacted status/expiry results for this exact deployment; separately controlled independent session revocation and any membership/grant mutation.
+3. A real mobile browser or explicitly supported device emulator, plus supported exact desktop viewport control. Continue current-source visual review against the approved node.
+4. Recovery remains deferred at owner direction, not waived. Operational/legal/consent, complete secure tenant data return and release gates remain unresolved. No pilot activation.
+
+No Production/billing/SQL migration/privileged Preview configuration/feature flags/real customer data/ClickUp/assignment activation/deletion/PR merges changed. No accounts or access renewed. Session signed out.
+
+
+---
+
 # Colzo — execution handoff: only external/live acceptance remains
 
 > **14 November operator-readiness handoff:** [Internal operator, incident, privacy/contact and tenant-exit sign-off pack](COLZO_PILOT_OPERATOR_SIGNOFF_AND_DATA_EXIT_PACK_2026-11-14.md) is now prepared for human review. Source inspection confirms current pilot selected-lead-only export, fail-closed scoped-pilot DELETE (503), lifecycle *review settings* rather than automated erasure, and unconfigured public legal identity. This new document is a draft, **not** monitored support, legal approval, customer consent, full data exit or recovery evidence; all those gates remain OPEN/NO-GO. Do not publish or activate based on this packet.\n\n> **14 November reconciliation — read first:** [Current pilot acceptance evidence ledger](COLZO_PILOT_ACCEPTANCE_EVIDENCE_LEDGER_2026-11-14.md) supersedes stale pending statuses below. Operator-reported newer independent Work testing passed **57 live Data API tenant/denied-write checks**, selected unexpired-token/logout, refresh and membership/grant revocation, desktop wrapping retest and **1,879/1,879** regressions at `5d2e7ca` (exact current CI not independently reproduced here). Temporary QA accounts/memberships/grant have been revoked; do **not** silently re-provision or rerun completed API scope. **Still OPEN:** protected native-app two-tenant role acceptance, natural JWT expiry, genuine mobile/full desktop, live ClickUp/assignments, complete isolated backup restore with Auth/Storage and operating/legal consent. Chromebook/USB encrypted DB and 12-object Storage archive integrity/duplicate checks passed; independent restoration **did not**. Read-only Supabase security advisor on 14 Nov reports leaked-password protection disabled (Pro-plan feature); six no-policy RLS tables deny direct anon/auth privileges and are not a demonstrated exposure. **Pilot remains NO-GO. No schema, secrets, Production or billing changes authorised.**
