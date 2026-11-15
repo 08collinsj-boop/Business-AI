@@ -184,3 +184,20 @@ test('Review v4 overview gives honest saved-customer availability and grounded p
  assert.match(home.querySelector('.cn-dash-viewed-at')?.textContent||'',/Viewed \d{2}:\d{2} UK/);
  f.dom.window.close();
 });
+
+test('Review v4 account footer renders only the verified business role and clears it on logout',()=>{
+ const f=fixture({});
+ const link=f.w.document.querySelector('#colzoOwner .cn-desktop-account-footer .cn-account-link');
+ const role=f.w.document.querySelector('#cnDesktopAccountRole');
+ assert.ok(link,'account footer remains a real settings navigation control');
+ assert.ok(role,'role should have a dedicated accessible display');
+ assert.equal(role.textContent,'Account settings','no guessed role before authentication context');
+ f.w.eval('var authenticatedBusinessRole="admin"');
+ f.w.ColzoOwner.render();
+ assert.equal(role.textContent,'Admin','use the authenticated business role, never a hard-coded Owner label');
+ link.click();
+ assert.equal(f.w.document.querySelector('#colzoOwner').dataset.screen,'more');
+ f.w.ColzoOwner.onAuthState('auth-pending');
+ assert.equal(role.textContent,'Account settings','clear role immediately when workspace auth is lost');
+ f.dom.window.close();
+});
