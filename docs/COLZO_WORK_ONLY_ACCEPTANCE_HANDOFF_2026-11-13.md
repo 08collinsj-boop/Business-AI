@@ -151,3 +151,23 @@ The independently tested native runtime remains `4b7d8ca76e6ed0f62ae114a4b221736
 **W3 requirement:** actual supported desktop viewport controls and genuine mobile browser/emulator at specified sizes; retest the new source against the approved Stitch node, role-based menu accessibility, CSS at intermediate sizes and data-independent layout. Account footer/lower content parity remains unfinished.
 
 **Preserved:** Chromebook/real Development restore deferred by owner but remains a mandatory external-pilot recovery gate. Production, live customer data, SQL, support/privacy publication, secrets, grants, external integrations, payments, deletion and pilot activation unchanged. PR #76/#77 draft/unmerged. **External pilot NO-GO.**
+
+
+## 15 Nov 2026 — follow-up desktop account hierarchy correction (unaccepted source)
+
+After the 1363×936 browser acceptance tested source `4b7d8ca`, the branch received separate targeted design changes. The additional account-footer work is complete **only as source edits**, at:
+- `17d9833`: regression test authored first, covering a role display gap and clearing after sign-out.
+- `d00c17b`: neutral account identity panel in the existing `More` navigation route, with a decorative silhouette rather than a fabricated user photo.
+- `90399a2`: display `Owner`, `Admin`, or `Member` from the existing authenticated `authenticatedBusinessRole` only; fall back to `Account settings` where unavailable; immediately clear the role label during native auth teardown.
+- `e288487`: desktop-only responsive footer styling.
+- `e95bf23`: correction to test fixture so the test's auth teardown includes the existing production `cnReturnToColzo` element.
+
+**Verification limits:** GitHub refetch showed these edits on draft/unmerged PR #77 head `e95bf238f111397852c90d55adb9463bc4350e0f`. The native JS parsed successfully using a read-only syntax compile; source/markup/fixture guards were rechecked. GitHub combined status shows Vercel `business-ai` and `business-ai-site` success for this commit. GitHub's PR-triggered Actions-run lookup returned **no runs** for this exact SHA; no executed JSdom assertion, full Node regression count, authenticated page inspection, mobile test or Stitch screenshot comparison is claimed. A Vercel success is not a regression/visual acceptance pass. The prior Work browser PASS remains bound to **its older tested runtime**, not this new code.
+
+**Visual parity still OPEN:** no authenticated personal profile name or image is invented, stored or rendered; the neutral avatar is not a verified identity. The reference's named owner/avatar, activity/weekly/suggested-next-step arrangement and exact-device sizing still need proper source design acceptance and genuine authenticated viewport/browser observation. The monthly enquiry trend must not be relabelled as weekly activity without changing its underlying data/period and tests.
+
+**Exact W1 approval needed before live tests:** privately approve Development-only fictional Business A admin/member and independent Business B owner identities if no already-authorised sessions exist. Specify who can create each user, how MFA is independently enrolled, tenant-role/expiry setup, grant windows, minimum fictional test data, isolated test log, who revokes the access and when. No accounts, membership or grants created/extended under this source correction; owner-only access is not role/tenant acceptance.
+
+**Exact W2 prerequisites:** authorised independent second session and private ephemeral instrumentation that reports **redacted HTTP status and expiry metadata only** (no JWT/refresh-token strings, screenshots of secrets, persistent browser storage or PR logs). Privileged session/membership/grant revocation needs separately scoped owner approval. Natural JWT expiry requires real waiting and observation, not a simulated timer or UI logout.
+
+**Unchanged:** no Production, SQL, OAuth, billing, real-customer records, pilot activation, grants, secrets or merge. Chromebook/real-Development-restore step stays deferred, not waived. External pilot remains **NO-GO**.
