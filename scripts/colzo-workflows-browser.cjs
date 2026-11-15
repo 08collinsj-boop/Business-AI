@@ -57,7 +57,9 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await owner.isVisible(),true);assert.equal(await old.isVisible(),false);
   assert.equal(await page.locator('.cn-work-record').count(),1);
-  assert.equal(await page.locator('.cn-work-calendar .calendar-day').count(),31);
+  const calendarDays=await page.locator('.cn-work-calendar .calendar-day').count();
+  const expectedDays=await page.evaluate(()=>{const now=new Date();return new Date(now.getFullYear(),now.getMonth()+1,0).getDate()});
+  assert.equal(calendarDays,expectedDays,'Calendar displays the actual current month');
   if(width===390)await page.screenshot({path:`${shots}/bookings-${width}.png`,fullPage:false,animations:'disabled'});
   await page.locator('[data-cn-work-tab="Completed"]').click();assert.equal(await page.locator('.cn-work-record').count(),0);
   await page.locator('[data-cn-work-tab="All"]').click();assert.equal(await page.locator('.cn-work-record').count(),1);
