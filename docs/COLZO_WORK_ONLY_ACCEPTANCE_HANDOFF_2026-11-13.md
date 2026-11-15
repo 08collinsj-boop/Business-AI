@@ -131,3 +131,23 @@ No Production/billing/SQL migration/privileged Preview configuration/feature fla
 ## Release rule
 
 **External pilot NO-GO** until chosen pilot scope has real positive and negative cross-tenant role tests, security token and expiry tests, genuine mobile/desktop signoff, independently evidenced recovery and data-exit capability, documented current support/privacy/DPA/consent and explicit operator GO. Do not claim GO solely from CI, READY, an example-data demonstration or a private acceptance prompt.
+
+
+## 15 Nov 2026 — post-W3 source-level Stitch review v4 corrections (not browser acceptance)
+
+The independently tested native runtime remains `4b7d8ca76e6ed0f62ae114a4b22173666d1828bf` (Work cloud Chrome 1363×936). PR #77 has since received unprivileged source-only UI adjustments at commits `7bc71d1`, `72e5b57`, `290eab0`, preceded by RED source-gap regression tests at `e0b77fb`. This is a **new, unaccepted runtime**; earlier PASS results do not automatically extend to the changed UI.
+
+- Large desktop sidebar now renders **Overview** while the existing five mobile tabs retain **Home**; desktop links to the existing native **Business Knowledge** and **Workspace AI** (receptionist) screens, not imaginary services.
+- Native overview fourth KPI is **Customers**, sourced only from an already loaded `colzoRecords.clients` array. It displays **—** and an instruction to check Customers when that record set has not yet been loaded, rather than counting enquiries as customers or showing a false zero. Refreshing/loading saved customers is still driven by the existing Customers route; automatic new background reads were deliberately not introduced.
+- Workspace briefing now has three counts grounded in its existing new enquiry / action due / booking-request calculations, with a fail-closed unavailable label if computation is unavailable. **Viewed HH:mm UK** is explicitly a *page viewing timestamp*, not a claimed synchronisation or data freshness timestamp.
+- Existing account footer still lacks an authenticated display name/avatar/role; the lower recent-enquiries/trend layout still needs approved-reference parity review. No session/user identity data was introduced into untrusted UI. These **remain open design gaps**.
+- Existing native desktop regression file `tests/colzo-native-desktop-home.test.mjs` now asserts the revised route markup and honest KPI/priority rendering. Observed old-source conditions fail the new expectations; current-source 13 direct structural/syntax checks passed, including JavaScript syntax. **Full Node regression tests were not executed at this source head** (no PR-triggered Actions runs were returned), and Vercel Preview READY is a build/deploy status only. No authenticated live post-change screenshots, touch acceptance or exact-viewport results are claimed.
+- Exact post-code Preview observed by Vercel: `business-3k8kfkggq-buisness-ai1.vercel.app`, deployment `dpl_5FVHYNKj8dFa8FogDiJk792u1hsf`, READY, SHA `290eab035eae1957f4cc2c012af13cc324ea0fca`. It is protected and must stay protected; the source handoff has a later documentation-only SHA.
+
+**W1 authorisation request (NOT granted by this handoff):** If privately available authorised fictional identities do not exist, owner must separately approve a Development-only *Business A admin and member, Business B owner* fixture plan, specifying exact existing/new identities, MFA enrolment, tenant membership, grants/expiry and revocation/cleanup. No production real users, secret sharing or grant extension without approval. Existing Business A owner can be reused only while its authorised session/grant is valid. Prove tenant A positive and tenant B negative reads/writes per role.
+
+**W2 harness requirement:** independent legitimate second session; ephemeral, private security-test tooling that never records or exposes token strings, only redacted request statuses/expiry evidence; separate permission for role/grant/session revocation. Natural expiry must be observed independently, not inferred from UI sign-out.
+
+**W3 requirement:** actual supported desktop viewport controls and genuine mobile browser/emulator at specified sizes; retest the new source against the approved Stitch node, role-based menu accessibility, CSS at intermediate sizes and data-independent layout. Account footer/lower content parity remains unfinished.
+
+**Preserved:** Chromebook/real Development restore deferred by owner but remains a mandatory external-pilot recovery gate. Production, live customer data, SQL, support/privacy publication, secrets, grants, external integrations, payments, deletion and pilot activation unchanged. PR #76/#77 draft/unmerged. **External pilot NO-GO.**
