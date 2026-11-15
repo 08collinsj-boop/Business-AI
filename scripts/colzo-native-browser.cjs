@@ -47,7 +47,28 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.equal(await page.locator('#colzoOwner').isVisible(),true,'new owner shell should be visible');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'legacy original must not be rendered on primary Colzo screen');
   assert.equal(await page.locator('.bottom-nav').isVisible(),false,'old five-tab bottom navigation must not appear');
-  assert.equal(await page.locator('.cn-nav button').count(),5);
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen]').count(),5,'Five primary navigation destinations must remain available');
+  // The approved desktop Command Centre replaced the old mobile-only Home cards.
+  // Keep the mobile journey below, but assert the real desktop surface separately.
+  if(w>=920){
+   assert.equal(await page.locator('.cn-home-desktop').isVisible(),true,'Desktop overview must be visible');
+   assert.ok((await page.locator('.cn-dash-intro h1').innerText()).trim().length>0,'Desktop greeting must be rendered');
+   assert.equal(await page.locator('.cn-dash-metric').count(),4,'Desktop metrics must be data-grounded');
+   assert.equal(await page.locator('.cn-dash-briefing').isVisible(),true,'Desktop briefing must be visible');
+   const before=await page.evaluate(()=>({viewport:innerWidth,body:document.documentElement.scrollWidth}));
+   assert.ok(before.body<=w+1,'Desktop overview must not overflow viewport: '+JSON.stringify(before));
+   await page.screenshot({path:`${shots}/native-desktop-home-${w}.png`,fullPage:false});
+   await page.locator('.cn-nav > button[data-cn-screen="bookings"]').click();
+   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
+   await page.locator('.cn-nav > button[data-cn-screen="home"]').click();
+   assert.equal(await page.locator('.cn-home-desktop').isVisible(),true);
+   await page.evaluate(()=>window.ColzoOwner.onAuthState('auth-required'));
+   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Owner workspace must hide on logout');
+   assert.deepEqual(errors,[]);
+   console.log(`${w}x${h}: PASS desktop overview, 4 KPIs, briefing, Bookings navigation and logout (fictional fixtures only)`);
+   await ctx.close();
+   continue;
+  }
   assert.match(await page.locator('#colzoOwner .cf-home-head h1').innerText(),/Good|Welcome/);
   assert.match(await page.locator('.cf-kpis').innerText(),/Enquiries[\s\S]*2/);
   assert.equal(await page.locator('.cf-kpi').count(),3);
