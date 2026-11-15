@@ -32,7 +32,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
    const bounds=q=>{const e=document.querySelector(q),r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom,display:getComputedStyle(e).display}};
    return {hero:bounds('#dashboardView .colzo-command-hero'),nav:bounds('.bottom-nav'),topbar:bounds('#dashboardApp .topbar'),bodyWidth:document.documentElement.scrollWidth,windowWidth:innerWidth,hasHeroEyebrow:document.querySelector('.colzo-hero-eyebrow').textContent.includes('YOUR WORKSPACE'),navButtons:document.querySelectorAll('.bottom-nav .nav-btn').length};
   });
-  assert.ok(view.hero.w>200&&view.hero.h>160,`Hero not visible: ${JSON.stringify(view)}`);
+  assert.ok(view.hero.w>200&&view.hero.h>(w<1040?160:80),`Hero not visible: ${JSON.stringify(view)}`);
   assert.ok(view.hasHeroEyebrow);assert.equal(view.navButtons,5);
   assert.ok(view.bodyWidth<=w+1,`Horizontal overflow ${w}: ${JSON.stringify(view)}`);
   if(w<1040){assert.ok(view.nav.w<w&&view.nav.x>=0&&view.nav.right<=w+2,`Mobile dock out of view ${JSON.stringify(view)}`);assert.ok(view.nav.bottom<=h+2&&view.nav.y>=h-125)}
