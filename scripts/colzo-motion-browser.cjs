@@ -33,6 +33,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
     businessActions=[{id:'fixture-5',title:'Review enquiry',status:'pending',created_at:now}];
     settings={business_name:'Example Electrical'};
     document.body.className='colzo-safe-shell colzo-interface auth-ready';
+    window.ColzoOwner.dashboardLoaded(); // Synthetic records have finished their fixture load.
     window.ColzoOwner.onAuthState('auth-ready');
   });
   if(width<920)await page.addStyleTag({content:'body.auth-ready{height:100dvh;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{height:100dvh;overflow-y:auto;overflow-x:hidden}'});
