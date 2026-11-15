@@ -48,7 +48,9 @@ test('enquiries display a true empty workspace rather than a misleading no-match
 test('logout or session expiry removes an obsolete unsaved overlay',()=>{
  const start=ui.indexOf("const onAuthState=auth=>");
  assert.ok(start>0);
- assert.match(ui.slice(start,start+600),/cn-unsaved-overlay/);
+ const end=ui.indexOf('window.ColzoOwner=',start);
+ assert.ok(end>start,'auth handler end missing');
+ assert.match(ui.slice(start,end),/root\\.querySelector\\('\\.cn-unsaved-overlay'\\)\\?\\.remove\\(\\)/);
 });
 test('multiline form inputs inherit visible keyboard focus styling',()=>{
  assert.match(css,/#colzoOwner textarea:focus-visible/);
