@@ -145,3 +145,8 @@ Avoid unconditional “no contract” claims when a DPA, privacy acceptance or p
 - Release decision maker: **NOT FORMALLY SIGNED OFF** (accepting primary support/incident contact does not constitute release approval)
 - Actual approval date, decision and evidence reference: **NONE**
 - **CURRENT VERDICT: NO-GO**
+
+
+## 15 November 2026 — Section 1 source-only engineering handoff
+
+See [Section 1 engineering closeout](COLZO_SECTION1_ENGINEERING_CLOSEOUT_2026-11-15.md). The staged draft now contains 40 carefully redacted public-table classes and 13 explicitly deferred classes, double-read inconsistency detection (not ACID), bounded reads, a fictional-only audited gzip delivery option and inert deletion review. 47 focused tests and build passed in an isolated runner; full exact-head CI and real-browser acceptance remain separate. The independent Chromebook restore is deferred. Real-data full export/deletion, Storage object bytes, legal/operations signoff and mobile/desktop acceptance remain OPEN. Pilot NO-GO.

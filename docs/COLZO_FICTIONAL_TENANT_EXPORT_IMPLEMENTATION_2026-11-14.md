@@ -57,3 +57,8 @@ The **21 intentionally omitted** public tables remain visible in the JSON `omitt
 5. Implement actual transactional or failure-safe deletion with **separate destructive authority** and isolated fictional test, ensuring no other business/shared Auth records are affected. Approval must not be inferred from enabling draft export.
 
 **No live data was read/exported/deleted, no SQL, grants, secrets, configuration, Production, billing or pilot activation changed as part of this work.** PR #76/#77 stay draft/unmerged. **NO-GO.**
+
+
+## 15 November 2026 source extension (supersedes older numbers)
+
+See [Section 1 engineering handoff](COLZO_SECTION1_ENGINEERING_CLOSEOUT_2026-11-15.md). The original 32 categories above are extended to **40 explicitly redacted categories**; **13 public tables remain deferred for separate review**. Added two-read reconciliation (not a transactional snapshot), bounded API reads, checksum-bearing gzip fictional-only download, inert deletion evidence review and source-level desktop refinements. **47 focused tests and the build passed** in an isolated runner. Old test counts and 32/53 coverage stated above are historical. Full-suite CI and genuine Preview acceptance must be evaluated independently. External pilot NO-GO.

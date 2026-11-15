@@ -25,7 +25,7 @@ test('fictional tenant draft includes only allowlisted fields, and never claims 
  assert.equal(e.snapshot_consistent,false);assert.equal(e.data.leads.length,2);
  assert.equal(e.counts.actions,1);
  assert.ok(e.missing_nonpublic_domains.includes('storage_metadata_and_object_bytes'));
- assert.ok(e.omitted_public_tables.includes('marketing_meta_connections'));
+ assert.ok(e.omitted_public_tables.includes('marketing_meta_oauth_states')); assert.ok(!PREVIEW_DATASETS.marketing_meta_connections.includes('token_ciphertext'));
  assert.equal(x.calls.length,Object.keys(PREVIEW_DATASETS).length);
  assert.ok(x.calls.every(a=>a.businessId===tenant&&a.fields.includes('business_id')&&!a.fields.includes('token_ciphertext')));
 });

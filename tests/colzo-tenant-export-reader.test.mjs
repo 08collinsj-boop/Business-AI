@@ -16,7 +16,7 @@ const fetch0=globalThis.fetch;
 
 test('reader uses stable primary-key ordering for idless and compound tables',async()=>{
   const calls=[];
-  globalThis.fetch=async (url,opts)=>{calls.push({url:new URL(url),opts});return {ok:true,json:async()=>[]};};
+  globalThis.fetch=async (url,opts)=>{calls.push({url:new URL(url),opts});return {ok:true,headers:{get:()=>null},text:async()=>'[]'};};
   try {
     for (const [table,order] of [['business_configurations','business_id.asc'],['business_feature_entitlements','business_id.asc,feature_key.asc'],['lead_handovers','id.asc']]){
       await readDraftExportPage({table,businessId:business,fields:PREVIEW_DATASETS[table],order,offset:0,limit:200},env);
@@ -45,4 +45,19 @@ test('reader rejects unapproved table, extra projected credential, foreign tenan
 
 test('reader remains gated off without exact preview opt-in and fixture ID',async()=>{
   await assert.rejects(readDraftExportPage({table:'leads',businessId:business,fields:PREVIEW_DATASETS.leads,order:'id.asc',offset:0,limit:200},{...env,COLZO_TENANT_EXPORT_PREVIEW_ENABLED:'false'}),/Export unavailable/);
+});
+
+
+test('reader fails closed on oversized or malformed responses and uses 8-second abort deadline',async()=>{
+ const original=globalThis.fetch;
+ const request={table:'leads',businessId:business,fields:PREVIEW_DATASETS.leads,order:'id.asc',offset:0,limit:200};
+ try{
+  globalThis.fetch=async (_url,opts)=>{
+   assert.ok(opts.signal instanceof AbortSignal);
+   return {ok:true,headers:{get:()=> '3000000'},text:async()=>{throw Error('must not read oversized body')}};
+  };
+  await assert.rejects(readDraftExportPage(request,env),/Export unavailable/);
+  globalThis.fetch=async()=>({ok:true,headers:{get:()=>null},text:async()=>'not-json'});
+  await assert.rejects(readDraftExportPage(request,env),/Export unavailable/);
+ }finally{globalThis.fetch=original}
 });

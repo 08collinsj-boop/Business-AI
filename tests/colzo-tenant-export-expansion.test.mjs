@@ -18,7 +18,7 @@ const keyless = new Set([
   'business_configurations', 'business_data_lifecycle_policies',
   'marketing_automation_settings', 'marketing_strategy_settings',
   'business_incident_controls', 'business_referral_profiles',
-  'business_feature_entitlements'
+  'business_feature_entitlements', 'business_memberships', 'business_billing_accounts', 'business_billing_usage'
 ]);
 
 function reader({overrides={}} = {}) {
@@ -28,7 +28,7 @@ function reader({overrides={}} = {}) {
     if (Object.hasOwn(overrides, query.table)) return overrides[query.table];
     if (query.offset > 0) return [];
     if (keyless.has(query.table)) {
-      return [{business_id:business, ...(query.table==='business_feature_entitlements'?{feature_key:'ai_marketing'}:{})}];
+      return [{business_id:business, ...(query.table==='business_feature_entitlements'?{feature_key:'ai_marketing'}:{}), ...(query.table==='business_memberships'?{user_id:'fictional-user'}:{}), ...(query.table==='business_billing_usage'?{period_started_at:'2026-11-01',metric:'test'}:{})}];
     }
     return [{id:1,business_id:business}];
   }
@@ -50,7 +50,7 @@ test('reviewed nonsecret classes are included in a strictly partial export', asy
 
 test('dataset allowlists never select provider secret fields or global/shared identity tables', () => {
   const names = Object.keys(PREVIEW_DATASETS);
-  for (const denied of ['marketing_meta_connections','marketing_social_accounts','stripe_webhook_events','business_billing_accounts','user_legal_acceptances','customer_profiles','customer_enquiry_access','business_audit_events']) {
+  for (const denied of ['marketing_meta_oauth_states','stripe_webhook_events','user_legal_acceptances','customer_profiles','customer_enquiry_access','business_audit_events']) {
     assert.ok(!names.includes(denied), denied);
   }
   const allFields = Object.values(PREVIEW_DATASETS).join(',');
@@ -91,7 +91,7 @@ test('larger fictional lead exports walk all 200-row pages without truncation',a
   x.readPage=async ({table,order,offset,limit}) => {
     x.requests.push({table,order,offset,limit});
     if (table==='leads') return Array.from({length:Math.max(0,Math.min(limit,421-offset))},(_,i)=>({id:offset+i+1,business_id:business}));
-    if (keyless.has(table)) return [{business_id:business,...(table==='business_feature_entitlements'?{feature_key:'x'}:{})}];
+    if (keyless.has(table)) return [{business_id:business,...(table==='business_feature_entitlements'?{feature_key:'x'}:{}),...(table==='business_memberships'?{user_id:'fictional-user'}:{}),...(table==='business_billing_usage'?{period_started_at:'2026-11-01',metric:'test'}:{})}];
     return [];
   };
   const result=await collectDraftTenantExport({businessId:business,readPage:x.readPage});
