@@ -15,6 +15,18 @@ const ACTION_TYPES = new Set([
 const ACTION_STATUSES = new Set(["pending", "completed", "cancelled"]);
 const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
 const TEXT_LIMITS = { title: 200, description: 5000 };
+const validUuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+// The proposed assignee column is NOT installed in Development. Keep this
+// disabled unless an independently backed-up Development Preview is explicitly
+// opted in after the SQL / security gate; Production never enables it.
+function teamAssignmentsEnabled(env = process.env) {
+  return env.COLZO_TEAM_ASSIGNMENTS_ENABLED === "true"
+    && env.TENANCY_AUTH_ENABLED === "true"
+    && env.VERCEL_ENV === "preview"
+    && env.VERCEL_GIT_COMMIT_REF === "feature/colzo-connected-workspace-20261112"
+    && env.SUPABASE_URL === "https://mvwseobgkexzpmmkgcxe.supabase.co";
+}
+
 
 function supabaseUrl(path) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Server configuration unavailable");
@@ -87,8 +99,9 @@ function dateTime(value) {
   return new Date(value).toISOString();
 }
 
-function validateAction(body, creating) {
+function validateAction(body, creating, assignmentEnabled = false) {
   const allowed = new Set(["lead_id", "booking_id", "title", "description", "action_type", "due_at", "priority", "status"]);
+  if (assignmentEnabled) allowed.add("assignee_user_id");
   if (Object.keys(body).some((key) => !allowed.has(key))) throw new Error("Unsupported action fields");
   const updates = {};
   for (const field of ["title", "description"]) {
@@ -120,6 +133,10 @@ function validateAction(body, creating) {
     if (typeof body.status !== "string" || !ACTION_STATUSES.has(body.status)) throw new Error("Invalid action status");
     updates.status = body.status;
   }
+  if (assignmentEnabled && body.assignee_user_id !== undefined) {
+    if (body.assignee_user_id !== null && !validUuid(body.assignee_user_id)) throw new Error("Invalid assignee");
+    updates.assignee_user_id = body.assignee_user_id;
+  }
   if (!creating && Object.keys(updates).length === 0) throw new Error("No changes supplied");
   return updates;
 }
@@ -130,6 +147,16 @@ async function existsForBusiness(table, id, businessId) {
     `${table}?id=eq.${encodeURIComponent(String(id))}&business_id=eq.${encodeURIComponent(String(businessId))}&select=id&limit=1`
   );
   return Array.isArray(rows) && rows.length === 1;
+}
+
+async function hasConfirmedTeamMember(businessId, userId) {
+  if (!validUuid(userId)) return false;
+  const rows = await supabaseRequest(`business_memberships?business_id=eq.${encodeURIComponent(businessId)}&user_id=eq.${encodeURIComponent(userId)}&select=business_id,user_id,role&limit=2`);
+  // Never trust a service-role REST response without independently checking
+  // its business and user provenance, even if the URL was tenant-filtered.
+  return Array.isArray(rows) && rows.length === 1
+    && rows[0]?.business_id === businessId && rows[0]?.user_id === userId
+    && ["owner", "admin", "member"].includes(rows[0]?.role);
 }
 
 async function recordLeadHistory(leadId, businessId, action, oldValue = "", newValue = "") {
@@ -155,10 +182,16 @@ export default async function handler(req, res) {
   try { auth = await requireBusinessMember(req); } catch (error) { return sendAuthError(res, error); }
   if (!auth.enforced) return res.status(503).json({ error: "Actions are not enabled" });
   const businessId = auth.businessId;
+  const assignmentEnabled = teamAssignmentsEnabled();
 
   try {
     if (req.method === "GET") {
+      if (req.query?.scope !== undefined && req.query.scope !== "mine")
+        return res.status(400).json({ error: "Invalid action scope" });
+      if (req.query?.scope === "mine" && !assignmentEnabled)
+        return res.status(503).json({ error: "Individual task assignment is not enabled" });
       const filters = [`business_id=eq.${encodeURIComponent(String(businessId))}`];
+      if (req.query?.scope === "mine") filters.push(`assignee_user_id=eq.${encodeURIComponent(auth.userId)}`);
       for (const field of ["id", "lead_id", "booking_id"]) {
         if (req.query?.[field] !== undefined && !positiveId(req.query[field])) return res.status(400).json({ error: field === "id" ? "Invalid action ID" : field === "lead_id" ? "Invalid lead ID" : "Invalid booking ID" });
       }
@@ -178,8 +211,9 @@ export default async function handler(req, res) {
       const rows = await supabaseRequest(`actions?${filters.join("&")}&select=*&order=due_at.asc.nullslast,created_at.desc`);
       // The service role bypasses tenant RLS. Never trust an anomalous returned
       // representation to override the authenticated tenant in Colzo Preview.
-      if (isColzoRecordVersionEnabled() && (!Array.isArray(rows)
-          || rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId))) {
+      if ((isColzoRecordVersionEnabled() || assignmentEnabled) && (!Array.isArray(rows)
+          || rows.some(row => !row || typeof row !== "object" || Array.isArray(row) || row.business_id !== businessId
+            || (req.query?.scope === "mine" && row.assignee_user_id !== auth.userId)))) {
         throw new Error("Unverified tenant read representation");
       }
       return res.status(200).json(Array.isArray(rows) ? rows : []);
@@ -188,7 +222,17 @@ export default async function handler(req, res) {
     const body = parseBody(req.body);
     if (!body) return res.status(400).json({ error: "Invalid request body" });
     if (req.method === "POST") {
-      const updates = validateAction(body, true);
+      const updates = validateAction(body, true, assignmentEnabled);
+      if (assignmentEnabled) {
+        if (auth.role === "member") {
+          // Staff can create only their own tasks, never tasks for colleagues.
+          if (updates.assignee_user_id !== undefined && updates.assignee_user_id !== auth.userId)
+            return res.status(403).json({ error: "You cannot assign tasks to another user" });
+          updates.assignee_user_id = auth.userId;
+        } else if (updates.assignee_user_id && !await hasConfirmedTeamMember(businessId, updates.assignee_user_id)) {
+          return res.status(403).json({ error: "Assignee is not an active member of this business" });
+        }
+      }
       if (updates.action_type === "request_review") return res.status(400).json({ error: "Review requests are prepared from completed bookings" });
       if (updates.lead_id && !await existsForBusiness("leads", updates.lead_id, businessId)) return res.status(404).json({ error: "Lead not found" });
       if (updates.booking_id && !await existsForBusiness("bookings", updates.booking_id, businessId)) return res.status(404).json({ error: "Booking not found" });
@@ -205,14 +249,25 @@ export default async function handler(req, res) {
 
     const actionId = positiveId(body.id);
     if (!actionId) return res.status(400).json({ error: "Invalid action ID" });
-    const versioned = isColzoRecordVersionEnabled(), expected = body.expected_updated_at;
+    const versioned = isColzoRecordVersionEnabled() || assignmentEnabled, expected = body.expected_updated_at;
     if (versioned && !validWorkVersion(expected)) return res.status(400).json({ error: "Reload the action before saving; expected_updated_at is required" });
-    const updates = validateAction(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false);
+    const updates = validateAction(Object.fromEntries(Object.entries(body).filter(([key]) => key !== "id" && !(versioned && key === "expected_updated_at"))), false, assignmentEnabled);
     const currentRows = await supabaseRequest(
       `actions?id=eq.${encodeURIComponent(String(actionId))}&business_id=eq.${encodeURIComponent(String(businessId))}&select=*&limit=1`
     );
     const current = Array.isArray(currentRows) ? currentRows[0] : null;
     if (!current) return res.status(404).json({ error: "Action not found" });
+    if (assignmentEnabled) {
+      if (current.business_id !== businessId) return res.status(503).json({ error: "Unverified action ownership" });
+      if (auth.role === "member" && (current.assignee_user_id !== auth.userId
+          || Object.keys(updates).some(key => key !== "status")))
+        return res.status(403).json({ error: "You may update only your assigned task status" });
+      if (updates.assignee_user_id !== undefined) {
+        if (!['owner', 'admin'].includes(auth.role)) return res.status(403).json({ error: "You cannot reassign tasks" });
+        if (updates.assignee_user_id && !await hasConfirmedTeamMember(businessId, updates.assignee_user_id))
+          return res.status(403).json({ error: "Assignee is not an active member of this business" });
+      }
+    }
     if (versioned && !validWorkVersion(current.updated_at)) return res.status(503).json({ error: "Action version is unavailable; reload before retrying" });
     if (versioned && current.updated_at !== expected) return res.status(409).json({ error: "This action changed. Your draft has not been saved. Reload before retrying." });
     if (current.action_type === "request_review" && updates.action_type && updates.action_type !== "request_review") {
@@ -229,12 +284,14 @@ export default async function handler(req, res) {
     else if (updates.status && updates.status !== "completed") updates.completed_at = null;
     updates.updated_at = versioned ? nextWorkVersion(expected) : new Date().toISOString();
     const updated = await supabaseRequest(
-      `actions?id=eq.${encodeURIComponent(String(actionId))}&business_id=eq.${encodeURIComponent(String(businessId))}${versioned ? '&updated_at=eq.' + encodeURIComponent(expected) : ''}`,
+      `actions?id=eq.${encodeURIComponent(String(actionId))}&business_id=eq.${encodeURIComponent(String(businessId))}${assignmentEnabled && auth.role === 'member' ? '&assignee_user_id=eq.' + encodeURIComponent(auth.userId) : ''}${versioned ? '&updated_at=eq.' + encodeURIComponent(expected) : ''}`,
       { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(updates) }
     );
     if (Array.isArray(updated) && updated.length === 0) return res.status(409).json({ error: "This record has changed. Reload it before saving." });
     const result = confirmedRecord(updated, businessId, actionId);
     if (!result || !confirmedActionFields(result, updates)) throw new Error("Updated record could not be confirmed");
+    if (assignmentEnabled && auth.role === "member" && result.assignee_user_id !== auth.userId)
+      throw new Error("Updated assignee could not be confirmed");
     if (versioned && (!validWorkVersion(result.updated_at) || !sameWorkVersion(result.updated_at, updates.updated_at))) throw new Error("Updated version could not be confirmed");
     const event = updates.status === "completed" ? "Action completed" : updates.status === "cancelled" ? "Action cancelled" : "Action updated";
     await recordLeadHistory(leadId, businessId, event, current.status || "", result?.status || "");

@@ -38,6 +38,13 @@ test('website integration gives an honest unavailable state instead of returning
  assert.ok(![...f.content().querySelectorAll('button')].some(e=>e.textContent.includes('Website assistant')));
  assert.match(f.content().textContent,/not yet available in Colzo/);f.dom.window.close();
 });
+test('late ClickUp integration status does not render into a closed owner window',async()=>{
+ const f=fixture();
+ f.click('[data-cn-screen="more"]');
+ f.click('[data-cn-setting="integrations"]');
+ f.dom.window.close();
+ await new Promise(resolve=>setImmediate(resolve));
+});
 test('tool search does not duplicate destinations or describe saved quotes as copy-only',()=>{
  const f=fixture();const match=controller.match(/const commandItems=(\[[\s\S]*?\n \]);/);const items=f.w.eval('('+match[1]+')');
  const destinations=items.map(i=>i.screen||i.setting);assert.equal(new Set(destinations).size,destinations.length);

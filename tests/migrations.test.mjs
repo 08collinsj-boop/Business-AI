@@ -64,8 +64,15 @@ test("fresh Dev migration chain has a deterministic tenant-safe order", () => {
     "20261008214725_pilot_protect_marketing_cross_queue_duplicate_slots.sql",
     "20261008215744_pilot_identify_and_block_automatic_marketing_publications.sql",
     "20261010_pilot_free_starter_marketing.sql",
-    "20261019162954_colzo_lead_write_versions.sql"
+    "20261019162954_colzo_lead_write_versions.sql",
+    "20261112013500_add_clickup_connections.sql"
   ]);
+  const clickup = contents.get("20261112013500_add_clickup_connections.sql");
+  assert.match(clickup, /create table if not exists public\.colzo_clickup_oauth_states/i);
+  assert.match(clickup, /create table if not exists public\.colzo_clickup_connections/i);
+  assert.equal((clickup.match(/enable row level security/g) || []).length, 2);
+  assert.match(clickup, /revoke all on public\.colzo_clickup_connections from anon,authenticated/i);
+  assert.match(clickup, /revoke all on public\.colzo_clickup_oauth_states from anon,authenticated/i);
   const baseline = contents.get(names[0]);
   assert.match(baseline, /create table if not exists public\.leads/i);
   assert.match(baseline, /create table if not exists public\.lead_history/i);

@@ -18,6 +18,7 @@ function fixture(response,authUser={id:'owner-1'},authError=null){
   const context={
     window:{location:{origin:'https://pilot.example'},businessAiVerifyProtectedAction:null},
     frontendAuthEnabled:true,
+    privateDataEpoch:0, // Same generation guard provided by the actual page bootstrap.
     supabaseClient:{auth},
     Headers, URL,
     fetch:async()=>{calls.fetches++;return {status:response.status,ok:response.status>=200&&response.status<300,json:async()=>response.body};},

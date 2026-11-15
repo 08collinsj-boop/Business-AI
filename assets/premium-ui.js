@@ -201,7 +201,7 @@
 
   if(!document.querySelector('script[data-business-ai-security]')){
     const securityScript=document.createElement('script');
-    securityScript.src='/assets/security-center.js?v=20261003-security-1';
+    securityScript.src='/assets/security-center.js?v=20261113-preworkspace-mfa-v1';
     securityScript.dataset.businessAiSecurity='true';
     securityScript.async=false;
     document.body.appendChild(securityScript);

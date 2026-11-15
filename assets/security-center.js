@@ -493,6 +493,21 @@
     catch(error){notify(error.message||'Two-step verification is unavailable');return false;}
   };
 
+  // Main workspace bootstrap calls this BEFORE any business-data request.
+  // The existing challenge supports a verified factor or account-only TOTP
+  // enrollment while auth-pending; it never mounts business data in a dialog.
+  window.colzoRequireWorkspaceAal2=async()=>{
+    try{
+      const initial=await mfaSnapshot();
+      if(initial.aal?.currentLevel==='aal2')return true;
+      if(initial.aal?.currentLevel!=='aal1')return false;
+      const accepted=await challengeForAal2({blocking:true,reason:'Your account has two-step verification enabled. Enter your authenticator code to open Colzo.'});
+      if(!accepted)return false;
+      const verified=await mfaSnapshot();
+      return verified.aal?.currentLevel==='aal2';
+    }catch{return false;}
+  };
+
   async function enforceExistingMfa(){
     if(authReadyCheckRunning||!document.body.classList.contains('auth-ready'))return;
     authReadyCheckRunning=true;

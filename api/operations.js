@@ -10,6 +10,7 @@ import knowledgeHandler from '../lib/knowledge-verified-handler.js';
 import auditLogHandler from "../lib/audit-log-handler.js";
 import dataLifecycleHandler from "../lib/data-lifecycle-handler.js";
 import dataSubjectsHandler from "../lib/data-subjects-handler.js";
+import tenantDraftExportHandler from "../lib/colzo-tenant-export-handler.js";
 import healthHandler from "../lib/health-handler.js";
 import teamHandler from "../lib/team-handler.js";
 import handoverHandler from "../lib/handover-handler.js";
@@ -31,6 +32,8 @@ import feedbackHandler from '../lib/feedback-handler.js';
 import incidentControlsHandler from '../lib/incident-controls-handler.js';
 import businessProfileHandler from '../lib/business-profile-handler.js';
 import colzoRecordsHandler from '../lib/colzo-records-handler.js';
+import clickupHandler from '../lib/clickup-handler.js';
+import clickupCallbackHandler from '../lib/clickup-callback-handler.js';
 import { observeOperation } from '../lib/operations-observability.js';
 import { isApprovedSupabaseTarget, isColzoRecordVersionEnabled, restorePreviewAuthToken } from '../lib/public-config-handler.js';
 
@@ -38,6 +41,8 @@ import { isApprovedSupabaseTarget, isColzoRecordVersionEnabled, restorePreviewAu
 // are preserved with rewrites in vercel.json; this dispatcher only combines
 // implementation packaging and does not relax the individual handlers' auth.
 const handlers = Object.freeze({
+  clickup: clickupHandler,
+  "clickup-callback": clickupCallbackHandler,
   leads: leadsHandler,
   pipeline: pipelineHandler,
   settings: settingsHandler,
@@ -45,6 +50,7 @@ const handlers = Object.freeze({
   "audit-log": auditLogHandler,
   "data-lifecycle": dataLifecycleHandler,
   "data-subjects": dataSubjectsHandler,
+  "tenant-draft-export": tenantDraftExportHandler,
   health: healthHandler,
   team: teamHandler,
   handovers: handoverHandler,

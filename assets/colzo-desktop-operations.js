@@ -43,6 +43,14 @@
     return localDateParts(value, zone);
   }
 
+  function attentionDayLabel(isoDay) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(isoDay || ''))) return '';
+    const date = new Date(isoDay + 'T12:00:00Z');
+    return Number.isFinite(date.getTime())
+      ? new Intl.DateTimeFormat('en-GB', {timeZone:'UTC',day:'numeric',month:'short'}).format(date)
+      : '';
+  }
+
   function attention(records, options = {}) {
     const zone = timezone(options.timezone);
     const today = localDateParts(options.now === undefined ? new Date() : options.now, zone)?.day;
@@ -60,6 +68,7 @@
       items.push({
         title: String(action.title || 'Action due'),
         meta: overdue ? 'Overdue action' : 'Due today',
+        context: attentionDayLabel(due.day) ? 'Due ' + attentionDayLabel(due.day) : '',
         route: 'actions',
         rank: overdue ? 0 : 2,
         time: due.timestamp
@@ -67,9 +76,13 @@
     }
     for (const booking of bookings) {
       if (booking?.status !== 'requested') continue;
+      const when = booking.starts_at ? localDateParts(booking.starts_at, zone) : null;
+      const bookingTime = when ? [attentionDayLabel(when.day), when.time].filter(Boolean).join(' · ') : '';
+      const bookingContext = [String(booking.customer_name || '').trim(), bookingTime].filter(Boolean).join(' · ');
       items.push({
         title: String(booking.title || 'Booking request'),
         meta: 'Awaiting confirmation',
+        context: bookingContext,
         route: 'bookings',
         rank: 1,
         time: 0
@@ -82,6 +95,7 @@
       items.push({
         title: String(lead.name || lead.job_type || 'New enquiry'),
         meta: 'New enquiry',
+        context: String(lead.job_type || lead.source_label || '').trim(),
         route: 'leads',
         rank: 3,
         time: 0
@@ -89,7 +103,7 @@
     }
 
     return items.sort((a,b) => a.rank - b.rank || a.time - b.time)
-      .map(({title,meta,route}) => ({title,meta,route}));
+      .map(({title,meta,context,route}) => ({title,meta,context,route}));
   }
 
   function schedule(bookings, options = {}) {

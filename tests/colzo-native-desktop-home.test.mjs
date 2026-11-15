@@ -128,7 +128,7 @@ test('desktop reading order matches the briefing-first reference and keeps quick
  const f=fixture({});
  const desktop=f.root.querySelector('.cn-home-desktop');
  const children=[...desktop.children].map(e=>e.className);
- assert.deepEqual(children,['cn-dash-intro','cn-dash-briefing','cn-dash-metrics','cn-dash-primary-grid','cn-dash-secondary-grid','cn-dash-shortcuts']);
+ assert.deepEqual(children,['cn-dash-intro','cn-dash-briefing','cn-dash-metrics','cn-dash-primary-grid','cn-dash-secondary-grid','cn-dash-connected','cn-dash-shortcuts']);
  f.dom.window.close();
 });
 
@@ -141,5 +141,65 @@ test('desktop priority icons use accessible decorative SVGs and preserve escaped
  assert.equal(desktop.querySelector('[onload]'),null);
  assert.match(row.textContent,/svg onload/);
  for(const icon of desktop.querySelectorAll('.cn-dash-shortcut-grid button > span'))assert.ok(icon.querySelector('svg[aria-hidden="true"]'));
+ f.dom.window.close();
+});
+
+
+test('QA D01: priority rows provide true record context and a labelled row action',()=>{
+ const f=fixture({bookings:[{title:'Site survey',status:'requested',customer_name:'Fictional Buyer',starts_at:'2026-11-16T15:00:00Z'}]});
+ const row=f.root.querySelector('.cn-dash-panel[aria-label="Needs attention"] .cn-dash-row');
+ assert.ok(row);
+ assert.match(row.querySelector('.cn-dash-row-context').textContent,/Fictional Buyer.*16 Nov.*15:00/);
+ assert.match(row.querySelector('.cn-dash-row-review').textContent,/View bookings/);
+ assert.equal(row.dataset.cnScreen,'bookings');
+ row.click();assert.equal(f.w.document.querySelector('#colzoOwner').dataset.screen,'bookings');
+ f.dom.window.close();
+});
+
+test('Review v4 desktop sidebar preserves mobile Home and exposes real Knowledge and Workspace AI routes',()=>{
+ const f=fixture({});
+ const nav=f.w.document.querySelector('#colzoOwner .cn-nav');
+ const home=nav.querySelector(':scope > button[data-cn-screen="home"]');
+ assert.equal(home.querySelector('.cn-nav-label-mobile')?.textContent,'Home');
+ assert.equal(home.querySelector('.cn-nav-label-desktop')?.textContent,'Overview');
+ assert.ok(nav.querySelector('.cn-desktop-nav-extra button[data-cn-screen="knowledge"]'));
+ const ai=nav.querySelector('.cn-desktop-nav-extra button[data-cn-screen="receptionist"]');
+ assert.match(ai?.textContent||'',/Workspace AI/);
+ assert.match(desktopCss,/#colzoOwner \.cn-nav-label-desktop\{display:none!important\}/);
+ assert.match(desktopCss,/#colzoOwner \.cn-nav > button\[data-cn-screen="home"\] \.cn-nav-label-desktop\{display:inline!important\}/);
+ f.dom.window.close();
+});
+
+test('Review v4 overview gives honest saved-customer availability and grounded priority chips',()=>{
+ const f=fixture({leads:[{id:1,name:'Fictional customer',status:'New'}]});
+ const home=f.root.querySelector('.cn-home-desktop');
+ const cards=[...home.querySelectorAll('.cn-dash-metric')];
+ assert.deepEqual(cards.map(card=>card.querySelector('span')?.textContent),
+   ['New enquiries','Confirmed today','Actions due','Customers']);
+ assert.equal(cards[3].querySelector('strong')?.textContent,'—','not-yet-loaded saved customers must never display an invented zero');
+ assert.match(cards[3].querySelector('small')?.textContent||'',/Open Customers/);
+ const chips=home.querySelectorAll('.cn-dash-priority-chips > span');
+ assert.equal(chips.length,3);
+ assert.match([...chips].map(chip=>chip.textContent).join(' '),/1 new enquiry/);
+ assert.match(home.querySelector('.cn-dash-viewed-at')?.textContent||'',/Viewed \d{2}:\d{2} UK/);
+ f.dom.window.close();
+});
+
+test('Review v4 account footer renders only the verified business role and clears it on logout',()=>{
+ const f=fixture({});
+ const link=f.w.document.querySelector('#colzoOwner .cn-desktop-account-footer .cn-account-link');
+ const role=f.w.document.querySelector('#cnDesktopAccountRole');
+ assert.ok(link,'account footer remains a real settings navigation control');
+ assert.ok(role,'role should have a dedicated accessible display');
+ assert.equal(role.textContent,'Account settings','no guessed role before authentication context');
+ f.w.eval('var authenticatedBusinessRole="admin"');
+ f.w.ColzoOwner.render();
+ assert.equal(role.textContent,'Admin','use the authenticated business role, never a hard-coded Owner label');
+ link.click();
+ assert.equal(f.w.document.querySelector('#colzoOwner').dataset.screen,'more');
+ // The production shell includes this Back-to-Colzo control; the slim fixture must too.
+ const returnControl=f.w.document.createElement('button');returnControl.id='cnReturnToColzo';f.w.document.body.append(returnControl);
+ f.w.ColzoOwner.onAuthState('auth-pending');
+ assert.equal(role.textContent,'Account settings','clear role immediately when workspace auth is lost');
  f.dom.window.close();
 });

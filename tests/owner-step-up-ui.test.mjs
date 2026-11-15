@@ -8,7 +8,7 @@ const source = html.slice(html.indexOf('const api=async('), html.indexOf("$('kno
 
 function setup(responses, verified=true) {
   const calls=[]; let challenges=0; let sessions=0;
-  const context=vm.createContext({URL,Headers,frontendAuthEnabled:true,
+  const context=vm.createContext({URL,Headers,frontendAuthEnabled:true,privateDataEpoch:0,
     window:{location:{origin:'https://pilot.example'},businessAiVerifyProtectedAction:async()=>{challenges++;return verified;}},
     supabaseClient:{auth:{getSession:async()=>({data:{session:{access_token:`test-session-${++sessions}`}}})}},
     fetch:async(url,options)=>{calls.push({url,headers:options.headers});const next=responses.shift();return {status:next.status,ok:next.status===200,json:async()=>next.body};}
