@@ -21,7 +21,7 @@ assert.match(scrollRule[1],/overflow-y:\s*auto/);
 assert.match(scrollRule[1],/-webkit-overflow-scrolling:\s*touch/);
 
 async function run(){await sleep(650);const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});try{
- for(const [w,h] of [[375,812],[390,844],[430,932],[1366,768],[1440,900]]){
+ for(const [w,h] of [[375,812],[390,844],[430,932],[1024,768],[1280,800],[1366,768],[1440,900]]){
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:w<600,hasTouch:w<600});
   const page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.stack||e.message));
