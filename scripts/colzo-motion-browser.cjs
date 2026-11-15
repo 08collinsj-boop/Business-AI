@@ -37,7 +37,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   });
   if(width<920)await page.addStyleTag({content:'body.auth-ready{height:100dvh;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{height:100dvh;overflow-y:auto;overflow-x:hidden}'});
   const nav=page.locator('.cn-nav'),root=page.locator('#colzoOwner'),panel=page.locator('#cnContent');
-  assert.equal(await page.locator('.cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen] .cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   await page.screenshot({path:`${dir}/home-${width}.png`,fullPage:false});
   if(width<920){
