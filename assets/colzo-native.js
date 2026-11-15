@@ -61,6 +61,21 @@
   const dueCount=operations?.dueCount?.(actions,options);
   const newCount=enquiries.filter(item=>leadStage(item)==='New').length;
   const requests=bookings.filter(item=>item.status==='requested').length;
+  // Use saved tenant-owned customers only. Until that API resource has been loaded,
+  // display unavailable rather than inventing a customer count from enquiries.
+  const customersReady=Array.isArray(state.colzoRecords.clients);
+  const customerCount=customersReady?state.colzoRecords.clients.length:'—';
+  const customerCaption=customersReady?'Saved customer records':'Open Customers to check';
+  // This is a page-view time, not an unsupported data-sync timestamp.
+  const viewedAt=new Intl.DateTimeFormat('en-GB',{
+    timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).format(options.now);
+  const prioritiesReady=Array.isArray(flagged)&&Array.isArray(schedule)&&Number.isSafeInteger(dueCount);
+  const priorityTags=prioritiesReady
+    ? '<span>'+safe(newCount+' new '+(newCount===1?'enquiry':'enquiries'))+'</span>'+
+      '<span>'+safe(dueCount+' '+(dueCount===1?'action':'actions')+' due')+'</span>'+
+      '<span>'+safe(requests+' booking '+(requests===1?'request':'requests'))+'</span>'
+    : '<span>Priority counts unavailable</span>';
   const phrases=[];
   if(newCount)phrases.push(newCount+' new '+(newCount===1?'enquiry':'enquiries'));
   if(dueCount)phrases.push(dueCount+' '+(dueCount===1?'action':'actions')+' due');
@@ -101,14 +116,14 @@
     <header class="cn-dash-intro"><div><span class="cn-dash-overline">YOUR WORKSPACE / OVERVIEW</span><h1>${safe(greeting())}.</h1><p>${safe(business||'Your business')} · Here's what needs your attention.</p></div><div class="cn-dash-intro-actions"><span class="cn-dash-date">${safe(operations?.dateLabel?.(options)||totalToday())}</span><button type="button" data-cn-launch-work="actions">${desktopIcon('plus')} Add action</button><button type="button" class="cn-dash-create-booking" data-cn-launch-work="bookings">${desktopIcon('bookings')} Create booking</button></div></header>
     <section class="cn-dash-briefing" aria-label="Workspace briefing">
       <div><span class="cn-dash-briefing-title"><span class="cn-dash-spark" aria-hidden="true">${desktopIcon('spark')}</span>Workspace briefing</span>
-      <p>${safe(briefing)}</p><small>Based on current records · Nothing sent or confirmed automatically</small></div>
+      <p>${safe(briefing)}</p><div class="cn-dash-priority-chips" aria-label="Current recorded priorities">${priorityTags}</div><small class="cn-dash-viewed-at">Viewed ${safe(viewedAt)} UK · Based on current records · Nothing sent or confirmed automatically</small></div>
       <button type="button" ${primaryAction.attribute}>${safe(primaryAction.text)} <span aria-hidden="true">${desktopIcon('arrow')}</span></button>
     </section>
     <section class="cn-dash-metrics" aria-label="Recorded business activity">
       ${metric('New enquiries',newCount,'Awaiting first response')}
       ${metric('Confirmed today',Array.isArray(schedule)?schedule.length:'—','Booking requests excluded')}
       ${metric('Actions due',Number.isSafeInteger(dueCount)?dueCount:'—','Today and overdue')}
-      ${metric('Total enquiries',enquiries.length,'All recorded')}
+      ${metric('Customers',customerCount,customerCaption)}
     </section>
     <div class="cn-dash-primary-grid">
       <section class="cn-dash-panel" aria-label="Needs attention"><div class="cn-dash-panel-head"><div><span>PRIORITIES</span><h2>Needs attention</h2></div><small>${safe(attentionLabel)}</small></div><div class="cn-dash-panel-list">${queue}</div><button type="button" class="cn-dash-more" data-cn-screen="actions">Open actions <span aria-hidden="true">${desktopIcon('arrow')}</span></button></section>
