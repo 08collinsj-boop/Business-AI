@@ -50,7 +50,7 @@ test('logout or session expiry removes an obsolete unsaved overlay',()=>{
  assert.ok(start>0);
  const end=ui.indexOf('window.ColzoOwner=',start);
  assert.ok(end>start,'auth handler end missing');
- assert.match(ui.slice(start,end),/root\\.querySelector\\('\\.cn-unsaved-overlay'\\)\\?\\.remove\\(\\)/);
+ assert.match(ui.slice(start,end),/root\.querySelector\('\.cn-unsaved-overlay'\)\?\.remove\(\)/);
 });
 test('multiline form inputs inherit visible keyboard focus styling',()=>{
  assert.match(css,/#colzoOwner textarea:focus-visible/);
