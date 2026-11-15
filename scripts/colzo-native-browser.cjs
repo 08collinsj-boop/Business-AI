@@ -41,6 +41,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    businessActions=[{id:'qa-04',title:'Sample customer follow-up',status:'pending',due_at:'2026-10-18T09:00:00Z'}];
    settings={business_name:'QA Electrical Services'};
    document.body.className='auth-ready colzo-interface colzo-safe-shell';
+   window.ColzoOwner.dashboardLoaded(); // Synthetic records have completed their initial fixture load.
    window.ColzoOwner.onAuthState('auth-ready');
    window.ColzoOwner.render();
   });
