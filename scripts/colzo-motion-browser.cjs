@@ -57,6 +57,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await nav.locator(':scope > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
+  await page.waitForFunction(()=>document.querySelectorAll('.cf-project-card').length===2,{timeout:8000});
   assert.equal(await page.locator('.cf-project-card').count(),2);
   assert.equal(await page.locator('#cnProjectSearch').isVisible(),true,'Native project search is available');
   await page.locator('#cnProjectSearch').fill('Inspection');
