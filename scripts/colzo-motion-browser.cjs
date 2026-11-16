@@ -54,7 +54,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('.cf-lead-card').count(),1);
   assert.equal(await page.locator('#cnSearch').inputValue(),'Fixture');
   await page.screenshot({path:`${dir}/enquiries-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator('[data-cn-screen="more"]').click();
+  await nav.locator(':scope > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   assert.equal(await page.locator('.cf-project-card').count(),2);
@@ -65,7 +65,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnProjectSearch').fill('');
   assert.equal(await page.locator('.cf-project-card').count(),2);
   await page.screenshot({path:`${dir}/projects-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator('[data-cn-screen="more"]').click();
+  await nav.locator(':scope > button[data-cn-screen="more"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.screenshot({path:`${dir}/settings-${width}.png`,fullPage:false,animations:'disabled'});
@@ -95,7 +95,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnCommandResults button[data-cn-screen="actions"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'Native Actions never shows Business AI');
-  await nav.locator('[data-cn-screen="more"]').click();
+  await nav.locator(':scope > button[data-cn-screen="more"]').click();
   await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'Advanced Marketing legacy tools still accessible');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
