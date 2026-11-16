@@ -23,7 +23,7 @@ async function run(role,req,fetcher) {
  const requests=[];
  globalThis.fetch=async(url,options={})=>{
   const value=String(url);requests.push({url:value,options});
-  if(value===DEV+'/auth/v1/user')return new Response(JSON.stringify({id:USER}),{status:200});
+  if(value===DEV+'/auth/v1/user')return new Response(JSON.stringify(req.invalidAuth?{error:'invalid_token'}:{id:USER}),{status:req.invalidAuth?401:200});
   if(value.includes('/rest/v1/business_memberships?'))return new Response(JSON.stringify([{business_id:BUSINESS,role}]),{status:200});
   if(value.includes('/rest/v1/colzo_clickup_connections?')){
    assert.match(value,new RegExp('business_id=eq\\.'+BUSINESS));
@@ -73,6 +73,22 @@ test('member status does not offer privileged task access',async()=>{
  assert.equal(response.body.canViewTasks,false);
  assert.equal(response.body.canManage,false);
 });
+test('forged business selection cannot borrow another tenant’s ClickUp connection',async()=>{
+ const result=await run('owner',{query:{view:'tasks',business_id:OTHER}});
+ assert.equal(result.response.statusCode,200);
+ assert.equal(result.response.body.tasks[0].title,'Site visit');
+ assert.ok(result.requests.filter(r=>r.url.includes('colzo_clickup_connections')).every(r=>
+   new URL(r.url).searchParams.get('business_id')==='eq.'+BUSINESS),
+   'Connection lookups must be scoped to the verified membership, never the requested tenant');
+ assert.ok(result.requests.some(r=>r.url.includes('/api/v2/')),
+   'The only external request uses the verified tenant connection');
+});
+test('invalid identity cannot reach connection storage or the ClickUp provider',async()=>{
+ const result=await run('owner',{invalidAuth:true,query:{view:'tasks',business_id:OTHER}});
+ assert.equal(result.response.statusCode,401);
+ assert.equal(result.requests.some(r=>/colzo_clickup_connections|\/api\/v2\//.test(r.url)),false);
+});
+
 test('member cannot approve or update external tasks',async()=>{
  const {response,requests}=await run('member',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
  assert.equal(response.statusCode,403);
