@@ -11,8 +11,6 @@ permissions:
 
 jobs:
   verify:
-    # The isolated QA branch runs mock-only browser checks; its source regression already passed.
-    if: github.ref_name != 'qa/colzo-playwright-ci-20261115'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
