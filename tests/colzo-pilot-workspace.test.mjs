@@ -118,4 +118,42 @@ test('two independent businesses retain tenant scope and one pilot expiry cannot
  }
  assert.deepEqual(recordReads,[a,b,b]);
 });
+test('misconfigured scoped deployment cannot reach client records even with active-looking grant',async()=>{
+ const handler=(await import('../lib/colzo-records-handler.js')).default;
+ const scenarios=[
+  ['production runtime',{VERCEL_ENV:'production'}],
+  ['other Supabase project',{SUPABASE_URL:'https://unauthorised-fixture.supabase.co'}],
+  ['broad pilot mode',{PILOT_FREE_STARTER_MARKETING:'true'}],
+  ['no tenancy authentication',{TENANCY_AUTH_ENABLED:'false'}]
+ ];
+ for(const [name,overrides] of scenarios){
+  enable();Object.assign(process.env,overrides);
+  for(const method of ['GET','POST']){
+   const calls=backend({rows:[grant()]});
+   const response=res();
+   await handler({
+    method,headers:{authorization:'Bearer '+token('aal2')},
+    query:{resource:'clients',business_id:b},
+    body:{business_id:b,full_name:'Fictional record'}
+   },response);
+   assert.equal(response.statusCode,403,name+' '+method+' must deny access');
+   assert.equal(response.body?.code,'PILOT_ACCESS_REQUIRED',name+' '+method);
+   assert.ok(!calls.some(c=>/colzo_clients/.test(c.href)),name+' '+method+' must not read tenant records');
+   assert.ok(calls.every(c=>c.method==='GET'),name+' '+method+' must not mutate storage');
+  }
+ }
+});
+test('scoped Preview rejects AAL1 before querying business membership or pilot grant',async()=>{
+ enable();
+ const calls=backend({rows:[grant()]});
+ const {requireBusinessMember}=await import('../lib/auth.js');
+ await assert.rejects(
+  ()=>requireBusinessMember({headers:{authorization:'Bearer '+token('aal1')}}),
+  {status:403,code:'MFA_REQUIRED'}
+ );
+ assert.ok(calls.some(c=>c.href.endsWith('/auth/v1/user')),'identity must be verified');
+ assert.ok(!calls.some(c=>/business_memberships|colzo_pilot_access|colzo_clients/.test(c.href)),
+  'AAL1 must not read a membership, grant or workspace record');
+});
+
 test.after(()=>{for(const key of Object.keys(process.env))if(!(key in saved))delete process.env[key];Object.assign(process.env,saved);globalThis.fetch=originalFetch;});
