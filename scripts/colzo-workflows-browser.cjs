@@ -98,12 +98,12 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('[data-cn-work-refresh]').click();
   await page.waitForFunction(()=>[...document.querySelectorAll('.cn-work-record')].some(el=>el.textContent.includes('sample booking')));
   // Native operations should remain accessible from Projects/More.
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   await page.locator('.cf-project-card').first().click();
   assert.equal(await page.locator('.cf-detail-contact h1').innerText(),'Fixture project');
   await page.locator('.cf-screen-top [data-cn-screen="projects"]').click();
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('[data-cn-screen="actions"]').first().click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
   assert.equal(await owner.isVisible(),true);assert.equal(await old.isVisible(),false);
@@ -126,7 +126,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   const actionPatch=calls.find(c=>c.resource==='actions'&&c.method==='PATCH');
   assert.equal(actionPatch.body.id,31);assert.equal(actionPatch.body.status,'completed');
   assert.equal(actionPatch.body.business_id,undefined);
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('#cnContent [data-cn-command]').first().click();
   await page.locator('#cnCommandSearch').fill('Bookings');
   await page.locator('#cnCommandResults [data-cn-screen=bookings]').click();
