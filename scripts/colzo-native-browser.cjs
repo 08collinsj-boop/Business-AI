@@ -93,6 +93,20 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.screenshot({path:`${shots}/native-home-${w}.png`,fullPage:false});
   await page.locator('.cn-nav > button[data-cn-screen="enquiries"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Enquiries');
+  if(w<920){
+   const touch=await page.evaluate(()=>{
+    const names=['.cn-header .cn-wordmark','.cn-header .cn-command-trigger',...Array.from({length:5},(_,i)=>'.cn-nav > button[data-cn-screen]:nth-of-type('+(i+1)+')')];
+    return names.map(selector=>{
+      const el=document.querySelector('#colzoOwner '+selector);
+      if(!el)return {selector,missing:true};
+      const r=el.getBoundingClientRect(),css=getComputedStyle(el);
+      return {selector,width:r.width,height:r.height,visible:css.display!=='none'&&css.visibility!=='hidden'&&r.width>0&&r.height>0};
+    });
+   });
+   const tooSmall=touch.filter(t=>t.visible&&(t.width<44||t.height<44));
+   assert.deepEqual(tooSmall,[],'Mobile primary navigation/command touch targets should be at least 44x44: '+JSON.stringify(touch));
+  }
+
   assert.deepEqual(await page.locator('.cf-tabs button').allTextContents(),['All','New (1)','In Progress (1)','Won (0)']);
   assert.equal(await page.locator('.cn-record').count(),2);
   await page.locator('#cnSearch').fill('Jones');
