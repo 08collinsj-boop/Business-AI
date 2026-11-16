@@ -431,6 +431,12 @@
     background:url('/assets/icons/colzo-mark.svg') left center/28px no-repeat!important;
   }
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav{overflow-y:auto!important;scrollbar-width:thin!important}
+  /* The desktop tools and account footer must not shrink into overlapping
+     regions when the sidebar is taller than the viewport. Let the nav scroll. */
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav > .cn-desktop-nav-extra,
+  body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav > .cn-desktop-account-footer{
+    flex-shrink:0!important;
+  }
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-nav > button[data-cn-screen="more"]{display:none!important}
   body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner .cn-desktop-nav-extra{
     display:flex!important;flex-direction:column!important;
