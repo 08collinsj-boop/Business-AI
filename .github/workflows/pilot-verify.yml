@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Check out repository
@@ -52,7 +52,7 @@ jobs:
           # Embedded Postgres supplies initdb/server, not pg_dump/pg_restore.
           # Use the PostgreSQL Global Development Group's signed Noble APT repository.
           sudo install -d -m 0755 /usr/share/postgresql-common/pgdg
-          curl --fail --silent --show-error --location \
+          curl --fail --silent --show-error --location --retry 3 --retry-all-errors --retry-delay 2 \
             https://www.postgresql.org/media/keys/ACCC4CF8.asc \
             | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
           # APT uses the explicit Signed-By file from the official HTTPS source.
