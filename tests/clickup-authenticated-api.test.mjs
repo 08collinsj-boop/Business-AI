@@ -27,7 +27,7 @@ async function run(role,req,fetcher) {
   if(value.includes('/rest/v1/business_memberships?'))return new Response(JSON.stringify([{business_id:BUSINESS,role}]),{status:200});
   if(value.includes('/rest/v1/colzo_clickup_connections?')){
    assert.match(value,new RegExp('business_id=eq\\.'+BUSINESS));
-   const record={business_id:BUSINESS,connected_by:req.connectionActor==='other'?OTHER:USER,status:'connected',workspace_id:'123',workspace_name:'Demo operations',...encryptClickupToken(TOKEN,BUSINESS,KEY)};
+   const record={business_id:req.connectionBusiness==='foreign'?OTHER:BUSINESS,connected_by:req.connectionActor==='other'?OTHER:USER,status:'connected',workspace_id:'123',workspace_name:'Demo operations',...encryptClickupToken(TOKEN,BUSINESS,KEY)};
    return new Response(JSON.stringify([record]),{status:200});
   }
   if(value.includes('/api/v2/team/123/task')){
@@ -83,6 +83,17 @@ test('forged business selection cannot borrow another tenant’s ClickUp connect
  assert.ok(result.requests.some(r=>r.url.includes('/api/v2/')),
    'The only external request uses the verified tenant connection');
 });
+test('a wrong-business connection row is rejected without leaking workspace metadata or calling ClickUp',async()=>{
+ for(const query of [{},{view:'tasks'},{view:'lists'}]){
+  const {response,requests}=await run('owner',{connectionBusiness:'foreign',query});
+  assert.notEqual(response.statusCode,200,'Foreign connection row must never appear connected');
+  const payload=JSON.stringify(response.body||{});
+  assert.ok(!payload.includes('Demo operations'),'Foreign workspace name must not be exposed');
+  assert.ok(!payload.includes(TOKEN),'Foreign token must not be exposed');
+  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false,'Provider must not be contacted using foreign connection');
+ }
+});
+
 test('invalid identity cannot reach connection storage or the ClickUp provider',async()=>{
  const result=await run('owner',{invalidAuth:true,query:{view:'tasks',business_id:OTHER}});
  assert.equal(result.response.statusCode,401);
