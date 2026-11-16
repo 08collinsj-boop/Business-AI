@@ -83,7 +83,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.match(await page.locator('#cnCommandResults').innerText(),/Marketing/);
   await page.screenshot({path:`${dir}/tool-finder-${width}.png`,fullPage:false,animations:'disabled'});
   await page.keyboard.press('Escape');
-  assert.equal(await page.locator('#cnCommandSheet').isVisible(),false,'Escape closes tool finder');
+  await page.locator('#cnCommandSheet').waitFor({state:'hidden',timeout:5000});
+  assert.equal(await page.locator('#cnCommandSheet').isVisible(),false,'Escape closes tool finder after exit animation');
   await page.keyboard.press('Control+k');
   await page.locator('#cnCommandSearch').fill('clients');
   await page.locator('#cnCommandResults button').click();
