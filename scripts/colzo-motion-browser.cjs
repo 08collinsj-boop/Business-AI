@@ -94,7 +94,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await nav.locator('[data-cn-screen="home"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   if(width<920)assert.ok(await root.evaluate(el=>el.scrollTop)>90,'Home scroll position remembered when switching tabs');
-  const homeFocus=nav.locator('> button[data-cn-screen="home"]');
+  const homeFocus=nav.locator(':scope > button[data-cn-screen="home"]');
   await homeFocus.focus();
   await page.keyboard.press('Control+k');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),true,'Command panel opens from Ctrl+K');
