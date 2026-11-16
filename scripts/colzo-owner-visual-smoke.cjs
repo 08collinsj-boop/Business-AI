@@ -41,11 +41,10 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   await page.screenshot({path:`${out}/home-${w}.png`,fullPage:false});
   // The native application routes remain accessible; only the visual shell
   // changes. Fake records exercise layout without touching a real tenant.
-  await page.evaluate(()=>{
+  // A pending synthetic refresh must not remove the injected row between setup and measurement.
+  const enquiry=await page.evaluate(()=>{
     document.querySelectorAll('#dashboardApp .view').forEach(el=>el.classList.toggle('active',el.id==='leadsView'));
     document.querySelector('#leadList').innerHTML='<article class="lead-card"><h3>Mock customer</h3><p>Example enquiry only</p></article>';
-  });
-  const enquiry=await page.evaluate(()=>{
     const el=document.querySelector('#leadsView .page-title h2');const lead=document.querySelector('#leadList .lead-card');return{title:el.textContent.trim(),visible:lead.getBoundingClientRect().height>0,width:document.documentElement.scrollWidth,color:getComputedStyle(el).color,filterCount:document.querySelectorAll('#leadsView .filter').length};
   });
   assert.equal(enquiry.title,'Enquiries');assert.ok(enquiry.filterCount>=4);assert.ok(enquiry.visible);assert.ok(enquiry.width<=w+1);
