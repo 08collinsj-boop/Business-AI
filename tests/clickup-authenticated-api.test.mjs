@@ -138,6 +138,16 @@ test('only a Colzo owner may disconnect ClickUp; admin/member cannot delete cred
  }
 });
 
+test('Colzo owner can disconnect a business ClickUp connection without exposing provider credentials',async()=>{
+ const {response,requests}=await run('owner',{method:'DELETE',connectionActor:'other'});
+ assert.equal(response.statusCode,200);
+ assert.equal(response.body.connected,false);
+ assert.equal(response.body.confirmed,true);
+ assert.ok(requests.some(r=>r.options.method==='DELETE'&&r.url.includes('/rest/v1/colzo_clickup_connections?')));
+ assert.ok(requests.every(r=>!r.url.includes('/api/v2/')),'Disconnect must not read provider tasks');
+ assert.equal(JSON.stringify(response.body).includes(TOKEN),false);
+});
+
 test('Colzo owner can still disconnect a company ClickUp connection owned by another person without receiving their token',async()=>{
  const {response,requests}=await run('owner',{connectionActor:'other'});
  assert.equal(response.statusCode,200);
