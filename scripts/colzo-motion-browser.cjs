@@ -40,16 +40,22 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   const nav=page.locator('.cn-nav'),root=page.locator('#colzoOwner'),panel=page.locator('#cnContent');
   const openMore=async()=>{
     if(width>=1100){
+      await nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').scrollIntoViewIfNeeded();
       const measure=await page.evaluate(()=>{
-        const nav=document.querySelector('#colzoOwner .cn-nav');
-        const more=nav.querySelector('.cn-desktop-nav-extra button[data-cn-screen="more"]');
-        const footer=nav.querySelector('.cn-desktop-account-footer');
-        const box=el=>{const r=el.getBoundingClientRect();return{x:r.x,y:r.y,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+        const bar=document.querySelector('#colzoOwner .cn-nav');
+        const more=bar.querySelector('.cn-desktop-nav-extra button[data-cn-screen="more"]');
+        const footer=bar.querySelector('.cn-desktop-account-footer');
+        const rect=el=>{const r=el.getBoundingClientRect();return{top:r.top,bottom:r.bottom,height:r.height}};
         const r=more.getBoundingClientRect();
         const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
-        return {width:innerWidth,nav:box(nav),navScrollTop:nav.scrollTop,navScrollHeight:nav.scrollHeight,navClientHeight:nav.clientHeight,more:box(more),footer:box(footer),hit:hit?.getAttribute('aria-label')||hit?.textContent?.trim()?.slice(0,65)||'',footerPosition:getComputedStyle(footer).position,navOverflow:getComputedStyle(nav).overflowY};
+        return {screen:innerWidth,settings:rect(more),footer:rect(footer),
+          scrollHeight:bar.scrollHeight,clientHeight:bar.clientHeight,
+          settingsReceivesPointer:more.contains(hit)};
       });
-      console.log('Synthetic desktop More geometry: '+JSON.stringify(measure));
+      assert.ok(measure.settings.bottom<=measure.footer.top+1,
+        'Desktop sidebar Settings must not overlap account footer: '+JSON.stringify(measure));
+      assert.equal(measure.settingsReceivesPointer,true,
+        'Desktop Settings must receive pointer events after scrolling: '+JSON.stringify(measure));
     }
     return width>=920?nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').click():nav.locator(':scope > button[data-cn-screen="more"]').click();
   };
