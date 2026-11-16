@@ -161,9 +161,9 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   });
   assert.equal(legacy.bodyBg,'rgb(13, 17, 21)',JSON.stringify(legacy));
   assert.equal(legacy.appBg,'rgb(13, 17, 21)',JSON.stringify(legacy));
-  assert.equal(legacy.cardBg,'rgb(32, 39, 45)',JSON.stringify(legacy));
-  assert.equal(legacy.cardBorder,'rgb(54, 64, 71)',JSON.stringify(legacy));
-  assert.equal(legacy.fieldBg,'rgb(36, 44, 51)',JSON.stringify(legacy));
+  assert.equal(legacy.cardBg,'rgb(21, 26, 34)',JSON.stringify(legacy));
+  assert.equal(legacy.cardBorder,'rgb(40, 49, 61)',JSON.stringify(legacy));
+  assert.equal(legacy.fieldBg,'rgb(11, 14, 20)',JSON.stringify(legacy));
   assert.equal(legacy.themeRule,true);
   assert.equal(legacy.legacyVisible,true);
   assert.ok(legacy.scrollWidth<=w+1,'Legacy screen overflows iPhone viewport');
@@ -173,7 +173,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    assert.equal(await page.locator('#'+view+'View').isVisible(),true,`${view} must remain available in Colzo theme`);
    assert.equal(await page.locator('#colzoOwner').isVisible(),false);
    const style=await page.locator('#'+view+'View .card').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor})).catch(()=>null);
-   if(style){assert.equal(style.bg,'rgb(32, 39, 45)');assert.equal(style.border,'rgb(54, 64, 71)');}
+   if(style){assert.equal(style.bg,'rgb(21, 26, 34)');assert.equal(style.border,'rgb(40, 49, 61)');}
    if((view==='marketing'||view==='settings')&&(w===390||w===1366)){
     await page.screenshot({path:`${shots}/legacy-${view}-${w}.png`,fullPage:false});
    }
