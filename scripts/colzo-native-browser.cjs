@@ -95,6 +95,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.deepEqual(await page.locator('.cf-tabs button').allTextContents(),['All','New (1)','In Progress (1)','Won (0)']);
   assert.equal(await page.locator('.cn-record').count(),2);
   await page.locator('#cnSearch').fill('Jones');
+  await page.waitForFunction(()=>document.querySelectorAll('.cn-record').length===1,{timeout:5000});
   assert.equal(await page.locator('.cn-record').count(),1);
   await page.locator('.cn-record').click();
   assert.equal(await page.locator('.cf-detail-contact h1').innerText(),'Mock Jones');
