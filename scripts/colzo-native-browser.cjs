@@ -74,7 +74,8 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   assert.match(await page.locator('.cf-kpis').innerText(),/Enquiries[\s\S]*2/);
   assert.equal(await page.locator('.cf-kpi').count(),3);
   assert.equal(await page.locator('.cf-quick-grid button').count(),4);
-  assert.equal(await page.locator('.cf-trend').count(),1);
+  assert.equal(await page.locator('#cnTrend').count(),1,'The mobile trend chart has one unique ID');
+  assert.equal(await page.locator('#cnTrend').isVisible(),true,'Mobile enquiry trend must be visible');
   // Safari locks body scrolling to keep Business AI's old navigation fixed.
   // Apply that same contract explicitly in Chromium: Colzo must scroll itself.
   if(w<920){
@@ -90,7 +91,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:0,behavior:'instant'}));
   }
   await page.screenshot({path:`${shots}/native-home-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="enquiries"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="enquiries"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Enquiries');
   assert.deepEqual(await page.locator('.cf-tabs button').allTextContents(),['All','New (1)','In Progress (1)','Won (0)']);
   assert.equal(await page.locator('.cn-record').count(),2);
@@ -103,30 +104,30 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.locator('button[data-cn-screen="enquiries"]').first().click();
   await page.locator('#cnSearch').blur();
   await page.screenshot({path:`${shots}/native-enquiries-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Projects');
-  assert.equal(await page.locator('.cn-nav [data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
-  assert.equal(await page.locator('.cn-nav [data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
   await page.waitForFunction(()=>document.querySelectorAll('.cf-project-card').length===2,{timeout:10000});
   assert.equal(await page.locator('.cf-project-card').count(),2);
   assert.match((await page.locator('.cf-project-card').allTextContents()).join(' '),/Sample confirmed visit/);
   assert.match(await page.locator('.cn-stack').innerText(),/Sample confirmed visit/);
   await page.waitForTimeout(120);
   await page.screenshot({path:`${shots}/native-projects-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Settings');
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.locator('.cn-more-links [data-cn-screen="clients"]').click();
   assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
   assert.equal(await page.locator('.cn-stitch-customer').count(),2);
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();
   assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Quotes');
   assert.equal(await page.locator('.cn-record').count(),0,'Empty quotes directory should not fabricate saved quotes');
   assert.match((await page.locator('.cn-caption').allTextContents()).join(' '),/Sending remains a separate workflow/);
   await page.screenshot({path:`${shots}/native-quotes-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   if(w<920){
    await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:99999,behavior:'instant'}));
    const lower=await page.evaluate(()=>{const el=document.querySelector('#colzoOwner');return{top:el.scrollTop,max:el.scrollHeight-el.clientHeight,moreHeading:el.querySelector('.cf-tools-extra h2')?.getBoundingClientRect().top,signout:el.querySelector('.cf-signout')?.getBoundingClientRect().bottom}});
@@ -138,7 +139,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.locator('.cn-more-links [data-cn-screen="bookings"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'native Bookings never opens original UI');
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'advanced Marketing remains accessible');
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Colzo is hidden while editing legacy');
