@@ -94,6 +94,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await nav.locator('[data-cn-screen="home"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   if(width<920)assert.ok(await root.evaluate(el=>el.scrollTop)>90,'Home scroll position remembered when switching tabs');
+  const homeFocus=nav.locator('> button[data-cn-screen="home"]');
+  await homeFocus.focus();
   await page.keyboard.press('Control+k');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),true,'Command panel opens from Ctrl+K');
   assert.equal(await page.locator('#cnCommandSearch').evaluate(el=>document.activeElement===el),true,'Search field focused');
@@ -103,10 +105,27 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnCommandSearch').fill('marketing');
   assert.equal(await page.locator('#cnCommandResults button').count(),1);
   assert.match(await page.locator('#cnCommandResults').innerText(),/Marketing/);
+  await page.locator('#cnCommandSearch').focus();
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await page.locator('#cnCommandResults button').evaluate(el=>document.activeElement===el),true,
+    'ArrowDown moves focus to a command result');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await page.locator('#cnCommandSearch').evaluate(el=>document.activeElement===el),true,
+    'ArrowUp from first result returns focus to search');
+  const finalResult=page.locator('#cnCommandResults button').last();
+  await finalResult.focus();
+  await page.keyboard.press('Tab');
+  assert.equal(await page.locator('#cnCommandSheet .cn-command-scrim').evaluate(el=>document.activeElement===el),true,
+    'Tab must stay inside the modal after the last result');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await finalResult.evaluate(el=>document.activeElement===el),true,
+    'Shift+Tab must wrap back to the final result');
   await page.screenshot({path:`${dir}/tool-finder-${width}.png`,fullPage:false,animations:'disabled'});
   await page.keyboard.press('Escape');
   await page.locator('#cnCommandSheet').waitFor({state:'hidden',timeout:5000});
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false,'Escape closes tool finder after exit animation');
+  assert.equal(await homeFocus.evaluate(el=>document.activeElement===el),true,
+    'Escape returns keyboard focus to the launcher');
   await page.keyboard.press('Control+k');
   await page.locator('#cnCommandSearch').fill('clients');
   assert.equal(await page.locator('#cnCommandResults button[data-cn-screen="clients"]').count(),1,'Clients search must find the Customers directory');
