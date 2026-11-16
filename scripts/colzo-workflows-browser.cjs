@@ -65,6 +65,30 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('[data-cn-work-tab="All"]').click();assert.equal(await page.locator('.cn-work-record').count(),1);
   await page.locator('.cn-work-record [data-cn-work-edit],.cn-work-record[data-cn-work-edit]').first().click();
   assert.equal(await page.locator('#cnWorkDialogTitle').innerText(),'Edit booking');
+  const dialog=page.locator('.cn-work-dialog');
+  assert.equal(await dialog.getAttribute('role'),'dialog','Booking editor must expose dialog role');
+  assert.equal(await dialog.getAttribute('aria-modal'),'true','Booking editor must mark itself modal');
+  assert.equal(await dialog.getAttribute('aria-labelledby'),'cnWorkDialogTitle','Dialog title must be programmatically associated');
+  const unlabeled=await page.locator('#cnWorkForm').evaluate(form=>[...form.querySelectorAll('input,select,textarea')]
+    .filter(el=>el.type!=='hidden'&&!el.closest('label')&&!(el.labels?.length)&&!el.getAttribute('aria-label')&&!el.getAttribute('aria-labelledby'))
+    .map(el=>el.name||el.id||el.tagName));
+  assert.deepEqual(unlabeled,[],'Every booking field must have a programmatic label');
+  const focusable='button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])';
+  await dialog.evaluate((el,selector)=>{
+    const controls=[...el.querySelectorAll(selector)].filter(node=>node.getBoundingClientRect().width>0);
+    controls.at(-1)?.focus();
+  },focusable);
+  await page.keyboard.press('Tab');
+  assert.equal(await dialog.evaluate((el,selector)=>{
+    const controls=[...el.querySelectorAll(selector)].filter(node=>node.getBoundingClientRect().width>0);
+    return controls.length>1 && document.activeElement===controls[0];
+  },focusable),true,'Tab must wrap focus to the start of the modal');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await dialog.evaluate((el,selector)=>{
+    const controls=[...el.querySelectorAll(selector)].filter(node=>node.getBoundingClientRect().width>0);
+    return controls.length>1 && document.activeElement===controls.at(-1);
+  },focusable),true,'Shift+Tab must wrap focus to the final modal control');
+  await page.locator('#cnWorkForm [name=title]').focus();
   assert.equal(await page.locator('#cnWorkForm [name=title]').inputValue(),'Customer survey');
   await page.locator('#cnWorkForm [name=title]').fill('Updated site survey');
   await page.locator('#cnWorkForm [type=submit]').click();
