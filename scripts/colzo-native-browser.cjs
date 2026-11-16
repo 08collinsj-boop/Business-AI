@@ -183,8 +183,31 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   const metrics=await page.evaluate(()=>{const r=document.querySelector('#colzoOwner').getBoundingClientRect();const nav=document.querySelector('.cn-nav').getBoundingClientRect();return{viewport:innerWidth,scroll:document.documentElement.scrollWidth,nav:{x:nav.x,y:nav.y,right:nav.right,bottom:nav.bottom,w:nav.width},rootW:r.width}});
   assert.ok(metrics.scroll<=w+1,`overflow ${w}: ${JSON.stringify(metrics)}`);
   if(w<920){assert.ok(metrics.nav.x>=0&&metrics.nav.right<=w+2&&metrics.nav.bottom<=h+2)}else assert.ok(metrics.nav.w>=190&&metrics.nav.w<=235);
+  // Synthetic private fixture content must be absent from the entire hidden DOM
+  // after session loss, not merely inaccessible from the visible screen.
+  const beforeLogout=await page.locator('#colzoOwner').evaluate(el=>el.textContent||'');
+  assert.ok(beforeLogout.includes('QA Electrical Services'),'Fixture business name must be present before logout');
+  const privateMarkers=['QA Electrical Services','Mock Jones','Sample confirmed visit','Sample customer follow-up'];
   await page.evaluate(()=>window.ColzoOwner.onAuthState('auth-required'));
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'owner content hidden immediately at logout');
+  const afterLogout=await page.locator('#colzoOwner').evaluate(el=>({
+    text:el.textContent||'',privateContentCount:el.querySelector('#cnContent')?.childElementCount||0,
+    commandVisible:!el.querySelector('#cnCommandSheet')?.hidden,
+    oldDialogs:el.querySelectorAll('.cn-unsaved-overlay,.cn-work-dialog-backdrop').length,
+    businessName:el.querySelector('#cnDesktopWorkspaceName')?.textContent||''
+  }));
+  for(const marker of privateMarkers){
+    assert.equal(afterLogout.text.includes(marker),false,
+      'Private fixture marker remained in hidden owner DOM after logout: '+marker);
+  }
+  assert.equal(afterLogout.privateContentCount,0,'Owner content must be cleared, not just hidden');
+  assert.equal(afterLogout.commandVisible,false,'Command finder must stay closed after logout');
+  assert.equal(afterLogout.oldDialogs,0,'Unsaved/work modals must not survive logout');
+  assert.equal(afterLogout.businessName,'Your workspace','Business identity must reset');
+  await page.evaluate(()=>window.ColzoOwner.onAuthState('auth-mfa-required'));
+  const preMfaText=await page.locator('#colzoOwner').evaluate(el=>el.textContent||'');
+  for(const marker of privateMarkers)assert.equal(preMfaText.includes(marker),false,
+    'Private fixture marker reappeared before MFA: '+marker);
   assert.deepEqual(errors,[]);
   console.log(`${w}x${h}: PASS separate native Home, Enquiries/detail, Projects, Clients, Quotes, More, legacy switch, logout and viewport`);
   await ctx.close();
