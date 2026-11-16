@@ -38,7 +38,21 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   });
   if(width<920)await page.addStyleTag({content:'body.auth-ready{height:100dvh;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{height:100dvh;overflow-y:auto;overflow-x:hidden}'});
   const nav=page.locator('.cn-nav'),root=page.locator('#colzoOwner'),panel=page.locator('#cnContent');
-  const openMore=()=>width>=920?nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').click():nav.locator(':scope > button[data-cn-screen="more"]').click();
+  const openMore=async()=>{
+    if(width>=1100){
+      const measure=await page.evaluate(()=>{
+        const nav=document.querySelector('#colzoOwner .cn-nav');
+        const more=nav.querySelector('.cn-desktop-nav-extra button[data-cn-screen="more"]');
+        const footer=nav.querySelector('.cn-desktop-account-footer');
+        const box=el=>{const r=el.getBoundingClientRect();return{x:r.x,y:r.y,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+        const r=more.getBoundingClientRect();
+        const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+        return {width:innerWidth,nav:box(nav),navScrollTop:nav.scrollTop,navScrollHeight:nav.scrollHeight,navClientHeight:nav.clientHeight,more:box(more),footer:box(footer),hit:hit?.getAttribute('aria-label')||hit?.textContent?.trim()?.slice(0,65)||'',footerPosition:getComputedStyle(footer).position,navOverflow:getComputedStyle(nav).overflowY};
+      });
+      console.log('Synthetic desktop More geometry: '+JSON.stringify(measure));
+    }
+    return width>=920?nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').click():nav.locator(':scope > button[data-cn-screen="more"]').click();
+  };
   assert.equal(await page.locator('.cn-nav > button[data-cn-screen] .cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   await page.screenshot({path:`${dir}/home-${width}.png`,fullPage:false});
