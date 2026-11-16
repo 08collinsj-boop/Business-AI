@@ -87,7 +87,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false,'Escape closes tool finder after exit animation');
   await page.keyboard.press('Control+k');
   await page.locator('#cnCommandSearch').fill('clients');
-  await page.locator('#cnCommandResults button').click();
+  assert.equal(await page.locator('#cnCommandResults button[data-cn-screen="clients"]').count(),1,'Clients search must find the Customers directory');
+  await page.locator('#cnCommandResults button[data-cn-screen="clients"]').click();
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
   assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'3');
