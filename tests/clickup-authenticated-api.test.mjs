@@ -127,6 +127,17 @@ test("a Colzo admin cannot inherit a different ClickUp account owner's OAuth tas
  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
 });
 
+test('only a Colzo owner may disconnect ClickUp; admin/member cannot delete credentials',async()=>{
+ for(const role of ['admin','member']){
+  const {response,requests}=await run(role,{method:'DELETE',connectionActor:'other'});
+  assert.equal(response.statusCode,403,role+' must not disconnect a company ClickUp connection');
+  assert.equal(requests.some(r=>r.options.method==='DELETE'),false,
+    role+' must not delete OAuth connection storage');
+  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false,
+    role+' must not invoke the ClickUp provider');
+ }
+});
+
 test('Colzo owner can still disconnect a company ClickUp connection owned by another person without receiving their token',async()=>{
  const {response,requests}=await run('owner',{connectionActor:'other'});
  assert.equal(response.statusCode,200);
