@@ -38,6 +38,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   });
   if(width<920)await page.addStyleTag({content:'body.auth-ready{height:100dvh;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{height:100dvh;overflow-y:auto;overflow-x:hidden}'});
   const nav=page.locator('.cn-nav'),root=page.locator('#colzoOwner'),panel=page.locator('#cnContent');
+  const openMore=()=>width>=920?nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').click():nav.locator(':scope > button[data-cn-screen="more"]').click();
   assert.equal(await page.locator('.cn-nav > button[data-cn-screen] .cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   await page.screenshot({path:`${dir}/home-${width}.png`,fullPage:false});
@@ -54,8 +55,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('.cf-lead-card').count(),1);
   assert.equal(await page.locator('#cnSearch').inputValue(),'Fixture');
   await page.screenshot({path:`${dir}/enquiries-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator(':scope > button[data-cn-screen="more"]').click();
-  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
+  if(width>=920)await nav.locator('.cn-desktop-nav-extra button[data-cn-screen="projects"]').click();
+  else {await openMore();await page.locator('.cn-more-links [data-cn-screen="projects"]').click();}
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   await page.waitForFunction(()=>document.querySelectorAll('.cf-project-card').length===2,{timeout:8000});
   assert.equal(await page.locator('.cf-project-card').count(),2);
@@ -66,7 +67,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnProjectSearch').fill('');
   assert.equal(await page.locator('.cf-project-card').count(),2);
   await page.screenshot({path:`${dir}/projects-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator(':scope > button[data-cn-screen="more"]').click();
+  await openMore();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.screenshot({path:`${dir}/settings-${width}.png`,fullPage:false,animations:'disabled'});
@@ -98,7 +99,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnCommandResults button[data-cn-screen="actions"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'Native Actions never shows Business AI');
-  await nav.locator(':scope > button[data-cn-screen="more"]').click();
+  await openMore();
   await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'Advanced Marketing legacy tools still accessible');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
