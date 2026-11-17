@@ -88,6 +88,11 @@ if (siteProject && isVercelBuild) {
   if (process.env.VERCEL_ENV === 'preview'
       && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-fictional-cross-app-demo-20261117') {
     await cp('demo/connected-workflow', 'public/demo/connected-workflow', {recursive:true});
+    // Enable only a plainly disclosed link in the REAL authenticated Work Hub.
+    // No provider is registered, activated or granted permissions.
+    const appHtml = await readFile('public/index.html','utf8');
+    await writeFile('public/index.html',appHtml.replace('</head>',
+      '<script>window.colzoFictionalDemoEnabled=true;</script></head>'));
   }
   // Explicit, protected Development acceptance screen; never attach to Production.
   if (process.env.VERCEL_ENV === 'preview'
