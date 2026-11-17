@@ -54,7 +54,10 @@ test("Development Preview refuses missing or mismatched auth and pilot flags bef
     ["pilot set but tenancy absent", { COLZO_SCOPED_PILOT_ACCESS: "true" }],
     ["tenancy disabled", { TENANCY_AUTH_ENABLED: "false", COLZO_SCOPED_PILOT_ACCESS: "true" }],
     ["pilot disabled", { TENANCY_AUTH_ENABLED: "true", COLZO_SCOPED_PILOT_ACCESS: "false" }],
-    ["flags incorrect case", { TENANCY_AUTH_ENABLED: "TRUE", COLZO_SCOPED_PILOT_ACCESS: "TRUE" }]
+    ["flags incorrect case", { TENANCY_AUTH_ENABLED: "TRUE", COLZO_SCOPED_PILOT_ACCESS: "TRUE" }],
+    ["protected branch wrong target", { SUPABASE_URL: "https://wrong-fixture.supabase.co" }],
+    ["protected branch missing target", { SUPABASE_URL: "" }],
+    ["stacked QA branch missing flags", { VERCEL_GIT_COMMIT_REF: "qa/colzo-playwright-ci-20261115" }]
   ];
   for (const [name, overrides] of scenarios) {
     const requests = configure(overrides);
@@ -64,6 +67,15 @@ test("Development Preview refuses missing or mismatched auth and pilot flags bef
     }
     assert.equal(requests(), 0, name + ": must not contact Auth or tenant storage");
   }
+});
+
+test("missing Git ref cannot bypass Development-target guard", async () => {
+  const requests = configure({});
+  delete process.env.VERCEL_GIT_COMMIT_REF;
+  for (const [name, guard] of guards) {
+    await assert.rejects(guard, { status: 403, code: "PILOT_ACCESS_REQUIRED" }, name);
+  }
+  assert.equal(requests(), 0);
 });
 
 test("correctly configured Development Preview still demands genuine credentials", async () => {
@@ -85,7 +97,7 @@ test("other environments keep their previously explicit legacy configuration", a
   const scenarios = [
     ["production", { VERCEL_ENV: "production" }],
     ["local", { VERCEL_ENV: "development" }],
-    ["another project", { SUPABASE_URL: "https://other-fixture.supabase.co" }],
+    ["another project on an unrelated branch", { SUPABASE_URL: "https://other-fixture.supabase.co", VERCEL_GIT_COMMIT_REF: "feature/unrelated-fixture" }],
     ["another branch", { VERCEL_GIT_COMMIT_REF: "feature/unrelated-fixture" }]
   ];
   for (const [name, overrides] of scenarios) {
