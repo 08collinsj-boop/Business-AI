@@ -19,7 +19,8 @@
     "verify": "npm test && npm run verify:local",
     "load:smoke": "node scripts/load-smoke.mjs",
     "build": "node scripts/build-colzo-react.mjs",
-    "pretest": "npm run build"
+    "pretest": "npm run build",
+    "verify:colzo-cross-app-demo": "node scripts/colzo-cross-app-demo-browser.cjs"
   },
   "dependencies": {
     "qrcode": "1.5.4",
