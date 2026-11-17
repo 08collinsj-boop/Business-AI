@@ -13,6 +13,7 @@ const baseline = { ...process.env };
 const originalFetch = globalThis.fetch;
 const keys = [
   "VERCEL_ENV",
+  "VERCEL_GIT_COMMIT_REF",
   "SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
   "TENANCY_AUTH_ENABLED",
@@ -25,6 +26,7 @@ function configure(overrides = {}) {
   for (const key of keys) delete process.env[key];
   Object.assign(process.env, {
     VERCEL_ENV: "preview",
+    VERCEL_GIT_COMMIT_REF: "feature/colzo-connected-workspace-20261112",
     SUPABASE_URL: "https://mvwseobgkexzpmmkgcxe.supabase.co",
     SUPABASE_SERVICE_ROLE_KEY: "fictional-test-only",
     PILOT_FREE_STARTER_MARKETING: "false",
@@ -83,7 +85,8 @@ test("other environments keep their previously explicit legacy configuration", a
   const scenarios = [
     ["production", { VERCEL_ENV: "production" }],
     ["local", { VERCEL_ENV: "development" }],
-    ["another project", { SUPABASE_URL: "https://other-fixture.supabase.co" }]
+    ["another project", { SUPABASE_URL: "https://other-fixture.supabase.co" }],
+    ["another branch", { VERCEL_GIT_COMMIT_REF: "feature/unrelated-fixture" }]
   ];
   for (const [name, overrides] of scenarios) {
     const requests = configure(overrides);
