@@ -33,11 +33,33 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
     businessActions=[{id:'fixture-5',title:'Review enquiry',status:'pending',created_at:now}];
     settings={business_name:'Example Electrical'};
     document.body.className='colzo-safe-shell colzo-interface auth-ready';
+    window.ColzoOwner.dashboardLoaded(); // Synthetic records have finished their fixture load.
     window.ColzoOwner.onAuthState('auth-ready');
   });
   if(width<920)await page.addStyleTag({content:'body.auth-ready{height:100dvh;overflow:hidden}body.colzo-owner-enabled.auth-ready:not(.colzo-legacy-mode) #colzoOwner{height:100dvh;overflow-y:auto;overflow-x:hidden}'});
   const nav=page.locator('.cn-nav'),root=page.locator('#colzoOwner'),panel=page.locator('#cnContent');
-  assert.equal(await page.locator('.cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
+  const openMore=async()=>{
+    if(width>=1100){
+      await nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').scrollIntoViewIfNeeded();
+      const measure=await page.evaluate(()=>{
+        const bar=document.querySelector('#colzoOwner .cn-nav');
+        const more=bar.querySelector('.cn-desktop-nav-extra button[data-cn-screen="more"]');
+        const footer=bar.querySelector('.cn-desktop-account-footer');
+        const rect=el=>{const r=el.getBoundingClientRect();return{top:r.top,bottom:r.bottom,height:r.height}};
+        const r=more.getBoundingClientRect();
+        const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+        return {screen:innerWidth,settings:rect(more),footer:rect(footer),
+          scrollHeight:bar.scrollHeight,clientHeight:bar.clientHeight,
+          settingsReceivesPointer:more.contains(hit)};
+      });
+      assert.ok(measure.settings.bottom<=measure.footer.top+1,
+        'Desktop sidebar Settings must not overlap account footer: '+JSON.stringify(measure));
+      assert.equal(measure.settingsReceivesPointer,true,
+        'Desktop Settings must receive pointer events after scrolling: '+JSON.stringify(measure));
+    }
+    return width>=920?nav.locator('.cn-desktop-nav-extra button[data-cn-screen="more"]').click():nav.locator(':scope > button[data-cn-screen="more"]').click();
+  };
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen] .cn-navicon svg').count(),5,'Five crisp SVG navigation icons');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   await page.screenshot({path:`${dir}/home-${width}.png`,fullPage:false});
   if(width<920){
@@ -53,9 +75,10 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   assert.equal(await page.locator('.cf-lead-card').count(),1);
   assert.equal(await page.locator('#cnSearch').inputValue(),'Fixture');
   await page.screenshot({path:`${dir}/enquiries-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator('[data-cn-screen="more"]').click();
-  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
+  if(width>=920)await nav.locator('.cn-desktop-nav-extra button[data-cn-screen="projects"]').click();
+  else {await openMore();await page.locator('.cn-more-links [data-cn-screen="projects"]').click();}
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
+  await page.waitForFunction(()=>document.querySelectorAll('.cf-project-card').length===2,{timeout:8000});
   assert.equal(await page.locator('.cf-project-card').count(),2);
   assert.equal(await page.locator('#cnProjectSearch').isVisible(),true,'Native project search is available');
   await page.locator('#cnProjectSearch').fill('Inspection');
@@ -64,13 +87,15 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnProjectSearch').fill('');
   assert.equal(await page.locator('.cf-project-card').count(),2);
   await page.screenshot({path:`${dir}/projects-${width}.png`,fullPage:false,animations:'disabled'});
-  await nav.locator('[data-cn-screen="more"]').click();
+  await openMore();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'4');
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.screenshot({path:`${dir}/settings-${width}.png`,fullPage:false,animations:'disabled'});
   await nav.locator('[data-cn-screen="home"]').click();
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'0');
   if(width<920)assert.ok(await root.evaluate(el=>el.scrollTop)>90,'Home scroll position remembered when switching tabs');
+  const homeFocus=nav.locator(':scope > button[data-cn-screen="home"]');
+  await homeFocus.focus();
   await page.keyboard.press('Control+k');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),true,'Command panel opens from Ctrl+K');
   assert.equal(await page.locator('#cnCommandSearch').evaluate(el=>document.activeElement===el),true,'Search field focused');
@@ -80,12 +105,31 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnCommandSearch').fill('marketing');
   assert.equal(await page.locator('#cnCommandResults button').count(),1);
   assert.match(await page.locator('#cnCommandResults').innerText(),/Marketing/);
+  await page.locator('#cnCommandSearch').focus();
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await page.locator('#cnCommandResults button').evaluate(el=>document.activeElement===el),true,
+    'ArrowDown moves focus to a command result');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await page.locator('#cnCommandSearch').evaluate(el=>document.activeElement===el),true,
+    'ArrowUp from first result returns focus to search');
+  const finalResult=page.locator('#cnCommandResults button').last();
+  await finalResult.focus();
+  await page.keyboard.press('Tab');
+  assert.equal(await page.locator('#cnCommandSheet .cn-command-scrim').evaluate(el=>document.activeElement===el),true,
+    'Tab must stay inside the modal after the last result');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await finalResult.evaluate(el=>document.activeElement===el),true,
+    'Shift+Tab must wrap back to the final result');
   await page.screenshot({path:`${dir}/tool-finder-${width}.png`,fullPage:false,animations:'disabled'});
   await page.keyboard.press('Escape');
-  assert.equal(await page.locator('#cnCommandSheet').isVisible(),false,'Escape closes tool finder');
+  await page.locator('#cnCommandSheet').waitFor({state:'hidden',timeout:5000});
+  assert.equal(await page.locator('#cnCommandSheet').isVisible(),false,'Escape closes tool finder after exit animation');
+  assert.equal(await homeFocus.evaluate(el=>document.activeElement===el),true,
+    'Escape returns keyboard focus to the launcher');
   await page.keyboard.press('Control+k');
   await page.locator('#cnCommandSearch').fill('clients');
-  await page.locator('#cnCommandResults button').click();
+  assert.equal(await page.locator('#cnCommandResults button[data-cn-screen="clients"]').count(),1,'Clients search must find the Customers directory');
+  await page.locator('#cnCommandResults button[data-cn-screen="clients"]').click();
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);
   assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
   assert.equal(await root.evaluate(el=>el.style.getPropertyValue('--cn-active-index')),'3');
@@ -94,7 +138,7 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('#cnCommandResults button[data-cn-screen="actions"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'Native Actions never shows Business AI');
-  await nav.locator('[data-cn-screen="more"]').click();
+  await openMore();
   await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'Advanced Marketing legacy tools still accessible');
   assert.equal(await page.locator('#cnCommandSheet').isVisible(),false);

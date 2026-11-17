@@ -19,5 +19,13 @@ export function withoutScopedPilotGuards(source) {
   const workspaceMfaAddition="  // The scoped Development workspace must not load records behind an MFA\n  // dialog using an AAL1 session. Identity/recovery endpoints stay available.\n  if (process.env.COLZO_SCOPED_PILOT_ACCESS === \"true\"\n      && process.env.VERCEL_ENV === \"preview\"\n      && process.env.SUPABASE_URL === \"https://mvwseobgkexzpmmkgcxe.supabase.co\") {\n    const claims = parseVerifiedJwtClaims(extractBearerToken(req));\n    if (claims?.aal !== \"aal2\") {\n      throw safeError(403, \"Multi-factor authentication is required\", \"MFA_REQUIRED\");\n    }\n  }\n\n";
   assert.equal(source.split(workspaceMfaAddition).length,2);
   source=source.replace(workspaceMfaAddition,'');
+  // Exact additive Dev-Preview misconfiguration denial. Preserve the
+  // frozen reviewed authentication fingerprint outside these scoped changes.
+  const qaPreviewGuard="// This isolated Development QA stack must never inherit legacy/unscoped\n// access if branch-specific auth settings are missing. The explicit Preview,\n// Dev project and Git-ref boundaries leave Production and unrelated branches\n// on their existing configuration until a separately approved rollout.\nfunction assertProtectedDevelopmentPreviewConfigured(env = process.env) {\n  const ref = env.VERCEL_GIT_COMMIT_REF;\n  const stack = new Set([\n    \"feature/colzo-connected-workspace-20261112\",\n    \"fix/colzo-unsaved-overlay-ci-20261115\",\n    \"qa/colzo-playwright-ci-20261115\"\n  ]);\n  const expectedTarget = \"https://mvwseobgkexzpmmkgcxe.supabase.co\";\n  const actualTarget = String(env.SUPABASE_URL || \"\").replace(/\\/+$/, \"\");\n  // Real Vercel deployments expose VERCEL=1 and the Git ref. Legacy\n  // synthetic fixtures must not impersonate the protected deployed runtime.\n  if (env.VERCEL !== \"1\" || env.VERCEL_ENV !== \"preview\" || !stack.has(ref)) return;\n\n  if (actualTarget !== expectedTarget\n      || env.TENANCY_AUTH_ENABLED !== \"true\"\n      || env.COLZO_SCOPED_PILOT_ACCESS !== \"true\") {\n    throw safeError(403, \"An active approved pilot is required\", \"PILOT_ACCESS_REQUIRED\");\n  }\n}\n\n";
+  assert.equal(source.split(qaPreviewGuard).length,2);
+  source=source.replace(qaPreviewGuard,'');
+  const qaGuardCall="  assertProtectedDevelopmentPreviewConfigured();\n";
+  assert.equal(source.split(qaGuardCall).length,4);
+  source=source.replaceAll(qaGuardCall,'');
   return source;
 }

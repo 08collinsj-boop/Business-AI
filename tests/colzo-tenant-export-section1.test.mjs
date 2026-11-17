@@ -72,6 +72,21 @@ test('package rejects forged completeness and unexpected provider token',async()
  assert.throws(()=>buildFictionalDraftPackage(forged),/unavailable/);
 });
 
+test('fictional gzip refuses extra top-level secrets and forged data-exit completeness evidence',async()=>{
+ const genuine=await fixture();
+ for(const tampered of [
+  {...genuine,oauth_secret:'should-never-be-in-download'},
+  {...genuine,omitted_public_tables:[]},
+  {...genuine,missing_nonpublic_domains:[]},
+  {...genuine,requires_independent_recovery:false},
+  {...genuine,reconciliation_method:'transactional_snapshot'},
+  {...genuine,exported_classes:[]}
+ ]){
+  assert.throws(()=>buildFictionalDraftPackage(tampered),/unavailable/,
+   'Draft packaging must reject forged export metadata rather than include it');
+ }
+});
+
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/colzo-connected-workspace-20261112',
  SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',TENANCY_AUTH_ENABLED:'true',
  COLZO_SCOPED_PILOT_ACCESS:'true',COLZO_TENANT_EXPORT_PREVIEW_ENABLED:'true',

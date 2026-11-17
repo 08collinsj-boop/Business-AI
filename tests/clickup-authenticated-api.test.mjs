@@ -23,11 +23,11 @@ async function run(role,req,fetcher) {
  const requests=[];
  globalThis.fetch=async(url,options={})=>{
   const value=String(url);requests.push({url:value,options});
-  if(value===DEV+'/auth/v1/user')return new Response(JSON.stringify({id:USER}),{status:200});
+  if(value===DEV+'/auth/v1/user')return new Response(JSON.stringify(req.invalidAuth?{error:'invalid_token'}:{id:USER}),{status:req.invalidAuth?401:200});
   if(value.includes('/rest/v1/business_memberships?'))return new Response(JSON.stringify([{business_id:BUSINESS,role}]),{status:200});
   if(value.includes('/rest/v1/colzo_clickup_connections?')){
    assert.match(value,new RegExp('business_id=eq\\.'+BUSINESS));
-   const record={business_id:BUSINESS,connected_by:req.connectionActor==='other'?OTHER:USER,status:'connected',workspace_id:'123',workspace_name:'Demo operations',...encryptClickupToken(TOKEN,BUSINESS,KEY)};
+   const record={business_id:req.connectionBusiness==='foreign'?OTHER:BUSINESS,connected_by:req.connectionActor==='other'?OTHER:USER,status:'connected',workspace_id:'123',workspace_name:'Demo operations',...encryptClickupToken(TOKEN,BUSINESS,KEY)};
    return new Response(JSON.stringify([record]),{status:200});
   }
   if(value.includes('/api/v2/team/123/task')){
@@ -73,6 +73,33 @@ test('member status does not offer privileged task access',async()=>{
  assert.equal(response.body.canViewTasks,false);
  assert.equal(response.body.canManage,false);
 });
+test('forged business selection cannot borrow another tenant’s ClickUp connection',async()=>{
+ const result=await run('owner',{query:{view:'tasks',business_id:OTHER}});
+ assert.equal(result.response.statusCode,200);
+ assert.equal(result.response.body.tasks[0].title,'Site visit');
+ assert.ok(result.requests.filter(r=>r.url.includes('colzo_clickup_connections')).every(r=>
+   new URL(r.url).searchParams.get('business_id')==='eq.'+BUSINESS),
+   'Connection lookups must be scoped to the verified membership, never the requested tenant');
+ assert.ok(result.requests.some(r=>r.url.includes('/api/v2/')),
+   'The only external request uses the verified tenant connection');
+});
+test('a wrong-business connection row is rejected without leaking workspace metadata or calling ClickUp',async()=>{
+ for(const query of [{},{view:'tasks'},{view:'lists'}]){
+  const {response,requests}=await run('owner',{connectionBusiness:'foreign',query});
+  assert.notEqual(response.statusCode,200,'Foreign connection row must never appear connected');
+  const payload=JSON.stringify(response.body||{});
+  assert.ok(!payload.includes('Demo operations'),'Foreign workspace name must not be exposed');
+  assert.ok(!payload.includes(TOKEN),'Foreign token must not be exposed');
+  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false,'Provider must not be contacted using foreign connection');
+ }
+});
+
+test('invalid identity cannot reach connection storage or the ClickUp provider',async()=>{
+ const result=await run('owner',{invalidAuth:true,query:{view:'tasks',business_id:OTHER}});
+ assert.equal(result.response.statusCode,401);
+ assert.equal(result.requests.some(r=>/colzo_clickup_connections|\/api\/v2\//.test(r.url)),false);
+});
+
 test('member cannot approve or update external tasks',async()=>{
  const {response,requests}=await run('member',{method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
  assert.equal(response.statusCode,403);
@@ -109,6 +136,27 @@ test("a Colzo admin cannot inherit a different ClickUp account owner's OAuth tas
  const {response,requests}=await run('admin',{...req,method:'POST',body:{action:'update_task',taskId:'job-1',expectedTitle:'Site visit',expectedStatus:'to do',approved:true,change:{status:'in progress'}}});
  assert.equal(response.statusCode,403);
  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false);
+});
+
+test('only a Colzo owner may disconnect ClickUp; admin/member cannot delete credentials',async()=>{
+ for(const role of ['admin','member']){
+  const {response,requests}=await run(role,{method:'DELETE',connectionActor:'other'});
+  assert.equal(response.statusCode,403,role+' must not disconnect a company ClickUp connection');
+  assert.equal(requests.some(r=>r.options.method==='DELETE'),false,
+    role+' must not delete OAuth connection storage');
+  assert.equal(requests.some(r=>r.url.includes('/api/v2/')),false,
+    role+' must not invoke the ClickUp provider');
+ }
+});
+
+test('Colzo owner can disconnect a business ClickUp connection without exposing provider credentials',async()=>{
+ const {response,requests}=await run('owner',{method:'DELETE',connectionActor:'other'});
+ assert.equal(response.statusCode,200);
+ assert.equal(response.body.connected,false);
+ assert.equal(response.body.confirmed,true);
+ assert.ok(requests.some(r=>r.options.method==='DELETE'&&r.url.includes('/rest/v1/colzo_clickup_connections?')));
+ assert.ok(requests.every(r=>!r.url.includes('/api/v2/')),'Disconnect must not read provider tasks');
+ assert.equal(JSON.stringify(response.body).includes(TOKEN),false);
 });
 
 test('Colzo owner can still disconnect a company ClickUp connection owned by another person without receiving their token',async()=>{

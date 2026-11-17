@@ -53,16 +53,42 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   },db);
   const owner=page.locator('#colzoOwner'),old=page.locator('#dashboardApp');
   // Home booking entry and More Bookings entry must be native.
-  await page.locator('.cn-duo [data-cn-screen="bookings"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="bookings"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await owner.isVisible(),true);assert.equal(await old.isVisible(),false);
   assert.equal(await page.locator('.cn-work-record').count(),1);
-  assert.equal(await page.locator('.cn-work-calendar .calendar-day').count(),31);
+  const calendarDays=await page.locator('.cn-work-calendar .calendar-day').count();
+  const expectedDays=await page.evaluate(()=>{const now=new Date();return new Date(now.getFullYear(),now.getMonth()+1,0).getDate()});
+  assert.equal(calendarDays,expectedDays,'Calendar displays the actual current month');
   if(width===390)await page.screenshot({path:`${shots}/bookings-${width}.png`,fullPage:false,animations:'disabled'});
   await page.locator('[data-cn-work-tab="Completed"]').click();assert.equal(await page.locator('.cn-work-record').count(),0);
   await page.locator('[data-cn-work-tab="All"]').click();assert.equal(await page.locator('.cn-work-record').count(),1);
   await page.locator('.cn-work-record [data-cn-work-edit],.cn-work-record[data-cn-work-edit]').first().click();
   assert.equal(await page.locator('#cnWorkDialogTitle').innerText(),'Edit booking');
+  const dialog=page.locator('.cn-work-dialog');
+  assert.equal(await dialog.getAttribute('role'),'dialog','Booking editor must expose dialog role');
+  assert.equal(await dialog.getAttribute('aria-modal'),'true','Booking editor must mark itself modal');
+  assert.equal(await dialog.getAttribute('aria-labelledby'),'cnWorkDialogTitle','Dialog title must be programmatically associated');
+  const unlabeled=await page.locator('#cnWorkForm').evaluate(form=>[...form.querySelectorAll('input,select,textarea')]
+    .filter(el=>el.type!=='hidden'&&!el.closest('label')&&!(el.labels?.length)&&!el.getAttribute('aria-label')&&!el.getAttribute('aria-labelledby'))
+    .map(el=>el.name||el.id||el.tagName));
+  assert.deepEqual(unlabeled,[],'Every booking field must have a programmatic label');
+  const focusable='button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])';
+  await dialog.evaluate((el,selector)=>{
+    const controls=[...el.querySelectorAll(selector)].filter(node=>node.getBoundingClientRect().width>0);
+    controls.at(-1)?.focus();
+  },focusable);
+  await page.keyboard.press('Tab');
+  assert.equal(await dialog.evaluate((el,selector)=>{
+    const controls=[...el.querySelectorAll(selector)].filter(node=>node.getBoundingClientRect().width>0);
+    return controls.length>1 && document.activeElement===controls[0];
+  },focusable),true,'Tab must wrap focus to the start of the modal');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await dialog.evaluate((el,selector)=>{
+    const controls=[...el.querySelectorAll(selector)].filter(node=>node.getBoundingClientRect().width>0);
+    return controls.length>1 && document.activeElement===controls.at(-1);
+  },focusable),true,'Shift+Tab must wrap focus to the final modal control');
+  await page.locator('#cnWorkForm [name=title]').focus();
   assert.equal(await page.locator('#cnWorkForm [name=title]').inputValue(),'Customer survey');
   await page.locator('#cnWorkForm [name=title]').fill('Updated site survey');
   await page.locator('#cnWorkForm [type=submit]').click();
@@ -96,13 +122,13 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('[data-cn-work-refresh]').click();
   await page.waitForFunction(()=>[...document.querySelectorAll('.cn-work-record')].some(el=>el.textContent.includes('sample booking')));
   // Native operations should remain accessible from Projects/More.
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
-  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
+  if(width>=920)await page.locator('.cn-desktop-nav-extra button[data-cn-screen="projects"]').click();
+  else {await page.locator('.cn-nav > button[data-cn-screen="more"]').click();await page.locator('.cn-more-links [data-cn-screen="projects"]').click();}
   await page.locator('.cf-project-card').first().click();
   assert.equal(await page.locator('.cf-detail-contact h1').innerText(),'Fixture project');
   await page.locator('.cf-screen-top [data-cn-screen="projects"]').click();
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
-  await page.locator('[data-cn-screen="actions"]').first().click();
+  if(width>=920)await page.locator('.cn-desktop-nav-extra button[data-cn-screen="actions"]').click();
+  else {await page.locator('.cn-nav > button[data-cn-screen="more"]').click();await page.locator('#cnContent [data-cn-screen="actions"]').first().click();}
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Actions');
   assert.equal(await owner.isVisible(),true);assert.equal(await old.isVisible(),false);
   assert.equal(await page.locator('.cn-work-record').count(),1);
@@ -124,8 +150,8 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   const actionPatch=calls.find(c=>c.resource==='actions'&&c.method==='PATCH');
   assert.equal(actionPatch.body.id,31);assert.equal(actionPatch.body.status,'completed');
   assert.equal(actionPatch.body.business_id,undefined);
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
-  await page.locator('#cnContent [data-cn-command]').first().click();
+  if(width>=920)await page.keyboard.press('Control+k');
+  else {await page.locator('.cn-nav > button[data-cn-screen="more"]').click();await page.locator('#cnContent [data-cn-command]').first().click();}
   await page.locator('#cnCommandSearch').fill('Bookings');
   await page.locator('#cnCommandResults [data-cn-screen=bookings]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');

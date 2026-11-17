@@ -6,11 +6,11 @@ const other='20000000-0000-4000-8000-000000000002';
 const env={VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'feature/colzo-connected-workspace-20261112',SUPABASE_URL:'https://mvwseobgkexzpmmkgcxe.supabase.co',TENANCY_AUTH_ENABLED:'true',COLZO_SCOPED_PILOT_ACCESS:'true',COLZO_TENANT_EXPORT_PREVIEW_ENABLED:'true',COLZO_TENANT_EXPORT_FIXTURE_BUSINESS_ID:tenant};
 const response=()=>({statusCode:0,headers:{},setHeader(k,v){this.headers[k]=v},status(code){this.statusCode=code;return this},json(b){this.body=b;return this}});
 const request=(method='GET',query={})=>({method,query});
-const fixture=({envOverride={},role='owner',mfa='aal2',businessId=tenant,auditOk=true,throwAt=null}={})=>{
+const fixture=({envOverride={},role='owner',mfa='aal2',mfaUser='fictional-owner',businessId=tenant,auditOk=true,throwAt=null,approvedTarget=true}={})=>{
   const calls=[];
-  const handler=makeTenantExportHandler({env:{...env,...envOverride},approvedTarget:()=>true,
+  const handler=makeTenantExportHandler({env:{...env,...envOverride},approvedTarget:()=>approvedTarget,
     authMember:async (_req,roles)=>{calls.push(['roles',roles]);if(role!=='owner')throw Object.assign(Error('not owner'),{status:403});return {enforced:true,userId:'fictional-owner',businessId,role}},
-    authAal2:async ()=>{calls.push(['mfa',mfa]);if(mfa!=='aal2')throw Object.assign(Error('MFA required'),{status:403});return {enforced:true,userId:'fictional-owner'}},
+    authAal2:async ()=>{calls.push(['mfa',mfa]);if(mfa!=='aal2')throw Object.assign(Error('MFA required'),{status:403});return {enforced:true,userId:mfaUser}},
     readPage:async ({table,businessId,fields,offset,limit})=>{calls.push(['page',table,businessId,fields,offset,limit]);if(throwAt===table)throw Error('database unavailable');return table==='leads'?[{id:1,business_id:businessId,name:'FICTIONAL customer'}]:[]},
     audit:async info=>{calls.push(['audit',info.action,info.metadata]);return auditOk}
   });return {handler,calls};
@@ -36,8 +36,16 @@ test('rejects caller-selected business ID before any data read',async()=>{
  assert.equal(res.statusCode,400);assert.deepEqual(x.calls,[]);
 });
 
+test('unapproved target refuses before role, MFA, audit or data reads',async()=>{
+ const x=fixture({approvedTarget:false}),res=response();
+ await x.handler(request('GET',{download:'1'}),res);
+ assert.equal(res.statusCode,503);
+ assert.deepEqual(x.calls,[]);
+ assert.equal(res.headers['Cache-Control'],'private, no-store');
+});
+
 test('only independently authorised owner and MFA may read their fictional business',async()=>{
- for(const args of [{role:'member'},{mfa:'aal1'},{businessId:other}]){
+ for(const args of [{role:'member'},{mfa:'aal1'},{businessId:other},{mfaUser:'fictional-different-actor'}]){
   const x=fixture(args),res=response();await x.handler(request(),res);
   assert.equal(res.statusCode,403);assert.ok(x.calls.every(c=>c[0]!=='page'));
  }

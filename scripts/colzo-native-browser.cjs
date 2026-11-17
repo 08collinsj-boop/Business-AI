@@ -21,7 +21,7 @@ assert.match(scrollRule[1],/overflow-y:\s*auto/);
 assert.match(scrollRule[1],/-webkit-overflow-scrolling:\s*touch/);
 
 async function run(){await sleep(650);const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});try{
- for(const [w,h] of [[375,812],[390,844],[430,932],[1366,768],[1440,900]]){
+ for(const [w,h] of [[375,812],[390,844],[430,932],[1024,768],[1280,800],[1366,768],[1440,900]]){
   const ctx=await browser.newContext({viewport:{width:w,height:h},isMobile:w<600,hasTouch:w<600});
   const page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.stack||e.message));
@@ -41,18 +41,41 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    businessActions=[{id:'qa-04',title:'Sample customer follow-up',status:'pending',due_at:'2026-10-18T09:00:00Z'}];
    settings={business_name:'QA Electrical Services'};
    document.body.className='auth-ready colzo-interface colzo-safe-shell';
+   window.ColzoOwner.dashboardLoaded(); // Synthetic records have completed their initial fixture load.
    window.ColzoOwner.onAuthState('auth-ready');
    window.ColzoOwner.render();
   });
   assert.equal(await page.locator('#colzoOwner').isVisible(),true,'new owner shell should be visible');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'legacy original must not be rendered on primary Colzo screen');
   assert.equal(await page.locator('.bottom-nav').isVisible(),false,'old five-tab bottom navigation must not appear');
-  assert.equal(await page.locator('.cn-nav button').count(),5);
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen]').count(),5,'Five primary navigation destinations must remain available');
+  // The approved desktop Command Centre replaced the old mobile-only Home cards.
+  // Keep the mobile journey below, but assert the real desktop surface separately.
+  if(w>=920){
+   assert.equal(await page.locator('.cn-home-desktop').isVisible(),true,'Desktop overview must be visible');
+   assert.ok((await page.locator('.cn-dash-intro h1').innerText()).trim().length>0,'Desktop greeting must be rendered');
+   assert.equal(await page.locator('.cn-dash-metric').count(),4,'Desktop metrics must be data-grounded');
+   assert.equal(await page.locator('.cn-dash-briefing').isVisible(),true,'Desktop briefing must be visible');
+   const before=await page.evaluate(()=>({viewport:innerWidth,body:document.documentElement.scrollWidth}));
+   assert.ok(before.body<=w+1,'Desktop overview must not overflow viewport: '+JSON.stringify(before));
+   await page.screenshot({path:`${shots}/native-desktop-home-${w}.png`,fullPage:false});
+   await page.locator('.cn-nav > button[data-cn-screen="bookings"]').click();
+   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
+   await page.locator('.cn-nav > button[data-cn-screen="home"]').click();
+   assert.equal(await page.locator('.cn-home-desktop').isVisible(),true);
+   await page.evaluate(()=>window.ColzoOwner.onAuthState('auth-required'));
+   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Owner workspace must hide on logout');
+   assert.deepEqual(errors,[]);
+   console.log(`${w}x${h}: PASS desktop overview, 4 KPIs, briefing, Bookings navigation and logout (fictional fixtures only)`);
+   await ctx.close();
+   continue;
+  }
   assert.match(await page.locator('#colzoOwner .cf-home-head h1').innerText(),/Good|Welcome/);
   assert.match(await page.locator('.cf-kpis').innerText(),/Enquiries[\s\S]*2/);
   assert.equal(await page.locator('.cf-kpi').count(),3);
   assert.equal(await page.locator('.cf-quick-grid button').count(),4);
-  assert.equal(await page.locator('.cf-trend').count(),1);
+  assert.equal(await page.locator('#cnTrend').count(),1,'The mobile trend chart has one unique ID');
+  assert.equal(await page.locator('#cnTrend').isVisible(),true,'Mobile enquiry trend must be visible');
   // Safari locks body scrolling to keep Business AI's old navigation fixed.
   // Apply that same contract explicitly in Chromium: Colzo must scroll itself.
   if(w<920){
@@ -68,11 +91,26 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:0,behavior:'instant'}));
   }
   await page.screenshot({path:`${shots}/native-home-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="enquiries"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="enquiries"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Enquiries');
+  if(w<920){
+   const touch=await page.evaluate(()=>{
+    const names=['.cn-header .cn-wordmark','.cn-header .cn-command-trigger',...Array.from({length:5},(_,i)=>'.cn-nav > button[data-cn-screen]:nth-of-type('+(i+1)+')')];
+    return names.map(selector=>{
+      const el=document.querySelector('#colzoOwner '+selector);
+      if(!el)return {selector,missing:true};
+      const r=el.getBoundingClientRect(),css=getComputedStyle(el);
+      return {selector,width:r.width,height:r.height,visible:css.display!=='none'&&css.visibility!=='hidden'&&r.width>0&&r.height>0};
+    });
+   });
+   const tooSmall=touch.filter(t=>t.visible&&(t.width<44||t.height<44));
+   assert.deepEqual(tooSmall,[],'Mobile primary navigation/command touch targets should be at least 44x44: '+JSON.stringify(touch));
+  }
+
   assert.deepEqual(await page.locator('.cf-tabs button').allTextContents(),['All','New (1)','In Progress (1)','Won (0)']);
   assert.equal(await page.locator('.cn-record').count(),2);
   await page.locator('#cnSearch').fill('Jones');
+  await page.waitForFunction(()=>document.querySelectorAll('.cn-record').length===1,{timeout:5000});
   assert.equal(await page.locator('.cn-record').count(),1);
   await page.locator('.cn-record').click();
   assert.equal(await page.locator('.cf-detail-contact h1').innerText(),'Mock Jones');
@@ -80,30 +118,30 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.locator('button[data-cn-screen="enquiries"]').first().click();
   await page.locator('#cnSearch').blur();
   await page.screenshot({path:`${shots}/native-enquiries-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Projects');
-  assert.equal(await page.locator('.cn-nav [data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
-  assert.equal(await page.locator('.cn-nav [data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen="more"]').getAttribute('aria-current'),'page','More navigation should be highlighted for Projects');
+  assert.equal(await page.locator('.cn-nav > button[data-cn-screen="enquiries"]').getAttribute('aria-current'),null);
   await page.waitForFunction(()=>document.querySelectorAll('.cf-project-card').length===2,{timeout:10000});
   assert.equal(await page.locator('.cf-project-card').count(),2);
   assert.match((await page.locator('.cf-project-card').allTextContents()).join(' '),/Sample confirmed visit/);
   assert.match(await page.locator('.cn-stack').innerText(),/Sample confirmed visit/);
   await page.waitForTimeout(120);
   await page.screenshot({path:`${shots}/native-projects-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   assert.equal(await page.locator('.cf-screen-top h1').innerText(),'Settings');
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   await page.locator('.cn-more-links [data-cn-screen="clients"]').click();
   assert.equal(await page.locator('.cn-stitch-title h1').innerText(),'Customers');
   assert.equal(await page.locator('.cn-stitch-customer').count(),2);
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();
   assert.equal(await page.locator('.cn-screen-heading h1').innerText(),'Quotes');
   assert.equal(await page.locator('.cn-record').count(),0,'Empty quotes directory should not fabricate saved quotes');
   assert.match((await page.locator('.cn-caption').allTextContents()).join(' '),/Sending remains a separate workflow/);
   await page.screenshot({path:`${shots}/native-quotes-${w}.png`,fullPage:false});
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   if(w<920){
    await page.evaluate(()=>document.querySelector('#colzoOwner').scrollTo({top:99999,behavior:'instant'}));
    const lower=await page.evaluate(()=>{const el=document.querySelector('#colzoOwner');return{top:el.scrollTop,max:el.scrollHeight-el.clientHeight,moreHeading:el.querySelector('.cf-tools-extra h2')?.getBoundingClientRect().top,signout:el.querySelector('.cf-signout')?.getBoundingClientRect().bottom}});
@@ -115,7 +153,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   await page.locator('.cn-more-links [data-cn-screen="bookings"]').click();
   assert.equal(await page.locator('.cn-work-title-row h1').innerText(),'Bookings');
   assert.equal(await page.locator('#dashboardApp').isVisible(),false,'native Bookings never opens original UI');
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
   await page.evaluate(()=>window.ColzoOwner.openLegacy('marketing'));
   assert.equal(await page.locator('#dashboardApp').isVisible(),true,'advanced Marketing remains accessible');
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'Colzo is hidden while editing legacy');
@@ -137,9 +175,9 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   });
   assert.equal(legacy.bodyBg,'rgb(13, 17, 21)',JSON.stringify(legacy));
   assert.equal(legacy.appBg,'rgb(13, 17, 21)',JSON.stringify(legacy));
-  assert.equal(legacy.cardBg,'rgb(32, 39, 45)',JSON.stringify(legacy));
-  assert.equal(legacy.cardBorder,'rgb(54, 64, 71)',JSON.stringify(legacy));
-  assert.equal(legacy.fieldBg,'rgb(36, 44, 51)',JSON.stringify(legacy));
+  assert.equal(legacy.cardBg,'rgb(21, 26, 34)',JSON.stringify(legacy));
+  assert.equal(legacy.cardBorder,'rgb(40, 49, 61)',JSON.stringify(legacy));
+  assert.equal(legacy.fieldBg,'rgb(11, 14, 20)',JSON.stringify(legacy));
   assert.equal(legacy.themeRule,true);
   assert.equal(legacy.legacyVisible,true);
   assert.ok(legacy.scrollWidth<=w+1,'Legacy screen overflows iPhone viewport');
@@ -149,7 +187,7 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
    assert.equal(await page.locator('#'+view+'View').isVisible(),true,`${view} must remain available in Colzo theme`);
    assert.equal(await page.locator('#colzoOwner').isVisible(),false);
    const style=await page.locator('#'+view+'View .card').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderTopColor})).catch(()=>null);
-   if(style){assert.equal(style.bg,'rgb(32, 39, 45)');assert.equal(style.border,'rgb(54, 64, 71)');}
+   if(style){assert.equal(style.bg,'rgb(21, 26, 34)');assert.equal(style.border,'rgb(40, 49, 61)');}
    if((view==='marketing'||view==='settings')&&(w===390||w===1366)){
     await page.screenshot({path:`${shots}/legacy-${view}-${w}.png`,fullPage:false});
    }
@@ -159,8 +197,31 @@ async function run(){await sleep(650);const browser=await chromium.launch({headl
   const metrics=await page.evaluate(()=>{const r=document.querySelector('#colzoOwner').getBoundingClientRect();const nav=document.querySelector('.cn-nav').getBoundingClientRect();return{viewport:innerWidth,scroll:document.documentElement.scrollWidth,nav:{x:nav.x,y:nav.y,right:nav.right,bottom:nav.bottom,w:nav.width},rootW:r.width}});
   assert.ok(metrics.scroll<=w+1,`overflow ${w}: ${JSON.stringify(metrics)}`);
   if(w<920){assert.ok(metrics.nav.x>=0&&metrics.nav.right<=w+2&&metrics.nav.bottom<=h+2)}else assert.ok(metrics.nav.w>=190&&metrics.nav.w<=235);
+  // Synthetic private fixture content must be absent from the entire hidden DOM
+  // after session loss, not merely inaccessible from the visible screen.
+  const beforeLogout=await page.locator('#colzoOwner').evaluate(el=>el.textContent||'');
+  assert.ok(beforeLogout.includes('QA Electrical Services'),'Fixture business name must be present before logout');
+  const privateMarkers=['QA Electrical Services','Mock Jones','Sample confirmed visit','Sample customer follow-up'];
   await page.evaluate(()=>window.ColzoOwner.onAuthState('auth-required'));
   assert.equal(await page.locator('#colzoOwner').isVisible(),false,'owner content hidden immediately at logout');
+  const afterLogout=await page.locator('#colzoOwner').evaluate(el=>({
+    text:el.textContent||'',privateContentCount:el.querySelector('#cnContent')?.childElementCount||0,
+    commandVisible:!el.querySelector('#cnCommandSheet')?.hidden,
+    oldDialogs:el.querySelectorAll('.cn-unsaved-overlay,.cn-work-dialog-backdrop').length,
+    businessName:el.querySelector('#cnDesktopWorkspaceName')?.textContent||''
+  }));
+  for(const marker of privateMarkers){
+    assert.equal(afterLogout.text.includes(marker),false,
+      'Private fixture marker remained in hidden owner DOM after logout: '+marker);
+  }
+  assert.equal(afterLogout.privateContentCount,0,'Owner content must be cleared, not just hidden');
+  assert.equal(afterLogout.commandVisible,false,'Command finder must stay closed after logout');
+  assert.equal(afterLogout.oldDialogs,0,'Unsaved/work modals must not survive logout');
+  assert.equal(afterLogout.businessName,'Your workspace','Business identity must reset');
+  await page.evaluate(()=>window.ColzoOwner.onAuthState('auth-mfa-required'));
+  const preMfaText=await page.locator('#colzoOwner').evaluate(el=>el.textContent||'');
+  for(const marker of privateMarkers)assert.equal(preMfaText.includes(marker),false,
+    'Private fixture marker reappeared before MFA: '+marker);
   assert.deepEqual(errors,[]);
   console.log(`${w}x${h}: PASS separate native Home, Enquiries/detail, Projects, Clients, Quotes, More, legacy switch, logout and viewport`);
   await ctx.close();

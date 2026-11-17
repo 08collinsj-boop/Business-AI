@@ -19,7 +19,7 @@ const config={
 function res(){
  return {statusCode:200,headers:{},status(s){this.statusCode=s;return this;},setHeader(k,v){this.headers[k.toLowerCase()]=v;return this;},json(value){this.body=value;return this;},end(value=''){this.body=value;return this;}};
 }
-async function simulate({replayed=false,expired=false,role='owner',cookieMismatch=false}={}){
+async function simulate({replayed=false,expired=false,role='owner',cookieMismatch=false,savedMismatch=null}={}){
  const state=createClickupState().state;
  const pending={id:'30000000-0000-4000-8000-000000000003',business_id:businessId,actor_user_id:actorId,expires_at:new Date(Date.now()+(expired?-60000:60000)).toISOString(),used_at:null};
  const calls=[],saved=[];
@@ -38,7 +38,11 @@ async function simulate({replayed=false,expired=false,role='owner',cookieMismatc
    if(path==='/api/v2/team')return reply({teams:[{id:'123',name:'Test Workspace'}]});
    if(path==='/rest/v1/colzo_clickup_connections'){
      const body=JSON.parse(options.body);saved.push(body);
-     return reply([body]);
+     const returned={...body};
+     if(savedMismatch==='actor')returned.connected_by='20000000-0000-4000-8000-000000000009';
+     if(savedMismatch==='workspace')returned.workspace_id='456';
+     if(savedMismatch==='credential')returned.token_tag='invalid-mismatched-tag';
+     return reply([returned]);
    }
    if(path==='/rest/v1/business_audit_events')return reply(null,204);
    throw Error('Unexpected provider path '+path);
@@ -66,6 +70,17 @@ test('OAuth callback consumes state, confirms owner membership, and stores only 
  assert.ok(saved[0].token_ciphertext);
  assert.equal(response.body,'');
 });
+test('OAuth callback refuses a database confirmation for a different actor, workspace or encrypted token',async()=>{
+ for(const savedMismatch of ['actor','workspace','credential']){
+  const {response,calls}=await simulate({savedMismatch});
+  assert.equal(response.statusCode,503,savedMismatch+' must never be acknowledged as connected');
+  assert.notEqual(response.headers.location,'/?clickup=connected');
+  assert.equal(calls.some(c=>c.path==='/rest/v1/business_audit_events'),false,
+    savedMismatch+' must not write a successful-connection audit');
+  assert.ok(!String(response.body||'').includes('fictional-test-oauth-token'));
+ }
+});
+
 test('OAuth callback denies replayed state before exchanging the code',async()=>{
  const {response,calls,saved}=await simulate({replayed:true});
  assert.equal(response.statusCode,400);

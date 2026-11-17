@@ -2113,7 +2113,7 @@
    {label:'My Work',detail:'Assigned tasks and deadlines',glyph:'✓',screen:'myWork'},
    {label:'Work Hub',detail:'Connected work apps, including ClickUp',glyph:'▦',screen:'clickup'},
    {label:'Projects',detail:'Track saved work and progress',glyph:'▦',screen:'projects'},
-   {label:'Customers',detail:'Saved profiles and enquiry contacts',glyph:'♧',screen:'clients'},
+   {label:'Customers',detail:'Saved clients, customer profiles and enquiry contacts',glyph:'♧',screen:'clients'},
    {label:'Quotes',detail:'Create and manage saved draft quotes',glyph:'£',screen:'quotes'},
    {label:'Marketing',detail:'Create and manage saved content drafts',glyph:'✧',screen:'marketing'},
    {label:'AI receptionist',detail:'Phone answering and handover status',glyph:'✦',screen:'receptionist'},
