@@ -49,8 +49,8 @@ async function main(){
           'Mobile must retain the original bottom navigation');
       }
 
-      assert.match(await page.locator('.safety-strip').innerText(),/Fictional demonstration/);
-      assert.match(await page.locator('.safety-strip').innerText(),/not connected/i);
+      assert.match(await page.locator('.cn-demo-disclaimer').innerText(),/Fictional demonstration/);
+      assert.match(await page.locator('.cn-demo-disclaimer').innerText(),/not connected/i);
       assert.equal(await page.locator('#taskOutcomeTitle').innerText(),'No task created');
       assert.equal(await page.locator('#activityList li').count(),2);
 
