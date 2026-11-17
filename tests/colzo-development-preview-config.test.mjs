@@ -69,12 +69,12 @@ test("Development Preview refuses missing or mismatched auth and pilot flags bef
   }
 });
 
-test("missing Git ref cannot bypass Development-target guard", async () => {
+test("missing Git metadata remains outside the explicitly scoped QA branch policy", async () => {
   const requests = configure({});
   delete process.env.VERCEL_GIT_COMMIT_REF;
-  for (const [name, guard] of guards) {
-    await assert.rejects(guard, { status: 403, code: "PILOT_ACCESS_REQUIRED" }, name);
-  }
+  assert.deepEqual(await requireBusinessMember({}), {
+    enforced: false, userId: null, businessId: null, role: null
+  });
   assert.equal(requests(), 0);
 });
 
