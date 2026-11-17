@@ -112,7 +112,7 @@ jobs:
         shell: bash
         run: |
           failed=0
-          for suite in colzo-owner-visual colzo-native colzo-workflows colzo-auth colzo-mfa colzo-motion; do
+          for suite in colzo-owner-visual colzo-native colzo-workflows colzo-auth colzo-mfa colzo-motion colzo-cross-app-demo; do
             echo "::group::Synthetic browser suite: $suite"
             if timeout 150s npm run "verify:$suite"; then
               echo "PASS: $suite"
@@ -135,5 +135,6 @@ jobs:
             /tmp/colzo-workflows-qa/*.png
             /tmp/colzo-mfa-qa/*.png
             /tmp/colzo-motion-qa/*.png
+            /tmp/colzo-cross-app-demo/*.png
           if-no-files-found: ignore
           retention-days: 3

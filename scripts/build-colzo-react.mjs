@@ -83,6 +83,12 @@ if (siteProject && isVercelBuild) {
   for (const path of ['index.html','marketing.html','widget.js','manifest.webmanifest','sw.js','assets','legal','site']) {
     await cp(path, 'public/' + path, { recursive: true });
   }
+  // Standalone fictional cross-app concept: only the named protected Preview
+  // branch. No provider integration, client data, auth or runtime API.
+  if (process.env.VERCEL_ENV === 'preview'
+      && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-fictional-cross-app-demo-20261117') {
+    await cp('demo/connected-workflow', 'public/demo/connected-workflow', {recursive:true});
+  }
   // Explicit, protected Development acceptance screen; never attach to Production.
   if (process.env.VERCEL_ENV === 'preview'
       && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-preview-self-serve-pilot-20261102'
