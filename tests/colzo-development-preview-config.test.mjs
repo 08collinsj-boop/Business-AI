@@ -12,6 +12,7 @@ import {
 const baseline = { ...process.env };
 const originalFetch = globalThis.fetch;
 const keys = [
+  "VERCEL",
   "VERCEL_ENV",
   "VERCEL_GIT_COMMIT_REF",
   "SUPABASE_URL",
@@ -25,6 +26,7 @@ const keys = [
 function configure(overrides = {}) {
   for (const key of keys) delete process.env[key];
   Object.assign(process.env, {
+    VERCEL: "1",
     VERCEL_ENV: "preview",
     VERCEL_GIT_COMMIT_REF: "feature/colzo-connected-workspace-20261112",
     SUPABASE_URL: "https://mvwseobgkexzpmmkgcxe.supabase.co",
@@ -96,6 +98,7 @@ test("correctly configured Development Preview still demands genuine credentials
 test("other environments keep their previously explicit legacy configuration", async () => {
   const scenarios = [
     ["production", { VERCEL_ENV: "production" }],
+    ["non-Vercel synthetic fixture", { VERCEL: "0" }],
     ["local", { VERCEL_ENV: "development" }],
     ["another project on an unrelated branch", { SUPABASE_URL: "https://other-fixture.supabase.co", VERCEL_GIT_COMMIT_REF: "feature/unrelated-fixture" }],
     ["another branch", { VERCEL_GIT_COMMIT_REF: "feature/unrelated-fixture" }]
