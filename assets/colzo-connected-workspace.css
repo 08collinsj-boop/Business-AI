@@ -332,3 +332,12 @@
   transition:none!important;
  }
 }
+
+
+/* Feature-Preview-only Work Hub illustration entry; never a provider state. */
+#colzoOwner .cn-workhub-fictional{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:16px 0 8px;padding:18px 20px;border:1px solid #46563b;background:#1b2621;border-radius:15px}
+#colzoOwner .cn-workhub-fictional h2{margin:8px 0;font-size:16px;font-weight:750;letter-spacing:-.25px;color:#f2f6f1}
+#colzoOwner .cn-workhub-fictional p{margin:0;max-width:610px;font-size:11px;line-height:1.6;color:#bac8bd}
+#colzoOwner .cn-workhub-fictional-link{display:inline-flex;align-items:center;justify-content:space-between;gap:14px;min-height:43px;padding:10px 14px;flex-shrink:0;border:1px solid #c8ff2e;border-radius:10px;background:#c8ff2e;color:#13200b;font-size:11px;font-weight:730;text-decoration:none}
+#colzoOwner .cn-workhub-fictional-link:focus-visible{outline:2px solid #c8ff2e;outline-offset:3px}
+@media(max-width:700px){#colzoOwner .cn-workhub-fictional{flex-direction:column;align-items:stretch;padding:16px}#colzoOwner .cn-workhub-fictional-link{justify-content:center}}
