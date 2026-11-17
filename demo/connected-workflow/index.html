@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta name="theme-color" content="#0b0e14">
+  <title>Connected workflow concept | Colzo</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+<div class="demo-app" id="demoApp">
+  <aside class="sidebar" aria-label="Demonstration navigation">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">C</span><span class="brand-copy"><strong>colzo</strong><small>connected workspace</small></span></div>
+    <div class="side-group"><span class="side-label">DEMONSTRATION</span>
+      <a class="side-link active" href="#workflow"><span aria-hidden="true">◈</span> Workflow concept <span class="side-arrow" aria-hidden="true">↗</span></a>
+      <a class="side-link" href="#sources"><span aria-hidden="true">▤</span> Source records</a>
+      <a class="side-link" href="#activity"><span aria-hidden="true">◷</span> Activity</a>
+    </div>
+    <div class="side-note"><span class="side-note-dot" aria-hidden="true"></span><strong>No live integrations</strong><p>LeadConnector and ClickUp are examples only. No external actions or account connections.</p></div>
+    <div class="side-footer">DEVELOPMENT CONCEPT <span>01 / 01</span></div>
+  </aside>
+
+  <main id="workflow" class="workspace">
+    <div class="safety-strip" role="status"><strong>Fictional demonstration</strong><span class="safety-divider" aria-hidden="true"></span>Providers are not connected. No external actions or customer records are used.</div>
+    <header class="topbar">
+      <div><div class="eyebrow"><span class="micro-dot" aria-hidden="true"></span> COLZO / CONNECTED WORKSPACE / CONCEPT</div><h1>One enquiry.<br><span>One clear next step.</span></h1><p class="top-description">See how Colzo could bring context from LeadConnector into one place and propose a ClickUp follow-up—without taking action until someone approves it.</p></div>
+      <div class="top-controls"><span class="pill neutral">SIMULATION ONLY</span><button class="button button-subtle" id="resetDemo" type="button">↺ Reset walkthrough</button></div>
+    </header>
+
+    <section class="overview" aria-label="Example workspace overview">
+      <div class="overview-card"><span class="overview-icon" aria-hidden="true">↗</span><span class="overview-label">Sample enquiry</span><strong>01</strong><small>LeadConnector · fictional</small></div>
+      <div class="overview-card"><span class="overview-icon" aria-hidden="true">▦</span><span class="overview-label">Visit requested</span><strong>01</strong><small>LeadConnector · fictional</small></div>
+      <div class="overview-card highlight"><span class="overview-icon" aria-hidden="true">✳</span><span class="overview-label">Suggested follow-up</span><strong>01</strong><small>Colzo · awaiting review</small></div>
+    </section>
+
+    <section class="section-heading" id="sources"><div><div class="eyebrow">SINGLE WORKFLOW / THREE TOOLS</div><h2>From enquiry to action</h2><p>Each source stays in its own system. This is a visual illustration of a possible handoff, not actual synchronisation.</p></div><span class="section-number">01 — 03</span></section>
+
+    <div class="flow" aria-label="Fictional cross-app information flow">
+      <div class="flow-node"><span class="node-icon lead-icon" aria-hidden="true">L</span><span><strong>LeadConnector</strong><small>Enquiry & appointment source</small></span></div>
+      <div class="flow-arrow" aria-hidden="true">·······→</div>
+      <div class="flow-node"><span class="node-icon colzo-icon" aria-hidden="true">C</span><span><strong>Colzo</strong><small>Context & approval layer</small></span></div>
+      <div class="flow-arrow" aria-hidden="true">·······→</div>
+      <div class="flow-node"><span class="node-icon clickup-icon" aria-hidden="true">✓</span><span><strong>ClickUp</strong><small>Proposed task destination</small></span></div>
+    </div>
+
+    <section class="columns" aria-label="Fictional provider workflow">
+      <article class="panel source-panel"><div class="panel-heading"><span class="panel-kicker">01 / SOURCE OF TRUTH</span><span class="pill subtle">EXAMPLE RECORD</span></div>
+        <div class="panel-title"><span class="provider-square lead-icon" aria-hidden="true">L</span><div><h3>New enquiry</h3><p>LeadConnector · fictional record</p></div></div>
+        <div class="record"><span class="field-caption">REQUEST</span><h4 id="enquiryTitle">Kitchen tap needs attention</h4><p id="enquiryDescription">Fictional customer requested a short visit.</p>
+          <div class="person"><span class="avatar" aria-hidden="true">ME</span><div><strong id="enquiryContact">Morgan Example</strong><small>Example contact · no real personal data</small></div></div>
+          <div class="record-line"><span>Enquiry ref.</span><strong id="enquiryRef">LC-EXAMPLE-104</strong></div>
+          <div class="record-line"><span>Received</span><strong id="enquiryReceived">18 Nov 2026 · 09:12</strong></div>
+        </div>
+        <div class="appointment"><div><span class="field-caption">RELATED APPOINTMENT</span><strong id="appointmentWhen">20 Nov 2026 · 10:30</strong><small id="appointmentStatus">Requested — not confirmed</small></div><span class="appointment-symbol" aria-hidden="true">▦</span></div>
+        <p class="panel-footnote">Colzo would read only what an authorised user is permitted to see. No records were imported here.</p>
+      </article>
+
+      <article class="panel intelligence-panel"><div class="panel-heading"><span class="panel-kicker">02 / COLZO SUGGESTION</span><span class="pill accent-outline">HUMAN REVIEW</span></div>
+        <div class="panel-title"><span class="provider-square colzo-icon" aria-hidden="true">✳</span><div><h3>Suggested handoff</h3><p>Proposed, not automated</p></div></div>
+        <div class="suggestion"><span class="suggestion-quote" aria-hidden="true">“</span><h4>Prepare for the upcoming visit</h4><p>There’s a sample enquiry and a requested appointment. A follow-up task could help the team prepare the right parts and contact the customer.</p><div class="suggested-details"><div><span>Source</span><strong>LeadConnector enquiry</strong></div><div><span>Destination</span><strong>ClickUp task (example)</strong></div><div><span>Permission</span><strong>Explicit human approval</strong></div></div></div>
+        <div class="scenario"><label for="providerScenario">Try a scenario</label><select id="providerScenario" aria-describedby="scenarioHelp"><option value="available">Mock provider available</option><option value="unavailable">Mock provider unavailable</option></select><small id="scenarioHelp">This changes only the example’s behaviour, never an actual connection.</small></div>
+        <button class="button button-primary" id="reviewAction" type="button">Review suggested action <span aria-hidden="true">↗</span></button>
+        <p id="workflowStatus" class="workflow-status" role="status" aria-live="polite">Review the proposed handoff. Nothing will be sent to a provider.</p>
+      </article>
+
+      <article class="panel destination-panel"><div class="panel-heading"><span class="panel-kicker">03 / PROPOSED DESTINATION</span><span class="pill subtle">NOT CONNECTED</span></div>
+        <div class="panel-title"><span class="provider-square clickup-icon" aria-hidden="true">✓</span><div><h3>ClickUp follow-up</h3><p>Preview of a possible task</p></div></div>
+        <div class="task-card"><span class="field-caption">TASK PREVIEW · FICTIONAL</span><h4 id="taskTitle">Prepare fictional tap inspection</h4><p id="taskDescription">Check parts and prepare a customer follow-up.</p><div class="record-line"><span>Due date</span><strong id="taskDue">19 Nov 2026</strong></div><div class="record-line"><span>Assignee</span><strong id="taskAssignee">Example operations team</strong></div></div>
+        <div class="task-outcome" id="taskOutcome"><span class="outcome-symbol" aria-hidden="true">○</span><div><strong id="taskOutcomeTitle">No task created</strong><p id="taskOutcomeDescription">Review and approve the example to see a local simulated result.</p></div></div>
+        <p class="panel-footnote">In a future live integration, ClickUp would remain the source of truth for this task. This demo makes no provider calls.</p>
+      </article>
+    </section>
+
+    <section class="bottom-grid" id="activity"><article class="panel audit-panel"><div class="panel-heading"><span class="panel-kicker">ACTIVITY / LOCAL ONLY</span><span class="pill subtle">NO SYNC</span></div><h3>Handoff timeline</h3><ol class="activity-list" id="activityList" aria-live="polite"><li><span class="timeline-mark" aria-hidden="true"></span><span><strong>Ready to review</strong><small>Nothing sent to LeadConnector or ClickUp</small></span></li></ol></article>
+      <article class="panel value-panel"><span class="panel-kicker">WHY THIS MATTERS</span><h3>Less switching. More clarity.</h3><p>This illustrates the direction for Colzo: see the right context from existing tools, decide on the next step and keep control of the action. The real connectors still require scoped permissions, provider approval and acceptance testing.</p><div class="value-foot"><span class="micro-dot" aria-hidden="true"></span> HUMAN IN CONTROL · SOURCE SYSTEMS UNCHANGED</div></article>
+    </section>
+    <footer class="legal-footer">Colzo Development illustration · Fictional data only · No real LeadConnector/ClickUp connections, API requests, AI-generated decisions, storage or billing. <span>Not an activated pilot.</span></footer>
+  </main>
+</div>
+
+<dialog id="handoffDialog" class="approval-dialog" aria-labelledby="dialogTitle" aria-describedby="dialogDescription">
+  <div class="dialog-body"><div class="dialog-icon" aria-hidden="true">✳</div><span class="eyebrow">REVIEW REQUIRED / SIMULATION</span><h2 id="dialogTitle">Approve this example handoff?</h2><p id="dialogDescription">This would propose a sample ClickUp task based on a fictional LeadConnector enquiry. In this demonstration, approval changes only the page—no account, task or customer record will be created in either provider.</p>
+  <div class="dialog-summary"><div><span>Enquiry</span><strong id="dialogEnquiry">LC-EXAMPLE-104</strong></div><div><span>Task</span><strong id="dialogTask">Prepare fictional tap inspection</strong></div><div><span>Destination</span><strong>ClickUp · fictional only</strong></div></div>
+  <div class="dialog-actions"><button id="declineSimulated" class="button button-subtle" type="button">Decline</button><button id="approveSimulated" class="button button-primary" type="button">Simulate approval</button></div><button class="dialog-close" id="closeReview" type="button" aria-label="Close review dialog">×</button>
+  </div>
+</dialog>
+</body>
+</html>
