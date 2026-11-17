@@ -138,3 +138,12 @@ test('only the exact demonstration Preview build exposes the live-app entry poin
   assert.match(gated,/colzoFictionalDemoEnabled/);
   assert.match(gated,/public\/index\.html/);
 });
+
+
+test('visual QA captures native fixed navigation in viewport rather than a stitched full-page image', async () => {
+  const script=await readFile(new URL('../scripts/colzo-cross-app-demo-browser.cjs',import.meta.url),'utf8');
+  const start=script.indexOf("path:dir+'/approved-'+width+'.png'");
+  assert.ok(start>=0, 'Approved screenshot must be captured');
+  const call=script.slice(start,start+125);
+  assert.match(call,/fullPage:\s*false/, 'Fixed native Colzo nav must be captured in its viewport position');
+});
