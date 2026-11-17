@@ -147,3 +147,13 @@ test('visual QA captures native fixed navigation in viewport rather than a stitc
   const call=script.slice(start,start+125);
   assert.match(call,/fullPage:\s*false/, 'Fixed native Colzo nav must be captured in its viewport position');
 });
+
+
+test('visual evidence includes a top-of-page native Colzo overview before simulated clicks scroll it', async () => {
+  const script=await readFile(new URL('../scripts/colzo-cross-app-demo-browser.cjs',import.meta.url),'utf8');
+  const capture=script.indexOf("path:dir+'/native-shell-'+width+'.png'");
+  const firstClick=script.indexOf("await page.locator('#reviewAction').click()");
+  assert.ok(capture>=0, 'Native shell overview must have its own screenshot');
+  assert.ok(capture<firstClick, 'Capture the native topbar and KPI cards before scrolling to approval');
+  assert.match(script.slice(capture,capture+125),/fullPage:\s*false/);
+});
