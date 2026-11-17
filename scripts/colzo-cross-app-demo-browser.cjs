@@ -67,7 +67,7 @@ async function main(){
         'Repeated approval should not duplicate simulated tasks');
       await page.screenshot({
         path:dir+'/approved-'+width+'.png',
-        fullPage:true,animations:'disabled'
+        fullPage:false,animations:'disabled'
       });
 
       await page.locator('#resetDemo').click();
