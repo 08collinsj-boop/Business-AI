@@ -157,3 +157,11 @@ test('visual evidence includes a top-of-page native Colzo overview before simula
   assert.ok(capture<firstClick, 'Capture the native topbar and KPI cards before scrolling to approval');
   assert.match(script.slice(capture,capture+125),/fullPage:\s*false/);
 });
+
+
+test('native navigation icons and command search use the same motion stylesheet as the real app', async () => {
+  const html=await readFile(new URL('../demo/connected-workflow/index.html',import.meta.url),'utf8');
+  assert.match(html, /\/assets\/colzo-motion\.css/);
+  const nativeMotion=await readFile(new URL('../assets/colzo-motion.css',import.meta.url),'utf8');
+  assert.match(nativeMotion, /#colzoOwner \.cn-navicon svg/);
+});
