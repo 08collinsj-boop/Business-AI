@@ -29,3 +29,39 @@
 
 ## Operator decision
 External live-customer pilot remains **NO-GO** until compliant data exit and disaster recovery are independently evidenced and authorised. Do not treat a fictional gzip, a synthetic fixture or a test pass as real data-return capability.
+
+## 17 November 2026 read-only Development public-schema reconciliation
+
+**Evidence type: structural metadata only — no row reads, export, deletion, migrations or customer-data processing.** The Colzo QA operator compared `pg_catalog` public **base and partitioned tables** (`relkind in ('r','p')`) from Development project `mvwseobgkexzpmmkgcxe` with the 14 November snapshot in `lib/colzo-data-exit-coverage.js`.
+
+| Structural item | Read-only result |
+| --- | --- |
+| Current public base/partitioned tables | **53** |
+| Snapshot-classified tables | **53** |
+| Unrecognised or missing names | **0 / 0** |
+| Tables with `business_id` | **47**, all match snapshot classification |
+| Special/shared relationship cases | **6**, none incorrectly classified as `business_id` |
+| Public tables with RLS disabled | **0** |
+| Non-public table counts, *not* exported | `auth`: **27**; `storage`: **10**; `vault`: **1** |
+| Separate migration table count | `supabase_migrations`: **1** |
+
+The query used **only system catalogue metadata**:
+
+```sql
+select c.relname as table_name, c.relrowsecurity as rls_enabled,
+  exists(
+    select 1 from pg_attribute a
+    where a.attrelid = c.oid and a.attname = 'business_id'
+      and a.attnum > 0 and not a.attisdropped
+  ) as has_business_id
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and c.relkind in ('r','p')
+order by c.relname;
+```
+
+A separate count of table relations in the known `auth`, `storage`, `vault`, `public` and `supabase_migrations` schemas produced the non-public counts above. These numbers are **not** an inventory of Auth identities, MFA factors, Storage object bytes, retention classes, provider data, audit holds, private schemas, views or row-level ownership. **RLS enabled is not proof that policies or cross-tenant requests are correct.**
+
+**Regression protection added on draft PR #79:** `reconcilePublicDataExitSchema(observedTables)` in `lib/colzo-data-exit-coverage.js` consumes the same table-name/`business_id`/RLS boolean metadata and returns a fail-closed difference report for unknown, missing, misclassified, duplicate, RLS-off and malformed tables. It never connects to the database or changes data. `tests/colzo-data-exit-schema-drift.test.mjs` covers seven synthetic cases. Even a perfect match returns `pilotApproved:false` and `completeDataReturnVerified:false`. The separate 53-table + 7-domain + 9-control evidence receipt ledger is **not** marked verified as a result of this schema check.
+
+**Release conclusion unchanged:** No full or consistent customer return, Auth/MFA/Storage/Vault coverage, provider revocation, independently restorable live Development backup, approved deletion or residual proof was established. External pilot remains **NO-GO**.
