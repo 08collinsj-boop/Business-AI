@@ -90,3 +90,28 @@ test('demo publication is restricted to the exact protected feature Preview bran
   assert.match(source,/VERCEL_ENV === 'preview'/);
   assert.match(source,/demo\/connected-workflow/);
 });
+
+
+test('demo uses the actual Colzo native shell, sidebar and Work Hub styles rather than invented chrome', async () => {
+  const html=await readFile(new URL('../demo/connected-workflow/index.html',import.meta.url),'utf8');
+  assert.match(html, /id="colzoOwner" class="colzo-native"/);
+  assert.match(html, /class="cn-header"/);
+  assert.match(html, /class="cn-nav"/);
+  assert.match(html, /class="cn-desktop-workspace-context"/);
+  assert.match(html, /data-cn-screen="clickup" aria-current="page"/);
+  assert.match(html, /id="cnContent" class="cn-content"/);
+  assert.match(html, /\/assets\/icons\/colzo-mark\.svg/);
+  for(const stylesheet of ['colzo-native.css','colzo-desktop-command-centre.css','colzo-connected-workspace.css'])
+    assert.ok(html.includes('/assets/'+stylesheet), 'Reuse the actual '+stylesheet);
+  assert.doesNotMatch(html, /class="sidebar"|class="brand-mark"/);
+});
+
+test('demo matches native Work Hub wording and does not pretend its navigation is a live signed-in workspace', async () => {
+  const html=await readFile(new URL('../demo/connected-workflow/index.html',import.meta.url),'utf8');
+  assert.match(html, /Work Hub/);
+  assert.match(html, /Fictional demonstration/);
+  assert.match(html, /No external actions/);
+  assert.match(html, /concept preview/i);
+  assert.match(html, /No live integrations/);
+  assert.doesNotMatch(html, /verified connected provider|synced from your account/i);
+});
