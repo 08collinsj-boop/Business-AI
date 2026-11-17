@@ -65,3 +65,23 @@ A separate count of table relations in the known `auth`, `storage`, `vault`, `pu
 **Regression protection added on draft PR #79:** `reconcilePublicDataExitSchema(observedTables)` in `lib/colzo-data-exit-coverage.js` consumes the same table-name/`business_id`/RLS boolean metadata and returns a fail-closed difference report for unknown, missing, misclassified, duplicate, RLS-off and malformed tables. It never connects to the database or changes data. `tests/colzo-data-exit-schema-drift.test.mjs` covers seven synthetic cases. Even a perfect match returns `pilotApproved:false` and `completeDataReturnVerified:false`. The separate 53-table + 7-domain + 9-control evidence receipt ledger is **not** marked verified as a result of this schema check.
 
 **Release conclusion unchanged:** No full or consistent customer return, Auth/MFA/Storage/Vault coverage, provider revocation, independently restorable live Development backup, approved deletion or residual proof was established. External pilot remains **NO-GO**.
+
+## 17 November 2026 — current draft-export column and primary-key audit (read-only)
+
+This check is **separate** from the 53-table inventory reconciliation above. Using `pg_catalog` metadata only, the QA reviewer compared the current **40** `PREVIEW_DATASETS` allowlisted projections and the `TENANT_EXPORT_PRIMARY_KEYS` pagination/sort-key definitions from `lib/colzo-tenant-export-engine.js` with the Development project's actual public-table columns and primary-key ordinals. No application rows, owner identities, customer records or file bytes were queried.
+
+| Metadata-only check | Result |
+| --- | --- |
+| Active allowlisted draft-export datasets | **40** |
+| Explicit selected field references | **390 / 390 exist** in the current public schema |
+| Expected primary-key ordering | **40 / 40 matches** current PostgreSQL primary keys |
+| Missing/unknown dataset tables in the selected projection | **0 / 0** |
+| Inspected selected tables with RLS disabled | **0** |
+| Relevant unclassified public tables | **13 deliberately deferred**, unchanged; see `DEFERRED_PUBLIC_DATA_CLASSES` |
+| Customer export, retention, secure delivery or deletion verified | **No** |
+
+The read-only verification used `pg_class`, `pg_namespace`, `pg_attribute`, and `pg_index` to obtain table names, selected column names, primary-key ordinal order and the RLS-enabled bit. It did **not** evaluate row contents, RLS policy quality, API grants, role-specific owner/MFA acceptance, snapshot consistency or the customer's right to receive any particular field.
+
+The added `lib/colzo-tenant-export-schema-audit.js` implements a pure `assessDraftTenantExportSchema(observedTables)` contract for metadata-shaped inputs. Missing tables/selected columns, changes to primary keys, RLS-off tables, duplicates, unexpected tables, or malformed catalog entries return an explicit structural failure. Seven synthetic regression cases in `tests/colzo-tenant-export-schema-audit.test.mjs` cover these behaviours; the checker also ran against live **metadata** and reported `schemaMatchesDeclaredExport: true`. Both `realExportVerified` and `pilotApproved` are **always false**.
+
+This is **not** a permanent live schema polling task, an executable data-export feature or permission to enable the disabled draft export. Future checks must use a new independently obtained metadata snapshot. Full Auth/MFA, Storage *bytes*, Vault, provider-revocation, tenant-scoping/holds, encrypted return and independently restorable recovery gates remain outstanding. **External pilot NO-GO.**
