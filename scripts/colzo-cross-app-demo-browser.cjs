@@ -32,7 +32,23 @@ async function main(){
           errors.push('Unexpected nonlocal/write request: '+r.method()+' '+url.origin);
       });
       await page.goto(base+'/demo/connected-workflow/index.html',{waitUntil:'networkidle'});
-      assert.match(await page.title(),/Connected workflow concept/);
+      assert.match(await page.title(),/Work Hub — fictional connected workflow/);
+      assert.equal(await page.locator('#colzoOwner .cn-header').count(),1,
+        'Use Colzo real native topbar rather than a custom concept header');
+      assert.equal(await page.locator('#colzoOwner .cn-nav').count(),1,
+        'Reuse Colzo existing sidebar and mobile navigation');
+      assert.equal(await page.locator('#colzoOwner .cn-desktop-workspace-context').count(),1);
+      assert.equal(await page.locator('#colzoOwner .cn-nav button[data-cn-screen="clickup"]').getAttribute('aria-current'),'page');
+      if(width>=1100) {
+        assert.equal(await page.locator('#colzoOwner .cn-desktop-nav-extra').isVisible(),true,
+          'Desktop must show real Colzo business tools navigation');
+        assert.equal(await page.locator('#colzoOwner .cn-header .cn-command-trigger').isVisible(),true,
+          'Desktop must include the native command-centre top search');
+      } else {
+        assert.equal(await page.locator('#colzoOwner .cn-nav').isVisible(),true,
+          'Mobile must retain the original bottom navigation');
+      }
+
       assert.match(await page.locator('.safety-strip').innerText(),/Fictional demonstration/);
       assert.match(await page.locator('.safety-strip').innerText(),/not connected/i);
       assert.equal(await page.locator('#taskOutcomeTitle').innerText(),'No task created');
