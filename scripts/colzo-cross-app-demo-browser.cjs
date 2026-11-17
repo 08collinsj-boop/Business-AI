@@ -54,6 +54,13 @@ async function main(){
       assert.equal(await page.locator('#taskOutcomeTitle').innerText(),'No task created');
       assert.equal(await page.locator('#activityList li').count(),2);
 
+      // Actual Colzo fixed sidebar/header and four compact KPIs at the top,
+      // before Playwright scrolls to the lower approval controls.
+      await page.screenshot({
+        path:dir+'/native-shell-'+width+'.png',
+        fullPage:false,animations:'disabled'
+      });
+
       await page.locator('#reviewAction').click();
       assert.equal(await page.locator('#handoffDialog').isVisible(),true);
       assert.equal(await page.locator('#taskOutcomeTitle').innerText(),'No task created',
