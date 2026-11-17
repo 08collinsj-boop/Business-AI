@@ -115,3 +115,26 @@ test('demo matches native Work Hub wording and does not pretend its navigation i
   assert.match(html, /No live integrations/);
   assert.doesNotMatch(html, /verified connected provider|synced from your account/i);
 });
+
+
+test('actual authenticated Work Hub includes fictional-demo link only behind the feature-preview flag', async () => {
+  const native=await readFile(new URL('../assets/colzo-native.js',import.meta.url),'utf8');
+  const start=native.indexOf('function renderWorkHubCatalog()');
+  const end=native.indexOf('function myWorkScreen()',start);
+  assert.ok(start>=0 && end>start);
+  const catalog=native.slice(start,end);
+  assert.match(catalog,/colzoFictionalDemoEnabled === true/);
+  assert.match(catalog,/\/demo\/connected-workflow\//);
+  assert.match(catalog,/fictional/i);
+  assert.match(catalog,/not connected/i);
+  assert.doesNotMatch(native.slice(native.indexOf('const WORK_HUB_PROVIDERS='),start),/LeadConnector/);
+});
+
+test('only the exact demonstration Preview build exposes the live-app entry point', async () => {
+  const build=await readFile(new URL('../scripts/build-colzo-react.mjs',import.meta.url),'utf8');
+  const start=build.indexOf("if (process.env.VERCEL_ENV === 'preview'\n      && process.env.VERCEL_GIT_COMMIT_REF === 'feature/colzo-fictional-cross-app-demo-20261117')");
+  assert.ok(start>=0, 'Feature Preview gate must remain exact');
+  const gated=build.slice(start,build.indexOf('\n  }',start));
+  assert.match(gated,/colzoFictionalDemoEnabled/);
+  assert.match(gated,/public\/index\.html/);
+});
