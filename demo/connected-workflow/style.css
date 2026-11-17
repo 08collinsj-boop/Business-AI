@@ -215,3 +215,117 @@ a { color: inherit; text-decoration: none }
 }
 @media(max-width:360px){.top-controls { flex-wrap: wrap }.overview-card { padding: 11px 7px }.overview-label { font-size: 8px }.overview-card small { font-size: 7px }}
 @media(prefers-reduced-motion: reduce){html { scroll-behavior: auto }.button { transition: none; transform: none!important }.approval-dialog::backdrop { backdrop-filter: none }}
+
+
+/* Visual parity layer: use Colzo's REAL native owner shell and desktop
+   command-centre CSS above this file. The following styles only govern
+   the fictional Work Hub content area; never alter the app's navigation. */
+#colzoOwner .cn-demo-root{width:100%;min-width:0;margin:0;color:#f6f8fa;font-size:12px}
+#colzoOwner .cn-demo-disclaimer{margin:0 0 26px;padding:10px 13px;border:1px solid #485a3b;border-radius:11px;background:#1b2621;color:#b4c7a9;font-size:11px;line-height:1.55}
+#colzoOwner .cn-demo-disclaimer strong{color:#c8ff2e}
+#colzoOwner .cn-demo-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin:0 0 24px}
+#colzoOwner .cn-demo-heading-copy{min-width:0;max-width:780px}
+#colzoOwner .cn-demo-heading .cn-kicker{color:#aebfd2;font-size:10px;letter-spacing:.085em;font-weight:760}
+#colzoOwner .cn-demo-heading h1{font-size:35px;font-weight:810;letter-spacing:-1.15px;line-height:1.08;margin:14px 0 7px;color:#f8fafb}
+#colzoOwner .cn-demo-heading p{font-size:12px;color:#a7b6c7;line-height:1.6;margin:0;max-width:720px}
+#colzoOwner .cn-demo-heading-actions{display:flex;gap:9px;align-items:center;flex-shrink:0;margin-top:12px}
+#colzoOwner .cn-demo-tag{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;line-height:1.2;font-size:9px;font-weight:730;letter-spacing:.025em;border-radius:7px;background:#202a20;color:#c8ff2e;border:1px solid #415434;white-space:nowrap}
+#colzoOwner .cn-demo-reset{min-height:40px;padding:9px 13px;border:1px solid #343f48;border-radius:10px;background:#1a222b;color:#e1e7e8;font-size:11px;font-weight:700}
+#colzoOwner .cn-demo-reset:hover{border-color:#62784a}
+#colzoOwner .cn-demo-briefing{display:flex;justify-content:space-between;align-items:center;gap:18px;border:1px solid #354a32;background:#172023;border-radius:17px;min-height:144px;padding:24px 27px;margin-bottom:23px}
+#colzoOwner .cn-demo-briefing-label{display:inline-flex;align-items:center;gap:12px;color:#f3f6f7;font-size:13px;font-weight:770}
+#colzoOwner .cn-demo-spark{color:#c8ff2e;font-size:22px;line-height:1}
+#colzoOwner .cn-demo-briefing p{font-size:14px;line-height:1.5;margin:14px 0 12px;color:#f4f7f9}
+#colzoOwner .cn-demo-briefing small{color:#92a9b8;font-size:10px}
+#colzoOwner .cn-demo-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 24px}
+#colzoOwner .cn-demo-stats article{min-width:0;min-height:121px;border:1px solid #323c46;border-radius:15px;padding:18px 19px;background:#171d25;display:flex;flex-direction:column}
+#colzoOwner .cn-demo-stats article:first-child{border-color:#354a30}
+#colzoOwner .cn-demo-stats article span{font-size:11px;color:#b3c3d0;font-weight:600}
+#colzoOwner .cn-demo-stats article strong{font-size:31px;letter-spacing:-.9px;line-height:1.1;font-weight:790;color:white;margin-top:8px}
+#colzoOwner .cn-demo-stats article small{font-size:10px;color:#a1b9d1;line-height:1.35;margin-top:auto;padding-top:3px}
+#colzoOwner .cn-demo-section{margin-bottom:11px}
+#colzoOwner .cn-demo-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin:0 0 11px}
+#colzoOwner .cn-demo-section-head h2{font-size:16px;font-weight:790;color:#f6f8fa;margin:0 0 6px}
+#colzoOwner .cn-demo-section-head p{color:#a6b5c3;font-size:11px;line-height:1.45;margin:0}
+#colzoOwner .cn-demo-flow{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr);gap:8px;align-items:center;margin:0 0 14px;padding:14px 18px;border:1px solid #344047;background:#171e25;border-radius:13px}
+#colzoOwner .cn-demo-flow>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+#colzoOwner .cn-demo-flow strong{font-size:11px;color:#edf1f3;font-weight:770}
+#colzoOwner .cn-demo-flow small{font-size:9px;color:#94a6b9}
+#colzoOwner .cn-demo-flow>span{text-align:center;font-size:15px;color:#c8ff2e}
+#colzoOwner .columns{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#colzoOwner .panel{background:#151a22;border:1px solid #303b46;box-shadow:none;border-radius:13px;padding:18px}
+#colzoOwner .intelligence-panel{border-color:#46583a;background:#172020}
+#colzoOwner .panel-heading{margin-bottom:17px}
+#colzoOwner .panel-kicker{color:#a5b8cd;font-size:9px;letter-spacing:.1em}
+#colzoOwner .panel-title{margin-bottom:16px;gap:11px}
+#colzoOwner .panel-title h3{font-size:14px;letter-spacing:-.2px;font-weight:770}
+#colzoOwner .panel-title p{color:#a8b5c4;font-size:10px}
+#colzoOwner .provider-square{border:1px solid #39434c;background:#202833;color:#c8ff2e;border-radius:10px;font-size:17px}
+#colzoOwner .lead-icon{border-color:#414656;color:#c8ff2e;background:#252b32}
+#colzoOwner .clickup-icon{border-color:#414656;color:#d0dded;background:#252b32}
+#colzoOwner .record,#colzoOwner .task-card{border:1px solid #303b45;background:#121921;border-radius:11px;padding:15px}
+#colzoOwner .record h4,#colzoOwner .task-card h4{color:#f6f8fa;font-size:13px;line-height:1.38;font-weight:750}
+#colzoOwner .record p,#colzoOwner .task-card p{font-size:10px;color:#a4b3c4;line-height:1.65}
+#colzoOwner .field-caption{color:#9fafc1;font-size:9px;letter-spacing:.08em}
+#colzoOwner .person{border-bottom:1px solid #303943}
+#colzoOwner .avatar{background:#27372d;color:#c8ff2e}
+#colzoOwner .record-line{font-size:10px;line-height:1.45}
+#colzoOwner .record-line span{color:#9badbd}
+#colzoOwner .record-line strong{color:#e6edf2}
+#colzoOwner .appointment{border:1px solid #3e5139;background:#202a23;border-radius:11px;padding:13px}
+#colzoOwner .appointment strong{font-size:11px}
+#colzoOwner .appointment-symbol{background:#2e3e29}
+#colzoOwner .panel-footnote{color:#93a5b4}
+#colzoOwner .suggestion{background:#121d1c;border:1px solid #344c3b;padding:16px;border-radius:11px}
+#colzoOwner .suggestion h4{font-size:14px;margin:0 24px 9px 0}
+#colzoOwner .suggestion p{font-size:10px;color:#b6c7c2}
+#colzoOwner .suggested-details{border-top-color:#37483f}
+#colzoOwner .suggested-details div{font-size:9px}
+#colzoOwner .scenario{margin-top:15px}
+#colzoOwner .scenario select{border:1px solid #485950;background:#202c27}
+#colzoOwner .scenario label{font-size:11px}
+#colzoOwner .button-primary{background:#c8ff2e;color:#111b0b;box-shadow:none}
+#colzoOwner .task-outcome{background:#222b31;border:1px dashed #4b5862}
+#colzoOwner .task-outcome.approved{background:#23352a;border-color:#516c40}
+#colzoOwner .task-outcome.approved .outcome-symbol::before{background:#23352a}
+#colzoOwner .bottom-grid{grid-template-columns:1.45fr 1fr;gap:14px;margin-top:14px}
+#colzoOwner .audit-panel,#colzoOwner .value-panel{background:#151a22}
+#colzoOwner .value-panel{border-color:#354534}
+#colzoOwner .value-panel h3{font-size:17px}
+#colzoOwner .cn-demo-footer{margin-top:20px;border-top:1px solid #303b46;padding:18px 0;color:#95a7bb;font-size:10px;line-height:1.6}
+#colzoOwner .pill{background:#27312c;color:#afc6ae;border-color:#3b4c3c}
+#colzoOwner .pill.accent-outline{color:#c8ff2e}
+#colzoOwner .workflow-status{color:#a9bdaf}
+#colzoOwner .value-foot{color:#c8ff2e;font-weight:640}
+.approval-dialog{background:#1a2325;border-color:#4f6340}
+.approval-dialog .dialog-body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+@media (max-width:1099px){
+ #colzoOwner .cn-demo-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #colzoOwner .columns{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #colzoOwner .intelligence-panel{grid-column:2;grid-row:1}
+ #colzoOwner .destination-panel{grid-column:span 2}
+ #colzoOwner .bottom-grid{grid-template-columns:1fr}
+}
+@media (max-width:700px){
+ #colzoOwner .cn-demo-disclaimer{margin-bottom:17px;font-size:10px}
+ #colzoOwner .cn-demo-heading{display:block;margin-bottom:19px}
+ #colzoOwner .cn-demo-heading h1{font-size:27px;margin:9px 0}
+ #colzoOwner .cn-demo-heading p{font-size:11px}
+ #colzoOwner .cn-demo-heading-actions{margin-top:12px;justify-content:space-between}
+ #colzoOwner .cn-demo-reset{min-height:37px}
+ #colzoOwner .cn-demo-briefing{min-height:125px;padding:16px;margin-bottom:14px}
+ #colzoOwner .cn-demo-briefing>.cn-demo-tag{display:none}
+ #colzoOwner .cn-demo-briefing p{font-size:12px}
+ #colzoOwner .cn-demo-stats{gap:8px;margin-bottom:24px}
+ #colzoOwner .cn-demo-stats article{padding:13px;min-height:109px;border-radius:13px}
+ #colzoOwner .cn-demo-stats article strong{font-size:25px}
+ #colzoOwner .cn-demo-flow{padding:10px;gap:5px}
+ #colzoOwner .cn-demo-flow strong{font-size:9px}
+ #colzoOwner .cn-demo-flow small{font-size:8px}
+ #colzoOwner .columns{grid-template-columns:1fr;gap:11px}
+ #colzoOwner .intelligence-panel{grid-row:2;grid-column:auto}
+ #colzoOwner .destination-panel{grid-column:auto}
+ #colzoOwner .panel{padding:16px}
+ #colzoOwner .bottom-grid{grid-template-columns:1fr}
+ #colzoOwner .cn-demo-root{padding-bottom:40px}
+}
