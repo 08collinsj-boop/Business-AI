@@ -4815,6 +4815,7 @@ const headers=new Headers(options.headers||{});
 if(frontendAuthEnabled&&supabaseClient){
 if(requestUrl.origin!==window.location.origin)throw new Error('Invalid API request');
 const {data:{session}}=await supabaseClient.auth.getSession();
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 if(!session){handleSession(null);throw new Error('Your session has expired.');}
 if(window.colzoPreviewAuthTransportEnabled){
   // HTTPS same-origin only. The dispatcher/direct entrypoints restore this
@@ -4835,6 +4836,7 @@ if(!response.ok&&['/api/legal','/api/business-onboarding','/api/business-configu
 let result=null;
 
 try{result=await response.json()}catch{}
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 if(response.status===401&&typeof colzoLoginFailure!=='undefined'&&colzoLoginFailure?.path===requestUrl.pathname&&window.colzoPreviewAuthTransportEnabled){
   // Safe Preview-only label for the owner's acceptance screenshot.
   const sent= headers.has('X-Colzo-Supabase-Authorization') || headers.has('Authorization');
@@ -4860,9 +4862,11 @@ if(response.status===401&&supabaseClient){
     }
     verificationError=verification?.error||null;
   }catch(error){
+    if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
     if(error?.message==='The application rejected a valid sign-in. Please retry or contact support.')throw error;
     throw new Error('Could not verify this request. Your sign-in has been preserved; please retry.');
   }
+  if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
   if([401,403].includes(Number(verificationError?.status))){
     await supabaseClient.auth.signOut({scope:'local'});
     throw new Error('Your session has expired.');
@@ -4872,6 +4876,7 @@ if(response.status===401&&supabaseClient){
 if(response.status===403&&result?.code==='MFA_REQUIRED'){
 if(!mfaRetried&&typeof window.businessAiVerifyProtectedAction==='function'){
 const verified=await window.businessAiVerifyProtectedAction();
+if(dataEpoch!==privateDataEpoch)throw new Error('Session changed');
 if(verified)return api(url,options,true);
 throw new Error('Complete two-step verification in Account security, then try this action again.');
 }

@@ -21,7 +21,7 @@ function fixture(response,authUser={id:'owner-1'},authError=null){
     privateDataEpoch:0, // Same generation guard provided by the actual page bootstrap.
     supabaseClient:{auth},
     Headers, URL,
-    fetch:async()=>{calls.fetches++;return {status:response.status,ok:response.status>=200&&response.status<300,json:async()=>response.body};},
+    fetch:async()=>{calls.fetches++;return {status:response.status,ok:response.status>=200&&response.status<300,json:response.json||(async()=>response.body)};},
     handleSession:async()=>{throw Error('Unexpected navigation');}
   };
   // Bridge is loaded before the owner script in the actual browser.
@@ -60,4 +60,69 @@ test('auth bootstrap ignores token refresh, deduplicates same user and defers wo
   assert.match(html,/window\.setTimeout\(\(\)=>\{bootstrapAuthSession\(/);
   assert.match(html,/if\(event==='PASSWORD_RECOVERY'\)/);
   assert.match(html,/if\(passwordRecoveryActive&&nextSession\)return;/);
+});
+
+test('a response decoded after logout cannot launch MFA or reverify the former session', async()=>{
+  for (const status of [200,401,403]) {
+    let decode, started;
+    const bodyPending=new Promise(resolve=>{decode=resolve});
+    const decoding=new Promise(resolve=>{started=resolve});
+    const {api,calls,context}=fixture({status,json:()=>{started();return bodyPending;}});
+    let mfa=0;
+    context.window.businessAiVerifyProtectedAction=async()=>{mfa++;return false;};
+    const pending=api('/api/knowledge');
+    const denied=assert.rejects(pending,/Session changed/);
+    await decoding;
+    context.privateDataEpoch++;
+    decode(status===403?{code:'MFA_REQUIRED'}:{privateRecord:'fictional former workspace'});
+    await denied;
+    assert.equal(mfa,0,'stale responses cannot reopen the MFA flow');
+    assert.equal(calls.getUser,0,'stale responses cannot verify the current session');
+    assert.equal(calls.signouts.length,0);
+  }
+});
+
+test('logout during MFA verification prevents retrying the former authenticated request', async()=>{
+  const {api,calls,context}=fixture({status:403,body:{code:'MFA_REQUIRED'}});
+  let finish,started;
+  const verification=new Promise(resolve=>{finish=resolve});
+  const verifying=new Promise(resolve=>{started=resolve});
+  context.window.businessAiVerifyProtectedAction=()=>{started();return verification;};
+  const pending=api('/api/knowledge');
+  const denied=assert.rejects(pending,/Session changed/);
+  await verifying;
+  context.privateDataEpoch++;
+  finish(true);
+  await denied;
+  assert.equal(calls.fetches,1,'the old request must not retry in the new session');
+});
+
+test('logout during session lookup prevents sending a request with the former token', async()=>{
+  const {api,calls,context}=fixture({status:200,body:{}});
+  let finish,started;
+  const lookup=new Promise(resolve=>{finish=resolve});
+  const lookingUp=new Promise(resolve=>{started=resolve});
+  context.supabaseClient.auth.getSession=()=>{started();return lookup;};
+  const pending=api('/api/knowledge');
+  const denied=assert.rejects(pending,/Session changed/);
+  await lookingUp;
+  context.privateDataEpoch++;
+  finish({data:{session:{access_token:'former-synthetic-token'}}});
+  await denied;
+  assert.equal(calls.fetches,0);
+});
+
+test('logout during token verification cannot sign out a replacement session', async()=>{
+  const {api,calls,context}=fixture({status:401,body:{}});
+  let finish,started;
+  const lookup=new Promise(resolve=>{finish=resolve});
+  const lookingUp=new Promise(resolve=>{started=resolve});
+  context.supabaseClient.auth.getUser=()=>{started();return lookup;};
+  const pending=api('/api/knowledge');
+  const denied=assert.rejects(pending,/Session changed/);
+  await lookingUp;
+  context.privateDataEpoch++;
+  finish({data:{user:null},error:{status:401}});
+  await denied;
+  assert.equal(calls.signouts.length,0);
 });
