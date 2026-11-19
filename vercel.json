@@ -1,4 +1,9 @@
 {
+  "git": {
+    "deploymentEnabled": {
+      "feature/colzo-dev-qa-role-provisioning-20261119": false
+    }
+  },
   "rewrites": [
     {
       "source": "/",
