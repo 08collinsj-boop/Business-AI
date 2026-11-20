@@ -117,3 +117,19 @@ test('deferred reviewer uses the existing canonical export classification', asyn
   const {DEFERRED_PUBLIC_DATA_CLASSES} = await import('../lib/colzo-tenant-export-classification.js');
   assert.equal(DEFERRED_PUBLIC_EXPORT_RISKS, DEFERRED_PUBLIC_DATA_CLASSES);
 });
+
+test('a review disposition must be an own property, not inherited from a prototype', () => {
+  const pretendApproval = Object.assign(Object.create({disposition:'requires_separate_legal_review'}), {
+    reason:'Synthetic reviewer records a provisional risk',
+    receipt:'synthetic-receipt-12345',
+    reviewer:'synthetic-reviewer-abc'
+  });
+  const reviews=Object.fromEntries(Object.keys(DEFERRED_PUBLIC_EXPORT_RISKS).map(name=>[name,{
+    disposition:'requires_separate_legal_review',reason:'Synthetic reviewer records a provisional risk',
+    receipt:'synthetic-receipt-12345',reviewer:'synthetic-reviewer-abc'
+  }]));
+  reviews.business_referrals=pretendApproval;
+  const result=assessDeferredPublicExportReview({reviews});
+  assert.deepEqual(result.missingReviews,['business_referrals']);
+  assert.equal(result.reviewPackComplete,false);
+});
