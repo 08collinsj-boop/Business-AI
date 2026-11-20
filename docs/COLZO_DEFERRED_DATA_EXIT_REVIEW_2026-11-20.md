@@ -46,6 +46,12 @@ The historical limitations above have been superseded for repository execution, 
 
 This documentation update does not change application behaviour. Full data return, deletion, recovery, role/token, operational/legal and deferred physical-device gates below remain open. **External pilot NO-GO.**
 
+## Approved source baseline
+
+The metadata reviewer compares the canonical public table and ownership pairs and the exact draft-export field projections with SHA-256 fingerprints pinned to the independently reviewed PR #83 source at `390e182f`. Putting the same change in the canonical source and in a caller override cannot clear a baseline mismatch. Table declaration order is ignored. Field projection strings are compared exactly.
+
+An intentional change to either canonical declaration requires explicit approval of the exact scope or field diff before the corresponding fingerprint is updated. Record the reviewer, approval reference and approved commit in the PR. Review ownership and the sensitivity and entitlement of each changed field alongside the existing deferred classification. Keep the source change and fingerprint change together for review. Leave a mismatch failing closed while approval is pending. Updating the fingerprint does not authorise real data return, deletion or pilot use.
+
 ## Remaining data-return / deletion blockers
 
 1. Confirm an actual controller instruction, identity/address/privacy/DPA decisions, lawful retention holds, operator and independent reviewer.

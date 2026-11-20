@@ -1,5 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { PUBLIC_DATA_EXIT_SCOPE } from '../lib/colzo-data-exit-coverage.js';
 import { PREVIEW_DATASETS } from '../lib/colzo-tenant-export-engine.js';
 import { DEFERRED_PUBLIC_EXPORT_RISKS, assessDeferredPublicExportReview } from '../lib/colzo-deferred-public-export-review.js';
@@ -24,6 +28,7 @@ test('the thirteen recorded deferrals match the existing 53-table / 40-allowlist
   assert.deepEqual(Object.keys(DEFERRED_PUBLIC_EXPORT_RISKS).sort(),expected);
   const report=assessDeferredPublicExportReview();
   assert.equal(report.matchesRecordedDeferrals,true);
+  assert.deepEqual(report.approvedBaselineMismatches, []);
   assert.deepEqual(report.deferredTables,expected);
   assert.deepEqual(report.missingReviews,expected);
   assert.equal(report.reviewPackComplete,false);
@@ -142,3 +147,58 @@ test('expanding or replacing a recorded field projection fails the metadata revi
     assert.deepEqual(result.previewProjectionMismatches, ['leads']);
   }
 });
+
+const scopeFile = 'colzo-data-exit-coverage.js';
+const engineFile = 'colzo-tenant-export-engine.js';
+const reviewFile = 'colzo-deferred-public-export-review.js';
+
+const sourceDriftCases = [
+  ['wildcard', { [engineFile]: [[PREVIEW_DATASETS.leads, '*']] }, ['projections']],
+  ['added sensitive field', {
+    [engineFile]: [[PREVIEW_DATASETS.leads, PREVIEW_DATASETS.leads + ',internal_secret']]
+  }, ['projections']],
+  ['removed field', {
+    [engineFile]: [[PREVIEW_DATASETS.leads, PREVIEW_DATASETS.leads.replace(',notes,', ',')]]
+  }, ['projections']],
+  ['changed ownership', {
+    [scopeFile]: [["business_referrals: 'two_business_parties'", "business_referrals: 'business_id'"]]
+  }, ['ownershipScope']],
+  ['substituted table at unchanged counts', {
+    [scopeFile]: [['`leads lead_history', '`unexpected_export_table lead_history']],
+    [engineFile]: [['  leads:', '  unexpected_export_table:']]
+  }, ['ownershipScope', 'projections']]
+];
+
+for (const [label, edits, expectedDrift] of sourceDriftCases) {
+  test(`canonical source drift fails closed: ${label}`, async (t) => {
+    const fixture = await mkdtemp(join(tmpdir(), 'colzo-export-review-'));
+    t.after(() => rm(fixture, { recursive: true, force: true }));
+    await writeFile(join(fixture, 'package.json'), '{"type":"module"}');
+
+    const lib = new URL('../lib/', import.meta.url);
+    const modules = [scopeFile, engineFile, reviewFile, 'colzo-tenant-export-classification.js',
+      'colzo-data-exit-review-baseline.js'];
+
+    await Promise.all(modules.map(async name => {
+      let source = await readFile(new URL(name, lib), 'utf8');
+      for (const [before, after] of edits[name] ?? []) {
+        assert.ok(source.includes(before), `Fixture edit did not match ${name}`);
+        source = source.replace(before, after);
+      }
+      await writeFile(join(fixture, name), source);
+    }));
+
+    const { assessDeferredPublicExportReview: assess } = await import(pathToFileURL(join(fixture, reviewFile)));
+    for (const inputs of [{ reviews: reviewed }, {
+      reviews: reviewed, publicScope: PUBLIC_DATA_EXIT_SCOPE, previewDatasets: PREVIEW_DATASETS
+    }]) {
+      const result = assess(inputs);
+      assert.equal(result.matchesRecordedDeferrals, false);
+      assert.equal(result.reviewPackComplete, false);
+      assert.deepEqual(result.approvedBaselineMismatches, expectedDrift);
+      assert.equal(result.completeDataReturnVerified, false);
+      assert.equal(result.deletionAuthorised, false);
+      assert.equal(result.pilotApproved, false);
+    }
+  });
+}
