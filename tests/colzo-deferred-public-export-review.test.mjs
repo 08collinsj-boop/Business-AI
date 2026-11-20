@@ -71,3 +71,14 @@ test('missing, malformed and duplicated snapshot inputs cannot produce review co
   assert.equal(duplicate.reviewPackComplete,false);
   assert.deepEqual(duplicate.duplicatePublicTables,[PUBLIC_DATA_EXIT_SCOPE[0].name]);
 });
+
+test('changing a recorded public ownership scope fails closed, even with valid review receipts',()=>{
+  const changed = PUBLIC_DATA_EXIT_SCOPE.map(row => row.name === 'business_referrals'
+    ? {...row,scope:'business_id'} : row);
+  const result = assessDeferredPublicExportReview({publicScope:changed,reviews:reviewed});
+  assert.equal(result.matchesRecordedDeferrals,false);
+  assert.equal(result.reviewPackComplete,false);
+  assert.deepEqual(result.ownershipScopeMismatches,[{
+    table_name:'business_referrals', expectedScope:'two_business_parties', observedScope:'business_id'
+  }]);
+});
