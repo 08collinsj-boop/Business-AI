@@ -111,3 +111,9 @@ test('inherited review entries and inherited receipt fields never satisfy docume
   assert.deepEqual(result.missingReviews,['business_referrals','businesses']);
   assert.equal(result.reviewPackComplete,false);
 });
+
+// Governance: only one canonical classification list can exist.
+test('deferred reviewer uses the existing canonical export classification', async () => {
+  const {DEFERRED_PUBLIC_DATA_CLASSES} = await import('../lib/colzo-tenant-export-classification.js');
+  assert.equal(DEFERRED_PUBLIC_EXPORT_RISKS, DEFERRED_PUBLIC_DATA_CLASSES);
+});
