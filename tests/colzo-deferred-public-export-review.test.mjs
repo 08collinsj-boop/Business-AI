@@ -1,0 +1,73 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { PUBLIC_DATA_EXIT_SCOPE } from '../lib/colzo-data-exit-coverage.js';
+import { PREVIEW_DATASETS } from '../lib/colzo-tenant-export-engine.js';
+import { DEFERRED_PUBLIC_EXPORT_RISKS, assessDeferredPublicExportReview } from '../lib/colzo-deferred-public-export-review.js';
+
+const expected = [
+  'business_audit_events','business_referrals','businesses',
+  'colzo_pilot_access','colzo_whatsapp_demo_threads','customer_enquiry_access',
+  'customer_profiles','marketing_meta_oauth_states','pilot_free_access_config',
+  'platform_incident_controls','public_enquiry_rate_limit_buckets',
+  'stripe_webhook_events','user_legal_acceptances'
+];
+
+const reviewed = Object.fromEntries(expected.map(table=>[table,{
+  disposition:'requires_separate_legal_review',
+  reason:'Synthetic reviewer notes the tenant and legal hold risks',
+  receipt:'fictional-risk-review-2026', reviewer:'fictional-independent-reviewer'
+}]));
+
+test('the thirteen recorded deferrals match the existing 53-table / 40-allowlist snapshot', () => {
+  assert.equal(PUBLIC_DATA_EXIT_SCOPE.length,53);
+  assert.equal(Object.keys(PREVIEW_DATASETS).length,40);
+  assert.deepEqual(Object.keys(DEFERRED_PUBLIC_EXPORT_RISKS).sort(),expected);
+  const report=assessDeferredPublicExportReview();
+  assert.equal(report.matchesRecordedDeferrals,true);
+  assert.deepEqual(report.deferredTables,expected);
+  assert.deepEqual(report.missingReviews,expected);
+  assert.equal(report.reviewPackComplete,false);
+  assert.equal(report.completeDataReturnVerified,false);
+  assert.equal(report.deletionAuthorised,false);
+  assert.equal(report.pilotApproved,false);
+});
+
+test('unrecognised table names or an included deferred class fail closed', () => {
+  const foreignScope=[...PUBLIC_DATA_EXIT_SCOPE,{name:'new_sensitive_records',scope:'business_id'}];
+  const drift=assessDeferredPublicExportReview({publicScope:foreignScope,reviews:reviewed});
+  assert.deepEqual(drift.unrecognisedDeferredTables,['new_sensitive_records']);
+  assert.equal(drift.reviewPackComplete,false);
+  const widened={...PREVIEW_DATASETS,customer_profiles:'id,business_id'};
+  const overreach=assessDeferredPublicExportReview({previewDatasets:widened,reviews:reviewed});
+  assert.deepEqual(overreach.unexpectedlyIncludedTables,['customer_profiles']);
+  assert.equal(overreach.reviewPackComplete,false);
+});
+
+test('no review can be considered documented without full explicit receipt fields',()=>{
+  const invalid={...reviewed,businesses:{...reviewed.businesses,reviewer:''}};
+  const result=assessDeferredPublicExportReview({reviews:invalid});
+  assert.deepEqual(result.missingReviews,['businesses']);
+  assert.equal(result.reviewPackComplete,false);
+  const unknown=assessDeferredPublicExportReview({reviews:{...reviewed,unexpected_secret:{...reviewed.businesses}}});
+  assert.deepEqual(unknown.unknownReviewTables,['unexpected_secret']);
+  assert.equal(unknown.reviewPackComplete,false);
+});
+
+test('even all documented synthetic reviews never activate export, deletion or pilot',()=>{
+  const result=assessDeferredPublicExportReview({reviews:reviewed});
+  assert.equal(result.reviewPackComplete,true);
+  assert.equal(result.completeDataReturnVerified,false);
+  assert.equal(result.deletionAuthorised,false);
+  assert.equal(result.pilotApproved,false);
+});
+
+test('missing, malformed and duplicated snapshot inputs cannot produce review completion',()=>{
+  for(const input of [null,{},'wrong',[]]){
+    const result=assessDeferredPublicExportReview({publicScope:input,reviews:reviewed});
+    assert.equal(result.matchesRecordedDeferrals,false);
+    assert.equal(result.reviewPackComplete,false);
+  }
+  const duplicate=assessDeferredPublicExportReview({publicScope:[...PUBLIC_DATA_EXIT_SCOPE,PUBLIC_DATA_EXIT_SCOPE[0]],reviews:reviewed});
+  assert.equal(duplicate.reviewPackComplete,false);
+  assert.deepEqual(duplicate.duplicatePublicTables,[PUBLIC_DATA_EXIT_SCOPE[0].name]);
+});
