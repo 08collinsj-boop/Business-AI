@@ -40,7 +40,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  await page.evaluate(()=>{
   settings={business_name:'Fixture Colzo'};leads=[{id:41,name:'Existing Fixture',job_type:'Repairs',status:'New',created_at:'2026-10-13T10:00:00Z'}];bookings=[];businessActions=[];
   supabaseClient={auth:{getSession:async()=>({data:{session:{access_token:'fixture-token'}}}),getUser:async()=>({data:{user:{id:'fixture-owner'}}})}};
-  document.body.className='colzo-safe-shell colzo-interface auth-ready';window.ColzoOwner.onAuthState('auth-ready');
+  document.body.className='colzo-safe-shell colzo-interface auth-ready';window.ColzoOwner.dashboardLoaded();window.ColzoOwner.onAuthState('auth-ready');
  });
  await page.locator('.cn-nav [data-cn-screen="enquiries"]').click();
  await page.locator('[data-cn-create-lead]').first().click();

@@ -19,7 +19,7 @@ test('home never fetches provider tasks in the background and instead uses an ex
 });
 test('workspace summary displays escaped task titles and distinguishes unavailable from empty',()=>{
  assert.match(native,/safe\(task\.title\)/);
- assert.match(native,/ClickUp is not connected|Open ClickUp workspace/);
+ assert.match(native,/No verified work app connection|Open Work Hub/);
  assert.match(native,/No open ClickUp tasks on this page/);
  assert.match(css,/cn-dash-clickup/);
 });

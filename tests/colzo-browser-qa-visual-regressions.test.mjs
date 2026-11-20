@@ -47,8 +47,8 @@ test('QA-004: narrow header menu and search both have min 44x44 touch targets',(
  assert.match(styles,/\.cn-header :is\(\.cn-wordmark,\.cn-command-trigger\)\{min-width:44px!important;min-height:44px!important/);
 });
 test('updated visual assets are cache-busted in protected Preview HTML',()=>{
- assert.match(html(),/colzo-connected-workspace\.css\?v=20261113-qa-visual-v1/);
- assert.match(html(),/colzo-native\.js\?v=20261113-d01-d03-v1/);
+ assert.match(html(),/colzo-connected-workspace\.css\?v=20261120-mobile-qa-v1/);
+ assert.match(html(),/colzo-native\.js\?v=20261120-mobile-qa-v1/);
 });
 
 

@@ -37,11 +37,11 @@
  const greetingLine=()=>`${greeting()},`;
  function clickupHomeSummary(){
    const connected=state.clickupStatus?.connected===true;
-   if(state.clickupLoading)return '<p class="cn-dash-clickup-notice" role="status">Refreshing authorised ClickUp tasks…</p>';
+   if(state.clickupLoading)return '<p class="cn-dash-clickup-notice" role="status">Refreshing authorised work app tasks…</p>';
    if(state.clickupError)return '<p class="cn-dash-clickup-notice" role="alert">'+safe(state.clickupError)+'</p>';
-   if(!state.clickupStatus)return '<p class="cn-dash-clickup-notice">ClickUp connection has not been checked. Refresh the workspace to review available tasks.</p>';
-   if(!connected)return '<p class="cn-dash-clickup-notice">ClickUp is not connected. Your current business records remain available in Colzo.</p>';
-   if(!Array.isArray(state.clickupTasks?.tasks))return '<p class="cn-dash-clickup-notice">ClickUp tasks are not loaded. Refresh the workspace to see current priorities.</p>';
+   if(!state.clickupStatus)return '<p class="cn-dash-clickup-notice">Work app connection has not been checked. Refresh the workspace to review available tasks.</p>';
+   if(!connected)return '<p class="cn-dash-clickup-notice">No verified work app connection. Your current business records remain available in Colzo.</p>';
+   if(!Array.isArray(state.clickupTasks?.tasks))return '<p class="cn-dash-clickup-notice">Connected tasks are not loaded. Refresh the workspace to see current priorities.</p>';
    const data=state.clickupTasks;
    const overdue=data?.summary?.overdue;
    const dueSoon=data?.summary?.dueSoon;
@@ -1259,7 +1259,7 @@
     '<div class="cn-form-actions"><button class="cn-secondary" type="button" data-cn-screen="knowledge">Business Knowledge</button><button class="cn-secondary" type="button" data-cn-setting="integrations">Integrations</button></div></section>';
  }
  function more(){
-  const moreItems=[['company','♧','Company workspace','Shared work and staff roles'],['myWork','✓','My Work','Your assigned tasks and deadlines'],['clickup','▦','Work Hub','Connect your work tools, starting with ClickUp'],['analytics','▥','Analytics','Recorded activity and opportunity value'],['publicProfile','◈','Public profile','Customer-facing business details'],['feedback','?','Help and feedback','Send a secure feedback report'],['automations','↻','Automations','Read current automation status'],['billing','◈','Billing','Current plan and feature access'],['knowledge','◇','Business knowledge','Facts and accuracy review'],['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['growth','↗','Growth & sharing','Review requests, reminders, QR links and referrals'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
+  const moreItems=[['company','♧','Company workspace','Shared work and staff roles'],['myWork','✓','My Work','Your assigned tasks and deadlines'],['clickup','▦','Work Hub','Connect and manage your business tools'],['analytics','▥','Analytics','Recorded activity and opportunity value'],['publicProfile','◈','Public profile','Customer-facing business details'],['feedback','?','Help and feedback','Send a secure feedback report'],['automations','↻','Automations','Read current automation status'],['billing','◈','Billing','Current plan and feature access'],['knowledge','◇','Business knowledge','Facts and accuracy review'],['receptionist','✦','AI receptionist','Phone answering and handover status'],['projects','▦','Projects','Track saved work and progress'],['clients','♧','Customers','Saved customer records'],['quotes','£','Quotes','Saved quote records'],['enquiries','▤','Enquiries','Review and manage customer requests'],['bookings','▣','Bookings','Calendar and appointments'],['actions','✓','Actions','Tasks and follow-ups'],['marketing','✧','Marketing','Draft library and scheduled posts'],['growth','↗','Growth & sharing','Review requests, reminders, QR links and referrals'],['profile','▤','Business profile','Your business details'],['team','♧','Team members','Invitations and access'],['integrations','⌁','Integrations','Connected services'],['notifications','◐','Notifications','Device permissions and preferences'],['appearance','✦','Appearance','Motion and display'],['security','⬡','Security','Authentication and session protection'],['help','?','Help and support','Get help or send feedback']];
   const business=typeof settings!=='undefined'?String(settings?.business_name||'Your business'):'Your business';
   const choices=[['▤','Business profile','Manage your business details','profile'],['♧','Team members','Invite and manage your team','team'],['⌁','Integrations','Manage connected services','integrations'],['◐','Notifications','Device alerts and preferences','notifications'],['◐','Appearance','Motion, contrast and display','appearance'],['⬡','Security','Password and two-factor authentication','security'],['?','Help & support','Get help or contact our team','help']];
   return `<header class="cf-screen-top cf-settings-title"><h1>Settings</h1><button type="button" class="cf-icon-button cn-settings-search" data-cn-command aria-label="Search Colzo tools">⌕</button></header><div class="cf-profile"><span class="cf-profile-avatar">${initial(business)}</span><div><strong>${safe(business)}</strong><small>Business account</small><small>Connected workspace</small></div><button data-cn-setting="profile" aria-label="Open business profile" type="button">›</button></div>
@@ -1303,7 +1303,7 @@
      body=settingPanel('Your team',`${list}<button type="button" class="cn-settings-outline" data-cn-refresh-team>Refresh team ↻</button>`,'♧')+(state.teamData&&!state.teamError&&!state.teamLoading?settingPanel('Invite a team member',`<p class="cn-settings-hint">Invitations create a secure link for you to share. They do not automatically email the recipient.</p><form id="cnInviteTeam" class="cn-settings-form"><label for="cnInviteEmail">Email address<input id="cnInviteEmail" name="email" type="email" maxlength="320" placeholder="staff@example.co.uk" required></label><label for="cnInviteRole">Access level<select id="cnInviteRole" name="role"><option value="member">Staff member</option><option value="admin">Admin</option></select></label><button class="cn-settings-save" type="submit" ${state.settingsBusy?'disabled':''}>Create secure invitation</button><p id="cnInviteFeedback" class="cn-settings-feedback" role="status">${safe(state.inviteFeedback)}${state.inviteUrl?`<span class="cn-invite-share"><input value="${safe(state.inviteUrl)}" readonly aria-label="New invitation link"/><button type="button" data-cn-copy-invite>Copy link</button></span>`:''}</p></form>`,'✉'):settingPanel('Owner-only access','<p class="cn-settings-hint">Only a verified business owner can manage invitations. Company staff can work in the shared workspace.</p><button type="button" class="cn-secondary" data-cn-screen="company">Open company workspace</button>','♧'))+settingPanel('Advanced access',`${settingsButton('Manage existing invitations','Review and revoke existing access using your original secure tools','settings')}`,'⬡');
      if(!loaded&&state.teamData===null)body=body.replace('Your team','Your team');
    }else if(key==='integrations'){
-     body=settingPanel('Work Hub',settingsButton('Open Work Hub','Manage connected work tools, starting with ClickUp','clickup'),'▦')+settingPanel('Marketing channels',`<p class="cn-settings-hint">Manage connected social channels and approved publishing within the existing Marketing workspace.</p>${settingsButton('Facebook and social publishing','View connections, drafts and publishing permissions','marketing','↗')}`,'⌁')+settingPanel('Website and enquiries',`<div class="cn-settings-status"><span><strong>Website assistant</strong><small>Embed configuration is not yet available in Colzo. Existing website integrations are preserved.</small></span><strong>Unavailable</strong></div>${settingsButton('Customer-facing business page','View your listing and public profile controls','businessProfile')}`,'▤')+`<p class="cn-settings-note">Colzo does not claim that an integration is connected until your account confirms it.</p>`;
+     body=settingPanel('Work Hub',settingsButton('Open Work Hub','Manage connected business applications','clickup'),'▦')+settingPanel('Marketing channels',`<p class="cn-settings-hint">Manage connected social channels and approved publishing within the existing Marketing workspace.</p>${settingsButton('Facebook and social publishing','View connections, drafts and publishing permissions','marketing','↗')}`,'⌁')+settingPanel('Website and enquiries',`<div class="cn-settings-status"><span><strong>Website assistant</strong><small>Embed configuration is not yet available in Colzo. Existing website integrations are preserved.</small></span><strong>Unavailable</strong></div>${settingsButton('Customer-facing business page','View your listing and public profile controls','businessProfile')}`,'▤')+`<p class="cn-settings-note">Colzo does not claim that an integration is connected until your account confirms it.</p>`;
    }else if(key==='notifications'){
      const supported=typeof Notification!=='undefined'&&window.isSecureContext;
      const permission=supported?Notification.permission:'unavailable';
@@ -1508,6 +1508,7 @@
  async function saveNativeBusiness(form){
    const feedback=content.querySelector('#cnBusinessFeedback');
    if(state.settingsBusy)return;
+   const submittedDraft=JSON.stringify([...new FormData(form).entries()]);
    const fields=new FormData(form),updates={};
    for(const key of ['business_name','business_type','phone','email','address'])updates[key]=String(fields.get(key)||'').trim();
    if(!updates.business_name){if(feedback)feedback.textContent='Please enter your business name.';return}
@@ -1517,6 +1518,7 @@
      if(typeof api!=='function')throw new Error('Saving is unavailable in this preview.');
      const saved=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(updates)});
      if(typeof settings!=='undefined'){settings=saved;if(typeof fillSettings==='function')fillSettings()}
+     if(JSON.stringify([...new FormData(form).entries()])===submittedDraft)delete form.dataset.cnDirty;
      if(feedback)feedback.textContent='Business details saved successfully.';
    }catch(error){if(feedback)feedback.textContent=error?.message||'Your changes could not be saved.';}
    finally{state.settingsBusy=false;if(button)button.disabled=false}
@@ -1641,12 +1643,43 @@
       </section>
    </div>`;
  }
+ // VisualViewport tracks the keyboard's actual visible area on iOS Safari.
+ // This does not change authentication, record contents or any API calls.
+ function syncWorkDialogViewport(){
+   const backdrop=root.querySelector('.cn-work-dialog-backdrop');
+   if(!backdrop)return;
+   const viewport=window.visualViewport;
+   const height=viewport?.height||window.innerHeight;
+   if(!Number.isFinite(height)||height<=0)return;
+   const top=Math.max(0,Math.round(viewport?.offsetTop||0));
+   backdrop.style.setProperty('--cn-work-visible-height',Math.round(height)+'px');
+   backdrop.style.setProperty('--cn-work-visible-top',top+'px');
+   const active=document.activeElement;
+   if(active&&backdrop.contains(active)&&active.matches?.('input,select,textarea')){
+     window.requestAnimationFrame?.(()=>active.scrollIntoView?.({block:'nearest',inline:'nearest'}));
+   }
+ }
+ window.visualViewport?.addEventListener('resize',syncWorkDialogViewport);
+ window.visualViewport?.addEventListener('scroll',syncWorkDialogViewport);
+ root.addEventListener('focusin',event=>{
+   if(event.target.closest?.('.cn-work-dialog'))syncWorkDialogViewport();
+ });
  const showWorkFormError=message=>{state.workFormError=message;const node=root.querySelector('#cnWorkFormError');if(node)node.textContent=message;};
  function openWorkModal(screen,id=null){
    if(!['bookings','actions'].includes(screen)||state.workBusy)return;
    if(id!=null&&(!validWorkId(id)||!workPick(screen,id)))return;
    state.workSelected=id==null?null:String(id);state.workModal=screen;state.workFormError='';state.workFeedback='';
-   render();root.querySelector('#cnWorkForm [name=title]')?.focus({preventScroll:true});
+   render();
+   syncWorkDialogViewport();
+   // Opening the sheet must not immediately summon the iPhone keyboard.
+   // Keep the desktop title autofocus used by the existing browser suites.
+   if(window.matchMedia?.('(max-width: 700px) and (pointer: coarse)')?.matches){
+     const heading=root.querySelector('#cnWorkDialogTitle');
+     heading?.setAttribute('tabindex','-1');
+     heading?.focus({preventScroll:true});
+   }else{
+     root.querySelector('#cnWorkForm [name=title]')?.focus({preventScroll:true});
+   }
  }
  function closeWorkModal(){const selected=state.workSelected;const closingForm=root.querySelector('#cnWorkForm');if(closingForm)closingForm.inert=true;dismissSurface(root.querySelector('.cn-work-dialog'),()=>{state.workModal=null;state.workSelected=null;state.workFormError='';render();const opener=selected?[...content.querySelectorAll('[data-cn-work-edit]')].find(button=>button.dataset.cnWorkEdit===selected):content.querySelector('[data-cn-work-new]');opener?.focus({preventScroll:true})})}
  function changeWorkMonth(amount){if(!Number.isInteger(amount)||Math.abs(amount)>1)return;const [y,m]=state.workDate.split('-').map(Number),date=new Date(y,m-1+amount,1);state.workDate=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;render({motion:'filter'});const calendar=content.querySelector('.cn-work-calendar');if(calendar&&allowMotion()&&typeof calendar.animate==='function')motionRun.push(calendar.animate([{opacity:.65,transform:`translate3d(${amount*8}px,0,0)`},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:200,easing:'cubic-bezier(.2,.85,.22,1)'}))}
@@ -1714,8 +1747,8 @@
    });
    const verifiedConnected=providers.filter(app=>app.connected).length;
    const pending=providers.some(app=>app.status==='Not checked'||app.status==='Checking…');
-   const count=pending?'Connection status not yet confirmed':verifiedConnected+' of '+providers.length+' work apps connected';
-   const cards=providers.map(app=>'<article class="cn-workhub-provider" aria-label="'+safe(app.label)+' integration"><div class="cn-workhub-provider-identity"><span class="cn-workhub-provider-mark" aria-hidden="true">'+safe(app.mark)+'</span><span><strong>'+safe(app.label)+'</strong><small>'+safe(app.description)+'</small></span></div><div class="cn-workhub-provider-controls"><span class="cn-workhub-provider-status" role="status">'+safe(app.status)+'</span><button type="button" class="cn-secondary" '+app.refreshAction+' '+(app.loading?'disabled':'')+'>Refresh '+safe(app.label)+'</button></div></article>').join('');
+   const count=pending?'Connection status not yet confirmed':(verifiedConnected===0?'No work apps connected':verifiedConnected+' work '+(verifiedConnected===1?'app':'apps')+' connected');
+   const cards=providers.map(app=>{const connect=app.id==='clickup'&&!state.clickupStatus?.connected?'<button type="button" class="cn-secondary" data-clickup-connect '+(!state.clickupStatus?.configured||state.clickupStatus?.canManage!==true||state.clickupBusy||app.loading?'disabled':'')+'>Connect '+safe(app.label)+'</button>':'';return '<article class="cn-workhub-provider" aria-label="'+safe(app.label)+' integration"><div class="cn-workhub-provider-identity"><span class="cn-workhub-provider-mark" aria-hidden="true">'+safe(app.mark)+'</span><span><strong>'+safe(app.label)+'</strong><small>'+safe(app.description)+'</small></span></div><div class="cn-workhub-provider-controls"><span class="cn-workhub-provider-status" role="status">'+safe(app.status)+'</span><button type="button" class="cn-secondary" '+app.refreshAction+' '+(app.loading?'disabled':'')+'>Refresh '+safe(app.label)+'</button>'+connect+'</div></article>';}).join('');
    return '<section class="cn-workhub-catalog" aria-label="Work app connections"><div class="cn-workhub-catalog-heading"><div><span class="cn-kicker">YOUR WORK APPS</span><h2>Connected tools</h2></div><span class="cn-workhub-catalog-count">'+safe(count)+'</span></div><div class="cn-workhub-app-grid">'+cards+'<div class="cn-workhub-future"><span aria-hidden="true" class="cn-workhub-future-icon">+</span><div><strong>More integrations</strong><p>Each new work app will appear here only after its integration is available and authorised. No other apps are connected through Work Hub yet.</p></div></div></div></section>';
  }
 
@@ -1767,7 +1800,7 @@
      '<button type="button" data-cn-screen="actions"><span aria-hidden="true">'+companyToolIcon('check')+'</span><strong>Actions and follow-ups</strong><small>View and update company tasks</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
      '<button type="button" data-cn-screen="projects"><span aria-hidden="true">'+companyToolIcon('projects')+'</span><strong>Projects</strong><small>Manage saved company projects</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
      '<button type="button" data-cn-screen="bookings"><span aria-hidden="true">'+companyToolIcon('calendar')+'</span><strong>Bookings</strong><small>Review team appointments</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button>'+
-     '<button type="button" data-cn-screen="clickup"><span aria-hidden="true">'+companyToolIcon('link')+'</span><strong>Work Hub / ClickUp</strong><small>Connected tasks require authorised permissions</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button></div></section>';
+     '<button type="button" data-cn-screen="clickup"><span aria-hidden="true">'+companyToolIcon('link')+'</span><strong>Work Hub</strong><small>Manage approved business app connections</small><b class="cn-company-tool-arrow" aria-hidden="true">'+companyToolIcon('arrow')+'</b></button></div></section>';
    const owner=loaded&&role==='owner'?'<section class="cn-company-owner"><div><span class="cn-kicker">OWNER CONTROLS</span><h2>Team and invitations</h2><p>Review membership and invitations. Pilot invitations stay managed until secure seat allocation is approved.</p></div><button type="button" class="cn-secondary" data-cn-setting="team">Manage team access</button></section>':'';
    return '<div class="cn-company-workspace">'+heading+notice+summary+quickActions+owner+'<p class="cn-company-boundary">Individual task assignments and staff-level ClickUp scopes still require further development. A company connection does not give every employee the owner&#39;s ClickUp permissions.</p></div>';
  }
@@ -1784,13 +1817,13 @@
      state.clickupListError?'<p class="cn-work-message" role="alert">'+safe(state.clickupListError)+'</p><button type="button" data-clickup-retry-lists class="cn-secondary">Retry list lookup</button>':
      !listOptions.length?'<p class="cn-caption">No available lists were found in the permitted ClickUp spaces. Nothing has been created.</p><button type="button" data-clickup-retry-lists class="cn-secondary">Refresh lists</button>':
      state.clickupLists?.truncated?'<p class="cn-caption">Showing a limited set of authorised lists. Use ClickUp for lists outside this selection.</p>':'';
-   const heads='<header class="cf-screen-top cn-clickup-heading"><div><span class="cn-kicker">CONNECTED WORK TOOLS</span><h1>Work Hub</h1><p class="cn-caption">Manage work across your business apps in one place. ClickUp is the first supported work integration.</p></div></header>'+renderWorkHubCatalog();
+   const heads='<header class="cf-screen-top cn-clickup-heading"><div><span class="cn-kicker">CONNECTED WORK TOOLS</span><h1>Work Hub</h1><p class="cn-caption">Manage work across your business apps in one place. Connect approved applications here; each remains its own source of truth.</p></div></header>'+renderWorkHubCatalog();
    const error=state.clickupError?'<p class="cn-work-message" role="alert">'+safe(state.clickupError)+'</p>':'';
    const message=state.clickupMessage?'<p class="cn-work-message" role="status">'+safe(state.clickupMessage)+'</p>':'';
    if(state.clickupLoading&&!s)return heads+empty('Checking your ClickUp connection…');
    if(connected&&s?.canViewTasks===false)return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><h2>ClickUp is connected to your company</h2><p>This ClickUp connection was authorised by a different user. You cannot browse their tasks or inherit their task permissions. Company actions remain available in Colzo.</p><button type="button" class="cn-secondary" data-cn-screen="company">Back to company workspace</button>'+(s.canDisconnect===true?'<button type="button" class="cn-secondary cn-clickup-disconnect" data-clickup-disconnect>Disconnect company connection</button>':'')+'</section>';
    if(!connected){
-     return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><span class="cn-kicker">CONNECT YOUR TOOLS</span><h2>Bring ClickUp into Colzo</h2><p>Projects, tasks and deadlines stay in ClickUp, while your day-to-day work appears here.</p><p class="cn-caption">'+(!s?'Connection status has not been checked.':s.configured?'Authorise an existing ClickUp workspace to get started.':'Connection setup is not yet available for this pilot environment.')+'</p><button type="button" class="cn-settings-save" data-clickup-connect '+(!s?.configured||s?.canManage!==true||state.clickupBusy?'disabled':'')+'>Connect ClickUp</button></section>';
+     return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><span class="cn-kicker">CONNECT YOUR TOOLS</span><h2>Your tools, connected.</h2><p>Choose an available app from the catalogue above. Each app keeps its own records and permissions. Additional providers, including LeadConnector, require separate development and authorisation.</p><p class="cn-caption">'+(!s?'Connection status has not been checked.':s.configured?'Review an available app and authorise its required permissions to get started.':'Connection setup is not yet available for this pilot environment.')+'</p></section>';
    }
    const reconnect=connected&&canManage&&s?.configured?'<button type="button" class="cn-secondary" data-clickup-connect>Reconnect ClickUp</button>':'';
    const disconnectWhenUnavailable=canManage?'<button type="button" class="cn-secondary cn-clickup-disconnect" data-clickup-disconnect>Disconnect ClickUp</button>':'';
@@ -2111,7 +2144,7 @@
    {label:'Enquiries',detail:'Find and manage customer requests',glyph:'▤',screen:'enquiries'},
    {label:'Company workspace',detail:'Shared tasks, bookings, projects and team',glyph:'♧',screen:'company'},
    {label:'My Work',detail:'Assigned tasks and deadlines',glyph:'✓',screen:'myWork'},
-   {label:'Work Hub',detail:'Connected work apps, including ClickUp',glyph:'▦',screen:'clickup'},
+   {label:'Work Hub',detail:'Connected business applications',glyph:'▦',screen:'clickup'},
    {label:'Projects',detail:'Track saved work and progress',glyph:'▦',screen:'projects'},
    {label:'Customers',detail:'Saved clients, customer profiles and enquiry contacts',glyph:'♧',screen:'clients'},
    {label:'Quotes',detail:'Create and manage saved draft quotes',glyph:'£',screen:'quotes'},
