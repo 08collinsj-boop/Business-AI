@@ -82,3 +82,32 @@ test('changing a recorded public ownership scope fails closed, even with valid r
     table_name:'business_referrals', expectedScope:'two_business_parties', observedScope:'business_id'
   }]);
 });
+
+test('replacement of an ordinary recorded table with an unrecognised included table fails closed', () => {
+  const replacedScope=PUBLIC_DATA_EXIT_SCOPE.filter(row=>row.name!=='leads');
+  replacedScope.push({name:'previously_unknown_sensitive_dataset',scope:'business_id'});
+  const substitutedPreview={...PREVIEW_DATASETS};
+  delete substitutedPreview.leads;
+  substitutedPreview.previously_unknown_sensitive_dataset='id,business_id';
+  const result=assessDeferredPublicExportReview({
+    publicScope:replacedScope, previewDatasets:substitutedPreview, reviews:reviewed
+  });
+  assert.equal(result.matchesRecordedDeferrals,false);
+  assert.equal(result.reviewPackComplete,false);
+  assert.deepEqual(result.unknownPublicTables,['previously_unknown_sensitive_dataset']);
+  assert.deepEqual(result.missingExpectedPublicTables,['leads']);
+});
+
+test('inherited review entries and inherited receipt fields never satisfy documented review', () => {
+  const inheritedReviews=Object.assign(Object.create({businesses:reviewed.businesses}),reviewed);
+  delete inheritedReviews.businesses;
+  const inheritedEntry=Object.assign(Object.create({reviewer:'fictional-independent-reviewer'}),{
+    disposition:'requires_separate_legal_review',
+    receipt:'fictional-risk-review-2026',
+    reason:'Synthetic reviewer notes the tenant and legal hold risks'
+  });
+  inheritedReviews.business_referrals=inheritedEntry;
+  const result=assessDeferredPublicExportReview({reviews:inheritedReviews});
+  assert.deepEqual(result.missingReviews,['business_referrals','businesses']);
+  assert.equal(result.reviewPackComplete,false);
+});
