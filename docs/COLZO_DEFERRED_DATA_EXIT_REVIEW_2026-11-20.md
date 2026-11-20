@@ -23,14 +23,28 @@ This is the explicit, non-executable review of the 13 public tables intentionall
 
 ## Implemented non-executable check
 
-`lib/colzo-deferred-public-export-review.js` declares a provisional risk explanation for each deferred name and `assessDeferredPublicExportReview` checks that the recorded 53-table public scope and 40-table draft allowlist have not widened or drifted silently. It rejects unknown/duplicate/malformed public scope inputs, unexpectedly included deferred tables, unrecognised new tables, missing reviews and unknown review receipts. Even a complete synthetic review returns `completeDataReturnVerified:false`, `deletionAuthorised:false` and `pilotApproved:false`. No SQL, Storage, network, customer rows, or executable erasure exists in this module.
+`lib/colzo-deferred-public-export-review.js` reuses the canonical `DEFERRED_PUBLIC_DATA_CLASSES` risk classification for each deferred name and `assessDeferredPublicExportReview` checks that the recorded 53-table public scope and 40-table draft allowlist have not widened or drifted silently. It rejects unknown/duplicate/malformed public scope inputs, unexpectedly included deferred tables, unrecognised new tables, missing reviews and unknown review receipts. Even a complete synthetic review returns `completeDataReturnVerified:false`, `deletionAuthorised:false` and `pilotApproved:false`. No SQL, Storage, network, customer rows, or executable erasure exists in this module.
 
-## Verification and adoption boundaries
+## Historical isolated verification and adoption boundaries
 
 - Detached test candidate parent: PR #82 `7fee001d4b14c5b5291b984df64ae0acc25be31d`. No branch push, PR update or Vercel deployment.
 - Local isolated fixture with matching 53/40 table names: `node --test tests/colzo-deferred-public-export-review.test.mjs` **5/5 PASS**, `node --check` PASS. Local `git hash-object` values matched the two published GitHub blobs.
 - **Not run:** the repository-wide `npm test && npm run verify:local` (the source checkout is not available in this executor), live database metadata, protected authenticated browser, controller authorisation and independent review.
 - Before adoption: establish a verified Vercel ignore-build guard for a new isolated branch *without changing Production behaviour*; attach candidate, run full repository tests, review source drift and update evidence. Never infer GO from a standalone fixture.
+
+## Full-checkout verification update — 20 November, 20:18 UK
+
+The historical limitations above have been superseded for repository execution, while remaining intact as earlier evidence. Draft PR #83 attaches the complete candidate chain to `qa/colzo-data-exit-review-20261120`, stacked on unchanged draft #82. Application/test commit `610fffffc173f0da36315cb12a5f9d77cdf47f15` adds a reproduced projection-drift regression: adding a column, wildcard, narrowing or malformed projection now rejects review completion against the canonical allowlist. Review receipts still require own documented fields; no export or deletion was activated.
+
+- Clean lockfile install `npm ci`; full original candidate verification: 1,994 passed. RED projection regression: 10 passed / 1 failed. Corrected focused suite: 11 passed.
+- Final application-code `npm run verify`: **1,995 passed**, zero failures/skips; **472 JavaScript files** and secret/temporary-marker checks passed. Node 24.22.3 / npm 11.19.1. Published source matched the tested working tree exactly.
+- Chromium layout: 375/390/430 phones, 1366/1440 desktops passed. Native workflow/logout: seven sizes passed. MFA: four sizes passed. These are fictional fixtures, with keyboard geometry explicitly simulated, not physical Safari or actual authentication factors.
+- Separate PR #80 `fd42097d`: 17 pure demo checks and four browser sizes passed; no provider writes. Not combined with this branch.
+- Exact-branch build-ignore gate installed/read back in both linked Vercel projects before branch creation. Twelve environment/branch cases passed. Actual app/site attempts were **CANCELED** because the ignore command returned exit 0; no new READY Preview. Production and the existing protected #82/#81 deployments remain unchanged.
+- Read-only Development metadata: 53 public plus two private base/partitioned tables, all RLS enabled. Six no-policy INFO findings remain consistent with prior deny-by-default ACL evidence; leaked-password protection WARN remains open. No database/Auth/RLS changes.
+- Hosted browser currently shows sign-in, with no private content in DOM. Preserve the unchanged deployed #82 owner MFA, workflow, 340/454px reflow and logout evidence; this run does not claim new authenticated browser acceptance. A fresh hosted rerun requires secure sign-in and genuine MFA.
+
+This documentation update does not change application behaviour. Full data return, deletion, recovery, role/token, operational/legal and deferred physical-device gates below remain open. **External pilot NO-GO.**
 
 ## Remaining data-return / deletion blockers
 
