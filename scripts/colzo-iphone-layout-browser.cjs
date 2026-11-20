@@ -55,7 +55,7 @@ async function main(){
     const clearance=await page.evaluate(()=>({last:document.querySelector('.cn-duo button:last-child').getBoundingClientRect().bottom,nav:document.querySelector('.cn-nav').getBoundingClientRect().top}));
     assert.ok(clearance.last<=clearance.nav,`Last shortcut must scroll clear of bottom navigation: ${JSON.stringify(clearance)}`);
    }
-   await page.screenshot({path:path.join(shots,`home-${width}.png`),fullPage:false});
+   await page.screenshot({path:path.join(shots,`home-${width}.jpg`),type:'jpeg',quality:75,fullPage:false});
    await nav('enquiries').click();
    await page.locator('[data-cn-create-lead]').first().click();
    const buttons=await page.locator('#cnLeadForm .cn-form-actions button').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return{x:r.x,right:r.right,top:r.top,bottom:r.bottom,height:r.height};}));
@@ -63,14 +63,14 @@ async function main(){
    for(const b of buttons)assert.ok(b.x>=0&&b.right<=width+1,'Enquiry action must fit width');
    if(mobile){assert.ok(buttons[1].top>=buttons[0].bottom,'Enquiry actions must stack');assert.ok(buttons.every(b=>b.height>=44));}
    await page.locator('#cnLeadForm .cn-form-actions button:last-child').scrollIntoViewIfNeeded();
-   await page.screenshot({path:path.join(shots,`enquiry-${width}.png`),fullPage:false});
+   await page.screenshot({path:path.join(shots,`enquiry-${width}.jpg`),type:'jpeg',quality:75,fullPage:false});
    await page.locator('[data-cn-lead-cancel]').click();
    await nav('bookings').click();await page.locator('[data-cn-work-new]').first().click();
    const focus=mobile?'#cnWorkDialogTitle':'#cnWorkForm [name=title]';
    assert.ok(await page.locator(focus).evaluate(e=>e===document.activeElement),'Initial modal focus');
    const dateBoxes=await page.locator('#cnWorkForm [name=starts_at],#cnWorkForm [name=ends_at]').evaluateAll(els=>els.map(e=>{const r=e.getBoundingClientRect();return{x:r.x,top:r.top,bottom:r.bottom,right:r.right};}));
    if(mobile)assert.ok(dateBoxes[1].top>=dateBoxes[0].bottom,'Phone date fields must be single column');
-   await page.screenshot({path:path.join(shots,`booking-closed-keyboard-${width}.png`),fullPage:false});
+   await page.screenshot({path:path.join(shots,`booking-closed-keyboard-${width}.jpg`),type:'jpeg',quality:75,fullPage:false});
    if(mobile){
     // Keep the layout viewport unchanged, like iOS. Only the visual viewport shrinks.
     await page.evaluate(()=>{
@@ -86,7 +86,7 @@ async function main(){
     await page.locator('#cnWorkForm').evaluate(f=>f.scrollTop=f.scrollHeight);
     const submit=await page.locator('#cnWorkForm [type=submit]').boundingBox();
     assert.ok(submit.y>=35&&submit.y+submit.height<=396,'Submit reachable above simulated keyboard');
-    await page.screenshot({path:path.join(shots,`booking-simulated-keyboard-${width}.png`),fullPage:false});
+    await page.screenshot({path:path.join(shots,`booking-simulated-keyboard-${width}.jpg`),type:'jpeg',quality:75,fullPage:false});
     await page.evaluate(h=>{visualViewport.height=h;visualViewport.offsetTop=0;visualViewport.dispatchEvent(new Event('resize'));},height);
    }
    await page.locator('#cnWorkForm [name=title]').press('Escape');
@@ -100,7 +100,7 @@ async function main(){
    assert.equal(await page.locator('.cn-workhub-provider').count(),1);
    assert.equal(await page.locator('[data-clickup-connect]').isEnabled(),false);
    await noOverflow('Work Hub');
-   await page.screenshot({path:path.join(shots,`workhub-${width}.png`),fullPage:false});
+   await page.screenshot({path:path.join(shots,`workhub-${width}.jpg`),type:'jpeg',quality:75,fullPage:false});
    assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
    console.log(`${width}x${height}: PASS real rendered forms, navigation clearance, neutral hub, focus and ${mobile?'SIMULATED keyboard geometry':'desktop regression'}; fictional fixtures only`);
    await context.close();
