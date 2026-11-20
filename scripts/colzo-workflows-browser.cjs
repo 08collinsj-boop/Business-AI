@@ -142,8 +142,9 @@ async function main(){await sleep(550);const browser=await chromium.launch({head
   await page.locator('[data-cn-work-tab="All"]').click();
   assert.equal(await page.locator('.cn-work-record').count(),2);
   await page.locator('.cn-work-record[data-cn-work-edit="31"]').click();
-  const dialogFocused=await page.locator('#cnWorkForm [name=title]').evaluate(el=>document.activeElement===el);
-  assert.equal(dialogFocused,true,'Dialog focuses first editable field');
+  const initialFocus=width<500?'#cnWorkDialogTitle':'#cnWorkForm [name=title]';
+  assert.equal(await page.locator(initialFocus).evaluate(el=>document.activeElement===el),true,
+    width<500?'Touch dialog focuses its heading without opening the keyboard':'Desktop dialog focuses first editable field');
   await page.locator('#cnWorkForm [name=status]').selectOption('completed');
   await page.locator('#cnWorkForm [type=submit]').click();
   await page.waitForFunction(()=>!document.querySelector('#cnWorkForm'));

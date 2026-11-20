@@ -37,11 +37,11 @@
  const greetingLine=()=>`${greeting()},`;
  function clickupHomeSummary(){
    const connected=state.clickupStatus?.connected===true;
-   if(state.clickupLoading)return '<p class="cn-dash-clickup-notice" role="status">Refreshing authorised ClickUp tasks…</p>';
+   if(state.clickupLoading)return '<p class="cn-dash-clickup-notice" role="status">Refreshing authorised work app tasks…</p>';
    if(state.clickupError)return '<p class="cn-dash-clickup-notice" role="alert">'+safe(state.clickupError)+'</p>';
-   if(!state.clickupStatus)return '<p class="cn-dash-clickup-notice">ClickUp connection has not been checked. Refresh the workspace to review available tasks.</p>';
-   if(!connected)return '<p class="cn-dash-clickup-notice">ClickUp is not connected. Your current business records remain available in Colzo.</p>';
-   if(!Array.isArray(state.clickupTasks?.tasks))return '<p class="cn-dash-clickup-notice">ClickUp tasks are not loaded. Refresh the workspace to see current priorities.</p>';
+   if(!state.clickupStatus)return '<p class="cn-dash-clickup-notice">Work app connection has not been checked. Refresh the workspace to review available tasks.</p>';
+   if(!connected)return '<p class="cn-dash-clickup-notice">No verified work app connection. Your current business records remain available in Colzo.</p>';
+   if(!Array.isArray(state.clickupTasks?.tasks))return '<p class="cn-dash-clickup-notice">Connected tasks are not loaded. Refresh the workspace to see current priorities.</p>';
    const data=state.clickupTasks;
    const overdue=data?.summary?.overdue;
    const dueSoon=data?.summary?.dueSoon;
@@ -1508,6 +1508,7 @@
  async function saveNativeBusiness(form){
    const feedback=content.querySelector('#cnBusinessFeedback');
    if(state.settingsBusy)return;
+   const submittedDraft=JSON.stringify([...new FormData(form).entries()]);
    const fields=new FormData(form),updates={};
    for(const key of ['business_name','business_type','phone','email','address'])updates[key]=String(fields.get(key)||'').trim();
    if(!updates.business_name){if(feedback)feedback.textContent='Please enter your business name.';return}
@@ -1517,6 +1518,7 @@
      if(typeof api!=='function')throw new Error('Saving is unavailable in this preview.');
      const saved=await api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(updates)});
      if(typeof settings!=='undefined'){settings=saved;if(typeof fillSettings==='function')fillSettings()}
+     if(JSON.stringify([...new FormData(form).entries()])===submittedDraft)delete form.dataset.cnDirty;
      if(feedback)feedback.textContent='Business details saved successfully.';
    }catch(error){if(feedback)feedback.textContent=error?.message||'Your changes could not be saved.';}
    finally{state.settingsBusy=false;if(button)button.disabled=false}
@@ -1746,7 +1748,7 @@
    const verifiedConnected=providers.filter(app=>app.connected).length;
    const pending=providers.some(app=>app.status==='Not checked'||app.status==='Checking…');
    const count=pending?'Connection status not yet confirmed':(verifiedConnected===0?'No work apps connected':verifiedConnected+' work '+(verifiedConnected===1?'app':'apps')+' connected');
-   const cards=providers.map(app=>'<article class="cn-workhub-provider" aria-label="'+safe(app.label)+' integration"><div class="cn-workhub-provider-identity"><span class="cn-workhub-provider-mark" aria-hidden="true">'+safe(app.mark)+'</span><span><strong>'+safe(app.label)+'</strong><small>'+safe(app.description)+'</small></span></div><div class="cn-workhub-provider-controls"><span class="cn-workhub-provider-status" role="status">'+safe(app.status)+'</span><button type="button" class="cn-secondary" '+app.refreshAction+' '+(app.loading?'disabled':'')+'>Refresh '+safe(app.label)+'</button></div></article>').join('');
+   const cards=providers.map(app=>{const connect=app.id==='clickup'&&!state.clickupStatus?.connected?'<button type="button" class="cn-secondary" data-clickup-connect '+(!state.clickupStatus?.configured||state.clickupStatus?.canManage!==true||state.clickupBusy||app.loading?'disabled':'')+'>Connect '+safe(app.label)+'</button>':'';return '<article class="cn-workhub-provider" aria-label="'+safe(app.label)+' integration"><div class="cn-workhub-provider-identity"><span class="cn-workhub-provider-mark" aria-hidden="true">'+safe(app.mark)+'</span><span><strong>'+safe(app.label)+'</strong><small>'+safe(app.description)+'</small></span></div><div class="cn-workhub-provider-controls"><span class="cn-workhub-provider-status" role="status">'+safe(app.status)+'</span><button type="button" class="cn-secondary" '+app.refreshAction+' '+(app.loading?'disabled':'')+'>Refresh '+safe(app.label)+'</button>'+connect+'</div></article>';}).join('');
    return '<section class="cn-workhub-catalog" aria-label="Work app connections"><div class="cn-workhub-catalog-heading"><div><span class="cn-kicker">YOUR WORK APPS</span><h2>Connected tools</h2></div><span class="cn-workhub-catalog-count">'+safe(count)+'</span></div><div class="cn-workhub-app-grid">'+cards+'<div class="cn-workhub-future"><span aria-hidden="true" class="cn-workhub-future-icon">+</span><div><strong>More integrations</strong><p>Each new work app will appear here only after its integration is available and authorised. No other apps are connected through Work Hub yet.</p></div></div></div></section>';
  }
 
@@ -1821,7 +1823,7 @@
    if(state.clickupLoading&&!s)return heads+empty('Checking your ClickUp connection…');
    if(connected&&s?.canViewTasks===false)return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><h2>ClickUp is connected to your company</h2><p>This ClickUp connection was authorised by a different user. You cannot browse their tasks or inherit their task permissions. Company actions remain available in Colzo.</p><button type="button" class="cn-secondary" data-cn-screen="company">Back to company workspace</button>'+(s.canDisconnect===true?'<button type="button" class="cn-secondary cn-clickup-disconnect" data-clickup-disconnect>Disconnect company connection</button>':'')+'</section>';
    if(!connected){
-     return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><span class="cn-kicker">CONNECT YOUR TOOLS</span><h2>Bring ClickUp into Colzo</h2><p>Projects, tasks and deadlines stay in ClickUp, while your day-to-day work appears here.</p><p class="cn-caption">'+(!s?'Connection status has not been checked.':s.configured?'Authorise an existing ClickUp workspace to get started.':'Connection setup is not yet available for this pilot environment.')+'</p><button type="button" class="cn-settings-save" data-clickup-connect '+(!s?.configured||s?.canManage!==true||state.clickupBusy?'disabled':'')+'>Connect ClickUp</button></section>';
+     return heads+error+message+'<section class="cn-clickup-connect cn-settings-panel"><span class="cn-kicker">CONNECT YOUR TOOLS</span><h2>Your tools, connected.</h2><p>Choose an available app from the catalogue above. Each app keeps its own records and permissions. Additional providers, including LeadConnector, require separate development and authorisation.</p><p class="cn-caption">'+(!s?'Connection status has not been checked.':s.configured?'Review an available app and authorise its required permissions to get started.':'Connection setup is not yet available for this pilot environment.')+'</p></section>';
    }
    const reconnect=connected&&canManage&&s?.configured?'<button type="button" class="cn-secondary" data-clickup-connect>Reconnect ClickUp</button>':'';
    const disconnectWhenUnavailable=canManage?'<button type="button" class="cn-secondary cn-clickup-disconnect" data-clickup-disconnect>Disconnect ClickUp</button>':'';

@@ -51,10 +51,10 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
   settings={business_name:'Fixture Colzo'};leads=[{id:41,name:'Existing Fixture',job_type:'Inspection',status:'New',created_at:'2026-10-13T10:00:00Z',email:'existing@example.invalid'}];bookings=[];businessActions=[];
   authenticatedBusinessRole='owner';
   supabaseClient={auth:{getSession:async()=>({data:{session:{access_token:'fixture-token'}}}),getUser:async()=>({data:{user:{id:'fixture-owner'}}})}};
-  document.body.className='colzo-safe-shell colzo-interface auth-ready';window.ColzoOwner.onAuthState('auth-ready');
+  document.body.className='colzo-safe-shell colzo-interface auth-ready';window.ColzoOwner.dashboardLoaded();window.ColzoOwner.onAuthState('auth-ready');
  });
  // Customers: create -> server-confirmed list -> detail -> edit -> server-confirmed update.
- await page.locator('.cn-nav [data-cn-screen="more"]').click();
+ await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
  await page.locator('.cn-more-links [data-cn-screen="clients"]').click();
  await page.locator('[data-colzo-create="clients"]').click();
  await page.locator('#cnColzoForm [name=full_name]').fill('Fixture Saved Customer');
@@ -71,7 +71,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  await page.waitForFunction(()=>!document.querySelector('#cnColzoForm'));
  assert.equal(db.clients[0].phone,'07000000002');assert.equal(calls.filter(x=>x.resource==='clients'&&x.method==='PATCH').length,1);
  // Projects: create, verify list, open detail and update progress/status.
- await page.locator('.cn-nav [data-cn-screen="more"]').click();
+ await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
  await page.locator('.cn-more-links [data-cn-screen="projects"]').click();
  await page.locator('[data-colzo-create="projects"]').click();
  await page.locator('#cnColzoForm [name=title]').fill('Fixture Electrical Project');
@@ -91,7 +91,7 @@ async function main(){await sleep(600);const browser=await chromium.launch({head
  assert.equal(db.projects[0].status,'completed');assert.equal(db.projects[0].progress,100);
  assert.equal(calls.filter(x=>x.resource==='projects'&&x.method==='PATCH').length,1);
  // Quotes: create against an existing enquiry, then edit without sending or issuing it.
- await page.locator('.cn-nav [data-cn-screen="more"]').click();
+ await page.locator('.cn-nav > button[data-cn-screen="more"]').click();
  await page.locator('.cn-more-links [data-cn-screen="quotes"]').click();
  await page.locator('[data-colzo-create="quotes"]').click();
  await page.locator('#cnColzoForm [name=lead_id]').selectOption('41');

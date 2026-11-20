@@ -30,7 +30,7 @@ async function main(){await sleep(650);const browser=await chromium.launch({head
    document.body.className='colzo-safe-shell colzo-interface auth-ready';window.ColzoOwner.onAuthState('auth-ready');
   });
   const names={profile:'Business profile',team:'Team members',integrations:'Integrations',notifications:'Notifications',appearance:'Appearance',security:'Security',help:'Help & support'};
-  await page.locator('.cn-nav [data-cn-screen="more"]').click();
+  await page.locator(width>=920?'.cn-desktop-nav-extra [data-cn-screen="more"]':'.cn-nav > button[data-cn-screen="more"]').click();
   assert.equal(await page.locator('.cf-settings-list button').count(),7);
   for(const [key,heading] of Object.entries(names)){
    await page.locator(`.cf-settings-list [data-cn-setting="${key}"]`).click();
@@ -38,7 +38,7 @@ async function main(){await sleep(650);const browser=await chromium.launch({head
    assert.equal(await page.locator('#colzoOwner').isVisible(),true,`${heading}: must remain inside Colzo`);
    assert.equal(await page.locator('#dashboardApp').isVisible(),false,`${heading}: original Business AI workspace must remain hidden`);
    assert.equal(await page.locator('#cnReturnToColzo').isVisible(),false,`${heading}: no redirect back button should appear`);
-   assert.equal(await page.locator('.cn-nav [data-cn-screen="more"]').getAttribute('aria-current'),'page');
+   assert.equal(await page.locator('.cn-nav > button[data-cn-screen="more"]').getAttribute('aria-current'),'page');
    if(key==='profile'){
     assert.equal(await page.locator('#cn-setting-business_name').inputValue(),'Fixture Electrical');
     if(width===390){

@@ -51,15 +51,16 @@ test('desktop command centre has a direct connected-workspace entry',()=>{
  assert.ok(source.includes('data-cn-screen="clickup"'));
 });
 
-test('Work Hub is the multi-app navigation destination, with ClickUp identified as its first provider',()=>{
+test('Work Hub is provider-neutral navigation with ClickUp as a catalogue entry',()=>{
  const sidebar=html.match(/<button[^>]*data-cn-screen="clickup"[^>]*>[\s\S]*?<\/button>/)?.[0];
  assert.ok(sidebar,'existing internal route must remain stable');
  assert.match(sidebar,/>Work Hub<\/button>/);
  assert.match(source,/\['clickup','▦','Work Hub'/);
- assert.match(source,/label:'Work Hub',detail:'[^']*ClickUp[^']*',glyph:'▦',screen:'clickup'/);
+ assert.match(source,/label:'Work Hub',detail:'Connected business applications',glyph:'▦',screen:'clickup'/);
  assert.match(source,/<h1>Work Hub<\/h1>/);
  assert.match(source,/class="cn-workhub-provider" aria-label=/);
- assert.match(source,/ClickUp is the first supported work integration/);
+ assert.match(source,/each remains its own source of truth/);
+ assert.doesNotMatch(source,/ClickUp is the first supported work integration/);
  assert.match(source,/label:'ClickUp',description:'Tasks, projects and deadlines'/);
  assert.match(source,/safe\(app.label\)/);
  assert.match(source,/Open Work Hub/);

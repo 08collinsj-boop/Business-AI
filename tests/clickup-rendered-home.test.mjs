@@ -36,6 +36,7 @@ test('initial home does not imply a ClickUp connection before checking',()=>{
   const f=fixture(async()=>{throw Error('Should not call API until user requests refresh')});
   const text=f.content.querySelector('.cn-dash-connected').textContent;
   assert.match(text,/connection (has not been checked|not yet checked)/i);
+  assert.doesNotMatch(text,/ClickUp/,'Home introduces the neutral Work Hub');
   f.dom.window.close();
 });
 test('desktop Home refresh renders only provider-confirmed page counts with escaped titles',async()=>{
@@ -90,12 +91,15 @@ test('Work Hub shows real provider status without implying additional app connec
    throw Error('Unexpected provider request '+url);
  });
  f.w.document.querySelector('[data-cn-screen="clickup"]').click();
- await waitFor(()=>f.content.querySelector('.cn-workhub-catalog-count')?.textContent.includes('0 of 1 work apps connected'));
+ await waitFor(()=>f.content.querySelector('.cn-workhub-catalog-count')?.textContent==='No work apps connected');
  const card=f.content.querySelector('.cn-workhub-provider');
  assert.ok(card);
  assert.equal(card.getAttribute('aria-label'),'ClickUp integration');
  assert.match(card.textContent,/Setup unavailable/);
  assert.equal(f.content.querySelectorAll('.cn-workhub-provider').length,1);
+ assert.ok(card.querySelector('[data-clickup-connect]'),'Provider connection belongs inside its catalogue card');
+ assert.equal(card.querySelector('[data-clickup-connect]').disabled,true,'Unconfigured provider stays disabled');
+ assert.doesNotMatch(f.content.querySelector('.cn-clickup-connect').textContent,/ClickUp/,'Generic onboarding is provider-neutral');
  assert.match(f.content.querySelector('.cn-workhub-future').textContent,/No other apps are connected/);
  f.dom.window.close();
 });
@@ -107,7 +111,7 @@ test('Work Hub counts only confirmed ClickUp connection and never manufactures t
    throw Error('Unexpected provider request '+url);
  });
  f.w.document.querySelector('[data-cn-screen="clickup"]').click();
- await waitFor(()=>f.content.querySelector('.cn-workhub-catalog-count')?.textContent.includes('1 of 1 work apps connected'));
+ await waitFor(()=>f.content.querySelector('.cn-workhub-catalog-count')?.textContent==='1 work app connected');
  assert.match(f.content.querySelector('.cn-workhub-provider').textContent,/Connected/);
  assert.match(f.content.textContent,/No open tasks were returned/);
  assert.equal(f.content.querySelectorAll('.cn-workhub-provider').length,1);
@@ -122,7 +126,7 @@ test('Work Hub marks a failed ClickUp read as needing attention, not connected',
  });
  f.w.document.querySelector('[data-cn-screen="clickup"]').click();
  await waitFor(()=>f.content.querySelector('.cn-workhub-provider-status')?.textContent==='Needs attention');
- assert.match(f.content.querySelector('.cn-workhub-catalog-count').textContent,/0 of 1 work apps connected/);
+ assert.equal(f.content.querySelector('.cn-workhub-catalog-count').textContent,'No work apps connected');
  assert.match(f.content.textContent,/Provider unavailable/);
  f.dom.window.close();
 });
