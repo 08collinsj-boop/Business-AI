@@ -133,3 +133,12 @@ test('a review disposition must be an own property, not inherited from a prototy
   assert.deepEqual(result.missingReviews,['business_referrals']);
   assert.equal(result.reviewPackComplete,false);
 });
+
+test('expanding or replacing a recorded field projection fails the metadata review closed', () => {
+  for (const fields of [PREVIEW_DATASETS.leads + ',internal_secret', '*', 'id,business_id', null]) {
+    const result = assessDeferredPublicExportReview({previewDatasets:{...PREVIEW_DATASETS,leads:fields},reviews:reviewed});
+    assert.equal(result.matchesRecordedDeferrals, false);
+    assert.equal(result.reviewPackComplete, false);
+    assert.deepEqual(result.previewProjectionMismatches, ['leads']);
+  }
+});
