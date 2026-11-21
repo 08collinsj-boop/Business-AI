@@ -49,6 +49,31 @@ const guards = [
   ["business membership", () => requireBusinessMember(request)]
 ];
 
+for (const branch of [
+  "feature/colzo-dev-qa-role-provisioning-20261119",
+  "fix/colzo-iphone-workhub-20261120",
+  "qa/colzo-data-exit-review-20261120"
+]) {
+  test(`current security QA stack fails closed when misconfigured: ${branch}`, async () => {
+    for (const overrides of [
+      {},
+      { TENANCY_AUTH_ENABLED: "true" },
+      { COLZO_SCOPED_PILOT_ACCESS: "true" },
+      { TENANCY_AUTH_ENABLED: "true", COLZO_SCOPED_PILOT_ACCESS: "true", SUPABASE_URL: "https://wrong-fixture.supabase.co" }
+    ]) {
+      const requests = configure({ VERCEL_GIT_COMMIT_REF: branch, ...overrides });
+      for (const [name, guard] of guards) {
+        await assert.rejects(guard, { status: 403, code: "PILOT_ACCESS_REQUIRED" }, name);
+      }
+      assert.equal(requests(), 0, "deny before contacting Auth or tenant storage");
+    }
+    const requests = configure({ VERCEL_GIT_COMMIT_REF: branch,
+      TENANCY_AUTH_ENABLED: "true", COLZO_SCOPED_PILOT_ACCESS: "true" });
+    await assert.rejects(() => requireBusinessMember({ headers: {} }), { status: 401 });
+    assert.equal(requests(), 0);
+  });
+}
+
 test("Development Preview refuses missing or mismatched auth and pilot flags before network access", async () => {
   const scenarios = [
     ["both unset", {}],
